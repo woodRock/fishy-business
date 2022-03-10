@@ -189,6 +189,13 @@ The proposed algorithm allows particles to have shorter and different variable l
 Their length changing mechanism allows PSO to escape local optima.
 Results across several high dimensional datasets showed improved performance in terms of computational time, fewer features selected and classification accuracy.
 
+wolpert1997no
+-------------
+No free lunch theorum. 
+No classification algorithm that beats the rest for every problem. 
+As training instances approaches infinity, classification accuracy on all distributions of noise, approaches predicting mean class. 
+All machine learning algorithms are task specific, don't generalize to all problems, no artifical general intelligence (AGI), yet... 
+
 xue2014particle
 ---------------
 Brown et al. proposed a PSO with novel initialising and updating mechanisms.
