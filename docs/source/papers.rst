@@ -54,6 +54,13 @@ fix1989discriminatory
 ---------------------
 K-nearest neighbours (KNN).
 
+fukushima1982neocognitron
+-------------------------
+Rectified Linear Unit (ReLu) paper. 
+Activation function for neural networks. 
+Shares nice properties of linear function. 
+But allows for non-linearities to be captured. 
+
 hand2001idiot
 -------------
 Naive bayes. 
@@ -77,9 +84,23 @@ kennedy1997discrete
 -------------------
 PSO for feature selection. 
 
+kingma2014adam
+--------------
+Adam optimizer for neural networks. 
+
 koppen2000curse
 ---------------
 Curse of dimensionality. 
+
+kullback1951information
+-----------------------
+Kullback-Leibler (KL) divergence. 
+Measures distance between two probability distributions. 
+Most common loss function for deep learning with stochastic gradient descent. 
+
+lecun1989generalization
+-----------------------
+Original Convolutional Neural Network (CNN) paper. 
 
 loh2011classification
 ---------------------

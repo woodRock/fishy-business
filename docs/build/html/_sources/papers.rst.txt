@@ -16,7 +16,6 @@ The original hyperplane algorithm used a linear kernel.
 
 bi2020gc
 --------
-
 Bi et al. proposed a CNN model that incorporated GC-MS data fusion for food science.
 The high-dimensional data was naturally suited towards the CNN.
 Their work classified the flavour quality of peanut oil with 93\% accuracy.
@@ -55,6 +54,13 @@ fix1989discriminatory
 ---------------------
 K-nearest neighbours (KNN).
 
+fukushima1982neocognitron
+-------------------------
+Rectified Linear Unit (ReLu) paper. 
+Activation function for neural networks. 
+Shares nice properties of linear function. 
+But allows for non-linearities to be captured. 
+
 hand2001idiot
 -------------
 Naive bayes. 
@@ -66,6 +72,9 @@ Random forest.
 karras2020analyzing
 -------------------
 StyleGAN 
+Latent layer representation. 
+Manipulating latent layer gives a sense of semantically meaninful feature space. 
+We can see the change in style that sampling latent layer gives. 
 
 kennedy1995particle
 -------------------
@@ -75,9 +84,23 @@ kennedy1997discrete
 -------------------
 PSO for feature selection. 
 
+kingma2014adam
+--------------
+Adam optimizer for neural networks. 
+
 koppen2000curse
 ---------------
 Curse of dimensionality. 
+
+kullback1951information
+-----------------------
+Kullback-Leibler (KL) divergence. 
+Measures distance between two probability distributions. 
+Most common loss function for deep learning with stochastic gradient descent. 
+
+lecun1989generalization
+-----------------------
+Original Convolutional Neural Network (CNN) paper. 
 
 loh2011classification
 ---------------------
@@ -86,10 +109,12 @@ Decision tree.
 marhsall2022cybermarine
 -----------------------
 Cybermarine research magazine aims. 
+Focus on reducing by-product. 
+Non-destructure methods for analysis of chemical compounds in fish oil. 
+Factory of the future - uses AI to inform decisions in the assembly line.
 
 matyushin2020gas
 ----------------
-
 Matyshuin et al. proposed a stacking model for analysis of gas-chromatograph data.
 It stacked the results of 1DConv, 2DConv, Deep Residual MLP and XGBoost.
 Their model predicted the retention index for samples.
@@ -118,6 +143,8 @@ olah2018building
 ----------------
 Semantically meaningful features in computer vision. 
 Distill https://distill.pub/2018/building-blocks/
+Visualization techniques are powerful for understanding black-box systems.
+Gain intution for semantically meaninful features in complex models. 
 
 restek2018high
 --------------
@@ -137,6 +164,8 @@ releifF classifier.
 scholkopf2000new
 ----------------
 Nu-SVC classifier. 
+Setting the number of support vectors is a hyper-parameter.
+Usually this is learned by the system. 
 
 tegmark2020ai
 -------------
