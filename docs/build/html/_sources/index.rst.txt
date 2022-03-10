@@ -10,6 +10,8 @@ Welcome to fish's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   minutes
+
 
 
 Indices and tables
