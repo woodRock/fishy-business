@@ -57,14 +57,14 @@ Research Talks
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, et al. 
 
 Papers: 
-    1. Conditional Diffuction Probablistic Model for Speech Enhancment. 
-    2. A Study on Speech enhancment on Diffusion Probabilistic Model. 
+    1. Conditional Diffuction Probablistic Model for Speech Enhancment. https://arxiv.org/abs/2202.05256
+    2. A Study on Speech enhancment on Diffusion Probabilistic Model. https://arxiv.org/abs/2107.11876
 
 * Diffusion models got attention for synthesising images (i.e faces, animals). 
-* Later, it bet the GAN on standard benchmarks. 
+* Later, it bet the GAN on standard benchmarks. https://proceedings.neurips.cc/paper/2021/hash/49ad23d1ec9fa4bd8d77d02681df5cfa-Abstract.html
 * Train it to add noise, the reverse the process. 
 * Diffusion: learning to denoise speech signal. 
-* Isotropic gaussian distribution? 
+* Isotropic gaussian distribution? https://math.stackexchange.com/questions/1991961/gaussian-distribution-is-isotropic
 * Learn the signal-to-noise difference, not the mean signal. 
 * Diffusion markov chain is intractable, so we use Elbo to from an approximate objective function. 
 * Ratios and constants to ensure the mean and variance don't explode or vanish. 
