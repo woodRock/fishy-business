@@ -11,6 +11,7 @@ Welcome to fish's documentation!
    :caption: Contents:
 
    minutes
+   papers
 
 
 
