@@ -1,0 +1,221 @@
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html xmlns:m="http://www.w3.org/1998/Math/MathML"  id="simpleViewer" >
+    <head>
+        <title>AI Feynman: A physics-inspired method for symbolic regression</title>
+        
+
+
+
+
+    
+    <meta name="dc.identifier" content="10.1126/sciadv.aay2631"/>
+
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="/cloud-reader/dist/css/readium-all.css" rel="stylesheet" type="text/css"/>
+
+<link rel="stylesheet" href="/cloud-reader/resources/gen/custom/css/app.css" type="text/css">
+
+<style rel="text/css">
+    @import url("/templates/jsp/cloudReader/css/d.css");
+</style>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script type="text/javascript">
+    window.LIT = window.LIT || {};
+    LIT.Reader = LIT.Reader || {};
+    LIT.Reader.LogEnabled = false;
+    window.READER_OFFLINE = navigator && navigator.onLine === false;
+    
+    var verifyOfflineMode = function () {
+        
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            window.READER_OFFLINE = xhr.readyState === 4 && xhr.status !== 200;
+            if (window.READER_OFFLINE && true) {
+                
+                fetch('/cloud-reader/dist/scripts/mathjax/MathJax.min.js').then(function (res) {
+                    res.text().then(function (txt) {
+                        LIT.Reader.MathJaxUrl = window.URL.createObjectURL(new Blob([txt], {'type': 'text/javascript'}));
+                    })
+                })
+            }
+        };
+        xhr.open("HEAD", "/templates/jsp/images/singlePixel.gif?t=" + new Date().getTime());
+        
+        xhr.setRequestHeader("Cache-Control", "no-cache,must-revalidate,max-age=0");
+        xhr.setRequestHeader("Pragma", "no-cache");
+        xhr.send();
+    };
+    
+    verifyOfflineMode();
+
+    var path = (window.location && window.location.pathname) ? window.location.pathname : '';
+
+    
+    path = path.replace(/(.*)\/.*\.[x]?html$/, "$1");
+
+    
+    path = path.charAt(path.length - 1) === '/'
+        ? path.substr(0, path.length - 1)
+        : path;
+
+    
+    var readerResourcesPath = "/cloud-reader/dist";
+
+    var HTTPServerRootFolder =
+        window.location ? (
+            window.location.protocol
+            + "//"
+            + window.location.hostname
+            + (window.location.port ? (':' + window.location.port) : '')
+            + readerResourcesPath
+        ) : ''
+    ;
+</script>
+        
+            
+
+
+
+
+
+
+<script type="text/javascript">
+    AAASdataLayer = {"page":{"pageInfo":{"nlmArticleType":"research-article","issue":"16","pageTitle":"AI Feynman: A physics-inspired method for symbolic regression","author":"Silviu-Marian Udrescu|Max Tegmark","pubDate":"2020-04-15","volume":"6","articleType":"Research Article","viewType":"abs","issnOnline":"2375-2548","pageURL":"https://www.science.org/doi/epdf/10.1126/sciadv.aay2631","issueDate":"2020-04-17","firstRelease":"no","DOI":"10.1126/sciadv.aay2631"},"attributes":{"accessType":"Free","freeAccess":"yes","subject":"COMPUTER SCIENCE","openAccess":"yes","aaasProgram":"sciadv"}},"user":{"accessMethod":"guest","registeredUser":"no","authenticated":"yes","entitled":"false","access":"yes","cookieConsent":"true"}};
+
+    if (AAASdataLayer && AAASdataLayer.user) {
+        let match = document.cookie && document.cookie.match(/(?:^|; )consent=([^;]*)/);
+        if (match) {
+            let jsonObj = JSON.parse(decodeURIComponent(match[1]));
+            AAASdataLayer.user.cookieConsent = jsonObj.Marketing ? "yes" : "no";
+        }
+    }
+</script>
+<script src="//assets.adobedtm.com/a48c09ba9d50/1e36ca10b673/launch-1fefdaee3fef-staging.min.js"></script>
+        
+        
+
+
+
+
+
+    </head>
+    
+    <body >
+        
+
+
+
+
+
+
+
+
+
+<noscript>
+    <div id="alert_box" class="popup_container full noScript">
+        <div class="popup_content">
+            <div class="flex-container">
+                <div class="text">
+                    <span class="popupIcon icon material-icons" data-type="">error_outline</span>
+                    <div>
+                        <h1 class="popupTitle">JavaScript disabled</h1>
+                        <p class="popupDescription">You have to enable JavaScript in your browser's settings in order to use the eReader.</p>
+                        
+                            <p class="popupDescription">Or try downloading the content offline</p>
+                            <a href="/doi/pdf/10.1126/sciadv.aay2631?download=true" target="_blank" class="btn--bordered__light">DOWNLOAD</a>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</noscript>
+        <nav id="app-navbar" class="navbar" role="banner" aria-label="{{Strings.i18n_toolbar}}">
+        </nav>
+        <div id="app-container" >
+        </div>
+        <script type="text/javascript">
+            var readerConfig = {"user":{"isLoggedIn":false,"loginLink":"/action/ssostart?redirectUri\u003d%2Fdoi%2Fepdf%2F10.1126%2Fsciadv.aay2631\u0026switch\u003dpdf%2F10.1126%2Fsciadv.aay2631","registerLink":"https://www.science.org/action/registration?redirectUri\u003d%2Fdoi%2Fepdf%2F10.1126%2Fsciadv.aay2631"},"readingProgress":{"syncProgress":false,"syncUrl":"/reader/saveProgress","retrieveUrl":"/reader/retrieveProgress"},"doi":"10.1126/sciadv.aay2631","title":"AI Feynman: A physics-inspired method for symbolic regression","epubConfig":{"overrideEpubUrlParam":true,"epubUrl":"/reader/content/17b008dbf66/10.1126/sciadv.aay2631/format/pdf"},"epubActions":{"offline":{"available":true,"fileSize":"516.2 KB","simultaneousRetrievalsLimit":1},"download":{"files":{"pdf":{"shortCode":"pdf","name":"PDF","available":true,"size":"409.5 KB","url":"/doi/pdf/10.1126/sciadv.aay2631?download\u003dtrue","doi":"10.1126/sciadv.aay2631"}}},"print":true,"shareAccess":false,"preview":false,"rental":false,"print_pdf_pages":10},"displayOptions":{"displayFormat":"auto","displayMode":"scroll-continuous"},"annotationsConfig":{"enabled":true,"providers":[{"name":"remarq","title":"Remarq","order":1,"src":"https://annotations.scitrus.com/annotations/main.bundle.js","apiBase":"https://be-api.scitrus.com/ann-api","version":"liter"}]},"materialTabs":{"figuresSuppressed":false,"mediaSuppressed":true,"tablesSuppressed":false,"supplementsSuppressed":false,"linkOutUrl":"/doi/suppl/10.1126/sciadv.aay2631","supplementsLinkOut":false,"openDownloadLinkInNewTab":false},"analyticsConfig":{"enabled":true,"providers":[{"enabled":true,"name":"atm","siteId":"","version":"","url":"//assets.adobedtm.com/a48c09ba9d50/1e36ca10b673/launch-1fefdaee3fef-staging.min.js"}]},"waterMarkConfig":{"enabled":true,"defaultMessage":"sciadv, 2020, 6, Downloaded from https://www.science.org. By AAAS- on XXX. Re-use and distribution is strictly not permitted, except for Open Access articles","optionalMessage":"","location":"right"},"metadataUrl":"/doi/reader/metadata/10.1126/sciadv.aay2631","referencesUrl":"/doi/reader/references/10.1126/sciadv.aay2631","citedByUrl":"/doi/reader/citedBy/10.1126/sciadv.aay2631","figuresUrl":"/doi/reader/figures/10.1126/sciadv.aay2631","tablesUrl":"/doi/reader/tables/10.1126/sciadv.aay2631","mediaUrl":"/doi/reader/media/10.1126/sciadv.aay2631","recommendationsUrl":"/doi/reader/recommended/10.1126/sciadv.aay2631","siteUrl":"/doi/10.1126/sciadv.aay2631","searchUrl":"/reader/search","currentUrl":"https://www.science.org/doi/epdf/10.1126/sciadv.aay2631","permissionsUrl":"/action/availableUsageRights","consumePermissionsUrl":"/action/consumeUsage","format":"pdf","publicationType":"article","citationsExportUrl":"/action/showCitFormats?doi\u003d10.1126%2Fsciadv.aay2631\u0026mobileUi\u003d0","dbStoreName":"readerOfflineStore","shareAccessUrl":"/action/generateShareUrl","readerSettingsLocalStorageKey":"article_reader_settings","recommendedEnabled":true,"permissionsEnabled":false,"isDragAndDropEnabled":false,"isOfflineSupportedForBrowser":true,"isOfflineDisabled":false,"isDownloadDisabled":false,"isShareDisabled":false,"isPrintDisabled":false,"nodeNavigationDisabled":false,"navigationMode":"DEFAULT","usageRightsEnabled":true,"print_pdf_pages":0,"authorizeSharing":"/action/authorizeSharing","shareMode":false,"sharedAccessConfig":{"alwaysDisplaySharingTermsPopup":false,"hasButton":false,"shareSponsorMessage":"This is a sponsor message (to be overridden)","shareMediaMessage":"This is a media sharing message (to be overridden)","isShared":false,"isPermissionEnabled":false,"isShareBannerEnabled":false,"isGetAccessButtonVisible":false},"inDocAdsEnabled":false,"suspendAdsInSinglePagePdfs":true,"adsImpressionDuration":0,"campaignUrl":"/action/showReaderCampaign?doi\u003d10.1126%2Fsciadv.aay2631","eventsConfig":{"readerEventsAnalyticsUrl":"/action/readerEventsAnalytics?doi\u003d10.1126%2Fsciadv.aay2631\u0026format\u003dpdf","adImpressionDuration":5000,"episodeRemainingTime":300000,"enabled":true,"allowedNumOfEventsPerReq":50,"excludedEvents":"read"},"content_buffer_size":2000,"isPrintSupportedForBrowser":true,"isMaterialDownloadable":false,"isEpubLazyLoadingEnabled":true,"isPdfLazyLoadingEnabled":true,"loadedPagesLimit":5,"maxPdfKeepSize":20,"switchFormats":{"enabled":true,"current":"pdf","available":{"pdf":{"name":"pdf","url":"/doi/epdf/10.1126/sciadv.aay2631"}}},"supplementsUrl":"/action/showReaderSupplements?doi\u003d10.1126%2Fsciadv.aay2631","tabsSuppressionConfig":{"materialsSuppressed":false,"notesSuppressed":false,"linksSuppressed":false,"infosSuppressed":false},"fetchFiguresFromEpub":false,"mediaPlayersConfig":{"enabled":false,"player":{"enabled":false,"name":"flowplayer","css":"//releases.flowplayer.org/6.0.5/commercial/skin/functional.css","key":"$566023066960630","playerScript":"//releases.flowplayer.org/6.0.5/flowplayer.min.js"}},"adsInclusionEnabled":false,"helpEnabled":true,"profileConfig":{"activeProfile":"DEFAULT","printSuppressed":false,"offlineSuppressed":false,"downloadSuppressed":false,"switchFormatsSuppressed":false,"materialsSuppressed":false,"notesSuppressed":false,"linksSuppressed":false,"infoSuppressed":false,"siteLinkOutSuppressed":false,"accessSharingSuppressed":false},"isReadingFlowEnabled":true,"showCrossmarkButton":false,"restrictContent":false,"restrictCopying":false,"isScitrusHelpGuideEnabled":false,"referencesNumberingSupported":true,"freeToReadConfig":{"learnMoreLink":"","bannerMessage":"This is a banner message (to be overridden)","isFreeToRead":false,"isBannerEnabled":true,"isGetAccessButtonVisible":false},"doiMappingConfig":{"enabled":false},"termsAndConditionsUrl":"/page/terms"};
+            readerConfig.libraryPath='/reader/library';
+        </script>
+        
+
+<script type="text/javascript">
+    
+    readerConfig.alertPopupMsg = {
+        
+        PRINTING_DISABLED_MESSAGE : "<i class='material-icons'>info_outline</i> <h2>Do not print this page</h2> <h3>To view your printing options, return to the document and click the print option in the menu in the top right corner of the page.</h3>",
+        
+        USER_UNAUTHORIZED: "You do not have the required license. The publication cannot be <span>X</span>.",
+        
+        SHARING_DISABLED: "Sharing access to publications is not currently enabled.",
+        SHARING_UNAUTHORIZED: "You do not have the required license. The publication cannot be <span>X</span>.",
+        SHARING_UNAVAILABLE: "The publication is not available for sharing.",
+        SHARING_TEMPORARY_ERROR: "<span>X</span> failed. Please try again."
+    };
+
+    LIT.Reader.config = {
+        /* http://requirejs.org/docs/api.html#config-waitSeconds */
+        waitSeconds: 0,
+        config: {
+            'readium_js_viewer/ModuleConfig': {
+                'mathJaxUrl': HTTPServerRootFolder + '/scripts/mathjax/MathJax.min.js',
+                'annotationCSSUrl': HTTPServerRootFolder + '/css/annotations.css',
+                'iframeContentCSSUrl': '/cloud-reader/resources/gen/custom/css/iframe-content.css',
+                'jsLibRoot': HTTPServerRootFolder + '/scripts/zip/',
+                'useSimpleLoader': false,
+                'epubLibraryPath': undefined,
+                'imagePathPrefix': '/cloud-reader/src/',
+                'canHandleUrl': false,
+                'canHandleDirectory': false,
+                'workerUrl': undefined,
+                'epubReadingSystemUrl': undefined,
+                "customConfig": readerConfig
+            }
+        }
+    };
+</script>
+
+<script async src="/templates/jsp/cloudReader/js/cache-update.js" type="text/javascript"></script>
+<script src="/cloud-reader/dist/scripts/readium-js-viewer_all_LITE.js" type="text/javascript"></script>
+<script type="text/javascript">
+    require.config(LIT.Reader.config);
+</script>
+        <script async src="/cloud-reader/dist/scripts/readium-additional-libs.js" type="text/javascript"></script>
+        
+        
+            
+                    <script type="module">
+                        if ('serviceWorker' in navigator && !window.READER_OFFLINE) {
+                            window.addEventListener("load", function (evt) {
+                                
+                                var CACHE_BUSTER_MARKER = 3;
+
+                                var assetsCacheName = 'readerAssetsCache-961402-' + CACHE_BUSTER_MARKER;
+                                var readerContentUrl = window.location.pathname;
+                                import ('/templates/jsp/cloudReader/js/readerServiceWorkerHelper.js').then(function (swHelper) {
+                                    swHelper.registerServiceWorkers(true, readerContentUrl, readerContentPage, assetsCacheName, readerConfig.format);
+                                });
+                            });
+                            
+                            var readerContentPage = "<!DOCTYPE html>"+$('html')[0].outerHTML;
+                        }
+                    </script>
+                
+        
+    </body>
+</html>
