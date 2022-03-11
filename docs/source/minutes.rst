@@ -168,4 +168,6 @@ Notes:
     * Evolutionary principles and techniques - crossover, mutation.
     * Automatcally create hybrid services through composition. 
     * Don't reinvent the wheel, use existing libraries instead. 
+    * Scheduling, routing, resource allocation, service composition - all possible for EC. 
     
+
