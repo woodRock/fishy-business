@@ -144,3 +144,28 @@ Notes:
     * Only update in one area, without need for back-propagation, doesn't require a full training for each new instance. 
     * Builds a full world model, not a model for each task. 
     * Thousand brain theory - solution to No Free Lunch. 
+
+2022-03-08 - ECRG 
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Hui Ma gave presentation on Evolutionary Computation Approaches to Web Service Composition - https://link.springer.com/article/10.1007/s10732-017-9330-4
+
+Notes:
+    * Meng will discuss how to write a proposal. 
+    * EuroGP conference - ask my supervisor to register. 
+    * Introduced myself to the group 
+        * paper - finish writing my Summer Research paper. 
+        * enrolled - lots of paper work. 
+        * Finish writing the paper properly. 
+    * Abdullah (lab neighbour) first week in group.
+    * Evolutionary Computation Approaches to Web Service Composition. 
+    * Over 40 publications in the area. 
+    * Holidy booking service used as an example. 
+    * Organize services into re-usable modules. 
+    * Service composition is a NP-hard problem. 
+    * A global search is not possible, a heuristic based local search is required. 
+    * Evolutionary principles and techniques - crossover, mutation.
+    * Automatcally create hybrid services through composition. 
+    * Don't reinvent the wheel, use existing libraries instead. 
+    

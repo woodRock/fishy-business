@@ -39,6 +39,14 @@ We call these class boundaries the support vectors.
 We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
 This creates a divide between one class and the rest, then repeats for the other classes.
 
+da2018evolutionary
+------------------
+Evolutionary Computation Approaches to Web Service Composition. 
+Service composition is an NP-hard combinatorial problem - local search via heuristic is needed. 
+Optimizes fitness as multi-objective function of correctness and exectution time. 
+Graph building algorithm that uses evolutionary techniques, mutation and crossover. 
+Don't reinvet the wheel, encourage reuse of existing services. 
+
 ding2005minimum
 ---------------
 Minimum Redundancy - Maximum Relevance (MRMR)
