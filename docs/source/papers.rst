@@ -154,6 +154,14 @@ Distill https://distill.pub/2018/building-blocks/
 Visualization techniques are powerful for understanding black-box systems.
 Gain intution for semantically meaninful features in complex models. 
 
+raine1997brain
+--------------
+Muderers pleading not guilty be reason of insanity (NGRI).
+Pre-disposition to less activity in their pre-frontal cortex. 
+Pre-frontal cortex associated with goal-directed planning and delayed gratification. 
+Less activity, means more likely to perform violent impulsive behaviour. 
+Justification for lebotomy - electrocution of pre-frontal cortex - now replaced by anti-psychotics. 
+
 restek2018high
 --------------
 Explanation of gas-chromatraphy in food science for FAMEs. 
