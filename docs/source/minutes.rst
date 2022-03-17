@@ -185,9 +185,9 @@ Notes:
 
 2022-03-17 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
-Talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
+Ying suggested a talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
 
 Notes: 
     * Yaochi Jin - University of Surrey. 
