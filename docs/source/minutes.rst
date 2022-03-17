@@ -170,4 +170,22 @@ Notes:
     * Don't reinvent the wheel, use existing libraries instead. 
     * Scheduling, routing, resource allocation, service composition - all possible for EC. 
     
+2022-03-17 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood. 
 
+Notes:
+    * Daniel can provide domain expertise for writing the chemistry sections for the paper. 
+    * Multi-objective - classify chemical compounds and their percentage.  
+    * Multi-label - one instance can belong to multiple classes. 
+    * copy Bing and Bach for induction email from Georgia. 
+    * pymoo  - multi-objective python library. 
+    * Read/write summaries for papers as I go - write content for second chapter iteratively. 
+
+2022-03-17 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
+
+Notes: 
