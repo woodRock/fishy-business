@@ -31,6 +31,17 @@ liu1995chi2
 -----------
 chi^2 classifier. 
 
+craik1972levels
+---------------
+Levels of processing: A framework for memory research. 
+Elaborative rehearsal requires deeper processing than maintainence rehearsal. 
+
+craik1975depth
+---------------
+Deeper processing, semantic over structural or phonetic, better. 
+Depth processing increased later recognition of words in a list. 
+Annecodte, study: skim-read vs. thoughtful reading. 
+
 cortes1995support
 -----------------
 Cortes and Vapnik proposed the Support Vector Machine (SVM).
