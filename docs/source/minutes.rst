@@ -115,7 +115,7 @@ Notes:
     * "The only way through it, is to do it." 
     * Books, publications, thesis - different expectations for each course. 
 
-2022-03-08 - Weekly 
+2022-03-10 - Weekly 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
 
@@ -131,7 +131,7 @@ Notes:
     * Individual induction - copy Bach in email for meeting. 
     * Add Bach to gitlab/github for the paper latex file. 
 
-2022-03-08 - FASLIP 
+2022-03-10 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
@@ -145,7 +145,7 @@ Notes:
     * Builds a full world model, not a model for each task. 
     * Thousand brain theory - solution to No Free Lunch. 
 
-2022-03-08 - ECRG 
+2022-03-11 - ECRG 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
 
