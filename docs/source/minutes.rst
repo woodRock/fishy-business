@@ -181,6 +181,7 @@ Notes:
     * copy Bing and Bach for induction email from Georgia. 
     * pymoo  - multi-objective python library. 
     * Read/write summaries for papers as I go - write content for second chapter iteratively. 
+    * Send Daniel conclusions / contributions of paper in email, then organize a follow up meeting.
 
 2022-03-17 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~~~
