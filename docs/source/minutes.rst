@@ -190,3 +190,31 @@ Notes:
 Talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
 
 Notes: 
+    * Yaochi Jin - University of Surrey. 
+    * Multi-objective machine learning. 
+    * Centralized and federated learning. 
+    * Evolutionary multi-objecive federated learning. 
+    * Evolutionary federated nerual architecture search. 
+    * Multi-objective - gives a solution set, as their are tradeoffs between objectives. 
+    * Dominance, no X is worse and Y, and X is strictly better than Y for object A. 
+    * pareto front (See tegmark2020ai) set of optimal solutions.
+        * accuracy, diversity. 
+        * Inverse generational distance (IGD).
+        * Hypervolume - nadir 
+    * Optimize for minimal complexity implies interpretability. 
+    * Centralized learning - one database. 
+    * Localized learning - everyone trains their own model. 
+    * Privacy techniques: 
+        * Secure multi-party computation. 
+        * Differential privacy. 
+        * Homomorphic encyption. 
+    * Federated learning 
+        * train a high-quality centralized model with training dataq distributed over a large number of clients. 
+        * Each with unreliable and relatively slow network connections. 
+        * horizontal - all attributes, batches of data. 
+        * vertical - trained on subset of attributes (i.e. security reasons). 
+    * Federated learning objectives 
+        1. Maximise learning performance. 
+        2. Minimize communication cost. 
+    * Their work efficiently reduce the number of connections while maintaining similar performance. 
+    * Neural architecture search (TODO - watch the rest and take notes!!!)
