@@ -42,6 +42,13 @@ Deeper processing, semantic over structural or phonetic, better.
 Depth processing increased later recognition of words in a list. 
 Annecodte, study: skim-read vs. thoughtful reading. 
 
+chase1973perception
+-------------------
+Domain expertise allows people to build meaningful schema to represent patterns.
+Expert chess players recall 16 pieces, intermeidate 8, novice 4 when arranged in meaninful positions. 
+Recall was consistant for levels of expertise on nonsense chess boards. 
+Our mental schemas for encoding patterns break on noise (unseen data). 
+
 cortes1995support
 -----------------
 Cortes and Vapnik proposed the Support Vector Machine (SVM).
