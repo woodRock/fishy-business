@@ -100,6 +100,11 @@ ho1995random
 -------------
     * Random forest. 
 
+Hofstadter1979godel 
+-------------------
+    * Godel Escher Bach 
+    * The hand that draws itself. 
+
 karras2020analyzing
 -------------------
     * StyleGAN 
@@ -161,6 +166,23 @@ mikolov2013linguistic
     * The feature space was semantically meaningful, which serves as a powerful representation, that we intuitively reason with. 
     * Similar thought has been applied to computer vision \cite{olah2018building, karras2020analyzing}. 
     * Semantically meaningful feature spaces allow for intuition about the behaviour of complex models, be it through visualisation or arithmetic.
+
+miller1994exploiting
+--------------------
+    * Complement natural selection with sexual selection. 
+    * Biological theory behind sexual selection. 
+    * Sexual selections influences culture around metrics for fitness/fertility. 
+    * Gendered candidate solutions. 
+    * Mate choice / mate preference. 
+    * **TODO** read 
+
+moraglio2012geometric
+---------------------
+    * Genetic semantic genetic programming. 
+    * **TODO** read - related to Qi Chen talk on 2022-03-18 ECRG. 
+    * Unimodal fitness landscape, one global optima, but semantic search is intractable. 
+    * We approximate semantic search through geometric genetic programming methods. 
+
 
 nguyen2014filter
 ----------------
