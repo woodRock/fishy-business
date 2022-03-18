@@ -223,3 +223,7 @@ Notes:
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
 
+A talk on Geometric Semantic Genetic Programming by Qi Chen.
+
+Notes: 
+    
