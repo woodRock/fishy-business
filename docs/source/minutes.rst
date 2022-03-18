@@ -218,3 +218,8 @@ Notes:
         2. Minimize communication cost. 
     * Their work efficiently reduce the number of connections while maintaining similar performance. 
     * Neural architecture search (TODO - watch the rest and take notes!!!)
+
+2022-03-18 - ECRG 
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
