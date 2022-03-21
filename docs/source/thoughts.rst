@@ -44,3 +44,17 @@ chase1973perception
         * Genetic operators become dogma, monogamy, polygamy, polyamory - only certain indiviudals carry these cultural ideas. 
         * Limit genetic operators to each individual - not all available to entire population at once. 
         * The hand the draws itself (Hofstadter 1979).
+
+2022-03-22 
+----------
+    * Follow up work on cai2020high and codevilla2018end needed: 
+    * A rally car with two models, (1) driver and (2) directions giver.
+    * Directions giver: 
+        * A model that usges computer vision to create a map of the road from multiple cameras. 
+        * Provides real-time plain speech instructions on how to traverse upcoming corners. 
+        * "Sharp turn left in 500m"
+    * Driver: 
+        * Takes real-time plain speech language and performs driving tasks. 
+        * Aims for maximum velocity and drift. 
+    * Due to game theoretic directions and driver model, can generalize to unseen data (i.e. drive on new roads). 
+    * Two independent tasks that can be optimized seperately - similar to a GAN with its critique and generator. 

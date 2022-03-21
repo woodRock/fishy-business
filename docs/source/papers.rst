@@ -30,12 +30,24 @@ bi2020gc
 boser1992training
 -----------------
     * Kernal trick for SVM.
-    * These employ the kernel trick.
+    * These employ the kernel trick. 
 
-liu1995chi2
+cai2020high 
 -----------
-    * chi^2 classifier.     
+    * End-to-end driving via conditional imitation learning. 
+    * Model-free reinforcement learning - does not rely on human understanding of world and design controllers. 
+    * Human driver is the trajectory with is the goal, uses a professional driver playing the game with a steering wheel. 
+    * Model performs on different track difficulties. 
+    * Reward function is scaled by velocity, so faster lap times are rewarded. 
+    * Works for 4 different kinds of vehicles, although the truck struggles to achieve same performance as lighter ones. 
 
+
+codevilla2018end 
+----------------
+    * High-speed autonomous drifting with deep reinforcement learning. 
+    * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
+    * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
+    
 craik1972levels
 ---------------
     * Levels of processing: A framework for memory research. 
@@ -137,6 +149,10 @@ kullback1951information
 lecun1989generalization
 -----------------------
     * Original Convolutional Neural Network (CNN) paper. 
+
+liu1995chi2
+-----------
+    * chi^2 classifier.    
 
 loh2011classification
 ---------------------
