@@ -223,7 +223,62 @@ Notes:
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
 
-A talk on Geometric Semantic Genetic Programming by Qi Chen.
+A talk on Geometric Semantic Genetic Programming by Qi Chen https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3
 
 Notes: 
+    * We have published heaps of papers that are highly cites and hot papers according to https://www.webofscience.com/wos/woscc/basic-search toool that the university has access to.
+    * Top 1% of papers cited per discipline for computer science journals. 
+    * Evolving neural networks with evolutionary computation. 
+    * Me: reading psychology papers on how the brain works with memory - hunting for relative simply neuro-science ideas to apply to machine learning. 
+    * Geometric smenatic genetic programming https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3 
+    * Semantic genetic programming methods. 
+    * Traditional GP ignores program semantics. 
+    * Consequences - ragged gentype-phenotype mapping. 
+    * Is it possible to make GP aware about the effects of the program execution? 
+    * Semantics: 
+        * Semantics differs from syntax. 
+        * Semantics related to the problem domain. 
+        * Semantics inform program design (see tegmark2020ai).
+    * Measure semantic distance between current program and target output (multi-dimensional loss function). 
+    * Genetic operators: 
+        * Semantic aware cross-over (SAC) 
+        * Semantic similarity-based cross-over (SSC)
+        * Semantic similarity-based mutation (SSM)
+        * Senantic tournament selection. 
+            * t-test for statistical signfician with assessing selection. 
+    * Search directly in the semantci space of the program. 
+    * Semnatics of offsrping must sit in between the ntercept between its two parents in semantic space. 
+    * Therefore each offspring minimized distance to target semantics. 
+    * Each generation gets closer to the target semantics, or atleast closer than the furthest parent. 
+    * Independent of data, good effect on improving generalization, althougt not actual claim made in paper. 
+    * Geometric semantic programming leads to a unimodel fitness landscape - a cone where the apex is the target semantics. 
+        * manhattan distance - square based pyramid.
+        * euclidean distance - cone. 
+    * Efficient implementation - only store changes to program tree, similar to git version control - except for GSGP. 
+    * GSGR Red (reduce), simplify problems by expanding and recomputing. 
+    * Locally geometric semantic crossover (LGSX).
+        * Make offsrping similar to eachother than their parents. 
+    * Random desired operator (RDO), exploit interoperability of instructions, + can be reversed with -, * can be reversed with division, + and * are communicative. 
+    * Semantic backpropogation - decomposibility of the process if important for BP. 
+    * Angle aware metrics - larger angle metrics iis more likely to generate offspring closer to target semantics. 
+    * Permutations GSX and Random Segment Mutation 
+    * Semenatic distance (euclidean) is the same as the loss, just looking at it from a different point of view. 
+    * Can geometric smeantic programming work in an unsupervised or combinatorial problem? (Possibly not unimodel semantic space)
     
+2022-03-21 - DL
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, Hayden Dyne, et al. 
+
+Talk by Hayden on two papers: 
+    * End-to-end driving via conditional imitation learning https://ieeexplore.ieee.org/abstract/document/8460487/
+    * High-speed autonomous drifting with deep reinforcement learning https://ieeexplore.ieee.org/abstract/document/8961997/ 
+
+Notes: 
+    * Model-free reinforcement learning - does not rely on human understanding of world and design controllers. 
+    * Human driver is the trajectory with is the goal, uses a professional driver playing the game with a steering wheel. 
+    * Model performs on different track difficulties. 
+    * Reward function is scaled by velocity, so faster lap times are rewarded. 
+    * Works for 4 different kinds of vehicles, although the truck struggles to achieve same performance as lighter ones. 
+    * Second paper - e2e 
+    * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
+    * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
