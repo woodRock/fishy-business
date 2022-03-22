@@ -230,7 +230,7 @@ Notes:
     * Top 1% of papers cited per discipline for computer science journals. 
     * Evolving neural networks with evolutionary computation. 
     * Me: reading psychology papers on how the brain works with memory - hunting for relative simply neuro-science ideas to apply to machine learning. 
-    * Geometric smenatic genetic programming https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3 
+    * Geometric smenatic genetic programming (Morgalio 2012, moraglio2012geometric) https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3 
     * Semantic genetic programming methods. 
     * Traditional GP ignores program semantics. 
     * Consequences - ragged gentype-phenotype mapping. 
@@ -238,7 +238,7 @@ Notes:
     * Semantics: 
         * Semantics differs from syntax. 
         * Semantics related to the problem domain. 
-        * Semantics inform program design (see tegmark2020ai).
+        * Semantics inform program design (Tegmark 2020, tegmark2020ai).
     * Measure semantic distance between current program and target output (multi-dimensional loss function). 
     * Genetic operators: 
         * Semantic aware cross-over (SAC) 
@@ -270,8 +270,8 @@ Notes:
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, Hayden Dyne, et al. 
 
 Talk by Hayden on two papers: 
-    * End-to-end driving via conditional imitation learning https://ieeexplore.ieee.org/abstract/document/8460487/
-    * High-speed autonomous drifting with deep reinforcement learning https://ieeexplore.ieee.org/abstract/document/8961997/ 
+    * End-to-end driving via conditional imitation learning (Cai 2020, cai2020high) https://ieeexplore.ieee.org/abstract/document/8460487/
+    * High-speed autonomous drifting with deep reinforcement learning (Codevilla 2018, codevilla2018end) https://ieeexplore.ieee.org/abstract/document/8961997/ 
 
 Notes: 
     * Model-free reinforcement learning - does not rely on human understanding of world and design controllers. 

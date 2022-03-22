@@ -5,14 +5,14 @@ Thoughts
 ----------
 
 raine1997brain
-    * (Rain 1997) shows that different brain chemistry can result in unwanted behaviour (murder).
+    * Different brain chemistry can result in unwanted behaviour (murder) (Rain 1997).
     * The structure of the model limits is ability to understand abstract concepts. 
     * Humans with abnormal pre-frontal cortex lack the ability to make goal-oriented decisions. 
     * Reinforcment learning, job scheduling and other AI problems also fail at capturing the complexity of delayed gratification.
     * Perhaps, the circuitry involved in a functioning pre-frontal cortex can be translated into reinforcment learning. 
 
 craik1972levels 
-    * (Craik 1972) shows that there are different levels of depth of processing.
+    * There are different levels of depth of processing (Craik 1972) .
     * Strengthening connections to existing neurons make it easier to encode information in long-term memory. 
     * We can build knowledge easier from existing context, no need to reinvent the wheel. 
     * This translates to LSTM models, pre-training (i.e. BERT), Thousand Brain Theory, etc. 
@@ -20,14 +20,14 @@ craik1972levels
     * Deeper processing involves elaborative rehearsal, which makes use of existing synapses, rather than training from scratch each time. 
 
 craik1975depth
-    * (Craik 1972) shows that deep processing leads to better recall. 
+    * Deep processing leads to better recall (Craik 1975). 
     * A brain is able to remember more if we associate semantic meaning and context with the task. 
     * For a task, semantic meaning and context can remain static, while new training instances are dynamic. 
     * In machine learning, we can combine natural language processing (NLP) with existing tasks for greater model representation.
     * Examples include the combination of metadata NLP and computer vision for image dataset problems like classification, segmentation, detection. 
 
 chase1973perception
-    * (Chase 1973) shows that model representations from domain experts fail on illogical scenarios. 
+    * Model representations from domain experts fail on illogical scenarios (Chase 1973). 
     * This work shows that the human brain cannot generalize on noise.
     * The analogy provides a concrete example of intelligence in humans that also translates to artificaical intelligence. 
     * This is a limitation of existing machine learning models, they struggle to perform well on unseen data. 
@@ -47,7 +47,7 @@ chase1973perception
 
 2022-03-22 
 ----------
-    * Follow up work on cai2020high and codevilla2018end needed: 
+    * Follow up work on (Cai 2020, Codevilla 2018) needed: 
     * A rally car with two models, (1) driver and (2) directions giver.
     * Directions giver: 
         * A model that usges computer vision to create a map of the road from multiple cameras. 
