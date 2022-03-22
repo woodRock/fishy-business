@@ -1,8 +1,8 @@
 Thoughts
 ========
 
-2022-03-17
-----------
+2022-03-17 - Brains I 
+---------------------
 
 raine1997brain
     * Different brain chemistry can result in unwanted behaviour (murder) (Rain 1997).
@@ -32,8 +32,8 @@ chase1973perception
     * The analogy provides a concrete example of intelligence in humans that also translates to artificaical intelligence. 
     * This is a limitation of existing machine learning models, they struggle to perform well on unseen data. 
 
-2022-03-18
-----------
+2022-03-18 - EC 
+---------------
     * Sexual selection in Genetic Programming. Female preference (up, horizontal), Male (not fussy). Already done (Miller 2005)
     * Evolution in a dynamic environment + evolution can't reverse (hills and mountains analogy)
         * i.e. for multi-class, run many generations with two classes, then later add more. 
@@ -45,8 +45,8 @@ chase1973perception
         * Limit genetic operators to each individual - not all available to entire population at once. 
         * The hand the draws itself (Hofstadter 1979).
 
-2022-03-22 
-----------
+2022-03-22 - Cars 
+-----------------
     * Follow up work on (Cai 2020, Codevilla 2018) needed: 
     * A rally car with two models, (1) driver and (2) directions giver.
     * Directions giver: 
@@ -59,8 +59,8 @@ chase1973perception
     * Due to game theoretic directions and driver model, can generalize to unseen data (i.e. drive on new roads). 
     * Two independent tasks that can be optimized seperately - similar to a GAN with its critique and generator. 
 
-2022-02-23 
------------
+2022-02-23 - Brains II 
+----------------------
 
 mantyla1998cue
     * People have better recall when they have multiple retrieval cues personal to them. 
@@ -87,5 +87,5 @@ brewer2006brown
     * We remember lightbulb events longer than other events, but still not well. 
     * We have a false confidence that these distinct events are accurate remembered. 
     * Each time we retell the story, we re-write it, and mis-remember it, the memory is foggyier than we think.
+    * The metric of strong positive/negative emotion, while correlated, doesn't guarantee the accuracy of the memory. 
     * Similar to how a model may also share a false confidence of its accuracy on an distinct outlier.
-    * The memory of a neural network deteriotes in training with back-propogation, especially for instances that occur infrequently. 
