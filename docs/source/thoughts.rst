@@ -76,6 +76,7 @@ eich1975state, miles1998state, godden1975context
     * The context and state are noise to the sensory registers that attempt to encode semantic meaning into short-term memory. 
     * Our brain can't seperate all noise from signal, so the context/state is partially encoded into our mental representation. 
     * Without that noise present, is becomes difficult to achieve the same activation pattern in the associated network. 
+    * "Our virtues and our failings are inseparable, like force and matter. When they separate, man is no more" - Nikola Tesla
 
 eyesenck1980effects
     * Value of distinct examples 
