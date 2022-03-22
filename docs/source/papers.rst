@@ -32,6 +32,15 @@ boser1992training
     * Kernal trick for SVM.
     * These employ the kernel trick. 
 
+brewer2006brown
+---------------
+    * Flashbuld memories - recollections that seem vivid and clear, so we take them to be accurate. 
+    * Most likely occur for distinct stronly positive or negative emotional events. 
+    * Weddings, Funerals, Deaths, Tragedy, Violence. 
+    * We are more likely to be confident these are correct.
+    * But our memory is shit, so we often re-write and incorrectly recall these events. 
+    * The distinictness of flashbulb memories, does help recall them longer, but does not guarantee correctness. 
+
 cai2020high 
 -----------
     * End-to-end driving via conditional imitation learning. 
@@ -93,6 +102,19 @@ eder1995gas
     * Chemists compare a given sample to a reference sample to determine what chemicals are present.
     * The existing analytical techniques to perform these tasks are time-consuming and laborious.
 
+eich1975state
+-------------
+    * State-dependent accessibility of retrieval cues in retneion of categorized list. 
+    * Subjects are asked to recall a list of words with and without the influence of marajuana. 
+    * Subjects who learn something high, are more likely to retrieve that information high.
+    * People can not recall their drug-induced experience easily when they sober up. 
+
+eyesenck1980effects
+-------------------
+    * Effects of processing depth, distinctiveness, and word frequency on retention. 
+    * In general distinct stimuli are better remembered than non-distinct ones. 
+    * We are more likely to remember things that are out of the blue, or that have a personal connection to us. 
+
 fix1989discriminatory
 ---------------------
     * K-nearest neighbours (KNN).
@@ -103,6 +125,13 @@ fukushima1982neocognitron
     * Activation function for neural networks. 
     * Shares nice properties of linear function. 
     * But allows for non-linearities to be captured. 
+
+godden1975context
+-----------------
+    * Context-dependent memory in two natural environments: On land and underwater. 
+    * Scuba divers who learn lists of words underwater, best recalled them underwater. 
+    * Same true for words learnt on land. 
+    * Recall accuracy depends on similarity of context in sensory information. 
 
 hand2001idiot
 -------------
@@ -158,6 +187,14 @@ loh2011classification
 ---------------------
     * Decision tree. 
 
+mantyla1998cue
+--------------
+    * Cue distinctiveness and forgetting: Effectiveness of self-generated retrieval cues in delayed recall. 
+    * Students were given a word list, and asked to make 1 or 3 retrieval cues. 
+    * Students with who used their own multiple retrieval cues had better recall.
+    * Recall was terrible when using another students own personal retrieval cues. 
+    * Multiple self-generated retrieval cues is the most effective approach to maximising recall. 
+
 marhsall2022cybermarine
 -----------------------
     * Cybermarine research magazine aims. 
@@ -182,6 +219,13 @@ mikolov2013linguistic
     * The feature space was semantically meaningful, which serves as a powerful representation, that we intuitively reason with. 
     * Similar thought has been applied to computer vision \cite{olah2018building, karras2020analyzing}. 
     * Semantically meaningful feature spaces allow for intuition about the behaviour of complex models, be it through visualisation or arithmetic.
+
+miles1998state
+--------------
+    * State-dependent memory produced by aeorobic exercise. 
+    * Students studies while exercising on a treadmil. 
+    * Material learnt on the treadmill was better recalled on the treadmill. 
+    * Greater information retrieval when the state (i.e. aerobic exercise) is similar. 
 
 miller1994exploiting
 --------------------

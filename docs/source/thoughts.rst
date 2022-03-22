@@ -58,3 +58,34 @@ chase1973perception
         * Aims for maximum velocity and drift. 
     * Due to game theoretic directions and driver model, can generalize to unseen data (i.e. drive on new roads). 
     * Two independent tasks that can be optimized seperately - similar to a GAN with its critique and generator. 
+
+2022-02-23 
+-----------
+
+mantyla1998cue
+    * People have better recall when they have multiple retrieval cues personal to them. 
+    * Similar to how model-free reinforcement learning (Cai 2020, Akkaya 2019) exceeds human designed controllers. 
+    * Recall is improved when connections between existing neurons are strengthened. 
+    * Effective recall requires everyone to learn a model that is unique and personal to them. 
+
+eich1975state, miles1998state, godden1975context
+    * State and context dependent recall.
+    * More likely to remember something given the same state and context. 
+    * Similar to noise distributions, a model trained with gaussian noise will perform well on test set of same distribution. 
+    * It would perform poorly with a different distribution of noise or none at all. 
+    * The context and state are noise to the sensory registers that attempt to encode semantic meaning into short-term memory. 
+    * Our brain can't seperate all noise from signal, so the context/state is partially encoded into our mental representation. 
+    * Without that noise present, is becomes difficult to achieve the same activation pattern in the associated network. 
+
+eyesenck1980effects
+    * Value of distinct examples 
+    * Similar to Deren Browns mind palace - linked to the Ancient greek technique for memorization. 
+    * If he wants to remember something, he associates it with a graphic or lewd imagery - i.e. An queen of hearts, is a naked woman with her heart ripped out. 
+
+brewer2006brown
+    * We remember certain events with a distinct clarity and vivideness. 
+    * We remember lightbulb events longer than other events, but still not well. 
+    * We have a false confidence that these distinct events are accurate remembered. 
+    * Each time we retell the story, we re-write it, and mis-remember it, the memory is foggyier than we think.
+    * Similar to how a model may also share a false confidence of its accuracy on an distinct outlier.
+    * The memory of a neural network deteriotes in training with back-propogation, especially for instances that occur infrequently. 
