@@ -45,7 +45,7 @@ chase1973perception
         * Limit genetic operators to each individual - not all available to entire population at once. 
         * The hand the draws itself (Hofstadter 1979).
 
-2022-03-22 - Cars 
+2022-03-21 - Cars 
 -----------------
     * Follow up work on (Cai 2020, Codevilla 2018) needed: 
     * A rally car with two models, (1) driver and (2) directions giver.
@@ -59,7 +59,7 @@ chase1973perception
     * Due to game theoretic directions and driver model, can generalize to unseen data (i.e. drive on new roads). 
     * Two independent tasks that can be optimized seperately - similar to a GAN with its critique and generator. 
 
-2022-02-23 - Brains II 
+2022-02-22 - Brains II 
 ----------------------
 
 mantyla1998cue
@@ -90,3 +90,12 @@ brewer2006brown
     * Each time we retell the story, we re-write it, and mis-remember it, the memory is foggyier than we think.
     * The metric of strong positive/negative emotion, while correlated, doesn't guarantee the accuracy of the memory. 
     * Similar to how a model may also share a false confidence of its accuracy on an distinct outlier.
+
+2022-03-23 - Project Management
+    * Project management is important for self-supervised learning such as this PhD. 
+    * I have created an agile kanban board to keep a public record of my work https://github.com/woodRock/fishy-business/projects/1 
+    * We can use Github issues to link code commits to issues, and create user stories that achieve milestones. 
+    * Basically, apply agile methodology from PMBOK to my studies, to avoid the Parkinson's law 
+        * Parkinson's law - Parkinson's law is the adage that "work expands so as to fill the time available for its completion." (https://en.wikipedia.org/wiki/Parkinson%27s_law)
+    * My proposal and thesis are the first two major milestones that I can consider at this early stage. 
+    * As I get stuck into implementation and actual work, many more milestones will arise. 
