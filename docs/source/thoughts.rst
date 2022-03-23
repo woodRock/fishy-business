@@ -92,6 +92,7 @@ brewer2006brown
     * Similar to how a model may also share a false confidence of its accuracy on an distinct outlier.
 
 2022-03-23 - Project Management
+-------------------------------
     * Project management is important for self-supervised learning such as this PhD. 
     * I have created an agile kanban board to keep a public record of my work https://github.com/woodRock/fishy-business/projects/1 
     * We can use Github issues to link code commits to issues, and create user stories that achieve milestones. 
