@@ -112,6 +112,10 @@ eder1995gas
     * Chemists compare a given sample to a reference sample to determine what chemicals are present.
     * The existing analytical techniques to perform these tasks are time-consuming and laborious.
 
+eiben2015evolutionary
+---------------------
+    * From evolutionary computation to the evolution of things - Nature review article.
+
 eich1975state
 -------------
     * State-dependent accessibility of retrieval cues in retneion of categorized list. 
