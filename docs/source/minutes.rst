@@ -34,8 +34,8 @@ Notes:
         4. Mathew Vink - helped me enroll today. 
         5. Student levees - 2 weeks due.  
 
-2022-02-28 - FASLIP
-~~~~~~~~~~~~~~~~~~~
+2022-02-28 - FASLIP #01
+~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Wednesay 2pm-3pm , **Attendees:** Matthew Vink, Jesse Wood
 
 Neil Dodgeson - Cambridege lecture
@@ -56,7 +56,7 @@ Notes:
         * Highlight key points on the last slide. 
 
 2022-03-07 - DL
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, et al. 
 
 Papers: 
@@ -116,7 +116,7 @@ Notes:
     * Books, publications, thesis - different expectations for each course. 
 
 2022-03-10 - Weekly 
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
 
 Notes:
@@ -131,8 +131,8 @@ Notes:
     * Individual induction - copy Bach in email for meeting. 
     * Add Bach to gitlab/github for the paper latex file. 
 
-2022-03-10 - FASLIP 
-~~~~~~~~~~~~~~~~~~~~~~
+2022-03-10 - FASLIP
+~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 Jeff Hawkins - Thousand Brains Theory: https://www.youtube.com/watch?v=O4geanMOsyM
@@ -145,8 +145,8 @@ Notes:
     * Builds a full world model, not a model for each task. 
     * Thousand brain theory - solution to No Free Lunch. 
 
-2022-03-11 - ECRG 
-~~~~~~~~~~~~~~~~~~~~~~
+2022-03-11 - ECRG
+~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
 
 Hui Ma gave presentation on Evolutionary Computation Approaches to Web Service Composition - https://link.springer.com/article/10.1007/s10732-017-9330-4
@@ -172,7 +172,7 @@ Notes:
     
 2022-03-17 - Weekly   
 ~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood. 
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
 
 Notes:
     * Daniel can provide domain expertise for writing the chemistry sections for the paper. 
@@ -184,7 +184,7 @@ Notes:
     * Send Daniel conclusions / contributions of paper in email, then organize a follow up meeting.
 
 2022-03-17 - FASLIP 
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 Ying suggested a talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
@@ -220,8 +220,8 @@ Notes:
     * Neural architecture search (TODO - watch the rest and take notes!!!)
 
 2022-03-18 - ECRG 
-~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 A talk on Geometric Semantic Genetic Programming by Qi Chen https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3
 
@@ -283,3 +283,64 @@ Notes:
     * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
 
+2022-03-24 - Faculty Induction
+------------------------------
+**Location:** Zoom, **Time**: Monday 10am-11am , **Attendees:** Georgia Dix, Jesse Wood, Bach Hoai Nguyen.
+
+Induction to my PhD studies with supervisor and faculty. 
+
+Notes: 
+    * Expectations
+        * Supervisor
+            * Uni life 
+            * Framework 
+            * Networking 
+            * Assessment 
+        * Me
+            * action plan 
+            * identify problems 
+            * administration 
+            * CDP (6 monthly report)
+    * Marking can thesis can take up to 6 months - can work during this time. 
+
+2022-03-17 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
+
+Notes:
+    * Daniel can draft the chemistry parts for the paper. 
+    * Draft the full paper with Bach, then send to Daniel. 
+    * Read "From evolutionary computation to the evolution of things" - Nature
+    * Can start coding now - explore ideas for ENGR489 and EC on existing data. 
+    * Transformers, LSTM, GAN - yet to be applied to GC-MS data in literature. 
+    * CNNs for GC, likely due to libraries, hype, understanding, Diffusion of innovation. 
+
+2022-03-17 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Ruwing Jiao suggested a video on Bayesian Optimization from Mark Deisenroth https://www.youtube.com/watch?v=_SC5_2vkgbA 
+
+Notes: 
+    * Recommended background reading on this topic: 
+        1. A Tutorial on Bayesian Optimization of Expensive Cost Functions (Brochu 2010, brochu2010tutorial) https://arxiv.org/pdf/1012.2599.pdf
+        2. Taking the Human Out of theLoop: A Review of Bayesian Optimization (Shahriari 2015, shahriari2015taking) https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7352306
+    * Latent Structural Support Vector Machine (Miller 2012) - **TODO** find this paper/project. 
+    * Deep learning often involves a lot of hyper-parameter tuning, this is usally done by the practitioner model. 
+    * Alternative approaches: 
+        * Manual tuning 
+        * Grid search 
+        * Random search 
+        * Black magic (i.e. lr is 1e-3 is "good")
+    * Computationally expensive to search for global maximum in hyper-parameter search space. 
+    * Globally optimize a black-box approach to evaluate (e.g. cross validatio error for a massive neural network). 
+    * Use a probabilistic model to approximate the black-box model for the hyper-parameter search. 
+        * create a proxy model - this learns an approximation of the space - with less computational cost to query that space. 
+        * referred to ass proxy / approximate / surrogate. 
+    * The standard model for optimizing a bayesian model is a gaussian process. 
+    * Evaluate the proxy function once, this saves computation. 
+    * A gaussian process minimized the uncertainty of the proxy function.
+    * It samples the feature space at the minimum value of the shaded area (== uncertainty).
+    * It repeats this often, until the proxy function is close enough to the true objective. 
+    * Exploration - sample areas with high uncertainty. 
+    * Exploitation - sample places with low mean. 

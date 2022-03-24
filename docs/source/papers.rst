@@ -1,6 +1,10 @@
 Literature Review
 =================
 
+aizerman1964theoretical
+-----------------------
+    * The original hyperplane algorithm used a linear kernel.
+
 akkaya2019solving
 -----------------
     * Akkaya et al. propose a robotic hand that "single-handedly" solved a Rubiks cube \cite{akkaya2019solving}. 
@@ -14,10 +18,6 @@ al2019survey
 ------------
     * Survey of evolutionary machine learning - Vuw staff. 
     * **TODO** read 
-
-aizerman1964theoretical
------------------------
-    * The original hyperplane algorithm used a linear kernel.
 
 bi2020gc
 --------
@@ -41,6 +41,17 @@ brewer2006brown
     * But our memory is shit, so we often re-write and incorrectly recall these events. 
     * The distinictness of flashbulb memories, does help recall them longer, but does not guarantee correctness. 
 
+brochu2010tutorial
+------------------
+    * A Tutorial on Bayesian Optimization of Expensive Cost Functions
+    * Application: 
+        1. Active User Modeling 
+        2. Hierarchical Reinforcement Learning
+    * Covers the theory and intuition behind Bayesian optimizaiton with visual examples. 
+    * Discusses preference galleries, hierachichal control
+    * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
+    * **TODO** read this! 
+
 cai2020high 
 -----------
     * End-to-end driving via conditional imitation learning. 
@@ -50,6 +61,12 @@ cai2020high
     * Reward function is scaled by velocity, so faster lap times are rewarded. 
     * Works for 4 different kinds of vehicles, although the truck struggles to achieve same performance as lighter ones. 
 
+chase1973perception
+-------------------
+    * Domain expertise allows people to build meaningful schema to represent patterns.
+    * Expert chess players recall 16 pieces, intermeidate 8, novice 4 when arranged in meaninful positions. 
+    * Recall was consistant for levels of expertise on nonsense chess boards. 
+    * Our mental schemas for encoding patterns break on noise (unseen data). 
 
 codevilla2018end 
 ----------------
@@ -57,6 +74,14 @@ codevilla2018end
     * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
     
+cortes1995support
+-----------------
+    * Cortes and Vapnik proposed the Support Vector Machine (SVM).
+    * This model creates a hyperplane that can draw distinct class boundaries between classes.
+    * We call these class boundaries the support vectors.
+    * We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
+    * This creates a divide between one class and the rest, then repeats for the other classes.
+
 craik1972levels
 ---------------
     * Levels of processing: A framework for memory research. 
@@ -67,21 +92,6 @@ craik1975depth
     * Deeper processing, semantic over structural or phonetic, better. 
     * Depth processing increased later recognition of words in a list. 
     * Annecodte, study: skim-read vs. thoughtful reading. 
-
-chase1973perception
--------------------
-    * Domain expertise allows people to build meaningful schema to represent patterns.
-    * Expert chess players recall 16 pieces, intermeidate 8, novice 4 when arranged in meaninful positions. 
-    * Recall was consistant for levels of expertise on nonsense chess boards. 
-    * Our mental schemas for encoding patterns break on noise (unseen data). 
-
-cortes1995support
------------------
-    * Cortes and Vapnik proposed the Support Vector Machine (SVM).
-    * This model creates a hyperplane that can draw distinct class boundaries between classes.
-    * We call these class boundaries the support vectors.
-    * We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
-    * This creates a divide between one class and the rest, then repeats for the other classes.
 
 da2018evolutionary
 ------------------
@@ -287,6 +297,12 @@ scholkopf2000new
     * Nu-SVC classifier. 
     * Setting the number of support vectors is a hyper-parameter.
     * Usually this is learned by the system. 
+
+shahriari2015taking
+-------------------
+    * Taking the Human Out of theLoop: A Review of Bayesian Optimization.
+    * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
+    * **TODO** read this. 
 
 tegmark2020ai
 -------------
