@@ -1,3 +1,12 @@
+"""
+Main - main.py 
+==============
+
+This is the main routine for the CNN model. 
+It trains a 1-dimensional convolutionary neural network on the fish oil data. 
+We perform the classification task using this model.
+"""
+
 import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
