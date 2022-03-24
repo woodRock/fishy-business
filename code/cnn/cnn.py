@@ -17,9 +17,10 @@ def get_model(num_classes=4, input_shape=(4800,1)):
     model = Sequential([
         Conv1D(filters=32, kernel_size=3, activation='relu', padding='same', input_shape=input_shape),
         MaxPooling1D(pool_size=2),
-        Conv1D(filters=64, kernel_size=3, activation='relu', padding='same'),
         Dropout(0.5),
+        Conv1D(filters=64, kernel_size=3, activation='relu', padding='same'),
         MaxPooling1D(pool_size=2),
+        Dropout(0.5),
         Flatten(),
         Dense(64, activation='relu'),
         Dense(10, activation='relu'),

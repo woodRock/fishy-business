@@ -115,7 +115,7 @@ Notes:
     * "The only way through it, is to do it." 
     * Books, publications, thesis - different expectations for each course. 
 
-2022-03-08 - Weekly 
+2022-03-10 - Weekly 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
 
@@ -131,7 +131,7 @@ Notes:
     * Individual induction - copy Bach in email for meeting. 
     * Add Bach to gitlab/github for the paper latex file. 
 
-2022-03-08 - FASLIP 
+2022-03-10 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
@@ -145,7 +145,7 @@ Notes:
     * Builds a full world model, not a model for each task. 
     * Thousand brain theory - solution to No Free Lunch. 
 
-2022-03-08 - ECRG 
+2022-03-11 - ECRG 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
 
@@ -170,4 +170,115 @@ Notes:
     * Don't reinvent the wheel, use existing libraries instead. 
     * Scheduling, routing, resource allocation, service composition - all possible for EC. 
     
+2022-03-17 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood. 
 
+Notes:
+    * Daniel can provide domain expertise for writing the chemistry sections for the paper. 
+    * Multi-objective - classify chemical compounds and their percentage.  
+    * Multi-label - one instance can belong to multiple classes. 
+    * copy Bing and Bach for induction email from Georgia. 
+    * pymoo  - multi-objective python library. 
+    * Read/write summaries for papers as I go - write content for second chapter iteratively. 
+    * Send Daniel conclusions / contributions of paper in email, then organize a follow up meeting.
+
+2022-03-17 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Ying suggested a talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
+
+Notes: 
+    * Yaochi Jin - University of Surrey. 
+    * Multi-objective machine learning. 
+    * Centralized and federated learning. 
+    * Evolutionary multi-objecive federated learning. 
+    * Evolutionary federated nerual architecture search. 
+    * Multi-objective - gives a solution set, as their are tradeoffs between objectives. 
+    * Dominance, no X is worse and Y, and X is strictly better than Y for object A. 
+    * pareto front (See tegmark2020ai) set of optimal solutions.
+        * accuracy, diversity. 
+        * Inverse generational distance (IGD).
+        * Hypervolume - nadir 
+    * Optimize for minimal complexity implies interpretability. 
+    * Centralized learning - one database. 
+    * Localized learning - everyone trains their own model. 
+    * Privacy techniques: 
+        * Secure multi-party computation. 
+        * Differential privacy. 
+        * Homomorphic encyption. 
+    * Federated learning 
+        * train a high-quality centralized model with training dataq distributed over a large number of clients. 
+        * Each with unreliable and relatively slow network connections. 
+        * horizontal - all attributes, batches of data. 
+        * vertical - trained on subset of attributes (i.e. security reasons). 
+    * Federated learning objectives 
+        1. Maximise learning performance. 
+        2. Minimize communication cost. 
+    * Their work efficiently reduce the number of connections while maintaining similar performance. 
+    * Neural architecture search (TODO - watch the rest and take notes!!!)
+
+2022-03-18 - ECRG 
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+A talk on Geometric Semantic Genetic Programming by Qi Chen https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3
+
+Notes: 
+    * We have published heaps of papers that are highly cites and hot papers according to https://www.webofscience.com/wos/woscc/basic-search toool that the university has access to.
+    * Top 1% of papers cited per discipline for computer science journals. 
+    * Evolving neural networks with evolutionary computation. 
+    * Me: reading psychology papers on how the brain works with memory - hunting for relative simply neuro-science ideas to apply to machine learning. 
+    * Geometric smenatic genetic programming (Morgalio 2012, moraglio2012geometric) https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3 
+    * Semantic genetic programming methods. 
+    * Traditional GP ignores program semantics. 
+    * Consequences - ragged gentype-phenotype mapping. 
+    * Is it possible to make GP aware about the effects of the program execution? 
+    * Semantics: 
+        * Semantics differs from syntax. 
+        * Semantics related to the problem domain. 
+        * Semantics inform program design (Tegmark 2020, tegmark2020ai).
+    * Measure semantic distance between current program and target output (multi-dimensional loss function). 
+    * Genetic operators: 
+        * Semantic aware cross-over (SAC) 
+        * Semantic similarity-based cross-over (SSC)
+        * Semantic similarity-based mutation (SSM)
+        * Senantic tournament selection. 
+            * t-test for statistical signfician with assessing selection. 
+    * Search directly in the semantci space of the program. 
+    * Semnatics of offsrping must sit in between the ntercept between its two parents in semantic space. 
+    * Therefore each offspring minimized distance to target semantics. 
+    * Each generation gets closer to the target semantics, or atleast closer than the furthest parent. 
+    * Independent of data, good effect on improving generalization, althougt not actual claim made in paper. 
+    * Geometric semantic programming leads to a unimodel fitness landscape - a cone where the apex is the target semantics. 
+        * manhattan distance - square based pyramid.
+        * euclidean distance - cone. 
+    * Efficient implementation - only store changes to program tree, similar to git version control - except for GSGP. 
+    * GSGR Red (reduce), simplify problems by expanding and recomputing. 
+    * Locally geometric semantic crossover (LGSX).
+        * Make offsrping similar to eachother than their parents. 
+    * Random desired operator (RDO), exploit interoperability of instructions, + can be reversed with -, * can be reversed with division, + and * are communicative. 
+    * Semantic backpropogation - decomposibility of the process if important for BP. 
+    * Angle aware metrics - larger angle metrics iis more likely to generate offspring closer to target semantics. 
+    * Permutations GSX and Random Segment Mutation 
+    * Semenatic distance (euclidean) is the same as the loss, just looking at it from a different point of view. 
+    * Can geometric smeantic programming work in an unsupervised or combinatorial problem? (Possibly not unimodel semantic space)
+    
+2022-03-21 - DL
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, Hayden Dyne, et al. 
+
+Talk by Hayden on two papers: 
+    * End-to-end driving via conditional imitation learning (Cai 2020, cai2020high) https://ieeexplore.ieee.org/abstract/document/8460487/
+    * High-speed autonomous drifting with deep reinforcement learning (Codevilla 2018, codevilla2018end) https://ieeexplore.ieee.org/abstract/document/8961997/ 
+
+Notes: 
+    * Model-free reinforcement learning - does not rely on human understanding of world and design controllers. 
+    * Human driver is the trajectory with is the goal, uses a professional driver playing the game with a steering wheel. 
+    * Model performs on different track difficulties. 
+    * Reward function is scaled by velocity, so faster lap times are rewarded. 
+    * Works for 4 different kinds of vehicles, although the truck struggles to achieve same performance as lighter ones. 
+    * Second paper - e2e 
+    * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
+    * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
