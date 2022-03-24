@@ -37,5 +37,26 @@ def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Bl
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 #     plt.savefig("../report/assets/confusion_matrix.png")
-    plt.savefig("cnp/assets/confusion_matrix.png")
+    plt.savefig('cnn/assets/confusion_matrix.png')
+    plt.show()
+
+def plot_accuracy(history):
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('cnn/assets/accuracy.png')
+    plt.show()
+
+def plot_loss(history):
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('cnn/assets/loss.png')
     plt.show()

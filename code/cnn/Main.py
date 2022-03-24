@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 
 from .data import load, prepare, normalize, encode_labels
 from .cnn import get_model  
-from .plot import show_confusion_matrix
+from .plot import show_confusion_matrix, plot_loss, plot_accuracy
 
 folder = "data/matlab/"
 datasets = ["Fish.mat","Part.mat"]
 dataset = datasets[0]
 print("Chosen: %s" % dataset)
 mat = load(dataset,folder=folder)
+
 X,y = prepare(mat)
 X,_ = normalize(X,X)
 y, le = encode_labels(y)
@@ -39,23 +40,6 @@ val_ds = tf.data.Dataset.from_tensor_slices((X_val,y_val)).shuffle(1000).batch(b
 model = get_model(num_classes=num_classes)
 history = model.fit(train_ds, validation_data=val_ds, epochs=20)
 
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('cnn/assets/accuracy.png')
-plt.show()
-
-# summarize history for loss
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('cnn/assets/loss.png')
-plt.show()
-
+plot_accuracy(history)
+plot_loss(history)
 show_confusion_matrix(X_val, y_val, model, labels=class_names)
