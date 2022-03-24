@@ -1,3 +1,12 @@
+"""
+Data - data.py
+==============
+
+This is the data module. 
+It contains the functions for loading, preparing, normalizing and encoding the data.
+We seperate concerns here, these methods can be resued elsehwere.
+"""
+
 from sklearn.preprocessing import MinMaxScaler
 from sklearn import preprocessing
 import scipy.io
@@ -5,6 +14,9 @@ import scipy.io
 def encode_labels(y):
     """
     Convert text labels to numbers.
+
+    Args:
+        y: The labels.
     """
     le = preprocessing.LabelEncoder()
     y = le.fit_transform(y)
@@ -13,6 +25,10 @@ def encode_labels(y):
 def load(filename, folder=''):
     """
     Load the data from the mat file.
+
+    Args:
+        filename: The name of the mat file.
+        folder: The folder where the mat file is located.
     """
     path = folder + filename
     mat = scipy.io.loadmat(path)
@@ -21,6 +37,9 @@ def load(filename, folder=''):
 def prepare(mat):
     """
     Load the data from matlab format into memory. 
+
+    Args:
+        mat: The data in matlab format.
     """
     X = mat['X']   
     X = X.astype(float)
@@ -31,6 +50,10 @@ def prepare(mat):
 def normalize(X_train, X_test):
     """
     Normalize the input features within range [0,1].
+
+    Args:
+        X_train: The training data.
+        X_test: The test data.
     """
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaler = scaler.fit(X_train)

@@ -1,3 +1,11 @@
+"""
+Plot - ploy.py
+==============
+
+This file contains the functions for plotting the results of the model.
+It can display loss, accuracy and confusion matrices for the classification task.
+"""
+
 from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,6 +29,12 @@ def show_confusion_matrix(X_test, y_test, model, labels = ['BCO', 'GUR', 'SNA', 
 
 def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Blues):
     """Plot a confusion matrix for a classification task.
+
+    Args:
+        cm (np.array): The confusion matrix.
+        classes ([str]): The labels of the classes.
+        title (str): The title of the plot.
+        cmap (plt.cm): The color map to use.
     """
     plt.imshow(cm, interpolation = 'nearest', cmap=cmap)
     plt.title(title)
@@ -41,6 +55,11 @@ def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Bl
     plt.show()
 
 def plot_accuracy(history):
+    """Plots the accuracy of the model.
+    
+    Args:
+        history (keras.history): The history of the model.
+    """
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
     plt.title('model accuracy')
@@ -51,7 +70,11 @@ def plot_accuracy(history):
     plt.show()
 
 def plot_loss(history):
-    # summarize history for loss
+    """Plots the loss of the model.
+    
+    Args:
+        history (keras.history): The history of the model.
+    """
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
     plt.title('model loss')
