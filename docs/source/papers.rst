@@ -140,6 +140,13 @@ fukushima1982neocognitron
     * Shares nice properties of linear function. 
     * But allows for non-linearities to be captured. 
 
+garnelo2018conditional
+----------------------
+    * Conditional Neural Processes. 
+    * Combine Bayesian optimizationa and Neural Networks. 
+    * Use Gaussian Processes (GP) to approximate functions within reasonable confidence. 
+    * Neural network, encoder-decoder GAN-like architecture to perform ML tasks. 
+
 godden1975context
 -----------------
     * Context-dependent memory in two natural environments: On land and underwater. 
