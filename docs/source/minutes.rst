@@ -314,6 +314,9 @@ Notes:
     * Can start coding now - explore ideas for ENGR489 and EC on existing data. 
     * Transformers, LSTM, GAN - yet to be applied to GC-MS data in literature. 
     * CNNs for GC, likely due to libraries, hype, understanding, Diffusion of innovation. 
+    * Scuba diver experiment for context-dependent memory is a good analogy for noise in ML models.
+    * Came up with evolutionary ideas, like sexual selection, but (Miller 1994) did it quite some time ago.
+    * Idea for EC, a dynamic environment where complexity increases, classes or features are added - similar to evolution IRL. 
 
 2022-03-17 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
