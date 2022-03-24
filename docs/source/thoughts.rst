@@ -100,3 +100,10 @@ brewer2006brown
         * Parkinson's law - Parkinson's law is the adage that "work expands so as to fill the time available for its completion." (https://en.wikipedia.org/wiki/Parkinson%27s_law)
     * My proposal and thesis are the first two major milestones that I can consider at this early stage. 
     * As I get stuck into implementation and actual work, many more milestones will arise. 
+
+2022-03-24 - Bayesian Optimization 
+----------------------------------
+    * shahriari2015taking and brochu2010tutorial were suggested readings from the FASLIP talk. 
+    * Bayesian optimization through Gaussian Processes (GP) is an effective method for approximating prohibitive objective functions. 
+    * Those functions may be prohibitive, because they are intractable, or computationally expensive, or other reasons. 
+    * We used GP in the Conditional Neural Processes (Garnelo 2018, garnelo2018conditional) when building a the cnpRIR for Summer Research Project. 
