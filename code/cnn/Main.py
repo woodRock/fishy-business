@@ -7,6 +7,7 @@ It trains a 1-dimensional convolutionary neural network on the fish oil data.
 We perform the classification task using this model.
 """
 
+from cmath import e
 import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
@@ -15,6 +16,10 @@ import matplotlib.pyplot as plt
 from .data import load, prepare, normalize, encode_labels
 from .cnn import get_model  
 from .plot import show_confusion_matrix, plot_loss, plot_accuracy
+
+# Hyperparameters
+batch_size = 32
+epochs = 30
 
 folder = "data/matlab/"
 datasets = ["Fish.mat","Part.mat"]
@@ -37,7 +42,6 @@ y = tf.keras.utils.to_categorical(y, num_classes=num_classes)
 X = np.expand_dims(X, axis=-1)
 
 input_shape = (X.shape[1],X.shape[2])
-batch_size = 32
 
 print(f"Input shape: {input_shape}")
 
@@ -47,7 +51,7 @@ train_ds = tf.data.Dataset.from_tensor_slices((X_train,y_train)).shuffle(1000).b
 val_ds = tf.data.Dataset.from_tensor_slices((X_val,y_val)).shuffle(1000).batch(batch_size)
 
 model = get_model(num_classes=num_classes)
-history = model.fit(train_ds, validation_data=val_ds, epochs=20)
+history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
 
 plot_accuracy(history)
 plot_loss(history)

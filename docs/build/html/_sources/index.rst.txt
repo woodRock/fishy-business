@@ -12,6 +12,7 @@ Welcome to fish's documentation!
 
    minutes
    papers
+   thoughts
 
 
 

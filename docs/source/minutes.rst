@@ -266,7 +266,7 @@ Notes:
     * Can geometric smeantic programming work in an unsupervised or combinatorial problem? (Possibly not unimodel semantic space)
     
 2022-03-21 - DL
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, Hayden Dyne, et al. 
 
 Talk by Hayden on two papers: 
@@ -282,3 +282,4 @@ Notes:
     * Second paper - e2e 
     * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
+
