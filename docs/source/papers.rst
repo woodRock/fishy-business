@@ -115,6 +115,23 @@ eder1995gas
 eiben2015evolutionary
 ---------------------
     * From evolutionary computation to the evolution of things - Nature review article.
+    * X-band antenneas for NASA Space Technology 5 (ST5) spacecraft 
+        * Evolutionary-algorithm based aaporach discovered effective antennea esigns. 
+        * Also could adjust designs quckly when requirements changed .
+        * One of these antennas was deployed, the first computer evolved hardware in space. 
+    * EC has an advantage over manual design.
+    * Similar to model-free in reinforcement learning (Cai 2020 - cai2020high, Codevilla 2018 - codevilla2018end)
+    * State-of-the-art protein structure prediction 
+        * Design an algorithm do develop complex energy functions with genetic programming. 
+        * EC great at exploring intractibly large combinatorial search spaces with high evaluation cost. 
+    * EC have seperation of concerns, phenotype seperate from fitness, good modularity.
+    * EC makes no implicit assumptions about the problem.
+    * Trends
+        * Automated design and tuning of evolutionary algorithms. 
+        * Using surrogate models. 
+        * Handiling many objectives 
+        * Generative and developmental representations.
+    * Crazy futurist ideas for this field, evolutionary factories, artificial bio-silica life, etc... 
 
 eich1975state
 -------------
