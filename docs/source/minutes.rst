@@ -318,7 +318,7 @@ Notes:
     * Came up with evolutionary ideas, like sexual selection, but (Miller 1994) did it quite some time ago.
     * Idea for EC, a dynamic environment where complexity increases, classes or features are added - similar to evolution IRL. 
 
-2022-03-17 - FASLIP 
+2022-03-24 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
