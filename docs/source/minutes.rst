@@ -372,3 +372,8 @@ Notes:
     * Names with high/low probabilities are often historic cases referred to as 'guidance judgements'. 
     * Combine data analysis and domain expertise to infer knowledge about sentencing lengths. 
     * Home detention or communtiy service are associated with shorter sentences. 
+    * Future work, take humans out of the loop, and make sentencing deterministic.
+    * ^ This can be done, because their are extenuating circumstances that require a judges opinion.
+    * Also, if all sentences are automated, there would no longer be guidance judgements being set historically. 
+    * Law is a dynamic and decentralized system, unique and specialized for each country, case, individual, etc... 
+    * Research more productive on letting judges analysis their blindspots, and identify bias.
