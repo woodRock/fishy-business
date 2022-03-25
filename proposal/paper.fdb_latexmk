@@ -1,16 +1,16 @@
 # Fdb version 3
-["bibtex paper"] 1648176464 "paper.aux" "paper.bbl" "paper" 1648176465
+["bibtex paper"] 1648176464 "paper.aux" "paper.bbl" "paper" 1648176701
   "./IEEEbib.bst" 1648176073 17903 9ff833f4bf67f47893e44ee17b52d211 ""
-  "paper.aux" 1648176456 1910 77f6e93421b59ad28d8c54b79dda8529 "pdflatex"
+  "paper.aux" 1648176692 1910 77f6e93421b59ad28d8c54b79dda8529 "pdflatex"
   "refs.bib" 1648176073 73787 519d408f02f2f67d3e867d1df79f9f00 ""
   "strings.bib" 1648176073 226 12565ad96e526823ab328ae0c4f08749 ""
   (generated)
-  "paper.blg"
   "paper.bbl"
-["pdflatex"] 1648176464 "/home/woodj4/Documents/fishy-business/proposal/paper.tex" "/home/woodj4/Documents/fishy-business/proposal/paper.pdf" "paper" 1648176465
+  "paper.blg"
+["pdflatex"] 1648176700 "/home/woodj4/Documents/fishy-business/proposal/paper.tex" "/home/woodj4/Documents/fishy-business/proposal/paper.pdf" "paper" 1648176701
   "/etc/texmf/texmf.cnf" 1626173567 39256 9e0ec3fd8b6984fefaa1687d35d359ca ""
-  "/home/woodj4/Documents/fishy-business/proposal/paper.aux" 1648176456 1910 77f6e93421b59ad28d8c54b79dda8529 ""
-  "/home/woodj4/Documents/fishy-business/proposal/paper.tex" 1648176454 4487 f0910a8c6f554d6e683cfa93b534ecb9 ""
+  "/home/woodj4/Documents/fishy-business/proposal/paper.aux" 1648176692 1910 77f6e93421b59ad28d8c54b79dda8529 ""
+  "/home/woodj4/Documents/fishy-business/proposal/paper.tex" 1648176691 4625 d3000f47659f335d4aae15f12b37c7c7 ""
   "/usr/pkg/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1639379461 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/pkg/share/texmf-dist/fonts/map/fontname/texfonts.map" 1639369935 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/pkg/share/texmf-dist/fonts/tfm/adobe/times/ptmb7t.tfm" 1639666107 2172 fd0c924230362ff848a33632ed45dc23 ""
@@ -105,15 +105,15 @@
   "/usr/pkg/share/texmf-dist/tex/latex/url/url.sty" 1639367442 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1639705206 2607082 5aa4db816a797a5410df72a59cf9e9f7 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1639703754 2311163 ed1cf04afc8001dc715880b453cfb8d1 ""
-  "paper.aux" 1648176456 1910 77f6e93421b59ad28d8c54b79dda8529 "pdflatex"
+  "paper.aux" 1648176692 1910 77f6e93421b59ad28d8c54b79dda8529 "pdflatex"
   "paper.bbl" 1648176455 279 d26c6c440a3b95c4141b4b8832c47f96 "bibtex paper"
-  "paper.out" 1648176456 789 8ff86c96b5ff941ddbe61b281dd53a37 "pdflatex"
-  "paper.tex" 1648176454 4487 f0910a8c6f554d6e683cfa93b534ecb9 ""
+  "paper.out" 1648176692 789 8ff86c96b5ff941ddbe61b281dd53a37 "pdflatex"
+  "paper.tex" 1648176691 4625 d3000f47659f335d4aae15f12b37c7c7 ""
   "spconf.sty" 1648176073 8798 121ab5e33850ab4cf48fc2795d92b250 ""
   (generated)
   "paper.log"
-  "paper.aux"
   "paper.out"
-  "paper.pdf"
   "/home/woodj4/Documents/fishy-business/proposal/paper.pdf"
+  "paper.aux"
+  "paper.pdf"
   "/home/woodj4/Documents/fishy-business/proposal/paper.log"

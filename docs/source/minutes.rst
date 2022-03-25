@@ -347,3 +347,28 @@ Notes:
     * It repeats this often, until the proxy function is close enough to the true objective. 
     * Exploration - sample areas with high uncertainty. 
     * Exploitation - sample places with low mean. 
+
+2022-03-25 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Andrew Lenson, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Andrew gave a talk on Genetic Programming, Explainability and Interdisciplinary AI.
+
+Notes: 
+    * Heaps of students successfully submitted papers to the Gecko conference. 
+    * Possible to publish in conference at different levels; paper, poster, etc. 
+    * If a paper is declined, revise with reviewer comments, and resubmit as poster. 
+    * Qurrat Al Ain - Cancer research in AI. 
+    * Swiss roll manifold problem
+        * Reduce a manifold to a 2D visual representation. 
+        * 2D path is representation of non-linear dimensionality reduction (NLDR).
+    * Geo-desic, shortest path from A to B, not shortest euclidean distance. 
+    * Lower dimensional space is referred to as an embedding. 
+    * We can use AI to learn or approximate this embedding (if the problem is intractable).
+    * Ways to estimate the intrinsic dimensionality of the dataset - statistical techniques. 
+    * Kaka - count distinct nnumber of birds at Zealandia. 
+    * GoPro for data collection combined with crack for Kaka. 
+    * Law - predicting sentencing lengths with PLSR on judge summaries. 
+    * Names with high/low probabilities are often historic cases referred to as 'guidance judgements'. 
+    * Combine data analysis and domain expertise to infer knowledge about sentencing lengths. 
+    * Home detention or communtiy service are associated with shorter sentences. 
