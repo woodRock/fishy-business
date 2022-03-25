@@ -1,0 +1,131 @@
+\documentclass{article}
+\usepackage{spconf,amsmath,amssymb,graphicx,url,float}
+
+% Hide red underlines for URLs. 
+\usepackage[hidelinks]{hyperref}
+
+% Stack two figures on top of each other.
+\usepackage{subcaption}
+
+% Make caption text font smaller.
+\usepackage{caption}
+\captionsetup[figure]{font=small,labelfont=small}
+
+
+\graphicspath{{assets/}}
+
+% Template for ICASSP-2020 paper; to be used with:
+%          spconf.sty  - ICASSP/ICIP LaTeX style file, and
+%          IEEEbib.bst - IEEE bibliography style file.
+% --------------------------------------------------------------------------
+
+\def\x{{\mathbf x}}
+\def\L{{\cal L}}
+\newcommand{\R}{\mathbb{R}}
+
+% Title.
+% ------
+\title{Proposal}
+
+% Single address.
+% ---------------
+\name{
+  Jesse Wood, Bing-Xue, Mengjie Zhang, Bach Hoai Nguyen, Daniel Killeen
+ \thanks{Thanks to New Zealand Plant \& Food Research for datasets, funding and expertise.}
+} 
+
+\address{
+  Victoria University \\ 
+  Engineering and Computer Science \\ 
+  Kelburn, Wellington, New Zealand
+}
+
+\begin{document}
+
+\maketitle
+%
+\begin{abstract}
+  % The abstract should appear at the top of the left-hand column of text, about
+  % 0.5 inches (12 mm) below the title area and no more than 3.125 inches (80 mm) in
+  % length.  Leave a 0.5 inch (12 mm) space between the end of the abstract and the
+  % beginning of the main text.  The abstract should contain about 100 to 150
+  % words, and should be identical to the abstract text submitted electronically
+  % along with the paper cover sheet.  All manuscripts must be in English, printed
+  % in black ink.
+
+  Submitted in partial fulfilment of the PhD in Artificial Intelligence.
+
+\end{abstract}
+%
+\begin{keywords}
+  Feature Selection, Gas Chromatography, Support Vector Machines, Visualisation
+\end{keywords}
+%
+
+\section{INTRODUCTION}
+\label{sec:introduction}
+
+\cite{bi2020gc}
+
+\section{BACKGROUND}
+\label{sec:background}
+
+\section{RELATED WORKS}
+\label{sec:related-works}
+
+\section{RESULTS \& DISCUSSIONS}
+\label{sec:results}
+
+\section{CONCLUSION}
+\label{sec:conclusion}
+
+\section{Appendix}
+\label{sec:appendix}
+
+% This paper has demonstrated the performance of the neural network with non-linear activation functions on a non-linear objective function. ReLU \cite{fukushima1982neocognitron} has shown to be effective, which hints towards its wide adoption in the field of deep learning.
+
+% \subsection{Relation to Prior Work}
+% \label{sec:prior}
+
+% The text of the paper should contain discussions on how the paper's
+% contributions are related to prior work in the field. It is important
+% to put new work in context, to give credit to foundational work, and
+% to provide details associated with the previous work that has appeared
+% in the literature. This discussion may be a separate, numbered section
+% or it may appear elsewhere in the body of the manuscript, but it must
+% be present.
+
+% You should differentiate what is new and how your work expands on
+% or takes a different path from the prior studies. An example might
+% read something to the effect: "The work presented here has focused
+% on the formulation of the ABC algorithm, which takes advantage of
+% non-uniform time-frequency domain analysis of data. The work by
+% Smith and Cohen \cite{goodfellow2016deep} considers only fixed time-domain analysis and
+% the work by Jones et al \cite{goodfellow2016deep} takes a different approach based on
+% fixed frequency partitioning. While the present study is related
+% to recent approaches in time-frequency analysis [3-5], it capitalizes
+% on a new feature space, which was not considered in these earlier
+% studies."
+
+% \vfill\pagebreak
+
+% \section{REFERENCES}
+% \label{sec:refs}
+
+% List and number all bibliographical references at the end of the
+% paper. The references can be numbered in alphabetic order or 
+% order of appearance in the document. When referring to them in
+% the text, type the corresponding reference number in square
+% brackets as shown at the end of this sentence \cite{goodfellow2016deep}. An
+% additional final page (the fifth page, in most cases) is
+% allowed, but must contain only references to the prior
+% literature.
+
+% References should be produced using the bibtex program from suitable
+% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
+% style file from IEEE produces unsorted bibliography list.
+% -------------------------------------------------------------------------
+\bibliographystyle{IEEEbib}
+\bibliography{strings,refs}
+
+\end{document}
