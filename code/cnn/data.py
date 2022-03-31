@@ -11,16 +11,19 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn import preprocessing
 import scipy.io
 
-def encode_labels(y):
+def encode_labels(y, y_test=None):
     """
     Convert text labels to numbers.
 
     Args:
         y: The labels.
+        y_test: The test labels. Defaults to None.
     """
     le = preprocessing.LabelEncoder()
     y = le.fit_transform(y)
-    return y, le
+    if y_test is not None:
+        y_test = le.transform(y_test)
+    return y, y_test, le
 
 def load(filename, folder=''):
     """
