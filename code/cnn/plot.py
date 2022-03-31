@@ -18,6 +18,8 @@ def show_confusion_matrix(X_test, y_test, model, labels = ['BCO', 'GUR', 'SNA', 
         X_test ([[int]]): The test data.
         y_test ([[int]]): Onehot encoded labels for the test data.
         model (keras.model): The model to use for the prediction.
+        labels ([str]): The labels of the classes.
+        title (str): The title of the plot.
     """
     predictions = model.predict(x=X_test, steps=len(X_test),verbose=0)
     cm = confusion_matrix(
@@ -27,7 +29,7 @@ def show_confusion_matrix(X_test, y_test, model, labels = ['BCO', 'GUR', 'SNA', 
     cm_plot_labels = labels
     plot_confusion_matrix(cm=cm, classes=cm_plot_labels, title=title)
 
-def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Blues):
+def plot_confusion_matrix(cm, classes, title='confusion_matrix', cmap = plt.cm.Blues):
     """Plot a confusion matrix for a classification task.
 
     Args:
@@ -50,15 +52,16 @@ def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Bl
     plt.tight_layout() 
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-#     plt.savefig("../report/assets/confusion_matrix.png")
-    plt.savefig('cnn/assets/confusion_matrix.png')
+    plt.savefig(f"cnn/assets/{title}.png")
     plt.show()
 
-def plot_accuracy(accuracy, val_accuracy):
+def plot_accuracy(accuracy, val_accuracy, title="accuracy"):
     """Plots the accuracy of the model.
     
     Args:
-        history (keras.history): The history of the model.
+        accuracy (np.array): The accuracy of the model.
+        val_accuracy (np.array): The validation accuracy of the model.
+        title (str): The title of the plot.
     """
     plt.plot(accuracy)
     plt.plot(val_accuracy)
@@ -66,14 +69,16 @@ def plot_accuracy(accuracy, val_accuracy):
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('cnn/assets/accuracy.png')
+    plt.savefig(f"cnn/assets/{title}.png")
     plt.show()
 
-def plot_loss(loss, val_loss):
+def plot_loss(loss, val_loss, title="loss"):
     """Plots the loss of the model.
     
     Args:
-        history (keras.history): The history of the model.
+        loss (np.array): The loss of the model.
+        val_loss (np.array): The validation loss of the model.
+        title (str): The title of the plot.\
     """
     plt.plot(loss)
     plt.plot(val_loss)
@@ -81,5 +86,5 @@ def plot_loss(loss, val_loss):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('cnn/assets/loss.png')
+    plt.savefig(f"cnn/assets/{title}.png")
     plt.show()
