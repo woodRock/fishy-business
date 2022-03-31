@@ -436,5 +436,6 @@ Notes:
     * AI autonomous warfare proliferation - we need to ban slaughter bots https://www.youtube.com/watch?v=pOv_9DNoDRY
     * AI used for traffic management, screen-time punishment - pick up phone at cafe and pay the bill. 
     * RoboMaster - robot warfare, mechatronics, AI - physical robot warfare as a game/competition. 
-    * Cosmo - Boris Sofman - narrow-AI and no free lunch problem - AI is good at solving very specific tasks, but not general intelligence. 
+    * Cosmo - Boris Sofman https://www.youtube.com/watch?v=U_AREIyd0Fc 
+    * Narrow-AI and no free lunch problem - AI is good at solving very specific tasks, but not general intelligence. 
     * I have an industry project, that has real-world applications in a factory settings - i.e. reduce bycatch and maximize efficiency of food processing for fish. 
