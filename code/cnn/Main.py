@@ -78,5 +78,5 @@ for i in range(epochs):
 plot_accuracy(accuracies, val_accuracies)
 plot_loss(losses, val_losses)
 class_names = ["BCO","GUR","SNA","TAR"] # Hard-coded for now. # class_names = np.unique(y_train)
-show_confusion_matrix(X_train, y_train, model, labels=class_names, title="Train: Confusion Matrix")
-show_confusion_matrix(X_test, y_test, model, labels=class_names, title="Test: Confusion Matrix")
+show_confusion_matrix(X_train, y_train, model, labels=class_names, title="confusion_matrix_train")
+show_confusion_matrix(X_test, y_test, model, labels=class_names, title="confusion_matrix_test")
