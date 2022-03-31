@@ -111,6 +111,7 @@ brewer2006brown
 
 2022-03-31 - The Big Reset 2.0 
 ------------------------------
+    * Based on FASLIP video https://fishy-business.readthedocs.io/en/latest/minutes.html#id10
     * When naming these things, they just pour fuel on the fire of conspiracy theorists. 
     * China uses technology/AI as a hammer, and when your tool is a hammer, everything starts to look like a nail. 
     * Some things don't need deep learning or AI for solutions - reduce depedency on technology can be a good things. 
