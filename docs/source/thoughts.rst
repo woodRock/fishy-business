@@ -121,3 +121,21 @@ brewer2006brown
     * Theres an AI solution for every unique problem (e.g. Siri, Alexa, Spot, GPT-3, AlphaFold), but no ONE AI that can generalize for everthing (AGI).
     * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
     * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 
+
+2021-03-12 - CNN Results 
+------------------------
+    * I have implemented the 1-dimensional CNN from ENGR489 - with some tweaks and adjustments. 
+        * Now I assess the accuracy using k-fold stratified cross-validation (k = 10). 
+        * This allows for direct comparison to the other classifiers (i.e. SVM, KNN, DT, ...). 
+        * Upon turning the hyperparameters manually, I was able to achieve 98% accuracy on the fish species training set. 
+        * This is now competitive with the Linear SVM classifier results (approx. 98.33%). 
+        * I have attached the mean accuracy and loss (for all folds), and confusion matrices (for the last fold). 
+    * Manual tuning for the CNN hyperparameters is a time consuming and laborious process. 
+        * This was black magic and I was very lucky to find hyper-parameters that work well. 
+        * I would like to explore using EC to perform a neural architecture search. 
+        * This would automate the process of tuning and may provide improved performance over the SVM classifier for our more difficult fish part dataset. 
+        * The SVM provides an excellent baseline for the competitive performance of the desired CNN model, and it is far less computationally expensive to evaluate.
+    * Paper / research 
+        * For now, I was thinking about performing a simple neural architecture search, which encodes batch size, epochs, and filter size for convolutional layers, and dropout probability. 
+        * This could later be expanded to include a genetic algorithm that constructs the network design through evolutionary processes - but this remains beyond my initial scope. 
+        * If results are promising, a paper on "Evolutionary Computation for Neural Architecture Search in Fish Oil Analysis" would be appropriate.
