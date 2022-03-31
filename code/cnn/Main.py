@@ -18,7 +18,7 @@ from .plot import show_confusion_matrix, plot_loss, plot_accuracy
 
 # Hyperparameters
 batch_size = 32
-epochs = 30
+epochs = 100
 k = 10
 
 # Dataset
