@@ -17,7 +17,7 @@ from .cnn import get_model
 from .plot import show_confusion_matrix, plot_loss, plot_accuracy
 
 # Hyperparameters
-batch_size = 32
+batch_size = 64
 epochs = 100
 k = 10
 
