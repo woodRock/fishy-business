@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import itertools
 
-def show_confusion_matrix(X_test, y_test, model, labels = ['BCO', 'GUR', 'SNA', 'TAR']):
+def show_confusion_matrix(X_test, y_test, model, labels = ['BCO', 'GUR', 'SNA', 'TAR'], title="Confusion Matrix"):
     """Shows the confusion matrix for the test data. 
 
     Args:
@@ -25,7 +25,7 @@ def show_confusion_matrix(X_test, y_test, model, labels = ['BCO', 'GUR', 'SNA', 
         y_pred = np.argmax(predictions, axis=-1)
     )
     cm_plot_labels = labels
-    plot_confusion_matrix(cm=cm, classes=cm_plot_labels, title='Confusion Matrix')
+    plot_confusion_matrix(cm=cm, classes=cm_plot_labels, title=title)
 
 def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Blues):
     """Plot a confusion matrix for a classification task.
