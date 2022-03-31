@@ -107,4 +107,6 @@ brewer2006brown
     * Bayesian optimization through Gaussian Processes (GP) is an effective method for approximating prohibitive objective functions. 
     * Those functions may be prohibitive, because they are intractable, or computationally expensive, or other reasons. 
     * We used GP in the Conditional Neural Processes (Garnelo 2018, garnelo2018conditional) when building a the cnpRIR for Summer Research Project. 
-    * The term neuro-evolutionary, used in (Eiben 2015 - eiben2015evolutionary), are hybrid algorithms that combine neural networks and evolutionary computation. 
+    * The term neuro-evolutionary, used in (Eiben 2015 - eiben2015evolutionary), are hybrid algorithms that combine neural networks and evolutionary computation.
+
+ 

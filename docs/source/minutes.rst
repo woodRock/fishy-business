@@ -267,7 +267,7 @@ Notes:
     
 2022-03-21 - DL
 ~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, Hayden Dyne, et al. 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Hayden Dyne, Bastiaan Kleign, Jesse Wood, et al. 
 
 Talk by Hayden on two papers: 
     * End-to-end driving via conditional imitation learning (Cai 2020, cai2020high) https://ieeexplore.ieee.org/abstract/document/8460487/
@@ -377,3 +377,44 @@ Notes:
     * Also, if all sentences are automated, there would no longer be guidance judgements being set historically. 
     * Law is a dynamic and decentralized system, unique and specialized for each country, case, individual, etc... 
     * Research more productive on letting judges analysis their blindspots, and identify bias.
+
+2022-03-21 - DL
+~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaite, Bastiaan Kleign, Jesse Wood, et al. 
+
+Daniel Braithwaite talked about two papers related to machine learning for audio wave construction:
+    1. Deep Audio Priors Emerge from Harmonic Convolutional Networks https://openreview.net/pdf?id=rygjHxrYDB
+    2. Harmonic WaveGAN https://www.isca-speech.org/archive/pdfs/interspeech_2021/mizuta21_interspeech.pdf
+
+Notes: 
+    * The idea is to look at harmonic convolutions, think convolution layer but designed for audio. 
+    * WaveGAN and Harmonic WaveGAN use deep learning on audio signals. 
+    * Harmonic, is better suited towards audio signals, than wave alone. 
+    * Harmonic considers local connections / adjaceny better. 
+    * **TODO** Read these papers and add to notes. 
+
+2022-03-17 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Jesse Wood. 
+
+Bing and Meng were both unwell this week. Important to send minutes for this meeting to them.
+
+Notes: 
+    * Augmentation - boost performance on the fish part dataset. 
+        * Time-shift, shift data backwards and forward, to get time-invariant generalized model (may not work well).
+        * Impute data, combine existing samples, add noise, etc... 
+    * Worked on CNN from ENGR489 for classification task.
+        * Issues with keras and sklearn libraries, stratified cross-fold validation and one hot encoding don't play nice together. 
+        * CNNs, we use 1D convolution and pooling layers on time-series data. 
+        * Existing ML + GC literature also use CNN for classification and regression tasks. 
+        * These models are powerful for extracting features in spaces with local connectivity. 
+        * Aim to use EC to perform neural architecture search for CNN hyperparamters - these differ for each dataset. 
+    * Both EC and Bayesian Optimization approaches work for neural architecture search. 
+        * However, EC has more interpretable results, e.g. a genetic algorithm produces an explainable tree. 
+        * Neural networks are black-box and esoteric, we understand how (i.e. back-prop, SGD), but not why? 
+        * EC produces simpler representations, that can be prodded with domain expertise.
+    * Important to read heaps for first few months of PHD. 
+        * Take original notes that can contribute toward a backgroup chapter of my proposal. 
+        * Get an idea of what has been done, and what I want to do. 
+        * Still reading psychology textbook on memory and the brain to establish conceptual framework for learning.
+     
