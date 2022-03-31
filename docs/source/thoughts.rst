@@ -117,7 +117,7 @@ brewer2006brown
     * WeChat is used for everything, messenger, social media, payments - when your phone dies you are no longer a citizen. 
     * Similar to digital vaccination pass system in New Zealand, when you phone dies you forfeit your rights as a human being. 
     * AI prosthetics are cool, but still not available en-masse, the rich and  continue their already shelted and privelaged lifestyle. We could give these to everyone, but there is no economic incentive. 
-    * Even kids notice the Narrow-AI / free lunch theorum in Artificial Intelligence 
+    * Even kids notice the Narrow-AI / free lunch theorum in Artificial Intelligence.
     * Theres an AI solution for every unique problem (e.g. Siri, Alexa, Spot, GPT-3, AlphaFold), but no ONE AI that can generalize for everthing (AGI).
     * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
     * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 
