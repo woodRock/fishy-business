@@ -109,4 +109,15 @@ brewer2006brown
     * We used GP in the Conditional Neural Processes (Garnelo 2018, garnelo2018conditional) when building a the cnpRIR for Summer Research Project. 
     * The term neuro-evolutionary, used in (Eiben 2015 - eiben2015evolutionary), are hybrid algorithms that combine neural networks and evolutionary computation.
 
- 
+2022-03-31 - The Big Reset 2.0 
+------------------------------
+    * When naming these things, they just pour fuel on the fire of conspiracy theorists. 
+    * China uses technology/AI as a hammer, and when your tool is a hammer, everything starts to look like a nail. 
+    * Some things don't need deep learning or AI for solutions - reduce depedency on technology can be a good things. 
+    * WeChat is used for everything, messenger, social media, payments - when your phone dies you are no longer a citizen. 
+    * Similar to digital vaccination pass system in New Zealand, when you phone dies you forfeit your rights as a human being. 
+    * AI prosthetics are cool, but still not available en-masse, the rich and  continue their already shelted and privelaged lifestyle. We could give these to everyone, but there is no economic incentive. 
+    * Even kids notice the Narrow-AI / free lunch theorum in Artificial Intelligence 
+    * Theres an AI solution for every unique problem (e.g. Siri, Alexa, Spot, GPT-3, AlphaFold), but no ONE AI that can generalize for everthing (AGI).
+    * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
+    * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 

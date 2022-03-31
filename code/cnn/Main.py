@@ -52,6 +52,11 @@ for train, test in skf.split(X, y):
 
 print(f"History: {history[0].history}")
 
+losses = [] 
+val_losses = [] 
+accuracies = []
+val_accuracies = []
+
 for i in range(epochs):
     avg_loss = [] 
     avg_val_loss = []
@@ -71,6 +76,11 @@ for i in range(epochs):
 
     print (f"Epoch: {i}, loss: {avg_loss:4f} +/- {std_loss:4f}, val_loss: {avg_val_loss:4f} +/- {std_val_loss:4f}, acc: {avg_acc:4f} +/- {std_acc:4f}, val_acc: {avg_val_acc:4f} +/- {std_val_acc:4f}")
 
-# plot_accuracy(history)
-# plot_loss(history)
+    losses.append(avg_loss)
+    val_losses.append(avg_val_loss)
+    accuracies.append(avg_acc)
+    val_accuracies.append(avg_val_acc)
+
+plot_accuracy(accuracies, val_accuracies)
+plot_loss(losses, val_losses)
 # show_confusion_matrix(X_val, y_val, model, labels=class_names)

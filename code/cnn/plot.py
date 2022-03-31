@@ -54,14 +54,14 @@ def plot_confusion_matrix(cm, classes, title='Confsion matrix', cmap = plt.cm.Bl
     plt.savefig('cnn/assets/confusion_matrix.png')
     plt.show()
 
-def plot_accuracy(history):
+def plot_accuracy(accuracy, val_accuracy):
     """Plots the accuracy of the model.
     
     Args:
         history (keras.history): The history of the model.
     """
-    plt.plot(history.history['accuracy'])
-    plt.plot(history.history['val_accuracy'])
+    plt.plot(accuracy)
+    plt.plot(val_accuracy)
     plt.title('model accuracy')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
@@ -69,14 +69,14 @@ def plot_accuracy(history):
     plt.savefig('cnn/assets/accuracy.png')
     plt.show()
 
-def plot_loss(history):
+def plot_loss(loss, val_loss):
     """Plots the loss of the model.
     
     Args:
         history (keras.history): The history of the model.
     """
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
+    plt.plot(loss)
+    plt.plot(val_loss)
     plt.title('model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
