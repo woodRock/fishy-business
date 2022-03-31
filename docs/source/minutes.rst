@@ -378,7 +378,7 @@ Notes:
     * Law is a dynamic and decentralized system, unique and specialized for each country, case, individual, etc... 
     * Research more productive on letting judges analysis their blindspots, and identify bias.
 
-2022-03-21 - DL
+2022-03-28 - DL
 ~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaite, Bastiaan Kleign, Jesse Wood, et al. 
 
@@ -393,7 +393,7 @@ Notes:
     * Harmonic considers local connections / adjaceny better. 
     * **TODO** Read these papers and add to notes. 
 
-2022-03-17 - Weekly   
+2022-03-31 - Weekly   
 ~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Jesse Wood. 
 
@@ -418,3 +418,23 @@ Notes:
         * Get an idea of what has been done, and what I want to do. 
         * Still reading psychology textbook on memory and the brain to establish conceptual framework for learning.
      
+2022-03-31 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Fangfang Zhang, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Fangfang suggested a video called the Big Reset 2.0 https://www.youtube.com/watch?v=-ePZ7OdY-Dw
+
+Notes: 
+    * Reinforcment learning for Robotic Arms. 
+    * Deep blue beat Kasparov, but no AI can set up the chess board, a 6 year old can do that. 
+    * Hugh Herr designed his own AI legs https://www.youtube.com/watch?v=CDsNZJTWw0w
+        * AI prosthesis is cost prohibitive for the masses, but may work with diffusion of innovation in future. 
+        * Prosthesis can up upgraded over time, biological body parts cannot, hardware/software updates for legs. 
+    * Fake news - Jon Stewart said MSM has more trackers than ANY other media (adult entertainment, torrent sites, social media included).
+    * Chomskey, MSMs job is to sell the educated privelaged wealthy elites as an audience to the corporations advertising. 
+    * AI algorithms - social media, fake news, incentives. 
+    * AI autonomous warfare proliferation - we need to ban slaughter bots https://www.youtube.com/watch?v=pOv_9DNoDRY
+    * AI used for traffic management, screen-time punishment - pick up phone at cafe and pay the bill. 
+    * RoboMaster - robot warfare, mechatronics, AI - physical robot warfare as a game/competition. 
+    * Cosmo - Boris Sofman - narrow-AI and no free lunch problem - AI is good at solving very specific tasks, but not general intelligence. 
+    * I have an industry project, that has real-world applications in a factory settings - i.e. reduce bycatch and maximize efficiency of food processing for fish. 
