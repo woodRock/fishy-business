@@ -123,7 +123,7 @@ brewer2006brown
     * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
     * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 
 
-2021-03-12 - CNN Results 
+2021-03-31 - CNN Results 
 ------------------------
     * Implemented the 1-dimensional CNN from ENGR489 - with some tweaks and adjustments. 
         * Assess the accuracy using k-fold stratified cross-validation (k = 10). 
