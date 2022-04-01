@@ -439,3 +439,14 @@ Notes:
     * Cosmo - Boris Sofman https://www.youtube.com/watch?v=U_AREIyd0Fc 
     * Narrow-AI and no free lunch problem - AI is good at solving very specific tasks, but not general intelligence. 
     * I have an industry project, that has real-world applications in a factory settings - i.e. reduce bycatch and maximize efficiency of food processing for fish. 
+
+2022-04-01 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Andrew Lenson, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Meng and Bing were unwell, so Yi chaired the research group meeting. 
+
+Notes: 
+    * Bach (my supervisors) first day lecturing for COMP102. 
+    * Me: I got 98% accuracy on the fish species dataset using a 1D CNN.
+    * Shorter meeting, workshop cancelled, due to Meng being unwell. 
