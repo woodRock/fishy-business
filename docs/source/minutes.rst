@@ -34,7 +34,7 @@ Notes:
         4. Mathew Vink - helped me enroll today. 
         5. Student levees - 2 weeks due.  
 
-2022-02-28 - FASLIP #01
+2022-02-28 - FASLIP
 ~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Wednesay 2pm-3pm , **Attendees:** Matthew Vink, Jesse Wood
 
