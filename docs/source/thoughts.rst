@@ -141,3 +141,18 @@ brewer2006brown
         * For now, simple neural architecture search, which encodes batch size, epochs, and filter size for convolutional layers, and dropout probability. 
         * Later include a genetic algorithm that constructs the network design - but this remains beyond my initial scope. 
         * If results are promising, a paper on "Evolutionary Computation for Neural Architecture Search in Fish Oil Analysis" would be appropriate.
+
+2021-04-04 - Chemical Stuff 
+---------------------------
+    * MegaSYN - computation proof of concept for using AI to manufacture biological weapons https://bit.ly/3x2enuY
+        * Adjusted objective function for MegaSYN and used deadly training data. 
+        * Fine-tuned a model to generate a synthetic compound similar to a deadly nerge agent. 
+        * Reversed parameter, from minimization to maximiation for toxicity factor in objective function. 
+        * Model was able to synthesize deadly biological toxins. 
+        * AI has no sense of morality, it is up to the practitioner to remain ethical in their approach.  
+    * Evolutionary Model of Varient Effect (EVE) - https://bit.ly/3K6GTPP
+        * Model identifies mutations associated with disease in unlabelled datasets.  
+        * Unsupervised clustering of chemical data, but then employing VAEs to assess liklihoods. 
+        * Trained a VAE for each proteing family, given one variant in a protein family, it learned to compute liklihood of each amino acid in the sequence. 
+        * Employing VAEs on unsupervised clustering algorithms combines clustering and auto-encoders. 
+        * Model was more accurate that lab test results (i.e. 99% > 95% AUC)
