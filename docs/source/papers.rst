@@ -68,6 +68,13 @@ chase1973perception
     * Recall was consistant for levels of expertise on nonsense chess boards. 
     * Our mental schemas for encoding patterns break on noise (unseen data). 
 
+chen2021evaluating
+------------------
+    * 70% accuracy for basic DSA problems. 
+    * Can't solve more difficult problems - doesn't optimize solutions for performance. 
+    * CoPilot outperforms other state-of-the-art NLP code generation models. 
+    * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
+
 codevilla2018end 
 ----------------
     * High-speed autonomous drifting with deep reinforcement learning. 
@@ -198,10 +205,17 @@ kennedy1995particle
 kennedy1997discrete
 -------------------
     * PSO for feature selection. 
-
+  
 kingma2014adam
 --------------
     * Adam optimizer for neural networks. 
+
+kishore2021fixed
+----------------
+    * Hide messages in adversarial neural network. 
+    * Pre-trained stenograph, results in non-zero error, we need perfect reconstruction for encryption.
+    * Face anonymization, post a persons face online, then regenerate the face, but encrypt the private face. 
+    * This lets friends anonmyously share images with their face online, without revealing their identity.
 
 koppen2000curse
 ---------------
@@ -296,6 +310,13 @@ olah2018building
     * Distill https://distill.pub/2018/building-blocks/
     * Visualization techniques are powerful for understanding black-box systems.
     * Gain intution for semantically meaninful features in complex models. 
+
+pearce2021empirical
+-------------------
+    * 70% accuracy for basic DSA problems. 
+    * Can't solve more difficult problems - doesn't optimize solutions for performance. 
+    * CoPilot outperforms other state-of-the-art NLP code generation models. 
+    * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
 
 raine1997brain
 --------------
