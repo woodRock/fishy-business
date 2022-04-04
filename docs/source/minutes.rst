@@ -449,4 +449,34 @@ Meng and Bing were unwell, so Yi chaired the research group meeting.
 Notes: 
     * Bach (my supervisors) first day lecturing for COMP102. 
     * Me: I got 98% accuracy on the fish species dataset using a 1D CNN.
-    * Shorter meeting, workshop cancelled, due to Meng being unwell. 
+    * Shorter meeting, workshop cancelled, due to Meng being unwell.  
+
+2022-04-04 - DL
+~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Ciaran King, Bastiaan Kleign, Jesse Wood, et al. 
+
+Ciaran King was gave a talk on "Experiences using Github Copilot".
+    * Understands the context of code, can make abstractions for helper methods. 
+    * Can write documentation for codebases.
+    * Not software "correct" code, but (likely) the code we were going to write. 
+    * Can write tests for codebases with very little leading. 
+Daniel Braithwaite on "Fixed Neural Network for Stenography"
+    * Hide messages in adversarial neural network. 
+    * Pre-trained stenograph, results in non-zero error, we need perfect reconstruction for encryption.
+    * Face anonymization, post a persons face online, then regenerate the face, but encrypt the private face. 
+    * This lets friends anonmyously share images with their face online, without revealing their identity.
+Bastian - contractivity of neural networks.  
+    * Signal processing worries about getting non-stable linear filters for signals. 
+Jesse Wood 
+    * Evaluating Large Language Models Trained on Code https://arxiv.org/abs/2107.03374
+        * 70% accuracy for basic DSA problems. 
+        * Can't solve more difficult problems - doesn't optimize solutions for performance. 
+        * CoPilot outperforms other state-of-the-art NLP code generation models. 
+        * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
+    * Asleep at the Keyboard? Assessing the Security of GitHub Copilot's Code Contributions https://arxiv.org/abs/2108.09293
+        * 40% of code written with CoPilot has cybersecurity vulnerabilities.
+        * CodeQL and other static analysis tools used to define the security of the code.
+        * Security is a shifting landscape, WannaCry, Log4J - zero days kept secret by intelligence agencies. 
+        * This is true of all code, the training data was written by humans. 
+        * Potential vulnerability for future attacks if hackers know open-source repos are training data.  
+        * Don't treat copilot as a "glass cannon", it doesn't deserve a false sense of security.
