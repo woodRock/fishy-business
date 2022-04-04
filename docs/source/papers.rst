@@ -360,6 +360,14 @@ tegmark2020ai
     * Symbolic regression is a difficult task, but by simplifying properties exhibited by physics equations (i.e symmetry, composability, separability), the problem can be reduced. 
     * Their work uses blackbox neural networks, to derive interpretable models that can easily be verified by humans. 
 
+tegmark2020ai2
+--------------
+    * 2nd iteration for the AI Feynman 2.0. 
+    * More robust towards noise and bad data. 
+    * Can discover more formulas that previous method. 
+    * Implements Normalizaing flows. 
+    * Method for generalized symmetries (abitrary modularity in the compuational graph formula)
+
 tomasi2004correlation
 ---------------------
     * Tomasi et al. investigated correlation optimisation warping (COW) and dynamic time warping (DT) for preprocessing chromatography data.
