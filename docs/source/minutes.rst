@@ -480,3 +480,8 @@ Jesse Wood
         * This is true of all code, the training data was written by humans. 
         * Potential vulnerability for future attacks if hackers know open-source repos are training data.  
         * Don't treat copilot as a "glass cannon", it doesn't deserve a false sense of security.
+
+2022-04-07 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Jesse Wood.
+

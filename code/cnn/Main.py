@@ -24,7 +24,7 @@ k = 10
 # Dataset
 folder = "data/matlab/"
 datasets = ["Fish.mat","Part.mat"]
-dataset = datasets[1]
+dataset = datasets[0]
 print("Chosen: %s" % dataset)
 mat = load(dataset,folder=folder)
 X,y = prepare(mat)
