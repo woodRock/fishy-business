@@ -156,3 +156,11 @@ brewer2006brown
         * Trained a VAE for each proteing family, given one variant in a protein family, it learned to compute liklihood of each amino acid in the sequence. 
         * Employing VAEs on unsupervised clustering algorithms combines clustering and auto-encoders. 
         * Model was more accurate that lab test results (i.e. 99% > 95% AUC)
+
+2021-04-07 - CNN Fish Part 
+--------------------------
+    * CNN classification results for fish part. 
+    * Fish part needs a simpler neural network to achieve high accuracy on fish part. 
+    * Network needs a 90% dropout rate, but can achieve 84% accuracy. 
+    * Still need to manually tune this model more to be competitive with the SVM.
+    * LeakyRelu activation function improves performance on both datasets.
