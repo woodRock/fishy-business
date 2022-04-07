@@ -485,3 +485,39 @@ Jesse Wood
 ~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Jesse Wood.
 
+Notes:
+    * Use an existing neural network architecture search algorithm - application analysis. 
+    * Callaghan may have extra data work with - arrange a meeting with Daniel. 
+    * Pre-traning, tranfer learning, NIST dataset for GC refraction index. 
+    * Look at existing proposals, get an idea for mine - possible to submit proposal early. 
+    * State-of-the-art, is 50-50 whether it works or is a bust - good to have a backup based in existing literature. 
+    * Pareto front with tradeoff between complexity and accuracy. 
+    * Proposal does not lock me into using a particular method (i.e. SVM, EC, PSO). 
+    * Idea: make sure students have a decent grasp of the field before conducting their own research, if not then read more.
+    * Later try out ideas in the proposal, and see if they work. If they don't change tact.
+
+2022-04-07 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Qi Chen, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Qi Chen showed a talk "Artificial Intelligence: A Guide for Thinking Humans" by Melanie Mitchell from https://www.youtube.com/watch?v=NMUqvhuDZtQ
+
+Notes:
+    * Shannon, Simon, Minsky - all though AGI was 15 years off in their own time. 
+    * Andrew Ng - AI is the new electricity. 
+    * Elon Musk - nobody would listen - https://www.youtube.com/watch?v=4RMKLyaqh_8 
+    * Deep learning brought back the hype for AGI. 
+    * "An Anarchy of Methods" - Joel Lehman 2014. 
+    * AI, Machine Learning, Deep Learning, onotologies of fields and their popularity change over time. 
+    * Deep learning looks at AI as an aritficial brain - enter the Artificial Neural Network (ANN) - the connectionists.
+    * CNN based on the limited understanding of the human brain in 1950s neuroscience. 
+    * Facebook used CNN AI for facial recognition when a user uploads a photo. 
+    * ImageNet is a famous supvervised classification task that was generated through crowdfunding internet "slave" labour. 
+    * Famous 94% result for image classification has a sample size of PhD student (Andrew Kaparthy) - the fake news embellished the story. 
+    * Self-driving, stopped fire truck on the highway, the long tail of AI, edge cases. 
+    * Adversarial attacks on neural networks, crack networks to make wrong predictions based off of their flaws. 
+        * "Intruiging properties of Neural Networks" https://arxiv.org/abs/1312.6199
+    * Trick self-driving cars into driving through stop signs with stickers, that make it think it is a speed limit sign. 
+    * "I wonder whether or not AI will every crash the barrier of meaning." - Glen Carlo Rote 1988. 
+    * "common-sense" machine learning, WinnaGap NLP problem. 
+    * DARPA - competition to design a machine with the common-sense of an 18 month old baby. 
