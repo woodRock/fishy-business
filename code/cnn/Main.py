@@ -24,11 +24,10 @@ k = 10
 # Dataset
 folder = "data/matlab/"
 datasets = ["Fish.mat","Part.mat"]
-dataset = datasets[1]
+dataset = datasets[0]
 print("Chosen: %s" % dataset)
 mat = load(dataset,folder=folder)
 X,y = prepare(mat)
-
 history = []
 
 skf = StratifiedKFold(n_splits=k, random_state=1234, shuffle=True)
@@ -43,7 +42,7 @@ for train, test in tqdm(skf.split(X, y)):
     y_test = tf.keras.utils.to_categorical(y_test, num_classes=num_classes) 
     train_ds = tf.data.Dataset.from_tensor_slices((X_train,y_train)).shuffle(1000).batch(batch_size)
     val_ds = tf.data.Dataset.from_tensor_slices((X_test,y_test)).shuffle(1000).batch(batch_size)
-    model = get_model(num_classes=num_classes)
+    model = get_model(num_classes=num_classes, dataset=dataset)
     history.append(model.fit(train_ds, validation_data=val_ds, epochs=epochs, verbose=0))
 
 losses = [] 
