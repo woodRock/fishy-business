@@ -10,9 +10,11 @@ Welcome to fish's documentation!
    :maxdepth: 1 
    :caption: Contents:
 
+   about 
    minutes
    papers
    thoughts
+   contact
 
 
 

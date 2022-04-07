@@ -100,3 +100,67 @@ brewer2006brown
         * Parkinson's law - Parkinson's law is the adage that "work expands so as to fill the time available for its completion." (https://en.wikipedia.org/wiki/Parkinson%27s_law)
     * My proposal and thesis are the first two major milestones that I can consider at this early stage. 
     * As I get stuck into implementation and actual work, many more milestones will arise. 
+
+2022-03-24 - Bayesian Optimization 
+----------------------------------
+    * shahriari2015taking and brochu2010tutorial were suggested readings from the FASLIP talk. 
+    * Bayesian optimization through Gaussian Processes (GP) is an effective method for approximating prohibitive objective functions. 
+    * Those functions may be prohibitive, because they are intractable, or computationally expensive, or other reasons. 
+    * We used GP in the Conditional Neural Processes (Garnelo 2018, garnelo2018conditional) when building a the cnpRIR for Summer Research Project. 
+    * The term neuro-evolutionary, used in (Eiben 2015 - eiben2015evolutionary), are hybrid algorithms that combine neural networks and evolutionary computation.
+
+2022-03-31 - The Big Reset 2.0 
+------------------------------
+    * Based on FASLIP video https://fishy-business.readthedocs.io/en/latest/minutes.html#id10
+    * When naming these things, they just pour fuel on the fire of conspiracy theorists. 
+    * China uses technology/AI as a hammer, and when your tool is a hammer, everything starts to look like a nail. 
+    * Some things don't need deep learning or AI for solutions - reduce depedency on technology can be a good things. 
+    * WeChat is used for everything, messenger, social media, payments - when your phone dies you are no longer a citizen. 
+    * Similar to digital vaccination pass system in New Zealand, when you phone dies you forfeit your rights as a human being. 
+    * AI prosthetics are cool, but still not available en-masse, the rich and  continue their already shelted and privelaged lifestyle. We could give these to everyone, but there is no economic incentive. 
+    * Even kids notice the Narrow-AI / free lunch theorum in Artificial Intelligence.
+    * Theres an AI solution for every unique problem (e.g. Siri, Alexa, Spot, GPT-3, AlphaFold), but no ONE AI that can generalize for everthing (AGI).
+    * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
+    * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 
+
+2021-03-31 - CNN Results 
+------------------------
+    * Implemented the 1-dimensional CNN from ENGR489 - with some tweaks and adjustments. 
+        * Assess the accuracy using k-fold stratified cross-validation (k = 10). 
+        * This allows for direct comparison to the other classifiers (i.e. SVM, KNN, DT, ...). 
+        * Manually hyperparameters tuning achieve 98% accuracy on fish species training set. 
+        * Competitive with the Linear SVM classifier results (approx. 98.33%). 
+    * Manual tuning for the CNN hyperparameters is a time consuming and laborious process. 
+        * This was black magic and I was very lucky to find hyper-parameters that work well. 
+        * I would like to explore using EC to perform a neural architecture search. 
+        * Automate the process of tuning 
+        * May provide improved performance over the SVM classifier for more difficult fish part dataset. 
+        * The SVM provides an excellent baseline for the competitive performance of the desired CNN model.
+        * SVM is far less computationally expensive to evaluate.
+    * Paper / research 
+        * For now, simple neural architecture search, which encodes batch size, epochs, and filter size for convolutional layers, and dropout probability. 
+        * Later include a genetic algorithm that constructs the network design - but this remains beyond my initial scope. 
+        * If results are promising, a paper on "Evolutionary Computation for Neural Architecture Search in Fish Oil Analysis" would be appropriate.
+
+2021-04-04 - Chemical Stuff 
+---------------------------
+    * MegaSYN - computation proof of concept for using AI to manufacture biological weapons https://bit.ly/3x2enuY
+        * Adjusted objective function for MegaSYN and used deadly training data. 
+        * Fine-tuned a model to generate a synthetic compound similar to a deadly nerge agent. 
+        * Reversed parameter, from minimization to maximiation for toxicity factor in objective function. 
+        * Model was able to synthesize deadly biological toxins. 
+        * AI has no sense of morality, it is up to the practitioner to remain ethical in their approach.  
+    * Evolutionary Model of Varient Effect (EVE) - https://bit.ly/3K6GTPP
+        * Model identifies mutations associated with disease in unlabelled datasets.  
+        * Unsupervised clustering of chemical data, but then employing VAEs to assess liklihoods. 
+        * Trained a VAE for each proteing family, given one variant in a protein family, it learned to compute liklihood of each amino acid in the sequence. 
+        * Employing VAEs on unsupervised clustering algorithms combines clustering and auto-encoders. 
+        * Model was more accurate that lab test results (i.e. 99% > 95% AUC)
+
+2021-04-07 - CNN Fish Part 
+--------------------------
+    * CNN classification results for fish part. 
+    * Fish part needs a simpler neural network to achieve high accuracy on fish part. 
+    * Network needs a 90% dropout rate, but can achieve 84% accuracy. 
+    * Still need to manually tune this model more to be competitive with the SVM.
+    * LeakyRelu activation function improves performance on both datasets.
