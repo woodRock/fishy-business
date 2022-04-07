@@ -353,6 +353,13 @@ shahriari2015taking
     * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
     * **TODO** read this. 
 
+szegedy2013intriguing
+---------------------
+    * Intriguing properties of neural networks.
+    * Adversarial attacks on neural networks. 
+    * Trick neural nets into making the wrong prediction on purpose. 
+    * Long tail problem of AI. 
+
 tegmark2020ai
 -------------
     * Tegmark et al. developed they AI Feynman \cite{udrescu2020ai}. 
