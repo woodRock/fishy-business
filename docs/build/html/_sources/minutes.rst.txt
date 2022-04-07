@@ -35,7 +35,7 @@ Notes:
         5. Student levees - 2 weeks due.  
 
 2022-02-28 - FASLIP
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Wednesay 2pm-3pm , **Attendees:** Matthew Vink, Jesse Wood
 
 Neil Dodgeson - Cambridege lecture
@@ -56,7 +56,7 @@ Notes:
         * Highlight key points on the last slide. 
 
 2022-03-07 - DL
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, et al. 
 
 Papers: 
@@ -116,7 +116,7 @@ Notes:
     * Books, publications, thesis - different expectations for each course. 
 
 2022-03-10 - Weekly 
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
 
 Notes:
@@ -131,8 +131,8 @@ Notes:
     * Individual induction - copy Bach in email for meeting. 
     * Add Bach to gitlab/github for the paper latex file. 
 
-2022-03-10 - FASLIP 
-~~~~~~~~~~~~~~~~~~~~~~
+2022-03-10 - FASLIP
+~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-4pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 Jeff Hawkins - Thousand Brains Theory: https://www.youtube.com/watch?v=O4geanMOsyM
@@ -145,8 +145,8 @@ Notes:
     * Builds a full world model, not a model for each task. 
     * Thousand brain theory - solution to No Free Lunch. 
 
-2022-03-11 - ECRG 
-~~~~~~~~~~~~~~~~~~~~~~
+2022-03-11 - ECRG
+~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
 
 Hui Ma gave presentation on Evolutionary Computation Approaches to Web Service Composition - https://link.springer.com/article/10.1007/s10732-017-9330-4
@@ -172,7 +172,7 @@ Notes:
     
 2022-03-17 - Weekly   
 ~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood. 
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
 
 Notes:
     * Daniel can provide domain expertise for writing the chemistry sections for the paper. 
@@ -184,7 +184,7 @@ Notes:
     * Send Daniel conclusions / contributions of paper in email, then organize a follow up meeting.
 
 2022-03-17 - FASLIP 
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 Ying suggested a talk on Multi-objective Evolutionary Federated Learning https://vimeo.com/552900291
@@ -220,8 +220,8 @@ Notes:
     * Neural architecture search (TODO - watch the rest and take notes!!!)
 
 2022-03-18 - ECRG 
-~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 A talk on Geometric Semantic Genetic Programming by Qi Chen https://link.springer.com/chapter/10.1007/978-3-642-32937-1_3
 
@@ -266,8 +266,8 @@ Notes:
     * Can geometric smeantic programming work in an unsupervised or combinatorial problem? (Possibly not unimodel semantic space)
     
 2022-03-21 - DL
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Bastiaan Kleign, Jesse Wood, Hayden Dyne, et al. 
+~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Hayden Dyne, Bastiaan Kleign, Jesse Wood, et al. 
 
 Talk by Hayden on two papers: 
     * End-to-end driving via conditional imitation learning (Cai 2020, cai2020high) https://ieeexplore.ieee.org/abstract/document/8460487/
@@ -282,3 +282,242 @@ Notes:
     * Second paper - e2e 
     * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
+
+2022-03-24 - Faculty Induction
+------------------------------
+**Location:** Zoom, **Time**: Monday 10am-11am , **Attendees:** Georgia Dix, Jesse Wood, Bach Hoai Nguyen.
+
+Induction to my PhD studies with supervisor and faculty. 
+
+Notes: 
+    * Expectations
+        * Supervisor
+            * Uni life 
+            * Framework 
+            * Networking 
+            * Assessment 
+        * Me
+            * action plan 
+            * identify problems 
+            * administration 
+            * CDP (6 monthly report)
+    * Marking can thesis can take up to 6 months - can work during this time. 
+
+2022-03-17 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
+
+Notes:
+    * Daniel can draft the chemistry parts for the paper. 
+    * Draft the full paper with Bach, then send to Daniel. 
+    * Read "From evolutionary computation to the evolution of things" - Nature
+    * Can start coding now - explore ideas for ENGR489 and EC on existing data. 
+    * Transformers, LSTM, GAN - yet to be applied to GC-MS data in literature. 
+    * CNNs for GC, likely due to libraries, hype, understanding, Diffusion of innovation. 
+    * Scuba diver experiment for context-dependent memory is a good analogy for noise in ML models.
+    * Came up with evolutionary ideas, like sexual selection, but (Miller 1994) did it quite some time ago.
+    * Idea for EC, a dynamic environment where complexity increases, classes or features are added - similar to evolution IRL. 
+
+2022-03-24 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Ying, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Ruwing Jiao suggested a video on Bayesian Optimization from Mark Deisenroth https://www.youtube.com/watch?v=_SC5_2vkgbA 
+
+Notes: 
+    * Recommended background reading on this topic: 
+        1. A Tutorial on Bayesian Optimization of Expensive Cost Functions (Brochu 2010, brochu2010tutorial) https://arxiv.org/pdf/1012.2599.pdf
+        2. Taking the Human Out of theLoop: A Review of Bayesian Optimization (Shahriari 2015, shahriari2015taking) https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7352306
+    * Latent Structural Support Vector Machine (Miller 2012) - **TODO** find this paper/project. 
+    * Deep learning often involves a lot of hyper-parameter tuning, this is usally done by the practitioner model. 
+    * Alternative approaches: 
+        * Manual tuning 
+        * Grid search 
+        * Random search 
+        * Black magic (i.e. lr is 1e-3 is "good")
+    * Computationally expensive to search for global maximum in hyper-parameter search space. 
+    * Globally optimize a black-box approach to evaluate (e.g. cross validatio error for a massive neural network). 
+    * Use a probabilistic model to approximate the black-box model for the hyper-parameter search. 
+        * create a proxy model - this learns an approximation of the space - with less computational cost to query that space. 
+        * referred to ass proxy / approximate / surrogate. 
+    * The standard model for optimizing a bayesian model is a gaussian process. 
+    * Evaluate the proxy function once, this saves computation. 
+    * A gaussian process minimized the uncertainty of the proxy function.
+    * It samples the feature space at the minimum value of the shaded area (== uncertainty).
+    * It repeats this often, until the proxy function is close enough to the true objective. 
+    * Exploration - sample areas with high uncertainty. 
+    * Exploitation - sample places with low mean. 
+
+2022-03-25 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Andrew Lenson, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Andrew gave a talk on Genetic Programming, Explainability and Interdisciplinary AI.
+
+Notes: 
+    * Heaps of students successfully submitted papers to the Gecko conference. 
+    * Possible to publish in conference at different levels; paper, poster, etc. 
+    * If a paper is declined, revise with reviewer comments, and resubmit as poster. 
+    * Qurrat Al Ain - Cancer research in AI. 
+    * Swiss roll manifold problem
+        * Reduce a manifold to a 2D visual representation. 
+        * 2D path is representation of non-linear dimensionality reduction (NLDR).
+    * Geo-desic, shortest path from A to B, not shortest euclidean distance. 
+    * Lower dimensional space is referred to as an embedding. 
+    * We can use AI to learn or approximate this embedding (if the problem is intractable).
+    * Ways to estimate the intrinsic dimensionality of the dataset - statistical techniques. 
+    * Kaka - count distinct nnumber of birds at Zealandia. 
+    * GoPro for data collection combined with crack for Kaka. 
+    * Law - predicting sentencing lengths with PLSR on judge summaries. 
+    * Names with high/low probabilities are often historic cases referred to as 'guidance judgements'. 
+    * Combine data analysis and domain expertise to infer knowledge about sentencing lengths. 
+    * Home detention or communtiy service are associated with shorter sentences. 
+    * Future work, take humans out of the loop, and make sentencing deterministic.
+    * ^ This can be done, because their are extenuating circumstances that require a judges opinion.
+    * Also, if all sentences are automated, there would no longer be guidance judgements being set historically. 
+    * Law is a dynamic and decentralized system, unique and specialized for each country, case, individual, etc... 
+    * Research more productive on letting judges analysis their blindspots, and identify bias.
+
+2022-03-28 - DL
+~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaite, Bastiaan Kleign, Jesse Wood, et al. 
+
+Daniel Braithwaite talked about two papers related to machine learning for audio wave construction:
+    1. Deep Audio Priors Emerge from Harmonic Convolutional Networks https://openreview.net/pdf?id=rygjHxrYDB
+    2. Harmonic WaveGAN https://www.isca-speech.org/archive/pdfs/interspeech_2021/mizuta21_interspeech.pdf
+
+Notes: 
+    * The idea is to look at harmonic convolutions, think convolution layer but designed for audio. 
+    * WaveGAN and Harmonic WaveGAN use deep learning on audio signals. 
+    * Harmonic, is better suited towards audio signals, than wave alone. 
+    * Harmonic considers local connections / adjaceny better. 
+    * **TODO** Read these papers and add to notes. 
+
+2022-03-31 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Jesse Wood. 
+
+Bing and Meng were both unwell this week. Important to send minutes for this meeting to them.
+
+Notes: 
+    * Augmentation - boost performance on the fish part dataset. 
+        * Time-shift, shift data backwards and forward, to get time-invariant generalized model (may not work well).
+        * Impute data, combine existing samples, add noise, etc... 
+    * Worked on CNN from ENGR489 for classification task.
+        * Issues with keras and sklearn libraries, stratified cross-fold validation and one hot encoding don't play nice together. 
+        * CNNs, we use 1D convolution and pooling layers on time-series data. 
+        * Existing ML + GC literature also use CNN for classification and regression tasks. 
+        * These models are powerful for extracting features in spaces with local connectivity. 
+        * Aim to use EC to perform neural architecture search for CNN hyperparamters - these differ for each dataset. 
+    * Both EC and Bayesian Optimization approaches work for neural architecture search. 
+        * However, EC has more interpretable results, e.g. a genetic algorithm produces an explainable tree. 
+        * Neural networks are black-box and esoteric, we understand how (i.e. back-prop, SGD), but not why? 
+        * EC produces simpler representations, that can be prodded with domain expertise.
+    * Important to read heaps for first few months of PHD. 
+        * Take original notes that can contribute toward a backgroup chapter of my proposal. 
+        * Get an idea of what has been done, and what I want to do. 
+        * Still reading psychology textbook on memory and the brain to establish conceptual framework for learning.
+     
+2022-03-31 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Fangfang Zhang, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Fangfang suggested a video called the Big Reset 2.0 https://www.youtube.com/watch?v=-ePZ7OdY-Dw
+
+Notes: 
+    * Reinforcment learning for Robotic Arms. 
+    * Deep blue beat Kasparov, but no AI can set up the chess board, a 6 year old can do that. 
+    * Hugh Herr designed his own AI legs https://www.youtube.com/watch?v=CDsNZJTWw0w
+        * AI prosthesis is cost prohibitive for the masses, but may work with diffusion of innovation in future. 
+        * Prosthesis can up upgraded over time, biological body parts cannot, hardware/software updates for legs. 
+    * Fake news - Jon Stewart said MSM has more trackers than ANY other media (adult entertainment, torrent sites, social media included).
+    * Chomskey, MSMs job is to sell the educated privelaged wealthy elites as an audience to the corporations advertising. 
+    * AI algorithms - social media, fake news, incentives. 
+    * AI autonomous warfare proliferation - we need to ban slaughter bots https://www.youtube.com/watch?v=pOv_9DNoDRY
+    * AI used for traffic management, screen-time punishment - pick up phone at cafe and pay the bill. 
+    * RoboMaster - robot warfare, mechatronics, AI - physical robot warfare as a game/competition. 
+    * Cosmo - Boris Sofman https://www.youtube.com/watch?v=U_AREIyd0Fc 
+    * Narrow-AI and no free lunch problem - AI is good at solving very specific tasks, but not general intelligence. 
+    * I have an industry project, that has real-world applications in a factory settings - i.e. reduce bycatch and maximize efficiency of food processing for fish. 
+
+2022-04-01 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Andrew Lenson, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Meng and Bing were unwell, so Yi chaired the research group meeting. 
+
+Notes: 
+    * Bach (my supervisors) first day lecturing for COMP102. 
+    * Me: I got 98% accuracy on the fish species dataset using a 1D CNN.
+    * Shorter meeting, workshop cancelled, due to Meng being unwell.  
+
+2022-04-04 - DL
+~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Ciaran King, Bastiaan Kleign, Jesse Wood, et al. 
+
+Ciaran King was gave a talk on "Experiences using Github Copilot".
+    * Understands the context of code, can make abstractions for helper methods. 
+    * Can write documentation for codebases.
+    * Not software "correct" code, but (likely) the code we were going to write. 
+    * Can write tests for codebases with very little leading. 
+Daniel Braithwaite on "Fixed Neural Network for Stenography"
+    * Hide messages in adversarial neural network. 
+    * Pre-trained stenograph, results in non-zero error, we need perfect reconstruction for encryption.
+    * Face anonymization, post a persons face online, then regenerate the face, but encrypt the private face. 
+    * This lets friends anonmyously share images with their face online, without revealing their identity.
+Bastian - contractivity of neural networks.  
+    * Signal processing worries about getting non-stable linear filters for signals. 
+Jesse Wood 
+    * Evaluating Large Language Models Trained on Code https://arxiv.org/abs/2107.03374
+        * 70% accuracy for basic DSA problems. 
+        * Can't solve more difficult problems - doesn't optimize solutions for performance. 
+        * CoPilot outperforms other state-of-the-art NLP code generation models. 
+        * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
+    * Asleep at the Keyboard? Assessing the Security of GitHub Copilot's Code Contributions https://arxiv.org/abs/2108.09293
+        * 40% of code written with CoPilot has cybersecurity vulnerabilities.
+        * CodeQL and other static analysis tools used to define the security of the code.
+        * Security is a shifting landscape, WannaCry, Log4J - zero days kept secret by intelligence agencies. 
+        * This is true of all code, the training data was written by humans. 
+        * Potential vulnerability for future attacks if hackers know open-source repos are training data.  
+        * Don't treat copilot as a "glass cannon", it doesn't deserve a false sense of security.
+
+2022-04-07 - Weekly   
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Jesse Wood.
+
+Notes:
+    * Use an existing neural network architecture search algorithm - application analysis. 
+    * Callaghan may have extra data work with - arrange a meeting with Daniel. 
+    * Pre-traning, tranfer learning, NIST dataset for GC refraction index. 
+    * Look at existing proposals, get an idea for mine - possible to submit proposal early. 
+    * State-of-the-art, is 50-50 whether it works or is a bust - good to have a backup based in existing literature. 
+    * Pareto front with tradeoff between complexity and accuracy. 
+    * Proposal does not lock me into using a particular method (i.e. SVM, EC, PSO). 
+    * Idea: make sure students have a decent grasp of the field before conducting their own research, if not then read more.
+    * Later try out ideas in the proposal, and see if they work. If they don't change tact.
+
+2022-04-07 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Qi Chen, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Qi Chen showed a talk "Artificial Intelligence: A Guide for Thinking Humans" by Melanie Mitchell from https://www.youtube.com/watch?v=NMUqvhuDZtQ
+
+Notes:
+    * Shannon, Simon, Minsky - all though AGI was 15 years off in their own time. 
+    * Andrew Ng - AI is the new electricity. 
+    * Elon Musk - nobody would listen - https://www.youtube.com/watch?v=4RMKLyaqh_8 
+    * Deep learning brought back the hype for AGI. 
+    * "An Anarchy of Methods" - Joel Lehman 2014. 
+    * AI, Machine Learning, Deep Learning, onotologies of fields and their popularity change over time. 
+    * Deep learning looks at AI as an aritficial brain - enter the Artificial Neural Network (ANN) - the connectionists.
+    * CNN based on the limited understanding of the human brain in 1950s neuroscience. 
+    * Facebook used CNN AI for facial recognition when a user uploads a photo. 
+    * ImageNet is a famous supvervised classification task that was generated through crowdfunding internet "slave" labour. 
+    * Famous 94% result for image classification has a sample size of PhD student (Andrew Kaparthy) - the fake news embellished the story. 
+    * Self-driving, stopped fire truck on the highway, the long tail of AI, edge cases. 
+    * Adversarial attacks on neural networks, crack networks to make wrong predictions based off of their flaws. 
+        * "Intruiging properties of Neural Networks" https://arxiv.org/abs/1312.6199
+    * Trick self-driving cars into driving through stop signs with stickers, that make it think it is a speed limit sign. 
+    * "I wonder whether or not AI will every crash the barrier of meaning." - Glen Carlo Rote 1988. 
+    * "common-sense" machine learning, WinnaGap NLP problem. 
+    * DARPA - competition to design a machine with the common-sense of an 18 month old baby. 

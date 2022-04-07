@@ -36,8 +36,10 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contact" href="contact.html" />
     <link rel="prev" title="Literature Review" href="papers.html" /> 
 </head>
 
@@ -84,6 +86,7 @@
             
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="minutes.html">Minutes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="papers.html">Literature Review</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Thoughts</a><ul>
@@ -92,8 +95,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#cars">2022-03-21 - Cars</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#brains-ii">2022-02-22 - Brains II</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#project-management">2022-03-23 - Project Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bayesian-optimization">2022-03-24 - Bayesian Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-big-reset-2-0">2022-03-31 - The Big Reset 2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cnn-results">2021-03-31 - CNN Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#chemical-stuff">2021-04-04 - Chemical Stuff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cnn-fish-part">2021-04-07 - CNN Fish Part</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
 </ul>
 
             
@@ -309,6 +318,115 @@
 </ul>
 </div></blockquote>
 </section>
+<section id="bayesian-optimization">
+<h2>2022-03-24 - Bayesian Optimization<a class="headerlink" href="#bayesian-optimization" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>shahriari2015taking and brochu2010tutorial were suggested readings from the FASLIP talk.</p></li>
+<li><p>Bayesian optimization through Gaussian Processes (GP) is an effective method for approximating prohibitive objective functions.</p></li>
+<li><p>Those functions may be prohibitive, because they are intractable, or computationally expensive, or other reasons.</p></li>
+<li><p>We used GP in the Conditional Neural Processes (Garnelo 2018, garnelo2018conditional) when building a the cnpRIR for Summer Research Project.</p></li>
+<li><p>The term neuro-evolutionary, used in (Eiben 2015 - eiben2015evolutionary), are hybrid algorithms that combine neural networks and evolutionary computation.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="the-big-reset-2-0">
+<h2>2022-03-31 - The Big Reset 2.0<a class="headerlink" href="#the-big-reset-2-0" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>Based on FASLIP video <a class="reference external" href="https://fishy-business.readthedocs.io/en/latest/minutes.html#id10">https://fishy-business.readthedocs.io/en/latest/minutes.html#id10</a></p></li>
+<li><p>When naming these things, they just pour fuel on the fire of conspiracy theorists.</p></li>
+<li><p>China uses technology/AI as a hammer, and when your tool is a hammer, everything starts to look like a nail.</p></li>
+<li><p>Some things don’t need deep learning or AI for solutions - reduce depedency on technology can be a good things.</p></li>
+<li><p>WeChat is used for everything, messenger, social media, payments - when your phone dies you are no longer a citizen.</p></li>
+<li><p>Similar to digital vaccination pass system in New Zealand, when you phone dies you forfeit your rights as a human being.</p></li>
+<li><p>AI prosthetics are cool, but still not available en-masse, the rich and  continue their already shelted and privelaged lifestyle. We could give these to everyone, but there is no economic incentive.</p></li>
+<li><p>Even kids notice the Narrow-AI / free lunch theorum in Artificial Intelligence.</p></li>
+<li><p>Theres an AI solution for every unique problem (e.g. Siri, Alexa, Spot, GPT-3, AlphaFold), but no ONE AI that can generalize for everthing (AGI).</p></li>
+<li><p>A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies.</p></li>
+<li><p>As adoption of AI increases ( <strong>cough</strong> the academics enter these industries) the diffusion of innovation can continue.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="cnn-results">
+<h2>2021-03-31 - CNN Results<a class="headerlink" href="#cnn-results" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Implemented the 1-dimensional CNN from ENGR489 - with some tweaks and adjustments.</dt><dd><ul>
+<li><p>Assess the accuracy using k-fold stratified cross-validation (k = 10).</p></li>
+<li><p>This allows for direct comparison to the other classifiers (i.e. SVM, KNN, DT, …).</p></li>
+<li><p>Manually hyperparameters tuning achieve 98% accuracy on fish species training set.</p></li>
+<li><p>Competitive with the Linear SVM classifier results (approx. 98.33%).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Manual tuning for the CNN hyperparameters is a time consuming and laborious process.</dt><dd><ul>
+<li><p>This was black magic and I was very lucky to find hyper-parameters that work well.</p></li>
+<li><p>I would like to explore using EC to perform a neural architecture search.</p></li>
+<li><p>Automate the process of tuning</p></li>
+<li><p>May provide improved performance over the SVM classifier for more difficult fish part dataset.</p></li>
+<li><p>The SVM provides an excellent baseline for the competitive performance of the desired CNN model.</p></li>
+<li><p>SVM is far less computationally expensive to evaluate.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Paper / research</dt><dd><ul>
+<li><p>For now, simple neural architecture search, which encodes batch size, epochs, and filter size for convolutional layers, and dropout probability.</p></li>
+<li><p>Later include a genetic algorithm that constructs the network design - but this remains beyond my initial scope.</p></li>
+<li><p>If results are promising, a paper on “Evolutionary Computation for Neural Architecture Search in Fish Oil Analysis” would be appropriate.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="chemical-stuff">
+<h2>2021-04-04 - Chemical Stuff<a class="headerlink" href="#chemical-stuff" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>MegaSYN - computation proof of concept for using AI to manufacture biological weapons <a class="reference external" href="https://bit.ly/3x2enuY">https://bit.ly/3x2enuY</a></dt><dd><ul>
+<li><p>Adjusted objective function for MegaSYN and used deadly training data.</p></li>
+<li><p>Fine-tuned a model to generate a synthetic compound similar to a deadly nerge agent.</p></li>
+<li><p>Reversed parameter, from minimization to maximiation for toxicity factor in objective function.</p></li>
+<li><p>Model was able to synthesize deadly biological toxins.</p></li>
+<li><p>AI has no sense of morality, it is up to the practitioner to remain ethical in their approach.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Evolutionary Model of Varient Effect (EVE) - <a class="reference external" href="https://bit.ly/3K6GTPP">https://bit.ly/3K6GTPP</a></dt><dd><ul>
+<li><p>Model identifies mutations associated with disease in unlabelled datasets.</p></li>
+<li><p>Unsupervised clustering of chemical data, but then employing VAEs to assess liklihoods.</p></li>
+<li><p>Trained a VAE for each proteing family, given one variant in a protein family, it learned to compute liklihood of each amino acid in the sequence.</p></li>
+<li><p>Employing VAEs on unsupervised clustering algorithms combines clustering and auto-encoders.</p></li>
+<li><p>Model was more accurate that lab test results (i.e. 99% &gt; 95% AUC)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="cnn-fish-part">
+<h2>2021-04-07 - CNN Fish Part<a class="headerlink" href="#cnn-fish-part" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>CNN classification results for fish part.</p></li>
+<li><p>Fish part needs a simpler neural network to achieve high accuracy on fish part.</p></li>
+<li><p>Network needs a 90% dropout rate, but can achieve 84% accuracy.</p></li>
+<li><p>Still need to manually tune this model more to be competitive with the SVM.</p></li>
+<li><p>LeakyRelu activation function improves performance on both datasets.</p></li>
+</ul>
+</div></blockquote>
+</section>
 </section>
 
 
@@ -318,6 +436,8 @@
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="contact.html" class="btn btn-neutral float-right" title="Contact" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="papers.html" class="btn btn-neutral float-left" title="Literature Review" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
