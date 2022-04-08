@@ -524,7 +524,7 @@ Notes:
 
 2022-04-01 - ECRG
 ~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Harith Al-Sahaf, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
 General: 
     * University drops their vaccine mandate https://www.wgtn.ac.nz/covid-19/settings-and-mandates/removal-of-vaccine-mandate 
