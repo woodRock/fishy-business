@@ -521,3 +521,23 @@ Notes:
     * "I wonder whether or not AI will every crash the barrier of meaning." - Glen Carlo Rote 1988. 
     * "common-sense" machine learning, WinnaGap NLP problem. 
     * DARPA - competition to design a machine with the common-sense of an 18 month old baby. 
+
+2022-04-01 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
+
+General: 
+    * University drops their vaccine mandate https://www.wgtn.ac.nz/covid-19/settings-and-mandates/removal-of-vaccine-mandate 
+    * EvoStar conference is coming up soon - April 20-22nd, Spain Madrid http://www.evostar.org/2022/eurogp/
+    * Me: 
+        * CNN performs relatively well on fish part dataset with manually tuned hyper-parameters. 
+        * Also, mentioned MegaSYN annecdote about adversarial attacks on machine learning models for protiens to manufacture deadly nerve toxins.
+
+Harith Al-Sahaf gave a talk on Malware Analysis https://www.al-sahaf.com/harith/ 
+
+Notes: 
+    * Malware analysis determines the functionality, origin and potential impact of a given malware. 
+    * Applying EC techniques to malware anaylsis. 
+    * Harith and the university have a lot of publications in this area https://www.al-sahaf.com/harith/publications.html
+    * Siemese neural networks used to identify an unknown instance to a known malware for similarity. 
+    * Yann LeCunn invented the idea for Siemese neural networks in the 1980s. 
