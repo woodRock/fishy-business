@@ -668,3 +668,16 @@ Notes:
     * k is the group size for the grouping mechanism. 
     * Co-operative co-veolutionary algorithm for adhoc autonmous agents. 
     * Efficient anytime larning without apriori knowledge of the problem. 
+
+2022-04-21 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood.
+
+Notes:
+    * EvoStar conference yesterday, not much work for covid isolation week. 
+    * Demelza is giving a talk tongight for EvoStar. 
+    * Likely to attend EuroGP in-person next year. 
+    * EvoCNN - encodes basic CNN components. 
+    * Apply GP to classifier problem directly. 
+    * Try several techniques (initially). 
+    * Also later what new tasks Daniel may want.  
