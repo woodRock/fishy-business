@@ -557,7 +557,7 @@ Notes:
 ~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Madrid, **Time**: 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
 
-Gabriella gave a keynote address on "Illuminating Computational Search Spaces"
+Gabriella gave a keynote address on "Illuminating Computational Search Spaces" https://www.youtube.com/watch?v=EyynDbXnwic
 
 Notes: 
     * Visualisation, explanation, informed configuration. 
