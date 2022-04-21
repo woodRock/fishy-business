@@ -522,7 +522,7 @@ Notes:
     * "common-sense" machine learning, WinnaGap NLP problem. 
     * DARPA - competition to design a machine with the common-sense of an 18 month old baby. 
 
-2022-04-01 - ECRG
+2022-04-08 - ECRG
 ~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Harith Al-Sahaf, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al. 
 
@@ -541,3 +541,130 @@ Notes:
     * Harith and the university have a lot of publications in this area https://www.al-sahaf.com/harith/publications.html
     * Siemese neural networks used to identify an unknown instance to a known malware for similarity. 
     * Yann LeCunn invented the idea for Siemese neural networks in the 1980s. 
+
+2022-04-11 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-5pm , **Attendees:** Madhurjya Dev Choudhury, Bastiaan Kleign, Jesse Wood et al.
+
+Madhurjya gave a talk on "Time Series analysis for Machine Health and Diagnosis". 
+
+Notes:
+    * "Image-<MUFFLED> tranlation with Conditional Adversarial Networks". 
+    * pix2pix 
+    * Nuisance parameters is any parameter which is not of immediate interest, but must be accounted for in those parameters which are of interest. 
+
+2022-04-18 - EvoStar #1
+~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Madrid, **Time**: 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+
+Gabriella gave a keynote address on "Illuminating Computational Search Spaces"
+
+Notes: 
+    * Visualisation, explanation, informed configuration. 
+    * Complex networks, Local Optima Networks (LON), Search Trajectory Networks (STNs). 
+    * Graphs exist since 1800s with Eulers famous bridge problem. 
+    * Networks coming from different systems share topological structure. 
+    * Force-directed graph layout algorithm, borrows ideas from physics (i.e. simulated annealing). 
+    * Difference between Euclidian distance and traversal path distance between nodes (see Andrew's manifold talk from 2022-03-25 - ECRG)
+    * Fitness landscpaes f(S,N,F) , search space (S), n<unreadable> (N), fitness (F).
+    * Funel - local optima in a course grain structure that can minimize energy. 
+    * Local optima Network, nodes - local optima from hill climbing heuristic, edges - transition between local optima. 
+    * Number partitioner, given a random set of numbers find a partition at value k, such that the two disjoint sets have equal sums. 
+    * Map fitness landscape as a graph, compress the representation, to get an explainable visualisation for a funnel. 
+    * Travelling Salesman Problem (TSP) - apply pertubations to existing solutions to find new solutions in the fitness landscape. 
+    * CMLON, compress a Local Optima Network into a smaller representation that is easier to understand. 
+    * Genetic improvement to CMLON. 
+    * STN, allow for representative solujtions. 
+
+Christian Raymond gave a talk on "Multi-objective Genetic Programming for Symbolic Regression with the Adaptive Splines Representation" 
+
+Notes: 
+    * Overfitting if a difficult problem for GP, because of flexibility of representation. 
+    * Difficult to regularize overfitting in GP. 
+    * Parisomony pressure, population distribution control, order of non-linearity. 
+    * Limitations: structural complexity has minimal correlation with generalization. 
+    * Estimate complexity of a model by estimating a model's behaviour over a subset of training space. 
+    * Limitations: difficult to reliably estimate, complexity vs error is a trade-off. 
+    * Semi structured representation - a solution to both limitations above. 
+    * Spline: defined by multipled low degree k (cubic) polynomials smoothly. 
+    * GG-AWS-PP - Adaptive wieght Splines with parsimony Pressure. 
+    * Apply multi-objective optimisation, for loss and complexity objectives, both considered. 
+    * Training paretor fronts, 2D rperesntation of fintess landscape between two objectives. 
+    * Creates interpretable representations which are easier to understand than genetic algorithms. 
+    * Works well on low to medium dimension feature sets. 
+
+Another talk on "Morphologicl development of Robots [...]" 
+
+Notes: 
+    * Development of agents, aging, is beneficial for generating complex agents. 
+    * Voxel based soft robots (VBS). 
+    * Aggregates of soft cubes (voxels). 
+    * Neural networks for voxel controllers, a net for each voxel. 
+    * New voxels are added to the model over time. 
+    * This is a scheduling function, that must alloclate the correct time to increase the complexity of the model. 
+    * <unlegible> based morphology representation. 
+    * Different development schedules. Early development, uniform development, no development. 
+    * Early development seems more beneficial than uniform development, the artificial mimics the biological. 
+    * No development, shows large deviation in the results, fuzzy accuracy. 
+  
+"A new evoltionary algorithm based home monitoring device for Parkinsons Dyskinesei"
+
+Notes: 
+    * AUC based fitness. 
+    * Adaptive size fitness <unlegible> - allocate fitness absed on a subset of training data. 
+    * Aaply different representation width lengths using GP to see [...] (coffee break for me)
+
+Zhixing gave a best paper nominee talk "An investigation of Multi-task Linear Genetic Programming for Dynamic Job Shop Scheduling"
+
+Notes: 
+    * Job shop scheduling problem. 
+    * Complicated dynamic NP-hard combinatorial problem. 
+    * Make decisions based on imperfect information. Instead, we use heuristics to decide schedule. 
+    * We can't rely on a single heuristic alone, dynamic environment means we must change heuristics in real-time. 
+    * Hyper heuristic - a search mechanism to find a heuristic selecting model. 
+    * GP has good interpretability, a tree can easily be understood by humans. 
+    * Seasonal variance - more demand for ice-cream in summer for an ice cream factory. 
+    * Multi-task, conflicting or tradeoff between goals of different stakeholders. 
+    * Multi-task model - one ring to rule them all - one model that can balance multiple tasks at once. 
+    * Linear gentic programiing, register based instructions, creates directed acyclic graph (DAG). 
+    * DAG > Tree; can use diffrent topological structures to perform cross over for DAG, tree reperesentation is limiting. 
+    * Operators: linear crossover, macro mutation, micro mutation. 
+    * Multi-population based genetic programming (GP) - sub populations that develop in isolation with crossover (migration) allowed. 
+    * homogenous/heterogenous - diff-same / same-diff - utilization/objective functions. 
+    * M^2GP does not perform the same as LGp methods, M^2GP (tree based) state-of-the-art does better. 
+    * Likely because: (1) too large variation step sive, (2) ineffective initializaiton strategy. 
+    * One and multi-objective population methods have similar performance. 
+    * Graph based crossover is a <unlegible> genetic oeprator 
+    * But not used in this work, but is a research direction in ECRG. 
+
+David Wittenberg gave a talk on "Using a denoising autoencover genetic programming to Control Exploration and Explotitation in Search"
+
+Notes: 
+    * Capture relevant properties of parent population in a latent representation. 
+    * Model (auto-encoder) is trained to reconstruct the input. 
+    * Problem: don't want to learn the identity function. 
+    * Solution: denoise (slightly mutate) parent to avoid overfitting anf force the auto-encoder to generalize. 
+    * Level of corruption can be used to control the exploration and exploitation of genetic algorithm. 
+    * Paper explores this idea, we want a latent representation that is a lower resolution to let the model generalize better. 
+    * Subtree mutation: can't control corruption. 
+    * They propose Levenshtein edit, a genetic operator for mutation on the representation string. 
+    * Convert tree into infix string reperesentation - then perform mutation operations on that string. 
+    * Levenshtein edit, insert, delete, mutate - with an edit percentage (this determines level of corruption). 
+    * The  stronger the corruption, the shtonger the exploration. 
+
+Nicholas Fontbonne gave talk "Coperatative Co-Evolution and Adaptve Tree Composition for a Multi-Rover Resources Allocation Problem"
+
+Notes: 
+    * Multi-agent - agents act indepdentdenlt. 
+    * Competetive, mixed, co-operative sum games from game theory. 
+    * Zero-sum, shared-sum, shared-fitness agents. 
+    * In cooperative case, all information about the individual is lost (collectivist idealogies "the greater good"). 
+    * A shared fitness that promotes social welfare is not a good learning signal. 
+    * Marginal contribution - contribution of an individual agent to the team. 
+    * Evolutionary algorithm for multi-agent problems. 
+    * issues: stuck in local optima, high computation cost. 
+    * solution: grouping mechanism. 
+    * reousrce seelction problem: each resource has a satisfcation score. 
+    * k is the group size for the grouping mechanism. 
+    * Co-operative co-veolutionary algorithm for adhoc autonmous agents. 
+    * Efficient anytime larning without apriori knowledge of the problem. 
