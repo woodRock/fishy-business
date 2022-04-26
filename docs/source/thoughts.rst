@@ -171,6 +171,5 @@ brewer2006brown
     * A general purpose AI robot controller to automate the data collection of the GC-MS / REIM data. 
     * This is a way to explore my interest in robotics / AI / computer vision - and encorporate this into my work. 
     * Overall goal: propose an end-to-end engineering solution to quaility assurance in food science. 
-    * Moon-shot: (1) Data Collection, (2) Data Pre-processing, (3) Classification/Regression/Clustering, (4) Visualisation / NLP knowledge generated, (5) Verfication by Domain Expertise 
+    * Moon-shot: (1) Data Collection, (2) Data Pre-processing, (3) Classification/Regression/Clustering, (4) Visualisation / NLP knowledge generated, (5) Verfication by Domain Expertise.
     * Try apply Aritifical intelligence techniques to automate all the processes above. 
-

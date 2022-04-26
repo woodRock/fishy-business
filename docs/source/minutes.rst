@@ -555,7 +555,7 @@ Notes:
 
 2022-04-18 - EvoStar #1
 ~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Madrid, **Time**: 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+**Location:** Madrid, **Time**: Monday 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
 
 Gabriella gave a keynote address on "Illuminating Computational Search Spaces" https://www.youtube.com/watch?v=EyynDbXnwic
 
@@ -671,7 +671,7 @@ Notes:
 
 2022-04-21 - Weekly
 ~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood.
+**Location:** Zoom, **Time**: Wednesay 12pm-1pm , **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood.
 
 Notes:
     * EvoStar conference yesterday, not much work for covid isolation week. 
@@ -681,3 +681,194 @@ Notes:
     * Apply GP to classifier problem directly. 
     * Try several techniques (initially). 
     * Also later what new tasks Daniel may want.  
+
+2022-04-21 - EvoStar #2 
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Madrid, **Time**: Tuesday 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+
+Demelza gave a talk on "Genetic Algorithm for Automated Spectral Pre-processing in Nutrient Assessment"
+
+Notes:
+    * Rapid collection, non-destructive, construct a model. 
+    * Partial Least Squares Regression (PLSR). 
+    * Spectral data is easy to collect, but the pre-procsing is a bottleneck. 
+    * PLSR tranlsates the feature space into latent varaibles. 
+    * Spectral pre-processing, remove noise and redundant intensity values. 
+    * Manual process for pre[rpcessing spectra is laborious and lacks standardization. 
+    * Automate pre-processing for choosing appropriate techniques and their order of application. 
+    * Representation, a two chromosome structure that encodes objectives for: 
+    * Fitness function: combination of MSE and number of features. 
+    * GA-PLSR-PPS perform btter for most cases and has a smaller standard devition for IR and Raman. 
+
+Zakaria Dehi gave a talk on "A machine learning based approach for Economics-Tailored Applications: The Spanish Case Study". 
+
+Notes: 
+    * Use AI for dynamic budget allocations in governmental bodies. 
+    * (1) ETL, (2) Profiling, (3) Predicting. 
+    * ETL - gathered 30,000 economic features, and identified 50 types of related economic metrics. 
+    * Pre-processing required to make the building blocks for the ETL model. 
+    * Different metrics can have the same profiles for all cities (i.e. unemployment/retirement).
+    * Eliminate the redudnat metrics (duplicate class profiles) - for concise metric space. 
+    * DCGA-kMeans - unsupervised clustering algorithm to determine profiles (k). 
+    * Profiling deals with indentifying groups og cities based on an economic profile dervied from metrics. 
+    * Prediction: Long Short-Term Memory (LSTM) - recurrent neural network. 
+    * This unlocks the time series component of ecnomic data, persistance of time observed by the model. 
+    * The ideal number of profiles for most metrics was 3. 
+    * Massive feature and metric reduction - creates meaninful data through feature construction. 
+    * Can decrease complexity of number of cases when officials must make complex politicy decisions based on near-infinite combinatorial search spaces. 
+  
+Daniel Lopez gave a talk on "EvoDesigner: Towards Aiding Graphic Design"
+
+Notes: 
+    * Readability, balance, innovation, style - all measured by Mean Squared Error (MSE). 
+    * Adobe plugin to produce variations of a design based on rough input using evolutionary computation. 
+    * Intitial input is a rought sketch, that paints an idea of a possible layout. 
+    * Evolutionary engine creates a good design graphic based on that initial input. 
+    * Then the engine generates variations of that good design using evolutionary computation. 
+    * Still needs work, but offered a good tool for aiding ideation in graphic design. 
+
+Julia Reuter gave a talk on "Genetic Programming-Based Inverse-Kinematics for Robotic Manipulators... <unlegible>".
+
+Notes: 
+    * Develop prototypical solution for Inverse Kinematics (IK) problems. 
+    * We want closed-form solutions, apply to non-standard SCARA, with explainable representations (equations). 
+    * Kuke koubot - was the brand of SCARA they ran their simulations on. 
+    * Different objective functions + co-creation / co-evolutionary approaches.
+    * IK-CCGP was compared to an ANN. It did better than the ANN. 
+    * Co-evoltuion for the two-joints, performed better than for 3 (a more complex task). 
+    * The equations were tested on simlated - not real world - robotic arms. 
+    * But these equations can be verified later, by applying them to real-wrold systems, and testing for collisions/singularities. 
+  
+Partick Indri gave a talk on "One-shot learning of Ensembles of Temporal Cage Fomrulaes for Anomaly Detection in Cyber-Physical Systems".
+
+Notes: 
+    * Monitor behaviour of CPS, e.g. AV, power plant, medical monitoring, security systems, smart house. 
+    * CPS are dynamic - need to quantify the system in terms of time. 
+    * Signal Time Logic (STL), is an expression grammer for time based operations. 
+    * GP oeprators to construct STL for optimized performiang at controlling a CPS. 
+    * One-shot algorithm, GP is population based, we can use the population to build ensembles.
+    * Water treatment CPS was used as dataset for training/test. 
+    * Their method performs well when comapred to other state-of-the-art methods. 
+    * One-shot G3P achieves more complext formulates than the standard G3P. 
+    * One-shot approach cpatures wave temporal operators better than standard G3P.
+    * It can learn more complext models, that include "time-based" operators (i.e. STL). 
+  
+Gloria Pietropoli gave a talk on "Combining Geometric Semantic GP with Gradient-descent Optimisation"
+
+Notes: 
+    * Geometric smentaic metric programiing (GSCP) is a well known variant of genetic programming (GP), 
+    * GSCP used recombination and mutation operators that have a clear semantic effect. 
+    * Combine GSCP with Adam Optimizer. 
+    * GP, we can presresent an individual as a point a real n-dimensioanl semantic space. 
+    * Geometric smenatic operators: 
+        * Geometric semantic crossover (GSC). 
+        * Geometric semantic mutation (GSM). 
+    * Adapate Moment estimation (Adam, kingma2014adam), is a first order gradient-based optimization of stochastic functions. 
+    * GSCP makes a good jump in the solution space, then adam can refine a candidate solution. 
+    * Two approaches: (1) one-step GSCP then one-step ADAM (HYB-GSCP), or, (2) full GSCP then full ADAM (HCH-GSCP).
+    * HYB-HSCP does better than HCH-GSCP. 
+
+Dominik Sobaria gave a talk on "Program Synthesis with Genetic Programming: The Influence of Batch Size"
+
+Notes: 
+    * Program synthesis with genetic programming. 
+    * Anayluse perfromance and generalization ability of programs generated by GP. 
+    * Batch size effects programming synthesis. 
+  
+2022-04-22 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Notes:
+    * Small editing (layout) is allowed when responding to referee feedback on a paper. 
+    * Me: "I worked on catching COVID his week"
+    * New datasets from Daniel, he proposed some new research objectives https://mail.google.com/mail/u/0/?hl=en/#inbox/FMfcgzGpFWTMDnsjKxswvdtWdrhKzKdH 
+  
+2022-04-22 - Proposal Workshop 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Mengjie Zhang, Jesse Wood et al.
+
+We had a proposal workshop hosted by my former supervisor Mengjie Zhang. 
+
+Notes: 
+    * First (of many) proposal workshops about preparing this document. 
+    * Target adueince for workshops are first year PhD students (me). 
+    * PhD is a great way to go for a very good job later in life. 
+    * Don't have to do theoretical work, but focus on application, key point is to make a major contribution to the field. 
+    * First year of PhD, we are a student not a candidate. A candidate has passed their proposal. 
+    * Bad PhDs can be converted into a masters degree - this happens if the proposal is very bad (try to avoid). 
+    * Read 50-100 papers in order to get a good grounding for a PhD proposal. 
+    * Some people do not have the capability to do a PhD, they can propose, but must demostrate their capability with preliminary work. 
+    * Structure: 
+       1. Introduction 
+       2. Literature survey (read) + 
+       3. preliminary work (code) + 
+       4. contributiosn (major) / miletones / thesis outline / resources. 
+    * Overall goal: a single over-arching scientific/engineering argument to unify my PhD stydies as one body of work. 
+    * 100,000 words (is a lot of words) is the expectation for a PhD thesis. 
+    * Minimize dependencies - encourage modularity for research objectives. 
+    * Coherence is very important for choosing research objectives. 
+    * Literature review should cover most recent work and domain specific (biology/chemistry) papers. 
+    * Honours work can't be counted as preliminary work (but can be references as a citation). 
+    * Not required to publish - but encouraged to do so (prevents concurrent thinking issues later down the line). 
+
+2022-04-21 - EvoStar #3
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Madrid, **Time**: Tuesday 9.30pm - 11.30pm, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+
+The final day of the conference, involved a plenary talk and prize giving ceremonies. 
+
+Pablo Geruas gave a EvoMUSART talk on "Evolutionary construction of Stories that Combine Several Story Lines"
+
+Notes: 
+    * Star Wars used as an example during the talk for storylines (kudos :D). 
+    * Use evolutionary algorithms to evolve <unlegible> <unlegible> plot lines for a story. 
+    * Made up of 20 popular plot lines from a textbook, assign a plot line to each character. 
+    * Tricky to come up with a genetic representation for a story plotline.
+    * Genetic representation must be manipulatable with genetic operators. 
+    * Difficult to design an objective/fitness function. 
+    * Fitness: validity - continuity of life and death, each character falls in love once (simplification). 
+    * Fitness function averages over all validity metrics to evluate fitness. 
+    * Eolvutionary approach good for creating multi-plotline stories with semantically valid discourse. 
+    * Speaker gave a similar application e.g. a robot that generates plot line scripts for a leage of legends game. 
+    * https://nil.fdi.ucm.ec/ 
+
+Pedro Larrange gave the plenary talk on "Estimator of Distribution Algorithms In Machine Learning" 
+
+Notes: 
+    * Machine learning is a large focus of artificial intelligence nowadays. 
+    * Construct a model from data, perform (non)-parametric optimization. 
+    * Estimation of Distribution Algorithm (EDA). 
+    * Bayesian Networks  (DAG + CPT), Directed Acyclic Graph (DAG), Conditional Probability Table (CPT).
+    * Feature subset selection, Filter - only consider features, Wrapper - evaluate performance at machine learning task. 
+    * Classification - a greedy algorith. 
+    * Artifical Neural Network (ANN) - (Baluja 1995). 
+    * Logistic regresion (Roles et al 2008) - led to intrepretable results for complex models. 
+    * AdaBoost (Cagninin et al. 2018) - aggregated voting system between classifiers. 
+    * Hierarchcial clustering (Fan 2019). 
+    * k-Means (Forgy 1965), most popular culstering algorithnm, centroids shiftwed with hill climbing strategy. 
+    * Reinfrocment learning (Honda and Nishive 2008) - relies on conditional markov fields. 
+    * EDAs have not yet been applied to Support Vector Machines (SVM) - possible future work here (for me). 
+
+2022-04-26 - Thesis Workshop 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 12pm-1pm , **Attendees:** Kirsten Reid, Jesse Wood et al.
+
+Kirsten Reid, from learning support, hosted a Thesis Workshop for the Faculty of Graduate Research (FGR). 
+
+Notes: 
+    * Shape/formate appropriate for the field - i.e. Engineering / Artifical Intelligence. 
+    * Linking ideas between chapters - see About Face 3 for great example. 
+    * (Sub)headings are used effectively - maximum three levels of indentation for understandability by reader. 
+    * Topic sentence for each new paragraph. 
+    * If needed - glossary, acronyms, abbreviations - up front. 
+    * Reminder of key concepts when needed, jog the readers memory, guide the reader along (a thesis is long). 
+    * "Reader-friendly", avoid jargon, use plain text. 
+    * Sentence length should vary to avoid monontonous tone (see https://bit.ly/38mTmAE)
+    * Avoid too many nominisations - e.g. "we decided" rather than "we came to the decision" - focus on action verbs over their nouns. 
+    * Don't have front-ended setnences, cut the wheat from the chaff, 1/3 of writing can be removed for brevity usually. 
+    * Make appointment with Student Learning - limited to 50 minutes. 
+    * Sentence cohesion worksop coming up soon. 
+    * Kirsten happy to reply to Emails for further advice on this workshop. 
+    * Three voices: research, data, researcher. 
+    * From FGR: 4 workshops coming up for PhD students in May. 
