@@ -557,6 +557,8 @@ Notes:
 ~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Madrid, **Time**: Monday 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
 
+More information can be found on the full conference program - https://easychair.org/smart-program/Evo2022/
+
 Gabriella gave a keynote address on "Illuminating Computational Search Spaces" https://www.youtube.com/watch?v=EyynDbXnwic
 
 Notes: 
@@ -685,6 +687,8 @@ Notes:
 2022-04-21 - EvoStar #2 
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Madrid, **Time**: Tuesday 7pm - 6 am, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+
+More information can be found on the full conference program - https://easychair.org/smart-program/Evo2022/
 
 Demelza gave a talk on "Genetic Algorithm for Automated Spectral Pre-processing in Nutrient Assessment"
 
@@ -817,6 +821,7 @@ Notes:
 **Location:** Madrid, **Time**: Tuesday 9.30pm - 11.30pm, **Attendees:** Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
 
 The final day of the conference, involved a plenary talk and prize giving ceremonies. 
+More information can be found on the full conference program - https://easychair.org/smart-program/Evo2022/
 
 Pablo Geruas gave a EvoMUSART talk on "Evolutionary construction of Stories that Combine Several Story Lines"
 
@@ -871,4 +876,5 @@ Notes:
     * Sentence cohesion worksop coming up soon. 
     * Kirsten happy to reply to Emails for further advice on this workshop. 
     * Three voices: research, data, researcher. 
-    * From FGR: 4 workshops coming up for PhD students in May. 
+    * From FGR: 4 workshops coming up for PhD students in May.
+
