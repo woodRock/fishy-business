@@ -173,3 +173,11 @@ brewer2006brown
     * Overall goal: propose an end-to-end engineering solution to quaility assurance in food science. 
     * Moon-shot: (1) Data Collection, (2) Data Pre-processing, (3) Classification/Regression/Clustering, (4) Visualisation / NLP knowledge generated, (5) Verfication by Domain Expertise.
     * Try apply Aritifical intelligence techniques to automate all the processes above. 
+
+2021-04-27 - Teleoperation SCARA 
+---------------------------------
+    * The paper (quin 2021, qin2021one) shows possibility for teleoperation of SCARA via a laptop webcam. 
+    * This requires no special, 3D sensor setup, and can be done with a simple webcam - available to anyone with a laptop. 
+    * This could be implemented to allow for remote operation of our SCARA for employees working from home (WFH). 
+    * Furthermore, this could be similar to Tesla FSD, where human intervention can resolve edge cases. 
+    * This dramatically increases the viability of the SCARA product for collecting REIMS data. 
