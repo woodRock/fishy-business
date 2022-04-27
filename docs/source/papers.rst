@@ -318,6 +318,13 @@ pearce2021empirical
     * CoPilot outperforms other state-of-the-art NLP code generation models. 
     * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
 
+qin2021one
+----------
+    * From One Hand to Multiple Hands: Imitation Learning for Dexterous Manipulation from Single-Camera Teleoperation. 
+    * TODO read 
+    * This paper shows single-camera teleoperation capabilities for SCARA. 
+    * This could be used to allow for remote intervention in edge cases for our SCARA. 
+
 raine1997brain
 --------------
     * Muderers pleading not guilty be reason of insanity (NGRI).
