@@ -182,9 +182,12 @@ brewer2006brown
     * Furthermore, this could be similar to Tesla FSD, where human intervention can resolve edge cases. 
     * This dramatically increases the viability of the SCARA product for collecting REIMS data. 
 
-2022-04-28 - Tesla AI Day (supercut)
-------------------------------------
+2022-04-28 - AI Day + SCRUM Board 
+---------------------------------
     * Who says you can't enjoy your PhD research https://twitter.com/jrhwood/status/1519514331200643072 
     * I presented the AI Day supercut to the FASLIP research group, and it was recieved very positively. 
     * This was a moment of Jungian Synchronicity - a self actualising and deeply meaningful experience. 
     * Side note: I made a gigantic prop replica of the SCRUM board from Silicon Valley https://www.youtube.com/watch?v=oyVksFviJVE 
+    * This is achieves a major PhD research goal that I set for my ENGR391 Work Experience paper. 
+    * I have successfully applied Project Management techniques to my study. 
+    * I added my own twist, by using playing cards as a ranking/priority heuristic for ordering tasks.
