@@ -123,7 +123,7 @@ brewer2006brown
     * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
     * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 
 
-2021-03-31 - CNN Results 
+2022-03-31 - CNN Results 
 ------------------------
     * Implemented the 1-dimensional CNN from ENGR489 - with some tweaks and adjustments. 
         * Assess the accuracy using k-fold stratified cross-validation (k = 10). 
@@ -142,7 +142,7 @@ brewer2006brown
         * Later include a genetic algorithm that constructs the network design - but this remains beyond my initial scope. 
         * If results are promising, a paper on "Evolutionary Computation for Neural Architecture Search in Fish Oil Analysis" would be appropriate.
 
-2021-04-04 - Chemical Stuff 
+2022-04-04 - Chemical Stuff 
 ---------------------------
     * MegaSYN - computation proof of concept for using AI to manufacture biological weapons https://bit.ly/3x2enuY
         * Adjusted objective function for MegaSYN and used deadly training data. 
@@ -157,7 +157,7 @@ brewer2006brown
         * Employing VAEs on unsupervised clustering algorithms combines clustering and auto-encoders. 
         * Model was more accurate that lab test results (i.e. 99% > 95% AUC)
 
-2021-04-07 - CNN Fish Part 
+2022-04-07 - CNN Fish Part 
 --------------------------
     * CNN classification results for fish part. 
     * Fish part needs a simpler neural network to achieve high accuracy on fish part. 
@@ -165,7 +165,7 @@ brewer2006brown
     * Still need to manually tune this model more to be competitive with the SVM.
     * LeakyRelu activation function improves performance on both datasets.
 
-2021-04-22 - e2e with SCARA 
+2022-04-22 - e2e with SCARA 
 ---------------------------
     * Could encorporate model-free reiforcement learning for simulation/real-world SCARA robot to take measurements in a factory. 
     * A general purpose AI robot controller to automate the data collection of the GC-MS / REIM data. 
@@ -174,10 +174,17 @@ brewer2006brown
     * Moon-shot: (1) Data Collection, (2) Data Pre-processing, (3) Classification/Regression/Clustering, (4) Visualisation / NLP knowledge generated, (5) Verfication by Domain Expertise.
     * Try apply Aritifical intelligence techniques to automate all the processes above. 
 
-2021-04-27 - Teleoperation SCARA 
+2022-04-27 - Teleoperation SCARA 
 ---------------------------------
-    * The paper (quin 2021, qin2021one) shows possibility for teleoperation of SCARA via a laptop webcam. 
+    * The paper (quin 2022, qin2022one) shows possibility for teleoperation of SCARA via a laptop webcam. 
     * This requires no special, 3D sensor setup, and can be done with a simple webcam - available to anyone with a laptop. 
     * This could be implemented to allow for remote operation of our SCARA for employees working from home (WFH). 
     * Furthermore, this could be similar to Tesla FSD, where human intervention can resolve edge cases. 
     * This dramatically increases the viability of the SCARA product for collecting REIMS data. 
+
+2022-04-28 - Tesla AI Day (supercut)
+------------------------------------
+    * Who says you can't enjoy your PhD research https://twitter.com/jrhwood/status/1519514331200643072 
+    * I presented the AI Day supercut to the FASLIP research group, and it was recieved very positively. 
+    * This was a moment of Jungian Synchronicity - a self actualising and deeply meaningful experience. 
+    * Side note: I made a gigantic prop replica of the SCRUM board from Silicon Valley https://www.youtube.com/watch?v=oyVksFviJVE 
