@@ -902,3 +902,4 @@ Notes:
     * Lex Fridman AI Day (summary by MIT researcher) - https://www.youtube.com/watch?v=ABbDB6xri8o
     * Here is the full video, it includes references to academic papers:
     * Full AI Day (3 hours long) - https://www.youtube.com/watch?v=j0z4FweCy4M
+    * Supervisor liked my running commentary and links to further watching. 
