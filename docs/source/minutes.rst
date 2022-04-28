@@ -878,3 +878,27 @@ Notes:
     * Three voices: research, data, researcher. 
     * From FGR: 4 workshops coming up for PhD students in May.
 
+2022-04-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO 352, Cotton Building, **Time**: Monday 12pm-1pm , **Attendees:** Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Notes: 
+    * Can claim GC dataset research as preliminary work for the REIMS data in my proposal. 
+    * Transfer models from GC to REIMS data (likely) - this supports the preliminary claim. 
+    * Pre-training on NIST GC refraction index data - needs a parametric (neural network) model for this technique. 
+    * TODO: Apply EvoCNN to GC data. 
+    * TODO: Apply Genetic Programming (GP) data to GC data. 
+
+2022-04-28 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Jesse Wood (me) showed a talk "Telsa AI Day (supercut)". 
+
+Notes: 
+    * Disclaimer: I submitted this talk request on the 21st of April (7 days ago) - this is not political, just a coincidence. 
+    * "Iron Man in Real life" - a comment from the Zoom chat. 
+    * If you are interested in another high level summary:
+    * Lex Fridman AI Day (summary by MIT researcher) - https://www.youtube.com/watch?v=ABbDB6xri8o
+    * Here is the full video, it includes references to academic papers:
+    * Full AI Day (3 hours long) - https://www.youtube.com/watch?v=j0z4FweCy4M
