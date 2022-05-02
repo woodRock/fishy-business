@@ -903,3 +903,73 @@ Notes:
     * Here is the full video, it includes references to academic papers:
     * Full AI Day (3 hours long) - https://www.youtube.com/watch?v=j0z4FweCy4M
     * Supervisor liked my running commentary and links to further watching. 
+
+2022-04-22 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+General Notes:
+    * Zhixing won best paper for EuroGP. 
+    * Shaolin had a TEVC paper revision. 
+    * Vincent and Tao had a paper accepted by CEC. 
+
+Talk from Xioying Sharon Gee on "Text Representation" 
+
+Notes:
+    * Inverse document frequency - use to elminate words that are too common - e.g. "the". 
+    * Word emeddings, analyse similarity (relateness) with PCA - reduce to lower dimensional space (2d / 3d). 
+    * CNN, Transformers, Attention, BERT, Pre-training. 
+    * Pre-training of deep bidirectional transformers for language understading (BERT). 
+    * Word masking, pre-training, next sentence prediction (NSP). 
+
+2022-04-02 - Research Workshop 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 11pm-1pm , **Attendees:** Jesse Wood 
+
+FGR hosted a workshop "How do I publish and disseminate my research". 
+
+Notes: 
+    * https://scopus.com - see citation statistics for papers/journals - useful metrics to judge quality. 
+    * Can see stats for a journal, and comapre this to other jounrals, to assess the credibility. 
+    * These tools are useful for making/measuring goals as a researcher. 
+    * http://login.webofknowledge.com/ -  useful tool for mainly STEM disciplines. 
+    * Eslever Journal Finder - provices acceptance nodes. turn around times - useful for finding which journal is appropriate. 
+    * www2.cabells.com/jouranlytics - see a journal's publishing frequency, may be anually, this is a long wait. 
+    * Consequences: 
+        * Who reads it? 
+        * Does it publish articles like yours? 
+        * Does your style match? 
+        * Would you need to change to submit? 
+        * Peer-reviwed? 
+        * Time to publish? 
+        * Substantial paper. 
+        * Tolerable rejection rate. 
+        * Preferred type of journal. 
+        * Solid reputation/metrics. 
+        * Many articles a year. 
+    * Keywords are good for SEO, they ensure the discoverability of work, and extend your audience. 
+    * Rejection happens, may provide feedback (may not). 
+    * Query letter - send an abstract to a journal to test the waters - see if a paper is appropriate. 
+
+
+2022-04-11 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 3pm-5pm , **Attendees:** Mathew O'Connor, Bastiaan Kleign, Jesse Wood et al.
+
+Matt O'Connoer gave a talk "Unsampling Artifacts in Neural Audio Synthesis" https://ieeexplore.ieee.org/abstract/document/9414913
+
+Notes: 
+    * Imrpove the quality of audio using a neural network approach. 
+    * CNN is for images, but we need an architecture for audio specifically - this must handle audio specific problems (e.g. time, harmonics). 
+    * Convolution (collapse), transposed (expand). 
+    * Transposed convolutions are widely used. 
+    * Upsampling methods: 
+        * Stretch (insert zeros) 
+        * NN (nearest neighbours)
+        * Linear 
+    * The unsampling algorithm leaves artifacts in the output sample. 
+    * Spectral replicas emerge when sampling/discretizing the signal. 
+    * All up sampling methods sound very similar - in the human audible range. 
+    * NN, no artifacts, but frequency filter at zero frequency. 
+    * Out of distribution test, shows major artifacts, since it wasn't in training. 
+    
