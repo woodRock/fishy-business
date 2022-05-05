@@ -191,3 +191,4 @@ brewer2006brown
     * This is achieves a major PhD research goal that I set for my ENGR391 Work Experience paper. 
     * I have successfully applied Project Management techniques to my study. 
     * I added my own twist, by using playing cards as a ranking/priority heuristic for ordering tasks.
+    
