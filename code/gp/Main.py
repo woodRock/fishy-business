@@ -12,4 +12,4 @@ GP Tutorial - https://machinelearningmastery.com/simple-genetic-algorithm-from-s
 # [ ] Complete the tutorial.
 # [ ] Apply this to GC fish classification task. 
 # [ ] Try basic DEAP algorithm. 
-# [ ] Implement elitism.
+# [ ] Implement elitism. 

@@ -411,6 +411,12 @@ xue2014particle
     * The updating mechanism overcame the limitations of the traditional method by considering the number of features.
     * The proposed algorithm had better performance in terms of computing, fewer features selected and classification accuracy.
 
+zemmal2016adaptative
+--------------------
+    * S3VM - semi-supverised SVM. 
+    * Using inlabeleld data to ensure the decision boundaries are drawn through low density areas
+    * TODO - read. 
+
 zhang2008two
 ------------
     * Zhang et al. proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry. 

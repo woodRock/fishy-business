@@ -973,3 +973,77 @@ Notes:
     * NN, no artifacts, but frequency filter at zero frequency. 
     * Out of distribution test, shows major artifacts, since it wasn't in training. 
     
+2022-05-05 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO 352, Cotton Building, **Time**: Monday 12pm-1pm , **Attendees:** Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Notes: 
+    * Reading this week - Evolutionary ML Survey (60% done). 
+    * Apply GP to the GC fish dataset. 
+    * Later consider the time domain: terminal set, symbolic regression. 
+    * GP Hello World! Try find a tutorial for this. 
+    * DEAP does not have "Elitism" - I will need to implement my own.
+    * Elitism:
+        * Keep the top solutions between generations. 
+        * Ensures performance can't decrease. 
+        * Does not guarantee performance will increase. 
+    * Future work - transfer learning can be: 
+        * Paramters 
+        * Model 
+        * Feature (selected/constructed)
+    * Terminology; domain adaptation, domain generalisation. 
+    * N.B. I shoudl record my tutor meetings on zoom (even if they are in person) to make use of Panopto's free transcription software while I am a staff member. 
+
+2022-05-05 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Monday 2pm-3pm , **Attendees:** Peng Wang, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Peng Wang proposed a talk from Prof. Zhihua Zhou on "From Pure Learning to Learning+Reasoning" https://www.youtube.com/watch?v=LAvRDCcXCMc 
+
+Notes: 
+    * Most machine learning techniques rely on large database of labelled training data. 
+    * We can leverage unlablled data, to improve performance on labelled data. 
+    * Self-learning, use a classifier to apply psuedo classes to unlabelled data. 
+    * SETRED 2005 - data editing, cleans up self learning. 
+    * Active learning (AL); uses an oracle to query (label) unlabelled data, rely on minimizing queries to oracle (this requires human supervision). 
+    * Representative AL approach - informative/representative. 
+    * AL requires human-in-the-loop. 
+    * Semi-supervised learning (SSL) - see Lex podcast for more details https://www.youtube.com/watch?v=FUS6ceIvUnI 
+    * Indepedndent and Identically Distributed (IID). 
+    * Semi-supervised SVMs (S3VMs) (Zemma 201u6, zemmal2016adaptative).
+    * Using inlabeleld data to ensure the decision boundaries are drawn through low density areas. 
+    * Tri-training approach, three learners, tha can teach eacother, and perform ensemble learning. 
+    * Ensemble learning - uses multiple models and combines them to make a prediction. 
+    * Holy grail: machine learning + logical reasoning. 
+    * Probabilistic Logic Programming (PLP) - heavy-reasoning light-learning.  
+    * Statistical Relation Learning (SRL) - light-reasoning heavy-learning.
+    * Proposal: abductive learning: 
+        * Deductive 
+        * Inductive 
+        * Abductive - Inversly embed deductive reasoning into inductive reasoning. 
+    * Knowledge Base (KB), a series of first-order logic predicates. 
+    * Instance --> Psuedo lables --> Psuedo groundings --> KB. 
+    * Optimize minimzed inconsistency in the system. 
+    * ABL does not rely on ground-truth labels. 
+    * SSL for court sentences in China, similar to Andrews work (see "2022-03-25 - ECRG" above). 
+
+2022-05-06 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Notes:
+    * Celebtration for AI group since Bastiaan recieved his RSNZ Fellowship - Wednesday 18th May from 12 pm - 1 pm in CO3250. 
+    * Hayden, camera-ready (?) paper for Gecko (?) workshop. 
+    * Candidate Development Plan (CDP) is due by the end of May - this is due every 6 months (see email https://mail.google.com/mail/u/0/#search/CDP/FMfcgzGpFgvPXpqBwmBtBvqBZPxxQFtB).
+    * University policy for thesis students does not require use to publish any papers. 
+    * STEM has a publishing-forward culture when compared to other fields (e.g. law or humanities). 
+    * Evolutionary Algorithm:  
+        * Initialisation
+        * Cycle 
+            1. Evaluation. 
+            2. Selection. 
+            3. Reproduction. 
+            4. Repeat 1-3 until termination condition. 
+    * Meng has not seen anyone miss genetic operators, but a fair number of research papers ommit the "evaluation" and "selection" sections. 
+    * DON'T OMMIT THESE SECTIONS! (Unless you have a very good reason not to). 
+    * Ideally, have a nice flow diagram in a paper, to explain the training process for the model (this figure is a good use of space!!!). 
