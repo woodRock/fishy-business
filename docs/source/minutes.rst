@@ -1047,3 +1047,20 @@ Notes:
     * Meng has not seen anyone miss genetic operators, but a fair number of research papers ommit the "evaluation" and "selection" sections. 
     * DON'T OMMIT THESE SECTIONS! (Unless you have a very good reason not to). 
     * Ideally, have a nice flow diagram in a paper, to explain the training process for the model (this figure is a good use of space!!!). 
+
+2022-05-09 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Ciaran King, Jesse Wood, Bastiaan Kleign, et al.
+
+Ciaran King gave a talk on "Learning from Protein Structure with Geometric Vector Perceptrons" (Jing 2020, jing2020learning) https://openreview.net/forum?id=1YLJDvSx6J4 
+
+Notes: 
+    * Perverse incenstives for acadmiecs to over sell their work and a major reproducability crisis in deep learning. 
+    * Graph nerual Networks can be used for protien folding. 
+    * Equivariance to rotations - if the networks thinks the same instance rotates is a completely different structure, this is very inefficient. 
+    * Instead we want rotation invariant representations for things like protiens. (Like we wan't time invariant representations for gas chromatography). 
+    * Voxels are 3D pixels, these can be used to make a 3D representation of an instance, which then applies a 3D Convolutional Neural Network. 
+    * We think that (1) message passing and (2) spatial convolution, are both well suited for different types of reasoning. 
+    * In protein folding, their are chemical propoerties of protiens that simplify the combinatorial search space for the graphical neural network. 
+    * This is similar to how the AI Feynman (Tegmark 2020, tegmark2020ai) used properties of physics equations to simplify symbolic regression. 
+    * I would like to apply simplification using domain expertise in chemistry to my gas-chromatography and mass spectrometry data. 

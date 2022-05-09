@@ -191,6 +191,16 @@ Hofstadter1979godel
     * Godel Escher Bach 
     * The hand that draws itself. 
 
+jing2020learning
+----------------
+    * Graph nerual Networks can be used for protien folding. 
+    * Equivariance to rotations - if the networks thinks the same instance rotates is a completely different structure, this is very inefficient. 
+    * Instead we want rotation invariant representations for things like protiens. (Like we wan't time invariant representations for gas chromatography). 
+    * Voxels are 3D pixels, these can be used to make a 3D representation of an instance, which then applies a 3D Convolutional Neural Network. 
+    * We think that (1) message passing and (2) spatial convolution, are both well suited for different types of reasoning. 
+    * In protein folding, their are chemical propoerties of protiens that simplify the combinatorial search space for the graphical neural network. 
+    * This is similar to how the AI Feynman (Tegmark 2020) used properties of physics equations to simplify symbolic regression. 
+
 karras2020analyzing
 -------------------
     * StyleGAN 
