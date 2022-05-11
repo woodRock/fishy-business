@@ -45,6 +45,7 @@ def selection(pop, scores, k=3):
 			selection_ix = ix
 	return pop[selection_ix]
 
+
 """
 Mutation. 
 
@@ -58,6 +59,7 @@ def mutation(bitstring, r_mut):
 		if rand() < r_mut: 
 			# Flip the bit. 
 			bitstring[i] = 1 - bitstring[i]
+
 
 """
 Crossover. 
@@ -81,6 +83,7 @@ def crossover(p1, p2, r_cross):
 		c1 = p1[:pt] + p2[pt:]
 		c2 = p2[:pt] + p1[pt:]
 	return [c1, c2]
+
 
 """
 A onexmax objective function (boring). 
@@ -136,6 +139,7 @@ def decode(bounds, n_bits, bitstring):
 		decoded.append(value)
 	return decoded
 
+
 """
 Genetic algorithm.
 
@@ -165,7 +169,7 @@ def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, r_cross, r_mut):
 		for i in range(n_pop):
 			if scores[i] < best_eval:
 				best, best_eval = pop[i], scores[i]
-				print(f">{gen}, new best f({decoded[i]}) = %{scores[i]}")
+				print(f">{gen}, new best f({decoded[i]}) = {scores[i]}")
 		# select parents
 		selected = [selection(pop, scores) for _ in range(n_pop)]
 		# create the next generation
@@ -182,6 +186,7 @@ def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, r_cross, r_mut):
 		# replace population
 		pop = children
 	return [best, best_eval]
+
 
 if __name__ == "__main__":
 	# Hyperparameters.
