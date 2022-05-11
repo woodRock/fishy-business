@@ -2,15 +2,17 @@
 Main - Main.py
 ==============
 
-This is the main routine for a Genetric Progamming model. 
+This is the main routine for a Genetric Progamming (GP) model. 
 
-We implement a tutorial by Jason from Machine Learning Mastery https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/
-
-We use Genetic Programming (GP) to solve a 2nd order polynomial equation.
+Using GP we solve (1) onemax, and (2) 2nd-order polynomial equations. 
 GP implements evaluation, selection and reproduction on a bitstring representations of the solution.
 Evaluation measures the performance of the solution by the objective function.
 We perform tournament selection to decide which individuals are kepts. 
 The reproduction is done by crossover and mutation.
+
+References: 
+	1.  Simple Genetic Algorithm From Scratch in Python, Jason Brownlee, 
+		Machine Learning Mastery https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/
 
 TODO: 
 DEAP Github - https://github.com/DEAP/deap

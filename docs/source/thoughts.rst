@@ -192,3 +192,12 @@ brewer2006brown
     * I have successfully applied Project Management techniques to my study. 
     * I added my own twist, by using playing cards as a ranking/priority heuristic for ordering tasks.
     
+2022-05-11 - First GP 
+---------------------
+    * I wrote my first Genetic Program (GP) from scratch today. 
+    * We implement a tutorial by Jason from Machine Learning Mastery https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/
+    * It solved (1) onemax, and (2) 2nd-order polynomial equations. 
+    * GP implements evaluation, selection and reproduction on a bitstring representations of the solution.
+    * Evaluation measures the performance of the solution by the objective function.
+    * We perform tournament selection to decide which individuals are kepts. 
+    * The reproduction is done by crossover and mutation.
