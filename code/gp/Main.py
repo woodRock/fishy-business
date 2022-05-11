@@ -183,16 +183,17 @@ def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, r_cross, r_mut):
 		pop = children
 	return [best, best_eval]
 
-# Hyperparameters.
-bounds = [[-5.0, 5.0], [-5.0, 5.0]]
-n_iter = 100 
-n_bits = 16 
-n_pop = 100 
-n_cross = 0.9 
-r_mut = 1.0 / (float(n_bits) * len(bounds))
+if __name__ == "__main__":
+	# Hyperparameters.
+	bounds = [[-5.0, 5.0], [-5.0, 5.0]]
+	n_iter = 100 
+	n_bits = 16 
+	n_pop = 100 
+	n_cross = 0.9 
+	r_mut = 1.0 / (float(n_bits) * len(bounds))
 
-# Perform the genetic algorithm search. 
-best, score = genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, n_cross, r_mut)
-print("Done!")
-decoded = decode(bounds, n_bits, best)
-print(f"Best solution: {decoded}.\nScore: {score}.")
+	# Perform the genetic algorithm search. 
+	best, score = genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, n_cross, r_mut)
+	print("Done!")
+	decoded = decode(bounds, n_bits, best)
+	print(f"Best solution: {decoded}.\nScore: {score}.")
