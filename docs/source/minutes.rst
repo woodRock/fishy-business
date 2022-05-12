@@ -1064,3 +1064,22 @@ Notes:
     * In protein folding, their are chemical propoerties of protiens that simplify the combinatorial search space for the graphical neural network. 
     * This is similar to how the AI Feynman (Tegmark 2020, tegmark2020ai) used properties of physics equations to simplify symbolic regression. 
     * I would like to apply simplification using domain expertise in chemistry to my gas-chromatography and mass spectrometry data. 
+
+2022-05-12 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time**: Thursday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
+
+Notes: 
+    * Audio-only private recordings of weekly meetings for study purposes is ok. 
+    * Plant & Food collecting information on students (like myself) that have been working for them. 
+    * Conferences: 
+        * GECCO - Genetic Evolution Computation Conference. 
+        * EvoStar (attended in 2022). 
+        * IEEE CC - IEEE Congress of Evolutionary Computation. 
+    * Bing has emailed my suggested further reading for GP:  
+        1. Genetic Programming for Feature Construction and Selection in Classification on High-dimensional Data https://link.springer.com/article/10.1007/s12293-015-0173-y
+        2. Genetic programming for multiple-feature construction on high-dimensional classification https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
+        3. A New Representation in PSO for Discretisation-Based Feature Selection https://ieeexplore.ieee.org/document/7956226
+    * Camera ready? This is ready for print, a final version of the paper that has responded to feedback and been formatted for the journal. 
+    * CDP - Candidate Development Plan, is due this month. Scope is for 6 months only. This is my first so I have no goals from previous CDP. 
+    * [ ] Send a draft to my supervisors for feedback. 
