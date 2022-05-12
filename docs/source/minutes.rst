@@ -1083,3 +1083,41 @@ Notes:
     * Camera ready? This is ready for print, a final version of the paper that has responded to feedback and been formatted for the journal. 
     * CDP - Candidate Development Plan, is due this month. Scope is for 6 months only. This is my first so I have no goals from previous CDP. 
     * [ ] Send a draft to my supervisors for feedback. 
+
+2022-05-12 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Cuie Yang, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Cuie suggested the talk "You are what you read" https://www.youtube.com/watch?v=Du7qLsToW-o
+
+Notes: 
+    * Light reading, figure fishing - 80% comprehension. 
+    * Skip to pictures like a kid, we are all kids at heart. 
+    * Deep read, creative/critical reading.
+    * Shallow reading is important, a paper has four parts.
+        1. Title 
+        2. Abstract 
+        3. Introduction 
+        4. Rest 
+    * How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
+    * Quick reading and shallow learning is most important for the majority of readers. 
+    * Reviwers are busy people, bathroom reviews, a lot of reviwed is based on superficial details. 
+    * Notes - a format for notes from skim reads of a paper: 
+         1. About 
+         2. Problem 
+         3. Interesting 
+         4. New 
+         5. Neat  
+    * Two word titles: "Snappy sampling". 
+    * Find collegaues to collaborate with and share knowledge. 
+        * Give and take, time is a resource. 
+        * what NOT to read? 
+    * Future work: 
+        1. Good ideas 
+        2. Improvements 
+        3. Applications/Extensions 
+        4. Your opinion 
+    * Come up with your own: 
+        * Other domains 
+        * Moon-shit
+        * Related ideas 
