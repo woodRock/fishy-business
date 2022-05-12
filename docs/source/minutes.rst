@@ -1108,21 +1108,21 @@ Notes:
          1. About 
          2. Problem 
          3. Interesting 
-         4. New 
-         5. Neat  
+         4. New
+         5. Neat
     * Two word titles: "Snappy sampling". 
     * Find collegaues to collaborate with and share knowledge. 
         * Give and take, time is a resource. 
         * what NOT to read? 
     * Future work: 
-        1. Good ideas 
-        2. Improvements 
-        3. Applications/Extensions 
-        4. Your opinion 
+        1. Good ideas
+        2. Improvements
+        3. Applications/Extensions
+        4. Your opinion
     * Come up with your own: 
         * Other domains 
         * Moon-shit
-        * Related ideas 
+        * Related ideas
 
 TODO: 
-    * How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
+    * [ ] How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
