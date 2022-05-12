@@ -1102,7 +1102,6 @@ Notes:
         2. Abstract 
         3. Introduction 
         4. Rest 
-    * How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
     * Quick reading and shallow learning is most important for the majority of readers. 
     * Reviwers are busy people, bathroom reviews, a lot of reviwed is based on superficial details. 
     * Notes - a format for notes from skim reads of a paper: 
@@ -1124,3 +1123,6 @@ Notes:
         * Other domains 
         * Moon-shit
         * Related ideas 
+
+TODO: 
+    * How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
