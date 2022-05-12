@@ -201,6 +201,11 @@ jing2020learning
     * In protein folding, their are chemical propoerties of protiens that simplify the combinatorial search space for the graphical neural network. 
     * This is similar to how the AI Feynman (Tegmark 2020) used properties of physics equations to simplify symbolic regression. 
 
+kajiya1993get
+-------------
+    * How to get your SIGGRAPH paper rejected
+    * TODO [ ] Read this
+
 karras2020analyzing
 -------------------
     * StyleGAN 
