@@ -2,10 +2,10 @@
 Main - Main.py
 ==============
 
-This is the main routine for a Genetric Progamming (GP) model. 
+This is the main routine for a Genetric Algorithm (GA) model. 
 
-Using GP we solve (1) onemax, and (2) 2nd-order polynomial equations. 
-GP implements evaluation, selection and reproduction on a bitstring representations of the solution.
+Using GA we solve (1) onemax, and (2) 2nd-order polynomial equations. 
+GA implements evaluation, selection and reproduction on a bitstring representations of the solution.
 Evaluation measures the performance of the solution by the objective function.
 We perform tournament selection to decide which individuals are kepts. 
 The reproduction is done by crossover and mutation.

@@ -1,4 +1,4 @@
-# Genetic Programming (GP)
+# Genetic Algorithm (GA)
 
 # Requirements 
 
@@ -13,6 +13,6 @@ pip install ...
 The code can be executed with the following command
 
 ```bash 
-$ python3 -m gp.Main
+$ python3 -m ga.Main
 ``` 
 
