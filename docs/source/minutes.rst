@@ -1076,13 +1076,16 @@ Notes:
         * GECCO - Genetic Evolution Computation Conference. 
         * EvoStar (attended in 2022). 
         * IEEE CC - IEEE Congress of Evolutionary Computation. 
-    * Bing has emailed my suggested further reading for GP:  
-        1. Genetic Programming for Feature Construction and Selection in Classification on High-dimensional Data https://link.springer.com/article/10.1007/s12293-015-0173-y
-        2. Genetic programming for multiple-feature construction on high-dimensional classification https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
-        3. A New Representation in PSO for Discretisation-Based Feature Selection https://ieeexplore.ieee.org/document/7956226
+
     * Camera ready? This is ready for print, a final version of the paper that has responded to feedback and been formatted for the journal. 
     * CDP - Candidate Development Plan, is due this month. Scope is for 6 months only. This is my first so I have no goals from previous CDP. 
-    * [ ] Send a draft to my supervisors for feedback. 
+    
+TODO: 
+    * [ ] Readings on Genetic Programming (GP)
+        1. TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
+        2. tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
+        3. tran2017new https://ieeexplore.ieee.org/document/7956226
+    * [ ] Send a draft CDP to my supervisors for feedback. 
 
 2022-05-12 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~

@@ -201,3 +201,4 @@ brewer2006brown
     * Evaluation measures the performance of the solution by the objective function.
     * We perform tournament selection to decide which individuals are kepts. 
     * The reproduction is done by crossover and mutation.
+
