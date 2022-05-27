@@ -1126,3 +1126,86 @@ Notes:
 
 TODO: 
     * [ ] How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
+
+2022-05-13 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+General notes: 
+    * Possible to ahve future meetings in person sson - waiting on university to update their covid policy. 
+    * Bastiaan's celbration is next week. 
+    * Meng asks who would like to go first at the start of each meeting. BE READY! FIFO 
+    * me: GA Tutorial, Evolutionary ML Survey, 3x Papers to read. 
+    * Journals are encouraging people to publish their work in interactive ways. See obersvable for visualization techniques. 
+    
+Junhong Zhao from another department gave a talk on "AI Effects (AIX) in Computer Graphics (CG)". 
+
+Notes: 
+    * Reconstructing reflection maps using a stacked CNN for Mixed Reality Rendering. 
+    * Automates/improved re4ndering practises with good estimation for reflection maps. 
+    * Gist: "Get accurate reflection maps on artificial objects in Augmented Reality Environments". 
+    * Challenges: wide range of sensors/lens - people have different phones with different quality camersas. 
+    * A robust neural network is needed to handle out of distribution and real world data. 
+    * DLNet - "Adaptive Light Eximtation using Dynamic Filtering Terms". 
+
+TODO: 
+    * [x] CDP is due this Monday, for part I. (finished!)
+
+2022-05-06 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaithe, Jesse Wood, Bastiaan Kleign, et al.
+
+Daniel Braithwaithe gave a talk on "Estimating KL Divergence with Kernal Estimators". 
+
+Notes: 
+    * MINE - Mutual Information Neural Estimation. 
+    * GANs suffer from mode collapse, due to a lack of diversity in GAN generators. 
+    * MINE labels as model and loss are not typically convex, so convergence is not guaraneteed. 
+    * Non-trivial to implement a MINE model.
+    * Maxmimizing entropy is an intractable problem. Instead estimate thi for a GAN. 
+    * Instead use KKLE (KL Divergence using Kernal Estimators), KKLE is convex. 
+    
+Maxwell clarke gave a talk on "Why Deep Learning Works". 
+
+Notes: 
+    * Zero Eigenvalue, parameters can be shifted without affecting the loss. 
+    * Compress the area of the search space for efficiency. 
+    * Networks which used generalisable representations are "simpler" than networks that don't. 
+    * Occam's razor, or, 'simple as possible but no simpler' - Enstein. 
+
+2022-05-26 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time**: Thursday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
+
+Notes: 
+    * Add proposal to the CDP goals. 
+    * End of October - proposal due. 
+    * Set 18th June for Australassian AI paper submission as soft deadline for my first paper. 
+    * IP is 1/3 creators, 1/3 university, 1/3 commercial (note: still far better than previous industry experience). 
+    * Code is not IP, but is copy-writable.
+
+2022-05-26 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Cuie Yang, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Bach (my supverisor) suggested the talk "The Master Algorithm" from Pedro Domnigos. https://www.youtube.com/watch?v=B8J4uefCQMc 
+
+Notes: 
+    * Knowledge: evolution, experience, culture, computers. 
+    * Each knowledge acquistion is an order of magnitude faster than the previous. 
+    * 5 tribes of AI: Symbolists, Connectionists, Evolutionaries, Bayesians, Analogizers. 
+    * Each tribute is related to a different field of study outside of machine learning. 
+    * Each 5 algorithms have a master algorithm, a agneral method that with enough data can learn anything. 
+    * Robotic machine that can perform biological experiments in drug discovery (see Lee Cronin Chemputer https://www.youtube.com/watch?v=ZecQ64l-gKM)
+    * Google's famout "cat" network, was an ANN trained on Youtube videos, not surpisingly it became very good at recognizing images of cats. 
+    * Koza took Evolutionaries one step fouther, by inventing genetic programming, representing a candidate solution in program semantics. 
+    * Bayesians are the most fanatical of the tributes. Strict adherence to statistical inference through Bayes Theorum. 
+    * As we see more evidence, probablites of certrain hypothesis will become more likely. 
+    * Weakness of AI, is it cannot predict events that are not explicitly given in training, things that have never happened have P(A) = 0. 
+    * Analogizers, Douglas Hoftstader, author of Godel Escher Bach. 
+    * Vladimir Vapnik is the creator of Support Vector Machines (SVM). 
+    * Kernal machines are the master algorithm for analogizers. 
+    * A master algorithm, for general intelligence, would include all 5 tribes of AI. 
+    * Pedro prposed the Markov Logic Network, objective function indepdendent. 
+    * All AI fits the evolutionary paradigm; Evaluation, Selection, Reproduction, Fitness. 
+
