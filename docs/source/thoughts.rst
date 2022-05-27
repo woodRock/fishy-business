@@ -202,3 +202,7 @@ brewer2006brown
     * We perform tournament selection to decide which individuals are kepts. 
     * The reproduction is done by crossover and mutation.
 
+2022-05-27 - COVID gap 
+----------------------
+    * I had COVID-19, was very sick, and self-isolated.
+    * This explains the gap, as you will, in my work here.
