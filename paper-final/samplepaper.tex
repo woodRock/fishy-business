@@ -58,7 +58,6 @@ High accuracy is possible with very few features for the MRMR and ReliefF featur
 Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
 The exploration reveals there are many feature subsets all capable of producing high-accuracy predictions.
 No clear superset of important features emerges, which indicates there are many important features to choose from.
-Submitted in partial fulfilment of the Directed Individual Study.
 
 \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
@@ -67,12 +66,34 @@ Submitted in partial fulfilment of the Directed Individual Study.
 %
 \section{Introduction}
 
-\begin{itemize}
-    \item Introduce fish oil analysis: what it is, why it is important. 
-    \item Narrowing down to fish classification as an essential step: fish types, fish parts. 
-    \item Existing limmitations of fish classification: manually, labour intensive. 
-    \item How machine learning can be used to address the above limitations. 
-\end{itemize}
+% \begin{itemize}
+%     \item Introduce fish oil analysis: what it is, why it is important. 
+%     \item Narrowing down to fish classification as an essential step: fish types, fish parts. 
+%     \item Existing limitations of fish classification: manually, labour intensive. 
+%     \item How machine learning can be used to address the above limitations. 
+% \end{itemize}
+
+Fish oil analysis involves using analytical chemistry techniques, such as gas chromatrography, to anaylse the structure of the chemical compounds.
+We can use these structures to determine which chemicals are present in a given sample. 
+This is important for quality assurance in a factory setting, especially in food science. 
+We want to be confident that our food labels are accurate and reduce/eliminate cross contamination between different food products. 
+To identify cross-contanimation we use fish classification. 
+Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
+The existing techniques for performing fish classification are time consuming and laborious. 
+Chemists compare a given sample to reference samples to determine which class it likely belongs to. 
+Previous work on gas chromatrography CITE HERE, has shown machine learning can be used to automate classification. 
+
+In this paper we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
+Firstly, classifications algorithms are evaluated for their ability to determine the fish species and part. 
+Visualisation is used to explore the interpretability of successful models.
+It is important to verify their efficacy with domain knowledge before these algorithms can be deployed in a real-world setting.
+Secondly, feature selection is used to eliminate redundant features, whilst maintaining high-accuracy predictions. 
+
+Specifically, our work is divided into two main sections: 
+\begin{enumerate}
+    \item Classification Algorithms 
+    \item Feature Selection
+\end{enumerate}
 
 \section{Background}
 
