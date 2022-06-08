@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex paper"] 1654665234 "paper.aux" "paper.bbl" "paper" 1654665234
+["bibtex paper"] 1654665955 "paper.aux" "paper.bbl" "paper" 1654665955
   "./splncs04.bst" 1521072146 33694 182740d5d784dd29ee55be34dddd4ccc ""
-  "paper.aux" 1654665234 16603 adedbe5e2bb97ddddb445146ebcda1ff "pdflatex"
+  "paper.aux" 1654665955 16603 adedbe5e2bb97ddddb445146ebcda1ff "pdflatex"
   "refs.bib" 1654655908 73786 212738e5203f2f0a9d26f4a2fa4a565f ""
   (generated)
-  "paper.blg"
   "paper.bbl"
-["pdflatex"] 1654665232 "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.tex" "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.pdf" "paper" 1654665232
+  "paper.blg"
+["pdflatex"] 1654665954 "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.tex" "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.pdf" "paper" 1654665954
   "/etc/texmf/texmf.cnf" 1626173567 39256 9e0ec3fd8b6984fefaa1687d35d359ca ""
   "/usr/pkg/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1639661174 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/pkg/share/texmf-dist/fonts/map/fontname/texfonts.map" 1639369935 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -97,6 +97,7 @@
   "/usr/pkg/share/texmf-dist/tex/latex/caption/caption3.sty" 1639702910 67929 d50ae850e1d9604065e8337a75a41029 ""
   "/usr/pkg/share/texmf-dist/tex/latex/caption/subcaption.sty" 1639702910 6133 46bea384e36e9b74bd53a238fc2d0654 ""
   "/usr/pkg/share/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty" 1639516972 13886 d1306dcf79a944f6988e688c1785f9ce ""
+  "/usr/pkg/share/texmf-dist/tex/latex/float/float.sty" 1639389545 6749 16d2656a1984957e674b149555f1ea1d ""
   "/usr/pkg/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg" 1639375366 1224 978390e9c2234eab29404bc21b268d1e ""
   "/usr/pkg/share/texmf-dist/tex/latex/graphics-def/pdftex.def" 1626174039 19103 48d29b6e2a64cb717117ef65f107b404 ""
   "/usr/pkg/share/texmf-dist/tex/latex/graphics/graphics.sty" 1639434142 18272 a8c6a275b34ab6717ceeb8fa04b104e2 ""
@@ -121,8 +122,8 @@
   "/usr/pkg/share/texmf-dist/tex/latex/url/url.sty" 1639367442 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1639705206 2607082 5aa4db816a797a5410df72a59cf9e9f7 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1639703754 2311163 ed1cf04afc8001dc715880b453cfb8d1 ""
-  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.aux" 1654665233 8 a94a2480d3289e625eea47cd1b285758 ""
-  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.tex" 1654665230 59110 445cc1b128a44332ab903fa68f1aaac6 ""
+  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.aux" 1654665954 8 a94a2480d3289e625eea47cd1b285758 ""
+  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.tex" 1654665952 59126 2b766706ebb3fe7708fd9ecf60001e86 ""
   "assets//accuracy-features-fish-test.png" 1654656809 17985 5a6f5dbaa6045785e8b5798024e2235e ""
   "assets//accuracy-features-fish-train.png" 1654656809 14372 4684b36b7a7f142ecd7a85440c2b3ab9 ""
   "assets//accuracy-features-part-test.png" 1654656809 28726 8656f19e1fea3c5267f62281a7f7744b ""
@@ -149,11 +150,11 @@
   "paper.aux" 0 -1 0 "pdflatex"
   "paper.bbl" 0 -1 0 "bibtex paper"
   "paper.out" 0 -1 0 "pdflatex"
-  "paper.tex" 1654665230 59110 445cc1b128a44332ab903fa68f1aaac6 ""
+  "paper.tex" 1654665952 59126 2b766706ebb3fe7708fd9ecf60001e86 ""
   (generated)
-  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.log"
-  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.pdf"
-  "paper.out"
-  "paper.aux"
   "paper.pdf"
+  "paper.out"
+  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.log"
   "paper.log"
+  "/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.pdf"
+  "paper.aux"
