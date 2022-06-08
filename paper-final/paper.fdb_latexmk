@@ -1,15 +1,15 @@
 # Fdb version 3
-["bibtex paper"] 1654685022 "paper.aux" "paper.bbl" "paper" 1654685031
+["bibtex paper"] 1654685022 "paper.aux" "paper.bbl" "paper" 1654685725
   "./splncs04.bst" 1654682442 33694 182740d5d784dd29ee55be34dddd4ccc ""
-  "paper.aux" 1654685023 11900 ff30fe981be1ed97b706769275f38d95 "pdflatex"
+  "paper.aux" 1654685407 11900 ff30fe981be1ed97b706769275f38d95 "pdflatex"
   "refs.bib" 1654682442 73786 212738e5203f2f0a9d26f4a2fa4a565f ""
   (generated)
-  "paper.bbl"
   "paper.blg"
-["pdflatex"] 1654685022 "/home/woodj/Documents/fishy-business/paper-final/paper.tex" "/home/woodj/Documents/fishy-business/paper-final/paper.pdf" "paper" 1654685031
+  "paper.bbl"
+["pdflatex"] 1654685406 "/home/woodj/Documents/fishy-business/paper-final/paper.tex" "/home/woodj/Documents/fishy-business/paper-final/paper.pdf" "paper" 1654685725
   "/etc/texmf/web2c/texmf.cnf" 1631078250 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/woodj/Documents/fishy-business/paper-final/paper.aux" 1654685023 11900 ff30fe981be1ed97b706769275f38d95 ""
-  "/home/woodj/Documents/fishy-business/paper-final/paper.tex" 1654685031 44613 4dc531beca929423c04733c1a9d118c9 ""
+  "/home/woodj/Documents/fishy-business/paper-final/paper.aux" 1654685407 11900 ff30fe981be1ed97b706769275f38d95 ""
+  "/home/woodj/Documents/fishy-business/paper-final/paper.tex" 1654685724 44613 05214913e6bdbc959f9c090b46282828 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm0900.tfm" 1136768653 1536 c4f439db76ef96a9c53bc437f35ffe20 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1000.tfm" 1136768653 1536 e07581a4bb3136ece9eeb4c3ffab8233 ""
@@ -130,14 +130,14 @@
   "assets//kernels.png" 1654682442 20875 eb8403a1715c66ef05a3819e76da5cfd ""
   "assets//part_total_coefficients.png" 1654682442 8118 1de47547a956720ef89e51607bd3e574 ""
   "llncs.cls" 1654682442 43467 a21466011e5ed5d4c3f1d5a9af897395 ""
-  "paper.aux" 1654685023 11900 ff30fe981be1ed97b706769275f38d95 "pdflatex"
+  "paper.aux" 1654685407 11900 ff30fe981be1ed97b706769275f38d95 "pdflatex"
   "paper.bbl" 1654685022 5540 f194096a2a5276e454699c8507d65d21 "bibtex paper"
-  "paper.out" 1654685023 74 452e26d6c8cb1278185e52861829cd4e "pdflatex"
-  "paper.tex" 1654685031 44613 4dc531beca929423c04733c1a9d118c9 ""
+  "paper.out" 1654685407 74 452e26d6c8cb1278185e52861829cd4e "pdflatex"
+  "paper.tex" 1654685724 44613 05214913e6bdbc959f9c090b46282828 ""
   (generated)
+  "paper.log"
+  "/home/woodj/Documents/fishy-business/paper-final/paper.pdf"
   "/home/woodj/Documents/fishy-business/paper-final/paper.log"
   "paper.aux"
   "paper.pdf"
-  "/home/woodj/Documents/fishy-business/paper-final/paper.pdf"
-  "paper.log"
   "paper.out"
