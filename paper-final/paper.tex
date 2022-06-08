@@ -44,7 +44,7 @@
   Daniel Killeen\inst{2}\orcidID{2222--3333-4444-5555}
 }
 %
-\authorrunning{J. Wood et al.}
+\authorrunning{J. Wood, B.Nguyen, et al.}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
@@ -76,19 +76,13 @@
   
   \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
-%
-%
-%
-
 
 \section{Introduction}
 
-% \begin{itemize}
-%     \item Introduce fish oil analysis: what it is, why it is important. 
-%     \item Narrowing down to fish classification as an essential step: fish types, fish parts. 
-%     \item Existing limitations of fish classification: manually, labour intensive. 
-%     \item How machine learning can be used to address the above limitations. 
-% \end{itemize}
+% TODO [x] - Introduce fish oil analysis: what it is, why it is important. 
+% TODO [x] - Narrowing down to fish classification as an essential step: fish types, fish parts. 
+% TODO [x] - Existing limitations of fish classification: manually, labour intensive. 
+% TODO [x] - How machine learning can be used to address the above limitations. 
 
 Gas chromatography \cite{eder1995gas} is an chemistry technique we use to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
@@ -204,7 +198,7 @@ We call these class boundaries the support vectors.
 We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
 This creates a divide between one class and the rest, then repeats for the other classes.
 
-\subsubsection{Model}
+\subsubsection{SVM Model}
 \label{sec:background-svm-model}
 
 The sklearn library provides several SVM models for classification.
@@ -213,7 +207,7 @@ Other models use different kernels and parameters \cite{sklearn2021feature}.
 Some models remove trainable parameters.
 Instead, the user can set the number of support vectors \cite{scholkopf2000new}.
 
-\subsubsection{Kernel}
+\subsubsection{SVM Kernel}
 \label{sec:background-svm-kernel}
 
 The model requires a kernel function.
@@ -234,7 +228,7 @@ This provides an intuition for each kernel.
   \label{fig:kernels}
 \end{figure}
 
-\subsubsection{Hyperplane Coefficients}
+\subsubsection{SVM Hyperplane Coefficients}
 \label{sec:background-svm-hyperplane}
 
 The l1 regularization term leads to sparse models.
