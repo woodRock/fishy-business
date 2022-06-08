@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99d (TeX Live 2021/pkgsrc)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: paper.aux
+White space in argument---line 117 of file paper.aux
+ : \citation{wood2021classification,
+ :                                   wood2021feature}
+I'm skipping whatever remains of this command
+White space in argument---line 118 of file paper.aux
+ : \citation{wood2021classification,
+ :                                   wood2021feature}
+I'm skipping whatever remains of this command
+The style file: splncs04.bst
+Database file #1: refs.bib
+You've used 25 entries,
+            2850 wiz_defined-function locations,
+            762 strings with 9508 characters,
+and the built_in function-call counts, 13017 in all, are:
+= -- 1125
+> -- 260
+< -- 32
++ -- 112
+- -- 84
+* -- 790
+:= -- 1583
+add.period$ -- 33
+call.type$ -- 25
+change.case$ -- 129
+chr.to.int$ -- 0
+cite$ -- 25
+duplicate$ -- 1180
+empty$ -- 1263
+format.name$ -- 96
+if$ -- 2924
+int.to.chr$ -- 0
+int.to.str$ -- 25
+missing$ -- 217
+newline$ -- 81
+num.names$ -- 50
+pop$ -- 400
+preamble$ -- 1
+purify$ -- 92
+quote$ -- 0
+skip$ -- 431
+stack$ -- 0
+substring$ -- 844
+swap$ -- 671
+text.length$ -- 32
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 98
+warning$ -- 0
+while$ -- 121
+width$ -- 27
+write$ -- 266
+(There were 2 error messages)
