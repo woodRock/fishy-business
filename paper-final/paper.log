@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2021.12.29)  8 JUN 2022 22:36
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2021.12.29)  8 JUN 2022 22:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -440,73 +440,73 @@ Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
 <assets//chromatograph.png, id=42, 622.325pt x 355.3275pt>
 File: assets//chromatograph.png Graphic file (type png)
 <use assets//chromatograph.png>
-Package pdftex.def Info: assets//chromatograph.png  used on input line 142.
+Package pdftex.def Info: assets//chromatograph.png  used on input line 136.
 (pdftex.def)             Requested size: 241.84842pt x 138.08919pt.
  [2] [3 </home/woodj/Documents/fishy-business/paper-final/assets//chromatograph.png>]
 <assets//kernels.png, id=100, 542.025pt x 361.35pt>
 File: assets//kernels.png Graphic file (type png)
 <use assets//kernels.png>
-Package pdftex.def Info: assets//kernels.png  used on input line 230.
+Package pdftex.def Info: assets//kernels.png  used on input line 224.
 (pdftex.def)             Requested size: 241.84842pt x 161.23306pt.
  [4 </home/woodj/Documents/fishy-business/paper-final/assets//kernels.png>]
 <assets//fish_total_coefficients.png, id=117, 395.4775pt x 279.0425pt>
 File: assets//fish_total_coefficients.png Graphic file (type png)
 <use assets//fish_total_coefficients.png>
-Package pdftex.def Info: assets//fish_total_coefficients.png  used on input line 259.
+Package pdftex.def Info: assets//fish_total_coefficients.png  used on input line 253.
 (pdftex.def)             Requested size: 156.20453pt x 110.21419pt.
 <assets//part_total_coefficients.png, id=118, 395.4775pt x 279.0425pt>
 File: assets//part_total_coefficients.png Graphic file (type png)
 <use assets//part_total_coefficients.png>
-Package pdftex.def Info: assets//part_total_coefficients.png  used on input line 263.
+Package pdftex.def Info: assets//part_total_coefficients.png  used on input line 257.
 (pdftex.def)             Requested size: 156.20453pt x 110.21419pt.
  [5 </home/woodj/Documents/fishy-business/paper-final/assets//fish_total_coefficients.png> </home/woodj/Documents/fishy-business/paper-final/assets//part_total_coefficients.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 336--341
+Underfull \hbox (badness 10000) in paragraph at lines 330--335
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 356--361
+Underfull \hbox (badness 10000) in paragraph at lines 350--355
 
  []
 
 [6]
-Underfull \hbox (badness 10000) in paragraph at lines 472--477
+Underfull \hbox (badness 10000) in paragraph at lines 466--471
 
  []
 
 [7]
-Underfull \hbox (badness 10000) in paragraph at lines 565--570
+Underfull \hbox (badness 10000) in paragraph at lines 559--564
 
  []
 
 [8] [9]
-Underfull \hbox (badness 10000) in paragraph at lines 809--815
+Underfull \hbox (badness 10000) in paragraph at lines 803--809
 
  []
 
 <assets//accuracy-features-fish-train.png, id=245, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-fish-train.png Graphic file (type png)
 <use assets//accuracy-features-fish-train.png>
-Package pdftex.def Info: assets//accuracy-features-fish-train.png  used on input line 826.
+Package pdftex.def Info: assets//accuracy-features-fish-train.png  used on input line 820.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 <assets//accuracy-features-fish-test.png, id=246, 397.485pt x 279.0425pt>
 File: assets//accuracy-features-fish-test.png Graphic file (type png)
 <use assets//accuracy-features-fish-test.png>
-Package pdftex.def Info: assets//accuracy-features-fish-test.png  used on input line 830.
+Package pdftex.def Info: assets//accuracy-features-fish-test.png  used on input line 824.
 (pdftex.def)             Requested size: 156.20453pt x 109.66066pt.
 <assets//accuracy-features-part-train.png, id=247, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-part-train.png Graphic file (type png)
 <use assets//accuracy-features-part-train.png>
-Package pdftex.def Info: assets//accuracy-features-part-train.png  used on input line 834.
+Package pdftex.def Info: assets//accuracy-features-part-train.png  used on input line 828.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 <assets//accuracy-features-part-test.png, id=248, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-part-test.png Graphic file (type png)
 <use assets//accuracy-features-part-test.png>
-Package pdftex.def Info: assets//accuracy-features-part-test.png  used on input line 838.
+Package pdftex.def Info: assets//accuracy-features-part-test.png  used on input line 832.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 [10] [11 </home/woodj/Documents/fishy-business/paper-final/assets//accuracy-features-fish-train.png> </home/woodj/Documents/fishy-business/paper-final/assets//accuracy-features-fish-test.png> </home/woodj/Documents/fishy-business/paper-final/assets//accuracy-features-part-train.png> </home/woodj/Documents/fishy-business/paper-final/assets//accuracy-features-part-test.png>]
 
-LaTeX Warning: Reference `sec:results-classification' on page 12 undefined on input line 884.
+LaTeX Warning: Reference `sec:results-classification' on page 12 undefined on input line 878.
 
 [12] (/home/woodj/Documents/fishy-business/paper-final/paper.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 7--9
@@ -573,13 +573,13 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 Here is how much of TeX's memory you used:
  8271 strings out of 479304
  129084 string characters out of 5869778
- 450372 words of memory out of 5000000
+ 450388 words of memory out of 5000000
  25206 multiletter control sequences out of 15000+600000
  414936 words of font info for 70 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  71i,14n,77p,473b,555s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on /home/woodj/Documents/fishy-business/paper-final/paper.pdf (14 pages, 373490 bytes).
+Output written on /home/woodj/Documents/fishy-business/paper-final/paper.pdf (14 pages, 373574 bytes).
 PDF statistics:
  423 PDF objects out of 1000 (max. 8388607)
  321 compressed objects within 4 object streams
