@@ -1,0 +1,129 @@
+\begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{khan2013gas}
+Academy, K.: Gas chromatography (2013),
+  \url{https://www.khanacademy.org/science/class-11-chemistry-india/xfbb6cb8fc2bd00c8:in-in-organic-chemistry-some-basic-principles-and-techniques/xfbb6cb8fc2bd00c8:in-in-methods-of-purification-of-organic-compounds/v/gas-chromatography}
+
+\bibitem{aizerman1964theoretical}
+Aizerman, M.A.: Theoretical foundations of the potential function method in
+  pattern recognition learning. Automation and remote control  \textbf{25},
+  821--837 (1964), \url{https://ci.nii.ac.jp/naid/10021200712/}
+
+\bibitem{bi2020gc}
+Bi, K., Zhang, D., Qiu, T., Huang, Y.: Gc-ms fingerprints profiling using
+  machine learning models for food flavor prediction. Processes  \textbf{8}(1),
+  ~23 (2020), \url{https://www.mdpi.com/2227-9717/8/1/23}
+
+\bibitem{boser1992training}
+Boser, B.E., Guyon, I.M., Vapnik, V.N.: A training algorithm for optimal margin
+  classifiers. In: Proceedings of the fifth annual workshop on Computational
+  learning theory. pp. 144--152 (1992),
+  \url{https://dl.acm.org/doi/abs/10.1145/130385.130401}
+
+\bibitem{chappers2015skfeature}
+Chappers, C.: charliec443/scikit-feature.
+  \url{https://github.com/charliec443/scikit-feature}
+
+\bibitem{clarke2013profiles}
+Clarke, A.C.: Profiles of the Future. Hachette UK (1962)
+
+\bibitem{cortes1995support}
+Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
+  \textbf{20}(3),  273--297 (1995),
+  \url{https://link.springer.com/article/10.1007/BF00994018}
+
+\bibitem{ding2005minimum}
+Ding, C., Peng, H.: Minimum redundancy feature selection from microarray gene
+  expression data. Journal of bioinformatics and computational biology
+  \textbf{3}(02),  185--205 (2005),
+  \url{https://www.worldscientific.com/doi/abs/10.1142/s0219720005001004}
+
+\bibitem{eder1995gas}
+Eder, K.: Gas chromatographic analysis of fatty acid methyl esters. Journal of
+  Chromatography B: Biomedical Sciences and Applications  \textbf{671}(1-2),
+  113--131 (1995),
+  \url{https://www.sciencedirect.com/science/article/pii/0378434795001426}
+
+\bibitem{fix1989discriminatory}
+Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
+  Consistency properties. International Statistical Review/Revue Internationale
+  de Statistique  \textbf{57}(3),  238--247 (1989),
+  \url{https://www.jstor.org/stable/1403797}
+
+\bibitem{hand2001idiot}
+Hand, D.J., Yu, K.: Idiot's bayes—not so stupid after all? International
+  statistical review  \textbf{69}(3),  385--398 (2001),
+  \url{https://doi.org/10.1111/j.1751-5823.2001.tb00465.x}
+
+\bibitem{ho1995random}
+Ho, T.K.: Random decision forests. In: Proceedings of 3rd international
+  conference on document analysis and recognition. vol.~1, pp. 278--282. IEEE
+  (1995), \url{https://ieeexplore.ieee.org/abstract/document/598994}
+
+\bibitem{kennedy1995particle}
+Kennedy, J., Eberhart, R.C.: Particle swarm optimization. In: Proceedings of
+  ICNN'95-international conference on neural networks. vol.~4, pp. 1942--1948.
+  IEEE (1995),
+  \url{https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=488968}
+
+\bibitem{kennedy1997discrete}
+Kennedy, J., Eberhart, R.C.: A discrete binary version of the particle swarm
+  algorithm. In: 1997 IEEE International conference on systems, man, and
+  cybernetics. Computational cybernetics and simulation. vol.~5, pp.
+  4104--4108. IEEE (1997),
+  \url{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=637339}
+
+\bibitem{koppen2000curse}
+K{\"o}ppen, M.: The curse of dimensionality. In: 5th Online World Conference on
+  Soft Computing in Industrial Applications (WSC5). vol.~1, pp.~4--8 (2000)
+
+\bibitem{liu1995chi2}
+Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
+  attributes. In: Proceedings of 7th IEEE International Conference on Tools
+  with Artificial Intelligence. pp. 388--391. IEEE (1995),
+  \url{https://ieeexplore.ieee.org/abstract/document/479783}
+
+\bibitem{loh2011classification}
+Loh, W.Y.: Classification and regression trees. Wiley interdisciplinary
+  reviews: data mining and knowledge discovery  \textbf{1}(1),  14--23 (2011),
+  \url{https://doi.org/10.1002/widm.8}
+
+\bibitem{matyushin2020gas}
+Matyushin, D.D., Buryak, A.K.: Gas chromatographic retention index prediction
+  using multimodal machine learning. Ieee Access  \textbf{8},  223140--223155
+  (2020), \url{https://ieeexplore.ieee.org/abstract/document/9294096}
+
+\bibitem{musk2020battery}
+Musk, E.: 2020 annual meeting of stockholders and battery day: Tesla (Sep
+  2020), \url{https://www.tesla.com/en_nz/2020shareholdermeeting}
+
+\bibitem{restek2018high}
+Restek: High-resolution gc analyses of fatty acid methyl esters (fames).
+  \url{https://www.restek.com/en/technical-literature-library/articles/high-resolution-GC-analyses-of-fatty-acid-methyl-esters-fames/}
+
+\bibitem{robnik2003theoretical}
+Robnik-{\v{S}}ikonja, M., Kononenko, I.: Theoretical and empirical analysis of
+  relieff and rrelieff. Machine learning  \textbf{53}(1),  23--69 (2003),
+  \url{https://link.springer.com/content/pdf/10.1023/A:1025667309714.pdf}
+
+\bibitem{scholkopf2000new}
+Sch{\"o}lkopf, B., Smola, A.J., Williamson, R.C., Bartlett, P.L.: New support
+  vector algorithms. Neural computation  \textbf{12}(5),  1207--1245 (2000),
+  \url{https://doi.org/10.1162/089976600300015565}
+
+\bibitem{sklearn2021feature}
+Sklearn: 1.13. feature selection.
+  \url{https://sklearn.org/modules/feature_selection.html}
+
+\bibitem{wood2021classification}
+Wood, J.: Fish 1 - google colab notebook.
+  \url{https://colab.research.google.com/drive/1h303x3Z7kVyJwggfvhq8WN7YFvIH5zt_?usp=sharing}
+
+\bibitem{wood2021feature}
+Wood, J.: Feature selection methods on fish oil data. Victoria University of
+  Wellington  (2022), dIS Assignment 1
+
+\end{thebibliography}

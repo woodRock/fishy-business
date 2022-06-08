@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2021/pkgsrc)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: paper.aux
+The style file: IEEEbib.bst
+Database file #1: strings.bib
+Database file #2: refs.bib
+Warning--empty journal in robinson2020genetic
+You've used 36 entries,
+            1838 wiz_defined-function locations,
+            669 strings with 9881 characters,
+and the built_in function-call counts, 9034 in all, are:
+= -- 877
+> -- 301
+< -- 14
++ -- 117
+- -- 81
+* -- 664
+:= -- 1319
+add.period$ -- 41
+call.type$ -- 36
+change.case$ -- 35
+chr.to.int$ -- 0
+cite$ -- 37
+duplicate$ -- 394
+empty$ -- 920
+format.name$ -- 81
+if$ -- 2087
+int.to.chr$ -- 0
+int.to.str$ -- 36
+missing$ -- 30
+newline$ -- 177
+num.names$ -- 36
+pop$ -- 118
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 225
+stack$ -- 0
+substring$ -- 727
+swap$ -- 138
+text.length$ -- 14
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 97
+width$ -- 38
+write$ -- 392
+(There was 1 warning)
