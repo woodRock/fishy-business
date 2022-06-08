@@ -49,13 +49,10 @@
 % If there are more than two authors, 'et al.' is used.
 %
 \institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
-  \email{jesse.wood@ecs.vuw.ac.nz}\\
-  \email{bach.nguyen@ecs.vuw.ac.nz}\\
-  \email{bing.xue@ecs.vuw.ac.nz}\\
-  \email{mengjie.zhang@ecs.vuw.ac.nz}\\ 
+  \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
   \and 
   Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
-  \email{Daniel.Killeen@plantandfood.co.nz}\\
+  \email{daniel.killeen@plantandfood.co.nz}\\
 }
 
 %
@@ -70,7 +67,7 @@
   Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
   We find the Linear SVC model can predict the fish species with near-perfect accuracy.
   Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
-  The fish oil data is high-dimensional and low sample size.
+  The fish oil data is high-dimensional and low sample size data.
   We compare state-of-the-art feature selection methods to reduce the dimensionality of the data.
   High accuracy is possible with very few features for the MRMR and ReliefF feature selection methods.
   
@@ -80,22 +77,22 @@
 \section{Introduction}
 
 % TODO [x] - Introduce fish oil analysis: what it is, why it is important. 
-% TODO [x] - Narrowing down to fish classification as an essential step: fish types, fish parts. 
+% TODO [x] - Narrowing down to fish classification is an essential step: fish types, fish parts. 
 % TODO [x] - Existing limitations of fish classification: manually, labour intensive. 
 % TODO [x] - How machine learning can be used to address the above limitations. 
 
-Gas chromatography \cite{eder1995gas} is an chemistry technique we use to analyze fish oils. 
+Gas chromatography \cite{eder1995gas} is a chemistry technique we use to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
 This is important for quality assurance in a factory setting, especially in food science. 
-We want to be confident that our food labels are accurate and reduce/eliminate cross contamination between different food products. 
-To identify cross-contanimation we use fish classification. 
+We want to be confident that our food labels are accurate and reduce/eliminate cross-contamination between different food products. 
+To identify cross-contamination we use fish classification. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
 The existing techniques for performing fish classification are time consuming and laborious. 
 Chemists compare a given sample to reference samples to determine which class it likely belongs to. 
-Previous work on gas chromatrography \cite{bi2020gc,matyushin2020gas}, has shown machine learning can be used to automate classification. 
+Previous work on gas chromatography \cite{bi2020gc,matyushin2020gas}, has shown machine learning can be used to automate classification. 
 
-In this paper we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
-Firstly, classifications algorithms are evaluated for their ability to determine the fish species and part. 
+In this paper, we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
+Firstly, classification algorithms are evaluated for their ability to determine the fish species and part. 
 Visualisation is used to explore the interpretability of successful models.
 It is important to verify their efficacy with domain knowledge before these algorithms can be deployed in a real-world setting.
 Secondly, feature selection is used to eliminate redundant features, whilst maintaining high-accuracy predictions. 
@@ -108,13 +105,13 @@ Specifically, our work is divided into two main sections:
 
 \section{Background}
 
-This paper is a multi-disciplnary effort.
+This paper is a multi-disciplinary effort.
 Domain expertise in chemistry and machine learning is required to extract knowledge from the fish oil data. 
-Before we explore the data, here we provide domain knowlegde required to undertsand this paper. 
+Before we explore the data, here we provide the domain knowledge required to understand this paper. 
 
-Specially, the background covers: 
+Specifically, the background covers: 
 \begin{enumerate}
-  \item Chromatrography methods: how the raw fish oil data is collected.
+  \item Chromatography methods: how the raw fish oil data is collected.
   \item Classification algorithms: introduce classification algorithms used in the paper.
   \item Feature selection: main concepts.
 \end{enumerate}
@@ -122,13 +119,13 @@ Specially, the background covers:
 \subsection{Gas Chromatorgraphy}
 
 Gas chromatography (GC) is a technique for the analysis of chemical compounds \cite{eder1995gas,restek2018high,khan2013gas}.
-The process sperates compounds based on their bioling point and molecular weight.
+The process separates compounds based on their boiling point and molecular weight.
 A compound is injected as a liquid, then heat is applied to vaporize it into a gas. 
-A bioling point is a termparture which it changes phase, from liquid to gas. 
+A boiling point is a temperature at which it changes phase, from liquid to gas. 
 This process is referred to as a phase transition. 
-The speed at which a compound is vaporized dpeends on its bioling point. 
-The vaporized gases travel through a long couild tube.
-That tube has a detector at the end, this detects the rate and inesity which compounds reach the tube's end. 
+The speed at which a compound is vaporized depends on its boiling point. 
+The vaporized gases travel through a long coiled tube.
+That tube has a detector at the end, this detects the rate and intensity at which compounds reach the tube's end. 
 
 \begin{figure}[htb]
   \centering
@@ -182,7 +179,7 @@ We perform two classification tasks and measure their performance:
 A supervised learning method creates a model from a labelled dataset - the train set.
 We measure the ability of the model to generalize on unseen data - the test set.
 We give the model a tissue sample from a fish.
-Based on what it has learnt, it predicts the species and part for that fish.
+Based on what it has learned, it predicts the species and part of that fish.
 The existing analytical chemistry techniques for performing this task are laborious and time-consuming.
 We desire a model that is interpretable and has high predictive accuracy.
 We can then use the model to automate this task.
@@ -267,7 +264,7 @@ The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-co
 \subsection{Visualisation}
 \label{sec:background-visualisation}
 
-Two heuristics are optimized for when selecting a suitable model:
+Two heuristics are optimized when selecting a suitable model:
 
 \begin{enumerate}
   \item Interpretability
@@ -328,7 +325,7 @@ This is an important factor for real-world applications in a factory setting.
 
 We measure the predictive ability of classifiers on both the fish species and part dataset.
 We are looking for the model with the highest accuracy.
-As a result, we start broadly by exploring a variety of models from the different families of AI, then we narrow and refine the search.
+As a result, we start broadly by exploring a variety of models from the different families of AI, and then we narrow and refine the search.
 \\\\
 Specifically, we examine:
 
@@ -348,7 +345,7 @@ This experimental setup evaluates performance on both the fish species and part 
 
 This is a broad search for an effective classification model.
 We explore a classifier from each family of AI.
-The model with the highest classification accuracy on both datasets is then selected, and explored by later sections in further detail.
+The model with the highest classification accuracy on both datasets is then selected, and explored in later sections in further detail.
 \\\\
 We examine 5 classification models:
 
@@ -453,7 +450,7 @@ We examine 5 classification models:
   \label{t:classification}
 \end{table}
 
-Table~\ref{t:classification} shows for random forest, decision tree and support vector machine have perfect training accuracy.
+Table~\ref{t:classification} shows for the random forest, decision tree and support vector machine have perfect training accuracy.
 The decision tree and random forest overfit the training data.
 Only the SVM achieves similar performance on the test data.
 The SVM classifier outperforms the other classifiers.
@@ -685,8 +682,8 @@ For example, we expect there to be more difference between a tarakihi and a blue
 \section{Feature Selection}
 
 % TODO [ ] - Why feature selection on this data?
-% TODO [ ] - Breif the main ideas of the feature selection algorithms that were used.
-% TODO [ ] - Compare the performance of selected features and usuing all features.
+% TODO [ ] - Brief the main ideas of the feature selection algorithms that were used.
+% TODO [ ] - Compare the performance of selected features and use all features.
 % TODO [ ] - (Optional): analyse the selected features.
 
 For each method, we measure classification accuracy with an SVM model \cite{sklearn2021feature}.
@@ -701,7 +698,7 @@ We examine 4 feature selection methods \cite{chappers2015skfeature}:
 \end{enumerate}
 
 We first provide a detailed accuracy comparison for a set feature number ($k = 500$).
-Then we explore the accuracy for the general case (any $k$).
+Then we explore the accuracy of the general case (any $k$).
 
 \subsection{Classification Accuracy $k = 500$}
 
@@ -795,7 +792,7 @@ To allow comparison with PSO, we take the top $k$ features suggested by the algo
 
 Table~\ref{t:feature-selection} shows for the training set, MRMR, ReliefF and PSO have comparable accuracy for both datasets.
 The Chi$^2$ method does not, instead if performs very poorly.
-For the test set, ReliefF performs best for species, PSO performs best for the part.
+For the test set, ReliefF performs best for species, and PSO performs best for the part.
 
 \subsection{Classification Accuracy (all $k$)}
 
@@ -866,7 +863,7 @@ The SVM is overfitting to noise (redundant features) in the training set.
 
 Feature selection methods helped reduce dimensionality.
 We evaluated performance with an SVM classifier.
-In which, ReliefF and PSO were best for fish species and part, respectively.
+Which, ReliefF and PSO were best for fish species and part, respectively.
 ReliefF can identify conditional dependencies between features when providing feature rankings.
 ReliefF algorithms are robust and noise-tolerant, which explains their superior performance.
 PSO provides a combination of global and local searches.
@@ -874,17 +871,17 @@ A search through a near-infinite combinatorial space of possible feature subsets
 This stochastic method is computationally expensive but can offer effective solutions.
 
 For both general and specific cases, and across all methods, the fish species have lower variance than the fish part in classification accuracy.
-The classification results (\S~\ref{sec:results-classification}) support this, they also show higher test accuracy for fish species, than fish part.
+The classification results (\S~\ref{sec:results-classification}) support this, they also show higher test accuracy for fish species, than for fish parts.
 They suggest different fish parts may have fewer underlying structural differences.
 
 For the general case and both datasets, a lot of interesting behaviour happens at $k=1050$.
 The fish species reach a plateau, but the fish part accuracy begins to decrease.
-An accuracy comparable or better than the full dataset is possible with 21.8\% of its features.
+Accuracy comparable to or better than the full dataset is possible with 21.8\% of its features.
 
 For the fish species dataset, we see high accuracy with very few features.
 ReliefF and MRMR can achieve above 90\% classification accuracy with $k = 50$.
 Chi$^2$ is not able to mirror this performance.
-This shows ReliefF and MRMR are very effective feature selection methods for this task.
+This shows that ReliefF and MRMR are very effective feature selection methods for this task.
 
 The PSO may not have a hyperparameter for feature number $k$.
 Instead, it automates the selection of this parameter.
@@ -908,7 +905,7 @@ Not only have we found effective classification and feature selection techniques
 We can draw many conclusions from the analytical results and visualisations, but here we recall the most important:
 
 \begin{enumerate}
-  \item Fish species are easier to predict than fish part - there is more intra-class variation within fish species than there is a similarity between the same part from different fish.
+  \item Fish species are easier to predict than fish parts - there is more intra-class variation within fish species than there is a similarity between the same part from different fish.
   \item The Linear SVM classifier performs better for both classification tasks - the fish oil data is linearly separable on a hyperplane.
   \item Near-perfect accuracy can be achieved with very few features for fish species - if this predictive ability exceeds human error this model has real-world applications.
   \item Comparison with PSO may be difficult (due to automatic $k$ selection), but this automation may be useful in a factory setting.
