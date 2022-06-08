@@ -118,12 +118,4 @@ Sch{\"o}lkopf, B., Smola, A.J., Williamson, R.C., Bartlett, P.L.: New support
 Sklearn: 1.13. feature selection.
   \url{https://sklearn.org/modules/feature_selection.html}
 
-\bibitem{wood2021classification}
-Wood, J.: Fish 1 - google colab notebook.
-  \url{https://colab.research.google.com/drive/1h303x3Z7kVyJwggfvhq8WN7YFvIH5zt_?usp=sharing}
-
-\bibitem{wood2021feature}
-Wood, J.: Feature selection methods on fish oil data. Victoria University of
-  Wellington  (2022), dIS Assignment 1
-
 \end{thebibliography}
