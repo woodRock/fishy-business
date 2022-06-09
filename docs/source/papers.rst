@@ -68,6 +68,11 @@ chase1973perception
     * Recall was consistant for levels of expertise on nonsense chess boards. 
     * Our mental schemas for encoding patterns break on noise (unseen data). 
 
+chen2019looks
+-------------
+    * This looks like that: deep learning for interpretable image recognition
+    * Add a prototype layer to neural networks to for interpretable models for black-box nets. 
+
 chen2021evaluating
 ------------------
     * 70% accuracy for basic DSA problems. 
@@ -161,7 +166,7 @@ fukushima1982neocognitron
 -------------------------
     * Rectified Linear Unit (ReLu) paper. 
     * Activation function for neural networks. 
-    * Shares nice properties of linear function. 
+    * Shares nice properties of linear function. chen2019looks
     * But allows for non-linearities to be captured. 
 
 garnelo2018conditional
@@ -245,6 +250,11 @@ kullback1951information
 lecun1989generalization
 -----------------------
     * Original Convolutional Neural Network (CNN) paper. 
+
+lehman2020surprising
+--------------------
+    * The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
+    * Annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
 
 liu1995chi2
 -----------

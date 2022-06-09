@@ -1209,3 +1209,152 @@ Notes:
     * Pedro prposed the Markov Logic Network, objective function indepdendent. 
     * All AI fits the evolutionary paradigm; Evaluation, Selection, Reproduction, Fitness. 
 
+2022-05-30 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaithe, Jesse Wood, Bastiaan Kleign, et al.
+
+Bastiaan gave a talk on "Distributed Processing"
+
+Notes: 
+    * Knowledge required: graph theory, probability, convex optimisation, domain optimization. 
+    * Parallel vs Distributed Processing. 
+    * Dual Gradient Ascent. 
+    * ADMM, PPMM. 
+    * Parallel processing - fast as slowest node, central coordination. 
+    * Distributed processing - no central coordination, any connected topology, gossip consensus algorithm. 
+    * Gossip - take the mean of each group of nodes and communicate that between groups of nodes. 
+    * Duual Gradient Ascent - requires strong duality (e.g. Slater's condition). 
+    * Dual Gradient Ascent is useful for distributed processing. 
+      * We assume f(x) is seperable, get dis<unlegible> 
+      * Instead of global optimization, we optimize locally. 
+    * Alternating Direction Method of Multipliers (ADMM). 
+    * Lasso (L1) regularization is the most common predecessor to ADMM. 
+    * ADMM converges much faster because it is quadratic. 
+    * Fast enough, their are faster algorithms, but this is fast enough in signal processing. 
+    * ADMM is a distributed MSE. 
+    * Primal-Dual Method of Multipliers (PDMM). 
+    * Lifting - add a new variable, then constrin them, this allows us to associate variables with models only. 
+    * PDMMM was developed for solving decomposible optimisation problems in a distributed fashion. 
+    * Note: traditional somewhat ad-hoc deviations, nicer alternative is is <unlegible> greater based. 
+
+2022-06-02 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Christian Raymond, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+(Misc) Heiter Gomes is a new lecturer in the department. 
+Christian Raymond proposed a talk "Aritificial Intelligence 1980s-2021 and Beyond" by Professor Jurgen Schimidhunter https://www.youtube.com/watch?v=pGftUCTqaGg&t=1s 
+
+Notes: 
+    * Long-short-term memory (LSTM) 
+    * Recurrent Neural Network (RNN)
+    * What is predicatbale is compossable [sic]
+    * RNN requires unsupervised pre-training. 
+    * LSTM does not require unsupervised pre-training - an improvement on the RNN. 
+    * DanNET fast deep CNN based image processing revolution in 2011. 
+    * Highway nets (May 2015) - first nerual network with over 100 layers, e.g. ResNET. 
+    * DL networks suffer from the problem of vanishing and exploding gradients. 
+    * LSTM used for google speech recognition, Amazon Alexa, (Samsung Bixby xD )
+    * Compressed network search was the first RL to learn policies from video for a controller. 
+    * Reinforcement learning LSTM, 2007-2010. 
+    * 2019, deep mind bet Starcraft player. 
+    * 2018, OpenAI Five, bet competitive players in Dota 2. 
+    * World models + RL + controller - e.g. RoboCop AI soccer. 
+    * Motivate controller to design experiments to improve the world model. 
+    * 1990 Generation Adversarial Networks (GANs). 
+    * nnaisense - the dawn of AI - his company. 
+    * AI in 3D printing - additive manufacturing. 
+
+2022-06-03 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+General Notes: 
+    * Mass exodus of academics from university (Nature article). 
+    * New PhD students have to be in New Zealand to study at VUW. 
+    * Christian Raymond had a very intuitive video about AI history yesterday at FASLIP. 
+    * Make sure simiarlity score on Turntin is less thean 25%, bearing in mind we can plagarize ourselves. 
+    * Me: reading (lehman 2020, lehman2020surprising), writing my first draft of my paper for Australassian AI. 
+
+Fangfan Zhang gave a presentation on "Responding to Reviewers"
+
+Note:   
+    * Peer review processing - some papers are accepted with major/minor reviews. 
+    * AS long as a paer is accpeted, this is a success, in the peer-review process. 
+    * R1, R2, R3, ... -> Revision 1, Revision 2, Revision 3, ...
+    * It is common to have up to 4-5 revisions when submitting a paper to a journal. 
+    * 7 is the maximum number of revisions within the ECRG group. 
+    * Important to take the revision process very seriously, when publishing as an academic. 
+    * When first receiving feedback, keep calm and carry on, read all feedback before responding. 
+    * Respond to each point when replying to a reviwers comment. 
+    * Can disagree with reviwers comments, but be professional about it, be resepctful. 
+    * Make is easy for your reviwers! 
+        * Write a cover letter. 
+        * Copy text directly for short changes. 
+        * Reference for larger sections. 
+        * Use color to highlight changes. 
+    * A good revisions would mean the reviewer does not have to re-read your original paper to accept the changes. 
+    * Summary: 
+        * Tale a break. 
+        * Point-by-point response. 
+        * Well reasoned arguments. 
+        * Pay attention to details. 
+        * Appreciate reviewers work. 
+    * Papers need to make a contribution to science/journal.  
+
+2022-08-09 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time**: Thursday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
+
+Notes:
+    * Print a bigger vesion of the paper for next time, fit to page setting. 
+    * Meng uses emacs, Pondy used to use emacs for everything (i.e. email). 
+    * GP paper on GC-fish data. 
+    * GP - set max tree depth to 8. 
+    * Protected division - don't divide by 0 -> NAN. 
+    * Later, use more compelx GP variations. 
+    * Australassian AI, papers need novelty. 
+
+2022-06-02 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Quinglan Fan, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Quinglan Fan shared a talk on "The Extremes of Interpretability" https://tads.research.iastate.edu/dr-cynthia-rudin-extremes-interpretability-machine-learning-sparse-decision-trees-scoring-systems
+
+Notes: 
+    * Interpretable machine learnings models objey a domain-specific set of constraints. 
+    * Needed for high-stakes or troubleshooting, important to have interpretable models for real-world problems. 
+    * Wildfires CA, Google Air Quality, breezeomoter ML model failed. 
+    * Glenn Rodriguiz, COMPAS score, AI that bas borken left a man in prison. 
+    * Florida COMPAS data on recidivim (similar to Andrew Lenson's talk from 2022-03-25 - ECRG).
+    * Blackbox model that is used in the criminal justice system. 
+    * Correctional Offender Management Profiling for Alternative Sanctions (COMPAS). 
+    * Very basic decision tree, corels, was able to outperform the COMPAS model. 
+    * c4.5 and Cart are greedy top down algorithms that often overfit the training data. 
+    * 1990s: non-greedy algorithm, and, statistiscians improve splitting criteria. 
+    * Genetic Programming has been tried to create fully optimal decision trees. 
+    * GODST 2020, fastest algorithm by 3 orders of magnitude. 
+    * Dynamic programming/ brnach and band 
+        * Eliminate duplication. 
+        * no need to solve pure leaves. 
+        * reduce search space by theorum: 
+             * minimum support bound. 
+             * onestep lookahead. 
+    * Generalized and Scalable Optical Sparse Decition Tree (GODST)
+    * Improved representation: 
+        * store only the leaves. 
+        * use bitvectors -> crazy fast. 
+        * Extened computation (avoid repetitions) - caching 
+        * Consolidation of repeated sub-problems. 
+    * Results: 
+        * Similar classification range. 
+        * For custom lost, much better than greedy algos. 
+        * Sparser than all heuristic models. 
+        * orders of magnitude faster than next best model. 
+    * Explaining deep NNs with saliency maps does not work. 
+    * i.e. given an image of a dog, the salience map for a Husky and a Music Instrument both examine the same areas. 
+    * "This Looks Like That", that forces a blackbox NN to be intereptable with a prototype layer. 
+    * CUB-200, a staple computer vision dataset on birds. 
+    * Even for black-box NN, we can have an interpretable model. 
+    * Interpetable AAI algorithm for Breat Lesions (IAIA-BL). 
+    * An AI, that used domain specific apporach of radoilogy, and presents the radiologist an interpretable model, 
+    * They can understand the reasons behind decisions, be skeptical, and disagree or agree based on reason-based interpretable models. 
