@@ -169,6 +169,14 @@ fukushima1982neocognitron
     * Shares nice properties of linear function. chen2019looks
     * But allows for non-linearities to be captured. 
 
+galanakis2019saving
+-------------------
+    * Saving Food, 2019, has a chapter on Fish Waste. 
+    * 60% of treated fish biomass is discarded as waste. 
+    * This can be repuprosed as fish oil (e.g. Omega 3), or fish meal (e.g. animal feed). 
+    * Their are a range of other products, such as Geltain, Petpitides, Proteins. 
+    * Sustainable fish processing would repurpose the fish waste. 
+
 garnelo2018conditional
 ----------------------
     * Conditional Neural Processes. 

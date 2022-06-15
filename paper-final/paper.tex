@@ -31,29 +31,29 @@
 
 \begin{document}
 %
-\title{Machine Learning for Fish Oil Analysis \thanks{Supported by organization Plant and Food Research.}}
+\title{Machine Learning for Fish Oil Anaylsis}
 %
 %\titlerunning{Abbreviated paper title}
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
 %
-\author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
-  Bach Hoai Nguyen\inst{1}\orcidID{1111-2222-3333-4444} \and
-  Bing Xue\inst{1}\orcidID{2222--3333-4444-5555} \and 
-  Mengjie Zhang\inst{1}\orcidID{2222--3333-4444-5555} \and 
-  Daniel Killeen\inst{2}\orcidID{2222--3333-4444-5555}
-}
-%
-\authorrunning{J. Wood, B. Nguyen, et al.}
+% \author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
+%   Bach Hoai Nguyen\inst{1}\orcidID{1111-2222-3333-4444} \and
+%   Bing Xue\inst{1}\orcidID{2222--3333-4444-5555} \and 
+%   Mengjie Zhang\inst{1}\orcidID{2222--3333-4444-5555} \and 
+%   Daniel Killeen\inst{2}\orcidID{2222--3333-4444-5555}
+% }
+% %
+% \authorrunning{J. Wood, B. Nguyen, et al.}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
 %
-\institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
-  \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
-  \and 
-  Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
-  \email{daniel.killeen@plantandfood.co.nz}\\
-}
+% \institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
+%   \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
+%   \and 
+%   Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
+%   \email{daniel.killeen@plantandfood.co.nz}\\
+% }
 
 %
 \maketitle              % typeset the header of the contribution
@@ -61,26 +61,41 @@
 \begin{abstract}
   % The abstract should briefly summarize the contents of the paper in
   % 150--250 words.
+
+  % TODO [x] - Add a sentence or two to state the economic value of Fish Iol to NZ, 
+  % TODO [x] - the signficance for automating the process. 
   
-  Gas chromatography (GC) can be used to identify chemical compounds present within tissue samples for quality assurance in food science.
-  Existing analytical chemistry techniques for processing GC data are manual and time-consuming.
+  Worldwide, 60\% of treated fish biomass is discared, an incredible waste of the Earth's limited resources. 
+  Instead, fish biomass can be repuprosed for as fish oils such as Omega 3 vitamin suppliments, or fish meal for use in animal feeds. 
+  To reduce waste in fish processing, we need automated effective and interpretable techniques to classify fish oils. 
+  Gas chromatography (GC) can be used to identify tissue samples for quality assurance in fish processing.
+  The existing analytical chemistry techniques for processing GC data are manual and time-consuming.
   Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
   We find the Linear SVC model can predict the fish species with near-perfect accuracy.
   Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
   The fish oil data is high-dimensional and low sample size data.
-  We compare state-of-the-art feature selection methods to reduce the dimensionality of the data.
+  We compare state-of-the-art feature selection methods to eliminate redundant features.
   High accuracy is possible with very few features for the MRMR and ReliefF feature selection methods.
+  Our proposed method is both effective and interpretable with domain expertise. 
+  Efficient use of treated fish biomas aided by real-world AI can help preserve fish for future generations to come.
   
   \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
 
 \section{Introduction}
 
-% TODO [x] - Introduce fish oil analysis: what it is, why it is important. 
-% TODO [x] - Narrowing down to fish classification is an essential step: fish types, fish parts. 
-% TODO [x] - Existing limitations of fish classification: manually, labour intensive. 
-% TODO [x] - How machine learning can be used to address the above limitations. 
+% TODO [ ] - Provide a "problem statement". 
+% TODO [ ]  Try to state the current techniques for this problem and the key lmiations of them, which will form the movitation for this work.
+% TODO [ ] - Slightly reword this pargraph to reflect the goals and objectives. 
 
+% PROBLEM STATMENT 
+
+% STEP 1. General Worldview of the problem area. 
+Worldwide, 60\% of treated fish biomass is discared \cite{galanakis2019saving}, an incredible waste of the Earth's limited resources. 
+Instead, fish biomass can be repuprosed for as fish oils such as Omega 3 vitamin suppliments, or fish meal for use in animal feeds. 
+To reduce waste in fish processing, we need automated effective and interpretable techniques to classify fish oils. 
+
+% STEP 2. The Specific Problem Area and the Problem. 
 Gas chromatography \cite{eder1995gas} is a chemistry technique we use to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
 This is important for quality assurance in a factory setting, especially in food science. 
@@ -89,32 +104,40 @@ To identify cross-contamination we use fish classification.
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
 The existing techniques for performing fish classification are time consuming and laborious. 
 Chemists compare a given sample to reference samples to determine which class it likely belongs to. 
-Previous work on gas chromatography \cite{bi2020gc,matyushin2020gas}, has shown machine learning can be used to automate classification. 
 
+\subsection{Related Work}
+% STEP 3. The Gap the Research Intends to Address. 
+
+Previous work, \cite{bi2020gc,matyushin2020gas}, shows promise of blackbox methods for classification on GC data. 
+Bi et al. proposed a CNN model that perofrms GC-MS data fusion in food science \cite{bi2020gc}. 
+Their work the flavour quality of peanut oils with high accuracy. 
+Similar to here, their work was motivated by manual analysis becoming intractable at scale. 
+Matushuin et al. pospoed a stacking model for anaylssi of GC data \cite{matyushin2020gas}.
+It stacked results of a 1DConv, 2DConve, Deep residual MLP and XGBoost. 
+Their regression model identifited the retention index.  
+Both studies employed Convolutional Neural Networks (CNN) - blackbox models with high accuracy but not very interpretable models. 
+Interpretable models are required for troubleshooting and safety-critical applications. 
+
+Demelza et al. \cite{robinson2020genetic} proposed a feature and latent variable selection method for regression models in horticutlure.
+The vibrational spectroscopy dataset is similar to ours, both high dimensionality and in the food science domain. 
+Their work showed a partial least squares regression (PLSR) could produce simple and effective regression models.
+We can still achieve high accuracy results with simpler models with representations that are easy to understand.
+
+\subsection{Goals and Objectives}
+
+% STEP 4. Researchers Intuition.
 In this paper, we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
+We achieve this objective by identyfing effective classification algorithms, visualizing their models, and remove redundant features. 
 Firstly, classification algorithms are evaluated for their ability to determine the fish species and part. 
 Visualisation is used to explore the interpretability of successful models.
 It is important to verify their efficacy with domain knowledge before these algorithms can be deployed in a real-world setting.
 Secondly, feature selection is used to eliminate redundant features, whilst maintaining high-accuracy predictions. 
-
-Specifically, our work is divided into two main sections: 
-\begin{enumerate}
-  \item Classification Algorithms
-  \item Feature Selection
-\end{enumerate}
 
 \section{Background}
 
 This paper is a multi-disciplinary effort.
 Domain expertise in chemistry and machine learning is required to extract knowledge from the fish oil data. 
 Before we explore the data, here we provide the domain knowledge required to understand this paper. 
-
-Specifically, the background covers: 
-\begin{enumerate}
-  \item Chromatography methods: how the raw fish oil data is collected.
-  \item Classification algorithms: introduce classification algorithms used in the paper.
-  \item Feature selection: main concepts.
-\end{enumerate}
 
 \subsection{Gas Chromatorgraphy}
 
@@ -133,7 +156,7 @@ That tube has a detector at the end, this detects the rate and intensity at whic
   \caption{
     Gas chromatograph: the artifact of the GC method \cite{restek2018high}.
     The detection is used to visualize intensity (y) and time (x) on a chromotrogaph.}
-  \label{fig:gas-chromatography}% Hide red underlines for URLs. 
+  \label{fig:gas-chromatography} 
   \captionsetup[figure]{font=small,labelfont=small}
 \end{figure}
 
@@ -151,12 +174,7 @@ Chemists integrate the area under each peak, and compare this to a reference sam
 GC must be performed slowly to ensure that the peaks are not too broad.
 This ensures each peak resolves and represents a single compound.
 Once we know what compounds are present in a sample it becomes possible to identify what the sample is.
-For this fish oil data, we classify a sample into two categories:
-
-\begin{enumerate}
-  \item Species
-  \item Part
-\end{enumerate}
+For this fish oil data, we classify a sample into two categories - species and part. 
 
 Using machine learning techniques it may be possible to speed the process up.
 Machine learning algorithms identify patterns in the data.
@@ -187,6 +205,8 @@ Thus, it has real-world applications for quality assurance in a factory setting.
 
 \subsubsection{Support Vector Machines}
 \label{sec:background-svm}
+
+% TODO [ ] - Description of SVMs can be shorted to save space. 
 
 Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
 This model creates a hyperplane that can draw distinct class boundaries between classes.
@@ -264,13 +284,7 @@ The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-co
 \subsection{Visualisation}
 \label{sec:background-visualisation}
 
-Two heuristics are optimized when selecting a suitable model:
-
-\begin{enumerate}
-  \item Interpretability
-  \item Accuracy
-\end{enumerate}
-
+Two heuristics are optimized when selecting a suitable model: interpretability and accuracy. 
 Interpretability is important for verification in a safety-critical environment.
 We intend to employ the chosen model in a factory setting.
 Accuracy is preferable, but not at the expense of interpretability.
@@ -298,6 +312,8 @@ This is an important factor for real-world applications in a factory setting.
 
 \section{Data processing}
 
+% TODO [ ] - Bach to fill out these sections. 
+
 \begin{itemize}
   \item Why the raw data is not applicable to existing classification algorithms?
   \item Extracting datasets that are ready for classification algorithms:
@@ -310,38 +326,19 @@ This is an important factor for real-world applications in a factory setting.
 
 \section{Classification Algorithms}
 
-% \begin{itemize}
-%     \item Fish Species 
-%     \begin{itemize}
-%         \item Discussion on the accuracy of different classification algorithms. 
-%         \item Visualisation of SVM hyperplanes. 
-%     \end{itemize}
-%     \item Fish Part
-%     \begin{itemize}
-%         \item Discussion on the accuracy of the different classification algorithms. 
-%         \item Further discussion on the challenges of fish part in comparison. 
-%     \end{itemize}
-% \end{itemize}
+% TODO [ ] - Rename Ensemlbe (this means something else). 
 
 We measure the predictive ability of classifiers on both the fish species and part dataset.
 We are looking for the model with the highest accuracy.
 As a result, we start broadly by exploring a variety of models from the different families of AI, and then we narrow and refine the search.
 \\\\
-Specifically, we examine:
-
-\begin{enumerate}
-  \item Ensemble
-  \item SVM Model
-  \item SVM Kernel
-\end{enumerate}
-
 For each of the following experiments, the same experiment setup is used.
 We use stratified cross-validation ($k=10$) to measure the classification accuracy.
 Each method has its performance recorded on the same cross-folds.
 Then we average over 30 independent runs.
 This experimental setup evaluates performance on both the fish species and part datasets.
 
-\subsection{Ensemble}
+\subsection{Classic Algorithms}
 
 This is a broad search for an effective classification model.
 We explore a classifier from each family of AI.
@@ -383,13 +380,6 @@ We examine 5 classification models:
       79.54 $\pm$ 1.60         \\ % NB
       \textbf{1.00 $\pm$ 0.00} \\ % SVM
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       74.88 $\pm$ 12.54          \\ % KNN
       85.65 $\pm$ 10.76          \\ % RF
@@ -397,13 +387,6 @@ We examine 5 classification models:
       75.27 $\pm$ 4.35           \\ % NB
       \textbf{98.33 $\pm$ 5.00 } \\ % SVM
     \end{tabular}             \\
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular}            \\
     \hline
     Part                       & 
     \begin{tabular}[c]{@{}l@{}}
@@ -420,13 +403,6 @@ We examine 5 classification models:
       65.54 $\pm$ 2.69          \\ % NB
       \textbf{1.00 $\pm$ 0.00 } \\ % SVM
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular} &  
     \begin{tabular}[c]{@{}l@{}}
       43.61 $\pm$ 13.48          \\ % KNN
       72.60 $\pm$ 16.15          \\ % RF
@@ -434,13 +410,6 @@ We examine 5 classification models:
       48.61 $\pm$ 12.19          \\ % NB
       \textbf{87.14 $\pm$ 8.52 } \\ % SVM
     \end{tabular}             \\
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular}            \\
     \hline
   \end{tabular}
   \caption{
@@ -458,6 +427,8 @@ It does so for the test set for both the species and part datasets.
 
 \subsection{SVM Model}
 \label{sec:results-classification-svm}
+
+% TODO [ ] - provide a description of anaylsis on why LSVM performed/generalized much better than SVC and NuSVC. 
 
 The classification results showed that SVM was the most effective classifier.
 Now, we explore the variations in models for the SVM classifier.
@@ -493,21 +464,11 @@ We examine 3 SVM models \cite{sklearn2021feature}:
       88.30 $\pm$ 1.17         \\ % Nu-SVC
       \textbf{1.00 $\pm$ 0.00} \\ % LSVC
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       80.00 $\pm$ 12.33         \\ % SVC
       81.73 $\pm$ 12.75         \\ % Nu-SVC
       \textbf{98.33 $\pm$ 5.00} \\ % LSVC
     \end{tabular}             \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular}            \\
     \hline
     Part                       & 
     \begin{tabular}[c]{@{}l@{}}
@@ -520,21 +481,11 @@ We examine 3 SVM models \cite{sklearn2021feature}:
       90.31 $\pm$ 1.97         \\ % Nu-SVC
       \textbf{1.00 $\pm$ 0.00} \\ % LSVC
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       49.03 $\pm$ 12.14         \\ % SVC
       62.36 $\pm$ 15.18         \\ % Nu-SVC
       \textbf{87.16 $\pm$ 8.56} \\ % LSVC
     \end{tabular}             \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular}            \\
     \hline
   \end{tabular}
   \caption{
@@ -549,8 +500,11 @@ The Nu-SVC outperforms the SVC for both train and test for the part dataset.
 Yet, the linear SVC outperforms both models. It achieves perfect training accuracy for both datasets.
 For the test, near-perfect (98.33\%) on species, and reasonable performance (87.16\%) on the part.
 
+
 \subsection{SVM Kernel}
 \label{sec:results-classification-svm-kernel}
+
+% TODO [ ] - could you provide a description of analysis on why linear kernal performed/generalsed much better than others? Why sigmoid kernal does not work. 
 
 Now we know that SVM is the most effective classifier, and the LSVC is the most effective model.
 To provide an exhaustive search, we explore all possible kernels.
@@ -589,24 +543,12 @@ We examine 4 SVM kernels \cite{sklearn2021feature}:
       33.19 $\pm$ 2.36         \\ % sigmoid
       \textbf{1.00 $\pm$ 0.00} \\ % linear
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       71.37 $\pm$ 15.86          \\ % poly
       80.00 $\pm$ 12.33          \\ % rbf
       30.18 $\pm$ 6.50           \\ % sigmoid
       \textbf{97.50 $\pm$ 5.34 } \\ % linear
     \end{tabular}             \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular}            \\
     \hline
     Part                       & 
     \begin{tabular}[c]{@{}l@{}}
@@ -621,24 +563,12 @@ We examine 4 SVM kernels \cite{sklearn2021feature}:
       37.47 $\pm$ 1.78         \\ % sigmoid
       \textbf{1.00 $\pm$ 0.00} \\ % linear
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       53.89 $\pm$ 6.94           \\ % poly
       49.03 $\pm$ 12.14          \\ % rbf
       33.47 $\pm$ 8.59           \\ % sigmoid
       \textbf{87.36 $\pm$ 10.77} \\ % linear
     \end{tabular}             \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular}            \\
     \hline
   \end{tabular}
   \caption{
@@ -729,24 +659,12 @@ To allow comparison with PSO, we take the top $k$ features suggested by the algo
       \textbf{99.71 $\pm$ 0.44} \\ % relief
       99.71 $\pm$ 4.30          \\ % PSO
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       81.85 $\pm$ 9.65          \\ % chi
       95.09 $\pm$ 6.90          \\ % mrmr
       \textbf{95.12 $\pm$ 6.26} \\ % relief
       93.30 $\pm$ 8.16          \\ % PSO
     \end{tabular}             \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular}            \\
     \hline
     Part                       & 
     \begin{tabular}[c]{@{}l@{}}
@@ -762,12 +680,6 @@ To allow comparison with PSO, we take the top $k$ features suggested by the algo
       97.82 $\pm$ 1.04          \\ % relief
       \textbf{97.62 $\pm$ 0.91} \\ % PSO
     \end{tabular} & 
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular} &
     \begin{tabular}[c]{@{}l@{}}
       % TODO PSO
       64.86 $\pm$ 19.01          \\ % chi
@@ -775,12 +687,6 @@ To allow comparison with PSO, we take the top $k$ features suggested by the algo
       80.28 $\pm$ 5.58           \\ % relief
       \textbf{82.36 $\pm$ 10.72} \\ % PSO
     \end{tabular}             \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular}            \\
     \hline
   \end{tabular}
   \caption{
@@ -801,14 +707,6 @@ We compared this for several FS methods.
 Due to limitations, PSO optimizes feature number $k$ automatically.
 So, to compare its performance, we plot the results of 30 independent runs.
 \\\\
-Specifically, we compare the following methods:
-
-\begin{itemize}
-  \item reliefF \cite{aizerman1964theoretical}
-  \item MRMR \cite{ding2005minimum}
-  \item PSO \cite{kennedy1995particle,kennedy1997discrete}
-  \item $chi^2$ \cite{liu1995chi2}
-\end{itemize}
 
 \begin{figure}[htb]
   \centering
@@ -871,8 +769,8 @@ A search through a near-infinite combinatorial space of possible feature subsets
 This stochastic method is computationally expensive but can offer effective solutions.
 
 For both general and specific cases, and across all methods, the fish species have lower variance than the fish part in classification accuracy.
-The classification results (\S~\ref{sec:results-classification}) support this, they also show higher test accuracy for fish species, than for fish parts.
-They suggest different fish parts may have fewer underlying structural differences.
+The classification results support this, they also show higher test accuracy for fish species, than for fish parts.
+They suggest different fish parts may have fewer `underlying structural differences.
 
 For the general case and both datasets, a lot of interesting behaviour happens at $k=1050$.
 The fish species reach a plateau, but the fish part accuracy begins to decrease.
