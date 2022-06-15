@@ -67,10 +67,10 @@
   
   In fish processing worldwide, 60\% of fish biomass become fish waste. 
   This could be repurposed into other products such as fish oils and fish feed.
-  It is difficult and required domain expertise to process and effectively repurpose fish biomass.
-  To reduce waste we must incentivise its re-use, this can be achieved through automation. 
-  Gas chromatography (GC) can be used to identify tissue samples for quality assurance in fish processing.
+  It is difficult and requires domain expertise to effectively repurpose fish biomass.
+  Gas chromatography (GC) can be used to identify tissue samples in fish processing.
   The existing analytical chemistry techniques for processing GC data are manual and time-consuming.
+  To reduce biomass waste we must incentivise biomass re-use, we reduce this barrier of entry through automation. 
   Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
   We find the Linear SVC model can predict the fish species with near-perfect accuracy.
   Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
@@ -78,7 +78,7 @@
   We compare state-of-the-art feature selection methods to eliminate redundant features.
   High accuracy is possible with very few features for the MRMR and ReliefF feature selection methods.
   Our proposed method is both effective and interpretable with domain expertise. 
-  Efficient use of treated fish biomas aided by real-world AI can help preserve fish for future generations to come.
+  Efficient use of fish biomas aided by real-world AI can help preserve fish for future generations to come.
   
   \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
@@ -100,7 +100,7 @@ To reduce waste in fish processing, we need automated effective and interpretabl
 Gas chromatography \cite{eder1995gas} is a chemistry technique we use to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
 This is important for quality assurance in a factory setting, especially in food science. 
-To repurpose treated fish biomass efficiently, first we need to know what is in it. 
+To repurpose fish biomass efficiently, first we need to know what is in it. 
 We can identify the contents of fish oil using classification techniques that compare it to known samples. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
 The existing techniques for performing fish classification are time consuming and laborious. 
@@ -222,7 +222,7 @@ The sklearn library provides several SVM models for classification.
 The default model uses the RBF kernel.
 Other models use different kernels and parameters \cite{sklearn2021feature}.
 Some models remove trainable parameters.
-Instead, the user can set the number of support vectors \cite{scholkopf2000new}.
+Instead, the user can set \emph{Nu} which determines the number of support vectors \cite{scholkopf2000new}.
 
 \subsubsection{SVM Kernel}
 \label{sec:background-svm-kernel}
@@ -325,9 +325,7 @@ This is an important factor for real-world applications in a factory setting.
   \item Overview of extracted data.
 \end{itemize}
 
-\section{Classification Algorithms}
-
-% TODO [ ] - Rename Ensemlbe (this means something else). 
+\section{Classification}
 
 We measure the predictive ability of classifiers on both the fish species and part dataset.
 We are looking for the model with the highest accuracy.
@@ -339,7 +337,7 @@ Each method has its performance recorded on the same cross-folds.
 Then we average over 30 independent runs.
 This experimental setup evaluates performance on both the fish species and part datasets.
 
-\subsection{Classic Algorithms}
+\subsection{Classification Algorithms}
 
 This is a broad search for an effective classification model.
 We explore a classifier from each family of AI.
@@ -429,7 +427,7 @@ It does so for the test set for both the species and part datasets.
 \subsection{SVM Model}
 \label{sec:results-classification-svm}
 
-% TODO [ ] - provide a description of anaylsis on why LSVM performed/generalized much better than SVC and NuSVC. 
+% TODO [x] - provide a description of anaylsis on why LSVM performed/generalized much better than SVC and NuSVC. 
 
 The classification results showed that SVM was the most effective classifier.
 Now, we explore the variations in models for the SVM classifier.
@@ -500,7 +498,6 @@ Table~\ref{t:svm-models} shows for fish species, SVC and Nu-SVC models have simi
 The Nu-SVC outperforms the SVC for both train and test for the part dataset.
 Yet, the linear SVC outperforms both models. It achieves perfect training accuracy for both datasets.
 For the test, near-perfect (98.33\%) on species, and reasonable performance (87.16\%) on the part.
-
 
 \subsection{SVM Kernel}
 \label{sec:results-classification-svm-kernel}
@@ -601,6 +598,9 @@ Within support vector machines, the Linear SVC model showed the best performance
 Naturally, within SVM kernels, the linear kernel also showed the best performance.
 There is high predictive performance on the linear kernel.
 This suggests an underlying pattern that is linearly separable in a hyperplane.
+The SVC and Nu-SVC models both default to an RBF kernal. 
+Nu-SVC has a fixed parameter \emph{Nu} that determines the number of support vectors \cite{scholkopf2000new}. 
+A fixed hyper-parameter could explain its improved performance over SVC. 
 Non-linear kernels - polynomial, RBF or sigmoidal - produced diminishing returns.
 These kernels try to fit complex patterns that are not present in the data.
 
@@ -796,8 +796,6 @@ This also warrants further investigation into which features are considered impo
 This motivates the following section on visualisation.
 
 \section{Conclusions and Future Work}
-
-% TODO [x] - Link back to world-view - i.e. sustainability, fish processing, fish oil/feed. 
 
 This paper has demonstrated an interpretable and effective method for fish oil analysis. 
 The method can be understood, domain experts can understand the important features in the decision making.
