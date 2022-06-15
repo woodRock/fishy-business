@@ -63,7 +63,7 @@
   % 150--250 words.
 
   % TODO [x] - Add a sentence or two to state the economic value of Fish Iol to NZ, 
-  % TODO [x] - the signficance for automating the process. 
+  % TODO [x] - the significance of automating the process. 
   
   In fish processing worldwide, 60\% of fish biomass become fish waste. 
   This could be repurposed into other products such as fish oils and fish feed.
@@ -78,7 +78,7 @@
   We compare state-of-the-art feature selection methods to eliminate redundant features.
   High accuracy is possible with very few features for the MRMR and ReliefF feature selection methods.
   Our proposed method is both effective and interpretable with domain expertise. 
-  Efficient use of fish biomas aided by real-world AI can help preserve fish for future generations to come.
+  Efficient use of fish biomass aided by real-world AI can help preserve fish for future generations to come.
   
   \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
@@ -86,39 +86,39 @@
 \section{Introduction}
 
 % TODO [x] - Provide a "problem statement". 
-% TODO [x]  Try to state the current techniques for this problem and the key lmiations of them, which will form the movitation for this work.
+% TODO [x]  Try to state the current techniques for this problem and their key limitations of them, which will form the motivation for this work.
 
-% PROBLEM STATMENT 
+% PROBLEM STATEMENT 
 
 % STEP 1. General Worldview of the problem area. 
-Worldwide, 60\% of treated fish biomass is discared \cite{galanakis2019saving}, an incredible waste of the Earth's limited resources. 
-Instead, fish biomass can be repuprosed for as fish oils such as Omega 3 vitamin suppliments, or fish meal for use in animal feeds. 
+Worldwide, 60\% of treated fish biomass is discarded \cite{galanakis2019saving}, an incredible waste of the Earth's limited resources. 
+Instead, fish biomass can be repurposed for fish oils such as Omega 3 vitamin supplements, or fish meal for use in animal feeds. 
 To reduce waste in fish processing, we need automated effective and interpretable techniques to classify fish oils. 
 
 % STEP 2. The Specific Problem Area and the Problem. 
 Gas chromatography \cite{eder1995gas} is a chemistry technique we use to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
 This is important for quality assurance in a factory setting, especially in food science. 
-To repurpose fish biomass efficiently, first we need to know what is in it. 
+To repurpose fish biomass efficiently, first, we need to know what is in it. 
 We can identify the contents of fish oil using classification techniques that compare it to known samples. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
-The existing techniques for performing fish classification are time consuming and laborious. 
+The existing techniques for performing fish classification are time-consuming and laborious. 
 Chemists compare a given sample to reference samples to determine which class it likely belongs to. 
 
 \subsection{Related Work}
 % STEP 3. The Gap the Research Intends to Address. 
 
 Previous work, \cite{bi2020gc,matyushin2020gas}, shows promise of blackbox methods for classification on GC data. 
-Bi et al. proposed a CNN model that perofrms GC-MS data fusion in food science \cite{bi2020gc}. 
+Bi et al. proposed a CNN model that performs GC-MS data fusion in food science \cite{bi2020gc}. 
 Their work the flavour quality of peanut oils with high accuracy. 
 Similar to here, their work was motivated by manual analysis becoming intractable at scale. 
-Matushuin et al. pospoed a stacking model for anaylssi of GC data \cite{matyushin2020gas}.
+Matushuin et al. proposed a stacking model for analysis of GC data \cite{matyushin2020gas}.
 It stacked results of a 1DConv, 2DConve, Deep residual MLP and XGBoost. 
-Their regression model identifited the retention index.  
+Their regression model identified the retention index.  
 Both studies employed Convolutional Neural Networks (CNN) - blackbox models with high accuracy but not very interpretable models. 
 Interpretable models are required for troubleshooting and safety-critical applications. 
 
-Demelza et al. \cite{robinson2020genetic} proposed a feature and latent variable selection method for regression models in horticutlure.
+Demelza et al. \cite{robinson2020genetic} proposed a feature and latent variable selection method for regression models in horticulture.
 The vibrational spectroscopy dataset is similar to ours, both high dimensionality and in the food science domain. 
 Their work showed a partial least squares regression (PLSR) could produce simple and effective regression models.
 We can still achieve high accuracy results with simpler models with representations that are easy to understand.
@@ -128,7 +128,7 @@ We can still achieve high accuracy results with simpler models with representati
 
 % STEP 4. Researchers Intuition.
 In this paper, we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
-We achieve this objective by identyfing effective classification algorithms, visualizing their models, and remove redundant features. 
+We achieve this objective by identifying effective classification algorithms, visualizing their models, and removing redundant features. 
 Firstly, classification algorithms are evaluated for their ability to determine the fish species and part. 
 Visualisation is used to explore the interpretability of successful models.
 It is important to verify their efficacy with domain knowledge before these algorithms can be deployed in a real-world setting.
@@ -207,7 +207,7 @@ Thus, it has real-world applications for quality assurance in a factory setting.
 \subsubsection{Support Vector Machines}
 \label{sec:background-svm}
 
-% TODO [ ] - Description of SVMs can be shorted to save space. 
+% TODO [ ] - The description of SVMs can be shorted to save space. 
 
 Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
 This model creates a hyperplane that can draw distinct class boundaries between classes.
@@ -219,7 +219,7 @@ This creates a divide between one class and the rest, then repeats for the other
 \label{sec:background-svm-model}
 
 The sklearn library provides several SVM models for classification.
-The default model uses the RBF kernel.
+The default mode uses the RBF kernel.
 Other models use different kernels and parameters \cite{sklearn2021feature}.
 Some models remove trainable parameters.
 Instead, the user can set \emph{Nu} which determines the number of support vectors \cite{scholkopf2000new}.
@@ -429,7 +429,7 @@ It does so for the test set for both the species and part datasets.
 \subsection{SVM Model}
 \label{sec:results-classification-svm}
 
-% TODO [x] - provide a description of anaylsis on why LSVM performed/generalized much better than SVC and NuSVC. 
+% TODO [x] - describes the analysis of why LSVM performed/generalized much better than SVC and NuSVC. 
 
 The classification results showed that SVM was the most effective classifier.
 Now, we explore the variations in models for the SVM classifier.
@@ -504,7 +504,7 @@ For the test, near-perfect (98.33\%) on species, and reasonable performance (87.
 \subsection{SVM Kernel}
 \label{sec:results-classification-svm-kernel}
 
-% TODO [ ] - could you provide a description of analysis on why linear kernal performed/generalsed much better than others? Why sigmoid kernal does not work. 
+% TODO [ ] - could you describe an analysis on why linear kernel performed/generalised much better than others? Why sigmoid kernel does not work. 
 
 Now we know that SVM is the most effective classifier, and the LSVC is the most effective model.
 To provide an exhaustive search, we explore all possible kernels.
@@ -591,7 +591,7 @@ We evaluated an ensemble of classification techniques.
 Naive Bayes performed poorly.
 This is likely due to the assumption of conditional independence between features.
 KNN also performed poorly. This is likely due to the high dimensionality of the data.
-Points drawn from high dimensional spaces tend to never be close together.
+Points drawn from high-dimensional spaces tend to never be close together.
 SVM provided the best results.
 This model can identify fish species from gas chromatography data with near-perfect accuracy.
 This prompted further investigation into this technique.
@@ -600,7 +600,7 @@ Within support vector machines, the Linear SVC model showed the best performance
 Naturally, within SVM kernels, the linear kernel also showed the best performance.
 There is high predictive performance on the linear kernel.
 This suggests an underlying pattern that is linearly separable in a hyperplane.
-The SVC and Nu-SVC models both default to an RBF kernal. 
+The SVC and Nu-SVC models both default to an RBF kernel. 
 Nu-SVC has a fixed parameter \emph{Nu} that determines the number of support vectors \cite{scholkopf2000new}. 
 A fixed hyper-parameter could explain its improved performance over SVC. 
 Non-linear kernels - polynomial, RBF or sigmoidal - produced diminishing returns.
@@ -800,7 +800,7 @@ This motivates the following section on visualisation.
 \section{Conclusions and Future Work}
 
 This paper has demonstrated an interpretable and effective method for fish oil analysis. 
-The method can be understood, domain experts can understand the important features in the decision making.
+The method can be understood, domain experts can understand the important features in the decision-making.
 Not only have we found effective classification and feature selection techniques, but we have also tried to explain their performance with visualisation and analytical results. 
 We can draw many conclusions from the analytical results and visualisations, but here we recall the most important:
 
@@ -813,16 +813,16 @@ We can draw many conclusions from the analytical results and visualisations, but
 
 Feature selection is not guaranteed to improve classification accuracy.
 Yet, it does reduce the complexity, increase interpretability and improve computational efficiency.
-It simplifies the feature space, removing noise, revealing the important features of the model output. 
+It simplifies the feature space, removing noise, and revealing the important features of the model output. 
 As with the SVM using an l1 regularization, feature selection is also a trade-off between interpretability and performance.
 Arthur C. Clarke said, "[a]ny sufficiently advanced technology is indistinguishable from magic." \cite{clarke2013profiles}.
 A perfect blackbox model is equivalent to magic, and, it is difficult to have faith in magic, especially if it were to be involved in fish processing.
 Faith isn't needed when our models when are interpretable and effective.
 
 LinearSVC applied to GC fish oil data can help to reduce waste in fish processing. 
-This ensures more sustainable eco-friendly practises in fish processing.
+This ensures more sustainable eco-friendly practices in fish processing.
 Waste reduction and repurposing is a rising tide that lifts all boats.
-Sustainable practises will leave plenty of fish in the sea, preserving resources for future generations. 
+Sustainable practices will leave plenty of fish in the sea, preserving resources for future generations. 
 
 % TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks. 
 
@@ -874,7 +874,7 @@ Sustainable practises will leave plenty of fish in the sea, preserving resources
 % \end{figure}
 
 % \begin{theorem}
-% This is a sample theorem. The run-in heading is set in bold, while
+% This is a sampling theorem. The run-in heading is set in bold, while
 % the following text appears in italics. Definitions, lemmas,
 % propositions, and corollaries are styled the same way.
 % \end{theorem}
