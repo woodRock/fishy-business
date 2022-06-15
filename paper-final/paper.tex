@@ -65,9 +65,10 @@
   % TODO [x] - Add a sentence or two to state the economic value of Fish Iol to NZ, 
   % TODO [x] - the signficance for automating the process. 
   
-  Worldwide, 60\% of treated fish biomass is discared, an incredible waste of the Earth's limited resources. 
-  Instead, fish biomass can be repuprosed for as fish oils such as Omega 3 vitamin suppliments, or fish meal for use in animal feeds. 
-  To reduce waste in fish processing, we need automated effective and interpretable techniques to classify fish oils. 
+  In fish processing worldwide, 60\% of fish biomass become fish waste. 
+  This could be repurposed into other products such as fish oils and fish feed.
+  It is difficult and required domain expertise to process and effectively repurpose fish biomass.
+  To reduce waste we must incentivise its re-use, this can be achieved through automation. 
   Gas chromatography (GC) can be used to identify tissue samples for quality assurance in fish processing.
   The existing analytical chemistry techniques for processing GC data are manual and time-consuming.
   Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
@@ -99,8 +100,8 @@ To reduce waste in fish processing, we need automated effective and interpretabl
 Gas chromatography \cite{eder1995gas} is a chemistry technique we use to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
 This is important for quality assurance in a factory setting, especially in food science. 
-We want to be confident that our food labels are accurate and reduce/eliminate cross-contamination between different food products. 
-To identify cross-contamination we use fish classification. 
+To repurpose treated fish biomass efficiently, first we need to know what is in it. 
+We can identify the contents of fish oil using classification techniques that compare it to known samples. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
 The existing techniques for performing fish classification are time consuming and laborious. 
 Chemists compare a given sample to reference samples to determine which class it likely belongs to. 
@@ -770,7 +771,7 @@ This stochastic method is computationally expensive but can offer effective solu
 
 For both general and specific cases, and across all methods, the fish species have lower variance than the fish part in classification accuracy.
 The classification results support this, they also show higher test accuracy for fish species, than for fish parts.
-They suggest different fish parts may have fewer `underlying structural differences.
+They suggest different fish parts may have fewer underlying structural differences.
 
 For the general case and both datasets, a lot of interesting behaviour happens at $k=1050$.
 The fish species reach a plateau, but the fish part accuracy begins to decrease.
@@ -796,9 +797,10 @@ This motivates the following section on visualisation.
 
 \section{Conclusions and Future Work}
 
-% TODO [ ] - Summarize the achieved results to show the effectiveness of machine learning algorithms that were used. 
+% TODO [x] - Link back to world-view - i.e. sustainability, fish processing, fish oil/feed. 
 
-The analysis of fish oil data in this paper has focussed on interpretability. 
+This paper has demonstrated an interpretable and effective method for fish oil analysis. 
+The method can be understood, domain experts can understand the important features in the decision making.
 Not only have we found effective classification and feature selection techniques, but we have also tried to explain their performance with visualisation and analytical results. 
 We can draw many conclusions from the analytical results and visualisations, but here we recall the most important:
 
@@ -811,10 +813,16 @@ We can draw many conclusions from the analytical results and visualisations, but
 
 Feature selection is not guaranteed to improve classification accuracy.
 Yet, it does reduce the complexity, increase interpretability and improve computational efficiency.
+It simplifies the feature space, removing noise, revealing the important features of the model output. 
 As with the SVM using an l1 regularization, feature selection is also a trade-off between interpretability and performance.
 Arthur C. Clarke said, "[a]ny sufficiently advanced technology is indistinguishable from magic." \cite{clarke2013profiles}.
-A perfect blackbox model is equivalent to magic, and, it is difficult to have faith in magic, especially if it were to be involved in our food making.
-Faith isn't needed when our models when are interpretable.
+A perfect blackbox model is equivalent to magic, and, it is difficult to have faith in magic, especially if it were to be involved in fish processing.
+Faith isn't needed when our models when are interpretable and effective.
+
+LinearSVC applied to GC fish oil data can help to reduce waste in fish processing. 
+This ensures more sustainable eco-friendly practises in fish processing.
+Waste reduction and repurposing is a rising tide that lifts all boats.
+Sustainable practises will leave plenty of fish in the sea, preserving resources for future generations. 
 
 % TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks. 
 
