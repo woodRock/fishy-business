@@ -614,8 +614,8 @@ INPUT /usr/pkg/share/texmf-dist/fonts/tfm/public/cm/cmbx9.tfm
 INPUT /usr/pkg/share/texmf-dist/fonts/tfm/jknappen/ec/tcrm0900.tfm
 INPUT /usr/pkg/share/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
 INPUT /usr/pkg/share/texmf-dist/fonts/tfm/public/cm/cmbx12.tfm
-INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
 INPUT /usr/pkg/share/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
+INPUT /var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map
 INPUT /vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//chromatograph.png
 INPUT /vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//chromatograph.png
 INPUT /vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//chromatograph.png
