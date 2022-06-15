@@ -35,6 +35,12 @@ Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
   \textbf{20}(3),  273--297 (1995),
   \url{https://link.springer.com/article/10.1007/BF00994018}
 
+\bibitem{robinson2020genetic}
+Demelza, Robinson, B., Zhang, M., et~al: Genetic algorithm for feature and
+  latent variable selection for nutrient assessment in horticultural products
+  pp.~1--8 (2020),
+  \url{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9504794}
+
 \bibitem{ding2005minimum}
 Ding, C., Peng, H.: Minimum redundancy feature selection from microarray gene
   expression data. Journal of bioinformatics and computational biology
@@ -52,6 +58,10 @@ Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
   Consistency properties. International Statistical Review/Revue Internationale
   de Statistique  \textbf{57}(3),  238--247 (1989),
   \url{https://www.jstor.org/stable/1403797}
+
+\bibitem{galanakis2019saving}
+Galanakis, C.M.: Saving food: Production, supply chain, food waste and food
+  consumption. Academic Press (2019)
 
 \bibitem{hand2001idiot}
 Hand, D.J., Yu, K.: Idiot's bayes—not so stupid after all? International
