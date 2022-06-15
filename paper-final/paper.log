@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/pkgsrc) (preloaded format=pdflatex 2021.12.17)  15 JUN 2022 18:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021/pkgsrc) (preloaded format=pdflatex 2021.12.17)  15 JUN 2022 18:17
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -466,54 +466,54 @@ File: assets//part_total_coefficients.png Graphic file (type png)
 Package pdftex.def Info: assets//part_total_coefficients.png  used on input line 274.
 (pdftex.def)             Requested size: 156.20453pt x 110.21419pt.
  [4] [5 </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//kernels.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//fish_total_coefficients.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//part_total_coefficients.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 330--339
+Underfull \hbox (badness 10000) in paragraph at lines 332--341
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 342--347
+Underfull \hbox (badness 10000) in paragraph at lines 344--349
 
  []
 
 [6]
-Underfull \hbox (badness 10000) in paragraph at lines 432--437
+Underfull \hbox (badness 10000) in paragraph at lines 434--439
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 507--512
+Underfull \hbox (badness 10000) in paragraph at lines 509--514
 
  []
 
 [7] [8] [9]
-Underfull \hbox (badness 10000) in paragraph at lines 706--711
+Underfull \hbox (badness 10000) in paragraph at lines 708--713
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 706--711
+Underfull \hbox (badness 10000) in paragraph at lines 708--713
 
  []
 
 <assets//accuracy-features-fish-train.png, id=239, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-fish-train.png Graphic file (type png)
 <use assets//accuracy-features-fish-train.png>
-Package pdftex.def Info: assets//accuracy-features-fish-train.png  used on input line 715.
+Package pdftex.def Info: assets//accuracy-features-fish-train.png  used on input line 717.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 <assets//accuracy-features-fish-test.png, id=240, 397.485pt x 279.0425pt>
 File: assets//accuracy-features-fish-test.png Graphic file (type png)
 <use assets//accuracy-features-fish-test.png>
-Package pdftex.def Info: assets//accuracy-features-fish-test.png  used on input line 719.
+Package pdftex.def Info: assets//accuracy-features-fish-test.png  used on input line 721.
 (pdftex.def)             Requested size: 156.20453pt x 109.66066pt.
 <assets//accuracy-features-part-train.png, id=241, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-part-train.png Graphic file (type png)
 <use assets//accuracy-features-part-train.png>
-Package pdftex.def Info: assets//accuracy-features-part-train.png  used on input line 723.
+Package pdftex.def Info: assets//accuracy-features-part-train.png  used on input line 725.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 <assets//accuracy-features-part-test.png, id=242, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-part-test.png Graphic file (type png)
 <use assets//accuracy-features-part-test.png>
-Package pdftex.def Info: assets//accuracy-features-part-test.png  used on input line 727.
+Package pdftex.def Info: assets//accuracy-features-part-test.png  used on input line 729.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 [10] [11 </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-fish-train.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-fish-test.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-part-train.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-part-test.png>] [12] (/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 7--9
@@ -583,7 +583,7 @@ Here is how much of TeX's memory you used:
  912 hyphenation exceptions out of 8191
  67i,14n,77p,474b,555s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/pkg/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}</usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/pkg/share/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb>
-Output written on /vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.pdf (14 pages, 371085 bytes).
+Output written on /vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.pdf (14 pages, 371227 bytes).
 PDF statistics:
  410 PDF objects out of 1000 (max. 8388607)
  309 compressed objects within 4 object streams
