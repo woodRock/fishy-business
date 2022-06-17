@@ -1358,3 +1358,87 @@ Notes:
     * Interpetable AAI algorithm for Breat Lesions (IAIA-BL). 
     * An AI, that used domain specific apporach of radoilogy, and presents the radiologist an interpretable model, 
     * They can understand the reasons behind decisions, be skeptical, and disagree or agree based on reason-based interpretable models. 
+
+2022-06-10 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Qurret Ul Ain, Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Qurret Ul Ain gave a talk on "Artificial Intelligence to Diagnose Skin Cancer"
+
+Notes: 
+    * Early detection of cancer is fundamental in saving lbies. 
+    * Moles are an example of Skin Cancer. 
+    * Combine knowledge of dermetology + computer vision. 
+    * A multi-disciplinary research project (like mine). 
+    * Skin cancer can spread to the body, in later stages, it can reach the blood vessels, and lead to tumours. 
+    * Skin cancer is a disprportionately high cuase of mortality in New Zealand - 4,000 diagnoses, 300 deaths per year. 
+    * Causes: radiation, modles, high altitude, immune system, hereditary. 
+    * Diagosis: 
+        * A - Assymetry 
+        * B - Border 
+        * C - Colour
+        * D - Diameter 
+        * E - Evolving
+    * Tool: punch biopsy (skin biopsy) - manually check a mole (very painful procedure). 
+    * Computer diagnostics let a dermetologist determine if a punch biopsy is needed. 
+    * Punch biopsy (painfuly) barrier of entry to diagnosis. 
+    * This motivates computer vision techniques for detection. 
+    * Multi-stage classification systems requrie significant expertise; segementation, remove hair, ambient lighting, rotation. 
+    * Existing methods rely on gray-pixel computer vision, but colour is important too. 
+    * Lens (camera) callbiration varries due to different resolutions of camera. 
+    * Limitations of NNs, reduce all to 256x256 pixel images, this distorts the aspect ratio.
+    * Hair removal - is this because of the training data? Because a dermatologist shaves a patients hair before scanning. 
+    * Multi-tree GP has achieved better performance than single tree. 
+    * Multi-tree is similar to multi-cellular organism from biology. 
+    * Local Binary Patterns (LBP) is a dense image descriptor. 
+    * Uses a sliding window of foxed raidus, it computes the value of the central pixel based on the intensities of its neighbouring pixels. 
+    * Can concatenate LBP frm multiple channels (i.e. RGB) to construct a new feature vector. 
+    * Classifications: 
+        * Benign (not harmful)
+        * Malignant (harmful)
+    * Can extract tabular data with domain specific knowledge, interpretablity "we know these work". 
+    * Same-index-crossover-mutation - group together features for one method from constructed feature vector - i.e. Blue channel LBP. 
+    * j48, NB, SVM, KNN. 
+    * Analyze the feature apperance as feature frequency, then relate to domain expertise/OG features, to get interpretable models. 
+    * Wavelet: different-scale information (mean/std summary statistics). 
+    * "Wavelet" features have perormed well in the existing literature; Exsemble classifier (i.e. AdaBoost) performs very well. 
+    * Emsemble balances the apporach of several classification algrotihms, voting/bagging, best performance. 
+    * Wrapper: based on the performance accuracy on a subset of the training data labels (y). 
+    * Filter: based only on the features (X). 
+    * Important to use balanced accuracy for imbalanced datasets, otherwise results are biased towards the majority class. 
+    * GP has the opportunity to generate new knowledge that can be verifiedand encorporated by domain experts into their field. 
+
+TODO: 
+    * READ: GP for Multi-FC in skin cancer image classification. 
+    * READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
+
+2022-06-17 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Cui Yang, Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al. 
+
+General notes: 
+    * No meeting next week due to the (first) celebration of Matariki as a public holiday. 
+    * Writing is an important part of research, we refine our ideas, and correct our incorrect assumptions, we organize our thoughts. 
+    * For example, when re-writing my draft paper, I realized my understanding of treated fish biomass waste was incorrect.
+    * Something I would have never realized if I did not explicitly have to re-write my introduction section. 
+
+Cui Yang gave a talk on "Domain Adaptation". 
+
+Notes: 
+    * Machine learning learns to predict data from identical and indepedendly (iid) probability distributions. 
+    * Transfer learning, use knowldge from one problem and apply this to another problem. 
+    * Motivation: training ML models can be expensive, requires hundreds of GPU/TPU hours. 
+    * Goal: improve performance of a model by training it on data from a source domain, to improve performance in the target domain. 
+    * Source: domain to extract valuable information from. 
+    * Target: area to improve performance in. 
+    * Types: 
+        * Instance 
+        * Feature 
+        * Paramater 
+        * Rational-knowledge 
+    * Instance based adaptation; KMM, AdaBoost. 
+    * Feature based adaptation; CORAL, TCA, Class-conditional. 
+    * Deep domain adaptation; MK-MMD, CORAL, GRL, HDA. 
+    * Domain invariant and specific parts in prepresentations. 
+    * PArtial domain adaptation: classes in target domain are a subset of that in the source domain. 
+    * Transfer learning in dynamic environments; concept-drift tolerance, hybrid ensemble approach. 

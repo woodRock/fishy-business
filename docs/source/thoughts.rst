@@ -206,3 +206,9 @@ brewer2006brown
 ----------------------
     * I had COVID-19, was very sick, and self-isolated.
     * This explains the gap, as you will, in my work here.
+
+2022-06-17 - Importance of Writing 
+----------------------------------
+    * Writing is an important part of research, we refine our ideas, and correct our incorrect assumptions, we organize our thoughts. 
+    * For example, when re-writing my draft paper, I realized my understanding of treated fish biomass waste was incorrect.
+    * Something I would have never realized if I did not explicitly have to re-write my introduction section.
