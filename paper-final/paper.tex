@@ -65,8 +65,8 @@
   % TODO [x] - Add a sentence or two to state the economic value of Fish Iol to NZ, 
   % TODO [x] - the significance of automating the process. 
   
-  In fish processing worldwide, 60\% of fish biomass become fish waste. 
-  This could be repurposed into other products such as fish oils and fish feed.
+  In fish processing worldwide, 60\% of fish doesn't make it onto a plate. 
+  This fish wastage can be repurposed into other products such as fish oils and fish feed.
   It is difficult and requires domain expertise to effectively repurpose fish biomass.
   Gas chromatography (GC) can be used to identify tissue samples in fish processing.
   The existing analytical chemistry techniques for processing GC data are manual and time-consuming.
@@ -91,8 +91,12 @@
 % PROBLEM STATEMENT 
 
 % STEP 1. General Worldview of the problem area. 
-Worldwide, 60\% of treated fish biomass is discarded \cite{galanakis2019saving}, an incredible waste of the Earth's limited resources. 
-Instead, fish biomass can be repurposed for fish oils such as Omega 3 vitamin supplements, or fish meal for use in animal feeds. 
+Worldwide, 60\% of treated fish biomass isn't used in food \cite{galanakis2019saving}. 
+It would be an incredible waste of the Earth's limited resources to discard this. 
+Instead, fish biomass can be repurposed for fish oils - for products such as omega-3 vitamin supplements - or fish meal, both of which can for used in animal feeds. 
+Further processing can produce refined fish oil that is suitable for fish oil capsules that we buy in shops and pharmacies. 
+Some fish species or parts may be richer in omega-3 fatty acids than others, these can be used to make high-value products. 
+To identify valuable fish oils we need to classify the species and part of tissue samples. 
 To reduce waste in fish processing, we need automated effective and interpretable techniques to classify fish oils. 
 
 % STEP 2. The Specific Problem Area and the Problem. 
@@ -112,6 +116,7 @@ Previous work, \cite{bi2020gc,matyushin2020gas}, shows promise of blackbox metho
 Bi et al. proposed a CNN model that performs GC-MS data fusion in food science \cite{bi2020gc}. 
 Their work the flavour quality of peanut oils with high accuracy. 
 Similar to here, their work was motivated by manual analysis becoming intractable at scale. 
+
 Matushuin et al. proposed a stacking model for analysis of GC data \cite{matyushin2020gas}.
 It stacked results of a 1DConv, 2DConve, Deep residual MLP and XGBoost. 
 Their regression model identified the retention index.  
@@ -204,84 +209,6 @@ We desire a model that is interpretable and has high predictive accuracy.
 We can then use the model to automate this task.
 Thus, it has real-world applications for quality assurance in a factory setting.
 
-\subsubsection{Support Vector Machines}
-\label{sec:background-svm}
-
-% TODO [ ] - The description of SVMs can be shorted to save space. 
-
-Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
-This model creates a hyperplane that can draw distinct class boundaries between classes.
-We call these class boundaries the support vectors.
-We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
-This creates a divide between one class and the rest, then repeats for the other classes.
-
-\subsubsection{SVM Model}
-\label{sec:background-svm-model}
-
-The sklearn library provides several SVM models for classification.
-The default mode uses the RBF kernel.
-Other models use different kernels and parameters \cite{sklearn2021feature}.
-Some models remove trainable parameters.
-Instead, the user can set \emph{Nu} which determines the number of support vectors \cite{scholkopf2000new}.
-
-\subsubsection{SVM Kernel}
-\label{sec:background-svm-kernel}
-
-The model requires a kernel function.
-This determines the shape of the support vectors in the hyperplane.
-Different kernels capture data of varying complexities.
-The original hyperplane algorithm used a linear kernel \cite{aizerman1964theoretical}.
-Later, non-linear kernels we introduced.
-These employ the kernel trick \cite{boser1992training}.
-Figure~\ref{fig:kernels} shows support vectors for each kernel on a 2D plane.
-This provides an intuition for each kernel.
-
-\begin{figure}[htb]
-  \centering
-  \includegraphics[width=8.5cm]{kernels.png}
-  \caption{
-    SVM kernels shapes are shown.
-    Specifically, linear, polynomial, radial basis function (rbf) and sigmoidal kernal are shown.}
-  \label{fig:kernels}
-\end{figure}
-
-\subsubsection{SVM Hyperplane Coefficients}
-\label{sec:background-svm-hyperplane}
-
-The l1 regularization term leads to sparse models.
-So, they include fewer features - making them easier to interpret.
-Eq~\ref{eq:hyperplane} defines the total hyperplane as
-
-\begin{align}\label{eq:hyperplane}
-  \beta_{\text{t}} = \text{minmax}(
-  \sum_{\text{c} \in \text{C}}
-  |\beta_{\text{c}}|
-  )
-\end{align}
-
-where there is the number of classes ($c \in C$) sets of hyperplane coefficients.
-$\beta_{\text{t}}$ coefficient as the sum of hyperplane coefficients magnitude for each class $\beta_{\text{c}}$.
-We normalize the coefficients with a min-max feature scaling.
-The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-coefficients}.
-
-\begin{figure}[htb]
-  \centering  
-  \begin{subfigure}[b]{.45\linewidth}
-    \includegraphics[width=\linewidth]{fish_total_coefficients.png}
-    \caption{Fish Species: Hyperplane Coefficients}\label{fig:fish-hyperplane-coeffcients}
-  \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
-    \includegraphics[width=\linewidth]{part_total_coefficients.png}
-    \caption{Fish Part: Hyperplane Coefficients}\label{fig:part-hyperplane-coeffcients}
-  \end{subfigure}
-  \caption[Two numerical solutions]{
-    Hyperplane coefficients $\beta_t$.
-    The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
-    (a) Coefficients for the fish species dataset.
-    (b) Coefficients for the fish part dataset.}
-  \label{fig:hyperplane-coefficients}
-\end{figure}
-
 \subsection{Visualisation}
 \label{sec:background-visualisation}
 
@@ -301,7 +228,75 @@ What constitutes semantic meaning varies from one domain to another.
 It is easy to build intuition for semantic meaning in computer vision and natural language processes, they correspond to recognisable images and structured text.
 In the domains of gas chromatography and fish processing, our meaning is derived from performance on the classification task(s) and similarity to underlying chemical compounds.
 We expect models that generate knowledge that can be verified with domain expertise. 
-For example, important features will correspond to timestamps of important chemicals in the GC data. 
+For example, important features will correspond to timestamps of important chemicals in the GC data.
+
+\subsection{Support Vector Machines}
+\label{sec:background-svm}
+
+% TODO [x] - The description of SVMs can be shorted to save space. 
+
+Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
+This model creates a hyperplane that can draw distinct class boundaries between classes.
+We call these class boundaries the support vectors.
+We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
+This creates a divide between one class and the rest, then repeats for the other classes.
+
+RBF is the default kernel, other models have different kernels and introduce hyperparameters. 
+The NuSVC has hyperparameter \emph{Nu}, this determines the number of support vectors \cite{scholkopf2000new}. 
+This is a trainable parameter in the other SVM models. 
+
+The kernel function shapes the support vectors in the hyperplane.
+Each kernel can capture patterns of varying complexity. 
+The original SVM had a linear kernel \cite{aizerman1964theoretical}, 
+Later, non-linear kernels that employ the kernel trick were introduced \cite{boser1992training}.
+Figure~\ref{fig:kernels} shows support vectors for each kernel on a 2D plane, this provides an intuition for each kernel.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=8.5cm]{kernels.png}
+  \caption{
+    SVM kernels shapes are shown.
+    Specifically, linear, polynomial, radial basis function (rbf) and sigmoidal kernal are shown.}
+  \label{fig:kernels}
+\end{figure}
+
+The l1 regularization term leads to sparse models.
+So, they include fewer features - making them easier to interpret.
+Eq~\ref{eq:hyperplane} defines the total hyperplane as
+
+\begin{align}\label{eq:hyperplane}
+  \beta_{\text{t}} = \text{minmax}(
+  \sum_{\text{c} \in \text{C}}
+  |\beta_{\text{c}}|
+  )
+\end{align}
+
+where there is the number of classes ($c \in C$) sets of hyperplane coefficients.
+$\beta_{\text{t}}$ coefficient as the sum of hyperplane coefficients magnitude for each class $\beta_{\text{c}}$.
+We normalize the coefficients with a min-max feature scaling.
+
+\begin{figure}[htb]
+  \centering  
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{fish_total_coefficients.png}
+    \caption{Fish Species: Hyperplane Coefficients}\label{fig:fish-hyperplane-coeffcients}
+  \end{subfigure}
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{part_total_coefficients.png}
+    \caption{Fish Part: Hyperplane Coefficients}\label{fig:part-hyperplane-coeffcients}
+  \end{subfigure}
+  \caption[Two numerical solutions]{
+    Hyperplane coefficients $\beta_t$.
+    The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
+    (a) Coefficients for the fish species dataset.
+    (b) Coefficients for the fish part dataset.}
+  \label{fig:hyperplane-coefficients}
+\end{figure} 
+
+The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-coefficients}.
+We visualize the hyperplane to approximate the important features. 
+The outliers correspond to feature timestamps that are important for drawing class boundaries. 
+These are chemical compounds that separate the fish part and species, respectively. 
 
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
