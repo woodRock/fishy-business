@@ -1,48 +1,46 @@
-This is BibTeX, Version 0.99d (TeX Live 2021/pkgsrc)
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: paper.aux
 The style file: splncs04.bst
 Database file #1: refs.bib
-Warning--empty journal in robinson2020genetic
-You've used 25 entries,
+You've used 20 entries,
             2850 wiz_defined-function locations,
-            762 strings with 9607 characters,
-and the built_in function-call counts, 13275 in all, are:
-= -- 1149
-> -- 270
-< -- 33
-+ -- 116
-- -- 88
-* -- 816
-:= -- 1615
-add.period$ -- 32
-call.type$ -- 25
-change.case$ -- 129
+            733 strings with 8701 characters,
+and the built_in function-call counts, 10749 in all, are:
+= -- 944
+> -- 205
+< -- 28
++ -- 89
+- -- 66
+* -- 659
+:= -- 1296
+add.period$ -- 28
+call.type$ -- 20
+change.case$ -- 105
 chr.to.int$ -- 0
-cite$ -- 26
-duplicate$ -- 1200
-empty$ -- 1282
-format.name$ -- 101
-if$ -- 2982
+cite$ -- 20
+duplicate$ -- 968
+empty$ -- 1039
+format.name$ -- 76
+if$ -- 2423
 int.to.chr$ -- 0
-int.to.str$ -- 25
-missing$ -- 221
-newline$ -- 81
-num.names$ -- 50
-pop$ -- 406
+int.to.str$ -- 20
+missing$ -- 175
+newline$ -- 66
+num.names$ -- 40
+pop$ -- 320
 preamble$ -- 1
-purify$ -- 94
+purify$ -- 73
 quote$ -- 0
-skip$ -- 437
+skip$ -- 360
 stack$ -- 0
-substring$ -- 866
-swap$ -- 682
-text.length$ -- 33
+substring$ -- 719
+swap$ -- 560
+text.length$ -- 28
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 96
-warning$ -- 1
-while$ -- 125
-width$ -- 27
-write$ -- 266
-(There was 1 warning)
+type$ -- 80
+warning$ -- 0
+while$ -- 102
+width$ -- 22
+write$ -- 217

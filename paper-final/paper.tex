@@ -61,77 +61,44 @@
 \begin{abstract}
   % The abstract should briefly summarize the contents of the paper in
   % 150--250 words.
-
-  % TODO [x] - Add a sentence or two to state the economic value of Fish Iol to NZ, 
-  % TODO [x] - the significance of automating the process. 
   
-  In fish processing worldwide, 60\% of fish doesn't make it onto a plate. 
+  In fish processing worldwide, 60\% of fish is not served. 
   This fish wastage can be repurposed into other products such as fish oils and fish feed.
   It is difficult and requires domain expertise to effectively repurpose fish biomass.
   Gas chromatography (GC) can be used to identify tissue samples in fish processing.
   The existing analytical chemistry techniques for processing GC data are manual and time-consuming.
   To reduce biomass waste we must incentivise biomass re-use, we reduce this barrier of entry through automation. 
   Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
-  We find the Linear SVC model can predict the fish species with near-perfect accuracy.
   Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
   The fish oil data is high-dimensional and low sample size data.
-  We compare state-of-the-art feature selection methods to eliminate redundant features.
-  High accuracy is possible with very few features for the MRMR and ReliefF feature selection methods.
-  Our proposed method is both effective and interpretable with domain expertise. 
-  Efficient use of fish biomass aided by real-world AI can help preserve fish for future generations to come.
   
   \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
 
 \section{Introduction}
+\label{introduction}
 
-% TODO [x] - Provide a "problem statement". 
-% TODO [x]  Try to state the current techniques for this problem and their key limitations of them, which will form the motivation for this work.
+% TODO [ ] - Good my writing is easy to understand, but may need to be more formal. 
+% TODO [ ] - Disconnect here, (1) to know the fish oil component, (2) to know the fish type/part, which comes first and why? 
+% TODO [ ] - DIscuss visualisation (interpretability) and the need for feature selection. 
 
-% PROBLEM STATEMENT 
-
-% STEP 1. General Worldview of the problem area. 
-Worldwide, 60\% of treated fish biomass isn't used in food \cite{galanakis2019saving}. 
-It would be an incredible waste of the Earth's limited resources to discard this. 
-Instead, fish biomass can be repurposed for fish oils - for products such as omega-3 vitamin supplements - or fish meal, both of which can for used in animal feeds. 
+Fish biomass can be repurposed for fish oils - such as omega-3 vitamin supplements - or fish meal, both of which can for used in animal feeds. 
 Further processing can produce refined fish oil that is suitable for fish oil capsules that we buy in shops and pharmacies. 
 Some fish species or parts may be richer in omega-3 fatty acids than others, these can be used to make high-value products. 
 To identify valuable fish oils we need to classify the species and part of tissue samples. 
-To reduce waste in fish processing, we need automated effective and interpretable techniques to classify fish oils. 
+% ^^^ Confused sentence. 
 
-% STEP 2. The Specific Problem Area and the Problem. 
-Gas chromatography \cite{eder1995gas} is a chemistry technique we use to analyze fish oils. 
+Gas chromatography \cite{eder1995gas} is a chemistry technique used to analyze fish oils. 
 It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
 This is important for quality assurance in a factory setting, especially in food science. 
 To repurpose fish biomass efficiently, first, we need to know what is in it. 
+% ^^^ Confused sentence
 We can identify the contents of fish oil using classification techniques that compare it to known samples. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
-The existing techniques for performing fish classification are time-consuming and laborious. 
-Chemists compare a given sample to reference samples to determine which class it likely belongs to. 
-
-\subsection{Related Work}
-% STEP 3. The Gap the Research Intends to Address. 
-
-Previous work, \cite{bi2020gc,matyushin2020gas}, shows promise of blackbox methods for classification on GC data. 
-Bi et al. proposed a CNN model that performs GC-MS data fusion in food science \cite{bi2020gc}. 
-Their work the flavour quality of peanut oils with high accuracy. 
-Similar to here, their work was motivated by manual analysis becoming intractable at scale. 
-
-Matushuin et al. proposed a stacking model for analysis of GC data \cite{matyushin2020gas}.
-It stacked results of a 1DConv, 2DConve, Deep residual MLP and XGBoost. 
-Their regression model identified the retention index.  
-Both studies employed Convolutional Neural Networks (CNN) - blackbox models with high accuracy but not very interpretable models. 
-Interpretable models are required for troubleshooting and safety-critical applications. 
-
-Demelza et al. \cite{robinson2020genetic} proposed a feature and latent variable selection method for regression models in horticulture.
-The vibrational spectroscopy dataset is similar to ours, both high dimensionality and in the food science domain. 
-Their work showed a partial least squares regression (PLSR) could produce simple and effective regression models.
-We can still achieve high accuracy results with simpler models with representations that are easy to understand.
+Existing involve chemists comparing a given sample to reference samples to determine which class it likely belongs to. 
 
 \subsection{Goals and Objectives}
-% TODO [ ] - Slightly reword this pargraph to reflect the goals and objectives. 
 
-% STEP 4. Researchers Intuition.
 In this paper, we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
 We achieve this objective by identifying effective classification algorithms, visualizing their models, and removing redundant features. 
 Firstly, classification algorithms are evaluated for their ability to determine the fish species and part. 
@@ -140,21 +107,21 @@ It is important to verify their efficacy with domain knowledge before these algo
 Secondly, feature selection is used to eliminate redundant features, whilst maintaining high-accuracy predictions. 
 
 \section{Background}
-
-This paper is a multi-disciplinary effort.
-Domain expertise in chemistry and machine learning is required to extract knowledge from the fish oil data. 
-Before we explore the data, here we provide the domain knowledge required to understand this paper. 
+\label{background}
 
 \subsection{Gas Chromatorgraphy}
 
 Gas chromatography (GC) is a technique for the analysis of chemical compounds \cite{eder1995gas,restek2018high,khan2013gas}.
 The process separates compounds based on their boiling point and molecular weight.
 A compound is injected as a liquid, then heat is applied to vaporize it into a gas. 
-A boiling point is a temperature at which it changes phase, from liquid to gas. 
+% A boiling point is a temperature at which it changes phase, from liquid to gas. 
 This process is referred to as a phase transition. 
 The speed at which a compound is vaporized depends on its boiling point. 
 The vaporized gases travel through a long coiled tube.
 That tube has a detector at the end, this detects the rate and intensity at which compounds reach the tube's end. 
+% ^^^ Clumsy re-work this description. 
+
+% TODO [ ] - Figure is too small, figure not referenced in text, needs to be referred to. 
 
 \begin{figure}[htb]
   \centering
@@ -167,11 +134,10 @@ That tube has a detector at the end, this detects the rate and intensity at whic
 \end{figure}
 
 Chemists use the chromatograms of known compounds as a reference when classifying new ones.
-Take a known example, say \emph{methyl eladiate}.
+% Take a known example, say \emph{methyl eladiate}.
 We compare this reference sample to an unknown sample.
 Analysis can infer the unknown compound since they share the same peaks as the known one.
-GC is not a definitive technique \cite{khan2013gas}, so it is often used in conjunction with other techniques.
-Mass spectrometry is one such technique \cite{restek2018high}.
+GC is not a definitive technique \cite{khan2013gas}, so it is often used in conjunction with other techniques like Mass spectrometry \cite{restek2018high}.
 
 The existing task of classifying chemical compounds based on a chromatograph is laborious \cite{eder1995gas,restek2018high}.
 The spikes on the graph represent peaks.
@@ -182,35 +148,37 @@ This ensures each peak resolves and represents a single compound.
 Once we know what compounds are present in a sample it becomes possible to identify what the sample is.
 For this fish oil data, we classify a sample into two categories - species and part. 
 
-Using machine learning techniques it may be possible to speed the process up.
-Machine learning algorithms identify patterns in the data.
-These patterns can be used to classify the sample efficiently.
+% Using machine learning techniques it may be possible to speed the process up.
+% Machine learning algorithms identify patterns in the data.
+% These patterns can be used to classify the sample efficiently.
 An interpretable and accurate model has the potential to be deployed in a factory setting.
-It would eliminate the need for manual work.
+This eliminates the need for manual work.
 Additionally, an algorithm that can classify unresolved peaks would have an impact on the chemistry field.
 This increases the speed at which GC is performed, increasing the volumetric efficiency of the production line \cite{musk2020battery}.
 
-\subsection{Classification Algorithms}
+% \subsection{Classification Algorithms}
 
-The classification task is to identify the class label for an instance from the dataset.
-We perform two classification tasks and measure their performance:
+% The classification task is to identify the class label for an instance from the dataset.
+% We perform two classification tasks and measure their performance:
 
-\begin{enumerate}
-  \item Species: Identify the species of fish (i.e. Bluecod).
-  \item Part: Identify the part of the fish (i.e. Head).
-\end{enumerate}
+% \begin{enumerate}
+%   \item Species: Identify the species of fish (i.e. Bluecod).
+%   \item Part: Identify the part of the fish (i.e. Head).
+% \end{enumerate}
 
-A supervised learning method creates a model from a labelled dataset - the train set.
-We measure the ability of the model to generalize on unseen data - the test set.
-We give the model a tissue sample from a fish.
-Based on what it has learned, it predicts the species and part of that fish.
-The existing analytical chemistry techniques for performing this task are laborious and time-consuming.
-We desire a model that is interpretable and has high predictive accuracy.
-We can then use the model to automate this task.
-Thus, it has real-world applications for quality assurance in a factory setting.
+% A supervised learning method creates a model from a labelled dataset - the train set.
+% We measure the ability of the model to generalize on unseen data - the test set.
+% We give the model a tissue sample from a fish.
+% Based on what it has learned, it predicts the species and part of that fish.
+% The existing analytical chemistry techniques for performing this task are laborious and time-consuming.
+% We desire a model that is interpretable and has high predictive accuracy.
+% We can then use the model to automate this task.
+% Thus, it has real-world applications for quality assurance in a factory setting.
 
 \subsection{Visualisation}
 \label{sec:background-visualisation}
+
+% TODO [ ] - This part can be shortened, and included in the visualisation sections, (not background)
 
 Two heuristics are optimized when selecting a suitable model: interpretability and accuracy. 
 Interpretability is important for verification in a safety-critical environment.
@@ -233,7 +201,8 @@ For example, important features will correspond to timestamps of important chemi
 \subsection{Support Vector Machines}
 \label{sec:background-svm}
 
-% TODO [x] - The description of SVMs can be shorted to save space. 
+% TODO [ ] - This part can be removed, a brief description can be provided when SVM is used. 
+% TODO [ ] - Other classification algorithms, describe each of these later, when used. 
 
 Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
 This model creates a hyperplane that can draw distinct class boundaries between classes.
@@ -301,6 +270,8 @@ These are chemical compounds that separate the fish part and species, respective
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
 
+% TODO [ ] - This section needs to have more descriptions, including general ideas, that algorithms I will use in this work. 
+
 Feature selection reduces the complexity of the problem space.
 This helps counteract the curse of dimensionality \cite{koppen2000curse}.
 Reducing the complexity improves computational efficiency, increases interpretability, and can improve performance.
@@ -336,10 +307,20 @@ This experimental setup evaluates performance on both the fish species and part 
 
 \subsection{Classification Algorithms}
 
-This is a broad search for an effective classification model.
-We explore a classifier from each family of AI.
-The model with the highest classification accuracy on both datasets is then selected, and explored in later sections in further detail.
-\\\\
+% TODO [ ] - Overal steps 
+% 1. How do you perform classification here? 
+% 2. Splitting the data? 
+% 3. Training/test? 
+% 4. 10-fold cross-validation? 
+% 5. Why 30 independent runs? 
+
+% This is a broad search for an effective classification model.
+% We explore a classifier from each family of AI.
+% The model with the highest classification accuracy on both datasets is then selected, and explored in later sections in further detail.
+
+% TODO [ ] - Provide a short description for each algorithm here! What are there parameter settings? 
+% TODO [ ] - Why KNN and NB have std != 0, these are deterministic methods. 
+
 We examine 5 classification models:
 
 \begin{enumerate}
@@ -411,7 +392,8 @@ We examine 5 classification models:
   \caption{
     Accuracy for different classification techniques.
     Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare K-nearest neighbours (KNN), random forest (RF), decision tree (DT), naive bayes (NB) and support vector machines (SVM).}
+    % We compare K-nearest neighbours (KNN), random forest (RF), decision tree (DT), naive bayes (NB) and support vector machines (SVM).
+    }
   \label{t:classification}
 \end{table}
 
@@ -421,10 +403,18 @@ Only the SVM achieves similar performance on the test data.
 The SVM classifier outperforms the other classifiers.
 It does so for the test set for both the species and part datasets.
 
+% TODO [ ] More analysis needed here? 
+% 1. Should compare algorithms performance based on number, e.g. SVM is 20% more accurate than KNN, DT, and NB. 
+% 2. Why NB and KNN do not work well? Why DT overfits the data (you use full size)? RF is better because of ensemble mechanism? Too many features too few instances? 
+
+
 \subsection{SVM Model}
 \label{sec:results-classification-svm}
 
-% TODO [x] - describes the analysis of why LSVM performed/generalized much better than SVC and NuSVC. 
+% TODO [ ] - Replace 4.2 and 4.3 by weight analysis.
+% It is good that you perform different settings for SVM, but I doubt these additions would increase the paper's value. 
+% I remember you did analyse the weight vectors of the model to give an overview of some features may not be used. Such analysis is more valuable
+% It is also a good motivation for feature selection.
 
 The classification results showed that SVM was the most effective classifier.
 Now, we explore the variations in models for the SVM classifier.
@@ -591,21 +581,21 @@ SVM provided the best results.
 This model can identify fish species from gas chromatography data with near-perfect accuracy.
 This prompted further investigation into this technique.
 
-Within support vector machines, the Linear SVC model showed the best performance.
-Naturally, within SVM kernels, the linear kernel also showed the best performance.
-There is high predictive performance on the linear kernel.
-This suggests an underlying pattern that is linearly separable in a hyperplane.
-The SVC and Nu-SVC models both default to an RBF kernel. 
-Nu-SVC has a fixed parameter \emph{Nu} that determines the number of support vectors \cite{scholkopf2000new}. 
-A fixed hyper-parameter could explain its improved performance over SVC. 
-Non-linear kernels - polynomial, RBF or sigmoidal - produced diminishing returns.
-These kernels try to fit complex patterns that are not present in the data.
+% Within support vector machines, the Linear SVC model showed the best performance.
+% Naturally, within SVM kernels, the linear kernel also showed the best performance.
+% There is high predictive performance on the linear kernel.
+% This suggests an underlying pattern that is linearly separable in a hyperplane.
+% The SVC and Nu-SVC models both default to an RBF kernel. 
+% Nu-SVC has a fixed parameter \emph{Nu} that determines the number of support vectors \cite{scholkopf2000new}. 
+% A fixed hyper-parameter could explain its improved performance over SVC. 
+% Non-linear kernels - polynomial, RBF or sigmoidal - produced diminishing returns.
+% These kernels try to fit complex patterns that are not present in the data.
 
-Performance for all models was better for the fish species than the part.
+Classification accuracy for all models was better for the fish species than the part.
 This suggests tissue samples for different species may have distinct chemical compositions.
 Yet, different fish parts may have fewer underlying structural differences.
 For GC data the intra-class variation between species provides a larger signal than part variation.
-For example, we expect there to be more difference between a tarakihi and a bluecod, than there is a similarity between two livers from each species.
+For example, we expect there to be more difference between a tarakihi and a bluecod, than there is a similarity between two livers from different species.
 
 \section{Feature Selection}
 
@@ -613,6 +603,9 @@ For example, we expect there to be more difference between a tarakihi and a blue
 % TODO [ ] - Brief the main ideas of the feature selection algorithms that were used.
 % TODO [ ] - Compare the performance of selected features and use all features.
 % TODO [ ] - (Optional): analyse the selected features.
+
+% TODO [ ] - Briefly explain why FS here? 
+% TODO [ ] - Briefly describe each method, and why they are used/ 
 
 For each method, we measure classification accuracy with an SVM model \cite{sklearn2021feature}.
 It has linear kernel, l1 regularization \cite{robnik2003theoretical} and 10,000 maximum iterations.
@@ -629,6 +622,9 @@ We first provide a detailed accuracy comparison for a set feature number ($k = 5
 Then we explore the accuracy of the general case (any $k$).
 
 \subsection{Classification Accuracy $k = 500$}
+
+% TODO [ ] - I don't think it is necessary to discuss k = 500 
+% i.e. The following subsections provides all the information. you can remove this part and focus more on the following subsection.
 
 We measure the classification accuracy at $k = 500$ for each method.
 To allow comparison with PSO, we take the top $k$ features suggested by the algorithm and compare this to the others.
@@ -706,6 +702,11 @@ Due to limitations, PSO optimizes feature number $k$ automatically.
 So, to compare its performance, we plot the results of 30 independent runs.
 \\\\
 
+% TODO [ ] Fix the figures. 
+% 1. Enlarge the font on the figures. 
+% 2. Make sure the algorithm names in the legend is the same as in the paragraph. 
+% 3. You can have 2 different graphs for fish species and part. 
+
 \begin{figure}[htb]
   \centering
   \begin{subfigure}[b]{.45\linewidth}
@@ -733,6 +734,12 @@ So, to compare its performance, we plot the results of 30 independent runs.
   \label{fig:animals}
 \end{figure}
 
+% TODO [ ] - Rewrite all. Which algorithms work best on the species data. 
+% TODO [ ] - Discussion on different algorithms. 
+% 1. PSO achieves the best trainign accuracies with much smaller number fo features. 
+% 2. Testing accuraces of PSO are not that good, potential overfitting, future work. 
+% 3. Other algorityhms also achieve best performance at around 1050 feautres, FS is helpful to imrpove the part classification. 
+
 Figure~\ref{fig:accuracy-features-fish-train} shows accuracy for fish species.
 We show accuracy on the training set for each feature selection method.
 At $k=1050$ all feature selection methods achieve $100\%$ accuracy on the training set.
@@ -757,6 +764,9 @@ The SVM is overfitting to noise (redundant features) in the training set.
 \subsection{Disucssion}
 \label{sec:results-feature-selection-discussion}
 
+% TODO [ ] - Move 
+% This discussion can be provided right after the results discussion. 
+
 Feature selection methods helped reduce dimensionality.
 We evaluated performance with an SVM classifier.
 Which, ReliefF and PSO were best for fish species and part, respectively.
@@ -766,14 +776,17 @@ PSO provides a combination of global and local searches.
 A search through a near-infinite combinatorial space of possible feature subsets.
 This stochastic method is computationally expensive but can offer effective solutions.
 
+% TODO [ ] Remove - reported in the classification part. 
 For both general and specific cases, and across all methods, the fish species have lower variance than the fish part in classification accuracy.
 The classification results support this, they also show higher test accuracy for fish species, than for fish parts.
 They suggest different fish parts may have fewer underlying structural differences.
 
+% TODO [ ] Remove - Already discussed previously. 
 For the general case and both datasets, a lot of interesting behaviour happens at $k=1050$.
 The fish species reach a plateau, but the fish part accuracy begins to decrease.
 Accuracy comparable to or better than the full dataset is possible with 21.8\% of its features.
 
+% TODO [ ] Trim - some ideas have already been discussed, extend Bach's comments into full paragraphs instead. 
 For the fish species dataset, we see high accuracy with very few features.
 ReliefF and MRMR can achieve above 90\% classification accuracy with $k = 50$.
 Chi$^2$ is not able to mirror this performance.
@@ -794,6 +807,7 @@ This motivates the following section on visualisation.
 
 \section{Conclusions and Future Work}
 
+% TODO [ ] Visualistion - I found no visualisation and interpretable models in this paper? 
 This paper has demonstrated an interpretable and effective method for fish oil analysis. 
 The method can be understood, domain experts can understand the important features in the decision-making.
 Not only have we found effective classification and feature selection techniques, but we have also tried to explain their performance with visualisation and analytical results. 
@@ -802,17 +816,10 @@ We can draw many conclusions from the analytical results and visualisations, but
 \begin{enumerate}
   \item Fish species are easier to predict than fish parts - there is more intra-class variation within fish species than there is a similarity between the same part from different fish.
   \item The Linear SVM classifier performs better for both classification tasks - the fish oil data is linearly separable on a hyperplane.
-  \item Near-perfect accuracy can be achieved with very few features for fish species - if this predictive ability exceeds human error this model has real-world applications.
-  \item Comparison with PSO may be difficult (due to automatic $k$ selection), but this automation may be useful in a factory setting.
+  % TODO [ ] - Add the weight analysis 
+  % TODO [x] - Remove
 \end{enumerate}
 
-Feature selection is not guaranteed to improve classification accuracy.
-Yet, it does reduce the complexity, increase interpretability and improve computational efficiency.
-It simplifies the feature space, removing noise, and revealing the important features of the model output. 
-As with the SVM using an l1 regularization, feature selection is also a trade-off between interpretability and performance.
-Arthur C. Clarke said, "[a]ny sufficiently advanced technology is indistinguishable from magic." \cite{clarke2013profiles}.
-A perfect blackbox model is equivalent to magic, and, it is difficult to have faith in magic, especially if it were to be involved in fish processing.
-Faith isn't needed when our models when are interpretable and effective.
 
 LinearSVC applied to GC fish oil data can help to reduce waste in fish processing. 
 This ensures more sustainable eco-friendly practices in fish processing.
