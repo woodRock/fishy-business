@@ -70,7 +70,7 @@
   To reduce biomass waste we must incentivise biomass re-use, we reduce this barrier of entry through automation. 
   Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
   Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
-  The fish oil data is high-dimensional and low sample size data.
+  The fish oil data is high-dimensional low sample size.
   
   \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
 \end{abstract}
@@ -80,12 +80,12 @@
 
 % TODO [ ] - Good my writing is easy to understand, but may need to be more formal. 
 % TODO [ ] - Disconnect here, (1) to know the fish oil component, (2) to know the fish type/part, which comes first and why? 
-% TODO [ ] - DIscuss visualisation (interpretability) and the need for feature selection. 
+% TODO [x] - Discuss visualisation (interpretability) and the need for feature selection. 
 
 Fish biomass can be repurposed for fish oils - such as omega-3 vitamin supplements - or fish meal, both of which can for used in animal feeds. 
-Further processing can produce refined fish oil that is suitable for fish oil capsules that we buy in shops and pharmacies. 
-Some fish species or parts may be richer in omega-3 fatty acids than others, these can be used to make high-value products. 
-To identify valuable fish oils we need to classify the species and part of tissue samples. 
+Further processing can produce refined fish oil that is suitable for fish oil capsules that can be brought at pharmacies. 
+Some fish species or parts may be richer in omega-3 fatty acids than others and can be used to make these high-value products. 
+To identify valuable fish oils we classify the species and part. 
 % ^^^ Confused sentence. 
 
 Gas chromatography \cite{eder1995gas} is a chemistry technique used to analyze fish oils. 
@@ -96,6 +96,11 @@ To repurpose fish biomass efficiently, first, we need to know what is in it.
 We can identify the contents of fish oil using classification techniques that compare it to known samples. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
 Existing involve chemists comparing a given sample to reference samples to determine which class it likely belongs to. 
+
+An interpretable and accurate model has the potential to be deployed in a factory setting.
+This eliminates the need for manual work.
+Interpretable models are capable of troubleshooting and verification by those with domain expertise. 
+They also have the potential to generate new knowledge, that can be understood by chemists. 
 
 \subsection{Goals and Objectives}
 
@@ -114,18 +119,18 @@ Secondly, feature selection is used to eliminate redundant features, whilst main
 Gas chromatography (GC) is a technique for the analysis of chemical compounds \cite{eder1995gas,restek2018high,khan2013gas}.
 The process separates compounds based on their boiling point and molecular weight.
 A compound is injected as a liquid, then heat is applied to vaporize it into a gas. 
-% A boiling point is a temperature at which it changes phase, from liquid to gas. 
 This process is referred to as a phase transition. 
 The speed at which a compound is vaporized depends on its boiling point. 
 The vaporized gases travel through a long coiled tube.
 That tube has a detector at the end, this detects the rate and intensity at which compounds reach the tube's end. 
 % ^^^ Clumsy re-work this description. 
 
-% TODO [ ] - Figure is too small, figure not referenced in text, needs to be referred to. 
+% TODO [x] - Figure is too small, 
+% TODO [x] - figure not referenced in text, needs to be referred to. 
 
 \begin{figure}[htb]
   \centering
-  \includegraphics[width=8.5cm]{chromatograph.png}
+  \includegraphics[width=12.5cm]{chromatograph.png}
   \caption{
     Gas chromatograph: the artifact of the GC method \cite{restek2018high}.
     The detection is used to visualize intensity (y) and time (x) on a chromotrogaph.}
@@ -133,10 +138,8 @@ That tube has a detector at the end, this detects the rate and intensity at whic
   \captionsetup[figure]{font=small,labelfont=small}
 \end{figure}
 
-Chemists use the chromatograms of known compounds as a reference when classifying new ones.
-% Take a known example, say \emph{methyl eladiate}.
-We compare this reference sample to an unknown sample.
-Analysis can infer the unknown compound since they share the same peaks as the known one.
+Figure~\ref{fig:gas-chromatography} shows a gas chromatograph, chemists use the chromatagraphs for known reference samples to classify unknown samples. 
+Analysis can identify unknown compounds since they share the same peaks to the known one.
 GC is not a definitive technique \cite{khan2013gas}, so it is often used in conjunction with other techniques like Mass spectrometry \cite{restek2018high}.
 
 The existing task of classifying chemical compounds based on a chromatograph is laborious \cite{eder1995gas,restek2018high}.
@@ -147,11 +150,6 @@ GC must be performed slowly to ensure that the peaks are not too broad.
 This ensures each peak resolves and represents a single compound.
 Once we know what compounds are present in a sample it becomes possible to identify what the sample is.
 For this fish oil data, we classify a sample into two categories - species and part. 
-
-An interpretable and accurate model has the potential to be deployed in a factory setting.
-This eliminates the need for manual work.
-Additionally, an algorithm that can classify unresolved peaks would have an impact on the chemistry field.
-This increases the speed at which GC is performed, increasing the volumetric efficiency of the production line \cite{musk2020battery}.
 
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
