@@ -148,124 +148,10 @@ This ensures each peak resolves and represents a single compound.
 Once we know what compounds are present in a sample it becomes possible to identify what the sample is.
 For this fish oil data, we classify a sample into two categories - species and part. 
 
-% Using machine learning techniques it may be possible to speed the process up.
-% Machine learning algorithms identify patterns in the data.
-% These patterns can be used to classify the sample efficiently.
 An interpretable and accurate model has the potential to be deployed in a factory setting.
 This eliminates the need for manual work.
 Additionally, an algorithm that can classify unresolved peaks would have an impact on the chemistry field.
 This increases the speed at which GC is performed, increasing the volumetric efficiency of the production line \cite{musk2020battery}.
-
-% \subsection{Classification Algorithms}
-
-% The classification task is to identify the class label for an instance from the dataset.
-% We perform two classification tasks and measure their performance:
-
-% \begin{enumerate}
-%   \item Species: Identify the species of fish (i.e. Bluecod).
-%   \item Part: Identify the part of the fish (i.e. Head).
-% \end{enumerate}
-
-% A supervised learning method creates a model from a labelled dataset - the train set.
-% We measure the ability of the model to generalize on unseen data - the test set.
-% We give the model a tissue sample from a fish.
-% Based on what it has learned, it predicts the species and part of that fish.
-% The existing analytical chemistry techniques for performing this task are laborious and time-consuming.
-% We desire a model that is interpretable and has high predictive accuracy.
-% We can then use the model to automate this task.
-% Thus, it has real-world applications for quality assurance in a factory setting.
-
-\subsection{Visualisation}
-\label{sec:background-visualisation}
-
-% TODO [ ] - This part can be shortened, and included in the visualisation sections, (not background)
-
-Two heuristics are optimized when selecting a suitable model: interpretability and accuracy. 
-Interpretability is important for verification in a safety-critical environment.
-We intend to employ the chosen model in a factory setting.
-Accuracy is preferable, but not at the expense of interpretability.
-The efficacy of the model must be explainable through domain knowledge.
-Or else it is difficult to ensure reliability.
-The focus on interpretability ensures the model can be used in the real world.
-
-Model interpretability is explored through visualisation.
-We aim to uncover learnt patterns that can be verified with domain knowledge.
-The desired algorithm should strike a balance between predictive performance and semantically meaningful features.
-
-What constitutes semantic meaning varies from one domain to another.
-It is easy to build intuition for semantic meaning in computer vision and natural language processes, they correspond to recognisable images and structured text.
-In the domains of gas chromatography and fish processing, our meaning is derived from performance on the classification task(s) and similarity to underlying chemical compounds.
-We expect models that generate knowledge that can be verified with domain expertise. 
-For example, important features will correspond to timestamps of important chemicals in the GC data.
-
-\subsection{Support Vector Machines}
-\label{sec:background-svm}
-
-% TODO [ ] - This part can be removed, a brief description can be provided when SVM is used. 
-% TODO [ ] - Other classification algorithms, describe each of these later, when used. 
-
-Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
-This model creates a hyperplane that can draw distinct class boundaries between classes.
-We call these class boundaries the support vectors.
-We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
-This creates a divide between one class and the rest, then repeats for the other classes.
-
-RBF is the default kernel, other models have different kernels and introduce hyperparameters. 
-The NuSVC has hyperparameter \emph{Nu}, this determines the number of support vectors \cite{scholkopf2000new}. 
-This is a trainable parameter in the other SVM models. 
-
-The kernel function shapes the support vectors in the hyperplane.
-Each kernel can capture patterns of varying complexity. 
-The original SVM had a linear kernel \cite{aizerman1964theoretical}, 
-Later, non-linear kernels that employ the kernel trick were introduced \cite{boser1992training}.
-Figure~\ref{fig:kernels} shows support vectors for each kernel on a 2D plane, this provides an intuition for each kernel.
-
-\begin{figure}[htb]
-  \centering
-  \includegraphics[width=8.5cm]{kernels.png}
-  \caption{
-    SVM kernels shapes are shown.
-    Specifically, linear, polynomial, radial basis function (rbf) and sigmoidal kernal are shown.}
-  \label{fig:kernels}
-\end{figure}
-
-The l1 regularization term leads to sparse models.
-So, they include fewer features - making them easier to interpret.
-Eq~\ref{eq:hyperplane} defines the total hyperplane as
-
-\begin{align}\label{eq:hyperplane}
-  \beta_{\text{t}} = \text{minmax}(
-  \sum_{\text{c} \in \text{C}}
-  |\beta_{\text{c}}|
-  )
-\end{align}
-
-where there is the number of classes ($c \in C$) sets of hyperplane coefficients.
-$\beta_{\text{t}}$ coefficient as the sum of hyperplane coefficients magnitude for each class $\beta_{\text{c}}$.
-We normalize the coefficients with a min-max feature scaling.
-
-\begin{figure}[htb]
-  \centering  
-  \begin{subfigure}[b]{.45\linewidth}
-    \includegraphics[width=\linewidth]{fish_total_coefficients.png}
-    \caption{Fish Species: Hyperplane Coefficients}\label{fig:fish-hyperplane-coeffcients}
-  \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
-    \includegraphics[width=\linewidth]{part_total_coefficients.png}
-    \caption{Fish Part: Hyperplane Coefficients}\label{fig:part-hyperplane-coeffcients}
-  \end{subfigure}
-  \caption[Two numerical solutions]{
-    Hyperplane coefficients $\beta_t$.
-    The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
-    (a) Coefficients for the fish species dataset.
-    (b) Coefficients for the fish part dataset.}
-  \label{fig:hyperplane-coefficients}
-\end{figure} 
-
-The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-coefficients}.
-We visualize the hyperplane to approximate the important features. 
-The outliers correspond to feature timestamps that are important for drawing class boundaries. 
-These are chemical compounds that separate the fish part and species, respectively. 
 
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
@@ -407,168 +293,6 @@ It does so for the test set for both the species and part datasets.
 % 1. Should compare algorithms performance based on number, e.g. SVM is 20% more accurate than KNN, DT, and NB. 
 % 2. Why NB and KNN do not work well? Why DT overfits the data (you use full size)? RF is better because of ensemble mechanism? Too many features too few instances? 
 
-
-\subsection{SVM Model}
-\label{sec:results-classification-svm}
-
-% TODO [ ] - Replace 4.2 and 4.3 by weight analysis.
-% It is good that you perform different settings for SVM, but I doubt these additions would increase the paper's value. 
-% I remember you did analyse the weight vectors of the model to give an overview of some features may not be used. Such analysis is more valuable
-% It is also a good motivation for feature selection.
-
-The classification results showed that SVM was the most effective classifier.
-Now, we explore the variations in models for the SVM classifier.
-We use the same cross-validation setup as before.
-\\\\
-We examine 3 SVM models \cite{sklearn2021feature}:
-
-\begin{enumerate}
-  \item Suport Vector Classification \cite{cortes1995support}
-  \item Nu-Support Vector Classification \cite{scholkopf2000new}
-  \item Linear Support Vector Classification
-\end{enumerate}
-
-\begin{table}[htb]
-  \captionsetup{font=small,labelfont=small}
-  \centering
-  \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Dataset                    & Method & 
-    AvgTrain $\pm$ Std         & 
-    % T                          &
-    AveTest $\pm$ Std                      \\ % &
-    % T                                     \\
-    \hline
-    Species                    & 
-    \begin{tabular}[c]{@{}l@{}}
-      svc           \\ % Support vector classification
-      nusvc         \\ % Nu-Support vector classification
-      \textbf{lsvc} \\ % Linear Support vector classification
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      88.96 $\pm$ 1.40         \\ % SVC
-      88.30 $\pm$ 1.17         \\ % Nu-SVC
-      \textbf{1.00 $\pm$ 0.00} \\ % LSVC
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      80.00 $\pm$ 12.33         \\ % SVC
-      81.73 $\pm$ 12.75         \\ % Nu-SVC
-      \textbf{98.33 $\pm$ 5.00} \\ % LSVC
-    \end{tabular}             \\ % &
-    \hline
-    Part                       & 
-    \begin{tabular}[c]{@{}l@{}}
-      svc           \\ % Support vector classification
-      nusvc         \\ % Nu-Support vector classification
-      \textbf{lsvc} \\ % Linear Support vector classification
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      73.25 $\pm$ 3.54         \\ % SVC
-      90.31 $\pm$ 1.97         \\ % Nu-SVC
-      \textbf{1.00 $\pm$ 0.00} \\ % LSVC
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      49.03 $\pm$ 12.14         \\ % SVC
-      62.36 $\pm$ 15.18         \\ % Nu-SVC
-      \textbf{87.16 $\pm$ 8.56} \\ % LSVC
-    \end{tabular}             \\ % &
-    \hline
-  \end{tabular}
-  \caption{
-    Accuracy for different SVM models.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare Support-Vector Classification (SVC), Nu-Support Vector Classification (Nu-SVC) and Linear Support-Vector Classification (LSVC).}
-  \label{t:svm-models}
-\end{table}
-
-Table~\ref{t:svm-models} shows for fish species, SVC and Nu-SVC models have similar performance on both train and test.
-The Nu-SVC outperforms the SVC for both train and test for the part dataset.
-Yet, the linear SVC outperforms both models. It achieves perfect training accuracy for both datasets.
-For the test, near-perfect (98.33\%) on species, and reasonable performance (87.16\%) on the part.
-
-\subsection{SVM Kernel}
-\label{sec:results-classification-svm-kernel}
-
-% TODO [ ] - could you describe an analysis on why linear kernel performed/generalised much better than others? Why sigmoid kernel does not work. 
-
-Now we know that SVM is the most effective classifier, and the LSVC is the most effective model.
-To provide an exhaustive search, we explore all possible kernels.
-We use the same cross-validation setup as before.
-\\\\
-We examine 4 SVM kernels \cite{sklearn2021feature}:
-
-\begin{enumerate}
-  \item Polynomial
-  \item Radial Basis Function (rbf)
-  \item Sigmoid
-  \item Linear \cite{aizerman1964theoretical}
-\end{enumerate}
-
-\begin{table}[htb]
-  \captionsetup{font=small,labelfont=small}
-  \centering
-  \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Dataset                    & Method & 
-    AvgTrain $\pm$ Std         & 
-    % T                          &
-    AveTest $\pm$ Std                      \\ % &
-    % T                                     \\
-    \hline
-    Species                    & 
-    \begin{tabular}[c]{@{}l@{}}
-      poly            \\
-      rbf             \\
-      sigmoid         \\
-      \textbf{linear} \\
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      76.83 $\pm$ 1.18         \\ % poly
-      88.96 $\pm$ 1.40         \\ % rbf
-      33.19 $\pm$ 2.36         \\ % sigmoid
-      \textbf{1.00 $\pm$ 0.00} \\ % linear
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      71.37 $\pm$ 15.86          \\ % poly
-      80.00 $\pm$ 12.33          \\ % rbf
-      30.18 $\pm$ 6.50           \\ % sigmoid
-      \textbf{97.50 $\pm$ 5.34 } \\ % linear
-    \end{tabular}             \\ % &
-    \hline
-    Part                       & 
-    \begin{tabular}[c]{@{}l@{}}
-      poly            \\
-      rbf             \\
-      sigmoid         \\
-      \textbf{linear} \\
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      70.63 $\pm$ 2.27         \\ % poly
-      73.25 $\pm$ 3.54         \\ % rbf
-      37.47 $\pm$ 1.78         \\ % sigmoid
-      \textbf{1.00 $\pm$ 0.00} \\ % linear
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      53.89 $\pm$ 6.94           \\ % poly
-      49.03 $\pm$ 12.14          \\ % rbf
-      33.47 $\pm$ 8.59           \\ % sigmoid
-      \textbf{87.36 $\pm$ 10.77} \\ % linear
-    \end{tabular}             \\ % &
-    \hline
-  \end{tabular}
-  \caption{
-    Accuracy for different SVM kernals.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare polynomial (poly), radial basis function (rbf), sigmoidal (sigmoid) and linear.}
-  \label{t:svm-kernels}
-\end{table}
-
-Table~\ref{t:svm-kernels} shows the sigmoid kernel performs very poorly on training and test for both datasets.
-The polynomial and RBF kernel achieve comparable performance for both datasets.
-The linear kernel outperforms all other kernels for both datasets.
-It has near-perfect (97.50\%) test accuracy on fish species.
-And reasonable performance (87.36\%) on the fish part.
-
 \subsection{Discussion}
 \label{sec:results-classification-discussion}
 
@@ -581,21 +305,90 @@ SVM provided the best results.
 This model can identify fish species from gas chromatography data with near-perfect accuracy.
 This prompted further investigation into this technique.
 
-% Within support vector machines, the Linear SVC model showed the best performance.
-% Naturally, within SVM kernels, the linear kernel also showed the best performance.
-% There is high predictive performance on the linear kernel.
-% This suggests an underlying pattern that is linearly separable in a hyperplane.
-% The SVC and Nu-SVC models both default to an RBF kernel. 
-% Nu-SVC has a fixed parameter \emph{Nu} that determines the number of support vectors \cite{scholkopf2000new}. 
-% A fixed hyper-parameter could explain its improved performance over SVC. 
-% Non-linear kernels - polynomial, RBF or sigmoidal - produced diminishing returns.
-% These kernels try to fit complex patterns that are not present in the data.
-
 Classification accuracy for all models was better for the fish species than the part.
 This suggests tissue samples for different species may have distinct chemical compositions.
 Yet, different fish parts may have fewer underlying structural differences.
 For GC data the intra-class variation between species provides a larger signal than part variation.
 For example, we expect there to be more difference between a tarakihi and a bluecod, than there is a similarity between two livers from different species.
+
+\subsection{Weight Analysis}
+
+% TODO [] - Replace 4.2 and 4.3 by weight analysis.
+% It is good that you perform different settings for SVM, but I doubt these additions would increase the paper's value. 
+% I remember you did analyse the weight vectors of the model to give an overview of some features may not be used. Such analysis is more valuable
+% TODO [ ] Motivation for FS - It is also a good motivation for feature selection.
+
+\subsubsection{Visualisation}
+\label{sec:visualisation}
+
+% TODO [ ] - This part can be shortened, and included in the visualisation sections, (not background)
+
+Two heuristics are optimized when selecting a suitable model: interpretability and accuracy. 
+Interpretability is important for verification in a safety-critical environment.
+We intend to employ the chosen model in a factory setting.
+Accuracy is preferable, but not at the expense of interpretability.
+The efficacy of the model must be explainable through domain knowledge.
+Or else it is difficult to ensure reliability.
+The focus on interpretability ensures the model can be used in the real world.
+
+Model interpretability is explored through visualisation.
+We aim to uncover learnt patterns that can be verified with domain knowledge.
+The desired algorithm should strike a balance between predictive performance and semantically meaningful features.
+
+What constitutes semantic meaning varies from one domain to another.
+It is easy to build intuition for semantic meaning in computer vision and natural language processes, they correspond to recognisable images and structured text.
+In the domains of gas chromatography and fish processing, our meaning is derived from performance on the classification task(s) and similarity to underlying chemical compounds.
+We expect models that generate knowledge that can be verified with domain expertise. 
+For example, important features will correspond to timestamps of important chemicals in the GC data.
+
+% TODO [ ] - This part can be removed, a brief description can be provided when SVM is used. 
+% TODO [ ] - Other classification algorithms, describe each of these later, when used. 
+
+\subsubsection{SVM Hyperplane Coefficients}
+
+Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
+This model creates a hyperplane that can draw distinct class boundaries between classes.
+We call these class boundaries the support vectors.
+We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
+This creates a divide between one class and the rest, then repeats for the other classes.
+
+The l1 regularization term leads to sparse models.
+So, they include fewer features - making them easier to interpret.
+Eq~\ref{eq:hyperplane} defines the total hyperplane as
+
+\begin{align}\label{eq:hyperplane}
+  \beta_{\text{t}} = \text{minmax}(
+  \sum_{\text{c} \in \text{C}}
+  |\beta_{\text{c}}|
+  )
+\end{align}
+
+where there is the number of classes ($c \in C$) sets of hyperplane coefficients.
+$\beta_{\text{t}}$ coefficient as the sum of hyperplane coefficients magnitude for each class $\beta_{\text{c}}$.
+We normalize the coefficients with a min-max feature scaling.
+
+\begin{figure}[htb]
+  \centering  
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{fish_total_coefficients.png}
+    \caption{Fish Species: Hyperplane Coefficients}\label{fig:fish-hyperplane-coeffcients}
+  \end{subfigure}
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{part_total_coefficients.png}
+    \caption{Fish Part: Hyperplane Coefficients}\label{fig:part-hyperplane-coeffcients}
+  \end{subfigure}
+  \caption[Two numerical solutions]{
+    Hyperplane coefficients $\beta_t$.
+    The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
+    (a) Coefficients for the fish species dataset.
+    (b) Coefficients for the fish part dataset.}
+  \label{fig:hyperplane-coefficients}
+\end{figure} 
+
+The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-coefficients}.
+We visualize the hyperplane to approximate the important features. 
+The outliers correspond to feature timestamps that are important for drawing class boundaries. 
+These are chemical compounds that separate the fish part and species, respectively. 
 
 \section{Feature Selection}
 
@@ -618,84 +411,6 @@ We examine 4 feature selection methods \cite{chappers2015skfeature}:
   \item Particle Swarm Optimization \cite{kennedy1995particle,kennedy1997discrete}
 \end{enumerate}
 
-We first provide a detailed accuracy comparison for a set feature number ($k = 500$).
-Then we explore the accuracy of the general case (any $k$).
-
-\subsection{Classification Accuracy $k = 500$}
-
-% TODO [ ] - I don't think it is necessary to discuss k = 500 
-% i.e. The following subsections provides all the information. you can remove this part and focus more on the following subsection.
-
-We measure the classification accuracy at $k = 500$ for each method.
-To allow comparison with PSO, we take the top $k$ features suggested by the algorithm and compare this to the others.
-
-\begin{table}[htb]
-  \captionsetup{font=small,labelfont=small}
-  \centering
-  \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Dataset                    & Method & 
-    AvgTrain $\pm$ Std         & 
-    % T                          &
-    AveTest $\pm$ Std                      \\ %&
-    % T                                     \\
-    \hline
-    Species                    & 
-    \begin{tabular}[c]{@{}l@{}}
-      Chi$^2$          \\ % Chi-Square
-      MRMR             \\ % Minimum Redundancy Maximum Relevance
-      \textbf{ReliefF} \\ % ReliefF
-      PSO              \\ % Particle Swarm Optimization
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      95.17 $\pm$ 3.52          \\ % chi
-      99.79 $\pm$ 0.41          \\ % mrmr
-      \textbf{99.71 $\pm$ 0.44} \\ % relief
-      99.71 $\pm$ 4.30          \\ % PSO
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      81.85 $\pm$ 9.65          \\ % chi
-      95.09 $\pm$ 6.90          \\ % mrmr
-      \textbf{95.12 $\pm$ 6.26} \\ % relief
-      93.30 $\pm$ 8.16          \\ % PSO
-    \end{tabular}             \\ % &
-    \hline
-    Part                       & 
-    \begin{tabular}[c]{@{}l@{}}
-      Chi$^2$      \\ % Chi-Square
-      MRMR         \\ % Minimum Redundancy Maximum Relevance
-      ReliefF      \\ % ReliefF
-      \textbf{PSO} \\ % Particle Swarm Optimization
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      % TODO PSO
-      96.32 $\pm$ 0.88          \\ % chi
-      97.44 $\pm$ 0.97          \\ % mrmr
-      97.82 $\pm$ 1.04          \\ % relief
-      \textbf{97.62 $\pm$ 0.91} \\ % PSO
-    \end{tabular} & 
-    \begin{tabular}[c]{@{}l@{}}
-      % TODO PSO
-      64.86 $\pm$ 19.01          \\ % chi
-      78.79 $\pm$ 13.21          \\ % mrmr
-      80.28 $\pm$ 5.58           \\ % relief
-      \textbf{82.36 $\pm$ 10.72} \\ % PSO
-    \end{tabular}             \\ % &
-    \hline
-  \end{tabular}
-  \caption{
-    Accuracy for different feature selection methods.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare chi$^2$ (chi), maximum relevance - minimum redundancy (MRMR), reliefF, particle swarm optimisation (PSO).}
-  \label{t:feature-selection}
-\end{table}
-
-Table~\ref{t:feature-selection} shows for the training set, MRMR, ReliefF and PSO have comparable accuracy for both datasets.
-The Chi$^2$ method does not, instead if performs very poorly.
-For the test set, ReliefF performs best for species, and PSO performs best for the part.
-
-\subsection{Classification Accuracy (all $k$)}
-
 We measure classification accuracy as a function of feature number.
 We compared this for several FS methods.
 Due to limitations, PSO optimizes feature number $k$ automatically.
@@ -705,7 +420,9 @@ So, to compare its performance, we plot the results of 30 independent runs.
 % TODO [ ] Fix the figures. 
 % 1. Enlarge the font on the figures. 
 % 2. Make sure the algorithm names in the legend is the same as in the paragraph. 
-% 3. You can have 2 different graphs for fish species and part. 
+% [x] 3. You can have 2 different graphs for fish species and part. 
+
+\subsection{Fish Species}
 
 \begin{figure}[htb]
   \centering
@@ -717,28 +434,13 @@ So, to compare its performance, we plot the results of 30 independent runs.
     \includegraphics[width=\linewidth]{accuracy-features-fish-test.png}
     \caption{Species: Test set}\label{fig:accuracy-features-fish-test}
   \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
-    \includegraphics[width=\linewidth]{accuracy-features-part-train.png}
-    \caption{Part: Training set}\label{fig:accuracy-features-part-train}
-  \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
-    \includegraphics[width=\linewidth]{accuracy-features-part-test.png}
-    \caption{Part: Test set}\label{fig:accuracy-features-part-test}
-  \end{subfigure}
   \caption[Two numerical solutions]{
-    Fish part dataset: classification accuracy for feature selection methods for a given $k$.
     Fish species dataset: Classification accuracy for feature selection methods for a given $k$.
     We measure the balanced accuracy of k-fold cross-validation.
     We compare reliefF, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
     Fish part dataset. (a) Training set. (b) Test set.}
   \label{fig:animals}
 \end{figure}
-
-% TODO [ ] - Rewrite all. Which algorithms work best on the species data. 
-% TODO [ ] - Discussion on different algorithms. 
-% 1. PSO achieves the best trainign accuracies with much smaller number fo features. 
-% 2. Testing accuraces of PSO are not that good, potential overfitting, future work. 
-% 3. Other algorityhms also achieve best performance at around 1050 feautres, FS is helpful to imrpove the part classification. 
 
 Figure~\ref{fig:accuracy-features-fish-train} shows accuracy for fish species.
 We show accuracy on the training set for each feature selection method.
@@ -750,6 +452,26 @@ The accuracy reaches a plateau ($96\%$ accuracy) at around $k=1050$ features for
 The test performance is less than the train performance, yet the test accuracy is still very high.
 This suggests the model can generalize well on unseen data for the fish species.
 
+\subsection{Fish Part}
+
+\begin{figure}[htb]
+  \centering
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{accuracy-features-part-train.png}
+    \caption{Part: Training set}\label{fig:accuracy-features-part-train}
+  \end{subfigure}
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{accuracy-features-part-test.png}
+    \caption{Part: Test set}\label{fig:accuracy-features-part-test}
+  \end{subfigure}
+  \caption[Two numerical solutions]{
+    Fish part dataset: classification accuracy for feature selection methods for a given $k$.
+    We measure the balanced accuracy of k-fold cross-validation.
+    We compare reliefF, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
+    Fish part dataset. (a) Training set. (b) Test set.}
+  \label{fig:accuracy-features-part-train}
+\end{figure}
+
 Figure~\ref{fig:accuracy-features-part-train} shows accuracy for part dataset.
 We show train accuracy for each feature selection method.
 All feature selection methods struggle to fit the training set for the fish part.
@@ -760,6 +482,12 @@ The classification accuracy fluctuates for all feature selection methods.
 At around $k=1050$ features, it begins to decrease.
 The training accuracy improves, as the test does not from this point onwards.
 The SVM is overfitting to noise (redundant features) in the training set.
+
+% TODO [ ] - Rewrite all. Which algorithms work best on the species data. 
+% TODO [ ] - Discussion on different algorithms. 
+% 1. PSO achieves the best trainign accuracies with much smaller number fo features. 
+% 2. Testing accuraces of PSO are not that good, potential overfitting, future work. 
+% 3. Other algorityhms also achieve best performance at around 1050 feautres, FS is helpful to imrpove the part classification. 
 
 \subsection{Disucssion}
 \label{sec:results-feature-selection-discussion}
@@ -816,10 +544,9 @@ We can draw many conclusions from the analytical results and visualisations, but
 \begin{enumerate}
   \item Fish species are easier to predict than fish parts - there is more intra-class variation within fish species than there is a similarity between the same part from different fish.
   \item The Linear SVM classifier performs better for both classification tasks - the fish oil data is linearly separable on a hyperplane.
+  \item This model can achieve 90\% fish species accuracy using only 1\% (k = 50) of its features, enabling efficient training, and showing many redundant features. 
   % TODO [ ] - Add the weight analysis 
-  % TODO [x] - Remove
 \end{enumerate}
-
 
 LinearSVC applied to GC fish oil data can help to reduce waste in fish processing. 
 This ensures more sustainable eco-friendly practices in fish processing.

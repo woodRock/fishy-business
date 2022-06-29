@@ -7,17 +7,6 @@
 Academy, K.: Gas chromatography (2013),
   \url{https://www.khanacademy.org/science/class-11-chemistry-india/xfbb6cb8fc2bd00c8:in-in-organic-chemistry-some-basic-principles-and-techniques/xfbb6cb8fc2bd00c8:in-in-methods-of-purification-of-organic-compounds/v/gas-chromatography}
 
-\bibitem{aizerman1964theoretical}
-Aizerman, M.A.: Theoretical foundations of the potential function method in
-  pattern recognition learning. Automation and remote control  \textbf{25},
-  821--837 (1964), \url{https://ci.nii.ac.jp/naid/10021200712/}
-
-\bibitem{boser1992training}
-Boser, B.E., Guyon, I.M., Vapnik, V.N.: A training algorithm for optimal margin
-  classifiers. In: Proceedings of the fifth annual workshop on Computational
-  learning theory. pp. 144--152 (1992),
-  \url{https://dl.acm.org/doi/abs/10.1145/130385.130401}
-
 \bibitem{chappers2015skfeature}
 Chappers, C.: charliec443/scikit-feature.
   \url{https://github.com/charliec443/scikit-feature}
@@ -95,11 +84,6 @@ Restek: High-resolution gc analyses of fatty acid methyl esters (fames).
 Robnik-{\v{S}}ikonja, M., Kononenko, I.: Theoretical and empirical analysis of
   relieff and rrelieff. Machine learning  \textbf{53}(1),  23--69 (2003),
   \url{https://link.springer.com/content/pdf/10.1023/A:1025667309714.pdf}
-
-\bibitem{scholkopf2000new}
-Sch{\"o}lkopf, B., Smola, A.J., Williamson, R.C., Bartlett, P.L.: New support
-  vector algorithms. Neural computation  \textbf{12}(5),  1207--1245 (2000),
-  \url{https://doi.org/10.1162/089976600300015565}
 
 \bibitem{sklearn2021feature}
 Sklearn: 1.13. feature selection.
