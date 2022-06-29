@@ -12,11 +12,6 @@ Aizerman, M.A.: Theoretical foundations of the potential function method in
   pattern recognition learning. Automation and remote control  \textbf{25},
   821--837 (1964), \url{https://ci.nii.ac.jp/naid/10021200712/}
 
-\bibitem{bi2020gc}
-Bi, K., Zhang, D., Qiu, T., Huang, Y.: Gc-ms fingerprints profiling using
-  machine learning models for food flavor prediction. Processes  \textbf{8}(1),
-  ~23 (2020), \url{https://www.mdpi.com/2227-9717/8/1/23}
-
 \bibitem{boser1992training}
 Boser, B.E., Guyon, I.M., Vapnik, V.N.: A training algorithm for optimal margin
   classifiers. In: Proceedings of the fifth annual workshop on Computational
@@ -27,19 +22,10 @@ Boser, B.E., Guyon, I.M., Vapnik, V.N.: A training algorithm for optimal margin
 Chappers, C.: charliec443/scikit-feature.
   \url{https://github.com/charliec443/scikit-feature}
 
-\bibitem{clarke2013profiles}
-Clarke, A.C.: Profiles of the Future. Hachette UK (1962)
-
 \bibitem{cortes1995support}
 Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
   \textbf{20}(3),  273--297 (1995),
   \url{https://link.springer.com/article/10.1007/BF00994018}
-
-\bibitem{robinson2020genetic}
-Demelza, Robinson, B., Zhang, M., et~al: Genetic algorithm for feature and
-  latent variable selection for nutrient assessment in horticultural products
-  pp.~1--8 (2020),
-  \url{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9504794}
 
 \bibitem{ding2005minimum}
 Ding, C., Peng, H.: Minimum redundancy feature selection from microarray gene
@@ -58,10 +44,6 @@ Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
   Consistency properties. International Statistical Review/Revue Internationale
   de Statistique  \textbf{57}(3),  238--247 (1989),
   \url{https://www.jstor.org/stable/1403797}
-
-\bibitem{galanakis2019saving}
-Galanakis, C.M.: Saving food: Production, supply chain, food waste and food
-  consumption. Academic Press (2019)
 
 \bibitem{hand2001idiot}
 Hand, D.J., Yu, K.: Idiot's bayes—not so stupid after all? International
@@ -100,11 +82,6 @@ Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
 Loh, W.Y.: Classification and regression trees. Wiley interdisciplinary
   reviews: data mining and knowledge discovery  \textbf{1}(1),  14--23 (2011),
   \url{https://doi.org/10.1002/widm.8}
-
-\bibitem{matyushin2020gas}
-Matyushin, D.D., Buryak, A.K.: Gas chromatographic retention index prediction
-  using multimodal machine learning. Ieee Access  \textbf{8},  223140--223155
-  (2020), \url{https://ieeexplore.ieee.org/abstract/document/9294096}
 
 \bibitem{musk2020battery}
 Musk, E.: 2020 annual meeting of stockholders and battery day: Tesla (Sep
