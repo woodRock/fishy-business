@@ -392,11 +392,11 @@ These are chemical compounds that separate the fish part and species, respective
 
 % TODO [ ] - Why feature selection on this data?
 % TODO [ ] - Brief the main ideas of the feature selection algorithms that were used.
-% TODO [ ] - Compare the performance of selected features and use all features.
-% TODO [ ] - (Optional): analyse the selected features.
 
-% TODO [ ] - Briefly explain why FS here? 
-% TODO [ ] - Briefly describe each method, and why they are used/ 
+\begin{itemize}
+  \item Why feature selection on this data? 
+  \item Brief the main ideas of the feature selection algorithms that were used. 
+\end{itemize}
 
 For each method, we measure classification accuracy with an SVM model \cite{sklearn2021feature}.
 It has linear kernel, l1 regularization \cite{robnik2003theoretical} and 10,000 maximum iterations.
@@ -481,6 +481,14 @@ At around $k=1050$ features, it begins to decrease.
 The training accuracy improves, as the test does not from this point onwards.
 The SVM is overfitting to noise (redundant features) in the training set.
 
+% TODO [ ] - Compare the performance of selected features and use all features.
+% TODO [ ] - (Optional): analyse the selected features.
+
+\begin{itemize}
+  \item Compare the performance of selected feautres and use all feautres. 
+  \item (Optional) analyse the selected features .
+\end{itemize}
+
 % TODO [ ] - Rewrite all. Which algorithms work best on the species data. 
 % TODO [ ] - Discussion on different algorithms. 
 % 1. PSO achieves the best trainign accuracies with much smaller number fo features. 
@@ -528,8 +536,8 @@ PSO requires less human intervention, yet still, provides competitive performanc
 MRMR and ReliefF both have high accuracy with very few features on the fish species dataset.
 This suggests that few features are required to construct a reasonable representation of a fish tissue sample.
 This is a good indication that the fish species dataset contains less noise.
-This also warrants further investigation into which features are considered important for low $k$ values.
-This motivates the following section on visualisation.
+% This also warrants further investigation into which features are considered important for low $k$ values.
+% This motivates the following section on visualisation.
 
 \section{Conclusions and Future Work}
 
