@@ -19,6 +19,13 @@ al2019survey
     * Survey of evolutionary machine learning - Vuw staff. 
     * **TODO** read 
 
+bao2022estimating
+-----------------
+    * Estimating the Optimal Covariance with Imperfect Mean in Diffusion Probabilistic Models 
+    * Diffusion Probabilistic Models (DPM) are special Markov Models with Gaussian Transitions. 
+    * Paper shows how to go from noisy-to-clean with a deterministic process. 
+    * A new approach to diffusion based models.
+
 bi2020gc
 --------
     * Bi et al. proposed a CNN model that incorporated GC-MS data fusion for food science.
