@@ -1502,7 +1502,7 @@ Notes:
         2. Write down your stories! 3-4x times more than you think. 
         3. Pick story to enduce emotions you want. 
  
- 2022-06-20 - Deep Learning 
+ 2022-06-27 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 **Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaite, Jesse Wood, Bastiaan Kleign, et al.
 
@@ -1524,3 +1524,48 @@ Notes:
     * Diffusion Probabilistic Models (DPM) are special Markov Models with Gaussian Transitions. 
     * Paper shows how to go from noisy-to-clean with a deterministic process. 
     * A new approach to diffusion based models.
+
+2022-06-30 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Junhong Huang, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al.
+
+General notes:
+    * FASLIP was started 5-6 years ago in September 2016. 
+    * Ying Bi's last day in New Zealand - she was in FASLIP from the beginning. 
+
+Junhong Huang shared a lectured from Andrew Ng "Lecture 8 - Career Advice / Reading Research Papers" https://www.youtube.com/watch?v=733m6qBH-jI
+
+Notes: 
+    * Two topics: (1) Reading research papers, and (2) career advice. 
+    * Many PhD students learn to read papers by osmosis, from those around them, picking up tips and tricks. 
+    * Andrew Ng outlines his method for reading papers. 
+    * Start with a complete list of papers (including blogposts / Github).
+    * Skip around the list. 
+    * How many? 5-10 papers is good for implementation. 50-100 is needed for thorough understanding and research. 
+    * Everywhere he goes, he has a stack of papers that he takes around with him.
+    * He reads 6 papers a week, and presents 2 to a research group. 
+    * Take multiple passes over a paper: 
+        1. Title, abstract, figues. 
+        2. Intro, conclusion, figures + skip rest. 
+        3. Read paper + skip math.
+        4. Whole things + skip parts that don't make sense. 
+    * Questions (after readings): 
+        - What did authors try to accomplish? 
+        - What were the key elements? 
+        - What can you use yourself? 
+        - What other references do you want to follow? 
+    * Math: 
+        - Rederive from scratch. 
+        - Art Gallery, we see art student's sitting on the floor copying the work of the greats. 
+        - Do the same for Machine Learning, copy the greats, learn to dervice (and even invent) algorithms. 
+    * Code: 
+        - Run the open-source code. 
+        - Re-implement from scratch. 
+    * Steady reading, not short bursts! Sparse repetitions work better than cramming. 
+    * Goal for most PhD students is a job (either big company or startup). 
+    * Either way, we intend to do important work! Leave the world a better place than we found it! 
+    * Recruiters are looking for skills (ML + coding), and meaningful work. 
+    * The idea candidated is a "T" shaped individual, someone who has a breadth of knowledge in AIML, and depth of knowldege in one or two areas of expertise. 
+    * Course work is an efficient way to gaina bredth of knowledge in AI field. Also +reading papers, +relevant projects. 
+    * Saturday morning problem: (1) read paper, (2) open-source contribution, (3) project, (4) TV? 
+
