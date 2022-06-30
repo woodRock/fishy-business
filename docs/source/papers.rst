@@ -366,6 +366,19 @@ raine1997brain
     * Different brain chemistry meant more likely to perform violent impulsive behaviour. 
     * Justification for lebotomy - electrocution of pre-frontal cortex - now replaced by anti-psychotics. 
 
+ramesh2022hierarchical
+----------------------
+    * Hierarchical Text-Conditional Image Generation with CLIP Latents. 
+    * a.k.a. Dalle 2 and Very popular on the internet.
+    * Original was a d-VAE (discrete), Dalle 2 is a diffusion based model that uses CLIP. 
+    * CLIP trains an auto-enocder to have minimize the distance between image and text embeddings in the latent space. 
+    * Those image embeddings are fed to an autoregressive or diffusion prior to generate image embeddings. 
+    * Then this embedding is used to condition a diffusion decoder which produces an image. 
+    * The model is trained on 250 Million images, and has 3.5 billion parameters. 
+    * We can use CLIP to interpolate between two images in the latent space. 
+    * As we increase the dimensionality of the latent space we can represent more complex hierarchical structures. 
+    * CLIP fails at producing text, and reconstruction can mix up objects and their attributes. 
+
 restek2018high
 --------------
     * Explanation of gas-chromatraphy in food science for FAMEs. 
