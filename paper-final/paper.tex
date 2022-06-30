@@ -82,27 +82,28 @@
 % TODO [ ] - Disconnect here, (1) to know the fish oil component, (2) to know the fish type/part, which comes first and why? 
 % TODO [x] - Discuss visualisation (interpretability) and the need for feature selection. 
 
-Fish biomass can be repurposed for fish oils - such as omega-3 vitamin supplements - or fish meal, both of which can for used in animal feeds. 
-Further processing can produce refined fish oil that is suitable for fish oil capsules that can be brought at pharmacies. 
-Some fish species or parts may be richer in omega-3 fatty acids than others and can be used to make these high-value products. 
-To identify valuable fish oils we classify the species and part. 
-% ^^^ Confused sentence. 
 
-Gas chromatography \cite{eder1995gas} is a chemistry technique used to analyze fish oils. 
-It can determine the structure of chemical compounds present in a given sample \cite{restek2018high}. 
-This is important for quality assurance in a factory setting, especially in food science. 
-To repurpose fish biomass efficiently, first, we need to know what is in it. 
-% ^^^ Confused sentence
-We can identify the contents of fish oil using classification techniques that compare it to known samples. 
-Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fins).
-Existing involve chemists comparing a given sample to reference samples to determine which class it likely belongs to. 
+Omega-3 supplments are a high value product made by repupursing fish waste in food processing. 
+The waste is further refined into fish oil capsules commonly bought and sold at pharamacies. 
+Certain fish species and parts are richer in omega-3 fatty acids, this makes these samples high value. 
+We can identify valuable fish oils by classifying their species and part.
+
+Gas chromatography (GC) is a chemistry technique used to analyze fish oils \cite{eder1995gas}. 
+It analyzes the chemical structure for a fish oil sample \cite{restek2018high}. 
+The technique is used for quaility assurance in food processing. 
+To repurpose fish waste effectively we must know what is in it. 
+Chemists manually compare a GC samples to reference data to determine its class. 
+
+Classification automates this process by training a model on an existing dataset manually labelled by chemists. 
+Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fin).
+Their are two dataset with the same of features. 
+The features are the high dimensional GC data, the class labels are the species and part. 
+
+% TODO - UPTO HERE!!!
 
 An interpretable and accurate model has the potential to be deployed in a factory setting.
 This eliminates the need for manual work.
 Interpretable models are capable of troubleshooting and verification by those with domain expertise. 
-They also have the potential to generate new knowledge, that can be understood by chemists. 
-
-\subsection{Goals and Objectives}
 
 In this paper, we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
 We achieve this objective by identifying effective classification algorithms, visualizing their models, and removing redundant features. 
