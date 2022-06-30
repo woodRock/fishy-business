@@ -1301,7 +1301,7 @@ Note:
         * Appreciate reviewers work. 
     * Papers need to make a contribution to science/journal.  
 
-2022-08-09 - Weekly 
+2022-06-09 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time**: Thursday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
 
@@ -1457,3 +1457,70 @@ Notes:
     * We can use CLIP to interpolate between two images in the latent space. 
     * As we increase the dimensionality of the latent space we can represent more complex hierarchical structures. 
     * CLIP fails at producing text, and reconstruction can mix up objects and their attributes. 
+
+2022-06-23 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time**: Thursday 12pm-1pm , **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
+
+Notes: 
+    * After finished Australassian AI paper, start writing the proposal. 
+    * Write the motviation and research objectives. 
+    * Good to finish proposal early - before Christmas! 
+    * All important conference deadliens are in Jan - Feb. 
+    * Eye contact on zoom, is not possible with cameras and remote audience. 
+
+2022-06-23 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Jiablin Lin, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Jiablin Lin showed a talk on "The Three Magic Ingredients of Amazing Presentations" https://www.youtube.com/watch?v=yoD8RMq2OkU
+
+Notes: 
+    * Three things to consider: 
+        1. The Audience 
+        2. The Speaker 
+        3. Transformation 
+    * Call to actions (CTA), what can the audience do? 
+    * Then we re-arrange the roadmap and can get the presentation order. 
+    * Can use this technique for speeches, emails, proposals. 
+    * Common mistake to put too much information into a presentation/paper, sometimes less is more, more important to change mind of audience.
+
+Jiablin Lin suggested "The margical science of story-telling". https://www.youtube.com/watch?v=Nj-hdQMa3uA 
+
+Notes: 
+    * A 99 cent horse head was sold for $62.00. 
+    * He bought random items of little value, then attactched a sory to each object written by authors, this increased their value a thousand-fold. 
+    * The more emotionally invested in something, the less critical you are of that thing. 
+    * 13 months after "honey-moon" period, our neo-cortex and objective reasoning comes back. 
+    * The same thing ahppens during an advertisment that aims for brand experience - i.e. Coca Cola. 
+    * All story-telling generates dopamine, because we are waiting for soemthing, i.e. cliff hanger. 
+    * Oxytocin makes people bond towards a person, it makes them feel human, we can do this by telling a person a story that makes the audience empathetic. 
+    * Endorphins, laughing makes the audience relax, comfortable and more open. 
+    * Devils cocktail; high levels of cortisel and adrenaline. 
+    * Functional story telling: 
+        1. Everybody is a good story-teller from birth. 
+        2. Write down your stories! 3-4x times more than you think. 
+        3. Pick story to enduce emotions you want. 
+ 
+ 2022-06-20 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Daniel Braithwaite, Jesse Wood, Bastiaan Kleign, et al.
+
+Daniel Braithwaite gave a presentation on "Audio Source Seperation - Using GAN/flow priors"
+
+Notes: 
+    * We have two unknown source signals, mixed together into a single signal. 
+    * Minimize distance between the original source and generated source, create a latent space that accurately encodes the mixed audio signals and their individual source signals.
+    * Proposed approach is low audio quality, but it can seperate two audio signals. 
+    * Problem with GAN approach is Mode Collapse (not iid data) and low quality audio. 
+    * Flow based generateds, train an AI model to generate instruments from an audo strack. 
+    * These flow-based models use the inverse STFT. 
+    * Easy to verify the accuracy of an audio seperation model by listening to its output. 
+    * Problems with likelihood maxmimisation, highly discontinious, "deep generative models don't know what they don't know". 
+
+Bastiaan Kelign breifly discussed a paper "Estimating the Optimal Covariance with Imperfect Mean in Diffusion Probabilistic Models" (bao 2022, bao2022estimating) https://arxiv.org/abs/2206.07309
+
+Notes: 
+    * Diffusion Probabilistic Models (DPM) are special Markov Models with Gaussian Transitions. 
+    * Paper shows how to go from noisy-to-clean with a deterministic process. 
+    * A new approach to diffusion based models.
