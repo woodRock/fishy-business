@@ -1440,5 +1440,20 @@ Notes:
     * Feature based adaptation; CORAL, TCA, Class-conditional. 
     * Deep domain adaptation; MK-MMD, CORAL, GRL, HDA. 
     * Domain invariant and specific parts in prepresentations. 
-    * PArtial domain adaptation: classes in target domain are a subset of that in the source domain. 
+    * Partial domain adaptation: classes in target domain are a subset of that in the source domain. 
     * Transfer learning in dynamic environments; concept-drift tolerance, hybrid ensemble approach. 
+
+2022-06-20 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Jesse Wood, Bastiaan Kleign, et al.
+
+Jesse Wood (me) gave a talk on the paper "Hierarchical Text-Conditional Image Generation with CLIP Latents" (ramesh 2022, ramesh2022hierarchical) https://arxiv.org/abs/2204.06125 
+
+Notes: 
+    * CLIP trains an auto-enocder to have minimize the distance between image and text embeddings in the latent space. 
+    * Those image embeddings are fed to an autoregressive or diffusion prior to generate image embeddings. 
+    * Then this embedding is used to condition a diffusion decoder which produces an image. 
+    * The model is trained on 250 Million images, and has 3.5 billion parameters. 
+    * We can use CLIP to interpolate between two images in the latent space. 
+    * As we increase the dimensionality of the latent space we can represent more complex hierarchical structures. 
+    * CLIP fails at producing text, and reconstruction can mix up objects and their attributes. 
