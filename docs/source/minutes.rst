@@ -1569,3 +1569,47 @@ Notes:
     * Course work is an efficient way to gaina bredth of knowledge in AI field. Also +reading papers, +relevant projects. 
     * Saturday morning problem: (1) read paper, (2) open-source contribution, (3) project, (4) TV? 
 
+2022-07-01 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time**: Friday 12.30pm-1pm , **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood. 
+
+Notes: 
+    * SIGEVO member for free virtual attendence to GECCO conference.
+    * Conference is in July 9th - 13th 2022, Boston Masacheseutts. 
+    * Focus on tutors, conference has different tracks - i.e. GP, Neural Evolution, GA, Swarm Intelligence. 
+    * Big names in Evolutionary computations are coming to Wellington. Good opportunity to meet. 
+    * Math is an important part of machine learning, different areas of math required for different tribes of AI. 
+    * Bach is on holiday... 
+    * Writing the paper is taking longer than I thought it would. But making slow progress... 
+    * Deadline for Australassia AI is July 17th (just over two weeks away). 
+
+TODO: 
+    * [x] Email Yi to become a member.
+    * [ ] Register for GECCO 2022.
+
+2022-07-01 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Shaolin Wang, Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al.
+
+General notes: 
+    * Any time after 1 pm is actaully 10 monutes past that time, so 1 pm is 1.10 pm, to give students a 20 minute break for lunch. 
+    * Impact factor for 2021 was released. Many top journals in AI increased their impact factor - i.e. IEEE TPAMI (>24 now). 
+    * Register as a SIGEVO member ($10 USD), Yi will buy membership, free attendence virtually to GECCO. 
+    * Wolfgang Baanzhaf https://www.cse.msu.edu/~banzhafw/, a foundational figure in Genetic Programming, is visiting the university soon. 
+    * AI undergraduate major has been approved by the university, I am involved in advertising for this major. 
+
+Shaolin Wang gave a talk on "LRE for GP-evolved Policies for UCARP". 
+
+Notes: 
+    * Uncertain Capacitated Arc Routing Problem (UCARP). 
+    * Use genetic programming to provide hyper-heuristics. 
+    * Benefits: flexible representation, less domain knowledge, potential interpretability. 
+    * Existing work to increase the interpretability of routing policy. 
+    * Hard to describe the full mapping learned by a model.
+    * Local explanations, easier to give explanations to less complex solution subspaces. 
+    * Local Ranking Explanations (LRE) method, is used to explain the behaviour of routing policy in a decision situation. 
+    * Dataset - 6 representative UCARP problems.
+    * Results - by error, correlation and consistency. 
+    * Table shows a linear model can represent the LRE for a routing problem.
+    * Proposed a new LRE method for UCARP problems. 
+    * This presentations recieved a best paper nomination for GECCO 2022. 
