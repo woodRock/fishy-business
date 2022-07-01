@@ -448,15 +448,15 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <assets//chromatograph.png, id=32, 622.325pt x 355.3275pt>
 File: assets//chromatograph.png Graphic file (type png)
 <use assets//chromatograph.png>
-Package pdftex.def Info: assets//chromatograph.png  used on input line 134.
+Package pdftex.def Info: assets//chromatograph.png  used on input line 133.
 (pdftex.def)             Requested size: 355.65944pt x 203.07011pt.
 
-Overfull \hbox (8.5359pt too wide) in paragraph at lines 134--137
+Overfull \hbox (8.5359pt too wide) in paragraph at lines 133--136
  [][] 
  []
 
 [2 </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//chromatograph.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 183--192
+Underfull \hbox (badness 10000) in paragraph at lines 182--191
 
  []
 
@@ -464,42 +464,42 @@ Underfull \hbox (badness 10000) in paragraph at lines 183--192
 <assets//fish_total_coefficients.png, id=103, 395.4775pt x 279.0425pt>
 File: assets//fish_total_coefficients.png Graphic file (type png)
 <use assets//fish_total_coefficients.png>
-Package pdftex.def Info: assets//fish_total_coefficients.png  used on input line 372.
+Package pdftex.def Info: assets//fish_total_coefficients.png  used on input line 371.
 (pdftex.def)             Requested size: 156.20453pt x 110.21419pt.
 <assets//part_total_coefficients.png, id=104, 395.4775pt x 279.0425pt>
 File: assets//part_total_coefficients.png Graphic file (type png)
 <use assets//part_total_coefficients.png>
-Package pdftex.def Info: assets//part_total_coefficients.png  used on input line 376.
+Package pdftex.def Info: assets//part_total_coefficients.png  used on input line 375.
 (pdftex.def)             Requested size: 156.20453pt x 110.21419pt.
  [5]
-Underfull \hbox (badness 10000) in paragraph at lines 413--418
+Underfull \hbox (badness 10000) in paragraph at lines 412--417
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 413--418
+Underfull \hbox (badness 10000) in paragraph at lines 412--417
 
  []
 
 <assets//accuracy-features-fish-train.png, id=137, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-fish-train.png Graphic file (type png)
 <use assets//accuracy-features-fish-train.png>
-Package pdftex.def Info: assets//accuracy-features-fish-train.png  used on input line 429.
+Package pdftex.def Info: assets//accuracy-features-fish-train.png  used on input line 428.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 <assets//accuracy-features-fish-test.png, id=138, 397.485pt x 279.0425pt>
 File: assets//accuracy-features-fish-test.png Graphic file (type png)
 <use assets//accuracy-features-fish-test.png>
-Package pdftex.def Info: assets//accuracy-features-fish-test.png  used on input line 433.
+Package pdftex.def Info: assets//accuracy-features-fish-test.png  used on input line 432.
 (pdftex.def)             Requested size: 156.20453pt x 109.66066pt.
 <assets//accuracy-features-part-train.png, id=141, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-part-train.png Graphic file (type png)
 <use assets//accuracy-features-part-train.png>
-Package pdftex.def Info: assets//accuracy-features-part-train.png  used on input line 459.
+Package pdftex.def Info: assets//accuracy-features-part-train.png  used on input line 458.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 <assets//accuracy-features-part-test.png, id=142, 403.5075pt x 279.0425pt>
 File: assets//accuracy-features-part-test.png Graphic file (type png)
 <use assets//accuracy-features-part-test.png>
-Package pdftex.def Info: assets//accuracy-features-part-test.png  used on input line 463.
+Package pdftex.def Info: assets//accuracy-features-part-test.png  used on input line 462.
 (pdftex.def)             Requested size: 156.20453pt x 108.0214pt.
 [6 </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//fish_total_coefficients.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//part_total_coefficients.png>] [7 </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-fish-train.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-fish-test.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-part-train.png> </vol/ecrg-solar/woodj4/fishy-business/paper-final/assets//accuracy-features-part-test.png>] [8] (/vol/ecrg-solar/woodj4/fishy-business/paper-final/paper.bbl
 Underfull \hbox (badness 10000) in paragraph at lines 7--9
