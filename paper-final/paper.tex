@@ -163,6 +163,15 @@ More interpretable models are easier for humans to understand.
 This means we can verify their efficiency using domain expertise in biochemistry.
 This is an important factor for real-world applications in a factory setting.
 
+\begin{enumerate}
+  \item Chi$^2$ \cite{liu1995chi2}
+  \item Minimum Redundancy Maximum Relevance \cite{ding2005minimum}
+  \item ReliefF \cite{robnik2003theoretical}
+  \item Particle Swarm Optimization \cite{kennedy1995particle,kennedy1997discrete}
+\end{enumerate}
+
+
+
 \section{Data processing}
 
 % TODO [ ] - Bach to fill out these sections. 
@@ -367,11 +376,11 @@ We normalize the coefficients with a min-max feature scaling.
 
 \begin{figure}[htb]
   \centering  
-  \begin{subfigure}[b]{.45\linewidth}
+  \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{fish_total_coefficients.png}
     \caption{Fish Species: Hyperplane Coefficients}\label{fig:fish-hyperplane-coeffcients}
   \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
+  \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{part_total_coefficients.png}
     \caption{Fish Part: Hyperplane Coefficients}\label{fig:part-hyperplane-coeffcients}
   \end{subfigure}
@@ -424,11 +433,11 @@ So, to compare its performance, we plot the results of 30 independent runs.
 
 \begin{figure}[htb]
   \centering
-  \begin{subfigure}[b]{.45\linewidth}
+  \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{accuracy-features-fish-train.png}
     \caption{Species: Training set}\label{fig:accuracy-features-fish-train}
   \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
+  \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{accuracy-features-fish-test.png}
     \caption{Species: Test set}\label{fig:accuracy-features-fish-test}
   \end{subfigure}
@@ -454,11 +463,11 @@ This suggests the model can generalize well on unseen data for the fish species.
 
 \begin{figure}[htb]
   \centering
-  \begin{subfigure}[b]{.45\linewidth}
+  \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{accuracy-features-part-train.png}
     \caption{Part: Training set}\label{fig:accuracy-features-part-train}
   \end{subfigure}
-  \begin{subfigure}[b]{.45\linewidth}
+  \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{accuracy-features-part-test.png}
     \caption{Part: Test set}\label{fig:accuracy-features-part-test}
   \end{subfigure}

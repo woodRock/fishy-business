@@ -273,7 +273,10 @@ lehman2020surprising
 
 liu1995chi2
 -----------
-    * chi^2 classifier.    
+    * Chi2: feature selection and discretization of numeric attributes
+    * Discretization can turn numeric attributes into discrete ones. 
+    * 
+
 
 loh2011classification
 ---------------------
