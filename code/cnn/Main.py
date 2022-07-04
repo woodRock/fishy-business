@@ -18,13 +18,13 @@ from .plot import show_confusion_matrix, plot_loss, plot_accuracy
 
 # Hyperparameters
 batch_size = 64
-epochs = 100
+epochs = 10_000
 k = 10
 
 # Dataset
 folder = "data/matlab/"
 datasets = ["Fish.mat","Part.mat"]
-dataset = datasets[0]
+dataset = datasets[1]
 print("Chosen: %s" % dataset)
 mat = load(dataset,folder=folder)
 X,y = prepare(mat)
