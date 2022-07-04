@@ -274,9 +274,28 @@ lehman2020surprising
 liu1995chi2
 -----------
     * Chi2: feature selection and discretization of numeric attributes
-    * Discretization can turn numeric attributes into discrete ones. 
-    * 
-
+    * Discretization bins continuous values into discrete ones.  
+    * Feature selection via discretization - ideal for numeric data.
+    * Motivation: (1) (can) improve performance, (2) efficiency (time/space), (3) simplify models. 
+    * Chi2 discretizes and performs FS - useful as many algorithms perform better with discrete/binary data. 
+    * Under discretization would return the original continuous attribute unchanged. 
+    * Over-discretization is when inconsistencies are introduced to the data - the data loses fidelity. 
+    * Previous work, ChiMerge, with hyper-parameter `\alpha` the significance level that had to be manually set. 
+    * `\alpha` is nuisance variable that requires black magic approach to tune.
+    * Difficult to find ideal `\alpha` without domain knowledge or extensive trial and error. 
+    * New approach Chi2 lets data determine value of `\alpha`, perform discretization until over-discretization - a stopping criterion. 
+    * Chi2 is a two-phase method, a generalized version of ChiMege that automatically determines a good `\Chi^2` threshold that fits the data.
+    * Phase 1: Extends ChiMerge to be an automated one, to select an ideal value for `\alpha` based on the data. 
+    * Phase 2: Each feature is assigned signfnicance level and merged in a round robin fashion - until stopping criterion met. 
+    * Attributes only merged to one value are elminianted as part of feature selection. 
+    * Degrees of freedom: the maximum number of logically independent values, which are values that have the freedom to vary, `D_F = N - 1`, where `N = ` samples, `D_F = ` degrees of freedom. 
+    * If `R_i` or `C_i` is zero, set to 0.1. Similar to zero frequency problem from Naive Bayes. I.e. Multiplication by zero is always 0, so all other information is lost. 
+    * Experiments: DT (C4.5), Data with Noise, and Synthetic data. 
+    * Datasets: Iris (continious), Breat (discrete), Heart (mixed).
+    * C4.5, a DT classification algorithm, is run on its default setting.
+    * Results show predictive accuracy and size, same or improved for all datasets where Chi2 was applied.
+    * Chi2 was able to remove noise (irrelvant features) from synthetic and real world data.
+    
 
 loh2011classification
 ---------------------
