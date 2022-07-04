@@ -288,7 +288,7 @@ liu1995chi2
     * Phase 1: Extends ChiMerge to be an automated one, to select an ideal value for :math:`\alpha` based on the data. 
     * Phase 2: Each feature is assigned signfnicance level and merged in a round robin fashion - until stopping criterion met. 
     * Attributes only merged to one value are elminianted as part of feature selection. 
-    * Degrees of freedom: the maximum number of logically independent values, which are values that have the freedom to vary, :math:`D_F = N - 1`, where :math:`N = ` samples, :math:`D_F = ` degrees of freedom. 
+    * Degrees of freedom: the maximum number of logically independent values, which are values that have the freedom to vary, :math:`D_F = N - 1`, where :math:`N =` samples, :math:`D_F =` degrees of freedom. 
     * If :math:`R_i` or :math:`C_i` is zero, set to 0.1. Similar to zero frequency problem from Naive Bayes. I.e. Multiplication by zero is always 0, so all other information is lost. 
     * Experiments: DT (C4.5), Data with Noise, and Synthetic data. 
     * Datasets: Iris (continious), Breat (discrete), Heart (mixed).
