@@ -521,7 +521,7 @@ zhao2019maximum
     * Mutual Information (MI): is a measure of the mutual depedence between two random variables. 
     * :math:`I(X;Y) = H(X) - H(X|Y)`, the amount of information one can geain about one random variable from another. 
     * :math:`I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X)`, let :math:`(X,Y)` be a pair of random variables, take the KL divergence between their join distribution :math:`P_{(X,Y)}` and the product of their maginal distribution :math:`P_{(X,Y)} || P_X \otimes P_X`.
-    * For the MRMR framework, the feature importance can be expressed as :math:`f^{mRMR} = I(Y,X_i) - \frac{1}{|x|} \sum_{X_s \in S} I(X_s;X_i})`. where
+    * For the MRMR framework, the feature importance can be expressed as :math:`f^{mRMR} = I(Y,X_i) - \frac{1}{|x|} \sum_{X_s \in S} I(X_s;X_i)`. where
         - :math:`S` is the set of selected features. 
         - :math:`|S|` ois the size of the feature set.
         - :math:`X_s \in S` is one features of the set :math:`S`
