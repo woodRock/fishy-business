@@ -98,11 +98,18 @@ Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakih
 Their are two dataset with the same of features. 
 The features are the high dimensional GC data, the class labels are the species and part. 
 
+Many feature selection methods \cite{liu1995chi2,ding2005minimum,kononenko1994estimating,kennedy1995particle} are available to eliminate redundant features. 
+These methods can be grouped into four categories: statistics, information theory, similarity, and swarm intelliegence, respectively. 
+In this paper the SVM classifier \cite{cortes1995support} is evaluated on the feature subsets selected by each FS method, on both datasets. 
+
+By only using important feautres for classification, it is easier to interprete what features/patterns the SVM model utilises. 
+Interpretable models are capable of troubleshooting and diagnosis by domain expertise in real-world applications.
+A model that is both interpretable and accurate has the potential to be deployed in a factory setting, this eliminates the need for manual work.
+
 % TODO - UPTO HERE!!!
 
-An interpretable and accurate model has the potential to be deployed in a factory setting.
-This eliminates the need for manual work.
-Interpretable models are capable of troubleshooting and verification by those with domain expertise. 
+% TODO [ ] - Edit and clean up what is below. 
+% TODO [ ] - Related work, contributions, real-world applications. 
 
 In this paper, we explore machine learning techniques to automate the process of identifying fish species and part on GC data. 
 We achieve this objective by identifying effective classification algorithms, visualizing their models, and removing redundant features. 
@@ -154,7 +161,11 @@ For this fish oil data, we classify a sample into two categories - species and p
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
 
-% TODO [ ] - This section needs to have more descriptions, including general ideas, that algorithms I will use in this work. 
+% TODO [ ] - This section needs to have more descriptions, including general ideas, that algorithms I will use in this work.
+% TODO [ ] - Give motivation for FS, 
+% i.e. dimensionality, inefficiency, low interpretability, complext models. 
+% goal -> efficient, interpretable models, simple models. 
+% i.e. the m best features are not the best m features -> correlation and redunancy. 
 
 Feature selection reduces the complexity of the problem space.
 This helps counteract the curse of dimensionality \cite{koppen2000curse}.
@@ -164,8 +175,8 @@ This means we can verify their efficiency using domain expertise in biochemistry
 This is an important factor for real-world applications in a factory setting.
 
 \begin{enumerate}
-  \item Chi$^2$ \cite{liu1995chi2}
-  \item Minimum Redundancy Maximum Relevance \cite{ding2005minimum}
+  % \item Chi$^2$ \cite{liu1995chi2}
+  % \item Minimum Redundancy Maximum Relevance \cite{ding2005minimum}
   \item ReliefF \cite{robnik2003theoretical}
   \item Particle Swarm Optimization \cite{kennedy1995particle,kennedy1997discrete}
 \end{enumerate}
@@ -175,8 +186,26 @@ The algorithm is a generalized version of ChiMerge \cite{kerber1992chimerge} tha
 The technique performs both feature selection and discretiszation, making it ideal for continious numeric fish oil data. 
 The method can increase predictive perofrmance, efficiency (time/memory) and simplify models. 
 
-Ding and Peng \cite{ding2005minimum} proposed Maximum Redundancy Maximum Relevanance as a feature selection method for gene microarray data. 
-% TODO [ ] - Reword notes from Uber paper for MRMR description. 
+Ding and Peng \cite{ding2005minimum} proposed Maximum Redundancy Maximum Relevanance (MRMR) as a feature selection method for gene microarray data. 
+MRMR is a filter-based multi-objective method, it balances the relevance for predicting outcome, and, the redundancy within features.
+
+\begin{equation}
+  I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X) \label{eq:mutual-info}
+\end{equation}  
+
+These are both measured in terms of mutual information, given by eq.~(\ref{eq:mutual-info}), 
+Let $(X,Y)$ be a pair of random variables, take the KL divergence between their join distribution $P_{(X,Y)}$ and the product of their maginal distribution $P_X \otimes P_X$.
+
+\begin{equation}
+  f^{mRMR} = I(Y,X_i) - \frac{1}{|x|} \sum_{X_s \in S} I(X_s;X_i) \label{eq:mrmr}
+\end{equation}  
+
+Producing the feature importance score, shown in eq.~(\ref{eq:mrmr}), for full derivation see \cite{liu1995chi2,zhao2019maximum}.
+Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
+The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
+
+Robnik proposed \cite{kononenko1994estimating}, an extension of the Relief method from \cite{kira1992practical}.
+% TODO [ ] - Description of ReliefF 
 
 \section{Data processing}
 
@@ -579,13 +608,11 @@ Sustainable practices will leave plenty of fish in the sea, preserving resources
 It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. 
 This is future work would be particularly useful for the lower accuracy fish part dataset. 
 Here we give a non-exhaustive list of possible extensions: 
-(1) Variations of MRMR are propsoed in Uber paper \cite{zhao2019maximum}, these use differnet relevance and redunacy metrics. 
-The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
+(1) Further investigate MRMR by considering its variants FQC propsoed in \cite{zhao2019maximum}. 
 (2) Extend classifier to S3VM \cite{zemmal2016adaptative}, a semi-supervised SVM that can utilize unlabelled GC data. 
 This uses unlabeleld data to ensure the decision boundaries are drawn through low density areas.
 (3) NIST has published a Gas Chromatraphic Retention dataset \cite{kovats1958gas}. 
-Stripped of its labels, this could be employed for S3VM described in (2), or alternatively, pre-training/transfer learning aproaches. 
-This would require significant pre-processing for consistent representation across datasets. 
+NIST could be applied to S3VM described, or alternatively for pre-training/transfer learning approaches. 
 
 % Please note that the first paragraph of a section or subsection is
 % not indented. The first paragraph that follows a table, figure,

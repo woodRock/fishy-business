@@ -61,6 +61,16 @@ Kennedy, J., Eberhart, R.C.: A discrete binary version of the particle swarm
 Kerber, R.: Chimerge: Discretization of numeric attributes. In: Proceedings of
   the tenth national conference on Artificial intelligence. pp. 123--128 (1992)
 
+\bibitem{kira1992practical}
+Kira, K., Rendell, L.A.: A practical approach to feature selection. In: Machine
+  learning proceedings 1992, pp. 249--256. Elsevier (1992),
+  \url{https://www.sciencedirect.com/science/article/pii/B9781558602472500371}
+
+\bibitem{kononenko1994estimating}
+Kononenko, I.: Estimating attributes: Analysis and extensions of relief. In:
+  European conference on machine learning. pp. 171--182. Springer (1994),
+  \url{https://link.springer.com/chapter/10.1007/3-540-57868-4_57}
+
 \bibitem{koppen2000curse}
 K{\"o}ppen, M.: The curse of dimensionality. In: 5th Online World Conference on
   Soft Computing in Industrial Applications (WSC5). vol.~1, pp.~4--8 (2000)
