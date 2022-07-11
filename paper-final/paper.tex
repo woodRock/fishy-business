@@ -576,12 +576,16 @@ Sustainable practices will leave plenty of fish in the sea, preserving resources
 
 % TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks.
 
-It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. This is future work would be particularly useful for the lower accuracy fish part dataset. Here we give a non-exhaustive list of possible extensions: 
-
-\begin{itemize}
-  \item (1) Variations of MRMR are propsoed in Uber paper \cite{zhao2019maximum}, these use differnet relevance and redunacy metrics. The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production.
-  \item (2) Extend classifier to S3VM \cite{zemmal2016adaptative}, a semi-supervised SVM that can utilize unlabelled GC data - This uses unlabeleld data to ensure the decision boundaries are drawn through low density areas.
-\end{itemize}
+It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. 
+This is future work would be particularly useful for the lower accuracy fish part dataset. 
+Here we give a non-exhaustive list of possible extensions: 
+(1) Variations of MRMR are propsoed in Uber paper \cite{zhao2019maximum}, these use differnet relevance and redunacy metrics. 
+The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
+(2) Extend classifier to S3VM \cite{zemmal2016adaptative}, a semi-supervised SVM that can utilize unlabelled GC data. 
+This uses unlabeleld data to ensure the decision boundaries are drawn through low density areas.
+(3) NIST has published a Gas Chromatraphic Retention dataset \cite{kovats1958gas}. 
+Stripped of its labels, this could be employed for S3VM described in (2), or alternatively, pre-training/transfer learning aproaches. 
+This would require significant pre-processing for consistent representation across datasets. 
 
 % Please note that the first paragraph of a section or subsection is
 % not indented. The first paragraph that follows a table, figure,

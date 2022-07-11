@@ -65,6 +65,12 @@ Kerber, R.: Chimerge: Discretization of numeric attributes. In: Proceedings of
 K{\"o}ppen, M.: The curse of dimensionality. In: 5th Online World Conference on
   Soft Computing in Industrial Applications (WSC5). vol.~1, pp.~4--8 (2000)
 
+\bibitem{kovats1958gas}
+Kovats, E.: Gas chromatographic characterization of organic compounds. i.
+  retention indexes of aliphatic halides, alcohols, aldehydes, and ketones.
+  Helv. Chim. Acta  \textbf{41}, ~1915 (1958),
+  \url{https://webbook.nist.gov/chemistry/gc-ri/}
+
 \bibitem{liu1995chi2}
 Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
   attributes. In: Proceedings of 7th IEEE International Conference on Tools
