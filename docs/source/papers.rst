@@ -59,6 +59,12 @@ brochu2010tutorial
     * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
     * **TODO** read this! 
 
+brown2012conditional
+--------------------
+    * Conditional likelihood maximisation: a unifying framework for information theoretic feature selection
+    * Generalized model for information based feature selection methods. 
+    * These models generazlize to iterative maximizers of conditional likelihood. 
+
 cai2020high 
 -----------
     * End-to-end driving via conditional imitation learning. 
@@ -123,6 +129,7 @@ da2018evolutionary
 ding2005minimum
 ---------------
     * Minimum Redundancy - Maximum Relevance (MRMR)
+
 
 eder1995gas
 -----------
@@ -489,7 +496,7 @@ xue2014particle
 zemmal2016adaptative
 --------------------
     * S3VM - semi-supverised SVM. 
-    * Using inlabeleld data to ensure the decision boundaries are drawn through low density areas
+    * Using unlabeleld data to ensure the decision boundaries are drawn through low density areas. 
     * TODO - read. 
 
 zhang2008two
@@ -497,3 +504,46 @@ zhang2008two
     * Zhang et al. proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry. 
     * The algorithm warps local regions of the data to maximise the correlation with known reference samples. 
     * This work uses data fusion with labelled reference samples, to improve the quality of new samples.
+
+zhao2019maximum
+---------------
+    * Maximum relevance and minimum redundancy feature selection methods for a marketing machine learning platform. 
+    * A paper from Uber. 
+    * Business objectives: (1) user acquisition, (2) cross/up sell, (3) user churn. 
+    * Curse of dimensionality: ineffeciency, overfitting, high maintance, low intrepretability. 
+    * FS enabled beter compliance/troubleshooting, business intiution and insights. 
+    * Smaller problem space for troubleshooting and diagnosis. 
+    * By only using important features for prediction task, it is easier to interpret what features/patterns the model is using. 
+    * The m best features are not the best m features - many features are correlated and redundant. 
+    * MRMR is a filter bases FS method that considers both: (1) relevance for predicting outcome, (2) redundancy within selected features. 
+    * Original MRMR uses mutual information to measure both relevance and redundancy. 
+    * Information based FS methods were generalized into a conditional likelihood framework (Brown 2012, brown2012conditional).
+    * Mutual Information (MI): is a measure of the mutual depedence between two random variables. 
+    * :math:`I(X;Y) = H(X) - H(X|Y)`, the amount of information one can geain about one random variable from another. 
+    * :math:`I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X)`, let :math:`(X,Y)` be a pair of random variables, take the KL divergence between their join distribution :math:`P_{(X,Y)}` and the product of their maginal distribution :math:`P_{(X,Y)} || P_X \otimes P_X`.
+    * For the MRMR framework, the feature importance can be expressed as :math:`f^{mRMR} = I(Y,X_i) - \frac{1}{|x|} \sum_{X_s \in S} I(X_s;X_i})`. where
+        - :math:`S` is the set of selected features. 
+        - :math:`|S|` ois the size of the feature set.
+        - :math:`X_s \in S` is one features of the set :math:`S`
+        - :math:`X_i` denotes a feature is currently not selected. 
+        - The function :math:`I(.;.)` os the mutual information. 
+    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016, goodfellow2016deep) for a derivation of Kullback-Leibler divergence. 
+    * It builds a set of best features based of maximum feature importance each iteration. 
+    * Extensions are based on relatedness to downsteam machine learning models those features are then used on. 
+    * RDC can identify redundancy in non-linear relationships. 
+    * Random-Forest correlation quotient (RFCQ) uses the feature importance metric from random forest.
+    * Issues: scale differences  between relevance and redundancy metrics. 
+    * Datasets: 3x real-world, 1x synthetic. 
+    * Goal: robust FS method that generalizes to many datasets. 
+    * Metrics: computational efficiency (speed) and classification accuracy.
+    * The FS methods (8) x classifiers (3) x datasets (4) are all combined to produce a multiplicity (96) sets of results. 
+    * Both (Lui 1995, liu1995chi2), and this - two FS papers, use a synthetic dataset where redundant features are known. 
+    * Splines used to generated various kinds of features for the synthetic dataset. 
+    * Computation efficiency (speed) is a useful metric for motivating FS methods. 
+    * Correlation heatmaps are an effectieve way to visualize correlation and redundancy in a dataset. Motives FS methods. 
+    * Box and whisker plots provide a stunning visual for comparison of classification performance across different FS methods. 
+    * Metadata is provided for each dataset, i.e. Number of features, Number of users. 
+    * Random forest classifier is run twice using different parameters, explicit sklearn parameters for python given for reproduceability. 
+    * Could include "Implementation in Production" section in my thesis, even if theoretical, to ground work in real-world application. 
+    * Future work/lterantive approaches are discussed in conclusion, they propose additional extenions of MRMR. 
+    * Nice to give back to the research community by thanking reviewers in the acknowledgements. 

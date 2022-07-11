@@ -175,6 +175,9 @@ The algorithm is a generalized version of ChiMerge \cite{kerber1992chimerge} tha
 The technique performs both feature selection and discretiszation, making it ideal for continious numeric fish oil data. 
 The method can increase predictive perofrmance, efficiency (time/memory) and simplify models. 
 
+Ding and Peng \cite{ding2005minimum} proposed Maximum Redundancy Maximum Relevanance as a feature selection method for gene microarray data. 
+% TODO [ ] - Reword notes from Uber paper for MRMR description. 
+
 \section{Data processing}
 
 % TODO [ ] - Bach to fill out these sections. 
@@ -571,7 +574,14 @@ This ensures more sustainable eco-friendly practices in fish processing.
 Waste reduction and repurposing is a rising tide that lifts all boats.
 Sustainable practices will leave plenty of fish in the sea, preserving resources for future generations. 
 
-% TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks. 
+% TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks.
+
+It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. This is future work would be particularly useful for the lower accuracy fish part dataset. Here we give a non-exhaustive list of possible extensions: 
+
+\begin{itemize}
+  \item (1) Variations of MRMR are propsoed in Uber paper \cite{zhao2019maximum}, these use differnet relevance and redunacy metrics. The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production.
+  \item (2) Extend classifier to S3VM \cite{zemmal2016adaptative}, a semi-supervised SVM that can utilize unlabelled GC data - This uses unlabeleld data to ensure the decision boundaries are drawn through low density areas.
+\end{itemize}
 
 % Please note that the first paragraph of a section or subsection is
 % not indented. The first paragraph that follows a table, figure,

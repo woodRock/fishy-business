@@ -89,4 +89,17 @@ Robnik-{\v{S}}ikonja, M., Kononenko, I.: Theoretical and empirical analysis of
 Sklearn: 1.13. feature selection.
   \url{https://sklearn.org/modules/feature_selection.html}
 
+\bibitem{zemmal2016adaptative}
+Zemmal, N., Azizi, N., Dey, N., Sellami, M.: Adaptative s3vm semi supervised
+  learning with features cooperation for breast cancer classification. Journal
+  of Medical Imaging and Health Informatics  \textbf{6}(4),  957--967 (2016),
+  \url{https://www.ingentaconnect.com/contentone/asp/jmihi/2016/00000006/00000004/art00010}
+
+\bibitem{zhao2019maximum}
+Zhao, Z., Anand, R., Wang, M.: Maximum relevance and minimum redundancy feature
+  selection methods for a marketing machine learning platform. In: 2019 IEEE
+  international conference on data science and advanced analytics (DSAA). pp.
+  442--452. IEEE (2019),
+  \url{https://ieeexplore.ieee.org/abstract/document/8964172/}
+
 \end{thebibliography}
