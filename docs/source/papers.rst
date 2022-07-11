@@ -252,12 +252,23 @@ kingma2014adam
 --------------
     * Adam optimizer for neural networks. 
 
+kira1992practical
+-----------------
+    * A practical approach to feature selection},
+    * Relief feature selection method, predecessor to ReliefF (Kononeko 1994, kononenko1994estimating)
+
 kishore2021fixed
 ----------------
     * Hide messages in adversarial neural network. 
     * Pre-trained stenograph, results in non-zero error, we need perfect reconstruction for encryption.
     * Face anonymization, post a persons face online, then regenerate the face, but encrypt the private face. 
     * This lets friends anonmyously share images with their face online, without revealing their identity.
+
+kononenko1994estimating
+-----------------------
+    * Estimating attributes: Analysis and extensions of Relief. 
+    * ReliefF paper, an extension of Relief (Kira 1992, kira1992practical)
+    * ReliefF feature selection method. 
 
 koppen2000curse
 ---------------
@@ -520,7 +531,7 @@ zhao2019maximum
     * Information based FS methods were generalized into a conditional likelihood framework (Brown 2012, brown2012conditional).
     * Mutual Information (MI): is a measure of the mutual depedence between two random variables. 
     * :math:`I(X;Y) = H(X) - H(X|Y)`, the amount of information one can geain about one random variable from another. 
-    * :math:`I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X)`, let :math:`(X,Y)` be a pair of random variables, take the KL divergence between their join distribution :math:`P_{(X,Y)}` and the product of their maginal distribution :math:`P_{(X,Y)} || P_X \otimes P_X`.
+    * :math:`I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X)`, let :math:`(X,Y)` be a pair of random variables, take the KL divergence between their join distribution :math:`P_{(X,Y)}` and the product of their maginal distribution :math:`P_X \otimes P_X`.
     * For the MRMR framework, the feature importance can be expressed as :math:`f^{mRMR} = I(Y,X_i) - \frac{1}{|x|} \sum_{X_s \in S} I(X_s;X_i)`. where
         - :math:`S` is the set of selected features. 
         - :math:`|S|` ois the size of the feature set.
