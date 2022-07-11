@@ -187,7 +187,7 @@ The technique performs both feature selection and discretiszation, making it ide
 The method can increase predictive perofrmance, efficiency (time/memory) and simplify models. 
 
 Ding and Peng \cite{ding2005minimum} proposed Maximum Redundancy Maximum Relevanance (MRMR) as a feature selection method for gene microarray data. 
-MRMR is a filter-based multi-objective method, it balances the relevance for predicting outcome, and, the redundancy within features.
+MRMR is a filter-based multi-objective method, 
 
 \begin{equation}
   I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X) \label{eq:mutual-info}
@@ -197,14 +197,24 @@ These are both measured in terms of mutual information, given by eq.~(\ref{eq:mu
 Let $(X,Y)$ be a pair of random variables, take the KL divergence between their join distribution $P_{(X,Y)}$ and the product of their maginal distribution $P_X \otimes P_X$.
 
 \begin{equation}
-  f^{mRMR} = I(Y,X_i) - \frac{1}{|x|} \sum_{X_s \in S} I(X_s;X_i) \label{eq:mrmr}
+  f^{mRMR} = I(Y,X_i) - \frac{1}{|S|} \sum_{X_s \in S} I(X_s;X_i) \label{eq:mrmr}
 \end{equation}  
 
-Producing the feature importance score, shown in eq.~(\ref{eq:mrmr}), for full derivation see \cite{liu1995chi2,zhao2019maximum}.
-Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
-The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
+The MRMR feature importance score is given in eq.~(\ref{eq:mrmr}), for full derivation see \cite{liu1995chi2,zhao2019maximum}.
+It balances both, the relevance for predicting outcome $I(Y,X_i)$, and the redundancy within features $I(X_s;X_i)$, scaled by the size of the feature subset $|S|$. 
+It builds a set of features, adding the $X_i$ with the maximum feature importance to the selected subset.
 
-Robnik proposed \cite{kononenko1994estimating}, an extension of the Relief method from \cite{kira1992practical}.
+% Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
+% The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
+
+Robnik proposed ReliefF \cite{kononenko1994estimating}, this extends the original Relief \cite{kira1992practical} to be noise-tolerant, handle missing values and multi-class.
+Relief estimates feature importance based on their ability to seperate other nearby instances.
+With the intuition a good feature can distinguish between classes. 
+The model is noise tolerant by averaging the contribution of the $k$ nearest neighbours. 
+Missing values of attributes are treated probabilistically \cite{robnik2003theoretical}.
+Given an instance $I$, a near hit is a neighbour of same class $class(I)$, a near miss is a neighbour of different class $\neg class(I)$. 
+It handles multi-class problems by taking the weighted average of near misses to all classes.
+
 % TODO [ ] - Description of ReliefF 
 
 \section{Data processing}
@@ -608,7 +618,7 @@ Sustainable practices will leave plenty of fish in the sea, preserving resources
 It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. 
 This is future work would be particularly useful for the lower accuracy fish part dataset. 
 Here we give a non-exhaustive list of possible extensions: 
-(1) Further investigate MRMR by considering its variants FQC propsoed in \cite{zhao2019maximum}. 
+(1) Further investigate MRMR by evaluating the FQC variant propsoed in \cite{zhao2019maximum}. 
 (2) Extend classifier to S3VM \cite{zemmal2016adaptative}, a semi-supervised SVM that can utilize unlabelled GC data. 
 This uses unlabeleld data to ensure the decision boundaries are drawn through low density areas.
 (3) NIST has published a Gas Chromatraphic Retention dataset \cite{kovats1958gas}. 
