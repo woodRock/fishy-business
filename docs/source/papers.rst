@@ -254,8 +254,9 @@ kingma2014adam
 
 kira1992practical
 -----------------
-    * A practical approach to feature selection},
+    * A practical approach to feature selection,
     * Relief feature selection method, predecessor to ReliefF (Kononeko 1994, kononenko1994estimating)
+    * Authors suggest: splitting into a sereis of 2-class problems to handle multi-class problems. 
 
 kishore2021fixed
 ----------------
@@ -269,6 +270,58 @@ kononenko1994estimating
     * Estimating attributes: Analysis and extensions of Relief. 
     * ReliefF paper, an extension of Relief (Kira 1992, kira1992practical)
     * ReliefF feature selection method. 
+    * Original Relief method (Kira 1992), could not handle multi-class problems. 
+    * Contributions: extend Relief (Kira 1992) to ReliefF (Kononeko 1994) to handle 
+        * noisy, 
+        * missing features, and, 
+        * multiclass problems. 
+    * Motivation: Heuristics needed to identify features woth strong depednenceies due to combinatorial explosion in high-dimensional data. 
+    * Information gain and mutual information are equivalent, MI is used for MRMR. 
+    * Key idea: estimate atttributes according to how well their values distinguish amoung instances that are near eachother. 
+    * Relief Searches for 2 closest neighbours, one of same class (hit), one of different (miss). Then compares attributes ability to seperate the hit and miss. 
+    * Rationale: a goof attribute can differentiate instances from different classes. And should have the same value for nearest neighbour of the same class. 
+    * Extensions to handle: noise, incomplete data, and multi-class problems.
+    * Diff calculates distance from :math:`V` to the hit and miss. 
+    * The algorithm is an approximation of the distance metric: :math:`W[A]=P(different value of A | miss) - P(different value of A | hit)`. 
+    * Limitations of Relief (Kira 1992): 
+        * Noisy/redundant features will strongly affect selection of nearest neighbours. 
+        * Estimiation of attributes :math:`W[A]` becomes unreliable on noise data. 
+    * Fix: Take K nearest neighbours for hit/miss, to increase the reliability og probablity apporximiation, and average (A) the result, hence Relief-A. 
+    * :math:`m` is a normalization constant, :math:`m` caanot exceed the number of training instances, :math:`m \ge |T|`, where :math:`T` is the training set, and :math:`|T|` is its size. 
+    * :math:`m` is derieved iteratiely, with :math:`m=|T|` as an upper bound. Similar to how the first phase of chi2 (Liu 1995) determines a good :math:`\chi^2` threshold. 
+    * Synthetic dataset with noisy features, these have no/noisy relation to the class variable. Three datasets of increasing order complexity of dependent relationships. 
+    * First dataset: 5 noise variables, 5 independent/informative, both in decreasing :math:`P(.)` so some are more important than others. 
+    * Second dataset: XOR operator, introduces parity relation of the second order. It introduces a non-linearity, it will have zero covariance, but are not independent. Instead, one attribute that determines the redundancy of two others. 
+    * Third dataset: a parity relationship of the third order. 
+    * Information gain / mutual info is not equivalent to intended information gain. 
+    * Increasing the number of nearest neighbours :math:`n` has a drastic effect on handling noise in the dataset. 
+    * Monothously, enitirely non-decreasing or non-increasing. "Line goes up!". 
+    * Relief-A performs well on first two datasets, poorly on third. 
+    * As :math:`n` increased, the estimaotr of attributes becomes vanishingly similar to the gini index. See (Kononeko 1994) for derivation/proof. 
+    * Gini index is an impurity function that is highly corelated with infomration gain/mutual info. 
+    * Relief A, as :math:`n` increases approaches high correlation with gini index and mutual info. 
+    * There is a limit for :math:`n` neighbours, accuracy collapses when :math:`n` can no longer capture clusters of the same class in the distribution space. 
+    * Noise has a drastic effect on data with fully independnet vvariables. Less so for depedend attributes from second/third datasets - perhaps because their are less incorrecly labelled instances in those. 
+    * Relief-A,B,C etend Relief in different ways to deal with incomplete datasets. All done through changing the diff function. 
+    * Relief-C ignores missing values, and normalizes afterwards - with enough data, it should converge to the right estimate. 
+    * Conditional probabilities are approximated using relative frequency in the training set. 
+    * Relief-A,B,C had little accuracy difference for datasets without missing values. 
+    * Relief-D performed best for all datasets with missing values. 
+    * Relief-D calculates the probablity that two given instances have a different value for a given attribute. 
+    * Authors (Kira 1992) suggest: splitting into a sereis of 2-class problems to handle multi-class problems. 
+    * Relief-E,F extend Relief-D to deal with multi-class problems. 
+    * Relief-E, nearest miss becomes nearest neighbour for a different classes. A simple and straightforward extension. 
+    * Relief-F, takes weighted average of near miss from each class, rather than just one class, as in Relief-E. 
+    * Algorithm can seperate each pair of classes regardless of which two classes were closest. Robust to all classes becayse of weighted average. 
+    * Relief-F outperforms Relief-E for all synthetic datasets. Both with/without noise. 
+    * Most important contribution: allow Relief-F to deal with multi-class problems. 
+    * Tumour dataset is a real-world dataset with independent variables (verified by domain experts - phycisians). 
+    * :math:`W[A]` is an approxmiation of the information gain of attributes, higher correlation means this approximiationj is closer to the true mutual information. 
+    * Issues with Relief-F: it can not handle multi-valued attributes. 
+    * Other methods overestimate with mutual infomraiton according to domain experts. 
+    * Relief-F and normalized mutual infomration estimates important features for the tumour dataset correctly.
+    * Myopy - narrow-minded/focussed on a single idea.  
+    * Calls out reviewer in the acknowledgements section. 
 
 koppen2000curse
 ---------------
