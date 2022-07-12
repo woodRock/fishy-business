@@ -222,10 +222,9 @@ The attributes are estimated with weight update function given by eq.~(\ref{eq:r
 \\\\
 Comparisons from these algorithms. 
 \begin{itemize}
-  \item Talk about the normalization constant in MRMR and ReliefF, make noise-tolerant
+  \item Talk about the normalization constant in MRMR $\frac{1}{|S|}$ and ReliefF $\frac{1}{M}$, make noise-tolerant
   \item chi2 does not have a normalization term. Also the $(.)^2$ operator, makes the $\chi^2$ metric especially sensitive to outliers with large positive or negative values. 
-  \item Compare $\chi^2$ threshold to reliefF $m$, both found automatically by algorithm. 
-  \item 
+  \item Compare $\chi^2$ threshold to reliefF normalization constant $m$, both parameters tuned by algorithm. 
 \end{itemize}
 
 % Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
