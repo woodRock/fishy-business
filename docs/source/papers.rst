@@ -356,6 +356,7 @@ liu1995chi2
     * Difficult to find ideal :math:`\alpha` without domain knowledge or extensive trial and error. 
     * New approach Chi2 lets data determine value of :math:`\alpha`, perform discretization until over-discretization - a stopping criterion. 
     * Chi2 is a two-phase method, a generalized version of ChiMege that automatically determines a good :math:`\chi^2` threshold that fits the data.
+    * The formula for calcutaling the $\chi^2$ statistic is given by, :math:`\chi^2 = \sum_{i=1}^2 \sum_{j=1}^k \frac{(A_{ij} - E_{ij})^2}{E_{ij}}`.
     * Phase 1: Extends ChiMerge to be an automated one, to select an ideal value for :math:`\alpha` based on the data. 
     * Phase 2: Each feature is assigned signfnicance level and merged in a round robin fashion - until stopping criterion met. 
     * Attributes only merged to one value are elminianted as part of feature selection. 
