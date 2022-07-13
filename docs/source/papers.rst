@@ -507,6 +507,11 @@ shahriari2015taking
     * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
     * **TODO** read this. 
 
+song2020denoising
+-----------------
+    * Denoising diffusion implicit models. 
+    * See 2022-07-06 - Deep Learning
+
 szegedy2013intriguing
 ---------------------
     * Intriguing properties of neural networks.

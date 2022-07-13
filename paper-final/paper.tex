@@ -197,12 +197,12 @@ These are both measured in terms of mutual information, given by eq.~(\ref{eq:mu
 Let $(X,Y)$ be a pair of random variables, take the KL divergence between their join distribution $P_{(X,Y)}$ and the product of their maginal distribution $P_X \otimes P_X$.
 
 \begin{equation}
-  f^{mRMR} = I(Y,X_i) - \frac{1}{|S|} \sum_{X_s \in S} I(X_s;X_i) 
+  f^{mRMR} = I(Y;X_i) - \frac{1}{|S|} \sum_{X_s \in S} I(X_s;X_i) 
   \label{eq:mrmr}
 \end{equation}  
 
 The MRMR feature importance score is given in eq.~(\ref{eq:mrmr}), for full derivation see \cite{liu1995chi2,zhao2019maximum}.
-It balances both, the relevance for predicting outcome $I(Y,X_i)$, and the redundancy within features $I(X_s;X_i)$, scaled by the size of the feature subset $|S|$. 
+It balances both, the relevance for predicting outcome $I(Y;X_i)$, and the redundancy within features $I(X_s;X_i)$, scaled by the size of the feature subset $|S|$. 
 It builds a set of features, adding the $X_i$ with the maximum feature importance to the selected subset.
 
 Robnik proposed Relief-F \cite{kononenko1994estimating}, a feature selection method based on $k$ nearest neighbours. 
