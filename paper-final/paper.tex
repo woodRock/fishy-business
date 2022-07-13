@@ -72,7 +72,14 @@
   Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
   The fish oil data is high-dimensional low sample size.
   
-  \keywords{Feature Selection  \and Gas Chromatography \and Support Vector Machines \and Food Science}
+  \keywords{
+    feature selection \and 
+    classification \and
+    gas chromatography \and 
+    support vector machine \and 
+    particle swarm optimization \and 
+    high-dimensional data
+  }
 \end{abstract}
 
 \section{Introduction}
@@ -112,7 +119,7 @@ A model that is both interpretable and accurate has the potential to be deployed
 
 \subsection{Gas Chromatorgraphy}
 
-Gas chromatography (GC) is a technique for the analysis of chemical compounds \cite{eder1995gas,restek2018high,khan2013gas}.
+Gas chromatography (GC) is a technique for the analysis of chemical compounds \cite{eder1995gas,restek2018high}.
 The process separates compounds based on their boiling point and molecular weight.
 A compound is injected as a liquid, then heat is applied to vaporize it into a gas. 
 This process is referred to as a phase transition. 
@@ -128,17 +135,19 @@ That tube has a detector at the end, this detects the rate and intensity at whic
   \centering
   \includegraphics[width=12.5cm]{chromatograph.png}
   \caption{
-    Gas chromatograph: the artifact of the GC method \cite{restek2018high}.
-    The detection is used to visualize intensity (y) and time (x) on a chromotrogaph.}
+    A Gas Chromatograph is the artifact of the GC method.
+    This chromatograph is taken from the fish oil dataset.
+    The detection is used to visualize intensity (y axis) and time (x axis) on a chromotrogaph. The distinguishable peaks are unique signatures where a chemical compound can likely to be identified.}
   \label{fig:gas-chromatography} 
   \captionsetup[figure]{font=small,labelfont=small}
 \end{figure}
 
-Figure~\ref{fig:gas-chromatography} shows a gas chromatograph, chemists use the chromatagraphs for known reference samples to classify unknown samples. 
-Analysis can identify unknown compounds since they share the same peaks to the known one.
-GC is not a definitive technique \cite{khan2013gas}, so it is often used in conjunction with other techniques like Mass spectrometry \cite{restek2018high}.
+Figure~\ref{fig:gas-chromatography} shows a gas chromatograph from the dataset. Chemists match the peaks from known reference samples to classify unknown samples. 
+Analysis can identify an unlabelled sample since they share the similar peaks to previously labelled data.
+There is noise in the peaks caused by time-shift - a known limitation of the measurement technique addressed in previous works \cite{tomasi2004correlation,zhang2008two}.
+GC is not a definitive technique, so it is often used in conjunction with other techniques like Mass spectrometry \cite{restek2018high}.
 
-The existing task of classifying chemical compounds based on a chromatograph is laborious \cite{eder1995gas,restek2018high}.
+The existing task \cite{eder1995gas,restek2018high} of classifying chemical compounds based on a chromatograph is laborious.
 The spikes on the graph represent peaks.
 Each peak represents a resolved chemical compound.
 Chemists integrate the area under each peak, and compare this to a reference sample, to classify the compound.
@@ -150,39 +159,32 @@ For this fish oil data, we classify a sample into two categories - species and p
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
 
-% TODO [x] - This section needs to have more descriptions, including general ideas, that algorithms I will use in this work.
-% TODO [x] - Give motivation for FS, 
-% i.e. dimensionality, inefficiency, low interpretability, complex models. 
 % goal -> efficient, interpretable models, simple models. 
 % i.e. the m best features are not the best m features -> correlation and redunancy. 
 
 Their are two dataset with the same of features. 
 Those features are the high dimensional GC data, the class labels are the species and part.
-The curse of dimensionality \cite{koppen2000curse} introduces problems: (1) computationally inefficient to evaluate the entire 4800 feature problem space. (2) Classification models are likely to overfit, learning noise in the data from redundant features. (3) Classifier models that utilize high-dimensional feature spaces are difficult to interpret, it is difficult for domain experts to perform diagnosis or troubleshoot.
+The curse of dimensionality \cite{koppen2000curse} introduces problems: (1) computationally inefficient to evaluate the entire 4800 feature problem space. (2) Classification models are likely to overfit, learning noise in the data from irrelevant features. (3) Classifier models that utilize high-dimensional feature spaces are difficult to interpret, it is difficult for domain experts to perform diagnosis or troubleshoot.
 
 \begin{figure}[htb]
   \centering
   \includegraphics[width=8.5cm]{fish_correlation_matrix.png}
   \caption{
-    Fish Oil Data pairwise correlation for the feature set using Pearson's correlation coefficient.}
+    Fish Oil Data pairwise correlation for the feature set using Pearson's correlation coefficient.
+    There are many redundant features
+    }
   \label{fig:correlation-matrix} 
   \captionsetup[figure]{font=small,labelfont=small}
 \end{figure}
 
+Figure~\ref{fig:gas-chromatography} shows at most several points of interest (peaks), and many neglible features, for an average chromatograph from the dataset. 
 Figure~\ref{fig:correlation-matrix} shows the correlation between the features.
-This figure illustrated the redundancy within the dataset, showing many redundant and highly correlated features. 
+These figures illustrate the redundancy within the dataset, showing many irrelevant features. 
 Feature selection reduce the size of the feature space by elimating redundant and correlated attributes. 
 To address these issues of high-dimensionality, we employ feature selection to select a subset of relevant features. 
 Feature selection can (1) improve computational efficiency is enhanced with a reduced dataset, (2) increase classification performance, and (3) lets classifiers produces simpler models which are in turn easier to troubleshoot.
 We employ heursitic-based algorithms to address the combinatorial explosion of searching the possible feature subsets.
 The algorithms used in this paper are introduced in further detail.
-
-\begin{enumerate}
-  % \item Chi$^2$ \cite{liu1995chi2}
-  % \item Minimum Redundancy Maximum Relevance \cite{ding2005minimum}
-  % \item Relief-F \cite{robnik2003theoretical}
-  \item Particle Swarm Optimization \cite{kennedy1995particle,kennedy1997discrete}
-\end{enumerate}
 
 Liu et al. proposed Chi2 \cite{liu1995chi2}, a feature selection method via discretization. 
 The algorithm is a generalized version of ChiMerge \cite{kerber1992chimerge} that determines a good $\chi^2$ threshold automatically from the data.
@@ -205,7 +207,7 @@ MRMR is a filter-based multi-objective method,
 \end{equation}  
 
 These are both measured in terms of mutual information, given by eq.~(\ref{eq:mutual-info}), 
-Let $(X,Y)$ be a pair of random variables, take the KL divergence between their join distribution $P_{(X,Y)}$ and the product of their maginal distribution $P_X \otimes P_X$.
+Let $(X,Y)$ be a pair of random variables, take the KL divergence \cite{kullback1951information} between their join distribution $P_{(X,Y)}$ and the product of their maginal distribution $P_X \otimes P_X$.
 
 \begin{equation}
   f^{mRMR} = I(Y;X_i) - \frac{1}{|S|} \sum_{X_s \in S} I(X_s;X_i) 
@@ -229,7 +231,13 @@ Relief-F handles multi-class problems by taking the weighted average of near mis
   \label{eq:reliefF}
 \end{equation}
 
-The attributes are estimated with weight update function given by eq.~(\ref{eq:reliefF})
+The attributes are estimated with weight update function given by eq.~(\ref{eq:reliefF}). 
+
+% TODO [ ] - Flesh out these representations, or use consistent variables for all, to facilitate easy comparison. 
+
+Kennedy and Eberhart proposed a discrete PSO \cite{kennedy1997discrete}, a swarm intelligence method with discrete for feature selection. 
+The algorithm extended Paritcal Swarm Optimisation \cite{kennedy1995particle}, by utilizing discrete binary variables as a representation. 
+This method imitates the social behaviour of a bird flock which can be found in nature. 
 \\\\
 Comparisons from these algorithms. 
 \begin{itemize}
@@ -237,8 +245,6 @@ Comparisons from these algorithms.
   \item chi2 does not have a normalization term. Also the $(.)^2$ operator, makes the $\chi^2$ metric especially sensitive to outliers with large positive or negative values. 
   \item Compare $\chi^2$ threshold to reliefF normalization term $m$, both parameters tuned by algorithm. 
 \end{itemize}
-
-
 
 \section{Data processing}
 
@@ -619,6 +625,7 @@ This is a good indication that the fish species dataset contains less noise.
 \section{Conclusions and Future Work}
 
 % TODO [ ] Visualistion - I found no visualisation and interpretable models in this paper? 
+
 This paper has demonstrated an interpretable and effective method for fish oil analysis. 
 The method can be understood, domain experts can understand the important features in the decision-making.
 Not only have we found effective classification and feature selection techniques, but we have also tried to explain their performance with visualisation and analytical results. 
@@ -627,8 +634,8 @@ We can draw many conclusions from the analytical results and visualisations, but
 \begin{enumerate}
   \item Fish species are easier to predict than fish parts - there is more intra-class variation within fish species than there is a similarity between the same part from different fish.
   \item The Linear SVM classifier performs better for both classification tasks - the fish oil data is linearly separable on a hyperplane.
-  \item This model can achieve 90\% fish species accuracy using only 1\% (k = 50) of its features, enabling efficient training, and showing many redundant features. 
-  % TODO [ ] - Add the weight analysis 
+  \item This model can achieve 90\% fish species accuracy using only 1\% (k = 50) of its features, enabling efficient training, and showing many redundant and correlated features. 
+  \item Weight analysis of the SVM hyperplane serves as an useful approximation to gain insight into the model, useful for troubleshooting/diagnosis from domain experts in bio-chemistry. 
 \end{enumerate}
 
 LinearSVC applied to GC fish oil data can help to reduce waste in fish processing. 
@@ -637,17 +644,17 @@ Waste reduction and repurposing is a rising tide that lifts all boats.
 Sustainable practices will leave plenty of fish in the sea, preserving resources for future generations. 
 
 % TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks.
-% Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
-% The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
 
 It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. 
-This is future work would be particularly useful for the lower accuracy fish part dataset. 
+This is particularly useful for the lower accuracy fish part dataset. 
 Here we give a non-exhaustive list of possible extensions: 
-(1) Further investigate MRMR by evaluating the FQC variant propsoed in \cite{zhao2019maximum}. 
+(1) Further investigate feature selection by evaluating the FQC MRMR-variant proposed in \cite{zhao2019maximum}. 
+% Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
+% The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
 (2) Extend classifier to S3VM \cite{zemmal2016adaptative}, a semi-supervised SVM that can utilize unlabelled GC data. 
 This uses unlabeleld data to ensure the decision boundaries are drawn through low density areas.
 (3) NIST has published a Gas Chromatraphic Retention dataset \cite{kovats1958gas}. 
-NIST could be applied to S3VM described, or alternatively for pre-training/transfer learning approaches. 
+NIST could be applied to S3VM described, as well as pre-training/transfer learning approaches. 
 
 % Please note that the first paragraph of a section or subsection is
 % not indented. The first paragraph that follows a table, figure,
