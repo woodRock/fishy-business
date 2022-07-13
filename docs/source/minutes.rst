@@ -1613,3 +1613,37 @@ Notes:
     * Table shows a linear model can represent the LRE for a routing problem.
     * Proposed a new LRE method for UCARP problems. 
     * This presentations recieved a best paper nomination for GECCO 2022. 
+
+ 2022-07-06 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Monday 3pm-4pm , **Attendees:** Jesse Wood, Bastiaan Kleign, et al.
+
+Bastiaan Kleign discussed a paper "Denoising Diffusion Implicit Models" https://arxiv.org/abs/2010.02502
+
+Notes: 
+    * Other approaches: Flowbased, VAE, auto-regressive, WaveNext+ 
+    * Diffusion; reverse forward process where we gradually add noise. 
+    * Problems: over-denoise, extremely computationally complex, many steps - same number backwards as forwards. 
+    * Can be derived from Langevin Diffusion equation from physics. 
+    * Consider a forawrd Markov Process that gradually replaces the signal with Guassian noise.
+        :math:`q(x_t|x{t-1})= N(x_t;\sqrt{1-\beta_t} x_t - 1, \beta_t I)`
+        where :math:`x_t = \sqrt{\alpha_t} x_{t-1} + \beta_t \epsilon_t`
+    * :math:`\beta_1,...,\beta_t` is the noise schedule (fixed by designer), but some new papers automate schedule selection. 
+    * We assume we can approximate the inverse process with a reverse Markov Process. 
+    * Naturally objective function is the cross entropy - negative log liklihood --> KL, which can be made tractable with Jensen's inequality. 
+    * The symbol :math:`\epsilon` is the noise, the objective function can be reformulated to predict the noise :math:`\epsilon`. 
+    * This diffusion method can generate images of people that do not exist, but this takes 100,000 steps, so diffusion models are very slow. 
+    * Langevin's Equation: :math:`m\frac{d^2x}{dt^2} = - \gamma \frac{dx}{dt} = \nabla V_t + \eta(t)`, where :math:`x` is particle location, :math:`V` is a stiationary potential, :math:`\eta(t)` is a random force
+    * From physics, requires stochastic calculus. 
+    * Choise :math:`v(x) = - \log \pi(x)`, with :math:`\pi(x)` an equilibrium density, and no accelation term, results in random walk sampling from :math:`\pi(x)`. :math:`\nabla V` is then the score. 
+    * A more generalized diffusion approach satisifed the equations, but is no longer a Markov Process. 
+    * Forward process is no longer Markovian, but Backward process is. 
+    * If its not Markovian, we donot need to add noise each step, we only add noise at the end. 
+    * The actual forward steps can be derived from BAtes Rule, but we don't need them, we only need Eq. (9) for training. 
+    * When :math:`\sigma_{t=0}` we end up with a deterministic relationship between the noise :math:`\epsilon` and the output. 
+        * Backward process is deterministic. 
+        * Map straight from noise to output. 
+    * We can interpolate between two noise inputs, and get meaniful output, due to deterministic nature of noise-output mapping. 
+    * In DDIM the initial state is the only place where stochasicity occurs --> meaningful interpolation. 
+    * No requirement for number of steps foward and back to be the same, can choose fewer steps (the usually choose 100) for backward process. 
+    * Neural Ordinary Differential Equations (NODE).
