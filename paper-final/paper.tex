@@ -95,9 +95,6 @@ Chemists manually compare a GC samples to reference data to determine its class.
 
 Classification automates this process by training a model on an existing dataset manually labelled by chemists. 
 Given a fish oil sample, we can identify the fish species (i.e. Bluecod, Tarakihi), and part (Head, Fin).
-Their are two dataset with the same of features. 
-The features are the high dimensional GC data, the class labels are the species and part. 
-
 Many classifiers \cite{fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification,cortes1995support} can used to indentify the class of an instance from its features. 
 These models can be organized into five categories: instance-based, probabilistic, tree-based, bagging and kernal-based, respectively. 
 In this paper we evaluate the performance of each classifier on both datasets. 
@@ -153,18 +150,32 @@ For this fish oil data, we classify a sample into two categories - species and p
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
 
-% TODO [ ] - This section needs to have more descriptions, including general ideas, that algorithms I will use in this work.
-% TODO [ ] - Give motivation for FS, 
+% TODO [x] - This section needs to have more descriptions, including general ideas, that algorithms I will use in this work.
+% TODO [x] - Give motivation for FS, 
 % i.e. dimensionality, inefficiency, low interpretability, complex models. 
 % goal -> efficient, interpretable models, simple models. 
 % i.e. the m best features are not the best m features -> correlation and redunancy. 
 
-Feature selection reduces the complexity of the problem space.
-This helps counteract the curse of dimensionality \cite{koppen2000curse}.
-Reducing the complexity improves computational efficiency, increases interpretability, and can improve performance.
-More interpretable models are easier for humans to understand.
-This means we can verify their efficiency using domain expertise in biochemistry.
-This is an important factor for real-world applications in a factory setting.
+Their are two dataset with the same of features. 
+Those features are the high dimensional GC data, the class labels are the species and part.
+The curse of dimensionality \cite{koppen2000curse} introduces problems: (1) computationally inefficient to evaluate the entire 4800 feature problem space. (2) Classification models are likely to overfit, learning noise in the data from redundant features. (3) Classifier models that utilize high-dimensional feature spaces are difficult to interpret, it is difficult for domain experts to perform diagnosis or troubleshoot.
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=8.5cm]{fish_correlation_matrix.png}
+  \caption{
+    Fish Oil Data pairwise correlation for the feature set using Pearson's correlation coefficient.}
+  \label{fig:correlation-matrix} 
+  \captionsetup[figure]{font=small,labelfont=small}
+\end{figure}
+
+Figure~\ref{fig:correlation-matrix} shows the correlation between the features.
+This figure illustrated the redundancy within the dataset, showing many redundant and highly correlated features. 
+Feature selection reduce the size of the feature space by elimating redundant and correlated attributes. 
+To address these issues of high-dimensionality, we employ feature selection to select a subset of relevant features. 
+Feature selection can (1) improve computational efficiency is enhanced with a reduced dataset, (2) increase classification performance, and (3) lets classifiers produces simpler models which are in turn easier to troubleshoot.
+We employ heursitic-based algorithms to address the combinatorial explosion of searching the possible feature subsets.
+The algorithms used in this paper are introduced in further detail.
 
 \begin{enumerate}
   % \item Chi$^2$ \cite{liu1995chi2}
@@ -227,8 +238,7 @@ Comparisons from these algorithms.
   \item Compare $\chi^2$ threshold to reliefF normalization term $m$, both parameters tuned by algorithm. 
 \end{itemize}
 
-% Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
-% The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
+
 
 \section{Data processing}
 
@@ -627,6 +637,8 @@ Waste reduction and repurposing is a rising tide that lifts all boats.
 Sustainable practices will leave plenty of fish in the sea, preserving resources for future generations. 
 
 % TODO [ ] - Future work: further steps, improve fish part performance, more challenging datasets, different tasks.
+% Zhao et al. \cite{zhao2019maximum} extend and evaluate existing MRMR variants, these consider different relevance and redundancy metrics.
+% The FQC (F-test correlation quotient) MRMR variant proved robust and was put into production. 
 
 It is worth noting that the classification and feature selection methods presented in this paper could be exteneded to potentially improve performance. 
 This is future work would be particularly useful for the lower accuracy fish part dataset. 
