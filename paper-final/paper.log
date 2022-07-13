@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2022.6.29)  14 JUL 2022 00:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2022.6.29)  14 JUL 2022 00:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -528,14 +528,14 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  11363 strings out of 480247
- 181750 string characters out of 5896151
- 475268 words of memory out of 5000000
+ 181734 string characters out of 5896151
+ 475260 words of memory out of 5000000
  29079 multiletter control sequences out of 15000+600000
  476223 words of font info for 55 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  67i,15n,77p,512b,572s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/woodj/.texlive2021/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm0900.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb>
-Output written on paper.pdf (14 pages, 2678074 bytes).
+Output written on paper.pdf (14 pages, 2678448 bytes).
 PDF statistics:
  374 PDF objects out of 1000 (max. 8388607)
  256 compressed objects within 3 object streams

@@ -3,9 +3,6 @@
 \providecommand{\urlprefix}{URL }
 \providecommand{\doi}[1]{https://doi.org/#1}
 
-\bibitem{chappers2015skfeature}
-Chappers, C.: charliec443/scikit-feature
-
 \bibitem{cortes1995support}
 Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
   \textbf{20}(3),  273--297 (1995)
@@ -69,6 +66,11 @@ Kovats, E.: Gas chromatographic characterization of organic compounds. i.
 \bibitem{kullback1951information}
 Kullback, S., Leibler, R.A.: On information and sufficiency. The annals of
   mathematical statistics  \textbf{22}(1),  79--86 (1951)
+
+\bibitem{li2018feature}
+Li, J., Cheng, K., Wang, S., Morstatter, F., Trevino, R.P., Tang, J., Liu, H.:
+  Feature selection: A data perspective. ACM Computing Surveys (CSUR)
+  \textbf{50}(6), ~94 (2018)
 
 \bibitem{liu1995chi2}
 Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
