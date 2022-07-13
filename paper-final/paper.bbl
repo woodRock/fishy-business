@@ -3,59 +3,47 @@
 \providecommand{\urlprefix}{URL }
 \providecommand{\doi}[1]{https://doi.org/#1}
 
-\bibitem{khan2013gas}
-Academy, K.: Gas chromatography (2013),
-  \url{https://www.khanacademy.org/science/class-11-chemistry-india/xfbb6cb8fc2bd00c8:in-in-organic-chemistry-some-basic-principles-and-techniques/xfbb6cb8fc2bd00c8:in-in-methods-of-purification-of-organic-compounds/v/gas-chromatography}
-
 \bibitem{chappers2015skfeature}
-Chappers, C.: charliec443/scikit-feature.
-  \url{https://github.com/charliec443/scikit-feature}
+Chappers, C.: charliec443/scikit-feature
 
 \bibitem{cortes1995support}
 Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
-  \textbf{20}(3),  273--297 (1995),
-  \url{https://link.springer.com/article/10.1007/BF00994018}
+  \textbf{20}(3),  273--297 (1995)
 
 \bibitem{ding2005minimum}
 Ding, C., Peng, H.: Minimum redundancy feature selection from microarray gene
   expression data. Journal of bioinformatics and computational biology
-  \textbf{3}(02),  185--205 (2005),
-  \url{https://www.worldscientific.com/doi/abs/10.1142/s0219720005001004}
+  \textbf{3}(02),  185--205 (2005)
 
 \bibitem{eder1995gas}
 Eder, K.: Gas chromatographic analysis of fatty acid methyl esters. Journal of
   Chromatography B: Biomedical Sciences and Applications  \textbf{671}(1-2),
-  113--131 (1995),
-  \url{https://www.sciencedirect.com/science/article/pii/0378434795001426}
+  113--131 (1995)
 
 \bibitem{fix1989discriminatory}
 Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
   Consistency properties. International Statistical Review/Revue Internationale
-  de Statistique  \textbf{57}(3),  238--247 (1989),
-  \url{https://www.jstor.org/stable/1403797}
+  de Statistique  \textbf{57}(3),  238--247 (1989)
 
 \bibitem{hand2001idiot}
 Hand, D.J., Yu, K.: Idiot's bayes—not so stupid after all? International
-  statistical review  \textbf{69}(3),  385--398 (2001),
-  \url{https://doi.org/10.1111/j.1751-5823.2001.tb00465.x}
+  statistical review  \textbf{69}(3),  385--398 (2001)
 
 \bibitem{ho1995random}
 Ho, T.K.: Random decision forests. In: Proceedings of 3rd international
   conference on document analysis and recognition. vol.~1, pp. 278--282. IEEE
-  (1995), \url{https://ieeexplore.ieee.org/abstract/document/598994}
+  (1995)
 
 \bibitem{kennedy1995particle}
 Kennedy, J., Eberhart, R.C.: Particle swarm optimization. In: Proceedings of
   ICNN'95-international conference on neural networks. vol.~4, pp. 1942--1948.
-  IEEE (1995),
-  \url{https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=488968}
+  IEEE (1995)
 
 \bibitem{kennedy1997discrete}
 Kennedy, J., Eberhart, R.C.: A discrete binary version of the particle swarm
   algorithm. In: 1997 IEEE International conference on systems, man, and
   cybernetics. Computational cybernetics and simulation. vol.~5, pp.
-  4104--4108. IEEE (1997),
-  \url{https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=637339}
+  4104--4108. IEEE (1997)
 
 \bibitem{kerber1992chimerge}
 Kerber, R.: Chimerge: Discretization of numeric attributes. In: Proceedings of
@@ -63,13 +51,11 @@ Kerber, R.: Chimerge: Discretization of numeric attributes. In: Proceedings of
 
 \bibitem{kira1992practical}
 Kira, K., Rendell, L.A.: A practical approach to feature selection. In: Machine
-  learning proceedings 1992, pp. 249--256. Elsevier (1992),
-  \url{https://www.sciencedirect.com/science/article/pii/B9781558602472500371}
+  learning proceedings 1992, pp. 249--256. Elsevier (1992)
 
 \bibitem{kononenko1994estimating}
 Kononenko, I.: Estimating attributes: Analysis and extensions of relief. In:
-  European conference on machine learning. pp. 171--182. Springer (1994),
-  \url{https://link.springer.com/chapter/10.1007/3-540-57868-4_57}
+  European conference on machine learning. pp. 171--182. Springer (1994)
 
 \bibitem{koppen2000curse}
 K{\"o}ppen, M.: The curse of dimensionality. In: 5th Online World Conference on
@@ -78,44 +64,51 @@ K{\"o}ppen, M.: The curse of dimensionality. In: 5th Online World Conference on
 \bibitem{kovats1958gas}
 Kovats, E.: Gas chromatographic characterization of organic compounds. i.
   retention indexes of aliphatic halides, alcohols, aldehydes, and ketones.
-  Helv. Chim. Acta  \textbf{41}, ~1915 (1958),
-  \url{https://webbook.nist.gov/chemistry/gc-ri/}
+  Helv. Chim. Acta  \textbf{41}, ~1915 (1958)
+
+\bibitem{kullback1951information}
+Kullback, S., Leibler, R.A.: On information and sufficiency. The annals of
+  mathematical statistics  \textbf{22}(1),  79--86 (1951)
 
 \bibitem{liu1995chi2}
 Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
   attributes. In: Proceedings of 7th IEEE International Conference on Tools
-  with Artificial Intelligence. pp. 388--391. IEEE (1995),
-  \url{https://ieeexplore.ieee.org/abstract/document/479783}
+  with Artificial Intelligence. pp. 388--391. IEEE (1995)
 
 \bibitem{loh2011classification}
 Loh, W.Y.: Classification and regression trees. Wiley interdisciplinary
-  reviews: data mining and knowledge discovery  \textbf{1}(1),  14--23 (2011),
-  \url{https://doi.org/10.1002/widm.8}
+  reviews: data mining and knowledge discovery  \textbf{1}(1),  14--23 (2011)
 
 \bibitem{restek2018high}
-Restek: High-resolution gc analyses of fatty acid methyl esters (fames).
-  \url{https://www.restek.com/en/technical-literature-library/articles/high-resolution-GC-analyses-of-fatty-acid-methyl-esters-fames/}
+Restek: High-resolution gc analyses of fatty acid methyl esters (fames)
 
 \bibitem{robnik2003theoretical}
 Robnik-{\v{S}}ikonja, M., Kononenko, I.: Theoretical and empirical analysis of
-  relieff and rrelieff. Machine learning  \textbf{53}(1),  23--69 (2003),
-  \url{https://link.springer.com/content/pdf/10.1023/A:1025667309714.pdf}
+  relieff and rrelieff. Machine learning  \textbf{53}(1),  23--69 (2003)
 
 \bibitem{sklearn2021feature}
-Sklearn: 1.13. feature selection.
-  \url{https://sklearn.org/modules/feature_selection.html}
+Sklearn: 1.13. feature selection
+
+\bibitem{tomasi2004correlation}
+Tomasi, G., Van Den~Berg, F., Andersson, C.: Correlation optimized warping and
+  dynamic time warping as preprocessing methods for chromatographic data.
+  Journal of Chemometrics: A Journal of the Chemometrics Society
+  \textbf{18}(5),  231--241 (2004)
 
 \bibitem{zemmal2016adaptative}
 Zemmal, N., Azizi, N., Dey, N., Sellami, M.: Adaptative s3vm semi supervised
   learning with features cooperation for breast cancer classification. Journal
-  of Medical Imaging and Health Informatics  \textbf{6}(4),  957--967 (2016),
-  \url{https://www.ingentaconnect.com/contentone/asp/jmihi/2016/00000006/00000004/art00010}
+  of Medical Imaging and Health Informatics  \textbf{6}(4),  957--967 (2016)
+
+\bibitem{zhang2008two}
+Zhang, D., Huang, X., Regnier, F.E., Zhang, M.: Two-dimensional correlation
+  optimized warping algorithm for aligning gc$\times$ gc- ms data. Analytical
+  Chemistry  \textbf{80}(8),  2664--2671 (2008)
 
 \bibitem{zhao2019maximum}
 Zhao, Z., Anand, R., Wang, M.: Maximum relevance and minimum redundancy feature
   selection methods for a marketing machine learning platform. In: 2019 IEEE
   international conference on data science and advanced analytics (DSAA). pp.
-  442--452. IEEE (2019),
-  \url{https://ieeexplore.ieee.org/abstract/document/8964172/}
+  442--452. IEEE (2019)
 
 \end{thebibliography}
