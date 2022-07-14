@@ -484,13 +484,16 @@ These are chemical compounds that separate the fish part and species, respective
 
 For each method, we measure classification accuracy with an SVM model \cite{sklearn2021feature}.
 It has linear kernel, l1 regularization \cite{robnik2003theoretical} and 10,000 maximum iterations.
-We examine 4 feature selection methods from \cite{li2018feature}:
+We examine 3 feature selection methods from \cite{li2018feature}, each with default parameters.
+A PSO implementation described in \cite{kennedy1995particle}.
+The fitness function balances the SVM classification accuracy and the numbers of features selected.
+The population size 30, iterations 100, $[x]^n$ where $x \in [0,1], n = 4800$, $v_{max} = 0.2$, ${v_{min} = -0.2}$
 
 \begin{enumerate}
   \item Chi$^2$ \cite{liu1995chi2}
   \item Minimum Redundancy Maximum Relevance \cite{ding2005minimum}
   \item Relief-F \cite{robnik2003theoretical}
-  \item Particle Swarm Optimization \cite{kennedy1995particle,kennedy1997discrete}
+  \item Particle Swarm Optimization \cite{kennedy1995particle}
 \end{enumerate}
 
 We measure classification accuracy as a function of feature number.

@@ -267,11 +267,11 @@ kennedy1995particle
     * Simulation behaviour: a high p/g increment had violent fast behaviour, an approximately equal p/g increment had synchronocity, low p/g increment had no convergence.
     * Improvements: removed craziness, removed nearest neighbour (NN), without NN collisions were enabled, the flock was now a swarm. A swarm not a flock, because we have collisions. 
     * g/p increment values had to be chosen carefully. 
-    * Social anaologies: pbest is autiobiographical memory, :math:`\nabla`pbest is simple nostalgia. gbest is public knowledge, :math:`\nabla`gbest is social conformity. 
+    * Social anaologies: :math:`pbest` is autiobiographical memory, :math:`\nabla pbest` is simple nostalgia. :math:`gbest` is public knowledge, :math:`\nabla gbest` is social conformity. 
     * Appxomiations, PSO could solve the XOR problem on a 2-3-1 ANN with 13 parameters. 
     * Improvement: velocities were adjusted according to their difference, per dimension, this added momementum, a memory of previous motion. p/g increment was a nuisance parameter, and was such removed. 
     * Stochastic factor, which amplifieid the randomness, was set to 2. This makes the agents "overfly" or overshoot the target about half of the time. Tuned with black magic, a more formal derivation could be done in future work. 
-    * Tried a model with one midpoint between gbest and pbest, but it converged at the midpoint. 
+    * Tried a model with one midpoint between :math:`gbest` and pbest, but it converged at the midpoint. 
     * The stochasity was necesarry for good results. 
     * Explorers and settlers model, explorers overrun target, settlers more precise, had little improvement, Occam's razor removed the complex model. 
     * Version without momentum, had no knowledge of previous motion, and failed to find the global optima. 
@@ -283,14 +283,14 @@ kennedy1995particle
         5. Adaptability - Change behaviour if it is worth it. 
     * PSO met all 5 of (Millonas 1995) swarm intelligence principles: 
         1. n-d space calucaltions computed over a series of time setps. 
-        2. Responds to quality factors gbest and pbest. 
-        3. Moves between gbest and pbest, encourging diversity. 
-        4. Mode behaviour only changes when gbest does. 
-        5. Mode behaviour does change when gbest does. 
+        2. Responds to quality factors :math:`gbest` and pbest. 
+        3. Moves between :math:`gbest` and pbest, encourging diversity. 
+        4. Mode behaviour only changes when :math:`gbest` does. 
+        5. Mode behaviour does change when :math:`gbest` does. 
     * Term particle chosen as birds have velocity and acceleration, similar to elementary particles in phusocs. (Reeves 1983) also dicussed particle systems and primitive particles as models of diffucse objects, like a cloud of smoke. So we can refer to the representation as a particle swarm. 
     * PSO sometimes find ANN weights better than those found via gradient descent. 
     * PSO is a form of Evolutionary Computation, somewhere between genetic algorithms and evolutionary programming.
-    * gbest / pbest is similar to crossover operator, it also has a fitness function, both from evolutionary computation (EC).
+    * :math:`gbest` / :math:`pbest` is similar to crossover operator, it also has a fitness function, both from evolutionary computation (EC).
     * The momentum of the swarm flying towards better solutions, and often overshooting, is a strength. IT allows the swarm to explore unkown regions in the problem domain. 
     * PSO walks a fine line between order (known) and chaos (unknown). 
     * Philosophy (some beautiful philosophical musings from the end of the paper) 
