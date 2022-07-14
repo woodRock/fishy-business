@@ -235,10 +235,16 @@ The attributes are estimated with weight update function given by eq.~(\ref{eq:r
 
 % TODO [ ] - Flesh out these representations, or use consistent variables for all, to facilitate easy comparison. 
 
-Kennedy and Eberhart proposed a discrete PSO \cite{kennedy1997discrete}, a swarm intelligence method for feature selection. 
-The algorithm extended Paritcal Swarm Optimisation \cite{kennedy1995particle} by utilizing discrete binary variables as a representation. 
-This method imitates the social behaviour of a bird flock which can be found in nature. 
-% TODO [ ] - Finish PSO descriptions, cite new works, ask Bach for paper to cite for his code. 
+Kennedy and Eberhart proposed PSO \cite{kennedy1995particle} swarm intelligence method for non-linear optimization.
+This imitates social behaviour, e.g. birds flocking or fish schooling.
+Their synchronous movement was modelled as a function of each fish mantaining equal distance to its neighbours. 
+To give intuition, we imagine a simple model of a schooling fish in search of food. 
+With $p_{best}$ an individual fish's best spot, and $g_{best}$ the best spot the school has found. 
+Each fish updates its movement in equal parts towards $p_{best}$ and $g_{best}$, both multiplied by a stochasity factor.
+The stochasity introduces randomness, which makes the fish overshoot their target about half the time. 
+The overshooting has fundmanetal to the success of the model, it allows the school to explore uncharted waters (unknown regions of the problem domain). 
+% PSO walks the fine line between order (known local optima) and chaos (risky unknown regions).
+The social model was simplified into a particle swarm, which allowed collisions where two particles share the same location. 
 \\\\
 Comparisons from these algorithms. 
 \begin{itemize}
@@ -301,6 +307,11 @@ We examine 5 classification models:
 
 \begin{table}[htb]
   \captionsetup{font=small,labelfont=small}
+  \caption{
+    Accuracy for different classification techniques.
+    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
+    % We compare K-nearest neighbours (KNN), random forest (RF), decision tree (DT), naive bayes (NB) and support vector machines (SVM).
+    }
   \centering
   \begin{tabular}{|l|l|l|l|l|}
     \hline
@@ -357,11 +368,6 @@ We examine 5 classification models:
     \end{tabular}             \\
     \hline
   \end{tabular}
-  \caption{
-    Accuracy for different classification techniques.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    % We compare K-nearest neighbours (KNN), random forest (RF), decision tree (DT), naive bayes (NB) and support vector machines (SVM).
-    }
   \label{t:classification}
 \end{table}
 
@@ -403,7 +409,8 @@ For example, we expect there to be more difference between a tarakihi and a blue
 \subsubsection{Visualisation}
 \label{sec:visualisation}
 
-% TODO [ ] - This part can be shortened, and included in the visualisation sections, (not background)
+% TODO [ ] - This part can be shortened, and, 
+% TODO [x] - included in the visualisation sections, (not background)
 
 Two heuristics are optimized when selecting a suitable model: interpretability and accuracy. 
 Interpretability is important for verification in a safety-critical environment.
