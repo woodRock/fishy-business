@@ -146,16 +146,15 @@ That tube has a detector at the end, this detects the rate and intensity at whic
 Figure~\ref{fig:gas-chromatography} shows a gas chromatograph from the dataset. Chemists match the peaks from known reference samples to classify unknown samples. 
 Analysis can identify an unlabelled sample since they share similar peaks to previously labelled data.
 There is noise in the peaks caused by time-shift - a known limitation of the measurement technique addressed in previous works \cite{tomasi2004correlation,zhang2008two}.
-GC is not a definitive technique, so it is often used in conjunction with other techniques like Mass spectrometry \cite{restek2018high}.
 
-The existing task \cite{eder1995gas,restek2018high} of classifying chemical compounds based on a chromatograph is laborious.
-The spikes on the graph represent peaks.
-Each peak represents a resolved chemical compound.
-Chemists integrate the area under each peak, and compare this to a reference sample, to classify the compound.
+The existing task \cite{eder1995gas,restek2018high} of indentifying compounds through chromatography is laborious.
+Chemists integrate the area under each peak, and compare this to a reference sample, to classify the sample.
 GC must be performed slowly to ensure that the peaks are not too broad.
 This ensures each peak resolves and represents a single compound.
-Once we know what compounds are present in a sample it becomes possible to identify what the sample is.
-For this fish oil data, we classify a sample into two categories - species and part. 
+For this fish oil data, we classify a sample by two class labels - species and part. 
+With intuition, fish from the same species share similar chemical composition.
+Machine learning techniques learn to recognize these patterns automatically, speeding up the process significantly. 
+It can match a chromatograph to a target class, eliminating manual analysis entirely. 
 
 \subsection{Feature Selection}
 \label{sec:background-feature-selection}
@@ -199,7 +198,7 @@ The formula for calculating the $\chi^2$ statistic is given by eq.~(\ref{eq:chi}
 The technique performs both feature selection and discretization, making it ideal for continuous numeric fish oil data. 
 The method can increase predictive performance, and efficiency (time/memory) and simplify models. 
 
-Ding and Peng proposed Maximum Redundancy Maximum Relevance (MRMR) \cite{ding2005minimum} as a feature selection method for gene microarray data. 
+Ding and Peng proposed Maximum-Redundancy Maximum-Relevance (MRMR) \cite{ding2005minimum} a feature selection method for gene microarray data. 
 MRMR is a filter-based multi-objective method, 
 
 \begin{equation}
@@ -234,8 +233,6 @@ Relief-F handles multi-class problems by taking the weighted average of near mis
 
 The attributes are estimated with the weight update function given by eq.~(\ref{eq:reliefF}). 
 
-% TODO [ ] - Flesh out these representations, or use consistent variables for all, to facilitate easy comparison. 
-
 Kennedy and Eberhart proposed PSO \cite{kennedy1995particle} swarm intelligence method for non-linear optimization.
 This imitates social behaviour, e.g. birds flocking or fish schooling.
 Their synchronous movement was modelled as a function of each fish maintaining equal distance to its neighbours. 
@@ -247,6 +244,7 @@ The overshooting has fundamental to the success of the model, it allows the scho
 % PSO walks the fine line between order (known local optima) and chaos (risky unknown regions).
 The social model was simplified into a particle swarm, which allowed collisions where two particles share the same location. 
 \\\\
+% TODO [ ] - Flesh out these representations, or use consistent variables for all, to facilitate easy comparison. 
 Comparisons from these algorithms. 
 \begin{itemize}
   \item Talk about the normalization term in MRMR $\frac{1}{|S|}$ and ReliefF $\frac{1}{M}$, make noise-tolerant
@@ -380,7 +378,10 @@ It does so for the test set for both the species and part datasets.
 
 % TODO [ ] More analysis needed here? 
 % 1. Should compare algorithms performance based on number, e.g. SVM is 20% more accurate than KNN, DT, and NB. 
-% 2. Why NB and KNN do not work well? Why DT overfit the data (you use full size)? RF is better because of the ensemble mechanism? Too many features too few instances? 
+% 2. Why NB and KNN do not work well? 
+% 3. Why DT overfit the data (you use full size)? 
+% 4. RF is better because of the ensemble mechanism? 
+% 5. Too many features too few instances? 
 
 \subsection{Discussion}
 \label{sec:results-classification-discussion}
