@@ -242,7 +242,61 @@ karras2020analyzing
 
 kennedy1995particle
 -------------------
-    * Original PSO algorithm.
+    * Particle Swarm Optimisation (PSO). 
+    * Purpose: POS optimizes non-linear functions with particle swarn methedology. 
+    * Applications: (1) non-linear function optimization, (2) neural network training. 
+    * PSO was discovered through simulation of a simpleified social behaviourmodel. Then taken from a social behaviour model, and turned into an optimizer. 
+    * Model is very simple, requires a few lines of code, primitive mathematics operators, both effecient in memory and speed. 
+    * Applications: Train ANN weights, Model Schaffers f6 function a GA from (Davis 1991). 
+    * Paradigms: (1) Artificial life - i.e. fish schooling, birds flocking, (2) Genetic algorithms / evotionary programming. 
+    * School of Fish https://youtu.be/15B8qN9dre4
+    * (Reynolds 1987) was intrigued by the aesthetics of bird flocking, the choreography, synchonocity. He wanted to understand the mechanics of bird flocking - as set of simple rules that governed the behaviour. 
+    * With the assumption, like Conway's Game of Life for cellular automata, that a simple set of rules, my underpin the unpredictable and complex group dynamics of bird social behaviour. 
+    * The synchonicit was though of as a function of the bird trying to maintain an optimal distance between itself and its neighbours.
+    * Perhaps these same rules govern social behaviour in humans. Social sharing of infomration amoung members of the same species (cospeciates) offers an evolutionary advantage (Wilson 1975).
+    * Motivation for simulation: to model human behaviour. Humans are more complex, we don't just update our velocity/direction as animals flocking do, we update our beliefs/views to conform to our peers around us - i.e. social desirability bias, cultural homogenuity. 
+    * In abstract multi-dimenisional space, our psychological space, we allow colluions within a population - i.e. two individuals may share the same beliefs. Thus our model allows collisions, e.g. "collision-proof birds". 
+    * Aristotle spoke of Qualitative and quantitative movement. 
+    * Initial approach: a nearest neighbour method to synchonocity that matched velocity resulted in unifrom unchanging direction. 
+    * Stochasity, randomness, "craziness" was required to add variation to the flocks direciton. Enough stochacity to give the illusion of aritificial life. 
+    * (Heppner 1990) had simulations which introduced a "roost", a global maximum, or home the birds, that they all know. 
+    * But, how do birds find food? I.e. a new bird feeder is found within hours. 
+    * Agents move towards their best know value - the cornfield, in search of food. 
+    * Birds store their local maxima, the cornfield vector (I know there is food here!). 
+    * All birds in the flock know the global best position, the roost. 
+    * Simulation behaviour: a high p/g increment had violent fast behaviour, an approximately equal p/g increment had synchronocity, low p/g increment had no convergence.
+    * Improvements: removed craziness, removed nearest neighbour (NN), without NN collisions were enabled, the flock was now a swarm. A swarm not a flock, because we have collisions. 
+    * g/p increment values had to be chosen carefully. 
+    * Social anaologies: pbest is autiobiographical memory, :math:`\nabla`pbest is simple nostalgia. gbest is public knowledge, :math:`\nabla`gbest is social conformity. 
+    * Appxomiations, PSO could solve the XOR problem on a 2-3-1 ANN with 13 parameters. 
+    * Improvement: velocities were adjusted according to their difference, per dimension, this added momementum, a memory of previous motion. p/g increment was a nuisance parameter, and was such removed. 
+    * Stochastic factor, which amplifieid the randomness, was set to 2. This makes the agents "overfly" or overshoot the target about half of the time. Tuned with black magic, a more formal derivation could be done in future work. 
+    * Tried a model with one midpoint between gbest and pbest, but it converged at the midpoint. 
+    * The stochasity was necesarry for good results. 
+    * Explorers and settlers model, explorers overrun target, settlers more precise, had little improvement, Occam's razor removed the complex model. 
+    * Version without momentum, had no knowledge of previous motion, and failed to find the global optima. 
+    * (Millonas 1995) developed 5 basic principles of swarm intelligence. 
+        1. Prxomity - perform space/time computations. 
+        2. Quality - respond to quality features in the environment 
+        3. Diversity - not commit to narrow channels. 
+        4. Stablity - Don't change mode behaviour each iteration. 
+        5. Adaptability - Change behaviour if it is worth it. 
+    * PSO met all 5 of (Millonas 1995) swarm intelligence principles: 
+        1. n-d space calucaltions computed over a series of time setps. 
+        2. Responds to quality factors gbest and pbest. 
+        3. Moves between gbest and pbest, encourging diversity. 
+        4. Mode behaviour only changes when gbest does. 
+        5. Mode behaviour does change when gbest does. 
+    * Term particle chosen as birds have velocity and acceleration, similar to elementary particles in phusocs. (Reeves 1983) also dicussed particle systems and primitive particles as models of diffucse objects, like a cloud of smoke. So we can refer to the representation as a particle swarm. 
+    * PSO sometimes find ANN weights better than those found via gradient descent. 
+    * PSO is a form of Evolutionary Computation, somewhere between genetic algorithms and evolutionary programming.
+    * gbest / pbest is similar to crossover operator, it also has a fitness function, both from evolutionary computation (EC).
+    * The momentum of the swarm flying towards better solutions, and often overshooting, is a strength. IT allows the swarm to explore unkown regions in the problem domain. 
+    * PSO walks a fine line between order (known) and chaos (unknown). 
+    * Philosophy (some beautiful philosophical musings from the end of the paper) 
+        * Allows wisom to emerge rather than impose it. 
+        * Emulates nature rather than trying to control it. 
+        * Makes things simpler than more complex.
 
 kennedy1997discrete
 -------------------
