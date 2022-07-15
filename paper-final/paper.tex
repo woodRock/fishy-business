@@ -126,17 +126,17 @@ That tube has a detector at the end, this detects the rate and intensity at whic
 
 \begin{figure}[htb]
   \centering
+  \caption{Gas Chromatograph}
   \includegraphics[width=12.5cm]{chromatograph.png}
-  \caption{
-    A Gas Chromatograph is the artifact of the GC method.
-    This chromatograph is taken from the fish oil dataset.
-    The detection is used to visualize intensity (y axis) and time (x axis) on a chromotrogaph. 
-    The distinguishable peaks are unique signatures where distinct chemical compounds can likely to be identified.}
   \label{fig:gas-chromatography} 
   \captionsetup[figure]{font=small,labelfont=small}
 \end{figure}
 
-Figure~\ref{fig:gas-chromatography} shows a gas chromatograph from the dataset. Chemists match the peaks from known reference samples to classify unknown samples. 
+Figure~\ref{fig:gas-chromatography} shows a gas chromatograph - the artifact of the GC method - from the dataset. 
+This chromatograph is taken from the fish oil dataset.
+The detection is used to visualize intensity (y axis) and time (x axis) on a chromotrogaph. 
+The distinguishable peaks are unique signatures where distinct chemical compounds can likely to be identified.
+Chemists match the peaks from known reference samples to classify unknown samples. 
 Analysis can identify an unlabelled sample since they share similar peaks to previously labelled data.
 There is noise in the peaks caused by time-shift - a known limitation of the measurement technique addressed in previous works \cite{tomasi2004correlation,zhang2008two}.
 
@@ -159,19 +159,18 @@ There are two datasets with the same features.
 Those features are the high dimensional GC data, the class labels are the species and part.
 The curse of dimensionality \cite{koppen2000curse} introduces problems: (1) computationally inefficient to evaluate the entire 4800 feature problem space. (2) Classification models are likely to overfit, learning noise in the data from irrelevant features. (3) Classifier models that utilize high-dimensional feature spaces are difficult to interpret, and it is difficult for domain experts to perform diagnoses or troubleshoot.
 
+Figure~\ref{fig:gas-chromatography} shows at most several points of interest (peaks), and many negligible features, for an average chromatograph from the dataset. 
+
 \begin{figure}[htb]
   \centering
+  \caption{Feature Correlation Matrix}
   \includegraphics[width=8.5cm]{fish_correlation_matrix.png}
-  \caption{
-    Fish Oil Data pairwise correlation for the feature set using Pearson's correlation coefficient.
-    There are many redundant features
-    }
   \label{fig:correlation-matrix} 
   \captionsetup[figure]{font=small,labelfont=small}
 \end{figure}
 
-Figure~\ref{fig:gas-chromatography} shows at most several points of interest (peaks), and many negligible features, for an average chromatograph from the dataset. 
-Figure~\ref{fig:correlation-matrix} shows the correlation between the features.
+
+Figure~\ref{fig:correlation-matrix} gives the fish oil data pairwise correlation for the feature set using Pearson's correlation coefficient.
 These figures illustrate the redundancy within the dataset, showing many irrelevant features. 
 Feature selection reduces the size of the feature space by eliminating redundant and correlated attributes. 
 To address these issues of high-dimensionality, we employ feature selection to select a subset of relevant features. 
@@ -475,6 +474,9 @@ We normalize the coefficients with a min-max feature scaling.
 
 \begin{figure}[htb]
   \centering  
+  \caption[Two numerical solutions]{    
+    Hyperplane coefficients $\beta_t$.
+    }
   \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{fish_total_coefficients.png}
     \caption{Fish Species: Hyperplane Coefficients}\label{fig:fish-hyperplane-coeffcients}
@@ -483,15 +485,15 @@ We normalize the coefficients with a min-max feature scaling.
     \includegraphics[width=\linewidth]{part_total_coefficients.png}
     \caption{Fish Part: Hyperplane Coefficients}\label{fig:part-hyperplane-coeffcients}
   \end{subfigure}
-  \caption[Two numerical solutions]{
-    Hyperplane coefficients $\beta_t$.
-    The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
-    (a) Coefficients for the fish species dataset.
-    (b) Coefficients for the fish part dataset.}
+
   \label{fig:hyperplane-coefficients}
 \end{figure} 
 
 The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-coefficients}.
+Hyperplane coefficients $\beta_t$.
+The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
+(a) Coefficients for the fish species dataset.
+(b) Coefficients for the fish part dataset.
 We visualize the hyperplane to approximate the important features. 
 The outliers correspond to feature timestamps that are important for drawing class boundaries. 
 These are chemical compounds that separate the fish part and species, respectively. 
@@ -535,6 +537,9 @@ So, to compare its performance, we plot the results of 30 independent runs.
 
 \begin{figure}[htb]
   \centering
+  \caption[Two numerical solutions]{
+      FS Classification Accuracy per $k$
+    }
   \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{accuracy-features-fish-train.png}
     \caption{Species: Training set}\label{fig:accuracy-features-fish-train}
@@ -543,15 +548,14 @@ So, to compare its performance, we plot the results of 30 independent runs.
     \includegraphics[width=\linewidth]{accuracy-features-fish-test.png}
     \caption{Species: Test set}\label{fig:accuracy-features-fish-test}
   \end{subfigure}
-  \caption[Two numerical solutions]{
-    Fish species dataset: Classification accuracy for feature selection methods for a given $k$.
-    We measure the balanced accuracy of k-fold cross-validation.
-    We compare Relief-F, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
-    }
+ 
   \label{fig:animals}
 \end{figure}
 
 Figure~\ref{fig:accuracy-features-fish-train} shows accuracy for fish species.
+Fish species dataset: Classification accuracy for feature selection methods for a given $k$.
+We measure the balanced accuracy of k-fold cross-validation.
+We compare Relief-F, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
 We show accuracy on the training set for each feature selection method.
 At $k=1050$ all feature selection methods achieve $100\%$ accuracy on the training set.
 The SVM fits the training data for each method using a fraction of the full feature set.
@@ -565,6 +569,9 @@ This suggests the model can generalize well on unseen data for the fish species.
 
 \begin{figure}[htb]
   \centering
+  \caption[Two numerical solutions]{
+      FS Classification Accuracy per $k$
+    }
   \begin{subfigure}[b]{.55\linewidth}
     \includegraphics[width=\linewidth]{accuracy-features-part-train.png}
     \caption{Part: Training set}\label{fig:accuracy-features-part-train}
@@ -573,15 +580,13 @@ This suggests the model can generalize well on unseen data for the fish species.
     \includegraphics[width=\linewidth]{accuracy-features-part-test.png}
     \caption{Part: Test set}\label{fig:accuracy-features-part-test}
   \end{subfigure}
-  \caption[Two numerical solutions]{
-    Fish part dataset: classification accuracy for feature selection methods for a given $k$.
-    We measure the balanced accuracy of k-fold cross-validation.
-    We compare Relief-F, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
-    }
   \label{fig:accuracy-features-part-train}
 \end{figure}
 
 Figure~\ref{fig:accuracy-features-part-train} shows accuracy for part dataset.
+Fish part dataset: classification accuracy for feature selection methods for a given $k$.
+We measure the balanced accuracy of k-fold cross-validation.
+We compare Relief-F, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
 We show train accuracy for each feature selection method.
 All feature selection methods struggle to fit the training set for the fish part.
 Even with the full feature set, a perfect train accuracy is never reached.
