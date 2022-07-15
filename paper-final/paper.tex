@@ -3,20 +3,13 @@
 % Version 2.20 of 2017/10/04
 %
 \documentclass[runningheads]{llncs}
-%
-\usepackage{graphicx}
-% Add assets folder to path for images. 
+
+% Packages 
+\usepackage{graphicx} % Add assets folder to path for images. 
 \graphicspath{{assets/}}
-
-\usepackage{amsmath,amssymb,float,url}
-
-% Hide red underlines for URLs. 
-\usepackage[hidelinks]{hyperref}
-
-% Stack two figures on top of each other.
-\usepackage{subcaption}
-
-% Make caption text font smaller.
+\usepackage{amsmath,amssymb,float,url} % Hide red underlines for URLs. 
+\usepackage[hidelinks]{hyperref} % Stack two figures on top of each other.
+\usepackage{subcaption} % Make caption text font smaller.
 \usepackage{caption}
 \captionsetup[figure]{font=small,labelfont=small}
 % Make table-caption gap larger (source: https://bit.ly/3zm0wRn)
@@ -280,13 +273,6 @@ This experimental setup evaluates performance on both the fish species and part 
 
 \subsection{Classification Algorithms}
 
-% TODO [ ] - Overal steps 
-% 1. How do you perform classification here? 
-% 2. Splitting the data? 
-% 3. Training/test? 
-% 4. 10-fold cross-validation? 
-% 5. Why 30 independent runs? 
-
 % This is a broad search for an effective classification model.
 % We explore a classifier from each family of AI.
 % The model with the highest classification accuracy on both datasets is then selected and explored in later sections in further detail.
@@ -307,9 +293,7 @@ We examine 5 classification models:
 \begin{table}[htb]
   \captionsetup{font=small,labelfont=small}
   \caption{
-    Accuracy for different classification techniques.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    % We compare K-nearest neighbours (KNN), random forest (RF), decision tree (DT), naive Bayes (NB) and support vector machines (SVM).
+    Classification Results
     }
   \centering
   \begin{tabular}{|l|l|l|l|l|}
@@ -330,10 +314,10 @@ We examine 5 classification models:
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
       83.57 $\pm$ 1.80         \\ % KNN
-      1.00 $\pm$ 0.00          \\ % RF
-      1.00 $\pm$ 0.00          \\ % DT
+      100.00 $\pm$ 0.00          \\ % RF
+      100.00 $\pm$ 0.00          \\ % DT
       79.54 $\pm$ 1.60         \\ % NB
-      \textbf{1.00 $\pm$ 0.00} \\ % SVM
+      \textbf{100.00 $\pm$ 0.00} \\ % SVM
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
       74.88 $\pm$ 12.54          \\ % KNN
@@ -353,10 +337,10 @@ We examine 5 classification models:
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
       68.95 $\pm$ 3.49          \\ % KNN
-      1.00 $\pm$ 0.00           \\ % RF
-      1.00 $\pm$ 0.00           \\ % DT
+      100.00 $\pm$ 0.00           \\ % RF
+      100.00 $\pm$ 0.00           \\ % DT
       65.54 $\pm$ 2.69          \\ % NB
-      \textbf{1.00 $\pm$ 0.00 } \\ % SVM
+      \textbf{100.00 $\pm$ 0.00 } \\ % SVM
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
       43.61 $\pm$ 13.48          \\ % KNN
@@ -370,27 +354,58 @@ We examine 5 classification models:
   \label{t:classification}
 \end{table}
 
-Table~\ref{t:classification} shows for the random forest, decision tree and support vector machine have perfect training accuracy.
-The decision tree and random forest overfit the training data.
-Only the SVM achieves similar performance on the test data.
-The SVM classifier outperforms the other classifiers.
-It does so for the test set for both the species and part datasets.
+% TODO [ ] - Overal steps 
+% [x] 1. How do you perform classification here? 
+% [ ] 2. Splitting the data? 
+% [ ] 3. Training/test? 
+% [x] 4. 10-fold cross-validation? 
+% [x] 5. Why 30 independent runs? 
 
-% TODO [ ] More analysis needed here? 
-% 1. Should compare algorithms performance based on number, e.g. SVM is 20% more accurate than KNN, DT, and NB. 
-% 2. Why NB and KNN do not work well? 
-% 3. Why DT overfit the data (you use full size)? 
-% 4. RF is better because of the ensemble mechanism? 
-% 5. Too many features too few instances? 
+Table~\ref{t:classification} shows the results for KNN, RF, DT, NB, and SVM. 
+The average balanced classification accuracy by each classifier over 30 independent runs.
+Central Limit Theorem says a sample distribution will approach a normal distribution $\mathcal{N}(\mu,\sigma)$, a sample size of 30 approximates a realiable measure of variance with respect to the population. 
+K-fold stratification, and balanced accuracy measures are used for each run. 
+The balanced accuracy measure ensures results are not biased towards the mode class. 
+The mean, and standard deviation of balanced accury is given using for the fish species and part datasets. 
+For each dataset, the best test accuracy is empahized in bold. 
+
+The SVM classifier outperforms the other classifiers on the test set, with 98.33\% and 87.14\% for species and part, respetively. 
+It does so for the test set for both the species and part datasets.
+For classifiers KNN, DT and NB, for species test it achieves 23.56\%, 21.35\%, 23.06\% better, for part test is achieves 12.26\%, 27\%, 38.53\% better, respectively.
+NB assumes conditional independence between features.
+Under this assumption it cannot model complex relationships between depedent variables.
+The chromatograph from figure~\ref{fig:gas-chromatography} shows a continious and differentiable curve. 
+The features at timestamps close to either side of a peak are also likely to by high. 
+Conversely, features adjacent to a low intensity zero value are likely to also be low. 
+The NB simply cannot model these feature interactions.
+
+% More analysis needed here? 
+% TODO [x] 1. Should compare algorithms performance based on number, e.g. SVM is 20% more accurate than KNN, DT, and NB. 
+% TODO [x] 2. Why NB and KNN do not work well? 
+% TODO [x] 3. Why DT overfit the data (you use full size)? 
+% TODO [x] 4. RF is better because of the ensemble mechanism? 
+% TODO [ ] 5. Too many features too few instances? 
+
+The random forest, decision tree and support vector machine have perfect training accuracy.
+The decision tree and random forest overfit the training data, achieving 100\% training accuracy on both datasets.
+This accuracy is not reflected on the test data, where accuracy for both models is reduced, they cannot generlize to unseen data. 
+By default sklearn has no maximum depth for the decision tree.
+Without a depth limit, the tree creates strict rules on sparse data, and perfectly fits the training data.
+It captures noise in the training set, that does not generalize to unseen data. 
+Setting a maximum depths or pruning redundant branches would address the overfitting. 
+
+The RF classifier can generalize well, with SVM achieving, 12.68\% and 14.54\$ better than RF, on the fish species and part, respectively.
+RF is 8.76\% and 12.46\% better than DT on the test set, for fish and species respectively. 
+The ensemble mechanism makes RF more tolerant to noise than DT, it averages over many DT classifiers each operating on different subsets of the data. 
+Also the RF is noise-tolerant in comparison to KNN and NB.
+
+The KNN struggles to notice similarity in our n-dimensional where $n=4,800$, supported by train accuracy 83.57\% and 68.95\% for species and part, respectively. Tho model cannot fit the training data, let alone generalize effectively to the test, with 74.88\% and 43.61\% for species and part respectively. 
+KNN struggles with high-dimensional data, as the number of dimensions increases the distance between similar instances also increases. 
 
 \subsection{Discussion}
 \label{sec:results-classification-discussion}
 
 We evaluated an ensemble of classification techniques.
-Naive Bayes performed poorly.
-This is likely due to the assumption of conditional independence between features.
-KNN also performed poorly. This is likely due to the high dimensionality of the data.
-Points drawn from high-dimensional spaces tend to never be close together.
 SVM provided the best results.
 This model can identify fish species from gas chromatography data with near-perfect accuracy.
 This prompted further investigation into this technique.
