@@ -19,6 +19,7 @@
 \citation{eder1995gas}
 \citation{restek2018high}
 \citation{fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification,cortes1995support}
+\citation{kennedy1995particle}
 \citation{liu1995chi2,ding2005minimum,kononenko1994estimating,kennedy1995particle}
 \citation{cortes1995support}
 \@writefile{toc}{\contentsline {title}{Machine Learning for Fish Oil Anaylsis}{1}{chapter.1}\protected@file@percent }
@@ -28,18 +29,18 @@
 \newlabel{introduction}{{1}{1}{Introduction}{section.1.1}{}}
 \citation{eder1995gas,restek2018high}
 \citation{tomasi2004correlation,zhang2008two}
+\citation{eder1995gas,restek2018high}
+\citation{koppen2000curse}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Background}{2}{section.1.2}\protected@file@percent }
 \newlabel{background}{{2}{2}{Background}{section.1.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Gas Chromatorgraphy}{2}{subsection.1.2.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Gas Chromatograph\relax }}{2}{figure.caption.2}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:gas-chromatography}{{1}{2}{Gas Chromatograph\relax }{figure.caption.2}{}}
-\citation{eder1995gas,restek2018high}
-\citation{koppen2000curse}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Feature Selection}{2}{subsection.1.2.2}\protected@file@percent }
+\newlabel{sec:background-feature-selection}{{2.2}{2}{Feature Selection}{subsection.1.2.2}{}}
 \citation{liu1995chi2}
 \citation{kerber1992chimerge}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Feature Selection}{3}{subsection.1.2.2}\protected@file@percent }
-\newlabel{sec:background-feature-selection}{{2.2}{3}{Feature Selection}{subsection.1.2.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Gas Chromatograph from a Snapper's Skin\relax }}{3}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:gas-chromatography}{{1}{3}{Gas Chromatograph from a Snapper's Skin\relax }{figure.caption.2}{}}
 \citation{ding2005minimum}
 \citation{kullback1951information}
 \citation{liu1995chi2,zhao2019maximum}
@@ -52,15 +53,12 @@
 \citation{kira1992practical}
 \citation{robnik2003theoretical}
 \citation{kennedy1995particle}
+\citation{fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification,cortes1995support}
 \newlabel{eq:reliefF}{{4}{5}{Feature Selection}{equation.1.2.4}{}}
+\newlabel{eq:pso}{{5}{5}{Feature Selection}{equation.1.2.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Data processing}{5}{section.1.3}\protected@file@percent }
-\citation{fix1989discriminatory}
-\citation{ho1995random}
-\citation{hand2001idiot}
-\citation{loh2011classification}
-\citation{cortes1995support}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Classification}{6}{section.1.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Classification Algorithms}{6}{subsection.1.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Results and Discussion}{6}{subsection.1.4.1}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  Classification Results \relax }}{6}{table.caption.4}\protected@file@percent }
 \newlabel{t:classification}{{1}{6}{Classification Results \relax }{table.caption.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Discussion}{7}{subsection.1.4.2}\protected@file@percent }
@@ -68,41 +66,57 @@
 \citation{cortes1995support}
 \citation{sklearn2021feature}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Weight Analysis}{8}{subsection.1.4.3}\protected@file@percent }
-\newlabel{sec:visualisation}{{4.3}{8}{Visualisation}{section*.5}{}}
-\@writefile{toc}{\contentsline {subsubsection}{Visualisation}{8}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{SVM Hyperplane Coefficients}{8}{section*.6}\protected@file@percent }
-\newlabel{eq:hyperplane}{{5}{8}{SVM Hyperplane Coefficients}{equation.1.4.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Support Vector Machines}{8}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Hyperplane}{8}{section*.6}\protected@file@percent }
+\newlabel{eq:svm}{{6}{8}{Hyperplane}{equation.1.4.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces SVM Coef}}{9}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:hyperplane-sna}{{3a}{9}{Snapper\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:hyperplane-sna}{{a}{9}{Snapper\relax }{figure.caption.8}{}}
+\newlabel{fig:hyperplane-bco}{{3b}{9}{Bluecod\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:hyperplane-bco}{{b}{9}{Bluecod\relax }{figure.caption.8}{}}
+\newlabel{fig:hyperplane-gur}{{3c}{9}{Gurnard\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:hyperplane-gur}{{c}{9}{Gurnard\relax }{figure.caption.8}{}}
+\newlabel{fig:hyperplane-tar}{{3d}{9}{Tarakihi\relax }{figure.caption.8}{}}
+\newlabel{sub@fig:hyperplane-tar}{{d}{9}{Tarakihi\relax }{figure.caption.8}{}}
+\newlabel{fig:svm-hyperplane}{{3}{9}{SVM Coef}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Individual Hyperplane}{9}{figure.caption.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Two numerical solutions}}{10}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:fish-hyperplane-coeffcients}{{4a}{10}{Species\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:fish-hyperplane-coeffcients}{{a}{10}{Species\relax }{figure.caption.9}{}}
+\newlabel{fig:part-hyperplane-coeffcients}{{4b}{10}{Part\relax }{figure.caption.9}{}}
+\newlabel{sub@fig:part-hyperplane-coeffcients}{{b}{10}{Part\relax }{figure.caption.9}{}}
+\newlabel{fig:hyperplane-chromatograph}{{4}{10}{Two numerical solutions}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Total Hyperplane}{10}{section*.10}\protected@file@percent }
+\newlabel{eq:hyperplane}{{7}{11}{Total Hyperplane}{equation.1.4.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Two numerical solutions}}{11}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:fish-hyperplane-coeffcients}{{5a}{11}{Species\relax }{figure.caption.11}{}}
+\newlabel{sub@fig:fish-hyperplane-coeffcients}{{a}{11}{Species\relax }{figure.caption.11}{}}
+\newlabel{fig:part-hyperplane-coeffcients}{{5b}{11}{Part\relax }{figure.caption.11}{}}
+\newlabel{sub@fig:part-hyperplane-coeffcients}{{b}{11}{Part\relax }{figure.caption.11}{}}
+\newlabel{fig:hyperplane-coefficients}{{5}{11}{Two numerical solutions}{figure.caption.11}{}}
 \citation{sklearn2021feature}
 \citation{robnik2003theoretical}
+\citation{liu1995chi2,ding2005minimum,kononenko1994estimating}
 \citation{li2018feature}
 \citation{kennedy1995particle}
-\citation{liu1995chi2}
-\citation{ding2005minimum}
-\citation{robnik2003theoretical}
-\citation{kennedy1995particle}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Two numerical solutions}}{9}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:fish-hyperplane-coeffcients}{{3a}{9}{Fish Species: Hyperplane Coefficients\relax }{figure.caption.7}{}}
-\newlabel{sub@fig:fish-hyperplane-coeffcients}{{a}{9}{Fish Species: Hyperplane Coefficients\relax }{figure.caption.7}{}}
-\newlabel{fig:part-hyperplane-coeffcients}{{3b}{9}{Fish Part: Hyperplane Coefficients\relax }{figure.caption.7}{}}
-\newlabel{sub@fig:part-hyperplane-coeffcients}{{b}{9}{Fish Part: Hyperplane Coefficients\relax }{figure.caption.7}{}}
-\newlabel{fig:hyperplane-coefficients}{{3}{9}{Two numerical solutions}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Feature Selection}{9}{section.1.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Fish Species}{10}{subsection.1.5.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Two numerical solutions}}{10}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:accuracy-features-fish-train}{{4a}{10}{Species: Training set\relax }{figure.caption.8}{}}
-\newlabel{sub@fig:accuracy-features-fish-train}{{a}{10}{Species: Training set\relax }{figure.caption.8}{}}
-\newlabel{fig:accuracy-features-fish-test}{{4b}{10}{Species: Test set\relax }{figure.caption.8}{}}
-\newlabel{sub@fig:accuracy-features-fish-test}{{b}{10}{Species: Test set\relax }{figure.caption.8}{}}
-\newlabel{fig:animals}{{4}{10}{Two numerical solutions}{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Fish Part}{11}{subsection.1.5.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Two numerical solutions}}{11}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:accuracy-features-part-train}{{5a}{11}{Part: Training set\relax }{figure.caption.9}{}}
-\newlabel{sub@fig:accuracy-features-part-train}{{a}{11}{Part: Training set\relax }{figure.caption.9}{}}
-\newlabel{fig:accuracy-features-part-test}{{5b}{11}{Part: Test set\relax }{figure.caption.9}{}}
-\newlabel{sub@fig:accuracy-features-part-test}{{b}{11}{Part: Test set\relax }{figure.caption.9}{}}
-\newlabel{fig:accuracy-features-part-train}{{5}{11}{Two numerical solutions}{figure.caption.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Disucssion}{12}{subsection.1.5.3}\protected@file@percent }
-\newlabel{sec:results-feature-selection-discussion}{{5.3}{12}{Disucssion}{subsection.1.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Feature Selection}{12}{section.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Fish Species}{12}{subsection.1.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Two numerical solutions}}{13}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:fs-per-k-fish-train}{{6a}{13}{Species: Training set\relax }{figure.caption.12}{}}
+\newlabel{sub@fig:fs-per-k-fish-train}{{a}{13}{Species: Training set\relax }{figure.caption.12}{}}
+\newlabel{fig:fs-per-k-fish-test}{{6b}{13}{Species: Test set\relax }{figure.caption.12}{}}
+\newlabel{sub@fig:fs-per-k-fish-test}{{b}{13}{Species: Test set\relax }{figure.caption.12}{}}
+\newlabel{fig:fs-per-k-fish}{{6}{13}{Two numerical solutions}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Fish Part}{14}{subsection.1.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Two numerical solutions}}{14}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:fs-per-k-part-part-train}{{7a}{14}{Part: Training set\relax }{figure.caption.13}{}}
+\newlabel{sub@fig:fs-per-k-part-part-train}{{a}{14}{Part: Training set\relax }{figure.caption.13}{}}
+\newlabel{fig:fs-per-k-part-part-test}{{7b}{14}{Part: Test set\relax }{figure.caption.13}{}}
+\newlabel{sub@fig:fs-per-k-part-part-test}{{b}{14}{Part: Test set\relax }{figure.caption.13}{}}
+\newlabel{fig:fs-per-k-part}{{7}{14}{Two numerical solutions}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Disucssion}{15}{subsection.1.5.3}\protected@file@percent }
+\newlabel{sec:results-feature-selection-discussion}{{5.3}{15}{Disucssion}{subsection.1.5.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions and Future Work}{15}{section.1.6}\protected@file@percent }
 \citation{zhao2019maximum}
 \citation{zemmal2016adaptative}
 \citation{kovats1958gas}
@@ -112,7 +126,6 @@
 \bibcite{ding2005minimum}{2}
 \bibcite{eder1995gas}{3}
 \bibcite{fix1989discriminatory}{4}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions and Future Work}{13}{section.1.6}\protected@file@percent }
 \bibcite{hand2001idiot}{5}
 \bibcite{ho1995random}{6}
 \bibcite{kennedy1995particle}{7}
@@ -132,4 +145,4 @@
 \bibcite{zemmal2016adaptative}{21}
 \bibcite{zhang2008two}{22}
 \bibcite{zhao2019maximum}{23}
-\gdef \@abspage@last{14}
+\gdef \@abspage@last{17}
