@@ -686,7 +686,6 @@ INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb
 INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb
 INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb
 INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb
-INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb
 INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
 INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb
 INPUT /usr/pkg/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
