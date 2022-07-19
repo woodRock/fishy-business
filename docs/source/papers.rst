@@ -26,6 +26,10 @@ bao2022estimating
     * Paper shows how to go from noisy-to-clean with a deterministic process. 
     * A new approach to diffusion based models.
 
+bengio2017consciousness
+-----------------------
+    * The consciousness prior
+
 bi2020gc
 --------
     * Bi et al. proposed a CNN model that incorporated GC-MS data fusion for food science.
@@ -81,6 +85,11 @@ chase1973perception
     * Recall was consistant for levels of expertise on nonsense chess boards. 
     * Our mental schemas for encoding patterns break on noise (unseen data). 
 
+chen2019deep
+------------
+    * Deep reasoning networks: Thinking fast and slow
+    * System 1 and System 2 thinking. 
+
 chen2019looks
 -------------
     * This looks like that: deep learning for interpretable image recognition
@@ -92,6 +101,10 @@ chen2021evaluating
     * Can't solve more difficult problems - doesn't optimize solutions for performance. 
     * CoPilot outperforms other state-of-the-art NLP code generation models. 
     * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
+
+chevalier2018babyai
+-------------------
+    * Babyai: A platform to study the sample efficiency of grounded language learning
 
 codevilla2018end 
 ----------------
@@ -205,6 +218,10 @@ godden1975context
     * Same true for words learnt on land. 
     * Recall accuracy depends on similarity of context in sensory information. 
 
+he2020bayesian
+--------------
+    * Bayesian deep ensembles via the neural tangent kernel
+
 hand2001idiot
 -------------
     * Naive bayes. 
@@ -217,6 +234,10 @@ Hofstadter1979godel
 -------------------
     * Godel Escher Bach 
     * The hand that draws itself. 
+
+jacot2018neural
+---------------
+    * Neural tangent kernel: Convergence and generalization in neural networks
 
 jing2020learning
 ----------------
@@ -239,6 +260,10 @@ karras2020analyzing
     * Latent layer representation. 
     * Manipulating latent layer gives a sense of semantically meaninful feature space. 
     * We can see the change in style that sampling latent layer gives. 
+
+ke2018sparse
+------------
+    * Sparse attentive backtracking: Temporal credit assignment through reminding
 
 kennedy1995particle
 -------------------
@@ -390,6 +415,14 @@ kullback1951information
 lecun1989generalization
 -----------------------
     * Original Convolutional Neural Network (CNN) paper. 
+
+lecun1998gradient
+-----------------
+    * Gradient-based learning applied to document recognition
+    
+lee2019wide
+-----------
+    * Wide neural networks of any depth evolve as linear models under gradient descent
 
 lehman2020surprising
 --------------------
@@ -602,6 +635,10 @@ tran2018variable
     * The proposed algorithm allows particles to have shorter and different variable lengths.
     * Their length changing mechanism allows PSO to escape local optima.
     * Results across several high dimensional datasets showed improved performance in terms of computational time, fewer features selected and classification accuracy.
+
+vaswani2017attention
+--------------------
+     * Attention is all you need
 
 wolpert1997no
 -------------
