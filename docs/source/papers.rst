@@ -572,6 +572,10 @@ ramesh2022hierarchical
     * As we increase the dimensionality of the latent space we can represent more complex hierarchical structures. 
     * CLIP fails at producing text, and reconstruction can mix up objects and their attributes. 
 
+rasmussen2003gaussian
+---------------------
+    * Gaussian Processes in machine learning. 
+
 restek2018high
 --------------
     * Explanation of gas-chromatraphy in food science for FAMEs. 
