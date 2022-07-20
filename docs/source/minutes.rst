@@ -1853,3 +1853,18 @@ Notes:
         * Convolution operation exploits local connectivity between pixels. 
         * Shared Weights Neural Networks (SWNN). 
         * Important to use consistent terminilogy in AI research. 
+
+2022-07-20 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** Zoom, **Time**: Wednesday 3pm-4pm , **Attendees:** Hayden Dyne, Jesse Wood, Bastiaan Kleign, et al.
+
+Hayden Dyne gave a talk about the paper "Guassia Process-based Stochastic Model Predictive Control for Overtaking in Autonomous Racing" (Brudigam 2021, brudigam2021gaussian) https://arxiv.org/pdf/2105.12236.pdf
+
+Notes: 
+    * A fundamental aspect of racinn is overtaking other race cars. Previous work focusses on the laptime optimization. 
+    * Prpose a method to plan overtaking procedures in autonomous racing. 
+    * A Gaussian Process (Ramussen 2004) is used to learn the behaviour of the leading vehicle. 
+    * Based on the output of the GP, a stochastic Model Predictive Control algorithm plans optmized trajectories such that controlled autonmous race car is able to overtake the leading vehicle. 
+    * They generate safety constraints, similar to (Brudigam 2018). The safety rectanle ensures the vehicle safely passes the leading vehicle. 
+    * The GP identifies weaknesses in the driving behaviour of the leading behicle while the controlled vehicle is trying to overtake. 
+    * Future work - extend the current model to simulate a whole lap and include multiple cars to overtake. 
