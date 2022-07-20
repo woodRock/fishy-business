@@ -69,6 +69,11 @@ brown2012conditional
     * Generalized model for information based feature selection methods. 
     * These models generazlize to iterative maximizers of conditional likelihood. 
 
+brudigam2021gaussian
+--------------------
+    * Gaussian Process-based Stochastic Model Predictive Control for Overtaking in Autonomous Racing
+    * See 2022-07-20 - Deep Learning 
+
 cai2020high 
 -----------
     * End-to-end driving via conditional imitation learning. 
