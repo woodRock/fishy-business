@@ -1868,3 +1868,93 @@ Notes:
     * They generate safety constraints, similar to (Brudigam 2018). The safety rectanle ensures the vehicle safely passes the leading vehicle. 
     * The GP identifies weaknesses in the driving behaviour of the leading behicle while the controlled vehicle is trying to overtake. 
     * Future work - extend the current model to simulate a whole lap and include multiple cars to overtake. 
+
+2022-07-20 - IEEE Writing Seminar 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Wednesday 3pm-4pm , **Attendees:** Bach Nguyen, Mengjie Zhang, Peter Andreae, Jesse Wood, et al.
+
+Notes:
+    * Pondy was one of Bach's supervisors when he was studying for his PhD. Pondy was my COMP100 level lecturer for many papers. 
+    * Audience for the workshop is particularly thesis students, Masters/PhD. 
+    * Audience - If you don't know who your adueince is, you won't know hwat to say or how to say it. 
+    * Assumed knowledge - general knowledge in the field that we assume the audience will know. 
+    * How much to explain? Write to level other PhD students, not at an undergraduate level. 
+    * Thesis: real audience is examiners. Intended audience is general experts. 
+    * What - What should the paer or thesis say? Consider waht can and should not be included. 
+    * Writing should be scoped to the correct level of detail. 
+    * Introduction - critical for setting the authors expectations. Many people won't read a paper at ALL if the introduction is not clear. (Sign post, mental model, prepare). 
+    * Planning - Top down and bottom up approaches to plaaning writing. 
+        * Top down - has a skeleton for an essay that is later expanded. 
+        * Bottom up - is a brain dump that is iteratively refined. 
+    * Hook - setup a context/framework for the reader to understand the next bit. "Tell 'em what your gonna say, say it, and tell 'em what you said" (Goldberg 1999). 
+    * Grammarly - use grammarly on all academic work, but don't assume that is is always right. Sometimes grammar rlies on context sensitive information the application does not understand. 
+    * SPAG - always fix basic spelling errors, otherwise the examiner will think you are just being lazy. 
+    * Pronouns - use plurals and try to avoid having to use gendered langauge or the singular they, avoid the confusion entirely. 
+    * I - avoid using I, academics use the passive far too much, it is ahrder to read, hides important information, ambigious. "I was told you were driving 60 km/hr in Kelburn yesterday". 
+    * Paper - in a paper we can use "we", referring to the author(s), but thesis is individual work, so avoid "we", to make it clear who takes credit for work. 
+    * Active entity - make the paper an active entity, "this paper shows that", "section 2.5 showed that", "the proposed method uses". 
+    * Name - you have a system, give it a name. Then we can refer to it by name henceforth. These names can be invented, e.g. "TADPOLE" and "HOPPER", or as acronyms, e.g. "XGG", "RTF". 
+    * Parallel ideas in parellel form. Use the same sentence structure; don't restructure to make it interesting. 
+    * Use belleted lsits frequently if you have a sequence of similar/related statements. 
+    * Aphorisms:
+        * Omit needless words. 
+        * Write simply - flowery language is hard to read. 
+        * Activate your sentences; avoid the passive. 
+        * State important ideas first, reader may skip. 
+        * Give it a name, easy to describe things with names. 
+        * Avoid negatives where possible. 
+
+2022-07-21 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO355, **Time**: Friday 12.00pm-12:30pm , **Attendees:** Bach Nguyen, Mengjie Zhang, Jesse Wood. 
+
+Notes: 
+    * Bing is at WCCI 2022 in Italy so she could not attend the meeting. 
+    * Bach is finishing up lecturing this week, so he will have a draft revision ready a bit later. Daniel will need to sign off on the paper from PFR side. 
+    * Focus on my thesis work, need to write my proposal, and the proposal needs prelminary work. I can do some GP on the GC data. 
+    * The AJCAI deadline have been pushed back. The abstract registraion is 29th of July, the submission deadline is 5th of August. 
+
+TODO: 
+    - [ ] Submission deadline - 5th of August. 
+    - [ ] GP on the GC dataset. 
+    - [ ] Start writing proposal. 
+    - [ ] Reading on GP. 
+    - [ ] New dataset from Daniel
+
+2022-07-21 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Thursday 2pm-3pm , **Attendees:** Qi Chen, Jesse Wood, Bing Xue, Bach Hoai Nguyen, et al. 
+
+Bing suggested a series of talks from foundational figures in Genetic Progamming. 
+
+Bing suggested "Wolfgang Banzhaf - Full Interview" https://www.youtube.com/watch?v=tj5-H6ECxyM
+
+Notes: 
+    * AI effect - as soon as we solve an issue it is no longer considered intelligent. 
+    * Active devices force solutions to adapt representations with changing complexities. 
+    * Real-world application- given the correct constrainted/discretized representation we ca creativly apply randomness to many applications.
+    * Evolution takes shortcuts the programmers were not expecting, we have to gradually evolve our fitness functions to get the desired behaviour. Similar to (Lehman 2022). 
+    * Hardware - Technologies for parallell and distributed computing should allow for harware growth in Evonltionary Computation. 
+    * Proofs - proofs are very difficult to formulate for real-world problems. Engineers can write tests for safety critical systems. But it is difficult to find proofs for complex evolutionary computations. 
+    * Exploitations vs. exploration - we want to allow diversity, but we have constraints for a desired. 
+
+
+Bing suggested "Risto Miikkulainen - Full Interview" https://www.youtube.com/watch?v=6H9jzq0Oj0s
+
+Notes:
+    * def. Aritifical Intelligence - something more complex than what was programmed emerged. 
+    * Evolutionary computation - a family of methods imspired from biology. Almost all EC is population based. 
+    * EML - we can apply evolutionary computation to optimizing the architecture and weights for neural networks. 
+    * Neural evolution - is a very computationally expensive, but with improving technology we have the comput, and more so they are being employed for this. 
+    * Domain insights - evolution does not have the same preconcieved notions of what the solution should be. It has the potential to discover new knowledge, exploring areas outside of the domain expertise. 
+    * EC is similar to DL, as the ideas and principles have been around for a while, but only now are we approaching comput necessary for efficiency. 
+    * Diffusion - diffusion of innovtation; EC needs to be taught to AIML practitioners and be part of their toolbox for solving problems.  Democratizing evolutionary computation. 
+
+Bing suggested "Ken Stanley - Full Interview" https://www.youtube.com/watch?v=XWUsl24zYOU 
+
+Notes: 
+    * Accesibility - AI is not really accessible to the non-technical general public. It is a few years off, but one day an everday person should make an AI to automate a mundane task of their choosing. 
+    * Games - create a game where users can train robots to fight in a robot war. But a game is a wat for non-technical users to AIML practitioners without barriers. 
+    * Incentives - A picture breeding website that allowed for organic human-in-the-loop exploration of image gneration. We can incentivise humans to join the loop and offer supvervision in areas where AI struggles. 
+    * Bottlenecks - similar to DL, their was a large fondation of theoretical work, but lacking hardware. THE DL revolution was mostly a hardware advance. The same is true for EC, where populaiton-based algorithms can be optimized with parellelisation. 
+    * Compute - with compute, it becomes tractable to search high-dimensional spaces. 
