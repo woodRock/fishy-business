@@ -1958,3 +1958,16 @@ Notes:
     * Incentives - A picture breeding website that allowed for organic human-in-the-loop exploration of image gneration. We can incentivise humans to join the loop and offer supvervision in areas where AI struggles. 
     * Bottlenecks - similar to DL, their was a large fondation of theoretical work, but lacking hardware. THE DL revolution was mostly a hardware advance. The same is true for EC, where populaiton-based algorithms can be optimized with parellelisation. 
     * Compute - with compute, it becomes tractable to search high-dimensional spaces. 
+
+2022-07-22 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Friday 3pm-5pm , **Attendees:** Bing Xue, Mengjie Zhang, Hui Ma, Bach Hoai Nguyen, Jesse Wood et al.
+
+Notes: 
+    * Bing (my supervisor) got an IEEE early career award. This is a very difficult award to get. She was also given an "outsanding editor" from IEEE transactions on evolutionary computations. 
+    * Bing is also giving a plenary talk at WCCI 2022 in Italy. 
+    * This Wednesday we had a writing  seminar organized by the IEEE young professionals, with a talk by Pondy, organized by Bach, Fangfang, Menjie (see minutes 2022-07-20 - IEEE Writing Seminar). 
+    * Progress: writing my paper for AJCAI, deadline was extended to August 5th, so room for more revisions and Plant and Food Research (PFR) sign off. 
+    * Daniel and Kevin are flying up from Nelson to talk about the domain expertise required for REIMS data. 
+    * Starting preliminary work on GP for GC data, and writing my proposal for my PhD. Important to clearly state and refine my research intentions. 
+    * Meng has sent out a good list of reccommended readings on CNNs (Lecun 1998, lecun1998gradient), foundational work from Geoffrey Hinton, a good read for Deep Learning background.
