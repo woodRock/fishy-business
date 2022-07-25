@@ -17,8 +17,9 @@ from .cnn import get_model
 from .plot import show_confusion_matrix, plot_loss, plot_accuracy
 
 # Hyperparameters
+# Default (64, 100, 10)
 batch_size = 64
-epochs = 10_000
+epochs = 100
 k = 10
 
 # Dataset
