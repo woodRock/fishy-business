@@ -29,3 +29,5 @@ This figure gives the confusion matrix for the training data.
 This figure gives the confusion matrix for the test data. 
 
 ![accuracy](./assets/confusion_matrix_test.png)
+
+The current model achieves 100% training and 98% test classification accuracy on the fish dataset. This is equivalent to the Support Vector Machine (SVM) results. 
