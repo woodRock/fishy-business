@@ -107,7 +107,7 @@ show_results(results)
 
 # [CHECKPOINT 2] Save full results 
 # Save results to a dictionary so they can be accessed later. 
-with open('results-full-local.pkl', 'wb') as f:
+with open('results-full-local.pkl', 'wb+') as f:
     pickle.dump(results, f)
 
 # We can load a results pickle file as follows: 
