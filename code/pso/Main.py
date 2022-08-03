@@ -2,7 +2,6 @@ import numpy as np
 from tqdm import tqdm
 import warnings
 # warnings.filterwarnings("ignore")
-from sklearn import preprocessing
 from skfeature.function.similarity_based import reliefF
 from skfeature.function.information_theoretical_based import MRMR
 from sklearn.feature_selection import chi2, SelectKBest

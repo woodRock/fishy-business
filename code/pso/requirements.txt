@@ -1,0 +1,7 @@
+numpy 
+sklearn 
+skfeature-chappers 
+tqdm 
+matplotlib 
+scipy 
+prettytable

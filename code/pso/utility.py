@@ -8,16 +8,19 @@ These are methods that plot and tabulate the results into human readible formats
 
 import numpy as np
 import matplotlib.pyplot as plt 
+from prettytable import PrettyTable
 
 
-def plot_accuracy(results, dataset): 
+def plot_accuracy(results, dataset, folder="pso/assets"): 
     """ Plot the training and test accuracy per k features for the results. 
 
     The method plots the accuracies and saves them to respective files in high-resolution (dpi=500). 
+    The images are saved to the "pso/assets" folder by default. 
     
     Args: 
         results: a dictionary of results from all FS methods. 
         dataset: the name of the dataset, Fish or Part     
+        folder: the path to the desired folder, defaults to "pso/assets". 
     """
     for name, result in results.items():
         k, train, test = zip(*result)
@@ -30,7 +33,7 @@ def plot_accuracy(results, dataset):
     plt.xlabel("No. Features")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig(fname=f"accuracy-features-{dataset}-train", dpi=500)
+    plt.savefig(fname=f"{folder}/accuracy-features-{dataset}-train", dpi=500)
     plt.show()
 
     for name, result in results.items():
@@ -44,7 +47,7 @@ def plot_accuracy(results, dataset):
     plt.xlabel("No. Features")
     plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig(fname=f"accuracy-features-{dataset}-test", dpi=500)
+    plt.savefig(fname=f"{folder}/accuracy-features-{dataset}-test", dpi=500)
     plt.show()
 
 

@@ -5,7 +5,7 @@
 These are the external libraries required to run this code. 
 
 ```bash 
-pip install numpy sklearn skfeature-chappers tqdm matplotlib scipy
+pip install numpy sklearn skfeature-chappers tqdm matplotlib scipy prettytable
 ```
 
 # Execution 
