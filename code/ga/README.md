@@ -1,6 +1,6 @@
 # Genetic Algorithm (GA)
 
-# Requirements 
+## Requirements 
 
 These are the external libraries required to run this code. 
 
@@ -8,7 +8,7 @@ These are the external libraries required to run this code.
 pip install ...
 ```
 
-# Execution 
+## Execution 
 
 The code can be executed with the following command
 

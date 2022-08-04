@@ -1,6 +1,6 @@
 # Convolutionary Neural Network 
 
-# Requirements 
+## Requirements 
 
 These are the external libraries required to run this code. 
 
@@ -8,7 +8,7 @@ These are the external libraries required to run this code.
 pip install numpy sklearn skfeature-chappers tensorflow matplotlib scipy
 ```
 
-# Execution 
+## Execution 
 
 The code can be executed with the following command
 

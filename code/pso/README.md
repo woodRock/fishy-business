@@ -1,6 +1,6 @@
 # Particle Swarm Optimization
 
-# Requirements 
+## Requirements 
 
 These are the external libraries required to run this code. 
 
@@ -8,7 +8,7 @@ These are the external libraries required to run this code.
 pip install numpy sklearn skfeature-chappers tqdm matplotlib scipy prettytable
 ```
 
-# Execution 
+## Execution 
 
 The code can be executed with the following command
 
@@ -16,11 +16,11 @@ The code can be executed with the following command
 $ python3 -m pso.Main
 ``` 
 
-# Results  
+## Results  
 
 These figures show the results of the feature selection methods. 
 
-## Fish Species
+### Fish Species
 
 These are the results for the fish species dataset. 
 
@@ -32,7 +32,7 @@ This figure gives the test set performance,
 
 ![fish part test accuracy](./assets/accuracy-features-fish-test.png)
 
-## Fish Part
+### Fish Part
 
 These are the results for the fish part dataset. 
 
