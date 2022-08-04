@@ -9,7 +9,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import LinearSVC as svm
 from sklearn.metrics import balanced_accuracy_score
 import pickle
-from .PSO import Swarm, pso
+from .PSO import pso
 from .utility import plot_accuracy, show_results
 from .data import load_data, get_labels, normalize
 
@@ -17,16 +17,13 @@ from .data import load_data, get_labels, normalize
 run = 1
 seed = 1617 * run
 np.random.seed(seed)
-dataset="Part"
-X,y = load_data(dataset=dataset)
+dataset = "Part"
+X, y = load_data(dataset=dataset)
 y_, labels = get_labels(y)
-inc = 50 
-no_features = X.shape[1] + inc
-j = np.arange(inc,no_features,inc) # [50,4800]
-methods = { "reliefF" : reliefF.reliefF, "mrmr": MRMR.mrmr, "chi2": chi2}
-results = { "reliefF" : [], "mrmr": [], "chi2": [], "pso": []}
+methods = {"reliefF": reliefF.reliefF, "mrmr": MRMR.mrmr, "chi2": chi2}
+results = {"reliefF": [], "mrmr": [], "chi2": [], "pso": []}
 
-runs = 15 
+runs = 15
 name = "pso"
 folds = 10
 
@@ -70,10 +67,14 @@ for k in tqdm(range(runs)):
 with open('results-pso-local.pkl', 'wb') as f:
     pickle.dump(results, f)
 
+inc = 50
+no_features = X.shape[1] + inc
+j = np.arange(inc, no_features, inc)  # [50,4800]
+
 for k in tqdm(j):
-    for name, fs_method in methods.items(): 
+    for name, fs_method in methods.items():
         if name == "pso":
-          continue
+            continue
 
         train_accs = []
         test_accs = []
@@ -98,19 +99,19 @@ for k in tqdm(j):
             test_acc = balanced_accuracy_score(y_test, y_predict)
             test_accs.append(test_acc)
 
-        no_fea = k 
+        no_fea = k
         results[name].append((no_fea, np.mean(train_accs), np.mean(test_accs)))
 
 plot_accuracy(results, dataset)
 print(results)
 show_results(results)
 
-# [CHECKPOINT 2] Save full results 
-# Save results to a dictionary so they can be accessed later. 
+# [CHECKPOINT 2] Save full results
+# Save results to a dictionary so they can be accessed later.
 with open('results-full-local.pkl', 'wb+') as f:
     pickle.dump(results, f)
 
-# We can load a results pickle file as follows: 
+# We can load a results pickle file as follows:
 # with open('saved_dictionary.pkl', 'rb') as f:
 #     loaded_dict = pickle.load(f)
 
