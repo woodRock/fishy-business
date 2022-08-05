@@ -1,5 +1,7 @@
 # Code
 
+This folder contains documentated codebases used to produce the results of the experiments presented in this thesis.
+
 ## Organisation
 
 This folder is organized into seperate modules for each codebase:
