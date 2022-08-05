@@ -4,19 +4,16 @@ Main - Main.py
 
 Executes the feature selection over a number of features experiments from AJCAI 2022 paper.
 """
-
+import pickle
 import numpy as np
 from tqdm import tqdm
-import warnings
-# warnings.filterwarnings("ignore")
 from skfeature.function.similarity_based import reliefF
 from skfeature.function.information_theoretical_based import MRMR
 from sklearn.feature_selection import chi2, SelectKBest
 from sklearn.model_selection import StratifiedKFold
 from sklearn.svm import LinearSVC as svm
 from sklearn.metrics import balanced_accuracy_score
-import pickle
-from .PSO import pso
+from .pso import pso
 from .utility import plot_accuracy, show_results
 from .data import load_data, get_labels, normalize
 
