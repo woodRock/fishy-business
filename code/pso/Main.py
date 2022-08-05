@@ -1,3 +1,10 @@
+"""
+Main - Main.py
+==============
+
+Executes the feature selection over a number of features experiments from AJCAI 2022 paper.
+"""
+
 import numpy as np
 from tqdm import tqdm
 import warnings
