@@ -11,6 +11,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn import preprocessing
 import scipy.io
 
+
 def encode_labels(y, y_test=None):
     """
     Convert text labels to numbers.
@@ -25,6 +26,7 @@ def encode_labels(y, y_test=None):
         y_test = le.transform(y_test)
     return y, y_test, le
 
+
 def load(filename, folder=''):
     """
     Load the data from the mat file.
@@ -37,6 +39,7 @@ def load(filename, folder=''):
     mat = scipy.io.loadmat(path)
     return mat
 
+
 def prepare(mat):
     """
     Load the data from matlab format into memory. 
@@ -44,11 +47,12 @@ def prepare(mat):
     Args:
         mat: The data in matlab format.
     """
-    X = mat['X']   
+    X = mat['X']
     X = X.astype(float)
-    y = mat['Y']    
+    y = mat['Y']
     y = y[:, 0]
-    return X,y
+    return X, y
+
 
 def normalize(X_train, X_test):
     """
