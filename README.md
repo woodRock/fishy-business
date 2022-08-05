@@ -1,6 +1,7 @@
 # PhD - Machine Learning on Fish Oil Analysis
 
 [![Documentation Status](https://readthedocs.org/projects/fishy-business/badge/?version=latest)](https://fishy-business.readthedocs.io/en/latest/?badge=latest)
+[![Pylint](https://github.com/woodRock/fishy-business/actions/workflows/pylint.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/pylint.yml)
 
 Something fishy is going on around here.
 
