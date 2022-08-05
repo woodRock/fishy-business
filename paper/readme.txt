@@ -1,19 +1,19 @@
-Dear LLNCS user,
+# Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
 
-The files in this directory belong to the LaTeX2e package for
-Lecture Notes in Computer Science (LNCS) of Springer-Verlag.
+This is the paper for the Australasian Joint Conference on Artificial Intelligence 2023 [AJCAI](https://ajcai2022.org/). 
+The [PDF](https://github.com/woodRock/fishy-business/blob/main/paper/paper.pdf) is available. 
 
-It consists of the following files:
+## Abstract 
 
-  readme.txt         this file
-
-  history.txt        the version history of the package
-
-  llncs.cls          the LaTeX2e document class
-
-  samplepaper.tex    a sample paper
-  fig1.eps           a figure used in the sample paper
-
-  llncsdoc.pdf       the documentation of the class (PDF version)
-
-  splncs04.bst       current LNCS BibTeX style with alphabetic sorting
+Fish is approximately 40% edible fillet. 
+The remaining 60% can be processed into low-value fertilizer or high-value pharmaceutical-grade omega-3 concentrates.
+High-value manufacturing options depend on the composition of the biomass, which varies with fish species, fish tissue and seasonally throughout the year.
+Fatty acid composition, measured by Gas Chromatography, is an important measure of marine biomass quality.
+This technique is accurate and precise, but processing and interpreting the results is time-consuming and requires domain-specific expertise.
+The paper investigates different classification and feature selection algorithms for their ability to automate the processing of Gas Chromatography data.
+Firstly, the paper proposes a preprocessing imputation method for aligning timestamps in Gas Chromatography data.
+Secondly, experiments found that SVM could classify compositionally diverse marine biomass based on raw chromatographic fatty acid data. 
+The SVM model is interpretable through visualization which can highlight important features for classification.
+Lastly, experiments demonstrated that applying feature selection significantly reduced dimensionality and improved classification performance on high-dimensional low sample-size datasets.
+According to the reduction rate, feature selection could accelerate the classification system up to four times.
+  
