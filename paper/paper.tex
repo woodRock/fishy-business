@@ -1,1339 +1,662 @@
-\documentclass{article}
-\usepackage{spconf,amsmath,amssymb,graphicx,url,float}
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.20 of 2017/10/04
+%
+\documentclass[runningheads]{llncs}
 
-% Hide red underlines for URLs. 
-\usepackage[hidelinks]{hyperref}
-
-% Stack two figures on top of each other.
-\usepackage{subcaption}
-
-% Make caption text font smaller.
+% Packages 
+\usepackage{graphicx} % Add assets folder to path for images. 
+\graphicspath{{assets/}}
+\usepackage{amsmath,amssymb,float,url} % Hide red underlines for URLs. 
+\usepackage[hidelinks]{hyperref} % Stack two figures on top of each other.
+\usepackage{subcaption} % Make caption text font smaller.
 \usepackage{caption}
 \captionsetup[figure]{font=small,labelfont=small}
+% Make table-caption gap larger (source: https://bit.ly/3zm0wRn)
+\captionsetup[table]{skip=10pt}
 
-
-\graphicspath{{assets/}}
-
-% Template for ICASSP-2020 paper; to be used with:
-%          spconf.sty  - ICASSP/ICIP LaTeX style file, and
-%          IEEEbib.bst - IEEE bibliography style file.
-% --------------------------------------------------------------------------
-
-\def\x{{\mathbf x}}
-\def\L{{\cal L}}
-\newcommand{\R}{\mathbb{R}}
-
-% Title.
-% ------
-\title{Machine Learning Analysis on Fish Oil Data }
-
-% Single address.
-% ---------------
-\name{
-  Jesse Wood, Bing-Xue, Mengjie Zhang, Bach Hoai Nguyen, Daniel Killeen
- \thanks{Thanks to New Zealand Plant \& Food Research for datasets, funding and expertise.}
-} 
-
-\address{
-  Victoria University \\ 
-  Engineering and Computer Science \\ 
-  Kelburn, Wellington, New Zealand
-}
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following line
+% to display URLs in blue roman font according to Springer's eBook style:
+% \renewcommand\UrlFont{\color{blue}\rmfamily}
 
 \begin{document}
+%
+\title{Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach}
+%
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+% \author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
+%   Bach Hoai Nguyen\inst{1}\orcidID{1111-2222-3333-4444} \and
+%   Bing Xue\inst{1}\orcidID{2222--3333-4444-5555} \and 
+%   Mengjie Zhang\inst{1}\orcidID{2222--3333-4444-5555} \and 
+%   Daniel Killeen\inst{2}\orcidID{2222--3333-4444-5555}
+% }
+% %
+% \authorrunning{J. Wood, B. Nguyen, et al.}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+% \institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
+%   \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
+%   \and 
+%   Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
+%   \email{daniel.killeen@plantandfood.co.nz}\\
+% }
 
-\maketitle
+%
+\maketitle              % typeset the header of the contribution
 %
 \begin{abstract}
-  % The abstract should appear at the top of the left-hand column of text, about
-  % 0.5 inches (12 mm) below the title area and no more than 3.125 inches (80 mm) in
-  % length.  Leave a 0.5 inch (12 mm) space between the end of the abstract and the
-  % beginning of the main text.  The abstract should contain about 100 to 150
-  % words, and should be identical to the abstract text submitted electronically
-  % along with the paper cover sheet.  All manuscripts must be in English, printed
-  % in black ink.
-
-  Gas chromatography (GC) can be used to identify chemical compounds present within tissue samples for quality assurance in food science.
-  Existing analytical chemistry techniques for processing GC data are manual and time-consuming.
-  Here, we explore classification algorithms for fish oil data that automate and significantly reduce the time required to process GC data.
-  We find the Linear SVC model can predict the fish species with near-perfect accuracy.
-  The fish oil data is high-dimensional and low sample size.
-  We compare state-of-the-art feature selection methods to reduce the dimensionality of the data.
-  High accuracy is possible with very few features for the MRMR and ReliefF feature selection methods.
-  Visualisation is used to explore the interpretability of the models such that their efficacy can be verified for use in a factory setting.
-  The exploration reveals there are many feature subsets all capable of producing high-accuracy predictions.
-  No clear superset of important features emerges, which indicates there are many important features to choose from.
-  Submitted in partial fulfilment of the Directed Individual Study.
-
+  % The abstract should briefly summarize the contents of the paper in
+  % 150--250 words.
+  
+  Fish is approximately 40\% edible fillet. 
+  The remaining 60\% can be processed into low-value fertilizer or high-value pharmaceutical-grade omega-3 concentrates.
+  High-value manufacturing options depend on the composition of the biomass, which varies with fish species, fish tissue and seasonally throughout the year.
+  Fatty acid composition, measured by Gas Chromatography, is an important measure of marine biomass quality.
+  This technique is accurate and precise, but processing and interpreting the results is time-consuming and requires domain-specific expertise.
+  The paper investigates different classification and feature selection algorithms for their ability to automate the processing of Gas Chromatography data.
+  Firstly, the paper proposes a preprocessing imputation method for aligning timestamps in Gas Chromatography data.
+  Secondly, experiments found that SVM could classify compositionally diverse marine biomass based on raw chromatographic fatty acid data. 
+  The SVM model is interpretable through visualization which can highlight important features for classification.
+  Lastly, experiments demonstrated that applying feature selection significantly reduced dimensionality and improved classification performance on high-dimensional low sample-size datasets.
+  According to the reduction rate, feature selection could accelerate the classification system up to four times.
+  
+  \keywords{
+    AI applications \and
+    Classification \and
+    Feature selection \and 
+    High-dimensional data \and
+    Particle Swarm Optimization \and 
+    Multidisciplinary \and 
+    Gas Chromatography \and 
+    Fatty Acid
+  }
 \end{abstract}
-%
-\begin{keywords}
-  Feature Selection, Gas Chromatography, Support Vector Machines, Visualisation
-\end{keywords}
-%
 
-\section{INTRODUCTION}
-\label{sec:introduction}
+\section{Introduction}
+\label{introduction}
 
-Identifying fish by their species and part from tissue samples is a common task in food science.
-In a factory setting, this is required for quality assurance, optimizing production lines and maximising profits.
-Gas chromatography (GC) \cite{eder1995gas} is a method that can identify chemicial structures in these fish oils \cite{restek2018high}.
-This produces high-dimensional low sample size data from the fish oils.
-Chemists compare a given sample to a reference sample to determine what chemicals are present.
-The existing analytical techniques to perform these tasks are time-consuming and laborious.
-Previous work has shown it possible to use machine learning to automate very similar tasks \cite{bi2020gc, matyushin2020gas}.
+Fish oil is rich in omega-3 polyunsaturated fatty acids, nutritionally important fats that are found at increasingly low concentrations in Western diets \cite{simopoulos2011evolutionary}. 
+This has contributed to a high consumer demand for omega-3 supplements, produced from a wide range of marine biomass \cite{panse2016world}. 
+The suitability of a given fish species (or fish tissue) for the production of high-value omega-3 supplements depends on fatty acid composition, which is determined by an analytical chemistry technique called Gas Chromatography \cite{eder1995gas,restek2018high}. 
+However, fatty acid data must be carefully processed and interpreted by domain experts (i.e. chemists), which is very expensive and time-consuming.
 
-In this paper, we explore machine learning techniques to automate the process of identifying fish species/parts from GC data.
-Firstly, classification algorithms are evaluated for their ability to determine the fish species and part.
-Secondly, feature selection is used to reduce the dimensionality of the data, whilst maintaining high-accuracy predictions.
-Finally, visualisation is used to explore the interpretability of successful models.
-\\\\
-Specifically, our work is divided into main sections:
+% [REF1] Simopoulos, Artemis P. "Evolutionary aspects of diet: the omega-6/omega-3 ratio and the brain." Molecular neurobiology 44.2 (2011): 203-215.
+% [REF2] Panse, Manohar L., and Shital D. Phalke. "World market of omega-3 fatty acids." Omega-3 Fatty Acids (2016): 79-88.
 
-\begin{enumerate}
-  \item Classification
-  \item Feature Selection
-  \item Visualisation
-\end{enumerate}
+The goal of this work is to automate the processing and interpretation of Gas Chromatography data using machine learning algorithms, to substantially increase fatty acid analysis throughput. 
+However, it is not a trivial task to format Gas Chromatography data for existing classification algorithms. 
+Furthermore, each Gas Chromatography data consists of almost 5000 values (features/variables), far more numerous than the number of fish samples (103). 
+This large number of features relative to samples (the curse of dimensionality) results in a sparsely populated data space, which can result in overfitting i.e. where the built model works well on the training set but poorly on the test (unseen) set. 
+Redundant (providing the same information as other features) or irrelevant features (providing misleading information for the classification task) are also common in this type of dataset \cite{nguyen2020survey}, which can reduce classification performance and cause long training times. 
+Therefore, the paper also assessed the utility of feature selection to preprocess and remove these irrelevant/redundant features.
 
-\section{BACKGROUND}
-\label{sec:background}
+The goals of this work are to investigate the viability of classifying different marine biomass using direct, automate processing of raw Gas Chromatography data, improve analytical throughput and reduce labour costs, and reduce the dimensionality of Gas Chromatography data required to perform fish oil production and analysis. 
+The contributions of this work are broken into three main steps:
 
-This paper is a multi-disciplinary effort.
-Domain expertise in chemistry and machine learning is required to extract the full value from the fish oil data.
-Before we explore the data, we provide context on the knowledge - from both chemistry and machine learning - needed to understand this paper.
-\\\\
-Specifically, the background covers:
+\begin{itemize}
+  \item Data preprocessing: This step converts Gas Chromatography data into tabular format data appropriate as input into a machine learning algorithm.
+        The paper proposes an effective method to detect and fill the missing packets/features which significantly improves the classification performance over using the raw data.
+  \item Analysing classification algorithms: The second step performs experiments with five types of classification algorithms, including instance-based classifiers, probabilistic classifiers, tree-based classifiers, ensemble classifiers, and kernel-based classifiers, to classify fish samples \cite{cortes1995support,fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification}.
+        Experiments find that kernel-based classifiers, particularly linear SVM, achieve high classification accuracy on the fish data. 
+        The paper visualises the learnt model and identifies that not all the data, represented as \textit{features}, are useful, which leads to the final step.
+  \item Feature selection: The last step applied feature selection methods to reduce the amount of collected data i.e., the number of features.
+        The experimental results illustrate that the number of features could be reduced by almost 70\% while retaining the same high classification performance.
+\end{itemize}
 
-\begin{enumerate}
-  \item Gas Chromatography
-  \item Classification
-  \item Feature Selection
-  \item Visualisation
-\end{enumerate}
+\section{Gas Chromatography}
 
-\subsection{Gas Chromatography}
-\label{sec:background-gas-chromatography}
+Gas Chromatography is an analytical chemistry method commonly used to investigate the fatty acid compositions of biological samples e.g. marine oils \cite{eder1995gas,restek2018high}. 
+It works by increasing the temperature of a very narrow 'capillary' column, which separates each fatty acid from the complex mixture based on their individual chemical characteristics e.g. molecular size, volatility, and polarity. 
+An example Gas Chromatography for fatty acid analysis is shown in Figure~\ref{fig:gas-chromatography}. 
+The x-axis represents the time required to separate the individual fatty acids (or a packet), and the y-axis represents peak intensity (or the packet intensity), which is proportional to the concentration of each fatty acid. 
+Chemists integrate the area under each peak to measure how much of each fatty acid is present, and use this information to understand the best use of the oil. 
+This process can be slow, labour-intensive and expensive.
 
-Gas chromatography (GC) is a technique for the analysis of chemical compounds \cite{eder1995gas,khan2013gas,restek2018high}.
-The process separates compounds based on their boiling point and molecular weight.
-A compound is injected as a liquid, it is then vaporized into a gas by applying heat.
-A boiling point is a temperature at which it changes phase, from liquid to gas.
-This process is referred to as a phase transition.
-The speed at which a compound is vaporized depends on its boiling point.
-The vaporized gases then travel through a long coil tube.
-That tube has a detector at the end, this detects the rate and intensity at which compounds reach the tube's end.
+The goal of this work is to apply machine learning, particularly classification algorithms to automatically classify the fish data, a real-world problem in New Zealand. 
+However, the current Gas Chromatography data is not readily applied to machine learning algorithms due to missing packets which are not caught by the system detector. 
+The missing packets cause the misalignment between two samples, i.e., intensities at the same time of the two chromatographs may have different meanings. 
+Therefore, it is necessary to detect such missing packets to align the data before applying machine learning algorithms. 
 
-\begin{figure}[htb]
+\begin{figure}[t]
   \centering
-  \includegraphics[width=8.5cm]{chromatograph.png}
-  \caption{
-    Gas chromatograph: the artifact of the GC method \cite{restek2018high}.
-    The detection is used to visualize intensity (y) and time (x) on a chromotrogaph.}
+  \includegraphics[width=0.6\textwidth]{chromatograph.png}
+  
+  \caption{Gas Chromatogram of Fatty Acid Methyl Esters from Snapper Skin}
   \label{fig:gas-chromatography}
 \end{figure}
 
-Chemists use the chromatograms of known compounds as a reference when classifying new ones.
-Take a known example, say \emph{methyl eladiate}.
-We compare this reference sample to an unknown sample.
-Analysis can infer the unknown compound since they share the same peaks as the known one.
-GC is not a definitive technique \cite{khan2013gas}, so it is often used in conjunction with other techniques.
-Mass spectrometry is one such technique \cite{restek2018high}.
+\section{Data Preprocessing and Formation of Classification Problems}
 
-The existing task of classifying chemical compounds based on a chromatograph is laborious \cite{eder1995gas,restek2018high}.
-The spikes on the graph represent peaks.
-Each peak represents a resolved chemical compound.
-Chemists integrate the area under each peak, and compare this to a reference sample, to classify the compound.
-GC must be performed slowly to ensure that the peaks are not too broad.
-This ensures each peak resolves and represents a single compound.
-Once we know what compounds are present in a sample it becomes possible to identify what the sample is.
-For this fish oil data, we classify a sample into two categories:
+The Y-data output from the Gas Chromatography analysis consists of many packets with variable intensities. 
+In theory, they could be used as features to classify the different fish samples, but there were a large number of inconsistencies between packets in the different fish samples. 
+An example, focusing on these inconsistencies for three different fish samples, is shown in Table \ref{tb:badRaw}. 
+Although all three samples have three packets, their timestamps are different. 
+For example, the timestamp of the first packet of Sample 1 is 51, while the timestamp of the first packet of Sample 2 is 50. 
+In other words, the first packet of Sample 1 does not correspond to the first packet of Sample 2, and thus it does not make sense to directly apply a classification algorithm to the raw data. 
+Initial experiments tried KNN (K=3), and the classification performance was only 67\%, which is quite low. 
 
-\begin{enumerate}
-  \item Species
-  \item Part
-\end{enumerate}
-
-Using machine learning techniques it may be possible to speed the process up.
-Machine learning algorithms identify patterns in the data.
-These patterns can be used to classify the sample efficiently.
-An interpretable and accurate model has the potential to be deployed in a factory setting.
-It would eliminate the need for manual work.
-Additionally, an algorithm that can classify unresolved peaks would have an impact on the chemistry field.
-This increases the speed at which GC is performed, increasing the volumetric efficiency of the production line \cite{musk2020battery}.
-
-\subsection{Classification}
-\label{sec:background-classification}
-
-The classification task is to identify the class label for an instance from the dataset.
-We perform two classification tasks and measure their performance:
-
-\begin{enumerate}
-  \item Species: Identify the species of fish (i.e. Bluecod).
-  \item Part: Identify the part of the fish (i.e. Head).
-\end{enumerate}
-
-A supervised learning method creates a model from a labelled dataset - the train set.
-We measure the ability of the model to generalize on unseen data - the test set.
-We give the model a tissue sample from a fish.
-Based on what it has learnt, it predicts the species and part for that fish.
-The existing analytical chemistry techniques for performing this task are laborious and time-consuming.
-We desire a model that is interpretable and has high predictive accuracy.
-We can then use the model to automate this task.
-Thus, it has real-world applications for quality assurance in a factory setting.
-
-\subsubsection{Support Vector Machines}
-\label{sec:background-svm}
-
-Cortes and Vapnik proposed the Support Vector Machine (SVM) \cite{cortes1995support}.
-This model creates a hyperplane that can draw distinct class boundaries between classes.
-We call these class boundaries the support vectors.
-We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
-This creates a divide between one class and the rest, then repeats for the other classes.
-
-\subsubsection{Model}
-\label{sec:background-svm-model}
-
-The sklearn library provides several SVM models for classification.
-The default model uses the RBF kernel.
-Other models use different kernels and parameters \cite{sklearn2021feature}.
-Some models remove trainable parameters.
-Instead, the user can set the number of support vectors \cite{scholkopf2000new}.
-
-\subsubsection{Kernel}
-\label{sec:background-svm-kernel}
-
-The model requires a kernel function.
-This determines the shape of the support vectors in the hyperplane.
-Different kernels capture data of varying complexities.
-The original hyperplane algorithm used a linear kernel \cite{aizerman1964theoretical}.
-Later, non-linear kernels we introduced.
-These employ the kernel trick \cite{boser1992training}.
-Figure~\ref{fig:kernels} shows support vectors for each kernel on a 2D plane.
-This provides an intuition for each kernel.
-
-\begin{figure}[htb]
+\begin{table}[t]
   \centering
-  \includegraphics[width=8.5cm]{kernels.png}
-  \caption{
-    SVM kernels shapes are shown.
-    Specifically, linear, polynomial, radial basis function (rbf) and sigmoidal kernal are shown.}
-  \label{fig:kernels}
-\end{figure}
+  \caption{Inconsistent Timestamps}
+  \label{tb:badRaw}
+  \begin{tabular}{|l|c|c|c|}
+    \hline
+             & \multicolumn{3}{c|}{Timestamp}                       \\
+    \cline{2-4}
+             & Sample 1                       & Sample 2 & Sample 3 \\
+    \hline 
+    Packet 1 & 51                             & 50       & 50       \\
+    Packet 2 & 52                             & 51       & 51       \\
+    Packet 3 & 53.05                          & 53.1     & 53       \\
+    \hline
+  \end{tabular}
+\end{table}
 
-\subsubsection{Hyperplane Coefficients}
-\label{sec:background-svm-hyperplane}
+Further investigation revealed that the main reason was due to the missing packets, caused by the absence of signal at the Gas Chromatography detector. 
+For example, for Sample 1, the packet at the timestamp 50 is missed, and thus the first packet of Sample 1 is at 51. 
+These missing packets are unavoidable for this dataset, therefore a method is needed to handle missing data. 
+Preprocessing aligns the packets from all the samples.
+Firstly, all unique timestamps are collected by analysing all the possible samples in the training set. 
+For the example given in Table \ref{tb:badRaw}, the set of unique timestamps is \{50, 51, 52, 53, 53.05, 53.1\}. 
+Thus, there should be six packets in total, while Table \ref{tb:badRaw} shows only three packets for each sample. 
+Based on the timestamp set, the packets at \{50, 53, 53.1\} are missing for Sample 1. 
+Once the missing packets are identified, these missing intensities need to be filled.
 
-The l1 regularization term leads to sparse models.
-So, they include fewer features - making them easier to interpret.
-Eq~\ref{eq:hyperplane} defines the total hyperplane as
+This work tried three different standard methods for missing values: filling 0, filling the average value, and filling the median value. 
+The results show that filling 0 gives the most promising results with 83.57\% on KNN (K=3). 
+The possible reason is that the missing packets have low intensities, which the detector might not be able to detect. 
+Thus, the 0 value is quite close to the intensities of the missing packets. 
+Therefore, the filling 0 method was chosen. 
+The authors are aware that there are more complex methods for imputing missing values, but they are not the focus of the paper and will be left for future work \cite{tran2015multiple}.
 
-\begin{align}\label{eq:hyperplane}
-  \beta_{\text{t}} = \text{minmax}(
-  \sum_{\text{c} \in \text{C}}
-  |\beta_{\text{c}}|
-  )
-\end{align}
+The processing gives 4800 packets for each sample, which meant each sample had \textit{4800} features. 
+The number of fish samples was 153. 
+There is a class imbalance for the fish species dataset, where Blue cod is the majority class e.g., 68 samples are Blue Cod of the total 153 samples.
+There are two classification tasks associated with the data:
 
-where there is the number of classes ($c \in C$) sets of hyperplane coefficients.
-$\beta_{\text{t}}$ coefficient as the sum of hyperplane coefficients magnitude for each class $\beta_{\text{c}}$.
-We normalize the coefficients with a min-max feature scaling.
-The total hyperplane for both datasets is given in Figure~\ref{fig:hyperplane-coefficients}.
+\begin{itemize}
+  \item To predict the fish species for each fish sample. There are four fish species: \textit{Snapper, Gurnard, Tarakihi}, and \textit{Blue cod}.
+  \item To predict from which body part the fish sample is extracted. There are six body parts: \textit{Frame, Gonad, Head, Liver, Skin}, and \textit{Guts}.
+\end{itemize}
 
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_total_coefficients.png}
-    \caption{Fish Species Hyperplane Coefficients}
-    \label{fig:fish-hyperplane-coeffcients}
-  \end{subfigure}
+\section{Classification Performance}
 
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_total_coefficients.png}
-    \caption{Fish Part Hyperplane Coefficients}
-    \label{fig:part-hyperplane-coeffcients}
-  \end{subfigure}
+The following section illustrates the classification performance on the fish species and body parts.
 
-  \caption[Two numerical solutions]{
-    Hyperplane coefficients $\beta_t$.
-    The normalized sum of the magnitude of the coefficients for each class is given in Eq~\ref{eq:hyperplane}.
-    (a) Coefficients for the fish species dataset.
-    (b) Coefficients for the fish part dataset.}
-  \label{fig:hyperplane-coefficients}
-\end{figure}
+\subsection{Experiment Settings}
 
-\subsection{Feature Selection}
-\label{sec:background-feature-selection}
+Firstly, since the number of samples is small, the experiment uses 10-fold cross-validation to conduct the experiments. 
+For 10-fold cross-validation, the method divides the data into 10 folds such that the proportions of the classes in each fold are representative of the proportions in the whole dataset. 
+Each fold plays the testing role, while the remaining 9 folds are combined to form a training set. 
+A classification algorithm is then trained on the training set, and the obtained classifier is evaluated on the test set. 
+Finally, 10 testing accuracies are obtained, and their mean value and standard deviation are given as the final classification performance. 
+The experiment measures the balanced accuracy, so as not to bias results towards the majority class (i.e. Blue cod).
 
-Feature selection reduces the complexity of the problem space.
-This helps counteract the curse of dimensionality \cite{koppen2000curse}.
-Reducing the complexity improves computational efficiency, increases interpretability, and can improve performance.
-More interpretable models are easier for humans to understand.
-This means we can verify their efficiency using domain expertise in biochemistry.
-This is an important factor for real-world applications in a factory setting.
+These experiments compare five well-known classifications: K Nearest Neighbours (KNN where K is set to 3), Naive Bayes (NB), Random Forest (RF), Decision Trees (DT), and Linear Support Vector Machines (SVM)  \cite{fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification,cortes1995support}. 
+The parameters are the default settings in \textit{scikit-learn} \cite{pedregosa2011scikit}.
 
-\subsection{Visualisation}
-\label{sec:background-visualisation}
-
-Two heuristics are optimized for when selecting a suitable model:
-
-\begin{enumerate}
-  \item Interpretability
-  \item Accuracy
-\end{enumerate}
-
-Interpretability is important for verification in a safety-critical environment.
-We intend to employ the chosen model in a factory setting.
-Accuracy is preferable, but not at the expense of interpretability.
-The efficacy of the model must be explainable through domain knowledge.
-Or else it is difficult to ensure reliability.
-The focus on interpretability ensures the model can be used in the real world.
-
-Model interpretability is explored through visualisation.
-We aim to uncover learnt patterns that can be verified with domain knowledge.
-The desired algorithm should strike a balance between predictive performance and semantically meaningful features.
-
-What constitutes semantic meaning varies from one domain to another.
-It is easy to build intuition for semantic meaning in computer vision and natural language processes, they correspond to recognisable images and structured text.
-In the domain of food science, our meaning is derived from performance on the classification task(s) and similarity to underlying chemical compounds.
-
-\section{RELATED WORKS}
-\label{sec:related-works}
-
-Here, we provide a literature review of state-of-the-art papers related to the topics discussed in the background. These papers are foundational and motivate the methods presented in this paper.
-\\\\
-Specifically, we examine:
-
-\begin{enumerate}
-  \item Gas Chromatography
-  \item Classification
-  \item Feature Selection
-  \item Visualisation
-\end{enumerate}
-
-\subsection{Gas Chromatography}
-\label{sec:related-gas-chromatography}
-
-Tomasi et al. investigated correlation optimisation warping (COW) and dynamic time warping (DT) for preprocessing chromatography data \cite{tomasi2004correlation}.
-Unconstrained dynamic time warping was found to be too flexible.
-The algorithm overcompensated when trying to fix the alignment in the data.
-
-Zhang et al. proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry data \cite{zhang2008two}.
-The algorithm warps local regions of the data to maximise the correlation with known reference samples.
-This work uses data fusion with labelled reference samples, to improve the quality of new samples.
-
-\subsection{Classification}
-\label{sec:related-classification}
-
-Bi et al. proposed a CNN model that incorporated GC-MS data fusion for food science \cite{bi2020gc}.
-The high-dimensional data was naturally suited towards the CNN.
-Their work classified the flavour quality of peanut oil with 93\% accuracy.
-Similar to this project, the existing technique for analysis was intractable large scale.
-The fusion of existing datasets improved the efficacy of their model.
-
-Matyshuin et al. proposed a stacking model for analysis of gas-chromatograph data \cite{matyushin2020gas}.
-It stacked the results of 1DConv, 2DConv, Deep Residual MLP and XGBoost.
-Their model predicted the retention index for samples.
-A retention index is a standardized value that only depends on the chemical structure of a compound.
-Once identified the retention index can be used for further identification.
-GC-MS data has underlying patterns that correspond to chemical compounds.
-
-\subsection{Feature Selection}
-\label{sec:related-feature-selection}
-
-Demelza et al. \cite{robinson2020genetic} proposed a feature and latent variable selection method for regression models in food science.
-The vibrational spectroscopy dataset shared similarities in its high dimensionality and food science domain.
-The purposes GA-PLSR generalized better and produced fewer complex models.
-The study showed that Genetic Algorithms are powerful tools for feature selection in food science.
-
-Brown et al. \cite{xue2014particle} proposed a PSO with novel initialising and updating mechanisms.
-The initialization strategy utilized both forward and backwards selection.
-The updating mechanism overcame the limitations of the traditional method by considering the number of features.
-The proposed algorithm had better performance in terms of computing, fewer features selected and classification accuracy.
-
-Nguyen et al. \cite{nguyen2014filter} proposed a wrapper based PSO technique for feature selection in classification.
-The algorithm uses a wrapper based fitness function of the classification error rate.
-The local search only considers the global best using a filter based method.
-It draws from the strengths of filter and wrapper based feature selection.
-This proposed method outperformed three state-of-the-art and two traditional feature selection methods.
-
-Tran et al. \cite{tran2018variable} propose a Variable-Length PSO.
-Traditional PSO methods for feature selection are limited in the fixed length of their representation.
-This leads to both high memory usage and computational cost.
-The proposed algorithm allows particles to have shorter and different variable lengths.
-Their length changing mechanism allows PSO to escape local optima.
-Results across several high dimensional datasets showed improved performance in terms of computational time, fewer features selected and classification accuracy.
-
-\subsection{Visualisation}
-\label{sec:related-visualisation}
-
-Mikolov et al. found the word embeddings used in NLP were semantically meaningful \cite{mikolov2013linguistic}.
-They showed arithmetic could be applied to these word vectors that were interpretable.
-For example "King" - "Man" + "Woman" = "Queen".
-The feature space was semantically meaningful, which serves as a powerful representation, that we intuitively reason with.
-Similar thought has been applied to computer vision \cite{olah2018building, karras2020analyzing}.
-Semantically meaningful feature spaces allow for intuition about the behaviour of complex models, be it through visualisation or arithmetic.
-
-Tegmark et al. developed they AI Feynman \cite{udrescu2020ai}.
-This algorithm can derive physics equations from data using symbolic regression.
-Symbolic regression is a difficult task, but by simplifying properties exhibited by physics equations (i.e symmetry, composability, separability), the problem can be reduced.
-Their work uses blackbox neural networks, to derive interpretable models that can easily be verified by humans.
-
-\section{RESULTS \& DISCUSSIONS}
-\label{sec:results}
-
-\subsection{Dataset}
-
-We perform analysis on a dataset of 154 gas chromatography samples.
-Each sample has 4800 features that correspond to timestamps.
-Figure~\ref{fig:gas-chromatography} shows an example.
-This is low sample-size high-dimensional data.
-Each sample has two labels.
-Species - the species of fish the sample belongs to.
-Part - the part of the body the sample is from.
-We create two labelled datasets: species and part - these both share the same features but have different class labels.
-
-\subsection{Classification}
-\label{sec:results-classification}
-
-We measure the predictive ability of classifiers on both the fish species and part dataset.
-We are looking for the model with the highest accuracy.
-As a result, we start broadly by exploring a variety of models from the different families of AI, then we narrow and refine the search.
-\\\\
-Specifically, we examine:
-
-\begin{enumerate}
-  \item Ensemble
-  \item SVM Model
-  \item SVM Kernel
-\end{enumerate}
-
-For each of the following experiments, the same experiment setup is used.
-We use stratified cross-validation ($k=10$) to measure the classification accuracy.
-Each method has its performance recorded on the same cross-folds.
-Then we average over 30 independent runs.
-This experimental setup evaluates performance on both the fish species and part datasets.
-
-\subsection{Ensemble}
-
-This is a broad search for an effective classification model.
-We explore a classifier from each family of AI.
-The model with the highest classification accuracy on both datasets is then selected, and explored by later sections in further detail.
-\\\\
-We examine 5 classification models:
-
-\begin{enumerate}
-  \item K-Nearest Neighbors \cite{fix1989discriminatory}
-  \item Random Forest \cite{ho1995random}
-  \item Naive Bayes \cite{hand2001idiot}
-  \item Decision Tree \cite{loh2011classification}
-  \item Support Vector Machine \cite{cortes1995support}
-\end{enumerate}
+\subsection{Results and Discussion}
 
 \begin{table}[htb]
   \captionsetup{font=small,labelfont=small}
+  \caption{
+    Classification Accuracies
+  }
   \centering
   \begin{tabular}{|l|l|l|l|l|}
     \hline
-    Dataset                    & Method &
-    AvgTrain $\pm$ Std         &
+    Dataset                    & Method & 
+    AvgTrain $\pm$ Std         & 
     % T                          &
-    AveTest $\pm$ Std                     \\ % &
+    AveTest $\pm$ Std                      \\ % &
     % T                                     \\
     \hline
-    Species                    &
+    Fish Species               & 
     \begin{tabular}[c]{@{}l@{}}
       KNN          \\ % K-Nearest Neighbors
       RF           \\ % Random Forest
       DT           \\ % Decision Tree
       NB           \\ % Naive Bayes
       \textbf{SVM} \\ % Support Vector Machine
-    \end{tabular} &
+    \end{tabular}  & 
     \begin{tabular}[c]{@{}l@{}}
-      83.57 $\pm$ 1.80         \\ % KNN
-      1.00 $\pm$ 0.00          \\ % RF
-      1.00 $\pm$ 0.00          \\ % DT
-      79.54 $\pm$ 1.60         \\ % NB
-      \textbf{1.00 $\pm$ 0.00} \\ % SVM
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular} &
+      83.57 $\pm$ 1.80          \\ % KNN
+      100.0 $\pm$ 0.00          \\ % RF
+      100.0 $\pm$ 0.00          \\ % DT
+      79.54 $\pm$ 1.60          \\ % NB
+      \textbf{100.0 $\pm$ 0.00} \\ % SVM
+    \end{tabular}  & 
     \begin{tabular}[c]{@{}l@{}}
       74.88 $\pm$ 12.54          \\ % KNN
       85.65 $\pm$ 10.76          \\ % RF
       76.98 $\pm$ 13.12          \\ % DT
       75.27 $\pm$ 4.35           \\ % NB
       \textbf{98.33 $\pm$ 5.00 } \\ % SVM
-    \end{tabular}            \\
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular}            \\
+    \end{tabular}              \\
     \hline
-    Part                       &
+    Body Parts                 & 
     \begin{tabular}[c]{@{}l@{}}
       KNN          \\ % K-Nearest Neighbors
       RF           \\ % Random Forest
       DT           \\ % Decision Tree
       NB           \\ % Naive Bayes
       \textbf{SVM} \\ % Support Vector Machine
-    \end{tabular} &
+    \end{tabular}  & 
     \begin{tabular}[c]{@{}l@{}}
-      68.95 $\pm$ 3.49          \\ % KNN
-      1.00 $\pm$ 0.00           \\ % RF
-      1.00 $\pm$ 0.00           \\ % DT
-      65.54 $\pm$ 2.69          \\ % NB
-      \textbf{1.00 $\pm$ 0.00 } \\ % SVM
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular} &  
+      68.95 $\pm$ 3.49            \\ % KNN
+      100.00 $\pm$ 0.00           \\ % RF
+      100.00 $\pm$ 0.00           \\ % DT
+      65.54 $\pm$ 2.69            \\ % NB
+      \textbf{100.00 $\pm$ 0.00 } \\ % SVM
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
       43.61 $\pm$ 13.48          \\ % KNN
       72.60 $\pm$ 16.15          \\ % RF
       60.14 $\pm$ 14.57          \\ % DT
       48.61 $\pm$ 12.19          \\ % NB
-      \textbf{87.14 $\pm$ 8.52 } \\ % SVM
-    \end{tabular}            \\
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % KNN
-    %   ? \\ % RF
-    %   ? \\ % DT 
-    %   ? \\ % NB
-    %   ? \\ % SVM
-    % \end{tabular}            \\
+      \textbf{79.86 $\pm$ 8.52 } \\ % SVM
+    \end{tabular}             \\
     \hline
   \end{tabular}
-  \caption{
-    Accuracy for different classification techniques.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare K-nearest neighbours (KNN), random forest (RF), decision tree (DT), naive bayes (NB) and support vector machines (SVM).}
   \label{t:classification}
 \end{table}
 
-Table~\ref{t:classification} shows for random forest, decision tree and support vector machine have perfect training accuracy.
-The decision tree and random forest overfit the training data.
-Only the SVM achieves similar performance on the test data.
-The SVM classifier outperforms the other classifiers.
-It does so for the test set for both the species and part datasets.
+Table~\ref{t:classification} shows the results for KNN, RF, DT, NB, and SVM. 
+Results are given for fish species (top), and fish part (bottom) datasets. 
+The mean and standard deviation of balanced accuracy is given using the fish species and part datasets. 
+For each dataset, the best accuracy is emphasized in bold. 
 
-\subsubsection{SVM Model}
-\label{sec:results-classification-svm}
+As can be seen from the table, RF, DT and SVM achieve 100\% training accuracies. 
+However, on the test set, DT and RF do not achieve good classification performance. 
+The main reason is that there is a small number of training samples. 
+The trees built by DT and RF can perfectly fit the training data by creating large trees that remember all the possible training samples. 
+Such trees do not generalise well on the test set, which is the overfitting problem in machine learning. 
+KNN does not achieve good performance since it is a distance-based classification algorithm which suffers the most from the large number of features. 
+Similar to KNN, NB does not achieve good performance since it assumes conditional independence between features that may not be true in the fish datasets. 
+The SVM classifier outperforms the other classifiers on the test set, with 98.33\% and 79.86\% for fish species and body parts, respectively. 
+The main reason is that SVM can handle a large number of features, so SVM is suitable to classify the fish data. 
 
-The classification results showed that SVM was the most effective classifier.
-Now, we explore the variations in models for the SVM classifier.
-We use the same cross-validation setup as before.
-\\\\
-We examine 3 SVM models \cite{sklearn2021feature}:
+Another essential point is that the classification accuracy on the fish species is always higher than the classification accuracy on the body parts. 
+The results suggest that classifying body parts is a more challenging problem. 
+A possible reason is that the tissue samples from different species may have very different chemical components. 
+Meanwhile, the tissue samples from different body parts (but on the same fish species) may have similar chemical components. 
+Future work will investigate more sophisticated mechanisms to improve the classification performance on classifying body parts. 
 
-\begin{enumerate}
-  \item Suport Vector Classification \cite{cortes1995support}
-  \item Nu-Support Vector Classification \cite{scholkopf2000new}
-  \item Linear Support Vector Classification
-\end{enumerate}
-
-\begin{table}[htb]
-  \captionsetup{font=small,labelfont=small}
+\begin{figure}[t]
   \centering
-  \begin{tabular}{|l|l|l|l|l|}
+  \begin{subfigure}[b]{.49\linewidth}
+    \includegraphics[width=\linewidth]{fish_hyperplane_sna.png}
+    \caption{Snapper}\label{fig:hyperplane-sna}
+  \end{subfigure}
+  \begin{subfigure}[b]{.49\linewidth}
+    \includegraphics[width=\linewidth]{fish_hyperplane_bco.png}
+    \caption{Blue cod}\label{fig:hyperplane-bco}
+  \end{subfigure}
+  
+  \caption[SVM Coef]{
+    SVM Hyperplane Coefficients
+  }
+  \label{fig:svm-hyperplane}
+\end{figure}
+
+\subsection{Interpret SVM models}
+
+Achieving a high classification performance is great. 
+However, in real-world applications, it is essential to analyse why the models work well.
+This subsection analyzes the SVM models built to classify the fish species. 
+The main idea of SVM is to build hyperplanes that separate different fish species. 
+The hyperplane is represented by a weight vector in which each weight is associated with a feature. 
+The larger the weight, the more important the corresponding feature. 
+After an SVM classification algorithm is trained on the training set, an SVM classifier containing a learned weight vector is obtained. 
+This section analyses the learned weight vector to examine the contribution of each packet/feature.
+
+Figures \ref{fig:hyperplane-sna} and \ref{fig:hyperplane-bco} show the coefficients of hyperplanes to separate Snapper and Blue cod from other species, respectively. 
+The horizontal axis is the feature index and the vertical axis is the coefficient value. 
+The negative weights are in red and the positive weights are in blue. 
+Gas Chromatography data is non-negative, so only negative weights push toward the negative class, therefore positive weights are expected values, and the negative values are not.
+Note that when considering the feature importance, the absolute values of the weights should be considered, i.e., the longer the bar, the more important the corresponding features. 
+Both figures demonstrate that most features have relatively small weights, which suggests not all the 4800 packets/features are needed to classify the fish data.  
+
+\section{Feature Selection}
+
+\subsection{Motivations}
+
+As can be seen in the SVM models, it is not necessary to use all the 4800 packets/features to perform fish classification.
+Therefore, the number of packets can be reduced while maintaining (or even improving) the classification performance.
+In an overall automated classification system, it would be great to significantly reduce the number of packets.
+Since then the system will not need to wait for a large number of packets to arrive at the end of the detector, hence significantly improving the system efficiency and throughput. 
+The remaining question is which packets or features should be used. 
+This question motivates us to conduct a further investigation using feature selection to select the most important packets/features. 
+
+\subsection{Feature Selection Methods}
+
+In a classification problem, the classification performance relies heavily on feature quality. 
+However, in a large set of features as in the fish data, there are usually redundant or irrelevant features that blur useful information provided by the relevant features. 
+Feature selection aims to select an informative subset of relevant features, which is expected to significantly reduce the number of features while maintaining (or even improving) the classification performance.
+In a feature selection system, subset evaluation is an essential component that evaluates the quality of a feature subset. 
+Based on the subset evaluation, the system can continuously improve the subset quality until a stopping criterion is met. 
+The final feature subset is the output as the final solution. 
+
+This section compares four common feature selection methods: 
+
+\begin{itemize}
+  \item $\boldsymbol{\chi^2}$ (chi-square) \cite{liu1995chi2} is a statistical measure that computes the independence of two variables $X$ and $Y$. The formula of $\chi^2$ is
+        \begin{equation}
+          \chi^2 = \sum_{k=1}^N \frac{(X_{k} - Y_{k})^2}{Y_{k}}
+          \label{eq:chi}
+        \end{equation}
+        where $k$ is the index of the sample and $N$ is the number of samples. 
+        In feature selection, $\chi^2$ can be used to measure the independence between a feature and a class label. 
+        Since there is usually a high dependency between a relevant feature and a class label, the low $\chi^2$ value indicates that the features are more relevant. 
+        Thus, the features can be ranked in ascending order and the top-ranked features can be selected. 
+  \item \textbf{Minimum Redundancy and Maximum Relevance (mRMR)} \cite{ding2005minimum} uses mutual information to perform feature selection.
+        Mutual information between two variables $X$ and $Y$, i.e., $I(X; Y)$ calculates the dependency between two or more variables. 
+        mRMR aims to select a feature subset such that the redundancy of the selected features is minimised and the relevance between the selected features and the class label is maximised. 
+        Given a set of selected features $A$, the score of a feature $X_i$, i.e., $S_i$ is calculated by the following formula:
+        \begin{equation}
+          S_i = I(Y; X_i) - \frac{1}{|S|} \sum_{X_j \in A} I(X_i; X_j) 
+          \label{eq:mrmr}
+        \end{equation}
+        mRMR has many iterations where at each step mRMR will add the best feature based on Eq. (\ref{eq:mrmr}). 
+        mRMR stops when a predefined number of features are selected. 
+  \item \textbf{ReliefF} \cite{robnik2003theoretical} is a feature selection algorithm based on distance measures.
+        In ReliefF, a good feature should be able to well separate instances from different classes while the instances from the same class should not be far from each other. 
+        The algorithm ranks all features based on the idea of nearest neighbours. 
+        For a feature, if the distance between two nearest instances from \textit{different} classes (a miss) is large, the feature score is increased since the feature can well separate different classes. 
+        On the other hand, if the distance between the two nearest instances from the \textit{same} class is large (a hit), the feature score is decreased. 
+        In ReliefF, the higher the score, the more relevant the feature. Therefore, all features are ranked in descending order, and the top-ranked features are selected. 
+  \item \textbf{Particle Swarm Optimisation (PSO) \cite{kennedy1995particle,7969325} for Wrapper Feature Selection} utilises the classification performance as the fitness function to achieve feature selection.
+        The main idea is to have a swarm of particles that can explore the feature subset space in parallel. 
+        Each particle represents a feature subset. 
+        The quality of each particle is the classification performance of the corresponding feature subset. 
+        Since it is necessary to train a classification algorithm during the evaluation process, the classification algorithm is ``wrapped'' inside the PSO algorithm (that is why the algorithm is called Wrapper PSO). 
+        In this work, a linear SVM is used as the wrapped classification algorithm since it achieves good classification performance. 
+        Each particle records the best feature subset that it discovered so far (called personal best or $pbest$) and the best feature subset that is discovered by the whole swarm so far (called global best or $gbest$). 
+        The particle then updates its position by moving towards the two best positions. 
+        It is expected that the new subset at the new position will have better quality (i.e., higher classification performance) than the previous position. 
+        An advantage of PSO is that the particle movement is stochastic. 
+        Thus, the swarm can globally explore the feature subset search space, which is an essential point when dealing with a large and complex search space like feature selection. 
+        Therefore, PSO has gained much attention from the feature selection community recently \cite{nguyen2020survey}.
+\end{itemize}
+
+Although there are other advanced and complicated feature selection algorithms \cite{li2017feature,zhang2020binary,alsahaf2022framework,alweshah2022coronavirus}, this work starts with the above four simple but well-known techniques. 
+If the results are promising, future work will investigate extensions of these and/or other feature selection algorithms. 
+
+\subsection{Experiment Settings}
+
+Following the same setting in the classification part, this experiment uses 10-fold cross-validation to generate the training and test sets.  
+For each method, the balanced classification accuracy is measured with a linear SVM classification algorithm \cite{sklearn2021feature}. 
+For $\chi^2$, mRMR, and ReliefF, a hyperparameter for the number of selected features must be given. 
+Therefore, the experiments measure the performance of the three algorithms on a wide range of the number of features: {50, 100, 150, ..., 4800} and the increment is 50. 
+For PSO, the swarm size is set to 30 and the maximum number of iterations to 100.
+An advantage of PSO is that it does not need to specify a hyperparameter for the number of selected features. 
+Since PSO is a stochastic algorithm, it is run 30 independent times on each classification task to make a reliable comparison. 
+
+\subsection{Feature Selection Performance on Fish Species Classification}
+
+Figure~\ref{fig:fs-per-k-fish} shows the results for $\chi^2$ (chi2), ReliefF, mRMR and PSO on the fish species. 
+The vertical axis is the classification accuracy and the horizontal axis is the number of selected features. 
+As can be seen from the figures, the three algorithms $\chi^2$, mRMR, and ReliefF perform poorly when the number of selected features is small. 
+The main reason is that when the number of selected features is small, many relevant features are not selected, and thus essential classification information is missed. 
+Among the three algorithms, $\chi^2$ usually achieves the lowest classification performance since $\chi^2$ does not reduce the feature redundancy and does not consider the interactions between features.
+ReliefF and mRMR achieve comparative performance. 
+mRMR achieves its highest training and testing accuracies when the number of selected features is around 1500, which can be seen in Table \ref{tb:bestSpecies}. 
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{accuracy-features-fish-train.png}
+    \caption{Species: Training set}\label{fig:fs-per-k-fish-train}
+  \end{subfigure}
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{accuracy-features-fish-test.png}
+    \caption{Species: Test set}\label{fig:fs-per-k-fish-test}
+  \end{subfigure}
+  \caption[Two numerical solutions]{
+    Classification Accuracy of Fish Species on Different Numbers of Selected Features.
+  }
+  \label{fig:fs-per-k-fish}
+\end{figure}
+
+\begin{table}[t]
+  \caption{
+    Best accuracy on Fish Species.
+  }
+  \label{tb:bestSpecies}
+  \centering
+  \begin{tabular}{|l|c|c|c|}
     \hline
-    Dataset                    & Method &
-    AvgTrain $\pm$ Std         &
-    % T                          &
-    AveTest $\pm$ Std                     \\ % &
-    % T                                     \\
+    Method                     & 
+    Number of features         & 
+    Training accuracy          & 
+    Testing accuracy              \\
     \hline
-    Species                    &
     \begin{tabular}[c]{@{}l@{}}
-      svc           \\ % Support vector classification
-      nusvc         \\ % Nu-Support vector classification
-      \textbf{lsvc} \\ % Linear Support vector classification
-    \end{tabular} &
+      ReliefF       \\        
+      \textbf{mRMR} \\     
+      $\chi^2$      \\  
+      \textbf{PSO}  \\
+      Full          \\
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      88.96 $\pm$ 1.40         \\ % SVC
-      88.30 $\pm$ 1.17         \\ % Nu-SVC
-      \textbf{1.00 $\pm$ 0.00} \\ % LSVC
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular} &
+      359           \\ 
+      \textbf{1500} \\ 
+      3250          \\ 
+      \textbf{1192} \\ 
+      4800          \\
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      80.00 $\pm$ 12.33         \\ % SVC
-      81.73 $\pm$ 12.75         \\ % Nu-SVC
-      \textbf{98.33 $\pm$ 5.00} \\ % LSVC
-    \end{tabular}            \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular}            \\
-    \hline
-    Part                       &
+      100.0          \\
+      \textbf{100.0} \\
+      100.0          \\
+      \textbf{100.0} \\
+      100.0          \\ 
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      svc           \\ % Support vector classification
-      nusvc         \\ % Nu-Support vector classification
-      \textbf{lsvc} \\ % Linear Support vector classification
-    \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      73.25 $\pm$ 3.54         \\ % SVC
-      90.31 $\pm$ 1.97         \\ % Nu-SVC
-      \textbf{1.00 $\pm$ 0.00} \\ % LSVC
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      49.03 $\pm$ 12.14         \\ % SVC
-      62.36 $\pm$ 15.18         \\ % Nu-SVC
-      \textbf{87.16 $\pm$ 8.56} \\ % LSVC
-    \end{tabular}            \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % SVC
-    %   ? \\ % Nu-SVC
-    %   ? \\ % LSVC
-    % \end{tabular}            \\
+      98.33          \\
+      \textbf{99.17} \\
+      98.33          \\
+      \textbf{99.17} \\
+      98.33          \\ 
+    \end{tabular}    \\
     \hline
   \end{tabular}
-  \caption{
-    Accuracy for different SVM models.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare Support-Vector Classification (SVC), Nu-Support Vector Classification (Nu-SVC) and Linear Support-Vector Classification (LSVC).}
-  \label{t:svm-models}
-\end{table}
-
-Table~\ref{t:svm-models} shows for fish species, SVC and Nu-SVC models have similar performance on both train and test.
-The Nu-SVC outperforms the SVC for both train and test for the part dataset.
-Yet, the linear SVC outperforms both models. It achieves perfect training accuracy for both datasets.
-For the test, near-perfect (98.33\%) on species, and reasonable performance (87.16\%) on the part.
-
-\subsubsection{SVM Kernel}
-\label{sec:results-classification-svm-kernel}
-
-Now we know that SVM is the most effective classifier, and the LSVC is the most effective model.
-To provide an exhaustive search, we explore all possible kernels.
-We use the same cross-validation setup as before.
-\\\\
-We examine 4 SVM kernels \cite{sklearn2021feature}:
-
-\begin{enumerate}
-  \item Polynomial
-  \item Radial Basis Function (rbf)
-  \item Sigmoid
-  \item Linear \cite{aizerman1964theoretical}
-\end{enumerate}
-
-\begin{table}[htb]
-  \captionsetup{font=small,labelfont=small}
-  \centering
-  \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Dataset                    & Method &
-    AvgTrain $\pm$ Std         &
-    % T                          &
-    AveTest $\pm$ Std                     \\ % &
-    % T                                     \\
-    \hline
-    Species                    &
-    \begin{tabular}[c]{@{}l@{}}
-      poly            \\
-      rbf             \\
-      sigmoid         \\
-      \textbf{linear} \\
-    \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      76.83 $\pm$ 1.18         \\ % poly
-      88.96 $\pm$ 1.40         \\ % rbf
-      33.19 $\pm$ 2.36         \\ % sigmoid
-      \textbf{1.00 $\pm$ 0.00} \\ % linear
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      71.37 $\pm$ 15.86          \\ % poly
-      80.00 $\pm$ 12.33          \\ % rbf
-      30.18 $\pm$ 6.50           \\ % sigmoid
-      \textbf{97.50 $\pm$ 5.34 } \\ % linear
-    \end{tabular}            \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular}            \\
-    \hline
-    Part                       &
-    \begin{tabular}[c]{@{}l@{}}
-      poly            \\
-      rbf             \\
-      sigmoid         \\
-      \textbf{linear} \\
-    \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      70.63 $\pm$ 2.27         \\ % poly
-      73.25 $\pm$ 3.54         \\ % rbf
-      37.47 $\pm$ 1.78         \\ % sigmoid
-      \textbf{1.00 $\pm$ 0.00} \\ % linear
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      53.89 $\pm$ 6.94           \\ % poly
-      49.03 $\pm$ 12.14          \\ % rbf
-      33.47 $\pm$ 8.59           \\ % sigmoid
-      \textbf{87.36 $\pm$ 10.77} \\ % linear
-    \end{tabular}            \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % poly
-    %   ? \\ % rbf 
-    %   ? \\ % sigmoid
-    %   ? \\ % linear
-    % \end{tabular}            \\
-    \hline
-  \end{tabular}
-  \caption{
-    Accuracy for different SVM kernals.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare polynomial (poly), radial basis function (rbf), sigmoidal (sigmoid) and linear.}
-  \label{t:svm-kernels}
-\end{table}
-
-Table~\ref{t:svm-kernels} shows the sigmoid kernel performs very poorly on training and test for both datasets.
-The polynomial and RBF kernel achieve comparable performance for both datasets.
-The linear kernel outperforms all other kernels for both datasets.
-It has near-perfect (97.50\%) test accuracy on fish species.
-And reasonable performance (87.36\%) on the fish part.
-
-\subsubsection{Discussion}
-\label{sec:results-classification-discussion}
-
-We evaluated an ensemble of classification techniques.
-Naive Bayes performed poorly.
-This is likely due to the assumption of conditional independence between features.
-KNN also performed poorly. This is likely due to the high dimensionality of the data.
-Points drawn from high dimensional spaces tend to never be close together.
-SVM provided the best results.
-This model can identify fish species from gas chromatography data with near-perfect accuracy.
-This prompted further investigation into this technique.
-
-Within support vector machines, the Linear SVC model showed the best performance.
-Naturally, within SVM kernels, the linear kernel also showed the best performance.
-There is high predictive performance on the linear kernel.
-This suggests an underlying pattern that is linearly separable in a hyperplane.
-Non-linear kernels - polynomial, RBF or sigmoidal - produced diminishing returns.
-These kernels try to fit complex patterns that are not present in the data.
-
-Performance for all models was better for the fish species than the part.
-This suggests tissue samples for different species may have distinct chemical compositions.
-Yet, different fish parts may have fewer underlying structural differences.
-For GC data the intra-class variation between species provides a larger signal than part variation.
-For example, we expect there to be more difference between a tarakihi and a bluecod, than there is a similarity between two livers from each species.
-
-\subsection{Feature Selection}
-\label{sec:results-feature-selection}
-
-For each method, we measure classification accuracy with an SVM model \cite{sklearn2021feature}.
-It has linear kernel, l1 regularization \cite{robnik2003theoretical} and 10,000 maximum iterations.
-We examine 4 feature selection methods \cite{chappers2015skfeature}:
-
-\begin{enumerate}
-  \item Chi$^2$ \cite{liu1995chi2}
-  \item Minimum Redundancy Maximum Relevance \cite{ding2005minimum}
-  \item ReliefF \cite{robnik2003theoretical}
-  \item Particle Swarm Optimization \cite{kennedy1995particle,kennedy1997discrete}
-\end{enumerate}
-
-We first provide a detailed accuracy comparison for a set feature number ($k = 500$).
-Then we explore the accuracy for the general case (any $k$).
-
-\subsubsection{Classification Accuracy $k = 500$}
-
-We measure the classification accuracy at $k = 500$ for each method.
-To allow comparison with PSO, we take the top $k$ features suggested by the algorithm and compare this to the others.
-
-\begin{table}[htb]
-  \captionsetup{font=small,labelfont=small}
-  \centering
-  \begin{tabular}{|l|l|l|l|l|}
-    \hline
-    Dataset                    & Method &
-    AvgTrain $\pm$ Std         &
-    % T                          &
-    AveTest $\pm$ Std                     \\ %&
-    % T                                     \\
-    \hline
-    Species                    &
-    \begin{tabular}[c]{@{}l@{}}
-      Chi$^2$          \\ % Chi-Square
-      MRMR             \\ % Minimum Redundancy Maximum Relevance
-      \textbf{ReliefF} \\ % ReliefF
-      PSO              \\ % Particle Swarm Optimization
-    \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      95.17 $\pm$ 3.52          \\ % chi
-      99.79 $\pm$ 0.41          \\ % mrmr
-      \textbf{99.71 $\pm$ 0.44} \\ % relief
-      99.71 $\pm$ 4.30          \\ % PSO
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      81.85 $\pm$ 9.65          \\ % chi
-      95.09 $\pm$ 6.90          \\ % mrmr
-      \textbf{95.12 $\pm$ 6.26} \\ % relief
-      93.30 $\pm$ 8.16          \\ % PSO
-    \end{tabular}            \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular}            \\
-    \hline
-    Part                       &
-    \begin{tabular}[c]{@{}l@{}}
-      Chi$^2$      \\ % Chi-Square
-      MRMR         \\ % Minimum Redundancy Maximum Relevance
-      ReliefF      \\ % ReliefF
-      \textbf{PSO} \\ % Particle Swarm Optimization
-    \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      % TODO PSO
-      96.32 $\pm$ 0.88          \\ % chi
-      97.44 $\pm$ 0.97          \\ % mrmr
-      97.82 $\pm$ 1.04          \\ % relief
-      \textbf{97.62 $\pm$ 0.91} \\ % PSO
-    \end{tabular} &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular} &
-    \begin{tabular}[c]{@{}l@{}}
-      % TODO PSO
-      64.86 $\pm$ 19.01          \\ % chi
-      78.79 $\pm$ 13.21          \\ % mrmr
-      80.28 $\pm$ 5.58           \\ % relief
-      \textbf{82.36 $\pm$ 10.72} \\ % PSO
-    \end{tabular}            \\ % &
-    % \begin{tabular}[c]{@{}l@{}}
-    %   ? \\ % chi
-    %   ? \\ % mrmr
-    %   ? \\ % relief
-    %   ? \\ % PSO
-    % \end{tabular}            \\
-    \hline
-  \end{tabular}
-  \caption{
-    Accuracy for different feature selection methods.
-    Accuracy is given as the stratified k-fold cross validation over 30 independent runs.
-    We compare chi$^2$ (chi), maximum relevance - minimum redundancy (MRMR), reliefF, particle swarm optimisation (PSO).}
   \label{t:feature-selection}
 \end{table}
 
-Table~\ref{t:feature-selection} shows for the training set, MRMR, ReliefF and PSO have comparable accuracy for both datasets.
-The Chi$^2$ method does not, instead if performs very poorly.
-For the test set, ReliefF performs best for species, PSO performs best for the part.
+As can be seen from the figure, most feature subsets evolved by PSO have from 1100 to 1500 features. 
+The results indicate that PSO can automatically determine a good number of selected features, which cannot be achieved by the other three algorithms. 
+As can be seen in Table \ref{tb:bestSpecies}, the highest classification performance of PSO is 99.17\% which is about 1\% higher than using all features. 
+Meanwhile, PSO can remove 75\% features, which means the classification system can be four times faster given the number of required packets/features is reduced by four times. 
 
-\subsubsection{Classification Accuracy (all $k$)}
+\subsection{Feature Selection Performance on Body Parts Classification}
 
-We measure classification accuracy as a function of feature number.
-We compared this for several FS methods.
-Due to limitations, PSO optimizes feature number $k$ automatically.
-So, to compare its performance, we plot the results of 30 independent runs.
-\\\\
-Specifically, we compare the following methods:
-
-\begin{itemize}
-  \item reliefF \cite{aizerman1964theoretical}
-  \item MRMR \cite{ding2005minimum}
-  \item PSO \cite{kennedy1995particle,kennedy1997discrete}
-  \item $chi^2$ \cite{liu1995chi2}
-\end{itemize}
-
-\begin{figure}[htb]
+\begin{figure}[t]
   \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{accuracy-features-fish-train.png}
-    \caption{Training set}
-    \label{fig:accuracy-features-fish-train}
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{accuracy-features-part-train.png}
+    \caption{Part: Training set}\label{fig:fs-per-k-part-part-train}
   \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{accuracy-features-fish-test.png}
-    \caption{Test set}
-    \label{fig:accuracy-features-fish-test}
+  \begin{subfigure}[b]{.45\linewidth}
+    \includegraphics[width=\linewidth]{accuracy-features-part-test.png}
+    \caption{Part: Test set}\label{fig:fs-per-k-part-part-test}
   \end{subfigure}
-
   \caption[Two numerical solutions]{
-    Fish species dataset: Classification accuracy for feature selection methods for a given $k$.
-    We measure the balanced accuracy of k-fold cross-validation.
-    We compare reliefF, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
-    Fish part dataset. (a) Training set. (b) Test set.}
+    Classification accuracy of Fish Body Parts on Different Numbers of Selected Features.
+  }
+  \label{fig:fs-per-k-part}
 \end{figure}
 
-Figure~\ref{fig:accuracy-features-fish-train} shows accuracy for fish species.
-We show accuracy on the training set for each feature selection method.
-At $k=1050$ all feature selection methods achieve $100\%$ accuracy on the training set.
-The SVM fits the training data for each method using a fraction of the full feature set.
-Figure~\ref{fig:accuracy-features-fish-test} shows accuracy for fish species.
-We show test set accuracy for each feature selection method.
-The accuracy reaches a plateau ($96\%$ accuracy) at around $k=1050$ features for all methods.
-The test performance is less than the train performance, yet the test accuracy is still very high.
-This suggests the model can generalize well on unseen data for the fish species.
+Figure~\ref{fig:fs-per-k-part} shows the results for $\chi^2$, ReliefF, mRMR and PSO on the fish part dataset. 
+As can be seen in Figure~\ref{fig:fs-per-k-part-part-train}, $\chi^2$, mRMR, and Relief-F witness a sharp improvement when the number of selected features is in the range [0, 500], which indicates that the 500 top-ranked features are essential to select. 
+After that, the three approaches have a gradual incline, which peaks at 100\% where all the features are selected. 
+On the other hand, PSO selected feature subsets with sizes ranging in [1200,1300]. 
+Given the same classification performance, PSO usually selects a smaller number of features than the other three feature selection algorithms. 
+The main reason is that PSO considers the interaction in the whole set of features, meanwhile, the other algorithms only consider the pair-wise interactions between feature pairs. 
 
-\begin{figure}[htb]
+\begin{table}[t]
+  \caption{
+    Best Accuracy on Fish Body Parts
+  }
+  \label{tb:bestBody}
   \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{accuracy-features-part-train.png}
-    \caption{Training set}
-    \label{fig:accuracy-features-part-train}
-  \end{subfigure}
+  \begin{tabular}{|l|c|c|c|}
+    \hline
+    Method                     & 
+    Number of features         & 
+    Training Accuracy          & 
+    Testing Accuracy              \\
+    \hline
+    \begin{tabular}[c]{@{}l@{}}
+      ReliefF       \\        
+      \textbf{mRMR} \\     
+      $\chi^2$      \\  
+      PSO           \\
+      Full          \\
+    \end{tabular} & 
+    \begin{tabular}[c]{@{}l@{}}
+      1650          \\ 
+      \textbf{1500} \\ 
+      1550          \\ 
+      1223          \\ 
+      4800          \\
+    \end{tabular} & 
+    \begin{tabular}[c]{@{}l@{}}
+      100.0          \\
+      \textbf{100.0} \\
+      100.0          \\
+      100.0          \\
+      100.0          \\ 
+    \end{tabular} & 
+    \begin{tabular}[c]{@{}l@{}}
+      84.44          \\
+      \textbf{86.94} \\
+      82.50          \\
+      84.31          \\
+      79.86          \\ 
+    \end{tabular}    \\
+    \hline
+  \end{tabular}
+  \label{t:feature-selection}
+\end{table}
 
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{accuracy-features-part-test.png}
-    \caption{Test set}
-    \label{fig:accuracy-features-part-test}
-  \end{subfigure}
+Table \ref{tb:bestBody} illustrates the best accuracy for classifying fish body parts. 
+As can be seen from the table, the best classification performance at 86.94\% is achieved with 1500 features selected by mRMR. 
+Thus, feature selection can also improve 7\% accuracy over using all features. 
+Meanwhile, the number of features is reduced by 2.5 times, which means the system can be 2.5 times faster. 
+It should be noted that the testing performance of PSO is not as good as mRMR despite its superior training performance. 
+The results indicate the potential overfitting of PSO on classifying body parts, which can be investigated more in the future.
 
-  \caption[Two numerical solutions]{
-    Fish part dataset: classification accuracy for feature selection methods for a given $k$.
-    We measure the balanced accuracy of k-fold cross-validation.
-    We compare reliefF, maximum relevance - minimum redundancy (MRMR), chi$^2$, and particle swarm optimisation (PSO).
-    (a) Training set. (b) Test set.}
-\end{figure}
-
-Figure~\ref{fig:accuracy-features-part-train} shows accuracy for part dataset.
-We show train accuracy for each feature selection method.
-All feature selection methods struggle to fit the training set for the fish part.
-Even with the full feature set, a perfect train accuracy is never reached.
-Figure~\ref{fig:accuracy-features-part-test} shows accuracy for part dataset.
-We show the test accuracy for each feature selection method.
-The classification accuracy fluctuates for all feature selection methods.
-At around $k=1050$ features, it begins to decrease.
-The training accuracy improves, as the test does not from this point onwards.
-The SVM is overfitting to noise (redundant features) in the training set.
-
-\subsubsection{Disucssion}
+\subsection{Summary}
 \label{sec:results-feature-selection-discussion}
 
-Feature selection methods helped reduce dimensionality.
-We evaluated performance with an SVM classifier.
-In which, ReliefF and PSO were best for fish species and part, respectively.
-ReliefF can identify conditional dependencies between features when providing feature rankings.
-ReliefF algorithms are robust and noise-tolerant, which explains their superior performance.
-PSO provides a combination of global and local searches.
-A search through a near-infinite combinatorial space of possible feature subsets.
-This stochastic method is computationally expensive but can offer effective solutions.
+In general, feature selection can significantly reduce the number of required packets/features while the classification performance is mostly maintained. 
+For classifying the fish species, 75\% of packets can be removed. 
+For classifying the body parts, 60\% of packets can be removed. 
+The significant reduction means that the overall classification system can be up to 4 times faster. 
+It should be noted that classifying the body part is more challenging than classifying the fish species. 
+That is why classifying the body parts requires more features. 
+Last but not least, PSO can automatically determine a good number of selected features. 
+In general, PSO achieves good classification performance, except for some signs of overfitting which can be investigated in future. 
 
-For both general and specific cases, and across all methods, the fish species have lower variance than the fish part in classification accuracy.
-The classification results (\S~\ref{sec:results-classification}) support this, they also show higher test accuracy for fish species, than fish part.
-They suggest different fish parts may have fewer underlying structural differences.
+\section{Conclusions and Future Work}
 
-For the general case and both datasets, a lot of interesting behaviour happens at $k=1050$.
-The fish species reach a plateau, but the fish part accuracy begins to decrease.
-An accuracy comparable or better than the full dataset is possible with 21.8\% of its features.
+This paper has proposed an interpretable and effective classification process for fish oil analysis. 
+Based on the results, it can be concluded that machine learning is a promising direction to improve the effectiveness and efficiency of the overall fish product system. 
+In terms of accuracy, the proposed model can achieve high classification performance on classifying both fish species and body parts. 
+However, fish species are easier to predict than body parts since there is more intra-class variation within fish species than there is a similarity between the same part from different fish. 
+Among the considered classification algorithms, linear SVM achieves the best classification performance since it is suited to high-dimensional problems. 
+Analysis of the SVM model demonstrates that not all packets are needed, and thus feature selection has been conducted to significantly reduce the number of packets and improve the classification performance. 
 
-For the fish species dataset, we see high accuracy with very few features.
-ReliefF and MRMR can achieve above 90\% classification accuracy with $k = 50$.
-Chi$^2$ is not able to mirror this performance.
-This shows ReliefF and MRMR are very effective feature selection methods for this task.
+It is worth noting that the classification and feature selection methods presented in this paper could be extended to further improve performance. 
+This is particularly useful for the lower-accuracy fish part dataset. 
+A potential direction is to improve the classification performance by constructing more informative high-level features, also known as feature construction. 
+In addition, a more sophisticated imputation method can be developed to fill the missing packets in the fish data.
 
-The PSO may not have a hyperparameter for feature number $k$.
-Instead, it automates the selection of this parameter.
-Yet, it achieves comparable results to other state-of-the-art methods.
-This automation may prove useful for automating the classification task for online learning.
-In a factory, we may want to train a model as new data arrives.
-PSO requires less human intervention, yet still, provides competitive performance.
+% Please note that the first paragraph of a section or subsection is
+% not indented. The first paragraph that follows a table, figure,
+% equation etc. does not need an indent, either.
 
-MRMR and ReliefF both have high accuracy with very few features on the fish species dataset.
-This suggests that few features are required to construct a reasonable representation of a fish tissue sample.
-This is a good indication that the fish species dataset contains less noise.
-This also warrants further investigation into which features are considered important for low $k$ values.
-This motivates the following section on visualisation.
+% Subsequent paragraphs, however, are indented.
 
-\subsection{Visualisation}
-\label{sec:results-visualisation}
+% \subsubsection{Sample Heading (Third Level)} Only two levels of
+% headings should be numbered. Lower level headings remain unnumbered;
+% they are formatted as run-in headings.
 
-In this section, we explore the interpretability of the feature selection methods.
-Firstly, We the features and their rankings for low $k$ values.
-Then investigate if there is a superset of important features - these would be universally recognized by all methods - that is, the overlap or common features.
-Thirdly, the classification accuracy of the overlap is compared to its parts to see if the superset even exists.
-Finally, we compare the most effective methods (reliefF and MRMR) to the most effective classifier (SVM).
-\\\\
-Specifically, we examine:
+% \paragraph{Sample Heading (Fourth Level)}
+% The contribution should contain no more than four levels of
+% headings. Table~\ref{tab1} gives a summary of all heading levels.
 
-\begin{enumerate}
-  \item Feature Rankings ($k = 50$)
-  \item Overlap: MRMR $\cap$ ReliefF
-  \item Accuracy: Overlap, MRMR, ReliefF
-  \item Overlap: FS Method $\cap$ Hyperplane Coefficients
-\end{enumerate}
+% \begin{table}
+% \caption{Table captions should be placed above the
+% tables.}\label{tab1}
+% \begin{tabular}{|l|l|l|}
+% \hline
+% Heading level &  Example & Font size and style\\
+% \hline
+% Title (centered) &  {\Large\bfseries Lecture Notes} & 14 point, bold\\
+% 1st-level heading &  {\large\bfseries 1 Introduction} & 12 point, bold\\
+% 2nd-level heading & {\bfseries 2.1 Printing Area} & 10 point, bold\\
+% 3rd-level heading & {\bfseries Run-in Heading in Bold.} Text follows & 10 point, bold\\
+% 4th-level heading & {\itshape Lowest Level Heading.} Text follows & 10 point, italic\\
+% \hline
+% \end{tabular}
+% \end{table}
 
-\subsubsection{Experimental Setup}
 
-When evaluating classification accuracy we use a stratified cross-validation ($k=10$).
-We give the average balanced accuracy over those $k$ folds.
-When experiments are examining feature selections/rankings, we fit the entire dataset.
-We repeat each experiment for both fish species and part datasets.
+% \noindent Displayed equations are centred and set on a separate
+% line.
+% \begin{equation}
+% x + y = z
+% \end{equation}
+% Please try to avoid rasterized images for line-art diagrams and
+% schemas. Whenever possible, use vector graphics instead (see
+% Fig.~\ref{fig1}).
 
-The number of features $k$ is the independent variable for many of these methods.
-We exclude PSO \cite{kennedy1995particle,kennedy1997discrete} from the analysis.
-Since $k$ is not a hyper-parameter for this algorithm.
-We analyse feature importance for three feature selection methods.
-\\\\
-Specifically, we compare the following methods:
+% \begin{figure}
+% \includegraphics[width=\textwidth]{fig1.eps}
+% \caption{A figure caption is always placed below the illustration.
+% Please note that short captions are centred, while long ones are
+% justified by the macro package automatically.} \label{fig1}
+% \end{figure}
 
-\begin{itemize}
-  \item reliefF \cite{aizerman1964theoretical}
-  \item MRMR \cite{ding2005minimum}
-  \item chi$^2$ \cite{liu1995chi2}
-\end{itemize}
-
-\subsubsection{Feature Rankings (k=50)}
-\label{sec:results-visualisation-feature-rankings-50}
-
-We compare the feature rankings for the top 50 ($k=50$) features for each FS method.
-We normalize scores ($x \in [0,1]$) to allow comparison between methods.
-We see if each FS method selects similar features for a low number of features $(k = 50)$.
-If true, this suggests that there are important features.
-All techniques would recognize these. Previous work \cite{wood2021classification,wood2021feature} has shown worse performance for chi$^2$.
-The visualisation also helps gain an intuition for why this could be the case.
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_rankings_k-50_reliefF.png}
-    \caption{reliefF}
-    \label{fig:fish-rankings-reliefF}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_rankings_k-50_mrmr.png}
-    \caption{Maximum Relevance — Minimum Redundancy (MRMR)}
-    \label{fig:fish-rankings-mrmr}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_rankings_k-50_chi2.png}
-    \caption{chi$^2$}
-    \label{fig:fish-rankings-chi2}
-  \end{subfigure}
-  \caption[Two numerical solutions]{
-    Fish species: normalized feature rankings ($k=50$).
-    This gives the feature rankings for each feature index for feature selection methods.
-    The results are normalized to facilitate easy comparison.
-    (a) ReliefF. (b) MRMR. (c) Chi$^2$.}
-\end{figure}
-
-These results relate to the fish species dataset.
-Figure~\ref{fig:fish-rankings-reliefF} shows relierF favors higher feature indexes ($i \in [4000, 4800]$).
-The feature indexes tend to bunch towards this range.
-Figure~\ref{fig:fish-rankings-mrmr} shows MRMR samples from the entire set of feature indexes ($i \in [0, 4800]$).
-This method samples feature indexes with a more uniform distribution than reliefF.
-Figure~\ref{fig:fish-rankings-chi2} shows chi$^2$ selects chains of features adjacent to each other.
-These chains hint the method is not able to make a good selection for low values of $k$.
-We would expect poor performance for the $chi^2$ method for low values of $k$ - the feature selection (\S~\ref{sec:results-feature-selection}) results confirm that claim.
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_rankings_k-50_reliefF.png}
-    \caption{reliefF}
-    \label{fig:part-rankings-reliefF}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_rankings_k-50_mrmr.png}
-    \caption{Maximum Relevance — Minimum Redundancy (MRMR)}
-    \label{fig:part-rankings-mrmr}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_rankings_k-50_chi2.png}
-    \caption{chi$^2$}
-    \label{fig:part-rankings-chi2}
-  \end{subfigure}
-
-  \caption[Two numerical solutions]{
-    Fish part: normalized feature rankings ($k=50$).
-    This gives the feature rankings for each feature index for feature selection methods.
-    The results are normalized to facilitate easy comparison.
-    (a) ReliefF. (b) MRMR. (c) Chi$^2$.}
-\end{figure}
-
-These results relate to the fish part dataset.
-Figure~\ref{fig:part-rankings-reliefF} shows reliefF favours feature indexes bunching towards the higher range.
-Figure~\ref{fig:part-rankings-mrmr} shows MRMR gives a more uniform distribution of features.
-Figure~\ref{fig:part-rankings-chi2} shows chi$^2$ tends to cluster of features around index $i = 3000$.
-The features cluster more for the fish part than the species.
-
-\subsubsection{Overlap: MRMR $\cap$ ReliefF}
-\label{sec:results-visualisation-overlap-mrmr-reliefF}
-
-We give overlap - the intersection of features selected by MRMR and ReliefF for a given $k$ - as MRMR $\cap$ ReliefF.
-The overlap measures the similarities between the feature subsets chosen by each method.
-If the overlap value is high, this suggests there are a distinct set of important features.
-Here, we would expect both methods to recognize these early, or, there may be low overlap.
-A low overlap would suggest that there are many important features, each method can find unique important features on its own.
-We exclude chi$^2$ from this analysis because there was little overlap for lower $k$ values with other methods.
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_k_overlap.png}
-    \caption{Fish species dataset}
-    \label{fig:fish-k-overlap}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_k_overlap.png}
-    \caption{Fish part dataset}
-    \label{fig:part-k-overlap}
-  \end{subfigure}
-  \caption[Two numerical solutions]{
-    Overlap - common features for MRMR and ReliefF.
-    The overlap demonstrates the number of shared features between the two feature selection methods for a give $k$ value.
-    (a) Fish species. (b) Fish part.}
-  \label{fig:fs-overlap}
-\end{figure}
-
-Figure~\ref{fig:fs-overlap} shows this overlap.
-Intuitively, the limit of the overlap, when $k$ approaches all features $k_{max}$, is the number of features $k_{max}$.
-Due to this limit, we are more interested in the left-hand side of the graph, the low $k$ values.
-For low $k$ values the overlap is very small.
-There are a few features important enough to be selected early by both methods, this result is consistent for both datasets.
-
-\subsubsection{Accuracy: Overlap, MRMR, ReliefF}
-\label{sec:results-visualisation-accuracy-overlap-mrmr-reliefF}
-
-We compare the classification accuracy of the MRMR, ReliefF and their overlap (MRMR $\cap$ ReliefF) for a given $k$.
-Chi$^2$ had poor performance in the classification task \cite{wood2021feature}.
-Also, this method has little to no overlap. So, we no longer consider chi$^2$ in our analysis.
-Now, we determine if the first $k$ features selected by each FS method are the most important.
-Say classification accuracy for the overlap exceeds that of its parts (MRMR, ReliefF).
-This would mean the most important features are the first $k$ features selected by each method.
-Or, the overlap may share the same classification accuracy as its parts.
-This would suggest many features are all important.
-Feature subsets with the same accuracy are as important as each other.
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_k_accuracy_train.png}
-    \caption{Training set}
-    \label{fig:fish-k-accuracy-train}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_k_accuracy_test.png}
-    \caption{Test set}
-    \label{fig:fish-k-accuracy-test}
-  \end{subfigure}
-  \caption[Two numerical solutions]{
-    Fish species: classification accuracy of the overlap, MRMR and ReliefF for a given $k$.
-    We measure the balanced accuracy using k-fold cross-validation.
-    The classification accuracy metric shows how important the selected features are for fish part species.
-    (a) Training set. (b) Test set.}
-\end{figure}
-
-These results relate to fish species.
-Figure~\ref{fig:fish-k-accuracy-train} suggests all subsets of features - MRMR, reliefF and overlap - can fit the data for any $k$.
-Figure~\ref{fig:fish-k-accuracy-test} shows different feature subsets achieve similar test accuracy - so, there are many important features.
-This suggests that each feature subset are equally important.
-The feature selection results (\S~\ref{sec:results-feature-selection}) support this, they showed high accuracy with few features selected $(k = 50)$.
-This result supports that conclusion.
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_k_accuracy_train.png}
-    \caption{Train set}
-    \label{fig:part-k-accuracy-train}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_k_accuracy_test.png}
-    \caption{Test set}
-    \label{fig:part-k-accuracy-test}
-  \end{subfigure}
-
-  \caption[Two numerical solutions]{
-    Fish part: classification accuracy of the overlap, MRMR and ReliefF for a given $k$.
-    We measure the balanced accuracy using k-fold cross-validation.
-    The classification accuracy metric shows how important the selected features are for the fish part dataset.
-    (a) Training set. (b) Test set.}
-\end{figure}
-
-These results relate to the fish part.
-Figure~\ref{fig:part-k-accuracy-train} suggests all subsets of features - MRMR, reliefF and overlap - can fit the data for any $k$.
-Figure~\ref{fig:part-k-accuracy-test} fluctuates wildly.
-This is consistent with previous findings \cite{wood2021classification, wood2021feature}.
-This supports that classifying fish parts is more difficult than fish species.
-Due to the noise in the results, it is difficult to distinguish a clear winner for the part dataset.
-
-\subsubsection{Overlap: FS Method $\cap$ Hyperplane Coefficients}
-\label{sec:results-visualisation-overlap-fs-hyperplane}
-
-We compare the hyperplane coefficients $\beta_t$ to the FS methods method.
-The SVM classifier has high predictive capabilities on both datasets \cite{wood2021classification, wood2021feature}.
-Thus, we expect the FS method most like SVM is of interest.
-
-\begin{figure}[htb]
-  \centering
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{fish_overlap_with_coefficients.png}
-    \caption{Fish species dataset}
-    \label{fig:fish-hyperplane-overlap}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{\linewidth}
-    \includegraphics[width=1\linewidth]{part_overlap_with_coefficients.png}
-    \caption{Fish part dataset}
-    \label{fig:part-hyperplane-overlap}
-  \end{subfigure}
-  \caption[Two numerical solutions]{
-    Overlap - common features between SVM coefficients and feature selection methods for a given $k$ value.
-    We examine the maximum relevance - minimum redundancy (MRMR), relieF, and chi$^2$ methods.
-    The overlap measure shows how similar each method is to the SVM classification method.
-    (a) Fish species. (b) Fish part.}
-  \label{hyperplane-overlap}
-\end{figure}
-
-Figure~\ref{hyperplane-overlap} shows reliefF with the most consistent overlap with SVM coefficients, this is true for both datasets.
-The chi$^2$ method shows wild fluctuations, it is similar for high $k$ values for the fish species, but then similar for low $k$ for the fish part.
-Apart from a small region of low $k$ values, MRMR shares little overlap for the fish species.
-For the fish part, MRMR shares little overlap with SVM coefficients, when compared to others.
-In terms of features selected, reliefF is the most similar to the Linear SVM.
-
-\subsubsection{Discussion}
-\label{sec:visualisation-discussion}
-
-The visualisation has shown us why chi$^2$ is a poor fs method.
-It tends to bunch features together.
-MRMR and reliefF are far better.
-This is true for the distribution of feature indexes, overlap and classification accuracy.
-MRMR has the most uniform distribution of feature indexes.
-Yet, reliefF selects features most like SVM coefficients.
-
-When we select a few features, there was little overlap between MRMR and reliefF.
-There were no clear $k$ best features consistent for both techniques.
-The overlap of features selected did not perform better than its parts (MRMR and reliefF).
-This shows there are lots of important features.
-
-These FS methods were not able to converge on a small superset of important features.
-That is because there are lots of important features for both datasets.
-Each feature represents an intensity at a particular timestamp in the gas chromatograph.
-These results show we can use many chemical combinations to classify fish oil data.
-It may be easier to match some reference chemicals than others.
-There is a range of possibilities for combinations of reference chemicals.
-This research shows we may reduce the cost of this analysis in future.
-
-\section{CONCLUSION}
-\label{sec:conclusion}
-
-The analysis of fish oil data in this paper has focussed on interpretability. Not only have we found effective classification and feature selection techniques, but we have also tried to explain their performance with visualisation and analytical results. We can draw many conclusions from the analytical results and visualisations, but here we recall the most important:
-
-\begin{enumerate}
-  \item Fish species are easier to predict than fish part - there is more intra-class variation within fish species than there is a similarity between the same part from different fish.
-  \item The Linear SVM classifier performs better for both classification tasks - the fish oil data is linearly separable on a hyperplane.
-  \item Near-perfect accuracy can be achieved with very few features for fish species - if this predictive ability exceeds human error this model has real-world applications.
-  \item Comparison with PSO may be difficult (due to automatic $k$ selection), but this automation may be useful in a factory setting.
-  \item There are many important features and their subsets that can be used to classify fish oil - thus, there is a range of possibilities for combinations of reference chemicals.
-\end{enumerate}
-
-Feature selection is not guaranteed to improve classification accuracy.
-Yet, it does reduce the complexity, increase interpretability and improve computational efficiency.
-As with the SVM using an l1 regularization, feature selection is also a trade-off between interpretability and performance.
-Arthur C. Clarke said, "[a]ny sufficiently advanced technology is indistinguishable from magic." \cite{clarke2013profiles}.
-A perfect blackbox model is equivalent to magic, and, it is difficult to have faith in magic, especially if it were to be involved in our food making.
-Faith isn't needed when our models when are interpretable.
-
-\section{Appendix}
-\label{sec:appendix}
-
-% TODO Link all to one source code repository - that has a bullet list for all three notebooks. 
-
-An interactive notebook for the analysis of the data is available online on Google Collab:
-
-\begin{enumerate}
-  \item Classification \cite{wood2021classification}
-  \item Feature Selection \cite{wood2021feature}
-  \item Visualisation \cite{wood2021visualisation}
-\end{enumerate}
-
-% This paper has demonstrated the performance of the neural network with non-linear activation functions on a non-linear objective function. ReLU \cite{fukushima1982neocognitron} has shown to be effective, which hints towards its wide adoption in the field of deep learning.
-
-% \subsection{Relation to Prior Work}
-% \label{sec:prior}
-
-% The text of the paper should contain discussions on how the paper's
-% contributions are related to prior work in the field. It is important
-% to put new work in context, to give credit to foundational work, and
-% to provide details associated with the previous work that has appeared
-% in the literature. This discussion may be a separate, numbered section
-% or it may appear elsewhere in the body of the manuscript, but it must
-% be present.
-
-% You should differentiate what is new and how your work expands on
-% or takes a different path from the prior studies. An example might
-% read something to the effect: "The work presented here has focused
-% on the formulation of the ABC algorithm, which takes advantage of
-% non-uniform time-frequency domain analysis of data. The work by
-% Smith and Cohen \cite{goodfellow2016deep} considers only fixed time-domain analysis and
-% the work by Jones et al \cite{goodfellow2016deep} takes a different approach based on
-% fixed frequency partitioning. While the present study is related
-% to recent approaches in time-frequency analysis [3-5], it capitalizes
-% on a new feature space, which was not considered in these earlier
-% studies."
-
-% \vfill\pagebreak
-
-% \section{REFERENCES}
-% \label{sec:refs}
-
-% List and number all bibliographical references at the end of the
-% paper. The references can be numbered in alphabetic order or 
-% order of appearance in the document. When referring to them in
-% the text, type the corresponding reference number in square
-% brackets as shown at the end of this sentence \cite{goodfellow2016deep}. An
-% additional final page (the fifth page, in most cases) is
-% allowed, but must contain only references to the prior
-% literature.
-
-% References should be produced using the bibtex program from suitable
-% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
-% style file from IEEE produces unsorted bibliography list.
-% -------------------------------------------------------------------------
-\bibliographystyle{IEEEbib}
-\bibliography{strings,refs}
+% \begin{theorem}
+% This is a sampling theorem. The run-in heading is set in bold, while
+% the following text appears in italics. Definitions, lemmas,
+% propositions, and corollaries are styled the same way.
+% \end{theorem}
+%
+% the environments 'definition', 'lemma', 'proposition', 'corollary',
+% 'remark', and 'example' are defined in the LLNCS documentclass as well.
+%
+% \begin{proof}
+% Proofs, examples, and remarks have the initial word in italics,
+% while the following text appears in normal font.
+% \end{proof}
+% For citations of references, we prefer the use of square brackets
+% and consecutive numbers. Citations using labels or the author/year
+% convention are also acceptable. The following bibliography provides
+% a sample reference list with entries for journal
+% articles~\cite{ref_article1}, an LNCS chapter~\cite{ref_lncs1}, a
+% book~\cite{ref_book1}, proceedings without editors~\cite{ref_proc1},
+% and a homepage~\cite{ref_url1}. Multiple citations are grouped
+% \cite{ref_article1,ref_lncs1,ref_book1},
+% \cite{ref_article1,ref_book1,ref_proc1,ref_url1}.
+%
+% ---- Bibliography ----
+%
+% BibTeX users should specify bibliography style 'splncs04'.
+% References will then be sorted and formatted in the correct style.
+%
+\bibliographystyle{splncs04}
+% \bibliography{mybibliography}
+\bibliography{refs}
 
 \end{document}

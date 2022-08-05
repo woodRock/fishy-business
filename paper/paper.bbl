@@ -1,215 +1,108 @@
 \begin{thebibliography}{10}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\providecommand{\doi}[1]{https://doi.org/#1}
 
-\bibitem{eder1995gas}
-K~Eder,
-\newblock ``Gas chromatographic analysis of fatty acid methyl esters,''
-\newblock {\em Journal of Chromatography B: Biomedical Sciences and
-  Applications}, vol. 671, no. 1-2, pp. 113--131, 1995.
+\bibitem{alsahaf2022framework}
+Alsahaf, A., Petkov, N., Shenoy, V., Azzopardi, G.: A framework for feature
+  selection through boosting. Expert Systems with Applications  \textbf{187},
+  115895 (2022)
 
-\bibitem{restek2018high}
-Restek,
-\newblock ``High-resolution gc analyses of fatty acid methyl esters (fames),''
-  \url{https://www.restek.com/en/technical-literature-library/articles/high-resolution-GC-analyses-of-fatty-acid-methyl-esters-fames/}.
-
-\bibitem{bi2020gc}
-Kexin Bi, Dong Zhang, Tong Qiu, and Yizhen Huang,
-\newblock ``Gc-ms fingerprints profiling using machine learning models for food
-  flavor prediction,''
-\newblock {\em Processes}, vol. 8, no. 1, pp. 23, 2020.
-
-\bibitem{matyushin2020gas}
-Dmitriy~D Matyushin and Aleksey~K Buryak,
-\newblock ``Gas chromatographic retention index prediction using multimodal
-  machine learning,''
-\newblock {\em Ieee Access}, vol. 8, pp. 223140--223155, 2020.
-
-\bibitem{khan2013gas}
-Khan Academy,
-\newblock ``Gas chromatography,'' 2013.
-
-\bibitem{musk2020battery}
-Elon Musk,
-\newblock ``2020 annual meeting of stockholders and battery day: Tesla,'' Sep
-  2020.
+\bibitem{alweshah2022coronavirus}
+Alweshah, M., Alkhalaileh, S., Al-Betar, M.A., Bakar, A.A.: Coronavirus herd
+  immunity optimizer with greedy crossover for feature selection in medical
+  diagnosis. Knowledge-Based Systems  \textbf{235},  107629 (2022)
 
 \bibitem{cortes1995support}
-Corinna Cortes and Vladimir Vapnik,
-\newblock ``Support-vector networks,''
-\newblock {\em Machine learning}, vol. 20, no. 3, pp. 273--297, 1995.
-
-\bibitem{sklearn2021feature}
-Sklearn,
-\newblock ``1.13. feature selection,''
-  \url{https://sklearn.org/modules/feature_selection.html}.
-
-\bibitem{scholkopf2000new}
-Bernhard Sch{\"o}lkopf, Alex~J Smola, Robert~C Williamson, and Peter~L
-  Bartlett,
-\newblock ``New support vector algorithms,''
-\newblock {\em Neural computation}, vol. 12, no. 5, pp. 1207--1245, 2000.
-
-\bibitem{aizerman1964theoretical}
-Mark~A Aizerman,
-\newblock ``Theoretical foundations of the potential function method in pattern
-  recognition learning,''
-\newblock {\em Automation and remote control}, vol. 25, pp. 821--837, 1964.
-
-\bibitem{boser1992training}
-Bernhard~E Boser, Isabelle~M Guyon, and Vladimir~N Vapnik,
-\newblock ``A training algorithm for optimal margin classifiers,''
-\newblock in {\em Proceedings of the fifth annual workshop on Computational
-  learning theory}, 1992, pp. 144--152.
-
-\bibitem{koppen2000curse}
-Mario K{\"o}ppen,
-\newblock ``The curse of dimensionality,''
-\newblock in {\em 5th Online World Conference on Soft Computing in Industrial
-  Applications (WSC5)}, 2000, vol.~1, pp. 4--8.
-
-\bibitem{tomasi2004correlation}
-Giorgio Tomasi, Frans Van Den~Berg, and Claus Andersson,
-\newblock ``Correlation optimized warping and dynamic time warping as
-  preprocessing methods for chromatographic data,''
-\newblock {\em Journal of Chemometrics: A Journal of the Chemometrics Society},
-  vol. 18, no. 5, pp. 231--241, 2004.
-
-\bibitem{zhang2008two}
-Dabao Zhang, Xiaodong Huang, Fred~E Regnier, and Min Zhang,
-\newblock ``Two-dimensional correlation optimized warping algorithm for
-  aligning gc$\times$ gc- ms data,''
-\newblock {\em Analytical Chemistry}, vol. 80, no. 8, pp. 2664--2671, 2008.
-
-\bibitem{robinson2020genetic}
-Bing Demelza, Robinson, Mengjie Zhang, and et~al,
-\newblock ``Genetic algorithm for feature and latent variable selection for
-  nutrient assessment in horticultural products,''
-\newblock pp. 1--8, 2020.
-
-\bibitem{xue2014particle}
-Bing Xue, Mengjie Zhang, and Will~N Browne,
-\newblock ``Particle swarm optimisation for feature selection in
-  classification: Novel initialisation and updating mechanisms,''
-\newblock {\em Applied soft computing}, vol. 18, pp. 261--276, 2014.
-
-\bibitem{nguyen2014filter}
-Hoai~Bach Nguyen, Bing Xue, Ivy Liu, and Mengjie Zhang,
-\newblock ``Filter based backward elimination in wrapper based pso for feature
-  selection in classification,''
-\newblock in {\em 2014 IEEE congress on evolutionary computation (CEC)}. IEEE,
-  2014, pp. 3111--3118.
-
-\bibitem{tran2018variable}
-Binh Tran, Bing Xue, and Mengjie Zhang,
-\newblock ``Variable-length particle swarm optimization for feature selection
-  on high-dimensional classification,''
-\newblock {\em IEEE Transactions on Evolutionary Computation}, vol. 23, no. 3,
-  pp. 473--487, 2018.
-
-\bibitem{mikolov2013linguistic}
-Tom{\'a}{\v{s}} Mikolov, Wen-tau Yih, and Geoffrey Zweig,
-\newblock ``Linguistic regularities in continuous space word representations,''
-\newblock in {\em Proceedings of the 2013 conference of the north american
-  chapter of the association for computational linguistics: Human language
-  technologies}, 2013, pp. 746--751.
-
-\bibitem{olah2018building}
-Chris Olah, Arvind Satyanarayan, Ian Johnson, Shan Carter, Ludwig Schubert,
-  Katherine Ye, and Alexander Mordvintsev,
-\newblock ``The building blocks of interpretability,''
-\newblock {\em Distill}, vol. 3, no. 3, pp. e10, 2018.
-
-\bibitem{karras2020analyzing}
-Tero Karras, Samuli Laine, Miika Aittala, Janne Hellsten, Jaakko Lehtinen, and
-  Timo Aila,
-\newblock ``Analyzing and improving the image quality of stylegan,''
-\newblock in {\em Proceedings of the IEEE/CVF Conference on Computer Vision and
-  Pattern Recognition}, 2020, pp. 8110--8119.
-
-\bibitem{udrescu2020ai}
-Silviu-Marian Udrescu and Max Tegmark,
-\newblock ``Ai feynman: A physics-inspired method for symbolic regression,''
-\newblock {\em Science Advances}, vol. 6, no. 16, pp. eaay2631, 2020.
-
-\bibitem{fix1989discriminatory}
-Evelyn Fix and Joseph~Lawson Hodges,
-\newblock ``Discriminatory analysis. nonparametric discrimination: Consistency
-  properties,''
-\newblock {\em International Statistical Review/Revue Internationale de
-  Statistique}, vol. 57, no. 3, pp. 238--247, 1989.
-
-\bibitem{ho1995random}
-Tin~Kam Ho,
-\newblock ``Random decision forests,''
-\newblock in {\em Proceedings of 3rd international conference on document
-  analysis and recognition}. IEEE, 1995, vol.~1, pp. 278--282.
-
-\bibitem{hand2001idiot}
-David~J Hand and Keming Yu,
-\newblock ``Idiot's bayes—not so stupid after all?,''
-\newblock {\em International statistical review}, vol. 69, no. 3, pp. 385--398,
-  2001.
-
-\bibitem{loh2011classification}
-Wei-Yin Loh,
-\newblock ``Classification and regression trees,''
-\newblock {\em Wiley interdisciplinary reviews: data mining and knowledge
-  discovery}, vol. 1, no. 1, pp. 14--23, 2011.
-
-\bibitem{robnik2003theoretical}
-Marko Robnik-{\v{S}}ikonja and Igor Kononenko,
-\newblock ``Theoretical and empirical analysis of relieff and rrelieff,''
-\newblock {\em Machine learning}, vol. 53, no. 1, pp. 23--69, 2003.
-
-\bibitem{chappers2015skfeature}
-Charlie Chappers,
-\newblock ``charliec443/scikit-feature,''
-  \url{https://github.com/charliec443/scikit-feature}.
-
-\bibitem{liu1995chi2}
-Huan Liu and Rudy Setiono,
-\newblock ``Chi2: Feature selection and discretization of numeric attributes,''
-\newblock in {\em Proceedings of 7th IEEE International Conference on Tools
-  with Artificial Intelligence}. IEEE, 1995, pp. 388--391.
+Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
+  \textbf{20}(3),  273--297 (1995)
 
 \bibitem{ding2005minimum}
-Chris Ding and Hanchuan Peng,
-\newblock ``Minimum redundancy feature selection from microarray gene
-  expression data,''
-\newblock {\em Journal of bioinformatics and computational biology}, vol. 3,
-  no. 02, pp. 185--205, 2005.
+Ding, C., Peng, H.: Minimum redundancy feature selection from microarray gene
+  expression data. Journal of bioinformatics and computational biology
+  \textbf{3}(02),  185--205 (2005)
+
+\bibitem{eder1995gas}
+Eder, K.: Gas chromatographic analysis of fatty acid methyl esters. Journal of
+  Chromatography B: Biomedical Sciences and Applications  \textbf{671}(1-2),
+  113--131 (1995)
+
+\bibitem{fix1989discriminatory}
+Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
+  Consistency properties. International Statistical Review/Revue Internationale
+  de Statistique  \textbf{57}(3),  238--247 (1989)
+
+\bibitem{hand2001idiot}
+Hand, D.J., Yu, K.: Idiot's bayes—not so stupid after all? International
+  statistical review  \textbf{69}(3),  385--398 (2001)
+
+\bibitem{ho1995random}
+Ho, T.K.: Random decision forests. In: Proceedings of 3rd international
+  conference on document analysis and recognition. vol.~1, pp. 278--282. IEEE
+  (1995)
 
 \bibitem{kennedy1995particle}
-James Kennedy and Russell~C Eberhart,
-\newblock ``Particle swarm optimization,''
-\newblock in {\em Proceedings of ICNN'95-international conference on neural
-  networks}. IEEE, 1995, vol.~4, pp. 1942--1948.
+Kennedy, J., Eberhart, R.C.: Particle swarm optimization. In: Proceedings of
+  ICNN'95-international conference on neural networks. vol.~4, pp. 1942--1948.
+  IEEE (1995)
 
-\bibitem{kennedy1997discrete}
-James Kennedy and Russell~C Eberhart,
-\newblock ``A discrete binary version of the particle swarm algorithm,''
-\newblock in {\em 1997 IEEE International conference on systems, man, and
-  cybernetics. Computational cybernetics and simulation}. IEEE, 1997, vol.~5,
-  pp. 4104--4108.
+\bibitem{li2017feature}
+Li, J., Cheng, K., Wang, S., Morstatter, F., Trevino, R.P., Tang, J., Liu, H.:
+  Feature selection: A data perspective. ACM computing surveys (CSUR)
+  \textbf{50}(6),  1--45 (2017)
 
-\bibitem{wood2021classification}
-Jesse Wood,
-\newblock ``Fish 1 - google colab notebook,''
-  \url{https://colab.research.google.com/drive/1h303x3Z7kVyJwggfvhq8WN7YFvIH5zt_?usp=sharing}.
+\bibitem{liu1995chi2}
+Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
+  attributes. In: Proceedings of 7th IEEE International Conference on Tools
+  with Artificial Intelligence. pp. 388--391. IEEE (1995)
 
-\bibitem{wood2021feature}
-Jesse Wood,
-\newblock ``Feature selection methods on fish oil data,''
-\newblock {\em Victoria University of Wellington}, 2022,
-\newblock DIS Assignment 1.
+\bibitem{loh2011classification}
+Loh, W.Y.: Classification and regression trees. Wiley interdisciplinary
+  reviews: data mining and knowledge discovery  \textbf{1}(1),  14--23 (2011)
 
-\bibitem{clarke2013profiles}
-Arthur~C Clarke,
-\newblock {\em Profiles of the Future},
-\newblock Hachette UK, 1962.
+\bibitem{nguyen2020survey}
+Nguyen, B.H., Xue, B., Zhang, M.: A survey on swarm intelligence approaches to
+  feature selection in data mining. Swarm and Evolutionary Computation
+  \textbf{54},  100663 (2020)
 
-\bibitem{wood2021visualisation}
-Jesse Wood,
-\newblock ``Fish 3 - google colab notebook,''
-  \url{https://colab.research.google.com/drive/16mpV3eKdjTeFM0Hp4o5-N2LAy1h4gpqo?usp=sharing}.
+\bibitem{7969325}
+Nguyen, H.B., Xue, B., Andreae, P., Zhang, M.: Particle swarm optimisation with
+  genetic operators for feature selection. In: 2017 IEEE Congress on
+  Evolutionary Computation (CEC). pp. 286--293 (2017).
+  \doi{10.1109/CEC.2017.7969325}
+
+\bibitem{panse2016world}
+Panse, M.L., Phalke, S.D.: World market of omega-3 fatty acids. Omega-3 Fatty
+  Acids pp. 79--88 (2016)
+
+\bibitem{pedregosa2011scikit}
+Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel,
+  O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., et~al.:
+  Scikit-learn: Machine learning in python. the Journal of machine Learning
+  research  \textbf{12},  2825--2830 (2011)
+
+\bibitem{restek2018high}
+Restek: High-resolution gc analyses of fatty acid methyl esters (fames)
+
+\bibitem{robnik2003theoretical}
+Robnik-{\v{S}}ikonja, M., Kononenko, I.: Theoretical and empirical analysis of
+  relieff and rrelieff. Machine learning  \textbf{53}(1),  23--69 (2003)
+
+\bibitem{simopoulos2011evolutionary}
+Simopoulos, A.P.: Evolutionary aspects of diet: the omega-6/omega-3 ratio and
+  the brain. Molecular neurobiology  \textbf{44}(2),  203--215 (2011)
+
+\bibitem{sklearn2021feature}
+Sklearn: 1.13. feature selection
+
+\bibitem{tran2015multiple}
+Tran, C.T., Zhang, M., Andreae, P.: Multiple imputation for missing data using
+  genetic programming. In: The Annual Conference on Genetic and Evolutionary
+  Computation. pp. 583--590 (2015)
+
+\bibitem{zhang2020binary}
+Zhang, Y., Gong, D.w., Gao, X.z., Tian, T., Sun, X.y.: Binary differential
+  evolution with self-learning for multi-objective feature selection.
+  Information Sciences  \textbf{507},  67--85 (2020)
 
 \end{thebibliography}
