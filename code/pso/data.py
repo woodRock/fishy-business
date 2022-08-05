@@ -1,24 +1,25 @@
 """
-Data - data.py 
+Data - data.py
 ==============
 
-This module contains helper methods that process the data. 
-The data is stored in text form as a matlab file. 
-This file is imported, converted into the correct datatype, and normalized in range [0,1]. 
+This module contains helper methods that process the data.
+The data is stored in text form as a matlab file.
+This file is imported, converted into the correct datatype, and normalized in range [0,1].
 """
 
-import scipy.io 
+import scipy.io
+import numpy as np
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler
 
 
-def load_data(dataset="Fish", folder = "../data/matlab/"):
+def load_data(dataset="Fish", folder="../data/matlab/"):
     """ Load a dataset from a matlab file.
-    
-    Args: 
+
+    Args:
         dataset: The name of the dataset, defaults to "Fish".
-        folder: Relative path to folder location, defaults to "../data/matlab/". 
-    Returns: 
+        folder: Relative path to folder location, defaults to "../data/matlab/".
+    Returns:
         X,y: the features (X) and labels (y), respectively.
     """
     mat = scipy.io.loadmat(folder + dataset + '.mat')
@@ -26,18 +27,18 @@ def load_data(dataset="Fish", folder = "../data/matlab/"):
     X = X.astype(float)
     y = mat['Y']
     y = y[:, 0]
-    return X,y 
+    return X, y
 
 
 def get_labels(y):
-    """Convert labels from strings to numbers. 
-    
-    Args: 
-        y: Labels as strings. 
+    """Convert labels from strings to numbers.
 
-    Returns 
-        y_: Labels encoded as numbers. 
-        labels: A dictionary to retrieve the string versions from. 
+    Args:
+        y: Labels as strings.
+
+    Returns:
+        y_: Labels encoded as numbers.
+        labels: A dictionary to retrieve the string versions from.
     """
     le = preprocessing.LabelEncoder()
     le.fit(y)
@@ -47,14 +48,14 @@ def get_labels(y):
 
 
 def normalize(X_train, X_test):
-    """ Normalize the features within a range. 
-    
-    Args: 
-        X_train: the training set. 
-        X_test: the test set. 
+    """ Normalize the features within a range.
 
-    Returns: 
-        X_train, X_test: both the training and test sets. 
+    Args:
+        X_train: the training set.
+        X_test: the test set.
+
+    Returns:
+        X_train, X_test: both the training and test sets.
     """
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaler = scaler.fit(X_train)

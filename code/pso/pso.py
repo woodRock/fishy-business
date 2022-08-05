@@ -15,7 +15,7 @@ References:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from .Problem import FeatureSelection
+from .problem import FeatureSelection
 
 
 class Particle:
@@ -40,8 +40,9 @@ class Particle:
 
     def update(self):
         self.velocity = self.w * self.velocity + \
-                        self.c1 * np.random.rand(self.length) * (self.pbest_pos - self.position) + \
-                        self.c2 * np.random.rand(self.length) * (self.gbest_pos - self.position)
+            self.c1 * np.random.rand(self.length) * (self.pbest_pos - self.position) + \
+            self.c2 * np.random.rand(self.length) * \
+            (self.gbest_pos - self.position)
 
         self.velocity[self.velocity < self.min_vel] = self.min_vel
         self.velocity[self.velocity > self.max_vel] = self.max_vel
@@ -107,7 +108,7 @@ class Swarm:
         plt.show()
 
 
-def pso(X,y):
+def pso(X, y):
     """ Convinience wrapper for PSO, which returns selected features for best individual. 
 
     Args:   
@@ -122,8 +123,8 @@ def pso(X,y):
     n_iterations = 100
     no_fea = X.shape[1]
     swarm = Swarm(n_particle=pop_size, length=no_fea, n_iterations=n_iterations,
-                        max_pos=1.0, min_pos=0.0, max_vel=0.2, min_vel=-0.2,
-                        problem=prob)
+                  max_pos=1.0, min_pos=0.0, max_vel=0.2, min_vel=-0.2,
+                  problem=prob)
     best_sol, best_fit = swarm.iterate()
     sel_fea = np.where(best_sol > prob.threshold)[0]
     return sel_fea
