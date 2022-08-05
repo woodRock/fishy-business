@@ -24,9 +24,9 @@ DEAP Github - https://github.com/DEAP/deap
 # [ ] Try basic DEAP algorithm.
 # [ ] Implement elitism.
 
-from numpy.random import randint
-from numpy.random import rand
+from numpy.random import randint, rand
 from .plot import plot_error
+import numpy as np
 
 
 def selection(pop, scores, k=3):
@@ -34,12 +34,12 @@ def selection(pop, scores, k=3):
     Tournament selection.
 
     Args:
-                    pop: Population.
-                    scores: Scores.
-                    k: Number of participants.
+        pop: Population.
+        scores: Scores.
+        k: Number of participants.
 
     Returns:
-                    Selection individual.
+        Selection individual.
     """
     # First random selection.
     selection_ix = randint(len(pop))
@@ -50,37 +50,37 @@ def selection(pop, scores, k=3):
     return pop[selection_ix]
 
 
-def mutation(bitstring, r_mut):
+def mutation(bitstring, mutation_rate):
     """
     Mutation.
 
     Args:
-                    individual: Individual.
-                    r_mut: Mutation rate.
+        individual: Individual bitstring to be mutated.
+        mutation_rate: The probability a mutation will occur.
     """
     for i, _ in enumerate(bitstring):
         # Check for a mutation.
-        if rand() < r_mut:
+        if rand() < mutation_rate:
             # Flip the bit.
             bitstring[i] = 1 - bitstring[i]
 
 
-def crossover(p1, p2, r_cross):
+def crossover(p1, p2, crossover_rate):
     """
     Crossover.
 
     Args:
-                    p1: Parent 1.
-                    p2: Parent 2.
-                    r_cross: Crossover rate.
+        p1: Parent 1.
+        p2: Parent 2.
+        crossover_rate: The probability a crossover between two parents occurs.
 
     Returns:
-                    Children.
+        Children.
     """
     # Children are copies of parents by default.
     c1, c2 = p1.copy(), p2.copy()
     # Check for recombination.
-    if rand() < r_cross:
+    if rand() < crossover_rate:
         # Select crossover poin that is not on the end of the string.
         pt = randint(1, len(p1)-2)
         # Perform crossover.
@@ -96,10 +96,10 @@ def onemax(x):
     With the OneMax problem you are searching for a bitstring where all values are filled with ones.
 
     Args:
-                    x: An individual.
+        x: An individual.
 
     Returns:
-                    The objective function value.
+        The objective function value.
     """
     return -sum(x)
 
@@ -109,10 +109,10 @@ def objective(x):
     2nd order polynomial objective funciton (interesting).
 
     Args:
-                    x: An individual.
+        x: An individual.
 
     Returns:
-                    The objective function value.
+        The objective function value.
     """
     return x[0]**2.0 + x[1]**2.0
 
@@ -122,14 +122,14 @@ def decode(bounds, n_bits, bitstring):
     Decodes a bitstring into a real number.
 
     Args:
-                    bounds: Bounds.
-                    n_bits: Number of bits.
-                    bitstring: Bitstring.
+        bounds: Bounds.
+        n_bits: Number of bits.
+        bitstring: Bitstring.
 
     Returns:
-                    Decoded number.
+        Decoded number.
     """
-    decoded = list()
+    decoded = []
     largest = 2**n_bits
     for i, _ in enumerate(bounds):
         # Extract the substring.
@@ -147,20 +147,20 @@ def decode(bounds, n_bits, bitstring):
     return decoded
 
 
-def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, r_cross, r_mut):
+def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, crossover_rate, mutation_rate):
     """
     Genetic algorithm.
 
     Args:
-                    objective: Objective function.
-                    n_bits: Number of bits.
-                    n_iter: Number of iterations.
-                    n_pop: Number of population.
-                    r_cross: Crossover rate.
-                    r_mut: Mutation rate.
+        objective: Objective function.
+        n_bits: Number of bits.
+        n_iter: Number of iterations.
+        n_pop: Number of population.
+        crossover_rate: The probability a crossover occurs.
+        mutation_rate: The probability a mutation occurs.
 
     Returns:
-                    Best solution.
+        Best solution.
     """
     errors = []
     # initial population of random bitstring
@@ -190,9 +190,9 @@ def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, r_cross, r_mut):
             # get selected parents in pairs
             p1, p2 = selected[i], selected[i+1]
             # crossover and mutation
-            for c in crossover(p1, p2, r_cross):
+            for c in crossover(p1, p2, crossover_rate):
                 # mutation
-                mutation(c, r_mut)
+                mutation(c, mutation_rate)
                 # store for next generation
                 children.append(c)
         # replace population
@@ -203,17 +203,14 @@ def genetic_algorithm(objective, bounds, n_bits, n_iter, n_pop, r_cross, r_mut):
 
 
 if __name__ == "__main__":
-    # Hyperparameters.
     bounds = [[-5.0, 5.0], [-5.0, 5.0]]
-    n_iter = 100
+    iterations = 1000
     n_bits = 16
     n_pop = 100
-    n_cross = 0.9
-    r_mut = 1.0 / (float(n_bits) * len(bounds))
-
-    # Perform the genetic algorithm search.
+    crossover_rate = 0.9
+    mutation_rate = 1.0 / (float(n_bits) * len(bounds))
     best, score = genetic_algorithm(
-        objective, bounds, n_bits, n_iter, n_pop, n_cross, r_mut)
+        objective, bounds, n_bits, iterations, n_pop, crossover_rate, mutation_rate)
     print("Done!")
-    decoded = decode(bounds, n_bits, best)
-    print(f"Best solution: {decoded}.\nScore: {score}.")
+    decoded_best = decode(bounds, n_bits, best)
+    print(f"Best solution: {decoded_best}.\nScore: {score}.")
