@@ -190,6 +190,11 @@ eyesenck1980effects
     * In general distinct stimuli are better remembered than non-distinct ones. 
     * We are more likely to remember things that are out of the blue, or that have a personal connection to us. 
 
+riccardo2009field
+-----------------
+    * A Field Guide to Genetic Programming
+    * A free resource for GP research available online. 
+
 fix1989discriminatory
 ---------------------
     * K-nearest neighbours (KNN).
@@ -215,6 +220,12 @@ garnelo2018conditional
     * Combine Bayesian optimizationa and Neural Networks. 
     * Use Gaussian Processes (GP) to approximate functions within reasonable confidence. 
     * Neural network, encoder-decoder GAN-like architecture to perform ML tasks. 
+
+gencoglu2019hark
+----------------
+    * HARK Side of Deep Learning--From Grad Student Descent to Automated Machine Learning
+    * Grad Student Descent 
+    * **TODO** read this! 
 
 godden1975context
 -----------------
@@ -331,6 +342,11 @@ kennedy1995particle
 kennedy1997discrete
 -------------------
     * PSO for feature selection. 
+
+kerber1992chimerge
+------------------
+    * Chimerge: Discretization of numeric attributes 
+    * Predecessor to Chi2 (Liu 1995, liu1995chi2)
   
 kingma2014adam
 --------------
@@ -443,7 +459,7 @@ liu1995chi2
     * Chi2 discretizes and performs FS - useful as many algorithms perform better with discrete/binary data. 
     * Under discretization would return the original continuous attribute unchanged. 
     * Over-discretization is when inconsistencies are introduced to the data - the data loses fidelity. 
-    * Previous work, ChiMerge, with hyper-parameter :math:`\alpha` the significance level that had to be manually set. 
+    * Previous work, ChiMerge (Kerber 1992, kerber1992chimerge) with hyper-parameter :math:`\alpha` the significance level that had to be manually set. 
     * :math:`\alpha` is nuisance variable that requires black magic approach to tune.
     * Difficult to find ideal :math:`\alpha` without domain knowledge or extensive trial and error. 
     * New approach Chi2 lets data determine value of :math:`\alpha`, perform discretization until over-discretization - a stopping criterion. 
@@ -479,6 +495,10 @@ marhsall2022cybermarine
     * Focus on reducing by-product. 
     * Non-destructure methods for analysis of chemical compounds in fish oil. 
     * Factory of the future - uses AI to inform decisions in the assembly line.
+
+mathieu2013fast
+---------------
+    * Fast training of convolutional networks through ffts 
 
 matyushin2020gas
 ----------------
@@ -589,6 +609,10 @@ restek2018high
 --------------
     * Explanation of gas-chromatraphy in food science for FAMEs. 
 
+riad2022learning
+----------------
+    * Learning strides in convolutional neural networks 
+
 robinson2020genetic
 -------------------
     * Demelza et al. proposed a feature and latent variable selection method for regression models in food science.
@@ -611,6 +635,15 @@ shahriari2015taking
     * Taking the Human Out of theLoop: A Review of Bayesian Optimization.
     * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
     * **TODO** read this. 
+
+smart2005using
+--------------
+    * Using genetic programming for multiclass classification by simultaneously solving component binary classification problems 
+    * Multi-class classification with Genetic Programs using a Classification Map (CM). 
+    * Maps a float to a classification label using a classification map.
+    * Create class boundaries sequentially on a floating point number line. 
+    * If program output is within a class boundary, it belongs to that class. 
+    * For multi-class classification, their is an identical interval of 1.0. 
 
 song2020denoising
 -----------------

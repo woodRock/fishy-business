@@ -2046,3 +2046,153 @@ Notes:
     * Evolutionary deep learning is likely the future. 
     * Democratization, small scale DL with EC. 
 
+2022-08-03 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 3pm-4pm, **Attendees:** Daniel Braithwaithe, Bastiaan Kleign, Jesse Wood, et al. 
+
+Notes:
+    * Grad Student Descent (Gencoglu 2019, gencoglu2019hark).
+    * Learning strides in convolutional neural networks (Riad 2022, riad2022learning).
+    * Convolution theorum corresponds to multiplication in the fourier domain. Because multiplication is more efficient than convolution. 
+    * A 2013 paper proposes replacing the signal-domain convolution with multiplication in the fourier transform (Mathieu 2013, mathieu2013fast).
+    * FFT is a linear unitary transform - gradients in the fourier domain can be compared with the ivnerse fourier transform. 
+    * It is non-trivial to learn non-linearity (activations) in the fourier domain. We have to take inverse fourier transform (IFT), then apply the non-linearity, and transform back. 
+    * Learn kernals in the fourier domain, spectral pooling - projects into the fourier tdomain and truncates the singal's frequency representation. 
+    * Pooling is an operation that reduces the spatial dimension of the input. 
+    * Adaptive attention span to learn the cropping size for spectral pooling (Riad 2022, riad2022learning). :math:`m_z(x)` is a softclamp function to learn the attention span. 
+
+2022-08-04 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 12pm - 1pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
+
+Notes: 
+    * I need to put the table and new graphs on overleaf. Also respond to Bing's comments. 
+    * The submission is due on August 5th Friday, Bach wants me to send the new results before midnight tonight. 
+    * Should still have access to the ECS cloud computing grid. This is a distributed system ideal for EC algorithms that use parellisation. 
+
+2022-08-04 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:**: CO350, **Time:** 2pm - 3pm, **Attendees:** Quinglan Fan, Bing Xue, Mengjie Zhang, Jesse Wood, et al.
+
+Notes: 
+    * Classify an image into a category, i.e. cat or dog. ImageNet is classic benchmark for this task. 
+    * Challenges: 
+        1. High dimensionality
+        2. Variations - rotation, scale, hue, intra-class. 
+        3. Interpretability - NNs are blackbox. 
+    * CNNs have high classification accuracy, but! 
+        - requires sample complexity (big data). 
+        - needs compute (TPUs, GPUs) 
+        - black-box means low interpretability. 
+    * Genetic Programming (GP) - is an evolutionary computation technique. 
+    * They use strongly-typed GP where we define the input-output data tpyes. 
+    * Motivations for GP: 
+        - Flexible-lenghth representation
+        - Evolving solutions automatically
+        - Global search ability
+        - interpretability 
+        - multi-task, multi-objective 
+    * The most important bottleneck is the representation (see 2022-07-10 - GECCO #2). Sufficient representation was needed to capture complexity to the problem. Garbage in, garbage out. 
+    * Function set: image related operators, operators that are specialized to work on image data specifically. 
+    * Global and local features, can be combined with flexible-feature reuse. Proposed method can automatically learn to choose classification algorithms based on the task. 
+    * Terminal set: achieve flexible feature re-use, and, allow automatic classifier selection. 
+    * This is benchmarked on 12 standard image classification datasets, and against state-of-the-art deep learning and traditional methods. E.g. CIFAR-10 MNIST. 
+    * Results are comparable to state-of-the-art deep learning methods. 
+    * We can examine GP trees, especailly for image classification, by seeing what features are used to make classification decisions, visually. E.g. A facial expression classifier looks at the mouth. 
+    * We can't use the results of the experiment to justify its parameter settings. This is tuning to the validation set, and not based on theory/previous work. Instead refer to initial experiments, background literature; expert knolwdge (not) black magic, Cthulhu, Grad Student Descent (Gencoglu 2019, gencoglu2019hark).
+
+2022-08-05 - ECRG 
+~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 3pm - 5pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et al.
+
+Notes:
+    * Submission deadline is August 5th (today!!!) for AJCAI 2022, this this is likely flexible (as no explicit time was given). Can submit tomorrow with minor fixes. 
+    * Computer Communication and Artificial Intelligence (CCAI) deadline for this conference is Jan 10th 2023. 
+    * Bing's ingagural lectures is Tuesday evening on 9th August.
+
+2022-08-10 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 3pm - 4pm, **Attendees:** Felix, Bastiaan Kleign, Jesse Wood et al.
+
+Notes:
+    * Usually too expensive to compute the Jacobian matrix and its inverse. Most models restrict the function class with easy evaluation of the Jacobian determinant, or an efficient estimator thereof. 
+    * Self normalizing flows replaces expensive tasks in gradient by learned approximate inverses at each layer. This reduces the complexity from :math:`O(N^3)` to :math:`O(N^2)`.
+    * What is a Jacobian Matrix? What is a normalizing flow? Inverse Jacobian? 
+    * This model can perform efficiently and well on high-dimensional image data, for example the MNIST handwriting dataset. A visual analysis of their reconstruction appears to be good. 
+
+2022-08-11 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 12pm - 1pm, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood.
+
+Notes: 
+    * Classification Map cab be extended to automatically determine the boundary on the floating point line using clustering. 
+    * Can use multiple trees, one for each class (Multi-tree), or one-vs-rest (Committee). 
+    * Flexibility, there is a lot of options to explore with the GP representation. 
+    * Parsimony pressure - fitness function includes accuracy and GP tree size. Can choose to only use Parisonomy pressure for selection, and evaluate fitness as only accuracy. 
+    * VUW has a thesis on program simplification, to eliminate redundancy in GP tree. 
+    * Start with 4 artihmetic operators, can extend later if needed. 
+    * Diminishing returns - Simplification may be a very costly research objective, but may have bery little impact on the classification accuracy for the industry application. Industry research should be results driven. 
+    * AutoML - e.g. TPOT, automated ML is the process of automating the process of applying machine learning to real-world problems. 
+    * Interpretability is a good objective for industry research. 
+    * Ricardo Poli has a GP Guide that is available for free online (Riccardo 2009, riccardo2009field). https://ia801902.us.archive.org/3/items/AFieldGuideToGeneticProgramming/AFieldGuideToGeneticProgramming.pdf
+
+2022-08-11 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 2pm - 3pm, **Attendees:** Hayden Anderson, Bing Xue, Jesse Wood et al.
+
+Notes: 
+    * Explainable AI (XAI) considerations and perspectives from the social sciences. 
+    * Interpetability - levels of understanding of how an outcome is produced. The focus is on the system not the outcme. 
+    * Explainability - Explanation of how the outcome is rpodces. The focus is on the outcome not the system. 
+    * Pyschology - from psychology these are around teh wrong way, in psychology we reverse these definitions. 
+    * Interpretable: ability of a human to meaning from a given stimulus. OFten high level of imprecision. 
+    * Context - who is it interpretable to? Is it the target audience of the interpretation? Is their assumed knowledge needed in order to correctly implement the model. 
+    * Linear model is interpretable - we consider linear models white-box because they are linear... 
+    * BUt if we have a linear model to our Grandmother, she would consider it nonsense. 
+    * Interpretability can be applied to GP trees. I.e. protected division, specialized operators, uncommon tree structures. 
+    * Fuzzy-trace theory is a mental model of how we process incoming stimuli, verbatim to gist scale. We constantly forget. 
+
+2022-08-07 - Deep Learning
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 3pm - 4pm, **Attendees:** Demelza Robinson, Bastiaan Kleign, Jesse Wood et al. 
+
+Demelza gave a talk on Gaussain Processes for Regression. GPs can be used for fitting a function to data, we can train GP to predict given training data. 
+
+Notes:  
+    * Demelza gave a talk on Gaussian Processes for Regression. GPs can be used for fitting a function to data, we can train GP to predict given training data. 
+    * GPs find a condition distribution of the targets given the inputs. Compare our prior beleifgs with the likelihood using Bayes Rule. 
+    * To make predictions, average over all possible parameter values. Linear model lacks expressiveness, so we can map the probelm to a higher dimensionanal sapce using basis functions. 
+    * Probabilistc classification where test predictions are in the form of class probabilities. 
+    * Tricker because we could assume the likelohood function was Guassian, but for classification the likelohood is non-gaussian, but posterior can be approximated. 
+    * Confusing words: posterior, prior, positive semi-definite, basis functions, kernel trick, reproducing hilbert space, heteroskedastic. 
+    * heteroskedastic - can observe the same features of an instance, at two seperate times, and belong to different classes at each time. 
+
+2022-08-18 - FALSIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 2pm - 3pm, **Attendees:** Kaan Demir, Bach Hoai Nguyen, Jesse Wood et al.
+
+Kaan gave a presentation on feature selection for mult0lable classification. 
+
+Notes: 
+    * Predicting a set of labels that correspond to an instance, Different to binary/multi-class classification, as an instance can correspond to multiple classes simulateniously. 
+    * Problem tranformation - can be used to transform the multi-label problem into a simpler representation. 
+    * Binary - break multi-label into a set of binary classification problems, run classifier, then concatenate labels together to get the final prediction.
+    * For example, the SVM model uses a one-vs-rest approach for multi-class, it breaks the problem into a series of binary classification problems, same solution proposed for (Kerber 1992, kerber1992chimerge).
+    * The issue with binary classification approach is that the classifiers are independent, and share no information about the problem. 
+    * Classifier chains, label a class, and append that label as a feature to the next classifier. 
+    * Issue with classifier chains, there is no clear order to chain the classifiers in. 
+    * Label powerset, convert multi-label into multi-class problem. 
+    * Issues - Very sparse and comibinatorial explosion for many label problems. 
+    * Multi-label KNN (ML-KNN) - an extremely expensive version of KNN that is suited to multi-label datasets natively. KNN scales by number of instances, with online learning, that requires the whole training set in memory. The complexity scales by number of lables and instances. 
+    * Sparsity-based classification, diffentiable and works for optmizing with neural networks. 
+    * Feature selection - reduce the number of features; they can be irrelevant, redundant, complimentary.
+    * Search - search methods can be sequential, guided stochasity (EC), balanced with a quality-metric (classification accuracy) and feature interactions. 
+    * FS methods, MRMR, reliefF, classifier, ML-KNN, Sparsity-based models. 
+    * Sparsity based models: :math:`\min{z} ||XZ - Y||_{2,1} + \Lambda ||z||_{2,1}`. Where :math:`||z||_{1,2}` is the sum each column norm, and, :math:`||z||_{2,1}` is the sum each row norm.
+    * The :math:`\Lambda` provides a constraint to sparesely cluster the feature into a lower dimensional representation. E.g. Globe :math:`\to` Plane, the geometric locality (distance) is lost in this transformation. 
+    * Use a kernal to capture the non-linear interactions between features, conserve the distance in the manifold, A gaussian affinity matrix.
+    * Laplacian eigenmap, the overall "connectesness" of each feature toward all other features. Graph regularization - embed laplacian eigenmap into a linear model. 
+    * Use evolutionary computation, and co-operative co-volution. We require EC to search this comibinaratorially explosive search space for multi-label feature selection.
+    * Caveat: the choice of kernel, i.e. Radial Bias Function (rbf), Gaussian, Linear, determines the non-linear patterns the Laplacian eigenmap can capture.  
+    * Similar to SVM, a kernel that captures the complexity of the data accurately must be chosen, but in this case it is difficult to evaluate the kernel quality, difficult to find an appropriate metrix. 
+    * Gist: A linear model for mult0label classification taht considers the non-linear interactions, preserving the manifold without a graph regularization term. 
