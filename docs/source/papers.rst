@@ -521,6 +521,15 @@ moraglio2012geometric
     * Unimodal fitness landscape, one global optima, but semantic search is intractable. 
     * We approximate semantic search through geometric genetic programming methods. 
 
+muller2021transformers
+----------------------
+    * Transformers Can Do Bayesian Inference
+    * **TODO** read 
+    * Transformers can do Bayesian inference, The propose prior-data fitted networks (PFNs). PFNs leverage large-scale machine learning techniques to approximate a larget set of posteriors (Muller 2021, muller2021transformers).
+    * Requires the ability to sample from a prior distribution over supverised learning tasks (or functions). 
+    * Their method restates the objective prosterior apprimixation as a supervised classification problem with set valued input: it repeatedly draws a task (or function) from the prior, draws a set of data points and their labels from it, marks on of the labels and learns to make probabilistic predictions for it based on the set-valued input of the rest of the data points.
+    * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
+    * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
 
 nguyen2014filter
 ----------------
