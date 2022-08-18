@@ -1991,3 +1991,58 @@ Notes:
     * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
     * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
 
+2022-07-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO355, **Time:** 12pm-1pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
+
+Notes: 
+    * PFG have performed preliminary EDA on the REIMS data, classification/regreesion task for Hoki, Mackeral and Hoki-Mackeral mixture. 
+    * Do not need to go into maths at the moment, instead look at the high level ideas, see existing work in the field, and see where future work is needed. 
+    * Use GP on the GC data to get some preliminary work done for the PhD proposal. Don't set the tree depth to deep. 
+    * PSO is wrapper, but what is it wrapping? It wasn't clear in my paper draft what classifier the PSO wrapped, it should be made explicit the PSO used an SVM classifier. 
+    * A table for feature selection with a set k, to show the accuracy with reduced featureset, compared this to full dataset from classification section.
+    * Include best (not just average) PSO run in the table. 
+    * Comare our results to Daniel's preliminary work, in terms of accuracy and time taken to perform anaylsis. 
+    * Add "AI Application" as a keyword to the abstract.  
+
+TODO 
+    * [x] GP Tree on GC data. 
+    * [x] PSO wraps SVM classifier for AJCAI paper. 
+    * [x] Add table for Feature Selection to AJCAI paper. 
+    * [x] Include best (not just average) PSO run in the table. 
+    * [x] Add "AI Application" as a keyword to the abstract.  
+
+2022-07-28 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: 2pm-3pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+
+Bing suggested an interveiw from Darrell Whitley https://www.youtube.com/watch?v=ZJXxaoOBCOA 
+
+Notes: 
+    * Satellite scheduling in space using Evolutionary computation. Detecing space junk to.  EC has applications in aerospac (very similar to GECCO 20220-07-10 GTOC Challenge).
+    * EC expands capabilites of AI to performtasks beyond jst things humans are good at, i.e. vision and text processing. EC is on the bleeding edge of artificial intelligence and search algorithms. 
+    * We track up to 13,000 pieces of space junk. We try to ping every object once a week. Trying to pink these objects is an optimization probelm, Important for aerospace as we don't want ot hit space junk during a rocket launch. 
+    * General Electric have a jet engine for Boeing that used evolutionary algorithm, EC designs engines that humans never thought of by diversity. 
+
+Bing suggested an interview from Malcom Haywood https://www.youtube.com/watch?v=3M3N2o1sGbM 
+
+Notes: 
+    * He did a PhD in neural networks, fuzzy logic, then settled on Evolutionary Computation. You have to try all these fields out, and find the one that suits you. 
+    * Gradient descent methods offer effective results, but are very constrained, and don't offer simple/elegent solutions. 
+    * Evolutionary algorithms offer effective solutions that can be run on a local machine, and don't require +10,000 GPU hours. 
+    * Desiging an agent to esccape a swarm of oponent spaceships. the agent fell into a black hole that was a rounding error. This shows the suprising creativity of digital evolution (Lehman 2020, lehman2020evolution).
+    * Follow the money, is possibly a way for EC to track into the mainstream. Full-self driving would benefit from simple and interpretable solutions. 
+    * Hardware is so complex, we as humans don't have the capacity to write code that utilizes it (Similar to Bjarne Stroustrup in C++ compiler optimization https://youtu.be/uTxRF5ag27A).
+
+Bing suggested an interview from Erik Goodman https://www.youtube.com/watch?v=BkORxgpOc7w 
+
+Notes: 
+    * A center for the study of evolution is funded by the natural science fondation. They have 8/10 years of funding left. 
+    * How do we define intelligence? Prevsiouly, we thoug off this as the turing test. But now, especially after LaMDA Google AI engineer Blake Lemoine (https://twitter.com/cajundiscordian) claimed their language model was sentient. We can easily mimic intelligent behaviour, but this doesn't make the machine intelligent. 
+    * We define intelligent as the ability of an agent to synthesize new knowledge and adapt to novelty. 
+    * When computer scientists listen to evolutionary biologists, and vice versa, we get interesting results. 
+    * Nature has massive parellisim embedded, allowing for organisms to compete together to survive to be the firsst for the environment it adapts to.
+    * In EC parellisation can correspond to population-based search. 
+    * Evolutionary deep learning is likely the future. 
+    * Democratization, small scale DL with EC. 
+
