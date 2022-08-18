@@ -217,7 +217,7 @@ Notes:
         1. Maximise learning performance. 
         2. Minimize communication cost. 
     * Their work efficiently reduce the number of connections while maintaining similar performance. 
-    * Neural architecture search (TODO - watch the rest and take notes!!!)
+    * Neural Architecture Search (TODO - watch the rest and take notes!!!)
 
 2022-03-18 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -886,8 +886,10 @@ Notes:
     * Can claim GC dataset research as preliminary work for the REIMS data in my proposal. 
     * Transfer models from GC to REIMS data (likely) - this supports the preliminary claim. 
     * Pre-training on NIST GC refraction index data - needs a parametric (neural network) model for this technique. 
-    * TODO: Apply EvoCNN to GC data. 
-    * TODO: Apply Genetic Programming (GP) data to GC data. 
+
+TODO: 
+    * [x] Apply Genetic Programming (GP) data to GC data. 
+    * [ ] Apply EvoCNN to GC data. 
 
 2022-04-28 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1081,11 +1083,11 @@ Notes:
     * CDP - Candidate Development Plan, is due this month. Scope is for 6 months only. This is my first so I have no goals from previous CDP. 
     
 TODO: 
+    * [x] Send a draft CDP to my supervisors for feedback. 
     * [ ] Readings on Genetic Programming (GP)
         1. TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
         2. tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
         3. tran2017new https://ieeexplore.ieee.org/document/7956226
-    * [ ] Send a draft CDP to my supervisors for feedback. 
 
 2022-05-12 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1409,8 +1411,8 @@ Notes:
     * GP has the opportunity to generate new knowledge that can be verifiedand encorporated by domain experts into their field. 
 
 TODO: 
-    * READ: GP for Multi-FC in skin cancer image classification. 
-    * READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
+    * [ ] READ: GP for Multi-FC in skin cancer image classification. 
+    * [ ] READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
 
 2022-06-17 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -1795,8 +1797,8 @@ Notes:
 TODO: 
     - [x] Next Draft - Friday 15th of July. 
     - [x] Abstract Registration - Monday 18th of July. 
-    - [ ] Revision - Tuesday 18th of July. 
-    - [ ] Submission deadline - Monday 25th of July. 
+    - [x] Revision - Tuesday 18th of July. 
+    - [x] Submission deadline - Monday 25th of July. 
 
 2022-07-14 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1915,11 +1917,11 @@ Notes:
     * The AJCAI deadline have been pushed back. The abstract registraion is 29th of July, the submission deadline is 5th of August. 
 
 TODO: 
-    - [ ] Submission deadline - 5th of August. 
-    - [ ] GP on the GC dataset. 
+    - [x] Submission deadline - 5th of August. 
+    - [x] GP on the GC dataset. 
+    - [x] New dataset from Daniel
+    - [x] Reading on GP. 
     - [ ] Start writing proposal. 
-    - [ ] Reading on GP. 
-    - [ ] New dataset from Daniel
 
 2022-07-21 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1971,3 +1973,21 @@ Notes:
     * Daniel and Kevin are flying up from Nelson to talk about the domain expertise required for REIMS data. 
     * Starting preliminary work on GP for GC data, and writing my proposal for my PhD. Important to clearly state and refine my research intentions. 
     * Meng has sent out a good list of reccommended readings on CNNs (Lecun 1998, lecun1998gradient), foundational work from Geoffrey Hinton, a good read for Deep Learning background.
+
+2022-07-27 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time**: Wednesday 3pm-4pm, **Attendees**: Mawell Clarke, Bastiaan Kleign, Jesse Wood et al. 
+
+Maxwell Clark gave a talk on Neural Tangent Kernels (NTKs):
+
+Notes: 
+    * A Gaussain Process is a stochastic process (a collection of random variables indexed over time or space), such that every finite collection of those variables has a multivariate normal distribution. https://en.wikipedia.org/wiki/Gaussian_process
+    * The direection of a learning network becomes fixed, as we increase the width towards infinity. (Or) As the width of the nueral network increases, we see that the distribution of outputs over different random instantiations of the network becomes Gaussian (He 2020, he2020bayesian). 
+    * In linear algbera, an eigenvector, or characteristic vector of a linear transformation, is a non-zero vector that changes at most by a scalar factor when that linear transformation is applied to it. The corresponding eigen value :math:`\lambda` is the factor by which the eigenvector is scaled. https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors 
+    * A Taylor series, named after Brook Taylor who introduced it in 1715, of a function is an infinite sum of terms that are expressed in terms of the functions derivitve at a single point. For most functions, the function and the sum of its Talyor series are equal near this point. 
+    * Transformers can do Bayesian inference, The propose prior-data fitted networks (PFNs). PFNs leverage large-scale machine learning techniques to approximate a larget set of posteriors (Muller 2021, muller2021transformers).
+    * Requires the ability to sample from a prior distribution over supverised learning tasks (or functions). 
+    * Their method restates the objective prosterior apprimixation as a supervised classification problem with set valued input: it repeatedly draws a task (or function) from the prior, draws a set of data points and their labels from it, marks on of the labels and learns to make probabilistic predictions for it based on the set-valued input of the rest of the data points.
+    * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
+    * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
+
