@@ -1993,7 +1993,7 @@ Notes:
 
 2022-07-28 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO355, **Time:** 12pm-1pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
+**Location:** CO355, **Time:** Friday 12pm-1pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
 
 Notes: 
     * PFG have performed preliminary EDA on the REIMS data, classification/regreesion task for Hoki, Mackeral and Hoki-Mackeral mixture. 
@@ -2014,7 +2014,7 @@ TODO
 
 2022-07-28 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: 2pm-3pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
+**Location:** Zoom, **Time**: Thursday 2pm-3pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
 
 Bing suggested an interveiw from Darrell Whitley https://www.youtube.com/watch?v=ZJXxaoOBCOA 
 
@@ -2048,7 +2048,7 @@ Notes:
 
 2022-08-03 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 3pm-4pm, **Attendees:** Daniel Braithwaithe, Bastiaan Kleign, Jesse Wood, et al. 
+**Location:** Zoom, **Time:** Wednesday 3pm-4pm, **Attendees:** Daniel Braithwaithe, Bastiaan Kleign, Jesse Wood, et al. 
 
 Notes:
     * Grad Student Descent (Gencoglu 2019, gencoglu2019hark).
@@ -2063,7 +2063,7 @@ Notes:
 
 2022-08-04 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 12pm - 1pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
+**Location:** CO352, **Time:** Friday 12pm - 1pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
 
 Notes: 
     * I need to put the table and new graphs on overleaf. Also respond to Bing's comments. 
@@ -2072,7 +2072,7 @@ Notes:
 
 2022-08-04 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:**: CO350, **Time:** 2pm - 3pm, **Attendees:** Quinglan Fan, Bing Xue, Mengjie Zhang, Jesse Wood, et al.
+**Location:**: CO350, **Time:** Thursday 2pm - 3pm, **Attendees:** Quinglan Fan, Bing Xue, Mengjie Zhang, Jesse Wood, et al.
 
 Notes: 
     * Classify an image into a category, i.e. cat or dog. ImageNet is classic benchmark for this task. 
@@ -2103,7 +2103,7 @@ Notes:
 
 2022-08-05 - ECRG 
 ~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 3pm - 5pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et al.
+**Location:** Zoom, **Time:** Friday 3pm - 5pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et al.
 
 Notes:
     * Submission deadline is August 5th (today!!!) for AJCAI 2022, this this is likely flexible (as no explicit time was given). Can submit tomorrow with minor fixes. 
@@ -2112,7 +2112,7 @@ Notes:
 
 2022-08-10 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 3pm - 4pm, **Attendees:** Felix, Bastiaan Kleign, Jesse Wood et al.
+**Location:** Zoom, **Time:** Wednesday 3pm - 4pm, **Attendees:** Felix, Bastiaan Kleign, Jesse Wood et al.
 
 Notes:
     * Usually too expensive to compute the Jacobian matrix and its inverse. Most models restrict the function class with easy evaluation of the Jacobian determinant, or an efficient estimator thereof. 
@@ -2122,7 +2122,7 @@ Notes:
 
 2022-08-11 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 12pm - 1pm, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood.
+**Location:** CO352, **Time:** Friday 12pm - 1pm, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood.
 
 Notes: 
     * Classification Map cab be extended to automatically determine the boundary on the floating point line using clustering. 
@@ -2138,7 +2138,7 @@ Notes:
 
 2022-08-11 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 2pm - 3pm, **Attendees:** Hayden Anderson, Bing Xue, Jesse Wood et al.
+**Location:** CO350, **Time:** Thursday 2pm - 3pm, **Attendees:** Hayden Anderson, Bing Xue, Jesse Wood et al.
 
 Notes: 
     * Explainable AI (XAI) considerations and perspectives from the social sciences. 
@@ -2154,7 +2154,7 @@ Notes:
 
 2022-08-07 - Deep Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 3pm - 4pm, **Attendees:** Demelza Robinson, Bastiaan Kleign, Jesse Wood et al. 
+**Location:** Zoom, **Time:** Wednesday 3pm - 4pm, **Attendees:** Demelza Robinson, Bastiaan Kleign, Jesse Wood et al. 
 
 Demelza gave a talk on Gaussain Processes for Regression. GPs can be used for fitting a function to data, we can train GP to predict given training data. 
 
@@ -2169,7 +2169,7 @@ Notes:
 
 2022-08-18 - FALSIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 2pm - 3pm, **Attendees:** Kaan Demir, Bach Hoai Nguyen, Jesse Wood et al.
+**Location:** CO350, **Time:** Thursday 2pm - 3pm, **Attendees:** Kaan Demir, Bach Hoai Nguyen, Jesse Wood et al.
 
 Kaan gave a presentation on feature selection for mult0lable classification. 
 
@@ -2196,3 +2196,63 @@ Notes:
     * Caveat: the choice of kernel, i.e. Radial Bias Function (rbf), Gaussian, Linear, determines the non-linear patterns the Laplacian eigenmap can capture.  
     * Similar to SVM, a kernel that captures the complexity of the data accurately must be chosen, but in this case it is difficult to evaluate the kernel quality, difficult to find an appropriate metrix. 
     * Gist: A linear model for mult0label classification taht considers the non-linear interactions, preserving the manifold without a graph regularization term. 
+
+2022-08-19 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** C0364, **Time:** Friday 11am - 12pm, **Attendees:** Bach Hoai Nguyen, Jesse Wood.
+
+Notes: 
+    * A one tree approach is very primitive Genetic Program for multi-class classification. 
+    * Multi-tree GP is better. Each tree seperates one class from the rest. There is one tree for each of the classes. 
+    * E.g. one tree would seperate blue cod from all the other class. The next tree would seperate snapper from the other classes. 
+    * Class dependent crossover, ensure crossover is only happening within the individual trees, not across the multi-tree, i.e. crossover between snapper and bluecod trees is not allowed. 
+    * Mutation can happen to any tree, not class dependent. 
+    * Class depedent Feature Construction; Genetic Programming for Multi-feature Construction on High-Dimensional Classification (Tran 2019, tran2019genetic). 
+    * Multi-feature Construction (MFC), Feature Selection (FS), Genetic Programming (GP). 
+    * Mid-trimester break: for next two weeks, meeting time will be Thursday 12pm (the old time).
+
+
+TODO: 
+    * Implement Multi-tree GP in Python. 
+    * [ ] Read (Tran 2019, tran2019genetic). 
+
+2022-08-19 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Friday 3pm - 5pm, **Attendees:** Peng Wang, Yi Mei, Bach Hoai Nguyen, Jesse Wood et al. 
+
+Notes: 
+    * Marine Conference - Bing, Meng and Fangfang are at the Marine Conference in Nelson. So Yi had to chair the ECRG meeting this week. 
+    * IEEE Symposium - Register for the IEEE Symposium, presenting at this event provides free membership to the IEEE organisation. New students SHOULD register and attend. Most IEEE conferences require IEEE membership for attendence. 
+    * EvoStar - a major conference that we are targeting. The deadline is September it is important to start preparations for work we with to submit for this conference. 
+    * Progress: 
+        - A single GP tree for multi-class classification, 
+        - will extend this to be multi-tree GP, 
+        - using one-vs-rest approach, 
+        - also prepare for FASLIP presentation next week, 
+        - content from this can be revised for IEEE Symposium. 
+
+Peng Wang gave a presentation "Differential Evolution-Based Feature Selection: A Niching-based GP Approach". Peng is a third-year PhD candidate. 
+
+Notes:
+    * Motivations - curse of dimensionality, redundancy in features, improve compute, and perhaps performance. 
+    * Goals - multi-objective (MO) proivdes a pareto optimal set of candidate solutions that are non-dominated and balance desired objectives; i.e. accuracy and size. 
+    * Filter, Wrapper, Embedded are the three approaches to feature selection (FS) and feature construction (FC). 
+    * Embedded - feature selection is embedded in the learning process. 
+    * Wrapper - feature selection method servers as a wrapper for an existing prediction algorithm (i.e. classifier). 
+    * Filter - a ftiler method is featuress are evaluated absed on general characteristics, a classifier model is not used. 
+    * Aim - get better feature subsets with less redundnacy. Feature subsets that maintain classification algorithms. 
+    * Tradeoff - there is a tradeoff between accuracy and feature subset size. 
+    * Differential Evolution, is a method that optimizes a problem iteratively trying to improve a candidate solution with respect to a given measure of quality. https://en.wikipedia.org/wiki/Differential_evolution 
+    * Real - for DE the genotype is some form of real-valued vector. 
+    * Operators - the mutation/crossover operators make use of the difference between two or more vectors in the population to create a new vector. 
+    * Differentiable - DE does not require the optimization problem to be differentiable, it does not rely on gradient descent as many deep learning methods do. This allows for more difficult tasks without domain expertise / differentiable mathematics. 
+    * Genotype - a genotype is the genetic makeup of an individual (in biological terms), genotypes are encoded as strings or trees of values, it is the representation, the encoding. 
+    * Phenotype - a phenotype is the expression of a trait, this is the decoded genotype, we evaluate a candidate individual to get its predictive output is the solution space, evaluated in the environment. 
+    * Example. The gene for ginger hair is recessive and stored in an individuals DNA - this is the genotype. The hair colour of the indiviudal, are they ginger. is the expression of that trait - phenotype. 
+    * For evolutionary computation, an example is, Genotype - a GP tree, Phenotype - the prediction/output. 
+
+TODO: 
+    * [ ] 2022-08-24 Register for the IEEE Symposium 
+    * [ ] 2022-08-25 FASLIP Presentation 
+    * [ ] 2022-08-31 Prepare IEEE Symposium presentation 
+    * [ ] 2022-09-30 Plan a EvoStar 2023 paper. 
