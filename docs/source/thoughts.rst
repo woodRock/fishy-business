@@ -213,6 +213,14 @@ brewer2006brown
     * For example, when re-writing my draft paper, I realized my understanding of treated fish biomass waste was incorrect.
     * Something I would have never realized if I did not explicitly have to re-write my introduction section.
 
+2022-08-18 - Github Copilot 
+--------------------------- 
+    * GitHub CoPiliot is an AI powered autocompletion code tool made using GPT-3 https://github.com/features/copilot/ 
+    * I was lucky enough to test the software during its closed beta period. 
+    * GitHub Copilot is available for free to developers with the Student License. 
+    * As a PhD student, I qualify for this license for the next three years. 
+    * I simply sent my Student ID and university email, and they verified I am a current student. 
+
 2022-08-19 - Biology in EC 
 --------------------------
     * Read this https://www.nature.com/articles/s42256-020-00278-8 
