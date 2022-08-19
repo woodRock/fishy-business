@@ -212,3 +212,12 @@ brewer2006brown
     * Writing is an important part of research, we refine our ideas, and correct our incorrect assumptions, we organize our thoughts. 
     * For example, when re-writing my draft paper, I realized my understanding of treated fish biomass waste was incorrect.
     * Something I would have never realized if I did not explicitly have to re-write my introduction section.
+
+2022-08-19 - Biology in EC 
+--------------------------
+    * Read this https://www.nature.com/articles/s42256-020-00278-8 
+    * Genotype: the genetic makeup of an individual, i.e. the recessive gene for ginger hair. 
+    * Phenotype: the expression of a trait (or gene), i.e. Ginger hair. 
+    * These concepts from biology apply to Evolutionary Computation: 
+        - Genetype is the encoding for an individual, the representation, i.e. A GP tree or binary string. 
+        - Phenotype is that genotype after being decoded, the prediction, i.e. the output of the GP tree.
