@@ -657,6 +657,12 @@ szegedy2013intriguing
     * Trick neural nets into making the wrong prediction on purpose. 
     * Long tail problem of AI. 
 
+tran2019genetic
+---------------
+    * Genetic programming for multiple-feature construction on high-dimensional Classification Data 
+    * This paper includes an example of Multi-tree GP. 
+    * I can apply Multi-tree GP for a one-vs-all multi-class classification problem. 
+
 tegmark2020ai
 -------------
     * Tegmark et al. developed they AI Feynman \cite{udrescu2020ai}. 
