@@ -1974,7 +1974,9 @@ Notes:
 
 2022-08-23 - PFR Daniel and Kevin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-**Location:** CO345, **Time:** Tuesday 11am - 3pm, **Attendees:** Daniel Killeen, Kevin, Mengjiie Zhang, Bing Xue, Bach Hoai Nguyen, Jesse Wood et al.
+**Location:** CO345, **Time:** Tuesday 11am - 3pm, **Attendees:** Daniel Killeen, Kevin Mitchell, Mengjiie Zhang, Bing Xue, Bach Hoai Nguyen, Jesse Wood et al.
+
+We had a meeting in C0345 with Daniel and Kevin to discuss the domain expertise required for REIMS data.
 
 Notes: 
     * Kevin is from Callaghan, comes from a chemistry background, with university level knowledge in statistics. 
@@ -2030,3 +2032,16 @@ Notes:
     * OPLS-DA is a supervised approach, that will pull out characteristics that can linearly discriminate between variables, and is popular in chemistry field already.
     * Main benefit of REIMS, REIMS was able to detect horse meat contaminaiton in beef, at as little as 3% contamination. We want to find contamination in fish, such as mineral oil, oxidation, pre-fatty acids, mixed-species contamination.
     * Setup weekly meetings with Daniel, ask questions, track progress, ensure we are on track and fulfilling research objectives from PFR.
+
+Afterwards, we had lunch, and informally touched on topics discussed in meeting. 
+
+Notes:
+    * PFR publish their datasets in chemistry journals, as open data available to the public. 
+    * It is normal for PhDs to encounter a motivational crisis during their study. 
+    * Possible to get stuck on the post-doc track, Daniel knows +50 year old post-docs. 
+    * Meng will support work towards my pursuing post-doctral work after my PhD. 
+    * Fish is relatively low-impact in bio-chemistry field, when compared to human healthcare research. 
+    * Can push the environment/ecology side of research to press importance of the work. 
+    * Easier to publish in high volume from machine learning side, rather than chemistry side. 
+    * Kevin is able to arrange time for me to visit Callaghan, and see how the REIMS data is prepared in-person. 
+    * Good to get hands on experience with the REIMS data, to get a hollistic view of the project scope.  
