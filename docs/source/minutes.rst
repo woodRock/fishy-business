@@ -217,7 +217,7 @@ Notes:
         1. Maximise learning performance. 
         2. Minimize communication cost. 
     * Their work efficiently reduce the number of connections while maintaining similar performance. 
-    * Neural Architecture Search (TODO - watch the rest and take notes!!!)
+    * Neural architecture search (TODO - watch the rest and take notes!!!)
 
 2022-03-18 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -886,10 +886,8 @@ Notes:
     * Can claim GC dataset research as preliminary work for the REIMS data in my proposal. 
     * Transfer models from GC to REIMS data (likely) - this supports the preliminary claim. 
     * Pre-training on NIST GC refraction index data - needs a parametric (neural network) model for this technique. 
-
-TODO: 
-    * [x] Apply Genetic Programming (GP) data to GC data. 
-    * [ ] Apply EvoCNN to GC data. 
+    * TODO: Apply EvoCNN to GC data. 
+    * TODO: Apply Genetic Programming (GP) data to GC data. 
 
 2022-04-28 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1083,11 +1081,11 @@ Notes:
     * CDP - Candidate Development Plan, is due this month. Scope is for 6 months only. This is my first so I have no goals from previous CDP. 
     
 TODO: 
-    * [x] Send a draft CDP to my supervisors for feedback. 
     * [ ] Readings on Genetic Programming (GP)
         1. TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
         2. tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
         3. tran2017new https://ieeexplore.ieee.org/document/7956226
+    * [ ] Send a draft CDP to my supervisors for feedback. 
 
 2022-05-12 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1411,8 +1409,8 @@ Notes:
     * GP has the opportunity to generate new knowledge that can be verifiedand encorporated by domain experts into their field. 
 
 TODO: 
-    * [ ] READ: GP for Multi-FC in skin cancer image classification. 
-    * [ ] READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
+    * READ: GP for Multi-FC in skin cancer image classification. 
+    * READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
 
 2022-06-17 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -1797,8 +1795,8 @@ Notes:
 TODO: 
     - [x] Next Draft - Friday 15th of July. 
     - [x] Abstract Registration - Monday 18th of July. 
-    - [x] Revision - Tuesday 18th of July. 
-    - [x] Submission deadline - Monday 25th of July. 
+    - [ ] Revision - Tuesday 18th of July. 
+    - [ ] Submission deadline - Monday 25th of July. 
 
 2022-07-14 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1917,11 +1915,11 @@ Notes:
     * The AJCAI deadline have been pushed back. The abstract registraion is 29th of July, the submission deadline is 5th of August. 
 
 TODO: 
-    - [x] Submission deadline - 5th of August. 
-    - [x] GP on the GC dataset. 
-    - [x] New dataset from Daniel
-    - [x] Reading on GP. 
+    - [ ] Submission deadline - 5th of August. 
+    - [ ] GP on the GC dataset. 
     - [ ] Start writing proposal. 
+    - [ ] Reading on GP. 
+    - [ ] New dataset from Daniel
 
 2022-07-21 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1974,285 +1972,61 @@ Notes:
     * Starting preliminary work on GP for GC data, and writing my proposal for my PhD. Important to clearly state and refine my research intentions. 
     * Meng has sent out a good list of reccommended readings on CNNs (Lecun 1998, lecun1998gradient), foundational work from Geoffrey Hinton, a good read for Deep Learning background.
 
-2022-07-27 - Deep Learning 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Wednesday 3pm-4pm, **Attendees**: Mawell Clarke, Bastiaan Kleign, Jesse Wood et al. 
-
-Maxwell Clark gave a talk on Neural Tangent Kernels (NTKs):
+2022-08-23 - PFR Daniel and Kevin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+**Location:** CO345, **Time:** Tuesday 11am - 3pm, **Attendees:** Daniel Killeen, Kevin, Mengjiie Zhang, Bing Xue, Bach Hoai Nguyen, Jesse Wood et al.
 
 Notes: 
-    * A Gaussain Process is a stochastic process (a collection of random variables indexed over time or space), such that every finite collection of those variables has a multivariate normal distribution. https://en.wikipedia.org/wiki/Gaussian_process
-    * The direection of a learning network becomes fixed, as we increase the width towards infinity. (Or) As the width of the nueral network increases, we see that the distribution of outputs over different random instantiations of the network becomes Gaussian (He 2020, he2020bayesian). 
-    * In linear algbera, an eigenvector, or characteristic vector of a linear transformation, is a non-zero vector that changes at most by a scalar factor when that linear transformation is applied to it. The corresponding eigen value :math:`\lambda` is the factor by which the eigenvector is scaled. https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors 
-    * A Taylor series, named after Brook Taylor who introduced it in 1715, of a function is an infinite sum of terms that are expressed in terms of the functions derivitve at a single point. For most functions, the function and the sum of its Talyor series are equal near this point. 
-    * Transformers can do Bayesian inference, The propose prior-data fitted networks (PFNs). PFNs leverage large-scale machine learning techniques to approximate a larget set of posteriors (Muller 2021, muller2021transformers).
-    * Requires the ability to sample from a prior distribution over supverised learning tasks (or functions). 
-    * Their method restates the objective prosterior apprimixation as a supervised classification problem with set valued input: it repeatedly draws a task (or function) from the prior, draws a set of data points and their labels from it, marks on of the labels and learns to make probabilistic predictions for it based on the set-valued input of the rest of the data points.
-    * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
-    * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
-
-2022-07-28 - Weekly 
-~~~~~~~~~~~~~~~~~~~
-**Location:** CO355, **Time:** Friday 12pm-1pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood. 
-
-Notes: 
-    * PFG have performed preliminary EDA on the REIMS data, classification/regreesion task for Hoki, Mackeral and Hoki-Mackeral mixture. 
-    * Do not need to go into maths at the moment, instead look at the high level ideas, see existing work in the field, and see where future work is needed. 
-    * Use GP on the GC data to get some preliminary work done for the PhD proposal. Don't set the tree depth to deep. 
-    * PSO is wrapper, but what is it wrapping? It wasn't clear in my paper draft what classifier the PSO wrapped, it should be made explicit the PSO used an SVM classifier. 
-    * A table for feature selection with a set k, to show the accuracy with reduced featureset, compared this to full dataset from classification section.
-    * Include best (not just average) PSO run in the table. 
-    * Comare our results to Daniel's preliminary work, in terms of accuracy and time taken to perform anaylsis. 
-    * Add "AI Application" as a keyword to the abstract.  
-
-TODO 
-    * [x] GP Tree on GC data. 
-    * [x] PSO wraps SVM classifier for AJCAI paper. 
-    * [x] Add table for Feature Selection to AJCAI paper. 
-    * [x] Include best (not just average) PSO run in the table. 
-    * [x] Add "AI Application" as a keyword to the abstract.  
-
-2022-07-28 - FASLIP
-~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time**: Thursday 2pm-3pm, **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood et al.
-
-Bing suggested an interveiw from Darrell Whitley https://www.youtube.com/watch?v=ZJXxaoOBCOA 
-
-Notes: 
-    * Satellite scheduling in space using Evolutionary computation. Detecing space junk to.  EC has applications in aerospac (very similar to GECCO 20220-07-10 GTOC Challenge).
-    * EC expands capabilites of AI to performtasks beyond jst things humans are good at, i.e. vision and text processing. EC is on the bleeding edge of artificial intelligence and search algorithms. 
-    * We track up to 13,000 pieces of space junk. We try to ping every object once a week. Trying to pink these objects is an optimization probelm, Important for aerospace as we don't want ot hit space junk during a rocket launch. 
-    * General Electric have a jet engine for Boeing that used evolutionary algorithm, EC designs engines that humans never thought of by diversity. 
-
-Bing suggested an interview from Malcom Haywood https://www.youtube.com/watch?v=3M3N2o1sGbM 
-
-Notes: 
-    * He did a PhD in neural networks, fuzzy logic, then settled on Evolutionary Computation. You have to try all these fields out, and find the one that suits you. 
-    * Gradient descent methods offer effective results, but are very constrained, and don't offer simple/elegent solutions. 
-    * Evolutionary algorithms offer effective solutions that can be run on a local machine, and don't require +10,000 GPU hours. 
-    * Desiging an agent to esccape a swarm of oponent spaceships. the agent fell into a black hole that was a rounding error. This shows the suprising creativity of digital evolution (Lehman 2020, lehman2020evolution).
-    * Follow the money, is possibly a way for EC to track into the mainstream. Full-self driving would benefit from simple and interpretable solutions. 
-    * Hardware is so complex, we as humans don't have the capacity to write code that utilizes it (Similar to Bjarne Stroustrup in C++ compiler optimization https://youtu.be/uTxRF5ag27A).
-
-Bing suggested an interview from Erik Goodman https://www.youtube.com/watch?v=BkORxgpOc7w 
-
-Notes: 
-    * A center for the study of evolution is funded by the natural science fondation. They have 8/10 years of funding left. 
-    * How do we define intelligence? Prevsiouly, we thoug off this as the turing test. But now, especially after LaMDA Google AI engineer Blake Lemoine (https://twitter.com/cajundiscordian) claimed their language model was sentient. We can easily mimic intelligent behaviour, but this doesn't make the machine intelligent. 
-    * We define intelligent as the ability of an agent to synthesize new knowledge and adapt to novelty. 
-    * When computer scientists listen to evolutionary biologists, and vice versa, we get interesting results. 
-    * Nature has massive parellisim embedded, allowing for organisms to compete together to survive to be the firsst for the environment it adapts to.
-    * In EC parellisation can correspond to population-based search. 
-    * Evolutionary deep learning is likely the future. 
-    * Democratization, small scale DL with EC. 
-
-2022-08-03 - Deep Learning 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** Wednesday 3pm-4pm, **Attendees:** Daniel Braithwaithe, Bastiaan Kleign, Jesse Wood, et al. 
-
-Notes:
-    * Grad Student Descent (Gencoglu 2019, gencoglu2019hark).
-    * Learning strides in convolutional neural networks (Riad 2022, riad2022learning).
-    * Convolution theorum corresponds to multiplication in the fourier domain. Because multiplication is more efficient than convolution. 
-    * A 2013 paper proposes replacing the signal-domain convolution with multiplication in the fourier transform (Mathieu 2013, mathieu2013fast).
-    * FFT is a linear unitary transform - gradients in the fourier domain can be compared with the ivnerse fourier transform. 
-    * It is non-trivial to learn non-linearity (activations) in the fourier domain. We have to take inverse fourier transform (IFT), then apply the non-linearity, and transform back. 
-    * Learn kernals in the fourier domain, spectral pooling - projects into the fourier tdomain and truncates the singal's frequency representation. 
-    * Pooling is an operation that reduces the spatial dimension of the input. 
-    * Adaptive attention span to learn the cropping size for spectral pooling (Riad 2022, riad2022learning). :math:`m_z(x)` is a softclamp function to learn the attention span. 
-
-2022-08-04 - Weekly 
-~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** Friday 12pm - 1pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood. 
-
-Notes: 
-    * I need to put the table and new graphs on overleaf. Also respond to Bing's comments. 
-    * The submission is due on August 5th Friday, Bach wants me to send the new results before midnight tonight. 
-    * Should still have access to the ECS cloud computing grid. This is a distributed system ideal for EC algorithms that use parellisation. 
-
-2022-08-04 - FASLIP 
-~~~~~~~~~~~~~~~~~~~
-**Location:**: CO350, **Time:** Thursday 2pm - 3pm, **Attendees:** Quinglan Fan, Bing Xue, Mengjie Zhang, Jesse Wood, et al.
-
-Notes: 
-    * Classify an image into a category, i.e. cat or dog. ImageNet is classic benchmark for this task. 
-    * Challenges: 
-        1. High dimensionality
-        2. Variations - rotation, scale, hue, intra-class. 
-        3. Interpretability - NNs are blackbox. 
-    * CNNs have high classification accuracy, but! 
-        - requires sample complexity (big data). 
-        - needs compute (TPUs, GPUs) 
-        - black-box means low interpretability. 
-    * Genetic Programming (GP) - is an evolutionary computation technique. 
-    * They use strongly-typed GP where we define the input-output data tpyes. 
-    * Motivations for GP: 
-        - Flexible-lenghth representation
-        - Evolving solutions automatically
-        - Global search ability
-        - interpretability 
-        - multi-task, multi-objective 
-    * The most important bottleneck is the representation (see 2022-07-10 - GECCO #2). Sufficient representation was needed to capture complexity to the problem. Garbage in, garbage out. 
-    * Function set: image related operators, operators that are specialized to work on image data specifically. 
-    * Global and local features, can be combined with flexible-feature reuse. Proposed method can automatically learn to choose classification algorithms based on the task. 
-    * Terminal set: achieve flexible feature re-use, and, allow automatic classifier selection. 
-    * This is benchmarked on 12 standard image classification datasets, and against state-of-the-art deep learning and traditional methods. E.g. CIFAR-10 MNIST. 
-    * Results are comparable to state-of-the-art deep learning methods. 
-    * We can examine GP trees, especailly for image classification, by seeing what features are used to make classification decisions, visually. E.g. A facial expression classifier looks at the mouth. 
-    * We can't use the results of the experiment to justify its parameter settings. This is tuning to the validation set, and not based on theory/previous work. Instead refer to initial experiments, background literature; expert knolwdge (not) black magic, Cthulhu, Grad Student Descent (Gencoglu 2019, gencoglu2019hark).
-
-2022-08-05 - ECRG 
-~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** Friday 3pm - 5pm, **Attendees:** Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et al.
-
-Notes:
-    * Submission deadline is August 5th (today!!!) for AJCAI 2022, this this is likely flexible (as no explicit time was given). Can submit tomorrow with minor fixes. 
-    * Computer Communication and Artificial Intelligence (CCAI) deadline for this conference is Jan 10th 2023. 
-    * Bing's ingagural lectures is Tuesday evening on 9th August.
-
-2022-08-10 - Deep Learning 
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** Wednesday 3pm - 4pm, **Attendees:** Felix, Bastiaan Kleign, Jesse Wood et al.
-
-Notes:
-    * Usually too expensive to compute the Jacobian matrix and its inverse. Most models restrict the function class with easy evaluation of the Jacobian determinant, or an efficient estimator thereof. 
-    * Self normalizing flows replaces expensive tasks in gradient by learned approximate inverses at each layer. This reduces the complexity from :math:`O(N^3)` to :math:`O(N^2)`.
-    * What is a Jacobian Matrix? What is a normalizing flow? Inverse Jacobian? 
-    * This model can perform efficiently and well on high-dimensional image data, for example the MNIST handwriting dataset. A visual analysis of their reconstruction appears to be good. 
-
-2022-08-11 - Weekly 
-~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** Friday 12pm - 1pm, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood.
-
-Notes: 
-    * Classification Map cab be extended to automatically determine the boundary on the floating point line using clustering. 
-    * Can use multiple trees, one for each class (Multi-tree), or one-vs-rest (Committee). 
-    * Flexibility, there is a lot of options to explore with the GP representation. 
-    * Parsimony pressure - fitness function includes accuracy and GP tree size. Can choose to only use Parisonomy pressure for selection, and evaluate fitness as only accuracy. 
-    * VUW has a thesis on program simplification, to eliminate redundancy in GP tree. 
-    * Start with 4 artihmetic operators, can extend later if needed. 
-    * Diminishing returns - Simplification may be a very costly research objective, but may have bery little impact on the classification accuracy for the industry application. Industry research should be results driven. 
-    * AutoML - e.g. TPOT, automated ML is the process of automating the process of applying machine learning to real-world problems. 
-    * Interpretability is a good objective for industry research. 
-    * Ricardo Poli has a GP Guide that is available for free online (Riccardo 2009, riccardo2009field). https://ia801902.us.archive.org/3/items/AFieldGuideToGeneticProgramming/AFieldGuideToGeneticProgramming.pdf
-
-2022-08-11 - FASLIP
-~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** Thursday 2pm - 3pm, **Attendees:** Hayden Anderson, Bing Xue, Jesse Wood et al.
-
-Notes: 
-    * Explainable AI (XAI) considerations and perspectives from the social sciences. 
-    * Interpetability - levels of understanding of how an outcome is produced. The focus is on the system not the outcme. 
-    * Explainability - Explanation of how the outcome is rpodces. The focus is on the outcome not the system. 
-    * Pyschology - from psychology these are around teh wrong way, in psychology we reverse these definitions. 
-    * Interpretable: ability of a human to meaning from a given stimulus. OFten high level of imprecision. 
-    * Context - who is it interpretable to? Is it the target audience of the interpretation? Is their assumed knowledge needed in order to correctly implement the model. 
-    * Linear model is interpretable - we consider linear models white-box because they are linear... 
-    * BUt if we have a linear model to our Grandmother, she would consider it nonsense. 
-    * Interpretability can be applied to GP trees. I.e. protected division, specialized operators, uncommon tree structures. 
-    * Fuzzy-trace theory is a mental model of how we process incoming stimuli, verbatim to gist scale. We constantly forget. 
-
-2022-08-07 - Deep Learning
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** Wednesday 3pm - 4pm, **Attendees:** Demelza Robinson, Bastiaan Kleign, Jesse Wood et al. 
-
-Demelza gave a talk on Gaussain Processes for Regression. GPs can be used for fitting a function to data, we can train GP to predict given training data. 
-
-Notes:  
-    * Demelza gave a talk on Gaussian Processes for Regression. GPs can be used for fitting a function to data, we can train GP to predict given training data. 
-    * GPs find a condition distribution of the targets given the inputs. Compare our prior beleifgs with the likelihood using Bayes Rule. 
-    * To make predictions, average over all possible parameter values. Linear model lacks expressiveness, so we can map the probelm to a higher dimensionanal sapce using basis functions. 
-    * Probabilistc classification where test predictions are in the form of class probabilities. 
-    * Tricker because we could assume the likelohood function was Guassian, but for classification the likelohood is non-gaussian, but posterior can be approximated. 
-    * Confusing words: posterior, prior, positive semi-definite, basis functions, kernel trick, reproducing hilbert space, heteroskedastic. 
-    * heteroskedastic - can observe the same features of an instance, at two seperate times, and belong to different classes at each time. 
-
-2022-08-18 - FALSIP 
-~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** Thursday 2pm - 3pm, **Attendees:** Kaan Demir, Bach Hoai Nguyen, Jesse Wood et al.
-
-Kaan gave a presentation on feature selection for mult0lable classification. 
-
-Notes: 
-    * Predicting a set of labels that correspond to an instance, Different to binary/multi-class classification, as an instance can correspond to multiple classes simulateniously. 
-    * Problem tranformation - can be used to transform the multi-label problem into a simpler representation. 
-    * Binary - break multi-label into a set of binary classification problems, run classifier, then concatenate labels together to get the final prediction.
-    * For example, the SVM model uses a one-vs-rest approach for multi-class, it breaks the problem into a series of binary classification problems, same solution proposed for (Kerber 1992, kerber1992chimerge).
-    * The issue with binary classification approach is that the classifiers are independent, and share no information about the problem. 
-    * Classifier chains, label a class, and append that label as a feature to the next classifier. 
-    * Issue with classifier chains, there is no clear order to chain the classifiers in. 
-    * Label powerset, convert multi-label into multi-class problem. 
-    * Issues - Very sparse and comibinatorial explosion for many label problems. 
-    * Multi-label KNN (ML-KNN) - an extremely expensive version of KNN that is suited to multi-label datasets natively. KNN scales by number of instances, with online learning, that requires the whole training set in memory. The complexity scales by number of lables and instances. 
-    * Sparsity-based classification, diffentiable and works for optmizing with neural networks. 
-    * Feature selection - reduce the number of features; they can be irrelevant, redundant, complimentary.
-    * Search - search methods can be sequential, guided stochasity (EC), balanced with a quality-metric (classification accuracy) and feature interactions. 
-    * FS methods, MRMR, reliefF, classifier, ML-KNN, Sparsity-based models. 
-    * Sparsity based models: :math:`\min{z} ||XZ - Y||_{2,1} + \Lambda ||z||_{2,1}`. Where :math:`||z||_{1,2}` is the sum each column norm, and, :math:`||z||_{2,1}` is the sum each row norm.
-    * The :math:`\Lambda` provides a constraint to sparesely cluster the feature into a lower dimensional representation. E.g. Globe :math:`\to` Plane, the geometric locality (distance) is lost in this transformation. 
-    * Use a kernal to capture the non-linear interactions between features, conserve the distance in the manifold, A gaussian affinity matrix.
-    * Laplacian eigenmap, the overall "connectesness" of each feature toward all other features. Graph regularization - embed laplacian eigenmap into a linear model. 
-    * Use evolutionary computation, and co-operative co-volution. We require EC to search this comibinaratorially explosive search space for multi-label feature selection.
-    * Caveat: the choice of kernel, i.e. Radial Bias Function (rbf), Gaussian, Linear, determines the non-linear patterns the Laplacian eigenmap can capture.  
-    * Similar to SVM, a kernel that captures the complexity of the data accurately must be chosen, but in this case it is difficult to evaluate the kernel quality, difficult to find an appropriate metrix. 
-    * Gist: A linear model for mult0label classification taht considers the non-linear interactions, preserving the manifold without a graph regularization term. 
-
-2022-08-19 - Weekly 
-~~~~~~~~~~~~~~~~~~~
-**Location:** C0364, **Time:** Friday 11am - 12pm, **Attendees:** Bach Hoai Nguyen, Jesse Wood.
-
-Notes: 
-    * A one tree approach is very primitive Genetic Program for multi-class classification. 
-    * Multi-tree GP is better. Each tree seperates one class from the rest. There is one tree for each of the classes. 
-    * E.g. one tree would seperate blue cod from all the other class. The next tree would seperate snapper from the other classes. 
-    * Class dependent crossover, ensure crossover is only happening within the individual trees, not across the multi-tree, i.e. crossover between snapper and bluecod trees is not allowed. 
-    * Mutation can happen to any tree, not class dependent. 
-    * Class depedent Feature Construction; Genetic Programming for Multi-feature Construction on High-Dimensional Classification (Tran 2019, tran2019genetic). 
-    * Multi-feature Construction (MFC), Feature Selection (FS), Genetic Programming (GP). 
-    * Mid-trimester break: for next two weeks, meeting time will be Thursday 12pm (the old time).
-
-
-TODO: 
-    * Implement Multi-tree GP in Python. 
-    * [ ] Read (Tran 2019, tran2019genetic). 
-
-2022-08-19 - ECRG 
-~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** Friday 3pm - 5pm, **Attendees:** Peng Wang, Yi Mei, Bach Hoai Nguyen, Jesse Wood et al. 
-
-Notes: 
-    * Marine Conference - Bing, Meng and Fangfang are at the Marine Conference in Nelson. So Yi had to chair the ECRG meeting this week. 
-    * IEEE Symposium - Register for the IEEE Symposium, presenting at this event provides free membership to the IEEE organisation. New students SHOULD register and attend. Most IEEE conferences require IEEE membership for attendence. 
-    * EvoStar - a major conference that we are targeting. The deadline is September it is important to start preparations for work we with to submit for this conference. 
-    * Progress: 
-        - A single GP tree for multi-class classification, 
-        - will extend this to be multi-tree GP, 
-        - using one-vs-rest approach, 
-        - also prepare for FASLIP presentation next week, 
-        - content from this can be revised for IEEE Symposium. 
-
-Peng Wang gave a presentation "Differential Evolution-Based Feature Selection: A Niching-based GP Approach". Peng is a third-year PhD candidate. 
-
-Notes:
-    * Motivations - curse of dimensionality, redundancy in features, improve compute, and perhaps performance. 
-    * Goals - multi-objective (MO) proivdes a pareto optimal set of candidate solutions that are non-dominated and balance desired objectives; i.e. accuracy and size. 
-    * Filter, Wrapper, Embedded are the three approaches to feature selection (FS) and feature construction (FC). 
-    * Embedded - feature selection is embedded in the learning process. 
-    * Wrapper - feature selection method servers as a wrapper for an existing prediction algorithm (i.e. classifier). 
-    * Filter - a ftiler method is featuress are evaluated absed on general characteristics, a classifier model is not used. 
-    * Aim - get better feature subsets with less redundnacy. Feature subsets that maintain classification algorithms. 
-    * Tradeoff - there is a tradeoff between accuracy and feature subset size. 
-    * Differential Evolution, is a method that optimizes a problem iteratively trying to improve a candidate solution with respect to a given measure of quality. https://en.wikipedia.org/wiki/Differential_evolution 
-    * Real - for DE the genotype is some form of real-valued vector. 
-    * Operators - the mutation/crossover operators make use of the difference between two or more vectors in the population to create a new vector. 
-    * Differentiable - DE does not require the optimization problem to be differentiable, it does not rely on gradient descent as many deep learning methods do. This allows for more difficult tasks without domain expertise / differentiable mathematics. 
-    * Genotype - a genotype is the genetic makeup of an individual (in biological terms), genotypes are encoded as strings or trees of values, it is the representation, the encoding. 
-    * Phenotype - a phenotype is the expression of a trait, this is the decoded genotype, we evaluate a candidate individual to get its predictive output is the solution space, evaluated in the environment. 
-    * Example. The gene for ginger hair is recessive and stored in an individuals DNA - this is the genotype. The hair colour of the indiviudal, are they ginger. is the expression of that trait - phenotype. 
-    * For evolutionary computation, an example is, Genotype - a GP tree, Phenotype - the prediction/output. 
-
-TODO: 
-    * [ ] 2022-08-24 Register for the IEEE Symposium 
-    * [ ] 2022-08-25 FASLIP Presentation 
-    * [ ] 2022-08-31 Prepare IEEE Symposium presentation 
-    * [ ] 2022-09-30 Plan a EvoStar 2023 paper. 
+    * Kevin is from Callaghan, comes from a chemistry background, with university level knowledge in statistics. 
+    * Demelza, 
+    * GC-MS data isn't something PFR want to pursue, ultimately the technique is slow, they are looking for fast techniques. 
+    * Factory needs fast techniques, 
+    * REIMS, take a sample anything, e.g., fish, shoot it with a lazer, it creates ions, and then suck those ions up. 
+    * REIMS data, is similar to a chemical fingerprint, each peak corresponds to 
+    * Best characterized fish in the history of the planet. 
+    * Quality Control (QC) - or check samples, these are all identical, if the technique was working properly they should be tightly clustered, due to measurement noise they are not. The QC samples are a 50-50 mixture of the hoki and mackeral, they aim to be an average of the two fish. 
+    * If a sample varies by more than 30% RSD, we take it out, because the variables are not behaving. 
+    * Work with preprocessed data, get good results, then return to the raw data, and try to automate the entire process. 
+    * In chemistry data, sometimes PC-1 picks up noise in the dataset, then later PC-2 picks up the signal.
+    * Lipidomics - every tissue has a very specific lipid profile, we plan to use the lipid profiles to distinguish tisssue samples. 
+    * Kevin is currently processing oils, this is a slow and manual process, but will be high-resolution, another set of mass spectrometry data. 
+    * Research questions:
+        1. Can REIMS data be used to classify different hoki tissues? What variables are responsible?
+        2. Can REIMS data detect mineral oil contamination in hoki? At what concentration? What variables are responsible?
+        3. Can REIMS data be used to distinguish between different hoki individuals? What variables are responsible?
+        4. Can REIMS data detect hoki contmination in jack mackerel? At what concentration? What variables are responsible? 
+        5. Can REIMS data be used to classify different jack mackerel tissues? What variables are responsible?
+        6. Can REIMS data detect mineral oil contamination in jack mackerel? At what concentration? What variables are responsible?
+        7. Can REIMS data be used to distinguish between different batches of jack mackerel? What variables are responsible? 
+    * Good to relate results from a machine learning model, for example Principal Component Analysis, and try to explain the results using chemistry knowledge. 
+    * Prinipal Component Analysis (PCA) is an un-supervised learning technique, that projects the features into a lower dimensional space, and then tries to find the best linear combination of features that maximises the variance.
+    * We expect supervised-learning methods, that have access to the class labels, will perform better than unsupervised learning methods. 
+    * There is a preference towards intrepretable models, because we can try to explain these models using domain knowledge in chemistry. 
+    * We have Hoki contaminated with mineral oil (MO), often oil from boats gets into the fish, and contaminates the sample. 
+    * There are two types of data, spectroscopy and spectrometry, they sound similar but are very different. 
+        - spectroscopy - Spectroscopy is the study of the absorption and emission of light and other radiation by matter. It involves the splitting of light (or more precisely electromagnetic radiation) into its constituent wavelengths (a spectrum), which is done in much the same way as a prism splits light into a rainbow of colours.     
+        - spectrometry - Spectrometry is the measurement of the interactions between light and matter, and the reactions and measurements of radiation intensity and wavelength. In other words, spectrometry is a method of studying and measuring a specific spectrum, and it's widely used for the spectroscopic analysis of sample materials. 
+    * Hoki + Mackeral 
+        - REIMS (AgResearch) + MS data (Callaghan)
+    * Vibrational Spectroscopy 
+        - Reference data, qualatative data that takes months to generate. 
+        - Raw vibrational spectroscopy (Otago)
+    * Seasonal sample (Dec 2023): Hoki, Mackeral, Green Shell Mussell (GSM) 
+        - REIMS + MS data 
+        - Vibrational Spectroscopy (Otago)
+        - Same data, on different datasets. 
+    * Genetic Programming, can visualize the results and model, due to interpretable nature of GP trees. 
+    * We are working on the front-end of the factory, we get raw data fast, and process it fast. 
+    * No time-domain because the REIMS tool is instant. 
+    * No instrumental drift, the technique will get the same measurements for the same QC sample, even if years apart. Only day-to-day drift. 
+    * Mass spectrometry, m/z is the mass to charge ratio, most ions will be single charge, REIMS uses time-of-flight MS. No time variable is needed, because x-axis is mass to charge ratio. 
+    * Time-of-Flight (TOF) is a mass analyser that utilises an electric field to accelerate generated ions through the same electrical potential, and then measures the time each ion takes to reach the detector.
+    * Heavier ions take longer to travel through the acceration shaft, and therefore have a longer time-of-flight. Lighter ions take shorter time to travel through the acceleration shaft, and therefore have a shorter time-of-flight.
+    * Good publishing strategy, it is possible to publish two papers on a datasets: chemistry side (dataset) and machine learning side (model).
+    * Journal paper, 70% of the paper must be new, 30% can be from previous work, such as conference papers. From journal to conference, from a machine learning perspective, the work is on improving the algorithm. 
+    * FGR policy to force students to be first author on their papers, we can copy work from papers straight to the thesis, if we are first author (and did the work).
+    * Sue just wants the box at the start of the factory that tells us what we need, we can worry about the publishing papers. 
+    * Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) are powerful statistical modeling tools that provide insights into separations between experimental groups based on high-dimensional spectral measurements from NMR, MS or other analytical instrumentation.
+    * OPLS-DA is a supervised approach, that will pull out characteristics that can linearly discriminate between variables, and is popular in chemistry field already.
+    * Main benefit of REIMS, REIMS was able to detect horse meat contaminaiton in beef, at as little as 3% contamination. We want to find contamination in fish, such as mineral oil, oxidation, pre-fatty acids, mixed-species contamination.
+    * Setup weekly meetings with Daniel, ask questions, track progress, ensure we are on track and fulfilling research objectives from PFR.
