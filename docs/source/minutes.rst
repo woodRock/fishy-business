@@ -2211,7 +2211,8 @@ Notes:
 
 
 TODO: 
-    * Implement Multi-tree GP in Python. 
+    * [x] Implement Multi-tree GP in Python. 
+    * [x] Prepare for Kevin+Daniel visit next week.
     * [ ] Read (Tran 2019, tran2019genetic). 
 
 2022-08-19 - ECRG 
