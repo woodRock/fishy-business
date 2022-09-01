@@ -2251,9 +2251,9 @@ Notes:
     * For evolutionary computation, an example is, Genotype - a GP tree, Phenotype - the prediction/output. 
 
 TODO: 
-    * [ ] 2022-08-24 Register for the IEEE Symposium 
-    * [ ] 2022-08-25 FASLIP Presentation 
-    * [ ] 2022-08-31 Prepare IEEE Symposium presentation 
+    * [x] 2022-08-24 Register for the IEEE Symposium 
+    * [x] 2022-08-25 FASLIP Presentation 
+    * [x] 2022-08-31 Prepare IEEE Symposium presentation 
     * [ ] 2022-09-30 Plan a EvoStar 2023 paper. 
 
 2022-08-23 - PFR Daniel and Kevin
@@ -2329,3 +2329,99 @@ Notes:
     * Easier to publish in high volume from machine learning side, rather than chemistry side. 
     * Kevin is able to arrange time for me to visit Callaghan, and see how the REIMS data is prepared in-person. 
     * Good to get hands on experience with the REIMS data, to get a hollistic view of the project scope.  
+
+
+2022-08-24 - FALSIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Jesse Wood, Bach Nguyen, Bing Xue, Mengjie Zhang et al. 
+
+Jesse Wood (me) gave a talk on "Automated Fish Classification" this week. 
+See resources folder for a copy of my presentation slides. 
+
+2022-08-25 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bach Nguyen, Bing Xue, Jesse Wood.
+
+Notes: 
+    * They need volunteers for the university open day for the new AI course, offered to volunteer from 12:00 - 15:00. It is hosted in AM102 - AM104. 
+    * Fitness function for Multi-tree GP should be one objective function, the classification accuracy. 
+    * Remove the sogmoid function, just have classification as >0 is positive, otherwise negative. 
+    * Check protected divisiojn operator, the expressions should not be retruning inf or -inf. 
+
+TODO: 
+    * [x] Single objective function as classification accuracy. 
+    * [x] Remove sigmoid activation function. 
+    * [x] Prepare IEEE Symposium presentation. 
+    * [ ] Check protected division operator. 
+
+20221-08-26 - ECRG  
+~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 15:00 - 17:00, **Attendees:** Gonglin Yuan, Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et at. 
+
+Gonglin Yuan gave  talk on "Evolutionary Perofrmance Predictor Geneitc Algorithms (EPPGA)". 
+
+Notes: 
+    * Evolutionary Perofrmance Predictor Geneitc Algorithms (EPPGA).
+    * EPPGA is a method for neural architecture search. 
+    * Convolutional Neural Networks (CNN) are an efficient method for processing image data. Examples of CNN on ImageNExt dataset include ResNet (Simonyan 2014), VGG-16 (He 2018), AlexNet (Krizhevsky 2012). 
+    * Limitations of CNN - domain experts in deep learning required to find a good network archtecture, this is trail and error, rule fo thumb, monkeys on typewriters, black magic, hyperparameter tuning is not often done by theory / informed design. 
+    * Neural Architecture Search (NAS), using global search algorithms, i.e. Evolutionary Computation, to find optimal hyperparamters automatically. 
+    * Current methods to improve performance of NAS: 
+        1. Shallow training
+        2. Paramter sharing 
+        3. Performance predictors
+    * Evolutionary Neural Architecture Search (ENAS). 
+    * Efficient performance predictor based genetic algorithm (EPPGA) is better than (NPPGA) where N stands for not. 
+    * The performance predictor models if offspring can outperform its parents. The fitness (can) still be evaluated independently in the selection stage, and the eprformance predictor only for crossover operations. So the performance predictor can be an appromixation, it does not need to be exact.
+
+2022-08-24 - IEEE Symposium  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Jesse Wood, Bach Nguyen, Bing Xue, Mengjie Zhang et al. 
+
+Jesse Wood (me) gave a talk on "Automated Fish Classification" this week. 
+
+Notes: 
+    * This was a 10 minute version of my 2022-08-24 - FALSIP talk.
+    * See resources folder for a copy of my presentation slides. 
+
+2022-09-01 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** 12:00 - 12:30, **Attendees:** Bach Nguyen, Jesse Wood.
+
+Note: Bing and Meng are at a conference in Auckland. 
+
+Notes: 
+    * Most work was preparing for the IEEE Symposium this week. I gave my "Autoamted Fish Classification" talk from FASLIP (last week).
+    * After revising my notes from 2022-08-23 - PFR Daniel and Kevin, I have a much clearer idea for what my PhD proposal will be.
+    * Mutation + Crossover = 100%, even though Deap is seqeuntial genetic program, we set these parameters as such to avoid questions at conferences. 
+    * Fitness function of argmax(map >0) is biased towards the first class, and does not penalize multi-label classifications. Even though a multi-label classfication for multi-class classification is wrong. 
+    * Add the hamming distance, the magnitude of the difference of two binary vectors :math:`|v_1 - v_2|`, as a distance-based regularization term to penalize multi-label classifications. 
+    * Think about research objectives for the REIMS data, start wrtigin them in the proposal, get heaps of ideas down on paper, then sift through them to find the diamonds in the rough. 
+    * Error of GP-tree is no longer the balanced classification accuracy, we must measure balanced accuracy and error, as two independent statistics for the console/logging output. 
+
+TODO:
+    * [ ] Write up research objectives for REIMS data.
+    * [ ] Crossover + Mutation = 100%. 
+    * [ ] Hamming distance regularization term. 
+    * [ ] Log error and balanced accuracy.
+
+2022-09-01 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:**  Dylon Zeng, Bach Nguyen, Jesse Wood et al.
+
+Dylon Zeng gave a talk on Multi-Object Tracking for Mussell Farms. 
+
+Notes: 
+    * Images are taken from a moving boat using a go-pro. 
+    * Variation between different mussell frams, weather conditions, float colour, camera angle ... 
+    * YOLO v7 deep learning model does well for the object detection, but requires tuning for each Mussell Farm - we want a generalized solution that works for all mussell farms. 
+    * Laplacian of Gaussian (LoG). 
+    * Pre-processing: 
+        1. Gray-world equilization. 
+        2. Homomorphic filtering. 
+        3. Perspective warping. 
+    * Q-Identifier, true and relative bearing between floats. 
+    * Future work: 
+        * Semi-supervised 
+        * Mechanical turk for annotated dataset. 
+        * Rough labels. 
