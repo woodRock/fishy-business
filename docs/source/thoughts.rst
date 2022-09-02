@@ -229,3 +229,16 @@ brewer2006brown
     * These concepts from biology apply to Evolutionary Computation: 
         - Genetype is the encoding for an individual, the representation, i.e. A GP tree or binary string. 
         - Phenotype is that genotype after being decoded, the prediction, i.e. the output of the GP tree.
+
+2022-09-02 - Fitness
+--------------------
+    * Fitness function for mutli-label classification needs to penalize multi-label predictions. 
+    * A multi label prediction is a vector in form :math:`p = [1,0,1,0]`, where multiple classes are predicted. 
+    * The Hamming Distance is the magnitude of the difference of two vectors :math:`|v1 - v2|`. 
+    * We can use the hamming distance as distance-based regularization term to penalize multi-label predictions. 
+    * Our new fitness function becomes :math:`fitness = \alpha accuracy + (1 - \alpha |\hat(y) - y|)`
+        * where :math:`\alpha` is the weight of the accuracy vs regularization term,
+        * and :math:`|\hat(y) - y|` is the hamming distance between prediction and true label,
+        * and :math:`accuracy` is the balanced accuracy. 
+    * Generally we set :math:`\alpha = 0.98` very high, to favour solutions with higher accuracy first, then penalize multi-label predictions.
+    * To facilitate this approach, we must log the accuracy and fitness statistics independently, as they are no longer the same metric. 

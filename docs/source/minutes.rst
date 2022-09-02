@@ -2425,3 +2425,20 @@ Notes:
         * Semi-supervised 
         * Mechanical turk for annotated dataset. 
         * Rough labels. 
+
+2022-09-02 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** Co350, **Time:** 15:00 - 17:00, **Attendees:** Jablin Lin, Bing Xue, Bach Nguyen, Yi Mei, Jesse Wood et al.
+
+General notes: 
+    * IEEE Symposium: Jordan won best presentation, Christrian won runner up. 
+
+Jablin Lin gave a talk on "Evolutionary Transfer Learning for Feature Selection in Classification". 
+
+Notes: 
+    * Real-world example of transfer learning is riding a bicycle and motorcycle. 
+    * We can transfer knowledge across domains to improve performance. 
+    * Evolutionary Sequential Transfer Learning, Multi-task, Multi-form optmization. 
+    * Feautre selection adn classificationt asks are often related, and share common knowledge - we wish to transfer knowledge (i.e. similar solutions) across related tasks. 
+    * Feature selection is a multi-objective problem that balances the numbers of features selected and the classification accuracy. 
+    * Mixture model - A mixture distribution is made up of several component distributions :math:`P(x) = \sum_i P(c=i)P(x|c=i)` (Goodfellow 2016, goodfellow2016deep).

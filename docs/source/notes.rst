@@ -35,3 +35,17 @@ Notes:
         2. Hoki, Mackeral and Hoki-Mackeral mix is more difficult. 
         3. Samples taken in sequential order, but plates randomized to minimize impact of instrumental drift. 
         4. More steps to combat instrumental drift should be addressed.  
+
+ECS Grid 
+--------
+
+Commands: 
+    - To submit a job run ``qsub job.sh`` where ``job.sh`` is the name of the script.
+    - To see the state of current jobs run ``qstat``.
+    - To see why a script is in an error state run ``qstat -explain E -j <jobid>``. 
+
+Notes: 
+    - Instructions for the grid can be found here https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script 
+    - Remote access to the grid is available via SSH https://ecs.wgtn.ac.nz/Support/TechNoteWorkingFromHome 
+    - My griduser folder is ``woodjess3``, but my ECS username is ``woodj4``, be careful with this difference when writing scripts. 
+    - For email notifications of job completion, I must use my ECS email Jesse.Wood@ecs.vuw.ac.nz. 
