@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/pkgsrc) (preloaded format=pdflatex 2022.7.1)  5 SEP 2022 15:57
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/pkgsrc) (preloaded format=pdflatex 2022.7.1)  5 SEP 2022 16:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -323,7 +323,7 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 53.
  (/usr/pkg/share/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 75.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 81.
  (/usr/pkg/share/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 ) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
@@ -346,9 +346,9 @@ Here is how much of TeX's memory you used:
  28934 multiletter control sequences out of 15000+600000
  487867 words of font info for 66 fonts, out of 8000000 for 9000
  912 hyphenation exceptions out of 8191
- 72i,11n,77p,333b,453s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,11n,77p,327b,453s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/pkg/share/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/pkg/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/pkg/share/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/pkg/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/pkg/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /vol/ecrg-solar/woodj4/fishy-business/proposal/paper.pdf (2 pages, 57247 bytes).
+Output written on /vol/ecrg-solar/woodj4/fishy-business/proposal/paper.pdf (2 pages, 57260 bytes).
 PDF statistics:
  87 PDF objects out of 1000 (max. 8388607)
  74 compressed objects within 1 object stream
