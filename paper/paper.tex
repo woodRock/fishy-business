@@ -101,13 +101,13 @@ The goals of this work are to investigate the viability of classifying different
 The contributions of this work are broken into three main steps:
 
 \begin{itemize}
-  \item Data preprocessing: This step converts Gas Chromatography data into tabular format data appropriate as input into a machine learning algorithm.
-        The paper proposes an effective method to detect and fill the missing packets/features which significantly improves the classification performance over using the raw data.
-  \item Analysing classification algorithms: The second step performs experiments with five types of classification algorithms, including instance-based classifiers, probabilistic classifiers, tree-based classifiers, ensemble classifiers, and kernel-based classifiers, to classify fish samples \cite{cortes1995support,fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification}.
-        Experiments find that kernel-based classifiers, particularly linear SVM, achieve high classification accuracy on the fish data. 
-        The paper visualises the learnt model and identifies that not all the data, represented as \textit{features}, are useful, which leads to the final step.
-  \item Feature selection: The last step applied feature selection methods to reduce the amount of collected data i.e., the number of features.
-        The experimental results illustrate that the number of features could be reduced by almost 70\% while retaining the same high classification performance.
+	\item Data preprocessing: This step converts Gas Chromatography data into tabular format data appropriate as input into a machine learning algorithm. 
+	The paper proposes an effective method to detect and fill the missing packets/features which significantly improves the classification performance over using the raw data.
+	\item Analysing classification algorithms: The second step performs experiments with five types of classification algorithms, including instance-based classifiers, probabilistic classifiers, tree-based classifiers, ensemble classifiers, and kernel-based classifiers, to classify fish samples \cite{cortes1995support,fix1989discriminatory,hand2001idiot,ho1995random,loh2011classification}. 
+	Experiments find that kernel-based classifiers, particularly linear SVM, achieve high classification accuracy on the fish data. 
+	The paper visualises the learnt model and identifies that not all the data, represented as \textit{features}, are useful, which leads to the final step.
+	\item Feature selection: The last step applied feature selection methods to reduce the amount of collected data i.e., the number of features. 
+	The experimental results illustrate that the number of features could be reduced by almost 70\% while retaining the same high classification performance.
 \end{itemize}
 
 \section{Gas Chromatography}
@@ -129,7 +129,7 @@ Therefore, it is necessary to detect such missing packets to align the data befo
   \includegraphics[width=0.6\textwidth]{chromatograph.png}
   
   \caption{Gas Chromatogram of Fatty Acid Methyl Esters from Snapper Skin}
-  \label{fig:gas-chromatography}
+  \label{fig:gas-chromatography} 
 \end{figure}
 
 \section{Data Preprocessing and Formation of Classification Problems}
@@ -143,20 +143,20 @@ In other words, the first packet of Sample 1 does not correspond to the first pa
 Initial experiments tried KNN (K=3), and the classification performance was only 67\%, which is quite low. 
 
 \begin{table}[t]
-  \centering
-  \caption{Inconsistent Timestamps}
-  \label{tb:badRaw}
-  \begin{tabular}{|l|c|c|c|}
-    \hline
-             & \multicolumn{3}{c|}{Timestamp}                       \\
-    \cline{2-4}
-             & Sample 1                       & Sample 2 & Sample 3 \\
-    \hline 
-    Packet 1 & 51                             & 50       & 50       \\
-    Packet 2 & 52                             & 51       & 51       \\
-    Packet 3 & 53.05                          & 53.1     & 53       \\
-    \hline
-  \end{tabular}
+	\centering
+	\caption{Inconsistent Timestamps}
+	\label{tb:badRaw}
+\begin{tabular}{|l|c|c|c|}
+	\hline
+	& \multicolumn{3}{c|}{Timestamp} \\
+	\cline{2-4}
+	& Sample 1 & Sample 2 & Sample 3\\
+	\hline 
+	Packet 1 & 51 & 50 & 50 \\
+	Packet 2 & 52 & 51 & 51\\
+	Packet 3 & 53.05 & 53.1 & 53 \\
+	\hline
+\end{tabular}
 \end{table}
 
 Further investigation revealed that the main reason was due to the missing packets, caused by the absence of signal at the Gas Chromatography detector. 
@@ -182,9 +182,9 @@ There is a class imbalance for the fish species dataset, where Blue cod is the m
 There are two classification tasks associated with the data:
 
 \begin{itemize}
-  \item To predict the fish species for each fish sample. There are four fish species: \textit{Snapper, Gurnard, Tarakihi}, and \textit{Blue cod}.
-  \item To predict from which body part the fish sample is extracted. There are six body parts: \textit{Frame, Gonad, Head, Liver, Skin}, and \textit{Guts}.
-\end{itemize}
+	\item To predict the fish species for each fish sample. There are four fish species: \textit{Snapper, Gurnard, Tarakihi}, and \textit{Blue cod}.
+	\item To predict from which body part the fish sample is extracted. There are six body parts: \textit{Frame, Gonad, Head, Liver, Skin}, and \textit{Guts}.
+\end{itemize} 
 
 \section{Classification Performance}
 
@@ -208,7 +208,7 @@ The parameters are the default settings in \textit{scikit-learn} \cite{pedregosa
   \captionsetup{font=small,labelfont=small}
   \caption{
     Classification Accuracies
-  }
+    }
   \centering
   \begin{tabular}{|l|l|l|l|l|}
     \hline
@@ -218,42 +218,42 @@ The parameters are the default settings in \textit{scikit-learn} \cite{pedregosa
     AveTest $\pm$ Std                      \\ % &
     % T                                     \\
     \hline
-    Fish Species               & 
+    Fish Species                    & 
     \begin{tabular}[c]{@{}l@{}}
       KNN          \\ % K-Nearest Neighbors
       RF           \\ % Random Forest
       DT           \\ % Decision Tree
       NB           \\ % Naive Bayes
       \textbf{SVM} \\ % Support Vector Machine
-    \end{tabular}  & 
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      83.57 $\pm$ 1.80          \\ % KNN
+      83.57 $\pm$ 1.80         \\ % KNN
       100.0 $\pm$ 0.00          \\ % RF
       100.0 $\pm$ 0.00          \\ % DT
-      79.54 $\pm$ 1.60          \\ % NB
+      79.54 $\pm$ 1.60         \\ % NB
       \textbf{100.0 $\pm$ 0.00} \\ % SVM
-    \end{tabular}  & 
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
       74.88 $\pm$ 12.54          \\ % KNN
       85.65 $\pm$ 10.76          \\ % RF
       76.98 $\pm$ 13.12          \\ % DT
       75.27 $\pm$ 4.35           \\ % NB
       \textbf{98.33 $\pm$ 5.00 } \\ % SVM
-    \end{tabular}              \\
+    \end{tabular}             \\
     \hline
-    Body Parts                 & 
+    Body Parts                       & 
     \begin{tabular}[c]{@{}l@{}}
       KNN          \\ % K-Nearest Neighbors
       RF           \\ % Random Forest
       DT           \\ % Decision Tree
       NB           \\ % Naive Bayes
       \textbf{SVM} \\ % Support Vector Machine
-    \end{tabular}  & 
+    \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      68.95 $\pm$ 3.49            \\ % KNN
+      68.95 $\pm$ 3.49          \\ % KNN
       100.00 $\pm$ 0.00           \\ % RF
       100.00 $\pm$ 0.00           \\ % DT
-      65.54 $\pm$ 2.69            \\ % NB
+      65.54 $\pm$ 2.69          \\ % NB
       \textbf{100.00 $\pm$ 0.00 } \\ % SVM
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
@@ -290,20 +290,20 @@ Meanwhile, the tissue samples from different body parts (but on the same fish sp
 Future work will investigate more sophisticated mechanisms to improve the classification performance on classifying body parts. 
 
 \begin{figure}[t]
-  \centering
-  \begin{subfigure}[b]{.49\linewidth}
-    \includegraphics[width=\linewidth]{fish_hyperplane_sna.png}
-    \caption{Snapper}\label{fig:hyperplane-sna}
-  \end{subfigure}
-  \begin{subfigure}[b]{.49\linewidth}
-    \includegraphics[width=\linewidth]{fish_hyperplane_bco.png}
-    \caption{Blue cod}\label{fig:hyperplane-bco}
-  \end{subfigure}
-  
-  \caption[SVM Coef]{
-    SVM Hyperplane Coefficients
-  }
-  \label{fig:svm-hyperplane}
+	\centering
+	\begin{subfigure}[b]{.49\linewidth}
+		\includegraphics[width=\linewidth]{fish_hyperplane_sna.png}
+		\caption{Snapper}\label{fig:hyperplane-sna}
+	\end{subfigure}
+	\begin{subfigure}[b]{.49\linewidth}
+		\includegraphics[width=\linewidth]{fish_hyperplane_bco.png}
+		\caption{Blue cod}\label{fig:hyperplane-bco}
+	\end{subfigure}
+ 
+	\caption[SVM Coef]{
+		SVM Hyperplane Coefficients
+	}
+	\label{fig:svm-hyperplane}
 \end{figure}
 
 \subsection{Interpret SVM models}
@@ -347,43 +347,43 @@ The final feature subset is the output as the final solution.
 This section compares four common feature selection methods: 
 
 \begin{itemize}
-  \item $\boldsymbol{\chi^2}$ (chi-square) \cite{liu1995chi2} is a statistical measure that computes the independence of two variables $X$ and $Y$. The formula of $\chi^2$ is
-        \begin{equation}
-          \chi^2 = \sum_{k=1}^N \frac{(X_{k} - Y_{k})^2}{Y_{k}}
-          \label{eq:chi}
-        \end{equation}
-        where $k$ is the index of the sample and $N$ is the number of samples. 
-        In feature selection, $\chi^2$ can be used to measure the independence between a feature and a class label. 
-        Since there is usually a high dependency between a relevant feature and a class label, the low $\chi^2$ value indicates that the features are more relevant. 
-        Thus, the features can be ranked in ascending order and the top-ranked features can be selected. 
-  \item \textbf{Minimum Redundancy and Maximum Relevance (mRMR)} \cite{ding2005minimum} uses mutual information to perform feature selection.
-        Mutual information between two variables $X$ and $Y$, i.e., $I(X; Y)$ calculates the dependency between two or more variables. 
-        mRMR aims to select a feature subset such that the redundancy of the selected features is minimised and the relevance between the selected features and the class label is maximised. 
-        Given a set of selected features $A$, the score of a feature $X_i$, i.e., $S_i$ is calculated by the following formula:
-        \begin{equation}
-          S_i = I(Y; X_i) - \frac{1}{|S|} \sum_{X_j \in A} I(X_i; X_j) 
-          \label{eq:mrmr}
-        \end{equation}
-        mRMR has many iterations where at each step mRMR will add the best feature based on Eq. (\ref{eq:mrmr}). 
-        mRMR stops when a predefined number of features are selected. 
-  \item \textbf{ReliefF} \cite{robnik2003theoretical} is a feature selection algorithm based on distance measures.
-        In ReliefF, a good feature should be able to well separate instances from different classes while the instances from the same class should not be far from each other. 
-        The algorithm ranks all features based on the idea of nearest neighbours. 
-        For a feature, if the distance between two nearest instances from \textit{different} classes (a miss) is large, the feature score is increased since the feature can well separate different classes. 
-        On the other hand, if the distance between the two nearest instances from the \textit{same} class is large (a hit), the feature score is decreased. 
-        In ReliefF, the higher the score, the more relevant the feature. Therefore, all features are ranked in descending order, and the top-ranked features are selected. 
-  \item \textbf{Particle Swarm Optimisation (PSO) \cite{kennedy1995particle,7969325} for Wrapper Feature Selection} utilises the classification performance as the fitness function to achieve feature selection.
-        The main idea is to have a swarm of particles that can explore the feature subset space in parallel. 
-        Each particle represents a feature subset. 
-        The quality of each particle is the classification performance of the corresponding feature subset. 
-        Since it is necessary to train a classification algorithm during the evaluation process, the classification algorithm is ``wrapped'' inside the PSO algorithm (that is why the algorithm is called Wrapper PSO). 
-        In this work, a linear SVM is used as the wrapped classification algorithm since it achieves good classification performance. 
-        Each particle records the best feature subset that it discovered so far (called personal best or $pbest$) and the best feature subset that is discovered by the whole swarm so far (called global best or $gbest$). 
-        The particle then updates its position by moving towards the two best positions. 
-        It is expected that the new subset at the new position will have better quality (i.e., higher classification performance) than the previous position. 
-        An advantage of PSO is that the particle movement is stochastic. 
-        Thus, the swarm can globally explore the feature subset search space, which is an essential point when dealing with a large and complex search space like feature selection. 
-        Therefore, PSO has gained much attention from the feature selection community recently \cite{nguyen2020survey}.
+	\item $\boldsymbol{\chi^2}$ (chi-square) \cite{liu1995chi2} is a statistical measure that computes the independence of two variables $X$ and $Y$. The formula of $\chi^2$ is
+	\begin{equation}
+	\chi^2 = \sum_{k=1}^N \frac{(X_{k} - Y_{k})^2}{Y_{k}}
+	\label{eq:chi}
+	\end{equation}
+	where $k$ is the index of the sample and $N$ is the number of samples. 
+	In feature selection, $\chi^2$ can be used to measure the independence between a feature and a class label. 
+	Since there is usually a high dependency between a relevant feature and a class label, the low $\chi^2$ value indicates that the features are more relevant. 
+	Thus, the features can be ranked in ascending order and the top-ranked features can be selected. 
+	\item \textbf{Minimum Redundancy and Maximum Relevance (mRMR)} \cite{ding2005minimum} uses mutual information to perform feature selection. 
+	Mutual information between two variables $X$ and $Y$, i.e., $I(X; Y)$ calculates the dependency between two or more variables. 
+	mRMR aims to select a feature subset such that the redundancy of the selected features is minimised and the relevance between the selected features and the class label is maximised. 
+	Given a set of selected features $A$, the score of a feature $X_i$, i.e., $S_i$ is calculated by the following formula:
+	\begin{equation}
+	S_i = I(Y; X_i) - \frac{1}{|S|} \sum_{X_j \in A} I(X_i; X_j) 
+	\label{eq:mrmr}
+	\end{equation}  
+    mRMR has many iterations where at each step mRMR will add the best feature based on Eq. (\ref{eq:mrmr}). 
+    mRMR stops when a predefined number of features are selected. 
+	\item \textbf{ReliefF} \cite{robnik2003theoretical} is a feature selection algorithm based on distance measures. 
+	In ReliefF, a good feature should be able to well separate instances from different classes while the instances from the same class should not be far from each other. 
+	The algorithm ranks all features based on the idea of nearest neighbours. 
+	For a feature, if the distance between two nearest instances from \textit{different} classes (a miss) is large, the feature score is increased since the feature can well separate different classes. 
+	On the other hand, if the distance between the two nearest instances from the \textit{same} class is large (a hit), the feature score is decreased. 
+	In ReliefF, the higher the score, the more relevant the feature. Therefore, all features are ranked in descending order, and the top-ranked features are selected. 
+	\item \textbf{Particle Swarm Optimisation (PSO) \cite{kennedy1995particle,7969325} for Wrapper Feature Selection} utilises the classification performance as the fitness function to achieve feature selection. 
+	The main idea is to have a swarm of particles that can explore the feature subset space in parallel. 
+	Each particle represents a feature subset. 
+	The quality of each particle is the classification performance of the corresponding feature subset. 
+	Since it is necessary to train a classification algorithm during the evaluation process, the classification algorithm is ``wrapped'' inside the PSO algorithm (that is why the algorithm is called Wrapper PSO). 
+	In this work, a linear SVM is used as the wrapped classification algorithm since it achieves good classification performance. 
+	Each particle records the best feature subset that it discovered so far (called personal best or $pbest$) and the best feature subset that is discovered by the whole swarm so far (called global best or $gbest$). 
+	The particle then updates its position by moving towards the two best positions. 
+	It is expected that the new subset at the new position will have better quality (i.e., higher classification performance) than the previous position. 
+	An advantage of PSO is that the particle movement is stochastic. 
+	Thus, the swarm can globally explore the feature subset search space, which is an essential point when dealing with a large and complex search space like feature selection. 
+	Therefore, PSO has gained much attention from the feature selection community recently \cite{nguyen2020survey}.
 \end{itemize}
 
 Although there are other advanced and complicated feature selection algorithms \cite{li2017feature,zhang2020binary,alsahaf2022framework,alweshah2022coronavirus}, this work starts with the above four simple but well-known techniques. 
@@ -420,52 +420,52 @@ mRMR achieves its highest training and testing accuracies when the number of sel
     \caption{Species: Test set}\label{fig:fs-per-k-fish-test}
   \end{subfigure}
   \caption[Two numerical solutions]{
-    Classification Accuracy of Fish Species on Different Numbers of Selected Features.
-  }
+      Classification Accuracy of Fish Species on Different Numbers of Selected Features.
+    }
   \label{fig:fs-per-k-fish}
 \end{figure}
 
 \begin{table}[t]
   \caption{
     Best accuracy on Fish Species.
-  }
-  \label{tb:bestSpecies}
+    }
+    \label{tb:bestSpecies}
   \centering
   \begin{tabular}{|l|c|c|c|}
     \hline
-    Method                     & 
-    Number of features         & 
-    Training accuracy          & 
-    Testing accuracy              \\
+    Method & 
+    Number of features &
+    Training accuracy         & 
+    Testing accuracy                     \\
     \hline
     \begin{tabular}[c]{@{}l@{}}
-      ReliefF       \\        
-      \textbf{mRMR} \\     
+      ReliefF   \\        
+      \textbf{mRMR}      \\     
       $\chi^2$      \\  
-      \textbf{PSO}  \\
-      Full          \\
+      \textbf{PSO}       \\
+      Full      \\
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      359           \\ 
-      \textbf{1500} \\ 
-      3250          \\ 
-      \textbf{1192} \\ 
-      4800          \\
+      359       \\ 
+      \textbf{1500}      \\ 
+      3250      \\ 
+      \textbf{1192}      \\ 
+      4800      \\
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      100.0          \\
-      \textbf{100.0} \\
-      100.0          \\
-      \textbf{100.0} \\
-      100.0          \\ 
+      100.0     \\
+      \textbf{100.0}     \\
+      100.0     \\
+      \textbf{100.0}      \\
+      100.0      \\ 
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      98.33          \\
+      98.33 \\
       \textbf{99.17} \\
-      98.33          \\
+      98.33 \\
       \textbf{99.17} \\
-      98.33          \\ 
-    \end{tabular}    \\
+      98.33 \\ 
+    \end{tabular}             \\
     \hline
   \end{tabular}
   \label{t:feature-selection}
@@ -488,9 +488,9 @@ Meanwhile, PSO can remove 75\% features, which means the classification system c
     \includegraphics[width=\linewidth]{accuracy-features-part-test.png}
     \caption{Part: Test set}\label{fig:fs-per-k-part-part-test}
   \end{subfigure}
-  \caption[Two numerical solutions]{
-    Classification accuracy of Fish Body Parts on Different Numbers of Selected Features.
-  }
+    \caption[Two numerical solutions]{
+      Classification accuracy of Fish Body Parts on Different Numbers of Selected Features.
+    }
   \label{fig:fs-per-k-part}
 \end{figure}
 
@@ -504,44 +504,44 @@ The main reason is that PSO considers the interaction in the whole set of featur
 \begin{table}[t]
   \caption{
     Best Accuracy on Fish Body Parts
-  }
-  \label{tb:bestBody}
+    }
+    \label{tb:bestBody}
   \centering
   \begin{tabular}{|l|c|c|c|}
     \hline
-    Method                     & 
-    Number of features         & 
-    Training Accuracy          & 
-    Testing Accuracy              \\
+    Method & 
+    Number of features &
+    Training Accuracy        & 
+    Testing Accuracy                   \\
     \hline
     \begin{tabular}[c]{@{}l@{}}
-      ReliefF       \\        
-      \textbf{mRMR} \\     
+      ReliefF   \\        
+      \textbf{mRMR}      \\     
       $\chi^2$      \\  
-      PSO           \\
-      Full          \\
+      PSO       \\
+      Full      \\
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      1650          \\ 
-      \textbf{1500} \\ 
-      1550          \\ 
-      1223          \\ 
-      4800          \\
+      1650       \\ 
+      \textbf{1500}      \\ 
+      1550      \\ 
+      1223      \\ 
+      4800      \\
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      100.0          \\
-      \textbf{100.0} \\
-      100.0          \\
-      100.0          \\
-      100.0          \\ 
+      100.0     \\
+      \textbf{100.0}     \\
+      100.0     \\
+      100.0      \\
+      100.0      \\ 
     \end{tabular} & 
     \begin{tabular}[c]{@{}l@{}}
-      84.44          \\
+      84.44 \\
       \textbf{86.94} \\
-      82.50          \\
-      84.31          \\
-      79.86          \\ 
-    \end{tabular}    \\
+      82.50 \\
+      84.31 \\
+      79.86 \\ 
+    \end{tabular}             \\
     \hline
   \end{tabular}
   \label{t:feature-selection}
