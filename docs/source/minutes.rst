@@ -2442,3 +2442,35 @@ Notes:
     * Feautre selection adn classificationt asks are often related, and share common knowledge - we wish to transfer knowledge (i.e. similar solutions) across related tasks. 
     * Feature selection is a multi-objective problem that balances the numbers of features selected and the classification accuracy. 
     * Mixture model - A mixture distribution is made up of several component distributions :math:`P(x) = \sum_i P(c=i)P(x|c=i)` (Goodfellow 2016, goodfellow2016deep).
+
+2022-09-07 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 15:00 - 16:00, **Attendees:** JP, Bastiaan Kleign, Jesse Wood et al. 
+
+JP gave a presentation on "Diffusion". 
+
+Notes: 
+    * What regularized auto-encoders learn from the data generating distribution. Summarizes a result from (Vincent 2011). 
+    * Tweedie's formula (1954). 
+    * Minimizing the errored squared difference between :math:`s(y)` and the score of :math:`p(y|x)` is equivalent to perfroming score <unlegible> with teh estimator :math:`s(y)`. 
+    * Imagen, Dalle 2, Stable Diffusion are all diffusion based text-to-image generating models. 
+    * (Ho 2020) Course-to-fine interpolation that vary the number of diffusion steps prior to latent mixing. The losiness of the model can be controlled. 
+    * Bastiaan asked if Diffusion will replace a GAN, or are they another fad like Normalizing flows, the foward-backward step process is very computationally expensive. 
+    * With 0 diffusion steps, we get mixed sources images in the pixel space (blend),  with 1,000 steps, source information is lost and get novel images. 
+
+2022-09-08 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:**  Jinyan Li, Bing Xue, Mengjie Zhang, Yi Mei, Jesse et al. 
+
+Jinyan Li gave a talk on "Compression for DNA/RNA Sequencing". 
+
+Notes: 
+    * Reduces complexity of the optimization problem by breaking down the problem space into smaller blocks. 
+    * Apply clustering so each block has a similar time-complexity, better edges, so comrpession performance can be improved. 
+    * A combination of minimizers/maximizers for compressing a sequence of characters - a DNA sequence. 
+    * The problem is DNA/RNA sequencing, the human genome contains 3 billion base pairs, and around 30,000 geneges. 
+    * File compression of DNA/RNA sequencing files, to allow for efficient distribution across the internet. 
+    * The hardware used for the experiments is a distributed computer cluster, if the method allows. 
+    * "Cell trajectory inference from Single-cell RNA Sequencing"
+    * Process: t-SNE --> Density-based clustering --> KDE/MCD --> Trajectory formation --> psuedo-time assignment -> determine vague cells 
+    * Bigraction tpology of the cell trajectory. A difficult pattern to determine. 

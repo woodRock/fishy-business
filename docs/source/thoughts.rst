@@ -242,3 +242,13 @@ brewer2006brown
         * and :math:`accuracy` is the balanced accuracy. 
     * Generally we set :math:`\alpha = 0.98` very high, to favour solutions with higher accuracy first, then penalize multi-label predictions.
     * To facilitate this approach, we must log the accuracy and fitness statistics independently, as they are no longer the same metric. 
+
+2022-09-08 - (New) Fitness
+--------------------------
+    * The previous fitness functions (thoughts 2022-09-02) does not work. 
+    * It optimizes the balanced accuracy until no improvement is possible, then optimizes the hamming distance. 
+    * However, we want these two metrics to be optimized simultaneously. 
+    * A new fitness function was proposed, that simply rejects invalid predictions entirely. 
+    * Thus the GP that makes the most valid and correct predictions will be selected. 
+    * It is slower to evalaute good solutions, because creating valid and correct solutions is a more difficult task. 
+    * But the best performing model will inherently have the most valid solutions. 
