@@ -18,16 +18,28 @@ $ python3 -m gp.Main
 
 ## Results 
 
-This figure shows accuracy for the CNN model is given from the training and test set. 
+### Single-Tree GP 
 
-![accuracy](./assets/accuracy.png)
+This is an example of a Single Tree GP for classification. 
 
-This figure gives the confusion matrix for the training data.
+![Single Tree GP](./assets/SingleTree_GP.png)
 
-![train confusion matrix](./assets/confusion_matrix_train.png)
+### Multi-Tree GP 
 
-This figure gives the confusion matrix for the test data. 
+These are example trees for a one-vs-all multi-class classifier. 
 
-![accuracy](./assets/confusion_matrix_test.png)
+Here is the tree for bluecod. 
 
-The current model achieves 100% training and 98% test classification accuracy on the fish dataset. This is equivalent to the Support Vector Machine (SVM) results. 
+![Multi Tree GP - Bluecod](./assets/MultiTree_GP_BCO.png)
+
+Here is the tree for gurnard. 
+
+![Multi Tree GP - Gluecod](./assets/MultiTree_GP_GUR.png)
+
+Here is the tree for snapper. 
+
+![Multi Tree GP - Snapper](./assets/MultiTree_GP_SNA.png)
+
+Here is the tree for tarakihi. 
+
+![Multi Tree GP - Tarakihi](./assets/MultiTree_GP_TAR.png)
