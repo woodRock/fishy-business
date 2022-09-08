@@ -2472,5 +2472,11 @@ Notes:
     * File compression of DNA/RNA sequencing files, to allow for efficient distribution across the internet. 
     * The hardware used for the experiments is a distributed computer cluster, if the method allows. 
     * "Cell trajectory inference from Single-cell RNA Sequencing"
-    * Process: t-SNE --> Density-based clustering --> KDE/MCD --> Trajectory formation --> psuedo-time assignment -> determine vague cells 
-    * Bigraction tpology of the cell trajectory. A difficult pattern to determine. 
+    * Process: 
+        1. t-SNE 
+        2. Density-based clustering 
+        3. KDE/MCD 
+        4. Trajectory formation 
+        5. Psuedo-time assignment 
+        6. Determine vague cells 
+    * Bifraction tpology of the cell trajectory. A difficult pattern to determine. 
