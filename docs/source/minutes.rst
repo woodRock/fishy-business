@@ -1411,8 +1411,8 @@ Notes:
     * GP has the opportunity to generate new knowledge that can be verifiedand encorporated by domain experts into their field. 
 
 TODO: 
-    * READ: GP for Multi-FC in skin cancer image classification. 
-    * READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
+    * [ ] READ: GP for Multi-FC in skin cancer image classification. 
+    * [ ] READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
 
 2022-06-17 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -1797,8 +1797,8 @@ Notes:
 TODO: 
     - [x] Next Draft - Friday 15th of July. 
     - [x] Abstract Registration - Monday 18th of July. 
-    - [ ] Revision - Tuesday 18th of July. 
-    - [ ] Submission deadline - Monday 25th of July. 
+    - [x] Revision - Tuesday 18th of July. 
+    - [x] Submission deadline - Monday 25th of July. 
 
 2022-07-14 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
