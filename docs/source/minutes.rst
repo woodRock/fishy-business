@@ -886,8 +886,10 @@ Notes:
     * Can claim GC dataset research as preliminary work for the REIMS data in my proposal. 
     * Transfer models from GC to REIMS data (likely) - this supports the preliminary claim. 
     * Pre-training on NIST GC refraction index data - needs a parametric (neural network) model for this technique. 
-    * TODO: Apply EvoCNN to GC data. 
-    * TODO: Apply Genetic Programming (GP) data to GC data. 
+    
+TODO: 
+    * [ ] Apply EvoCNN to GC data. 
+    * [ ] Apply Genetic Programming (GP) data to GC data. 
 
 2022-04-28 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1082,10 +1084,10 @@ Notes:
     
 TODO: 
     * [ ] Readings on Genetic Programming (GP)
-        1. TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
-        2. tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
-        3. tran2017new https://ieeexplore.ieee.org/document/7956226
-    * [ ] Send a draft CDP to my supervisors for feedback. 
+        1. [ ] TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
+        2. [ ] tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
+        3. [ ] tran2017new https://ieeexplore.ieee.org/document/7956226
+    * [x] Send a draft CDP to my supervisors for feedback. 
 
 2022-05-12 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1915,11 +1917,11 @@ Notes:
     * The AJCAI deadline have been pushed back. The abstract registraion is 29th of July, the submission deadline is 5th of August. 
 
 TODO: 
-    - [ ] Submission deadline - 5th of August. 
-    - [ ] GP on the GC dataset. 
-    - [ ] Start writing proposal. 
-    - [ ] Reading on GP. 
-    - [ ] New dataset from Daniel
+    - [x] Submission deadline - 5th of August. 
+    - [x] GP on the GC dataset. 
+    - [x] Start writing proposal. 
+    - [x] New dataset from Daniel
+    - [x] Reading on GP. 
 
 2022-07-21 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -2400,10 +2402,10 @@ Notes:
     * Error of GP-tree is no longer the balanced classification accuracy, we must measure balanced accuracy and error, as two independent statistics for the console/logging output. 
 
 TODO:
-    * [ ] Write up research objectives for REIMS data.
+    * [x] Write up research objectives for REIMS data.
+    * [x] Hamming distance regularization term. 
+    * [x] Log error and balanced accuracy.
     * [ ] Crossover + Mutation = 100%. 
-    * [ ] Hamming distance regularization term. 
-    * [ ] Log error and balanced accuracy.
 
 2022-09-01 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -2480,3 +2482,64 @@ Notes:
         5. Psuedo-time assignment 
         6. Determine vague cells 
     * Bifraction tpology of the cell trajectory. A difficult pattern to determine. 
+
+2022-09-09 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 11:30 - 12:00, **Attendees:** Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse 
+
+Notes: 
+    * Go back to the original Thursday meeting time after next week. 
+    * Multi-tree GP for multi-class classifcation is a very difficult problem, hence my low classification accuracy so far, more work needed to compete with SVM performance. 
+    * Instead use mutli-tree GP for feature constructions, the algorithm is great at exploration because of its stochastic nature, not so good at classification, as it has to learn this from scratch. 
+    * We can wrap the multi-tree feature construction in the SVM classifier, this way we play to the strengths of EC and SVM, respectively. 
+    * Report - write up the experiments in the form of a report, with parameter settings, psuedo-code, and results, so supervisors can discuss possible future directions (also good for a possible publication - EvoStar deadline is looming). 
+    * I forgot to tell my supervisors of my progress towards forming my research objectives for my proposal! I should follow up with an email, or address this next meeting, I wrote an agenda postick note to remind myself. 
+
+TODO: 
+    * [ ] Wrapper-based Multi-tree GP for Multi-class Classification. 
+    * [ ] Report describing implementation above. 
+    * [ ] Discuss Research Objectives with supvervisors. 
+
+2022-09-09 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:**  Junhao Huang, Yi Mei, Bach Nguyen, Jesse Wood et al.
+
+General Notes: 
+    * The AJCAI paper outcomes - accepted/rejected - are to be announced on Monday 12th of September. I have submitted a paper (my first) - fingers crosssed! 
+    * Progress report: 
+        1. Write research objectives for proposal 
+        2. Implemented Mutli-tree GP for mutli-class classification.
+        3. Future work: Wrapper-based feature construction with Multi-tree GP. 
+        * (Note: [Yi] good to mention technical details in progress report)
+    * [Yi] "When you have recieve a review, don't rush into revisions, make a review letter template, adderss all comments with personal knowledge, then discuss with supervisors, once you are all on the same page, then begin revisions. This can save a lot of time when handling journal revisions."
+
+Junhao Huang gave a talk on "PSO for Compact NAS for Image Classification". 
+
+Notes: 
+    * Neural Architecture Search (NAS) 
+    * Search strategies include: 
+        * Reinforcement Learning (RL)
+        * Gradient Descent (GD) 
+        * Evolutionary Computation (EC) 
+    * NAS is a non-convex, non-differentiable hyper-parameter optimization problem. 
+    * Performance evaluation for NAS is a incredibly expensive, networks have to be trained from scratch for each individual every generation. 
+    * MobileNet - an efficient and compressed CNN architecture that reduces the compelxity of the NAS. 
+    * Contributions: 
+        * An alternate MBConv Block. 
+        * Integrated acceleration scheme. 
+        * Reduce time and model complexity for NAS. 
+    * Modified MBConv Block: 
+        1. Remove <unlegible> feature addition - replace with channel concatenation. 
+        2. Replace squeeze-and-excitation with channel concatenation.
+    * Representation is similar to classification map, where a floating point number line is used to select the type of node for the network, using a float-string representation for an individual. 
+    * Optimizations: 
+        1. Dynamic early stopping
+        2. Input downsampling
+        3. Architecture downsampling 
+    * Genotype - [sp-conf, sp-connections], the configuration and connections for the network architecture, respectively. 
+    * Experiments: 
+        * Datasets: CIFAR-10, CIFAR-100, ImageNet 
+        * Compuation cost :math:`\approx` 0.07% of original cost. 
+        * Large-scale architecture transfer - CIFAR-10 :math:`\to` CIFAR-100. 
+    * Alternate approach, pre-train large-scale model on CIFAR-100, freeze weights, re-train final 2 layers for CIFAR-10. 
+    * Benefits: method required 1 GPU day, can be run on commidity hardware, performs well, doesn't need mega compute, or complex architecture. 
