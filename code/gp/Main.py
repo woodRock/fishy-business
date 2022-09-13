@@ -1,8 +1,10 @@
-""" 
-Genetic Program - Main.py 
+"""
+Genetic Program - Main.py
 =======================
 
-An implementation of a Genetic Program (Koza 1994), a simple GP tree with elitism and a classification map (CM) (Smart 2005) for multi-class classification. 
+An implementation of a Genetic Program (Koza 1994), 
+a simple GP tree with elitism and a classification map (CM) (Smart 2005) 
+for multi-class classification. 
 
 References:
 1. Koza, J. R. (1994). Genetic programming as a means for programming 
@@ -23,6 +25,7 @@ from deap import algorithms
 from deap import gp, base, creator, tools
 
 from .data import load, prepare, normalize, encode_labels
+
 
 def protectedDiv(left, right):
     """
@@ -54,14 +57,14 @@ def if_then_else(condition, left, right):
     Return: 
         left, if condition is postive. Otherwise, right. 
     """
-    if condition > 0: 
-        return left 
-    else: 
-        return right 
+    if condition > 0:
+        return left
+    else:
+        return right
 
 
 def classification_map(y_pred):
-    """ 
+    """
     Maps a float to a classification label using a classification map (Smart 2005).
 
     This variation situates class regions sequentially on the floating point number line. 
@@ -82,9 +85,9 @@ def classification_map(y_pred):
         In European Conference on Genetic Programming (pp. 227-239). Springer, Berlin, Heidelberg.
     """
     a = [float('-inf'), -1, 0, 1, float('inf')]
-    for i, (a,b) in enumerate(zip(a, a[1:])):
+    for i, (a, b) in enumerate(zip(a, a[1:])):
         if y_pred > a and y_pred < b:
-            return i 
+            return i
 
 
 def evaluate_classification(individual):
@@ -99,13 +102,14 @@ def evaluate_classification(individual):
     """
     n_instances = X.shape[0]
     func = toolbox.compile(expr=individual)
-    acc = sum(classification_map(func(*x)) == y_ for x,y_ in zip(X,y)) / n_instances 
-    error = 1 - acc 
+    acc = sum(classification_map(func(*x)) ==
+              y_ for x, y_ in zip(X, y)) / n_instances
+    error = 1 - acc
     return error,
 
 
 def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
-             halloffame=None, verbose=__debug__):
+                        halloffame=None, verbose=__debug__):
     """
     A variation of the eaSimple method from the DEAP library that allows for elitism. 
 
@@ -118,7 +122,7 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     invalid_ind = [ind for ind in population if not ind.fitness.valid]
     fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-    
+
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
 
@@ -130,7 +134,7 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     record = stats.compile(population) if stats else {}
     logbook.record(gen=0, nevals=len(invalid_ind), **record)
-    
+
     if verbose:
         print(logbook.stream)
 
@@ -139,7 +143,7 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
         offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        
+
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
 
@@ -148,7 +152,7 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
         population[:] = offspring
         record = stats.compile(population) if stats else {}
         logbook.record(gen=gen, nevals=len(invalid_ind), **record)
-        
+
         if verbose:
             print(logbook.stream)
 
@@ -172,13 +176,13 @@ def train(generations=100, population=100, elitism=0.1, crossover_rate=0.5, muta
     """
     random.seed(420)
     pop = toolbox.population(n=population)
-    
+
     mu = round(elitism * population)
     if elitism > 0:
         hof = tools.HallOfFame(mu)
     else:
         hof = None
-    
+
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     stats_size = tools.Statistics(len)
     mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
@@ -192,12 +196,13 @@ def train(generations=100, population=100, elitism=0.1, crossover_rate=0.5, muta
     # print log
     return pop, log, hof
 
+
 # Load the dataset
-folder = './data/matlab/' 
+folder = './data/matlab/'
 dataset = "Fish.mat"
 file = load(dataset, folder=folder)
-X,y = prepare(file)
-X,_ = normalize(X,X)
+X, y = prepare(file)
+X, _ = normalize(X, X)
 y, _, le = encode_labels(y)
 labels = le.inverse_transform(np.unique(y))
 n_features = X.shape[1]
@@ -212,21 +217,21 @@ pset.addPrimitive(operator.mul, 2)
 pset.addPrimitive(protectedDiv, 2)
 pset.addPrimitive(operator.neg, 1)
 
-# More complex operators. 
+# More complex operators.
 # pset.addPrimitive(if_then_else, 3)
 
-# Constants 
-pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
+# Constants
+pset.addEphemeralConstant("rand101", lambda: random.randint(-1, 1))
 
 # Do we intent to minimize or maximize the fitness?
-minimized = True  
+minimized = True
 
-if minimized: 
+if minimized:
     # Minimize when fitness is error.
-    weights = weights=(-1.0,)
-else: 
-    # Maximize when fitness is accuracy. 
-    weights = weights=(1.0,)
+    weights = weights = (-1.0,)
+else:
+    # Maximize when fitness is accuracy.
+    weights = weights = (1.0,)
 
 creator.create("FitnessMin", base.Fitness, weights=weights)
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
@@ -252,7 +257,8 @@ References:
     Pattern Recognition, 93, 404-417.
 """
 
-toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
+toolbox.register("individual", tools.initIterate,
+                 creator.Individual, toolbox.expr)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 
@@ -261,14 +267,17 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePoint)
 toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
-toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+toolbox.decorate("mate", gp.staticLimit(
+    key=operator.attrgetter("height"), max_value=17))
+toolbox.decorate("mutate", gp.staticLimit(
+    key=operator.attrgetter("height"), max_value=17))
 
-# Hyperparameters 
+# Hyperparameters
 generations = 300
 population = 100
 elitism = 0.1
-crossover_rate = 0.5
+crossover_rate = 0.95
 mutation_rate = 0.1
 
-pop, log, hof = train(generations, population, elitism, crossover_rate, mutation_rate)
+pop, log, hof = train(generations, population, elitism,
+                      crossover_rate, mutation_rate)
