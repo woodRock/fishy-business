@@ -2543,3 +2543,26 @@ Notes:
         * Large-scale architecture transfer - CIFAR-10 :math:`\to` CIFAR-100. 
     * Alternate approach, pre-train large-scale model on CIFAR-100, freeze weights, re-train final 2 layers for CIFAR-10. 
     * Benefits: method required 1 GPU day, can be run on commidity hardware, performs well, doesn't need mega compute, or complex architecture. 
+
+2022-09-14 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 14:00 - 15:00, **Attendees:** Bastian Kelign, Maxwell, Hayden, Daniel et al. 
+
+Bastiaan gave a talk on "Physics Informed Deep Learning" (Raissi 2019, raissi2019physics) https://maziarraissi.github.io/PINNs/
+
+Notes: 
+    * Neural networks that are trained to solve supervised learning tasks while respecting any given law of physics. 
+    * Resulting networks form a new class of data efficient universal ufnction apprimators that natrually encode any underlying physics law as prior information. 
+    * They propose continious and discrete time models. 
+        * Continous: 
+            1. Burgers Equation 
+            2. Schrödingers Equation 
+        * Discrete:     
+            1. Allan Cahn 
+            2. Navier-Stokes 
+            3. Korteweg-de Vries 
+    * You need data complexity - lots of data points - to approximate an equation. 
+    * "The number of collocation points needed to globally enforce a physics informed constraint [...] will increase exponentially."
+    * A more structured neural network representation leverages the classical Runge-Kutta time stepping schemes. 
+    * Runga-Kutta https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+    * We can employ the gradient of inputs in more situations, e.g. normalizaing flows, feature visualization, etc... 

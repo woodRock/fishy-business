@@ -588,6 +588,11 @@ raine1997brain
     * Different brain chemistry meant more likely to perform violent impulsive behaviour. 
     * Justification for lebotomy - electrocution of pre-frontal cortex - now replaced by anti-psychotics. 
 
+raissi2019physics
+-----------------
+    * Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations
+    * Discussed by Bastiaan from 2022-09-14 - Deep Learning  
+
 ramesh2022hierarchical
 ----------------------
     * Hierarchical Text-Conditional Image Generation with CLIP Latents. 
