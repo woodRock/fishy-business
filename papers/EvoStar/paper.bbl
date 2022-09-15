@@ -1,108 +1,19 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\urlprefix}{URL }
 \providecommand{\doi}[1]{https://doi.org/#1}
 
-\bibitem{alsahaf2022framework}
-Alsahaf, A., Petkov, N., Shenoy, V., Azzopardi, G.: A framework for feature
-  selection through boosting. Expert Systems with Applications  \textbf{187},
-  115895 (2022)
+\bibitem{long2022ai}
+Long, G.: AI 2021: Advances in Artificial Intelligence, vol. 13151. Springer
+  Nature (2022), placeholder for AJCAI 2022
 
-\bibitem{alweshah2022coronavirus}
-Alweshah, M., Alkhalaileh, S., Al-Betar, M.A., Bakar, A.A.: Coronavirus herd
-  immunity optimizer with greedy crossover for feature selection in medical
-  diagnosis. Knowledge-Based Systems  \textbf{235},  107629 (2022)
+\bibitem{smart2005genetic}
+Smart, W.R.: Genetic programming for multiclass object classification. BSc
+  (Honours) Research Project  (2005)
 
-\bibitem{cortes1995support}
-Cortes, C., Vapnik, V.: Support-vector networks. Machine learning
-  \textbf{20}(3),  273--297 (1995)
-
-\bibitem{ding2005minimum}
-Ding, C., Peng, H.: Minimum redundancy feature selection from microarray gene
-  expression data. Journal of bioinformatics and computational biology
-  \textbf{3}(02),  185--205 (2005)
-
-\bibitem{eder1995gas}
-Eder, K.: Gas chromatographic analysis of fatty acid methyl esters. Journal of
-  Chromatography B: Biomedical Sciences and Applications  \textbf{671}(1-2),
-  113--131 (1995)
-
-\bibitem{fix1989discriminatory}
-Fix, E., Hodges, J.L.: Discriminatory analysis. nonparametric discrimination:
-  Consistency properties. International Statistical Review/Revue Internationale
-  de Statistique  \textbf{57}(3),  238--247 (1989)
-
-\bibitem{hand2001idiot}
-Hand, D.J., Yu, K.: Idiot's bayes—not so stupid after all? International
-  statistical review  \textbf{69}(3),  385--398 (2001)
-
-\bibitem{ho1995random}
-Ho, T.K.: Random decision forests. In: Proceedings of 3rd international
-  conference on document analysis and recognition. vol.~1, pp. 278--282. IEEE
-  (1995)
-
-\bibitem{kennedy1995particle}
-Kennedy, J., Eberhart, R.C.: Particle swarm optimization. In: Proceedings of
-  ICNN'95-international conference on neural networks. vol.~4, pp. 1942--1948.
-  IEEE (1995)
-
-\bibitem{li2017feature}
-Li, J., Cheng, K., Wang, S., Morstatter, F., Trevino, R.P., Tang, J., Liu, H.:
-  Feature selection: A data perspective. ACM computing surveys (CSUR)
-  \textbf{50}(6),  1--45 (2017)
-
-\bibitem{liu1995chi2}
-Liu, H., Setiono, R.: Chi2: Feature selection and discretization of numeric
-  attributes. In: Proceedings of 7th IEEE International Conference on Tools
-  with Artificial Intelligence. pp. 388--391. IEEE (1995)
-
-\bibitem{loh2011classification}
-Loh, W.Y.: Classification and regression trees. Wiley interdisciplinary
-  reviews: data mining and knowledge discovery  \textbf{1}(1),  14--23 (2011)
-
-\bibitem{nguyen2020survey}
-Nguyen, B.H., Xue, B., Zhang, M.: A survey on swarm intelligence approaches to
-  feature selection in data mining. Swarm and Evolutionary Computation
-  \textbf{54},  100663 (2020)
-
-\bibitem{7969325}
-Nguyen, H.B., Xue, B., Andreae, P., Zhang, M.: Particle swarm optimisation with
-  genetic operators for feature selection. In: 2017 IEEE Congress on
-  Evolutionary Computation (CEC). pp. 286--293 (2017).
-  \doi{10.1109/CEC.2017.7969325}
-
-\bibitem{panse2016world}
-Panse, M.L., Phalke, S.D.: World market of omega-3 fatty acids. Omega-3 Fatty
-  Acids pp. 79--88 (2016)
-
-\bibitem{pedregosa2011scikit}
-Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel,
-  O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., et~al.:
-  Scikit-learn: Machine learning in python. the Journal of machine Learning
-  research  \textbf{12},  2825--2830 (2011)
-
-\bibitem{restek2018high}
-Restek: High-resolution gc analyses of fatty acid methyl esters (fames)
-
-\bibitem{robnik2003theoretical}
-Robnik-{\v{S}}ikonja, M., Kononenko, I.: Theoretical and empirical analysis of
-  relieff and rrelieff. Machine learning  \textbf{53}(1),  23--69 (2003)
-
-\bibitem{simopoulos2011evolutionary}
-Simopoulos, A.P.: Evolutionary aspects of diet: the omega-6/omega-3 ratio and
-  the brain. Molecular neurobiology  \textbf{44}(2),  203--215 (2011)
-
-\bibitem{sklearn2021feature}
-Sklearn: 1.13. feature selection
-
-\bibitem{tran2015multiple}
-Tran, C.T., Zhang, M., Andreae, P.: Multiple imputation for missing data using
-  genetic programming. In: The Annual Conference on Genetic and Evolutionary
-  Computation. pp. 583--590 (2015)
-
-\bibitem{zhang2020binary}
-Zhang, Y., Gong, D.w., Gao, X.z., Tian, T., Sun, X.y.: Binary differential
-  evolution with self-learning for multi-objective feature selection.
-  Information Sciences  \textbf{507},  67--85 (2020)
+\bibitem{tran2019genetic}
+Tran, B., Xue, B., Zhang, M.: Genetic programming for multiple-feature
+  construction on high-dimensional classification. Pattern Recognition
+  \textbf{93},  404--417 (2019)
 
 \end{thebibliography}
