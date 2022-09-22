@@ -2405,7 +2405,7 @@ TODO:
     * [x] Write up research objectives for REIMS data.
     * [x] Hamming distance regularization term. 
     * [x] Log error and balanced accuracy.
-    * [ ] Crossover + Mutation = 100%. 
+    * [x] Crossover + Mutation = 100%. 
 
 2022-09-01 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -2496,8 +2496,8 @@ Notes:
     * I forgot to tell my supervisors of my progress towards forming my research objectives for my proposal! I should follow up with an email, or address this next meeting, I wrote an agenda postick note to remind myself. 
 
 TODO: 
-    * [ ] Wrapper-based Multi-tree GP for Multi-class Classification. 
-    * [ ] Report describing implementation above. 
+    * [x] Wrapper-based Multi-tree GP for Multi-class Classification. 
+    * [x] Report describing implementation above. 
     * [ ] Discuss Research Objectives with supvervisors. 
 
 2022-09-09 - ECRG 
@@ -2581,3 +2581,47 @@ Notes:
         1. MCIFC 
         2. Winner-takes-all 
     * Work towards writing a paper for EvoStar 2023 - a conference held in Brno, Czech Republic - whose submission deadline in November 1st. 
+
+TODO: 
+    * [x] Change "half and half" :math:`\to` "Ramped half and half".
+    * [x] Increase populaiton size. 
+    * [ ] Vector-based approach? (A third possible GP method to compare)
+    * [ ] Write up experiments for EvoStar 2023.
+
+2022-09-16 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:** Jordan MacLachlan, Yi Mei, Bach Nguyen, Jesse Wood et al.
+
+General notes: 
+    * The government has removed all the restrictions of the traffic light system that were put in place to prevent COVID-19 transmission. 
+    * No need to wear face masks after Sunday at the university. 
+    * The EvsoStar conference deadline is in November, ECRG are heavily involved in the conference. 
+    * The AJCAI 2022 notification is at the end of the week (today!) 
+    * Progress: 
+        1. Multi-tree GP wrapper-based FC. 
+        2. Better accuracy than other methods.
+        3. Increasing population size helped a lot. 
+        4. Aim for EvoStar 2023 paper for November. 
+
+Jordan MacLachlan gave a presentation in CO350 on "GP for Emergency Medical Dispatch". 
+
+Notes: 
+    * EMD is a very underfunded and understaffed, one dispatcher had to serve 50,000 km:math:`^2`area of the lower North Island. 
+    * There isn't an existing representation for modeeling the task, Jordan has to devise a dynamic graph-based representation. 
+    * The fitness function is to minimize the average weighted response time. 
+    * Existing methods: 
+        1. Probabilistic models, 
+        2. Expert dispatch, 
+        3. Hard-rules (human designed) 
+    * Graph-based representations are NP-hard, similar to UCARP and DJSS, but unique constraints for the EMD domain. 
+    * Approaches: 
+        1. Greedy 
+        2. Global 
+        3. Proactive 
+    * The dataset does not exist that efficiently captures the EMD problem, very time-consuming, no public datasets were available. 
+    * The learned rules that employed the global methods showed significant improvement over greedy/local methods. 
+    * Potential to reelase the simulation software as open-srouce, however the IP may be protected for potential business opportunities later. 
+    * Dataset may contain private information - federated and differential learning approaches may allow the use of datasets with private/personal information from many EMD dispatchers, without revealing sensitive information. 
+    * The fitness function is the weighted average response time, this acoutns for the urgency of the emergecy, if non-urgent they can wait! If ugrent, time is of the essence. 
+    * Urgency has a 30% chance of randomly changing (according to Wellington Free Ambulance). E.g. an urgent call reporting an animal attack on a child, may be a hamster bite that drew no blood on a childs finger. 
+    
