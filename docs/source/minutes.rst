@@ -2582,11 +2582,12 @@ Notes:
         2. Winner-takes-all 
     * Work towards writing a paper for EvoStar 2023 - a conference held in Brno, Czech Republic - whose submission deadline in November 1st. 
 
-TODO: 
-    * [x] Change "half and half" :math:`\to` "Ramped half and half".
+TODO:
+    * [x] Write up experiments for EvoStar 2023.
     * [x] Increase populaiton size. 
+    * [ ] Change "half and half" :math:`\to` "Ramped half and half".
+    * [ ] Winner-takes-all Multi-tree GP. 
     * [ ] Vector-based approach? (A third possible GP method to compare)
-    * [ ] Write up experiments for EvoStar 2023.
 
 2022-09-16 - ECRG
 ~~~~~~~~~~~~~~~~~
@@ -2642,3 +2643,24 @@ TODO:
     * [ ] Organize travel plans for AJCAI 2022 (ASAP).
     * [ ] Winner-takes-all Multi-tree GP.
     * [ ] Cross-validation fitness evaluation for MCIFC. 
+
+2022-09-22 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Faizal Hafiz, Bing Xue, Mengjie Zhang, Bach Nguyen, Jesse Wood et al.
+
+Faizal Hafiz gave a talk on "Data Driven Modelling: Fundamental Challenges & Some Proposed Solutions" https://www.researchgate.net/profile/Faizal-Hafiz
+
+Notes: 
+    * SKEMA is a Business School in France. 
+    * Pattern recognition (PR) and System Identification (SI), are bosth sub-classes of data modelling. 
+    * Feature selection needs maximum relevance + minimum redundancy (Zhao 2019, Ding 2005). 
+    * Exploring feature subsets in high-dimensional data has a combinatorial explosion. 
+    * Non-linear Autoregressove with eXogenous (NARX). 
+    * In SI, we want a mathematicl expression which maps inputs :math:`\to` outputs, no black-box models. 
+    * Attribute selection - identify a sparese set of significant attributes :math:`X^* \subset X_{model}`. 
+    * Proposed solution: Two-dimensional swarms (2DS). 
+    * Orthogonal forward resgression with error reduction ratio (OFR-ERR). 
+    * OFR-ERR is one of the most successful algorithms when operating in orthoganal search spaces. 
+    * Limitations: it is known as the nesting effect, the algorithm cannot correct previous mistakes. 
+    * Floating search principle, a method from PR community, can fix the nesting effect, and correct past mistakes. 
+    * His work combines ideas from PR and SI, by generalizing the problems from both, to get a meta-heuristic that solves both. 
