@@ -2335,14 +2335,14 @@ Notes:
 
 2022-08-24 - FALSIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Jesse Wood, Bach Nguyen, Bing Xue, Mengjie Zhang et al. 
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Jesse Wood, Bach Nguyen, Bing Xue, Mengjie Zhang et al. 
 
 Jesse Wood (me) gave a talk on "Automated Fish Classification" this week. 
 See resources folder for a copy of my presentation slides. 
 
 2022-08-25 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bach Nguyen, Bing Xue, Jesse Wood.
+**Location:** CO352, **Time:** Thursday 12:00 - 13:00, **Attendees:** Bach Nguyen, Bing Xue, Jesse Wood.
 
 Notes: 
     * They need volunteers for the university open day for the new AI course, offered to volunteer from 12:00 - 15:00. It is hosted in AM102 - AM104. 
@@ -2358,7 +2358,7 @@ TODO:
 
 20221-08-26 - ECRG  
 ~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 15:00 - 17:00, **Attendees:** Gonglin Yuan, Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et at. 
+**Location:** Zoom, **Time:** Friday 15:00 - 17:00, **Attendees:** Gonglin Yuan, Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood et at. 
 
 Gonglin Yuan gave  talk on "Evolutionary Perofrmance Predictor Geneitc Algorithms (EPPGA)". 
 
@@ -2378,7 +2378,7 @@ Notes:
 
 2022-08-24 - IEEE Symposium  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Jesse Wood, Bach Nguyen, Bing Xue, Mengjie Zhang et al. 
+**Location:** CO350, **Time:** Wednesday 14:00 - 15:00, **Attendees:** Jesse Wood, Bach Nguyen, Bing Xue, Mengjie Zhang et al. 
 
 Jesse Wood (me) gave a talk on "Automated Fish Classification" this week. 
 
@@ -2388,7 +2388,7 @@ Notes:
 
 2022-09-01 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO364, **Time:** 12:00 - 12:30, **Attendees:** Bach Nguyen, Jesse Wood.
+**Location:** CO364, **Time:** Thursday 12:00 - 12:30, **Attendees:** Bach Nguyen, Jesse Wood.
 
 Note: Bing and Meng are at a conference in Auckland. 
 
@@ -2409,7 +2409,7 @@ TODO:
 
 2022-09-01 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:**  Dylon Zeng, Bach Nguyen, Jesse Wood et al.
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:**  Dylon Zeng, Bach Nguyen, Jesse Wood et al.
 
 Dylon Zeng gave a talk on Multi-Object Tracking for Mussell Farms. 
 
@@ -2430,7 +2430,7 @@ Notes:
 
 2022-09-02 - ECRG 
 ~~~~~~~~~~~~~~~~~
-**Location:** Co350, **Time:** 15:00 - 17:00, **Attendees:** Jablin Lin, Bing Xue, Bach Nguyen, Yi Mei, Jesse Wood et al.
+**Location:** CO350, **Time:** Friday 15:00 - 17:00, **Attendees:** Jablin Lin, Bing Xue, Bach Nguyen, Yi Mei, Jesse Wood et al.
 
 General notes: 
     * IEEE Symposium: Jordan won best presentation, Christrian won runner up. 
@@ -2447,7 +2447,7 @@ Notes:
 
 2022-09-07 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 15:00 - 16:00, **Attendees:** JP, Bastiaan Kleign, Jesse Wood et al. 
+**Location:** Zoom, **Time:** Wednesday 15:00 - 16:00, **Attendees:** John (JP) Lewis, Bastiaan Kleign, Jesse Wood et al. 
 
 JP gave a presentation on "Diffusion". 
 
@@ -2462,7 +2462,7 @@ Notes:
 
 2022-09-08 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:**  Jinyan Li, Bing Xue, Mengjie Zhang, Yi Mei, Jesse et al. 
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:**  Jinyan Li, Bing Xue, Mengjie Zhang, Yi Mei, Jesse et al. 
 
 Jinyan Li gave a talk on "Compression for DNA/RNA Sequencing". 
 
@@ -2485,7 +2485,7 @@ Notes:
 
 2022-09-09 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 11:30 - 12:00, **Attendees:** Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse 
+**Location:** CO352, **Time:** Friday 11:30 - 12:00, **Attendees:** Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse 
 
 Notes: 
     * Go back to the original Thursday meeting time after next week. 
@@ -2546,7 +2546,7 @@ Notes:
 
 2022-09-14 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 14:00 - 15:00, **Attendees:** Bastian Kelign, Maxwell, Hayden, Daniel et al. 
+**Location:** Zoom, **Time:** Wednesday 14:00 - 15:00, **Attendees:** Bastian Kelign, Maxwell, Hayden, Daniel et al. 
 
 Bastiaan gave a talk on "Physics Informed Deep Learning" (Raissi 2019, raissi2019physics) https://maziarraissi.github.io/PINNs/
 
@@ -2566,3 +2566,18 @@ Notes:
     * A more structured neural network representation leverages the classical Runge-Kutta time stepping schemes. 
     * Runga-Kutta https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
     * We can employ the gradient of inputs in more situations, e.g. normalizaing flows, feature visualization, etc... 
+
+2022-09-16 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday 11:00 - 12:00, **Attendees:** Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse
+
+Notes: 
+    * Increase the populzation size to at least 1,000 (:math:`\beta` #features in Tran 2019).
+    * Change "half and half" :math:`\to` "Ramped half and half". 
+    * Perform feature selection first, using MRMR, to reduce terminal set to top ranked features. 
+    * Winner-takes-all, multi-class classification method where largest output is the prediction. A class dependent representation is made.
+    * Single-Tree GP four multi-class classification is possible using a vector representation of shape (n_classes,). 
+    * Experiments, there are two possible avenues to go down:  
+        1. MCIFC 
+        2. Winner-takes-all 
+    * Work towards writing a paper for EvoStar 2023 - a conference held in Brno, Czech Republic - whose submission deadline in November 1st. 
