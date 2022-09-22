@@ -2624,4 +2624,21 @@ Notes:
     * Dataset may contain private information - federated and differential learning approaches may allow the use of datasets with private/personal information from many EMD dispatchers, without revealing sensitive information. 
     * The fitness function is the weighted average response time, this acoutns for the urgency of the emergecy, if non-urgent they can wait! If ugrent, time is of the essence. 
     * Urgency has a 30% chance of randomly changing (according to Wellington Free Ambulance). E.g. an urgent call reporting an animal attack on a child, may be a hamster bite that drew no blood on a childs finger. 
-    
+
+2022-09-22 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday 11:00 - 12:00, **Attendees:** Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse
+
+Notes: 
+    * Need to provide a travel plan for the conference. The conference goes from 5th - 7th of December. The university can pay for accomodation, travel and insurance (for the conference duration). Any extra days will have to covered at my expense. 
+    * The GP is overfitting to the training set - because we are using the entire training set. Instead (especially for smaller datasets) we should employ 10-fold cross validation, to prevent the model from overfitting. 
+    * For AJCAI 2022, a poser is still a paper, my paper will be posted in the conference proceedings. This is officially my first paper that has been accepted into an academic journal. 
+    * To prepare for AJCAI 2022, I need a camera-ready paper and poster for the October 5th registration deadline. Also I need to organize my travel plans to Perth. 
+    * Bach showed me an exemplar poster from his previous work. A poster should provide a high-level summary of the most important ideas from the paper. I can split it into 4 individual A4 sheets of paper, and then tape them together. (Alternative: get an A6 poster printed at university canvas shop). 
+
+TODO: 
+    * [ ] Camera-ready paper for AJCAI (DUE: 2022-10-05).
+    * [ ] Poster for AJCAI (DUE: 2022-10-05).
+    * [ ] Organize travel plans for AJCAI 2022 (ASAP).
+    * [ ] Winner-takes-all Multi-tree GP.
+    * [ ] Cross-validation fitness evaluation for MCIFC. 
