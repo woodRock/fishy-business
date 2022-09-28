@@ -2700,11 +2700,11 @@ Notes:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time:** Wedneday 15:00 - 17:00, **Attendees:** Amr Mossy, Bastiaan Kleign, Maxwell, Daniel, Hayden et al. 
 
-Amr Mosst discuessed the paper "SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows" (Nielsen 2020, nielsen2020survae) https://arxiv.org/abs/2007.02731
+Amr Moss discuessed the paper "SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows" (Nielsen 2020, nielsen2020survae) https://arxiv.org/abs/2007.02731
 
 Notes: 
     * Normalizaing flows use bijective transformations to model densities. 
     * Normlizaing flows is a series of simple functions, which are invertible, or the analytic inverse of the function can be calculated. 
-    * Variational Auto-Encoders (VAEs) learn stochastictransformations that are non-invertible. A variational auto-encoder is an auto-encoder whose training is reguliarzied to avoid overfitting to ensure that latent space has good propoerties that enable generative process. See chapter 14 on Regularized Autoencoders (Goodfellow 2016). https://www.deeplearningbook.org/contents/regularization.html
+    * Variational Auto-Encoders (VAEs) learn stochastictransformations that are non-invertible. A variational auto-encoder is an auto-encoder whose training is reguliarzied to avoid overfitting to ensure that latent space has good propoerties that enable generative process. See chapter 14 on Regularized Autoencoders (Goodfellow 2016). https://www.deeplearningbook.org/contents/autoencoders.html
     * Surjective transofrmations bridge the gap between VAEs and normalizing flows, wwherin their transofmrations are deterministic in one direction - thereby allowing exact likelihood computations and stochastic in the reverse direction - hence providing a lower bound on the corresponding likeliood. 
     * They propose a moudlar framework of composable transofrmations that encompase VAEs and normalizing flows. 
