@@ -26,41 +26,32 @@
 
 \begin{document}
 %
-\title{Repsonse Letter}
+\title{AJCAI 2022 Paper 3476: Response Letter}
 %
-%\titlerunning{Abbreviated paper title}
+\titlerunning{Reponse Letter}
 % If the paper title is too long for the running head, you can set
 % an abbreviated paper title here
+
+\author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
+  Bach Hoai Nguyen\inst{1}\orcidID{0000-0002-6930-6863} \and
+  Bing Xue\inst{1}\orcidID{0000-0002-4865-8026} \and 
+  Mengjie Zhang\inst{1}\orcidID{0000-0003-4463-9538} \and 
+  Daniel Killeen\inst{2}\orcidID{0000-0002-4898-6724}
+}
 %
-% \author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
-%   Bach Hoai Nguyen\inst{1}\orcidID{1111-2222-3333-4444} \and
-%   Bing Xue\inst{1}\orcidID{2222--3333-4444-5555} \and 
-%   Mengjie Zhang\inst{1}\orcidID{2222--3333-4444-5555} \and 
-%   Daniel Killeen\inst{2}\orcidID{2222--3333-4444-5555}
-% }
-% %
-% \authorrunning{J. Wood, B. Nguyen, et al.}
+\authorrunning{J. Wood, B. Nguyen, et al.}
 % First names are abbreviated in the running head.
 % If there are more than two authors, 'et al.' is used.
-%
-% \institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
-%   \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
-%   \and 
-%   Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
-%   \email{daniel.killeen@plantandfood.co.nz}\\
-% }
+
+\institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
+  \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
+  \and 
+  Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
+  \email{daniel.killeen@plantandfood.co.nz}\\
+}
 
 %
 \maketitle              % typeset the header of the contribution
-%
-\begin{abstract}
-  % The abstract should briefly summarize the contents of the paper in
-  % 150--250 words.
-    
-  \keywords{
-
-  }
-\end{abstract}
 
 \section{Review I}
 
@@ -76,27 +67,71 @@ The first reviewer had these general comments for the paper.
 
 \subsection{Literature Review}
 
-Their review raised there specific issues about the paper. The first regarding a missing literature review containing related work. 
+\textbf{Comment:}
 
 \begin{quote}
   What I found missing is a literature review on the problem or similar problem. If this is the first of such work, the authors could explicitly claim that. Otherwise, discuss existing methods and perhaps compare with those as well.
 \end{quote}
 
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item Introduction adds references to similar existing methods for classification of GC data in food science, and the limitations of this work. This motivates the interpretable Linear SVM proposed in this work.
+  \begin{quote}
+    [Introduction] \\ 
+    Previous works using CNNs, \emph{\cite{bi2020gc,matyushin2020gas}}, showed high classification accuracy on gas-chromatograph data. 
+    However, these black-box models do not produce interpretable models, making it difficult to verify/troubleshoot for fish processing in a factory setting.
+  \end{quote}
+  \item Section 3 on preprocessing explicitly adds references to similar existing methods.
+  \begin{quote}
+    [3 Preprocessing] \\ 
+    The authors are aware that there are more complex methods for imputing missing values, \emph{\cite{tomasi2004correlation,zhang2008two}}, but they are not the focus of the paper and will be left for future work [...].
+  \end{quote}
+\end{enumerate}
+
 \subsection{Imputation Contribution}
 
-The second issue was including the imputation as a contribution for the a paper. 
+\textbf{Comment:}
 
 \begin{quote}
   Although data imputation is an important part in the pipeline, however just 0 filling, while that makes sense, is not really a contribution. The time alignment in the data appears to be trivial as well,
 \end{quote}
 
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item The abstract removes reference to the filling 0 imputation. 
+  \begin{quote}
+    [Abstract] \\ 
+    \sout{Firstly, the paper proposes a preprocessing imputation method for aligning timestamps in Gas Chromatography data.}
+  \end{quote}
+  \item The introduction lightens the impact of the imputation contribution, 
+  \begin{quote}
+    [Introduction] \\ 
+    The paper \sout{proposes} \emph{finds} an effective method to detect and fill the missing packets/features which \sout{significantly} improves the classification performance over using the raw data.
+  \end{quote}
+  \item Section 3 on preprocessing explicitly adds references to more advanced techniques to highlight the trivial nature of filling 0 for aligning GC data.
+  \begin{quote}
+    [3 Preprocessing] \\ 
+    The authors are aware that there are more complex methods for imputing missing values, \emph{\cite{tomasi2004correlation,zhang2008two}}, but they are not the focus of the paper and will be left for future work [...].
+  \end{quote}
+\end{enumerate}
+
 \subsection{Figure Formatting}
 
-The third was formating, the figures need to be larger and easier to read, the camera-ready instructions for the conference specify at least a dpi of 800.
+\textbf{Comment:}
 
 \begin{quote}
   This figures need to be larger and visible.
 \end{quote} 
+
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item Figure 1, the gas chromatograph, was enlarged to 0.8 of the linewidth. 
+  \item Figure 2, the hyperplane coefficients, were changed to be two figures stacked vertically, both 0.8 of the linewidth. 
+  \item Figures 3,4, the feature selection results, cannot be made any larger without exceeding the page limit (unless there is some black magic I am unaware of).
+\end{enumerate}
 
 \section{Reivew II}
 
@@ -110,29 +145,52 @@ The second reviewer gave the paper these general comments.
 
 \subsection{Preprocessing Experimental Results}
 
-The reviewer had two specific issues with the paper. 
-The first was the motivation and reserach problem were not clear, with a particular focus on the lack of experimental results in our preprocessing section. 
+\textbf{Comment:}
 
 \begin{quote}
   However, the motivation and research problem is not clear; 
   for example, you need to demonstrate your pre-processing works using experimental results. 
 \end{quote}
 
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item The model intends to be deployed in a factory setting for fish processing. Therefore an interpretable and accurate model is required. The paper had a section added to the introduction to clarify the constraints of this application. This concretizes the real-world applicability and scope of the research problem and motivates the need for an interpretable model. 
+  \begin{quote}
+    [Introduction] \\ 
+    However, fatty acid data must be carefully processed and interpreted by domain experts (i.e. chemists), which is very expensive and time-consuming.
+    \emph{Previous works using CNNs, \cite{bi2020gc,matyushin2020gas}, showed high classification accuracy on gas-chromatograph data. 
+    However, these black-box models do not produce interpretable models, making it difficult to verify/troubleshoot for fish processing in a factory setting.}
+  \end{quote}
+  \item \textbf{TODO:} KNN classification results for imputation methods. 
+\end{enumerate}
+
 \subsection{Contributions}
 
-The felt as if the paper contribution was not enough, our experiments should evaluate a new method and benchmark it against the existing results. 
+\textbf{Comment:}
 
 \begin{quote}
   Also, no innovative techniques have been developed, so the contribution is not enough; you should provide a new method to compare with the methods in Tables 3 and 4.
 \end{quote}
 
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item Future work will likely extend this conference paper into a journal paper, where the authors will propose new methods for imputation, classification and feature selection. The work would compare techniques from evolutionary computation to these existing results as suggested by the reviewer.
+  \item The paper does not propose a new method, but rather uses existing methods to solve a new problem. The novelty of the paper is its application. The model intends to be deployed in a factory setting for fish processing. Therefore an interpretable and accurate model is required. The paper had a passage added to the introduction to clarify the constraints of this application: 
+  \begin{quote}
+    [Introduction] \\ 
+    However, fatty acid data must be carefully processed and interpreted by domain experts (i.e. chemists), which is very expensive and time-consuming.
+    \emph{Previous works using CNNs, \cite{bi2020gc,matyushin2020gas}, showed high classification accuracy on gas-chromatograph data. 
+    However, these black-box models do not produce interpretable models, making it difficult to verify/troubleshoot for fish processing in a factory setting.}
+  \end{quote}
+\end{enumerate}
+
 \section{Review III}
 
 \textbf{SCORE:} SCORE: 0 (borderline paper)
 \\\\
-The third reviewer had two questions regarding my paper. 
-
-The first issue mentioned the SVM uses a non-linear kernal, so the hyperplane coefficients have no relation to input features. This would make the analysis and claim on an interpretable model in section 4.3 invalid. 
+\noindent\textbf{Comment:}
 
 \begin{quote}
   Page 6: "The hyperplane is represented by a weight vector in which each weight is associated with a feature. The larger the weight, the more important the corresponding feature. After an SVM classification algorithm is trained on the training set, an SVM classifier containing a learned weight vector is obtained. This section analyses the learned weight vector to examine the contribution of each packet/feature."
@@ -144,22 +202,42 @@ The first issue mentioned the SVM uses a non-linear kernal, so the hyperplane co
   How to use weight vector of the hyperplane in feature space to examine the contribution of each packet/feature in input space?
 \end{quote}
 
+\noindent\textbf{Response:}
+\\\\
 (Usually) a conventional SVM uses a non-linear kernel, and the sklearn library defaults to the radial basis function (RBF) \cite{sklearn2021feature}. 
-However, the paper states a Linear SVM model is used,
+However, the paper states that experiments use a linear SVM model,
 
 \begin{enumerate}
-  \item  Experiments find that kernel-based classifiers, particularly \emph{linear SVM}, achieve high classification accuracy on the fish data [...]
-  \item These experiments compare five well-known classifications: K Nearest Neighbours (KNN where K is set to 3), Naive Bayes (NB), Random Forest (RF), Decision Trees (DT), and \emph{Linear Support Vector Machines} (SVM) [...]
-  \item In this work, a \emph{linear SVM} is used as the wrapped classification algorithm since it achieves good classification performance [...]
-  \item For each method, the balanced classification accuracy is measured with a \emph{linear SVM} classification algorithm \cite{sklearn2021feature} [...]
-  \item Among the considered classification algorithms, \emph{linear SVM} achieves the best classification performance since it is suited to high-dimensional problems [...]
+  \item 
+  \begin{quote}
+    [Introduction]
+    Experiments find that kernel-based classifiers, particularly \emph{linear SVM}, achieve high classification accuracy on the fish data [...]
+  \end{quote}
+  \item 
+  \begin{quote}
+    [4.1 Experiment Settings]
+    These experiments compare five well-known classifications: K Nearest Neighbours (KNN where K is set to 3), Naive Bayes (NB), Random Forest (RF), Decision Trees (DT), and \emph{Linear Support Vector Machines} (SVM) [...]
+  \end{quote}
+  \item 
+  \begin{quote}
+    [5.4 Feature Selection Methods]
+    In this work, a \emph{linear SVM} is used as the wrapped classification algorithm since it achieves good classification performance [...]
+  \end{quote}
+  \item \begin{quote}
+    [5.3 Experimental Settings]
+    For each method, the balanced classification accuracy is measured with a \emph{linear SVM} classification algorithm \cite{sklearn2021feature} [...]
+  \end{quote}
+  \item \begin{quote}
+    [Conclusion]
+    Among the considered classification algorithms, \emph{linear SVM} achieves the best classification performance since it is suited to high-dimensional problems [...]
+  \end{quote}
 \end{enumerate}
 
-A linear kernel performs a linear transformation, which preserves the distance between points, mapping each instance to a 4800-dimensional vector in the feature space, then creates a hyperplane to linearly separate the classes in that feature space.
+A linear kernel performs a linear transformation, which preserves the distance between points, mapping each instance to a 4800-dimensional vector in the feature space, then creates a hyperplane to linearly separate the classes in that feature space. Therefore the hyperplane coefficients, given in section 4.3, correspond to the original features.
 
 \subsection{Time Complexity}
 
-Their second asks if for the time complexity of the classifer would speed up linearly with the number of features. 
+\noindent\textbf{Comment:}
 
 \begin{quote}
   Page 9: Meanwhile, PSO can remove 75\% features, which means the classification system can be four times faster given the number of required packets/features is reduced by four times.
@@ -167,13 +245,26 @@ Their second asks if for the time complexity of the classifer would speed up lin
   Considering the dimension of features of input data, does the classification speed linearly vary with the reduction amount of features?
 \end{quote}
 
-Again, the reviewer has assumed the SVM used a non-linear kernal, in which case the complexity for non-linear SVM is expected to be $O(|\mathbb{X}|^2)$, where $|\mathbb{X}|$ is the number of training instances \cite{chang2011libsvm}. On page 9 the paper claims a linear speed up inversely proportional to the feature reduction, 
+\noindent\textbf{Response:}
+\\\\
+Again, the reviewer has assumed the SVM used a non-linear kernel, in which case the complexity for non-linear SVM is expected to be $O(|\mathbb{X}|^2)$, where $|\mathbb{X}|$ is the number of training instances \cite{chang2011libsvm}. On page 9 the paper claims a linear speed up inversely proportional to the feature reduction, 
 
 \begin{quote}
   Meanwhile, PSO can remove 75\% features, which means the classification system can be four times faster given the number of required packets/features is reduced by four times. 
 \end{quote}
 
-The paper uses SVM with linear kernal, with time complexity $O(|\mathbb{X}| \times f_n)$, where $f_n$ is the number of features. Therefore a 75\% feature reduction would speed up the classification by a factor of 4. 
+The paper uses SVM with a linear kernel, with time complexity $O(|\mathbb{X}| \times f_n)$, where $f_n$ is the number of features. Therefore a 75\% feature reduction would speed up the classification by a factor of 4. 
+\\\\
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item (\emph{Potential?}) Include complexity analysis of the Linear SVM in the introduction to the feature selection. 
+  \begin{quote}
+    [5.4 Feature Selection Performance on Fish Species Classification]
+    \emph{The linear SVM has time complexity $O(|\mathbb{X}| \times f_n)$, where $f_n$ is the number of features.}
+    Meanwhile, PSO can remove 75\% features, which means the classification system can be four times faster given the number of required packets/features is reduced by four times. 
+  \end{quote}
+\end{enumerate}
 
 \bibliographystyle{splncs04}
 % \bibliography{mybibliography}
