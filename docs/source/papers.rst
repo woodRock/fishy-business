@@ -144,9 +144,24 @@ da2018evolutionary
     * Graph building algorithm that uses evolutionary techniques, mutation and crossover. 
     * Don't reinvet the wheel, encourage reuse of existing services. 
 
+di2019survey
+------------
+    * A survey on gans for anomaly detection
+    * Generative Adversarial Networks (GANs) can be used for anomoly detection. 
+    * We build an latent representation of the expected data from nominal samples. 
+    * Then measure the reconstruction error between the latent representation and the anomoly.
+    * If the reconstruction error is unusually high, then the anomoly is detected.
+    * If the reconstruction error is low, then it is likely a nominal sample.
+    * Compute the error between the model's original input and output. The sample represents an anomoly if the error exceeds a predefined threshold (Bnomial 2022).
+    * Medium article https://medium.com/analytics-vidhya/anomaly-detection-using-generative-adversarial-networks-gan-ca433f2ac287 
+    * TODO [ ] - READ     
+
+
 ding2005minimum
 ---------------
-    * Minimum Redundancy - Maximum Relevance (MRMR)
+    * Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data. 
+    * Original Minimum Redundancy - Maximum Relevance (MRMR) paper. 
+    * See (Zhao 2019, zhao2019maximum) for more recent Uber paper.
 
 
 eder1995gas
@@ -731,7 +746,8 @@ zhang2008two
 zhao2019maximum
 ---------------
     * Maximum relevance and minimum redundancy feature selection methods for a marketing machine learning platform. 
-    * A paper from Uber. 
+    * See (Ding 2005, ding2005minimum) for original MRMR paper. 
+    * This (Zhao 2019) is a paper from Uber engineering. 
     * Business objectives: (1) user acquisition, (2) cross/up sell, (3) user churn. 
     * Curse of dimensionality: ineffeciency, overfitting, high maintance, low intrepretability. 
     * FS enabled beter compliance/troubleshooting, business intiution and insights. 
