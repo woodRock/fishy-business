@@ -252,3 +252,11 @@ brewer2006brown
     * Thus the GP that makes the most valid and correct predictions will be selected. 
     * It is slower to evalaute good solutions, because creating valid and correct solutions is a more difficult task. 
     * But the best performing model will inherently have the most valid solutions. 
+
+2022-09-28 - Contaimination 
+---------------------------
+    * Generative Adversarial Networks (GANs) can be used for anomoly detection (Di 2019, di2019survey).
+    * See (Di 2019, di2019survey) notes for more details. 
+    * Medium article https://medium.com/analytics-vidhya/anomaly-detection-using-generative-adversarial-networks-gan-ca433f2ac287
+    * Could use a GAN Anomoly detection approach as a state-of-the-art benchmark for contaimination checking for thesis. 
+    * Potential to use GANs to generate synthetic data as well, to increase sample complexity, due to low sample size.  
