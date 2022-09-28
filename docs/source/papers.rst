@@ -566,6 +566,11 @@ muller2021transformers
     * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
     * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
 
+nielsen2020survae
+-----------------
+    * SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows 
+    * TODO [ ] read 
+
 nguyen2014filter
 ----------------
     * Nguyen et al. proposed a wrapper based PSO technique for feature selection in classification.
