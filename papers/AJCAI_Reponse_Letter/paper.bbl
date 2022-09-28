@@ -3,10 +3,20 @@
 \providecommand{\urlprefix}{URL }
 \providecommand{\doi}[1]{https://doi.org/#1}
 
+\bibitem{bi2020gc}
+Bi, K., Zhang, D., Qiu, T., Huang, Y.: Gc-ms fingerprints profiling using
+  machine learning models for food flavor prediction. Processes  \textbf{8}(1),
+  ~23 (2020)
+
 \bibitem{chang2011libsvm}
 Chang, C.C., Lin, C.J.: Libsvm: a library for support vector machines. ACM
   transactions on intelligent systems and technology (TIST)  \textbf{2}(3),
   1--27 (2011)
+
+\bibitem{matyushin2020gas}
+Matyushin, D.D., Buryak, A.K.: Gas chromatographic retention index prediction
+  using multimodal machine learning. Ieee Access  \textbf{8},  223140--223155
+  (2020)
 
 \bibitem{sklearn2021feature}
 Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel,
@@ -14,5 +24,16 @@ Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel,
   Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E.:
   Scikit-learn: Machine learning in {P}ython. Journal of Machine Learning
   Research  \textbf{12},  2825--2830 (2011)
+
+\bibitem{tomasi2004correlation}
+Tomasi, G., Van Den~Berg, F., Andersson, C.: Correlation optimized warping and
+  dynamic time warping as preprocessing methods for chromatographic data.
+  Journal of Chemometrics: A Journal of the Chemometrics Society
+  \textbf{18}(5),  231--241 (2004)
+
+\bibitem{zhang2008two}
+Zhang, D., Huang, X., Regnier, F.E., Zhang, M.: Two-dimensional correlation
+  optimized warping algorithm for aligning gc$\times$ gc- ms data. Analytical
+  Chemistry  \textbf{80}(8),  2664--2671 (2008)
 
 \end{thebibliography}
