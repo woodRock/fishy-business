@@ -2646,7 +2646,7 @@ TODO:
 
 2022-09-22 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Faizal Hafiz, Bing Xue, Mengjie Zhang, Bach Nguyen, Jesse Wood et al.
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Faizal Hafiz, Bing Xue, Mengjie Zhang, Bach Nguyen, Jesse Wood et al.
 
 Faizal Hafiz gave a talk on "Data Driven Modelling: Fundamental Challenges & Some Proposed Solutions" https://www.researchgate.net/profile/Faizal-Hafiz
 
@@ -2664,3 +2664,47 @@ Notes:
     * Limitations: it is known as the nesting effect, the algorithm cannot correct previous mistakes. 
     * Floating search principle, a method from PR community, can fix the nesting effect, and correct past mistakes. 
     * His work combines ideas from PR and SI, by generalizing the problems from both, to get a meta-heuristic that solves both. 
+
+2022-09-23 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday 15:00 - 17:00, **Attendees:** Carlos A. Coello Coello, Bing Xue, Mengjie Zhang, Bach Nguyen, et al. 
+
+General Notes: 
+    * ECRG will be held in person frm now on, we have permission from the school for this, given the COVID-1 restrictions have been lifted. 
+    * Carlos is an IEEE fellow, distinguished lectuerer, Editor-and-cheif for Transactions on Evolutionary Computation, previous Vice-President for CIS, and a big name in EMO with over +63,000 citations. 
+    * My intro [shorten/sharen this]: "Hi, I'm Jesse, using EC to explore fish oil chemistry dataset with high-dimesionality low sample size - used PSO, GP for multi-class classification. EC is useful to explore combinatorially expliosive problem spaces, such as possible feature subsets".
+    * Bach's intro "using Evolutionary Machine Learning (EML)for feature selection, classification and transfer learning. A lecturer at the university". 
+    * "Ying has a 'boy' in China" - Meng 2022.
+
+Carlos gave a presnation on "Lessons learned after 25 years designing Multi-objective Evolutionary Algorithms" https://en.wikipedia.org/wiki/Carlos_A._Coello_Coello 
+
+Notes:
+    * Carlos's talk covered lessons that he had learnt through analogy from his research career. 
+    * We don't publish our failures, people will often fall into the same traps that others have done previously, but not been able to publish. 
+    * As a PhD student, Carlon wanted ot be unique, he had his on ideas, and didn't want to follow the herd. 
+    * He settled on the topic of "An Empircal Study of Evolutionary Techniques for Multi-objective Optimization in Engineering Design" (1996).
+    * Plymouth Engineering Design Centre (UK) as a Research Fellow - interest in constraint-handling - still did EMO but tranfered knowledge into a new domain. 
+    * The largest research center in Mexico, he joined the Cimputer Science section, a research centre that can grant degrees but has no undergraduates. 
+    * Passion for research is one of the most important requirements to join EVOCINV. 
+    * Discipline is a key element (deadlines were non-negotiable). 
+    * Smart students are challenged and pushed to their limits, impoosible problems were used as bait. 
+    * Young people do 'research by analogy'. they write the paper before they understand the problem. They throw a bnch of algorithms at a problem, find one that performns best with statistical significance, then publish in a journal. Similar to gradudate student descent (Gencoglu 2019, gencoglu2019hark). 
+    * Instead, Carlos focussed on valuable contributions. Understand the problem, thoroughly, think about possible solutions, omplement solutions, finally write the paper. 
+    * Lessons: 
+        1. Try to be the first. 
+        2. Do thinks that matter. 
+        3. Learn from your failures. 
+        4. Our legacy. 
+    
+2022-09-28 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wedneday 15:00 - 17:00, **Attendees:** Amr Mossy, Bastiaan Kleign, Maxwell, Daniel, Hayden et al. 
+
+Amr Mosst discuessed the paper "SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows" (Nielsen 2020, nielsen2020survae) https://arxiv.org/abs/2007.02731
+
+Notes: 
+    * Normalizaing flows use bijective transformations to model densities. 
+    * Normlizaing flows is a series of simple functions, which are invertible, or the analytic inverse of the function can be calculated. 
+    * Variational Auto-Encoders (VAEs) learn stochastictransformations that are non-invertible. A variational auto-encoder is an auto-encoder whose training is reguliarzied to avoid overfitting to ensure that latent space has good propoerties that enable generative process. See chapter 14 on Regularized Autoencoders (Goodfellow 2016). 
+    * Surjective transofrmations bridge the gap between VAEs and normalizing flows, wwherin their transofmrations are deterministic in one direction - thereby allowing exact likelihood computations and stochastic in the reverse direction - hence providing a lower bound on the corresponding likeliood. 
+    * They propose a moudlar framework of composable transofrmations that encompase VAEs and normalizing flows. 
