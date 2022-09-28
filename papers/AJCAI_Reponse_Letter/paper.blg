@@ -2,47 +2,45 @@ This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: paper.aux
 The style file: splncs04.bst
-I found no \citation commands---while reading file paper.aux
 Database file #1: refs.bib
-You've used 0 entries,
+You've used 2 entries,
             2850 wiz_defined-function locations,
-            594 strings with 4476 characters,
-and the built_in function-call counts, 24 in all, are:
-= -- 0
-> -- 0
-< -- 0
-+ -- 0
-- -- 0
-* -- 2
-:= -- 7
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
+            607 strings with 5033 characters,
+and the built_in function-call counts, 1762 in all, are:
+= -- 132
+> -- 94
+< -- 4
++ -- 38
+- -- 36
+* -- 133
+:= -- 233
+add.period$ -- 2
+call.type$ -- 2
+change.case$ -- 24
 chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 1
+cite$ -- 2
+duplicate$ -- 136
+empty$ -- 121
+format.name$ -- 38
+if$ -- 361
 int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 6
-num.names$ -- 0
-pop$ -- 0
+int.to.str$ -- 2
+missing$ -- 34
+newline$ -- 12
+num.names$ -- 4
+pop$ -- 59
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 22
 quote$ -- 0
-skip$ -- 1
+skip$ -- 39
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
-text.length$ -- 0
+substring$ -- 85
+swap$ -- 96
+text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 0
+type$ -- 8
 warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 5
-(There was 1 error message)
+while$ -- 12
+width$ -- 3
+write$ -- 25

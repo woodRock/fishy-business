@@ -1,6 +1,18 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
 \providecommand{\url}[1]{\texttt{#1}}
 \providecommand{\urlprefix}{URL }
 \providecommand{\doi}[1]{https://doi.org/#1}
+
+\bibitem{chang2011libsvm}
+Chang, C.C., Lin, C.J.: Libsvm: a library for support vector machines. ACM
+  transactions on intelligent systems and technology (TIST)  \textbf{2}(3),
+  1--27 (2011)
+
+\bibitem{sklearn2021feature}
+Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel,
+  O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J.,
+  Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, E.:
+  Scikit-learn: Machine learning in {P}ython. Journal of Machine Learning
+  Research  \textbf{12},  2825--2830 (2011)
 
 \end{thebibliography}
