@@ -1,0 +1,119 @@
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.20 of 2017/10/04
+%
+\documentclass[runningheads]{llncs}
+
+% Packages 
+\usepackage{graphicx} % Add assets folder to path for images. 
+\graphicspath{{assets/}}
+\usepackage{amsmath,amssymb,float,url} % Hide red underlines for URLs. 
+\usepackage[hidelinks]{hyperref} % Stack two figures on top of each other.
+\usepackage{subcaption} % Make caption text font smaller.
+\usepackage{caption}
+\captionsetup[figure]{font=small,labelfont=small}
+% Make table-caption gap larger (source: https://bit.ly/3zm0wRn)
+\captionsetup[table]{skip=10pt}
+
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following line
+% to display URLs in blue roman font according to Springer's eBook style:
+% \renewcommand\UrlFont{\color{blue}\rmfamily}
+
+\begin{document}
+%
+\title{Repsonse Letter}
+%
+%\titlerunning{Abbreviated paper title}
+% If the paper title is too long for the running head, you can set
+% an abbreviated paper title here
+%
+% \author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
+%   Bach Hoai Nguyen\inst{1}\orcidID{1111-2222-3333-4444} \and
+%   Bing Xue\inst{1}\orcidID{2222--3333-4444-5555} \and 
+%   Mengjie Zhang\inst{1}\orcidID{2222--3333-4444-5555} \and 
+%   Daniel Killeen\inst{2}\orcidID{2222--3333-4444-5555}
+% }
+% %
+% \authorrunning{J. Wood, B. Nguyen, et al.}
+% First names are abbreviated in the running head.
+% If there are more than two authors, 'et al.' is used.
+%
+% \institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
+%   \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
+%   \and 
+%   Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
+%   \email{daniel.killeen@plantandfood.co.nz}\\
+% }
+
+%
+\maketitle              % typeset the header of the contribution
+%
+\begin{abstract}
+  % The abstract should briefly summarize the contents of the paper in
+  % 150--250 words.
+    
+  \keywords{
+
+  }
+\end{abstract}
+
+\section{Review I}
+
+\textbf{SCORE:} SCORE: 1 (weak accept)
+
+\subsection{Comment}
+
+This paper automates processing of raw Gas Chromatography data to classify biomass that include fish species and fish body parts. First, this paper proposes a preprocessing imputation method to align timestamps in the training data. Then, it uses various machine learning methods to develop models for the classification tasks. Experimental results show that the SVM approach performs the best, however, visitation shows not all the features are needed. So this paper also uses four existing feature selection methods.
+
+This paper is well-written and easy to read. It explains the motivations behind the work and explain why a machine learning method is needed. The reason is the manual approach needs human experts and is expensive and time-consuming. This paper is mainly about using existing machine learning algorithms in an application. The experimental setup for both classification and then feature selection is good. The experimental results are good as well.
+
+What I found missing is a literature review on the problem or similar problem. If this is the first of such work, the authors could explicitly claim that. Otherwise, discuss existing methods and perhaps compare with those as well.
+
+Although data imputation is an important part in the pipeline, however just 0 filling, while that makes sense, is not really a contribution. The time alignment in the data appears to be trivial as well,
+
+This figures need to be larger and visible.
+
+\section{Reivew II}
+
+\textbf{SCORE:} -1 (weak reject)
+
+\subsection{Comment I}
+
+This paper provides an interesting application of ML for fish classification using fatty acid Chromatographic data. It proposes a pre-processing imputation method for aligning timestamps in Gas Chromatography data, it demonstrates SVM could classify compositionally diverse marine biomass based on raw chromatographic fatty acid data, which can highlight important features for classification, and it also demonstrates that feature selection reduces dimensionality and improves classification performance by accelerating the classification system by four times. 
+
+However, the motivation and research problem is not clear; 
+
+for example, you need to demonstrate your pre-processing works using experimental results. 
+
+Also, no innovative techniques have been developed, so the contribution is not enough; you should provide a new method to compare with the methods in Tables 3 and 4.
+
+\section{Review III}
+
+\textbf{SCORE:} SCORE: 0 (borderline paper)
+
+\subsection{Comment I}
+
+Two questions for your information:
+
+Page 6: "The hyperplane is represented by a weight vector in which each weight is associated with a feature. The larger the weight, the more important the corresponding feature. After an SVM classification algorithm is trained on the training set, an SVM classifier containing a learned weight vector is obtained. This section analyses the learned weight vector to examine the contribution of each packet/feature."
+
+SVMs implement kernel methods to transform original data items into a high dimensional feature space where the input samples become linearly or mostly linearly separable. SVMs can learn the hyperplane in the feature space, which separates the training data with the widest margin.
+
+The hyperplane is constructed in the feature space that is nonlinearly related to input space. The weight vector representing the hyperplane in the feature space wouldn't match the features of original data items in input space neither in dimensions nor in physical significance. The hyperplane, when being mapped to input space, becomes irregular contours outlined by support vectors. The important features (with larger weight) in feature space can hardly have their corresponding features in input space.
+
+How to use weight vector of the hyperplane in feature space to examine the contribution of each packet/feature in input space?
+
+\subsection{Comment II}
+
+Page 9: Meanwhile, PSO can remove 75\% features, which means the classification system can be four times faster given the number of required packets/features is reduced by four times.
+
+Considering the dimension of features of input data, does the classification speed linearly vary with the reduction amount of features?
+
+\bibliographystyle{splncs04}
+% \bibliography{mybibliography}
+\bibliography{refs}
+
+\end{document}
