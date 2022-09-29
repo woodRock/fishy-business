@@ -2585,8 +2585,8 @@ Notes:
 TODO:
     * [x] Write up experiments for EvoStar 2023.
     * [x] Increase populaiton size. 
-    * [ ] Change "half and half" :math:`\to` "Ramped half and half".
-    * [ ] Winner-takes-all Multi-tree GP. 
+    * [x] Change "half and half" :math:`\to` "Ramped half and half".
+    * [x] Winner-takes-all Multi-tree GP. 
     * [ ] Vector-based approach? (A third possible GP method to compare)
 
 2022-09-16 - ECRG
@@ -2638,10 +2638,11 @@ Notes:
     * Bach showed me an exemplar poster from his previous work. A poster should provide a high-level summary of the most important ideas from the paper. I can split it into 4 individual A4 sheets of paper, and then tape them together. (Alternative: get an A6 poster printed at university canvas shop). 
 
 TODO: 
+    * [x] Winner-takes-all Multi-tree GP.
+    * [x] AJCAI Response Letter (DUE: 2022-10-05)
     * [ ] Camera-ready paper for AJCAI (DUE: 2022-10-05).
     * [ ] Poster for AJCAI (DUE: 2022-10-05).
     * [ ] Organize travel plans for AJCAI 2022 (ASAP).
-    * [ ] Winner-takes-all Multi-tree GP.
     * [ ] Cross-validation fitness evaluation for MCIFC. 
 
 2022-09-22 - FASLIP 
@@ -2708,3 +2709,51 @@ Notes:
     * Variational Auto-Encoders (VAEs) learn stochastictransformations that are non-invertible. A variational auto-encoder is an auto-encoder whose training is reguliarzied to avoid overfitting to ensure that latent space has good propoerties that enable generative process. See chapter 14 on Regularized Autoencoders (Goodfellow 2016). https://www.deeplearningbook.org/contents/autoencoders.html
     * Surjective transofrmations bridge the gap between VAEs and normalizing flows, wwherin their transofmrations are deterministic in one direction - thereby allowing exact likelihood computations and stochastic in the reverse direction - hence providing a lower bound on the corresponding likeliood. 
     * They propose a moudlar framework of composable transofrmations that encompase VAEs and normalizing flows. 
+
+2022-09-29 - Weekly 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse Wood 
+
+Notes: 
+    * A response letter is not needed but I wrote one for practise. My supervisors suggested I make the revisions, then send the final version to Bach to check. 
+    * The university will cover the conference and one day before/after. In total I can travel to Perth from the 4th to -0th of December, they will cover insurance, accomodation and travel. 
+    * Bing sent me an email with the details regarding the trip and the what the university will cover. 
+    * Contrinue writing my proposal. Possible research objectives
+        1. Deep learning state-of-the-art methods 
+        2. Evolutionary Computation / Evolutionary Computation
+        3. Visualation 
+        4. Preporcessing 
+        5. Feature Selection / Feature Construction 
+        6. Transfer Learning 
+    * Performance of Multi-tree GP for classification was poor on the test set (62% accuracy) - it overfits the training, cannot generalize.
+    * Performance of Multi-tree GP for feature construction with Wrapper-based SVM classifier was good, 98% train accuracy in 200 generations, and 72% test accuracy.
+    * Try GP on the fish part dataset instead of fish species, there is more room for improvement on the test performance here. 
+
+TODO:
+    * [ ] Send AJCAI paper zipfile to Bach for review.
+    * [ ] Submit camera-ready AJCAI paper. 
+    * [ ] Write up research objectives for proposal. 
+    * [ ] (1/2) Multi-tree GP on fish part dataset. 
+
+2022-09-29 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Qinyu Wang, Bing Xue, Mengjue Zhang, Jordan MacLachlan, Jesse Wood et at. 
+
+Notes:  
+    * Qinyu shared a presentatio on "GP for fine-grained image classification". 
+    * Differences between classes are very minute, e.g. classify very similar species of bird. 
+    * Almost all state-of-the-art approaches use CNNs from deep learning. 
+    * Limitations of CNNs; compute, interpretable, comexplity, architecture, supervised learning task, annotated class labels.
+    * "Part-based R-CNNs for Fine-grained Category Detection" (Zhang 2014) https://arxiv.org/abs/1407.3867
+    * Design a GP method with program/tree simplification for image classification 
+        * Remvoe redundant/ineffective nodes 
+        * Simplify building blocks 
+    * Develop a GP method with knowledge transfer to fine grained image classifcation 
+        * Generate simple sub-tasks. 
+        * Evaluation of sub-tasks. 
+        * How to transfer knowledge. 
+    * Improve the interpretability of well-performing GP based methods. 
+    * "This looks like that; Deep Learning for interpretable image recognition" (Chan 2019) https://arxiv.org/abs/1806.10574 
+    * Automaticalled Defined Functions (ADFs) - first mentioned in Koza Genetic Programming II (Koza 1994)
+
+   
