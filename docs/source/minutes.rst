@@ -2737,7 +2737,7 @@ TODO:
 
 2022-09-29 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Qinyu Wang, Bing Xue, Mengjue Zhang, Jordan MacLachlan, Jesse Wood et at. 
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Qinyu Wang, Bing Xue, Mengjue Zhang, Jordan MacLachlan, Jesse Wood et at. 
 
 Notes:  
     * Qinyu shared a presentatio on "GP for fine-grained image classification". 
@@ -2756,4 +2756,33 @@ Notes:
     * "This looks like that; Deep Learning for interpretable image recognition" (Chan 2019) https://arxiv.org/abs/1806.10574 
     * Automaticalled Defined Functions (ADFs) - first mentioned in Koza Genetic Programming II (Koza 1994)
 
-   
+2022-09-30 - ECRG 
+~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday 15:00 - 17:00, **Attendees:** Wolfgang Banzhf, Bing Xue, Mengjie Zhang, Bach Nguyen, Jesse Wood et al. 
+
+General notes: 
+    * Wolfgang Banzhaf is the John R. Koz Chair for Genetic Programming in the Department of Computer Science and engineering at the Michagen State University. He published a foundational text "Genetic Programming: An Introduction" (Banzhaf 2008).
+    * 5 students had papers accpeted to the Australassian Joint Conference on Artificial Intelligence (AJCAI). 
+    * Important to start booking flights for AJCAI in December, Bing sent an email with the details on organizaing the trip. We will need to arrange a transfer in Auckaldn, Sydney or Mebourne for a flight to Peth. 
+    * Intro: "Hi Wolfgan, I'm working on chemistry datasets on fish oil tissue samples, high-dimensional low sample size, they have a laser pen which can suck up fish oil tissue quickly (Mass Spectrometry). Consider using EC, with PSO/Multi-tree GP for detecting contaminiation in fish processing factory." [This intro needs to be shorter/sharper and rehearsed]. 
+
+Meng Xu (Nora), have a talk on "MOEA/D for Genetic Programming for Multi-Objective Job Shop Scheduling". 
+
+Notes: 
+    * "Multi-objective evolutionary algorithm based on decomposition" (Zhang 2008) https://ieeexplore.ieee.org/abstract/document/4358754
+    * Flexible - a job can be processed by a set of optional machines. 
+    * Dynamic - job shop schedling (JSS) can encounter dynamic events. 
+    * Scehduling heuristics are often human designed, a time-consuming process, which makes them rigigid and umnable to adapt to real-time dynamic events. 
+    * Hyper-heuristics - automatically design scheduling heursitics often used to solve hard computation search problems, such as MO-DFJSS. 
+    * Limitations: 
+        1. No studies have been done that use MOEA/D for MO-DFJSS. Existing work has shown promise on the static JSS problem. 
+        2. MOGP/D has a training/test process, this may not be suitable for MO-DFJSS. 
+        3. In MO-DFJSS the objectives are not always conflicting with eachother. 
+        4. Differnt range of obejctives may cause the pareto front to bias towards some objectives. 
+    * The afrementioned limitations shall be addressed with the following techniques: 
+        1. Normazliation 
+        2. Weight adjustment
+        3. Map indviduals to sub-problems
+        4. Archive - store nom-dominiated solutiosn 
+        5. Subset selection - more efficient evaluation 
+    * The Poisson distribution is a discrete probaility distribution that expressed the probability of a given number of events occruing in a fixed interval or time or space if these events occur witha  known constant mean rate and independently of the theime since the last event. (Wikipedia) https://en.wikipedia.org/wiki/Poisson_distribution
