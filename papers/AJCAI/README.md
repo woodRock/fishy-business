@@ -13,9 +13,9 @@ The AJCAI directory contains the following files.
 ```
 
 We have files: 
-    - [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/3476.zip) which contains the source files used to generate the paper. 
-    - [license_to_publish.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/license_to_publish.pdf) which is the license to publish the paper.
-    - [paper3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf) which is the paper itself.
+- [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/3476.zip) which contains the source files used to generate the paper. 
+- [license_to_publish.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/license_to_publish.pdf) which is the license to publish the paper.
+- [paper3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf) which is the paper itself.
 
 ## ACJAI
 
