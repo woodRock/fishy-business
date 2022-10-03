@@ -1,5 +1,22 @@
 # Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
 
+## Organization 
+
+The AJCAI directory contains the following files. 
+
+```
+.
+├── 3476.zip
+├── license_to_publish.pdf
+├── paper3476.pdf
+└── README.md
+```
+
+We have files: 
+    - [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/3476.zip) which contains the source files used to generate the paper. 
+    - [license_to_publish.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/license_to_publish.pdf) which is the license to publish the paper.
+    - [paper3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf) which is the paper itself.
+
 ## ACJAI
 
 We invite you to the 35th Australasian Joint Conference on Artificial Intelligence to be held in Perth, Western Australia in December 2022.
@@ -22,3 +39,9 @@ Lastly, experiments demonstrated that applying feature selection significantly r
 According to the reduction rate, feature selection could accelerate the classification system up to four times.
 
 Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper.pdf)
+
+## Overleaf (Point of Truth)
+
+The paper is written in LaTeX and hosted on Overleaf. We link the final version of the paper to the Overleaf project. This repository contains a snapshot of the Overleaf project at the time of submission, with a zip folder and pdf version of the paper.
+
+Overleaf - [Link](https://www.overleaf.com/project/62e06496e957954adc9d527f)
