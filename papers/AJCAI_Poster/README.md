@@ -12,8 +12,8 @@ The AJCAI_Poster directory contains the following files.
 ```
 
 We have files: 
-- [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.zip) which contains the source files used to generate the poster. 
-- [paper3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf) which is the paper itself.
+- [poster3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.zip) which contains the source files used to generate the poster. 
+- [poster3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf) which is the paper itself.
 
 ## ACJAI
 
