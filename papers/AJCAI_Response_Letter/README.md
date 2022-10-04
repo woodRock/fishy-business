@@ -1,4 +1,6 @@
-# Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
+# AJCAI 2022 - Response Letter
+
+Reponse letter available [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Response_Letter/paper.pdf)
 
 ## ACJAI
 
@@ -22,3 +24,5 @@ Lastly, experiments demonstrated that applying feature selection significantly r
 According to the reduction rate, feature selection could accelerate the classification system up to four times.
 
 Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper.pdf)
+
+Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)

@@ -13,7 +13,7 @@ The AJCAI_Poster directory contains the following files.
 
 We have files: 
 - [poster3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.zip) which contains the source files used to generate the poster. 
-- [poster3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf) which is the paper itself.
+- [poster3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf) which is the poster itself.
 
 ## ACJAI
 
@@ -22,7 +22,9 @@ The AI2022 is the flagship conference for Australasian AI community. It is also 
 
 Their website - [AJCAI](https://ajcai2022.org/).
 
-Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
+Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf)
+
+Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
 
 ## Overleaf (Point of Truth)
 
