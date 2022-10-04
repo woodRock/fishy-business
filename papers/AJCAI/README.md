@@ -1,4 +1,7 @@
-# Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
+# AJCAI 2022 - Paper
+
+Title: Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
+Authors: Jesse Wood, Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Daniel Killeen 
 
 ## Organization 
 
@@ -38,6 +41,8 @@ Experiments demonstrated that applying feature selection significantly reduced d
 According to the reduction rate, feature selection could accelerate the classification system up to four times.
 
 Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf)
+
+Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
 
 ## Overleaf (Point of Truth)
 
