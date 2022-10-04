@@ -9,49 +9,40 @@
 \graphicspath{{assets/}}
 \usepackage{amsmath,amssymb,float,url} % Hide red underlines for URLs. 
 \usepackage[hidelinks]{hyperref} % Stack two figures on top of each other.
-\usepackage{subcaption} % Make caption text font smaller.
-\usepackage{caption}
-\captionsetup[figure]{font=small,labelfont=small}
-% Make table-caption gap larger (source: https://bit.ly/3zm0wRn)
-\captionsetup[table]{skip=10pt}
-
 \usepackage[normalem]{ulem} % Add strikethrough text.
+\usepackage{orcidlink} % Render oorcid ID properly. 
+\usepackage{xcolor} % Color needed for hyperref setup.
 
-% Used for displaying a sample figure. If possible, figure files should
-% be included in EPS format.
-%
-% If you use the hyperref package, please uncomment the following line
-% to display URLs in blue roman font according to Springer's eBook style:
-% \renewcommand\UrlFont{\color{blue}\rmfamily}
+% Hide the ugly green box around the oorcid id.
+\hypersetup{
+    colorlinks,
+    linkcolor={black},
+    citecolor={black},
+    urlcolor={black}
+}
 
 \begin{document}
-%
+
 \title{AJCAI 2022 Paper 3476: Response Letter}
-%
 \titlerunning{Reponse Letter}
-% If the paper title is too long for the running head, you can set
-% an abbreviated paper title here
 
-\author{Jesse Wood\inst{1}\orcidID{0000-0003-3756-2122} \and
-  Bach Hoai Nguyen\inst{1}\orcidID{0000-0002-6930-6863} \and
-  Bing Xue\inst{1}\orcidID{0000-0002-4865-8026} \and 
-  Mengjie Zhang\inst{1}\orcidID{0000-0003-4463-9538} \and 
-  Daniel Killeen\inst{2}\orcidID{0000-0002-4898-6724}
+\author{Jesse Wood\inst{1}\orcidlink{0000-0003-3756-2122} \and
+  Bach Hoai Nguyen\inst{1}\orcidlink{0000-0002-6930-6863} \and
+  Bing Xue\inst{1}\orcidlink{0000-0002-4865-8026} \and 
+  Mengjie Zhang\inst{1}\orcidlink{0000-0003-4463-9538} \and 
+  Daniel Killeen\inst{2}\orcidlink{0000-0002-4898-6724}
 }
-%
-\authorrunning{J. Wood, B. Nguyen, et al.}
-% First names are abbreviated in the running head.
-% If there are more than two authors, 'et al.' is used.
 
-\institute{Victoria University of Wellington, Te Herenge Waka, PO Box 600, Wellington 6140, New Zealand\\
-  \email{ \{jesse.wood, bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
+\authorrunning{J. Wood, B. Nguyen, et al.}
+
+\institute{ Victoria University of Wellington, Te Herenga Waka,  Wellington, New Zealand\\
+  \email{ \{jesse.wood, hoai.bach.nguyen, bing.xue, mengjie.zhang\}@ecs.vuw.ac.nz}\\
   \and 
-  Plant and Food Research, Port Nelson, Nelson 7010, New Zealand\\
+  New Zealand Institute for Plant and Food Research Limited, Nelson, New Zealand\\
   \email{daniel.killeen@plantandfood.co.nz}\\
 }
 
-%
-\maketitle              % typeset the header of the contribution
+\maketitle
 
 \section{Review I}
 
@@ -160,7 +151,7 @@ The second reviewer gave the paper these general comments.
     [Introduction] \\ 
     However, fatty acid data must be carefully processed and interpreted by domain experts (i.e. chemists), which is very expensive and time-consuming.
     \emph{Previous works using CNNs, \cite{bi2020gc,matyushin2020gas}, showed high classification accuracy on gas-chromatograph data. 
-    However, these black-box models do not produce interpretable models, making it difficult to verify/troubleshoot for fish processing in a factory setting.}
+    However, these black-box models do not produce interpretable models, making it difficult to verify/troubleshoot these models for fish processing in a factory setting.}
   \end{quote}
   \item \textbf{TODO:} KNN classification results for imputation methods. 
 \end{enumerate}
@@ -234,6 +225,16 @@ However, the paper states that experiments use a linear SVM model,
 \end{enumerate}
 
 A linear kernel performs a linear transformation, which preserves the distance between points, mapping each instance to a 4800-dimensional vector in the feature space, then creates a hyperplane to linearly separate the classes in that feature space. Therefore the hyperplane coefficients, given in section 4.3, correspond to the original features.
+\\\\
+\noindent\textbf{Fixes:}
+
+\begin{enumerate}
+  \item The paper now clearly states in section 4.3 that an SVM with linear kernel was used.
+    \begin{quote} 
+    [4.3 Interpret SVM models] \\
+    This subsection analyzes the \emph{Linear} SVM model\sout{s} built to classify the fish species. 
+  \end{quote}
+\end{enumerate}
 
 \subsection{Time Complexity}
 

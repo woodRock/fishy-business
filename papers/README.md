@@ -10,10 +10,14 @@ The papers folder is organized into the following directory structure:
 ```
 .
 ├── AJCAI
+├── AJCAI_Poster
+├── AJCAI_Response_Letter
 └── EvoStar
 ```
 
 We have folders: 
 
-- [**AJCAI**](https://github.com/woodRock/fishy-business/tree/main/papers/AJCAI), this contains an up-to-date AJCAI 2022 Paper COPY (the real version is on Overleaf).
+- [**AJCAI**](https://github.com/woodRock/fishy-business/tree/main/papers/AJCAI), this contains a snapshot AJCAI 2022 Paper  (Overleaf P.O.T.).
+- [**AJCAI Poster**](https://github.com/woodRock/fishy-business/tree/main/papers/AJCAI_Reponse_Letter), this contains a resonse letter to the peer-review (practise: conference did not formally require this).
+- [**AJCAI Response Letter**](https://github.com/woodRock/fishy-business/tree/main/papers/AJCAI_Poster), this contains a snapshot of the AJCAI 2022 Poster (Overleaf P.O.T.)
 - [**EvoStar**](https://github.com/woodRock/fishy-business/tree/main/papers/EvoStar), this contains an up-to-date EvoStar 2023 Paper.
