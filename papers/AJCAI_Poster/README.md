@@ -34,11 +34,10 @@ Overleaf - [Link](https://www.overleaf.com/project/633bfa5378f35f6cb8c49371)
 
 ## QR Code 
 
-A QR code on the poster takes the user to a personal website, where they can download the paper, poster, and see other relevant information.
+A QR code on the poster takes the user to a personal website, where they can download the paper, poster, and see other relevant information. The QR code was generated with the free (no subscription required) website: https://qr-code-generator.org/
 
 ![QR Code](./QR_code.png)
 
-The QR code was generated with the free (no subscription required) website: https://qr-code-generator.org/
 
 ## References 
 
