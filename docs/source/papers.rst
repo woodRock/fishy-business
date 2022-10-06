@@ -703,15 +703,17 @@ tran2019genetic
     * This paper includes an example of Multi-tree GP. 
     * I can apply Multi-tree GP for a one-vs-all multi-class classification problem. 
 
-tegmark2020ai
--------------
+tegmark2020aifeynman
+--------------------
+    * AI Feynman: A physics-inspired method for symbolic regression
     * Tegmark et al. developed they AI Feynman \cite{udrescu2020ai}. 
     * This algorithm can derive physics equations from data using symbolic regression. 
     * Symbolic regression is a difficult task, but by simplifying properties exhibited by physics equations (i.e symmetry, composability, separability), the problem can be reduced. 
     * Their work uses blackbox neural networks, to derive interpretable models that can easily be verified by humans. 
 
-tegmark2020ai2
---------------
+tegmark2020aifeynman2.0
+-----------------------
+    * AI Feynman 2.0: Pareto-optimal symbolic regression exploiting graph modularity
     * 2nd iteration for the AI Feynman 2.0. 
     * More robust towards noise and bad data. 
     * Can discover more formulas that previous method. 
