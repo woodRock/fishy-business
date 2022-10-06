@@ -11,13 +11,12 @@ Welcome to fish's documentation!
    :caption: Contents:
 
    about 
+   papers
    minutes
-   notes
    literature
+   notes
    thoughts
    contact
-
-
 
 Indices and tables
 ==================
