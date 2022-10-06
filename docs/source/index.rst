@@ -13,7 +13,7 @@ Welcome to fish's documentation!
    about 
    minutes
    notes
-   papers
+   literature
    thoughts
    contact
 

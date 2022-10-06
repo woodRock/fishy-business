@@ -1,7 +1,7 @@
 Contact 
 =======
 
-The easiest way to get help with the project is to email the author directly `jesse.wood@vuw.ac.nz <mailto:jesse.wood@vuw.ac.nz>`_. 
+The easiest way to get help with the project is to email the author directly `jesse.wood@ecs.vuw.ac.nz <mailto:jesse.wood@ecs.vuw.ac.nz>`_. 
 
 Documentation: https://psychic-invention.readthedocs.io/en/latest/
 
