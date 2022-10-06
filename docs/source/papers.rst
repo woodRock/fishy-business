@@ -210,6 +210,16 @@ riccardo2009field
     * A Field Guide to Genetic Programming
     * A free resource for GP research available online. 
 
+
+fawzi2022discovering 
+--------------------
+    * Discovering faster matrix multiplication algorithms with reinforcement learning 
+    * Deep Mind - AlphaTensor 
+    * Improves Strassman's algorithm for 4x4 matrix multiplication for first time in 50 years.
+    * Matrix multiplication is the bedrock of deep learning. 
+    * Fast matrix multplication can lead to exponential speedups in deep learning.
+    * TODO [ ] - Read this paper 
+
 fix1989discriminatory
 ---------------------
     * K-nearest neighbours (KNN).
@@ -241,6 +251,13 @@ gencoglu2019hark
     * HARK Side of Deep Learning--From Grad Student Descent to Automated Machine Learning
     * Grad Student Descent 
     * **TODO** read this! 
+
+girshick2014rich
+----------------
+    * Rich feature hierarchies for accurate object detection and semantic segmentation 
+    * R-CNNs, Region-based Convolutional Neural Networks.
+    * Combine region proposals and CNNs. 
+    * See FASLIP - 2022-10-06 for more details.
 
 godden1975context
 -----------------
@@ -465,6 +482,12 @@ lehman2020surprising
     * The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
     * Annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
 
+lin2017feature
+--------------
+    * Feature pyramid networks for object detection. 
+    * Feature Pyramid Network (FPN)
+    * See FASLIP - 2022-10-06 for more details.
+
 liu1995chi2
 -----------
     * Chi2: feature selection and discretization of numeric attributes
@@ -506,15 +529,7 @@ mantyla1998cue
 
 marhsall2022cybermarine
 -----------------------
-    * Cybermarine research magazine aims. 
-    * Focus on reducing by-product. 
-    * Non-destructure methods for analysis of chemical compounds in fish oil. 
-    * Factory of the future - uses AI to inform decisions in the assembly line.
-
-mathieu2013fast
----------------
-    * Fast training of convolutional networks through ffts 
-
+    * Cybermarine research magazine aims. girshick2014rich
 matyushin2020gas
 ----------------
     * Matyshuin et al. proposed a stacking model for analysis of gas-chromatograph data.
