@@ -2786,3 +2786,92 @@ Notes:
         4. Archive - store nom-dominiated solutiosn 
         5. Subset selection - more efficient evaluation 
     * The Poisson distribution is a discrete probaility distribution that expressed the probability of a given number of events occruing in a fixed interval or time or space if these events occur witha  known constant mean rate and independently of the theime since the last event. (Wikipedia) https://en.wikipedia.org/wiki/Poisson_distribution
+
+2022-08-05 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 15:00 - 17:00, **Attendees:** Felix Yan, Paul, JP, Hayden, Daniel, Jesse et al. 
+
+Felix Yan discussed the paper "Densely Connected Normalizing Flows" (Grcic 2021, grcic2021densly) https://openreview.net/pdf?id=JNSwviqJhS
+
+Notes:
+    * Normalizing flows are bijective mappings between input and latent representations with a fully factoritzed distribution. 
+    * Normalizing flows (NF) are attrictive due to exact likelihood evaluation and efficient sampling. 
+    * However their effective capacity is often insuffiencet since bijectivity constraints limit the model width. 
+    * The proposed method addresses this limitation by incrementally padding intermediate representations with noise. Precondition noise in accordance with previous invertible units, coined "cross-unit coupling".
+    * Their invertible glow0like, modules increase the expressivity by fusing a densely connected block with NYstron self-attention. 
+    * They refer to their proposed achitecture as DenseFlwo, since both cross-unit and intra-module couplings rely on dense connectivity. 
+    * Experiments show significant improvements due to prposed contributions and reveal state-of-the-art density estimation under moderate computing budgets. 
+
+2022-08-06 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Daniel Killeen, Bing Xue, Bach Hoai Nguyen, Jesse Wood. 
+
+Notes: 
+    * The camera-ready version of the AJCAI paper has been submitted to the conference. This is all ready to go, all that is left is preparing flights, accomodation, registration, and also the poster/presentation. 
+    * Showed Daniel a reserach objectives, and the proposal outline draft, he said a good summary of what was dicussed. 
+    * He clarified that there will be two state-of-the-art mass spectrometry datasets: (1) REIMS, (2) Direct Infusion MS. 
+    * The Direct-Infusion Mass Spectrometry is extracted oils, time-consumung, and focuses on lipids. 
+    * He will send reference data, what we are trying to predict. 
+    * Also, generating a seasonal dataset, to see if there is variation between composition across seasons. 
+    * Benchmarks - compare two analytical state-of-the-art chemistry techniques using machine learning techniques. 
+    * "Never been more charactierized fish in the histroy of the world!" - Daniel Killeen 2022. 
+    * A proper proposal tempalte is available on the course website. 
+    * Daniel will send through a follow up email with more inforamtion, to re-iterate, a brain dump of ideas. 
+
+TODO: 
+    * [ ] Read Daniels email 
+    * [ ] Flights, accomodation, registration for AJCAI
+    * [ ] Poster/Presentation for AJCAI 
+    * [ ] Proposal proper tempalte + more writing 
+
+2022-08-06 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Ziyi Sun, Bing Xue, Bach Hoai Nguyen, Jordan, Jesse et al. 
+
+Ziyi Sun gave a talk about Mask RCNNS.
+
+Notes: 
+    * Instance segmentation - jointly estimate class labels and individual objects in an image. 
+    * RCNN is a region based object detection (Girshick 2014, girshick2014rich), application o CNN for object localization, detection and segmentation. 
+    * Good quote from (Girshick 2014) to rephrase "when lablled training data is sparse, supervised pretraining for an auxillary task, followed by domain-sepcific fine tuning, tyields signficiant performance boost."
+    * Beware, since (Xin 2022) is a recent paper, that suggests multi-task optimization is pointless (in deep learning).
+    * To generate "proposals" for the region where the object lies, a small network is slide over a convolutional feature map that is output by the last convolutional layer. 
+    * Ziyi proposed a Mask R-CNN technique, an extenion of R-CNN that uses masks to improve accuracy. 
+    * Feature Pyramid Network (FPN) (Lin 2017, lin2017feature) are a "top down architecture with lateral connections is developed for building high-level smeantic feature maps at all scale."
+
+2022-08-06 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgan Benzhaf, Bing Xue, Yi Mei. 
+
+General notes: 
+    * Meng is attending an Agriculture + Seafood Conference in nelson, he iw working on organizing some industry collaborations.
+    * Harith is looking for people to review 80+ networking papers for an upcoming conference.
+    * Good to book a meeting with Wolfgang to gain insight from his expertise. Send him an email or feel free to pop into his office. 
+    * Me: 
+        * Hengzhe's DEAP 5x speedup is very effective for Multi-tree GP, where each inbdividuals consists of multiple subtrees. Exponential speedup in evaluation time for my algorithms. 
+        * Very productive meeting with my industry partner discussing domain expertise in Mass Spectrometry SOTA methods, we clarified the research objectives, and the research questions.
+        * Bing suggested I creafully re-read Daniel's email, and get a good understand of the problem, before tackling the solutions. 
+
+Zhixing Huang gave a talk about "My Study on linear Genetric Programming: A Brief Review". 
+
+Notes: 
+    * Linear GP is a sequence of register-based instructions (Banzhaf 2009)
+    * Instructions include, source and target register, and instruction. 
+    * Effective instruction (extron) and ineffective instructions (intron).
+    * Steady-state algorithm (Weinstein 2022 pg 229). The new population is formed by the winners of tournament selection and the offspring of the winners. 
+    * Genertic operators: linear crossover, macro mutation, micro mutations. 
+    * Representation: LGP is rperesented as a graph-based GP. 
+    * Applying Linear Genetic Programing (LGP) to Dynamic Job Shop Scheduling (DJSS). 
+    * Dynamic JSS can repsonse to dynamic events (see 2022-09-30 - ECRG for more). 
+    * GP-based hyper-heuristics (Nguyen 2007)
+    * Instance rotation and generational EA (Hildebrait 2010, hildebrandt2010towards) - fitness between generations are no longer comparable with isntance rotation. 
+    * Breathroughs are given as trial-and-error hyper-paremters that worked (Huang 2021, Huang 2022) - black magic? 
+    * Mutli-task - optimize multiple similar tasks simultaenously, hopeing that shared information amoung tasks can mutually enhance the optimization performance - Beware, since (Xin 2022)!!!
+    * Motivation - EC is time-consming while training resources are limited. For LGP share knwoelge through graph based structures. 
+    * Shared-individuals - individuals ahve multiple tasks, and enncode solutiosn for this, but can share common building blocks. 
+    * Multi-population framework - intra-task sharing, where individuals share knowledge across sub-populations. 
+    * Semantic LGP for solving symbolic regression (Huang ____). 
+    * Semantics, calculations register values on each input isntance. Represented as a semantic matrix. Looking to find the inverse mapping of the semantic matrix using a (linear) learning model. 
+    * Select candidated based on best perofmrance of individual semantics. 
+    * "Mutate-and-divide", a prgoram to recursively propagate the error through the program using a semantic matrix. 
+    * "LGP is a poor man's ADF" -- Wolfgang Banzhaf 2022. 
