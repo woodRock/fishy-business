@@ -26,6 +26,11 @@ bao2022estimating
     * Paper shows how to go from noisy-to-clean with a deterministic process. 
     * A new approach to diffusion based models.
 
+banzhaf2009genetic
+------------------
+    * Genetic Programming: An Introduction On The Automatic Evolution Of Computer Programs And Its Applications
+    * TODO [ ] must read book for foundations of GP. (buy?)
+
 bengio2017consciousness
 -----------------------
     * The consciousness prior
@@ -266,6 +271,16 @@ godden1975context
     * Same true for words learnt on land. 
     * Recall accuracy depends on similarity of context in sensory information. 
 
+grcic2021densly
+---------------
+    * Normalizing flows are bijective mappings between input and latent representations with a fully factoritzed distribution. 
+    * Normalizing flows (NF) are attrictive due to exact likelihood evaluation and efficient sampling. 
+    * However their effective capacity is often insuffiencet since bijectivity constraints limit the model width. 
+    * The proposed method addresses this limitation by incrementally padding intermediate representations with noise. Precondition noise in accordance with previous invertible units, coined "cross-unit coupling".
+    * Their invertible glow0like, modules increase the expressivity by fusing a densely connected block with NYstron self-attention. 
+    * They refer to their proposed achitecture as DenseFlwo, since both cross-unit and intra-module couplings rely on dense connectivity. 
+    * Experiments show significant improvements due to prposed contributions and reveal state-of-the-art density estimation under moderate computing budgets. 
+
 he2020bayesian
 --------------
     * Bayesian deep ensembles via the neural tangent kernel
@@ -273,6 +288,11 @@ he2020bayesian
 hand2001idiot
 -------------
     * Naive bayes. 
+
+hildebrandt2010towards
+----------------------
+    * Towards improved dispatching rules for complex shop floor scenarios: a genetic programming approach  
+    
 
 ho1995random
 -------------
@@ -739,12 +759,23 @@ vaswani2017attention
 --------------------
      * Attention is all you need
 
+Weinstein2022hunter 
+-------------------
+    * A Hunter Gatherer's Guide to the 21st Century (Book).
+    * pg. 229 "Evolutionary stable strategy - A strategy incapable of invasion by competitors"
+
 wolpert1997no
 -------------
     * No free lunch theorum. 
     * No classification algorithm that beats the rest for every problem. 
     * As training instances approaches infinity, classification accuracy on all distributions of noise, approaches predicting mean class. 
     * All machine learning algorithms are task specific, don't generalize to all problems, no artifical general intelligence (AGI), yet... 
+
+xin2022current
+--------------
+    * Do Current Multi-Task Optimization Methods in Deep Learning Even Help?
+    * A paper that is strongly against mutli-task learning. 
+    * TODO [ ] READ
 
 xue2014particle
 ---------------
