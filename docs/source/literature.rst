@@ -43,6 +43,11 @@ bi2020gc
     * Similar to this project, the existing technique for analysis was intractable large scale.
     * The fusion of existing datasets improved the efficacy of their model.
 
+black2019rapid
+--------------
+    * Rapid detection and specific identification of offals within minced beef samples utilising ambient mass spectrometry
+    * Rapid evaporative ionisation mass spectrometry (REIMS) is one example of this, and has been used to detect horse meat contamination in beef.
+
 boser1992training
 -----------------
     * Kernal trick for SVM.
@@ -292,7 +297,7 @@ hand2001idiot
 hildebrandt2010towards
 ----------------------
     * Towards improved dispatching rules for complex shop floor scenarios: a genetic programming approach  
-    
+
 
 ho1995random
 -------------
