@@ -2354,7 +2354,7 @@ TODO:
     * [x] Single objective function as classification accuracy. 
     * [x] Remove sigmoid activation function. 
     * [x] Prepare IEEE Symposium presentation. 
-    * [ ] Check protected division operator. 
+    * [-] (removed) Check protected division operator. 
 
 20221-08-26 - ECRG  
 ~~~~~~~~~~~~~~~~~~
@@ -2498,7 +2498,7 @@ Notes:
 TODO: 
     * [x] Wrapper-based Multi-tree GP for Multi-class Classification. 
     * [x] Report describing implementation above. 
-    * [ ] Discuss Research Objectives with supvervisors. 
+    * [x] Discuss Research Objectives with supvervisors. 
 
 2022-09-09 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -2640,8 +2640,8 @@ Notes:
 TODO: 
     * [x] Winner-takes-all Multi-tree GP.
     * [x] AJCAI Response Letter (DUE: 2022-10-05)
-    * [ ] Camera-ready paper for AJCAI (DUE: 2022-10-05).
-    * [ ] Poster for AJCAI (DUE: 2022-10-05).
+    * [x] Camera-ready paper for AJCAI (DUE: 2022-10-05).
+    * [x] Poster for AJCAI (DUE: 2022-10-05).
     * [ ] Organize travel plans for AJCAI 2022 (ASAP).
     * [ ] Cross-validation fitness evaluation for MCIFC. 
 
@@ -2730,10 +2730,10 @@ Notes:
     * Try GP on the fish part dataset instead of fish species, there is more room for improvement on the test performance here. 
 
 TODO:
-    * [ ] Send AJCAI paper zipfile to Bach for review.
-    * [ ] Submit camera-ready AJCAI paper. 
-    * [ ] Write up research objectives for proposal. 
-    * [ ] (1/2) Multi-tree GP on fish part dataset. 
+    * [x] Send AJCAI paper zipfile to Bach for review.
+    * [x] Submit camera-ready AJCAI paper. 
+    * [x] Write up research objectives for proposal. 
+    * [x] (1/2) Multi-tree GP on fish part dataset. 
 
 2022-09-29 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -2819,7 +2819,8 @@ Notes:
     * Daniel will send through a follow up email with more inforamtion, to re-iterate, a brain dump of ideas. 
 
 TODO: 
-    * [ ] Read Daniels email 
+    * [x] Read Daniels email 
+    * [ ] Notes / follow up on Daniels email 
     * [ ] Flights, accomodation, registration for AJCAI
     * [ ] Poster/Presentation for AJCAI 
     * [ ] Proposal proper tempalte + more writing 
