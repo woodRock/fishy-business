@@ -745,6 +745,11 @@ tegmark2020aifeynman2.0
     * Implements Normalizaing flows. 
     * Method for generalized symmetries (abitrary modularity in the compuational graph formula)
 
+tegmark2021aipoincare
+---------------------
+    * AI Poincaré 2.0: Machine Learning Conservation Laws from Differential Equations
+    * TODO [ ] READ 
+
 tomasi2004correlation
 ---------------------
     * Tomasi et al. investigated correlation optimisation warping (COW) and dynamic time warping (DT) for preprocessing chromatography data.
