@@ -2876,3 +2876,47 @@ Notes:
     * Select candidated based on best perofmrance of individual semantics. 
     * "Mutate-and-divide", a prgoram to recursively propagate the error through the program using a semantic matrix. 
     * "LGP is a poor man's ADF" -- Wolfgang Banzhaf 2022. 
+
+2022-10-12 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Attendees:** Madhurjra Choudhary, Bastiaan Kleign, Paul Teal, Daniel, Maxwell, Jesse et al. 
+
+Madhurjra discussed two papers: 
+    1.  Adeep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks (chen2020deep) https://www.sciencedirect.com/science/article/pii/S0888327020300698
+    2. Noise-Aware Sparse Gaussian Processes and Application to Reliable Industrial Machinery Health Monitoring (yang2022noise) https://ieeexplore.ieee.org/abstract/document/9864068
+
+These are to papers, CNN (Chen 2020) and Gaussian Process (Yang 2022) methods, for applications in real industry environments monitoring machinary. 
+
+Notes for (Chen 2022):
+    * (Chen 2022) propose a Cyclic Spectral Coherence (CsCoh) + Convolutional Neural Networks (CNNs) for rolling element fault diagnosis. 
+    * Data: 
+        * The domain is rolling element fault diagnosis - i.e. ball bearings in a factory setting. 
+        * A rotating bearing will modulate (go up and down) in ptich in a non-periodic manner, this is a telltale sign of a faulty ball bearing. 
+    * Method: 
+        * Combine CsCoh + CNNs for fault diagnosis of rotating elements in a factory. 
+        * Cyclic Speherical Coherence (CsCoh) is used to preprocess virbation signals, estimated by the fourier transform of Cyclic ACF (see paper for derivation). 
+        * Group Normalization (GN) is developed to reduce the internal covariant shift by data distribution discrepency, extends applications of the algorithm to real industrial environments. 
+    * Results: 
+        * Their proposed method improves classification performance, >95% accuracy needed for use in real-world. 
+        * CsCoh proivde superior dsciminate feature representations for bearing health statuses under varying conditions. 
+        * Group Normalization increases robustness for data from differenet domains (with different data distributions). 
+    * Why it matters? 
+        * Garbage-in-garbage out - Preprocessing can dramatically improve the performance of a CNN.
+        * Group Normalization makes the method robust, and applicable to out-of-distribution data from unseen domains. 
+        * Detecting faults in ball bearings is crucial for safety, automation, and efficiency in factories.
+
+Notes for (Yang 2022): 
+    * (Yang 2022) proposed a Noise-Aware Sparse Gaussain Process (NASGP) with Bayesian Inference Network. 
+    * Data: 
+        * Domain - maintainace of machinary equipment requires real-time health monitoring. Most state-of-the-art models require high quality monitoring data, but are not robust to noise present in real-world applications. 
+        * Problem - predict an estimate of the reamining useful life of machinary equipment using noisy data. 
+    * Method: 
+        * Noise-Awate Sparse Gaussain Processes (NASGP) + Bayesian Inference Network. 
+    * Results: 
+        * NASGP are capable of high-performance and credible assessment under strong noises. 
+        * Developed a generative additive model to bridge the gap between latent inference mechanism and domain expert knowledge. 
+        * Method worked well in two different domains: (1) remaining useful life prognosis, (2) fault diagnosis in rolling bearings. 
+    * Why it matters?
+        * The method is robust to noise, and can be applied to real-world applications, not just academic benchmarks (toy datasets). 
+        * Method provides a generative additive model that works well in two different domains.
+        * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
