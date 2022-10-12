@@ -305,12 +305,6 @@ eyesenck1980effects
     * In general distinct stimuli are better remembered than non-distinct ones. 
     * We are more likely to remember things that are out of the blue, or that have a personal connection to us. 
 
-riccardo2009field
------------------
-    * A Field Guide to Genetic Programming
-    * A free resource for GP research available online. 
-
-
 fawzi2022discovering 
 --------------------
     * Discovering faster matrix multiplication algorithms with reinforcement learning 
@@ -767,6 +761,11 @@ restek2018high
 riad2022learning
 ----------------
     * Learning strides in convolutional neural networks 
+
+riccardo2009field
+-----------------
+    * A Field Guide to Genetic Programming
+    * A free resource for GP research available online. 
 
 robinson2020genetic
 -------------------
