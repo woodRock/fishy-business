@@ -46,7 +46,22 @@ bi2020gc
 black2019rapid
 --------------
     * Rapid detection and specific identification of offals within minced beef samples utilising ambient mass spectrometry
-    * Rapid evaporative ionisation mass spectrometry (REIMS) is one example of this, and has been used to detect horse meat contamination in beef.
+    * (Black 2019) propsoe REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
+    * Data: 
+        * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.
+        * Both DNA methodologies and vibrational spectroscopy are ineffective at detecting these adulterations. 
+        * Minced beef with alteration from beef brain, heart, kidnesy, large insestine and liver tissues. 
+    * Method: 
+        * They propose Rapid evaportive ionization mass spectrometry (REIMS). 
+        * Chemometric (?) analysis of REIMS could detect unique/significant markers. 
+    * Results: 
+        * The adulteration levels were measured on raw/boiled minced beefs. 
+        * Raw: brain (5%), heart (1-10%), kidney (1-5%), large intestincce (1-10%), liver (5-10%).
+        * Boiled: brain (5-10%), heart (1-10%), kidney (1-5%), large intestine (1-10%), live (5-10%). 
+    * Why it matters? 
+        * REIMS is a cheap and rapid method for detecting adulteration in minced beef.
+        * REIMS can provide a paradigm shift acorss many authenticity applications. 
+        * REIMS can detect horse meat contamination in beef. A big scandal in Europe in 2013.
 
 boser1992training
 -----------------
