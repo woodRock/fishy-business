@@ -108,7 +108,7 @@ Notes:
     * TODO [ ] Read 
 
 Related: 
-    * (black2019rapid) use OPLS-DA for adulteration detection in minced beef.
+    * (Black 2019) use OPLS-DA for adulteration detection in minced beef.
 
 boser1992training
 -----------------
