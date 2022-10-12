@@ -5,11 +5,11 @@ abdi2010principal
 -----------------
 Principal component analysis 
 
-Notes: 
-    * (Abdi 2010) propose Principal Component Analysis (PCA) for dimensionality reduction. 
-    * Method: 
-        * Project data along the principal components, the axis of maximum variance in descending order. 
-        * The first principal component is the axis of maximum variance, the second principal component is orthogonal to the first and has the second largest variance, and so on.
+(Abdi 2010) propose Principal Component Analysis (PCA) for dimensionality reduction. 
+
+Method: 
+    * Project data along the principal components, the axis of maximum variance in descending order. 
+    * The first principal component is the axis of maximum variance, the second principal component is orthogonal to the first and has the second largest variance, and so on.
 
 Related: 
     * (Black 2019) uses PCA for preprocessing. 
@@ -52,22 +52,22 @@ bi2020gc
 --------
 GC-MS Fingerprints Profiling Using Machine Learning Models for Food Flavor Prediction 
 
-Notes:     
-    * (Bi 2022) proposed a CNN model that incorporated GC-MS data fusion for food science.
-    * Data: 
-        * Food flavour quality evaluation is interesting, but lacks evaluation techniques. 
-        * Olfactometry, an instrument used to detect and measure odor dilution, is unreliable due to user error or systematic laboratroy effect. 
-        * Existing technique for analysis was intractable large scale.
-        * Evaluated on existing Gas Chromatography - Mass Spectrometry (GC-MS) measurements on peanut oil data.
-    * Method: 
-        * A novel fingerprint modelling and profilling process 
-        * Dataset expansion 
-    * Results:
-        * Their work classified the flavour quality of peanut oil with 93\% accuracy.
-        * Dataset expansion: the fusion of existing datasets improved the efficacy of their model.
-    * Why it matters? 
-        * CNN can make accurate predictions on high-dimensional GC-MS data. 
-        * Proposes method can automate aroma analysis, reducing human labour, and improving accuracy.
+(Bi 2022) proposed a CNN model that incorporated GC-MS data fusion for food science.
+
+Data: 
+    * Food flavour quality evaluation is interesting, but lacks evaluation techniques. 
+    * Olfactometry, an instrument used to detect and measure odor dilution, is unreliable due to user error or systematic laboratroy effect. 
+    * Existing technique for analysis was intractable large scale.
+    * Evaluated on existing Gas Chromatography - Mass Spectrometry (GC-MS) measurements on peanut oil data.
+Method: 
+    * A novel fingerprint modelling and profilling process 
+    * Dataset expansion 
+Results:
+    * Their work classified the flavour quality of peanut oil with 93\% accuracy.
+    * Dataset expansion: the fusion of existing datasets improved the efficacy of their model.
+Why it matters? 
+    * CNN can make accurate predictions on high-dimensional GC-MS data. 
+    * Proposes method can automate aroma analysis, reducing human labour, and improving accuracy.
 
 Related: 
     * (Eder 1995) is the original gas chromatrogaphy (GC) paper. 
@@ -76,26 +76,29 @@ Related:
 
 black2019rapid
 --------------
-    * Rapid detection and specific identification of offals within minced beef samples utilising ambient mass spectrometry
-    * (Black 2019) propsoe REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
-    * Data: 
-        * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.``
-        * Both DNA methodologies and vibrational spectroscopy are ineffective at detecting these adulterations. 
-        * Minced beef with alteration from beef brain, heart, kidnesy, large insestine and liver tissues. 
-    * Method: 
-        * They propose Rapid evaportive ionization mass spectrometry (REIMS). 
-        * Chemometric (?) analysis of REIMS could detect unique/significant markers. 
-        * Prinicapl component anaylsis linear discriminat anaylsis (PCA-LDA) (Abdi 2010) using orthogonal partial least squares discriminant analysis (OPLS-DA) (Boccard 2013).
-        * PCA was used for dimensionality reduction. 
-        * LDA, specificially OPLS-DA was used for classification.
-    * Results: 
-        * The adulteration levels were measured on raw/boiled minced beefs. 
-        * Raw: brain (5%), heart (1-10%), kidney (1-5%), large intestincce (1-10%), liver (5-10%).
-        * Boiled: brain (5-10%), heart (1-10%), kidney (1-5%), large intestine (1-10%), live (5-10%). 
-    * Why it matters? 
-        * REIMS is a cheap and rapid method for detecting adulteration in minced beef.
-        * REIMS can provide a paradigm shift acorss many authenticity applications. 
-        * REIMS can detect horse meat contamination in beef. A big scandal in Europe in 2013.
+Rapid detection and specific identification of offals within minced beef samples utilising ambient mass spectrometry
+
+(Black 2019) propsoe REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
+    
+Data: 
+    * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.``
+    * Both DNA methodologies and vibrational spectroscopy are ineffective at detecting these adulterations. 
+    * Minced beef with alteration from beef brain, heart, kidnesy, large insestine and liver tissues. 
+Method: 
+    * They propose Rapid evaportive ionization mass spectrometry (REIMS). 
+    * Chemometric (?) analysis of REIMS could detect unique/significant markers. 
+    * Prinicapl component anaylsis linear discriminat anaylsis (PCA-LDA) (Abdi 2010) using orthogonal partial least squares discriminant analysis (OPLS-DA) (Boccard 2013).
+    * PCA was used for dimensionality reduction. 
+    * LDA, specificially OPLS-DA was used for classification.
+Results: 
+    * The adulteration levels were measured on raw/boiled minced beefs. 
+    * Raw: brain (5%), heart (1-10%), kidney (1-5%), large intestincce (1-10%), liver (5-10%).
+    * Boiled: brain (5-10%), heart (1-10%), kidney (1-5%), large intestine (1-10%), live (5-10%). 
+
+Why it matters? 
+    * REIMS is a cheap and rapid method for detecting adulteration in minced beef.
+    * REIMS can provide a paradigm shift acorss many authenticity applications. 
+    * REIMS can detect horse meat contamination in beef. A big scandal in Europe in 2013.
 
 boccard2013consensus
 --------------------
@@ -166,23 +169,30 @@ chen2019deep
 
 chen2020deep
 ------------
-    * A deep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks
-    * (Chen 2022) propose a Cyclic Spectral Coherence (CsCoh) + Convolutional Neural Networks (CNNs) for rolling element fault diagnosis. 
-    * Data: 
-        * The domain is rolling element fault diagnosis - i.e. ball bearings in a factory setting. 
-        * A rotating bearing will modulate (go up and down) in ptich in a non-periodic manner, this is a telltale sign of a faulty ball bearing. 
-    * Method: 
-        * Combine CsCoh + CNNs for fault diagnosis of rotating elements in a factory. 
-        * Cyclic Speherical Coherence (CsCoh) is used to preprocess virbation signals, estimated by the fourier transform of Cyclic ACF (see paper for derivation). 
-        * Group Normalization (GN) is developed to reduce the internal covariant shift by data distribution discrepency, extends applications of the algorithm to real industrial environments. 
-    * Results: 
-        * Their proposed method improves classification performance, >95% accuracy needed for use in real-world. 
-        * CsCoh proivde superior dsciminate feature representations for bearing health statuses under varying conditions. 
-        * Group Normalization increases robustness for data from differenet domains (with different data distributions). 
-    * Why it matters? 
-        * Garbage-in-garbage out - Preprocessing can dramatically improve the performance of a CNN.
-        * Group Normalization makes the method robust, and applicable to out-of-distribution data from unseen domains. 
-        * Detecting faults in ball bearings is crucial for safety, automation, and efficiency in factories.
+A deep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks
+
+(Chen 2022) propose a Cyclic Spectral Coherence (CsCoh) + Convolutional Neural Networks (CNNs) for rolling element fault diagnosis. 
+
+Data: 
+    * The domain is rolling element fault diagnosis - i.e. ball bearings in a factory setting. 
+    * A rotating bearing will modulate (go up and down) in ptich in a non-periodic manner, this is a telltale sign of a faulty ball bearing. 
+
+Method: 
+    * Combine CsCoh + CNNs for fault diagnosis of rotating elements in a factory. 
+    * Cyclic Speherical Coherence (CsCoh) is used to preprocess virbation signals, estimated by the fourier transform of Cyclic ACF (see paper for derivation). 
+    * Group Normalization (GN) is developed to reduce the internal covariant shift by data distribution discrepency, extends applications of the algorithm to real industrial environments. 
+
+Results: 
+    * Their proposed method improves classification performance, >95% accuracy needed for use in real-world. 
+    * CsCoh proivde superior dsciminate feature representations for bearing health statuses under varying conditions. 
+    * Group Normalization increases robustness for data from differenet domains (with different data distributions). 
+
+Why it matters? 
+    * Garbage-in-garbage out - Preprocessing can dramatically improve the performance of a CNN.
+    * Group Normalization makes the method robust, and applicable to out-of-distribution data from unseen domains. 
+    * Detecting faults in ball bearings is crucial for safety, automation, and efficiency in factories.
+
+Related : 
     * See 2022-10-12 - Deep Learning for more. 
 
 chen2019looks
@@ -876,41 +886,54 @@ xue2014particle
 
 yang2022noise
 -------------
-    * Noise-Aware Sparse Gaussian Processes and Application to Reliable Industrial Machinery Health Monitoring
-    * (Yang 2022) proposed a Noise-Aware Sparse Gaussain Process (NASGP) with Bayesian Inference Network. 
-    * Data: 
-        * Domain - maintainace of machinary equipment requires real-time health monitoring. Most state-of-the-art models require high quality monitoring data, but are not robust to noise present in real-world applications. 
-        * Problem - predict an estimate of the reamining useful life of machinary equipment using noisy data. 
-    * Method: 
-        * Noise-Awate Sparse Gaussain Processes (NASGP) + Bayesian Inference Network. 
-    * Results: 
-        * NASGP are capable of high-performance and credible assessment under strong noises. 
-        * Developed a generative additive model to bridge the gap between latent inference mechanism and domain expert knowledge. 
-        * Method worked well in two different domains: (1) remaining useful life prognosis, (2) fault diagnosis in rolling bearings. 
-    * Why it matters?
-        * The method is robust to noise, and can be applied to real-world applications, not just academic benchmarks (toy datasets). 
-        * Method provides a generative additive model that works well in two different domains.
-        * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
+Noise-Aware Sparse Gaussian Processes and Application to Reliable Industrial Machinery Health Monitoring
+
+(Yang 2022) proposed a Noise-Aware Sparse Gaussain Process (NASGP) with Bayesian Inference Network. 
+
+Data: 
+    * Domain - maintainace of machinary equipment requires real-time health monitoring. Most state-of-the-art models require high quality monitoring data, but are not robust to noise present in real-world applications. 
+    * Problem - predict an estimate of the reamining useful life of machinary equipment using noisy data. 
+
+Method: 
+    * Noise-Awate Sparse Gaussain Processes (NASGP) + Bayesian Inference Network. 
+
+Results: 
+    * NASGP are capable of high-performance and credible assessment under strong noises. 
+    * Developed a generative additive model to bridge the gap between latent inference mechanism and domain expert knowledge. 
+    * Method worked well in two different domains: (1) remaining useful life prognosis, (2) fault diagnosis in rolling bearings. 
+
+Why it matters?
+    * The method is robust to noise, and can be applied to real-world applications, not just academic benchmarks (toy datasets). 
+    * Method provides a generative additive model that works well in two different domains.
+    * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
+
+Related: 
     * See 2022-10-12 Deep Learning for more 
 
 zemmal2016adaptative
 --------------------
-    * Adaptative S3VM Semi Supervised Learning with Features Cooperation for Breast Cancer Classification 
-    * (Zemmal 2016) propose S3VM, a semi-supverised SVM, that combines labelled and unlablled datasets, to improve SVM performance for Breast Cancer Classification. 
-    * Data: 
-        * Domain - breast cancer is the most common cause of cancer and the second leading cause of all cancer deaths. Early detection in the intiial stages of cancer is crucial for survival.
-        * Problem - Breast Cancer Classification with computer-aided diagnosis (CAD), to classify breast cancer tumours as malignant or benign. 
-        * Collecting data is expensive and time-consuming, practitioners wait 5 years after treatment to label a patient as survived or not. Label annotation of the datasets is a slow processs, but their is an abundance of unlabelled data. 
-    * Method: 
-        * Supervised + unsupervised learning to boost SVM performance. 
-        * Using unlabeleld data (unsupervised) to ensure the decision boundaries are drawn through low density areas. 
-    * Results: 
-        * Evaluate method by increasing the proportion of labelled-to-unlabelled data for each test (rarely, moderately low, moderate). 
-        * Promising results were validated on a real-world dataset of 200 images. 
-    * Why it matters? 
-        * SVM performance can be improved by using unlabelled data.
-        * Unlabelled data is abundant, but expensive to label. Methods that utilize unlabelled data are cheap, efficient, and improve performance. 
-        * Early cancer detection is crucial for survival. 
+Adaptative S3VM Semi Supervised Learning with Features Cooperation for Breast Cancer Classification 
+
+(Zemmal 2016) propose S3VM, a semi-supverised SVM, that combines labelled and unlablled datasets, to improve SVM performance for Breast Cancer Classification. 
+
+Data: 
+    * Domain - breast cancer is the most common cause of cancer and the second leading cause of all cancer deaths. Early detection in the intiial stages of cancer is crucial for survival.
+    * Problem - Breast Cancer Classification with computer-aided diagnosis (CAD), to classify breast cancer tumours as malignant or benign. 
+    * Collecting data is expensive and time-consuming, practitioners wait 5 years after treatment to label a patient as survived or not. Label annotation of the datasets is a slow processs, but their is an abundance of unlabelled data. 
+
+Method: 
+    * Supervised + unsupervised learning to boost SVM performance. 
+    * Using unlabeleld data (unsupervised) to ensure the decision boundaries are drawn through low density areas. 
+Results: 
+    * Evaluate method by increasing the proportion of labelled-to-unlabelled data for each test (rarely, moderately low, moderate). 
+    * Promising results were validated on a real-world dataset of 200 images. 
+
+Why it matters? 
+    * SVM performance can be improved by using unlabelled data.
+    * Unlabelled data is abundant, but expensive to label. Methods that utilize unlabelled data are cheap, efficient, and improve performance. 
+    * Early cancer detection is crucial for survival. 
+
+Related: 
     * TODO [ ] - read. 
 
 zhang2008two
