@@ -836,9 +836,23 @@ yang2022noise
 
 zemmal2016adaptative
 --------------------
-    * S3VM - semi-supverised SVM. 
-    * Using unlabeleld data to ensure the decision boundaries are drawn through low density areas. 
-    * TODO - read. 
+    * Adaptative S3VM Semi Supervised Learning with Features Cooperation for Breast Cancer Classification 
+    * (Zemmal 2016) propose S3VM, a semi-supverised SVM, that combines labelled and unlablled datasets, to improve SVM performance for Breast Cancer Classification. 
+    * Data: 
+        * Domain - breast cancer is the most common cause of cancer and the second leading cause of all cancer deaths. Early detection in the intiial stages of cancer is crucial for survival.
+        * Problem - Breast Cancer Classification with computer-aided diagnosis (CAD), to classify breast cancer tumours as malignant or benign. 
+        * Collecting data is expensive and time-consuming, practitioners wait 5 years after treatment to label a patient as survived or not. Label annotation of the datasets is a slow processs, but their is an abundance of unlabelled data. 
+    * Method: 
+        * Supervised + unsupervised learning to boost SVM performance. 
+        * Using unlabeleld data (unsupervised) to ensure the decision boundaries are drawn through low density areas. 
+    * Results: 
+        * Evaluate method by increasing the proportion of labelled-to-unlabelled data for each test (rarely, moderately low, moderate). 
+        * Promising results were validated on a real-world dataset of 200 images. 
+    * Why it matters? 
+        * SVM performance can be improved by using unlabelled data.
+        * Unlabelled data is abundant, but expensive to label. Methods that utilize unlabelled data are cheap, efficient, and improve performance. 
+        * Early cancer detection is crucial for survival. 
+    * TODO [ ] - read. 
 
 zhang2008two
 ------------
