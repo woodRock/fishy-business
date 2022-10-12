@@ -1,6 +1,16 @@
 Literature Review
 =================
 
+abdi2010principal
+-----------------
+    * Principal component analysis 
+    * (Abdi 2010) propose Principal Component Analysis (PCA) for dimensionality reduction. 
+    * Method: 
+        * Project data along the principal components, the axis of maximum variance in descending order. 
+        * The first principal component is the axis of maximum variance, the second principal component is orthogonal to the first and has the second largest variance, and so on.
+    * Related: 
+        * (Black 2019) uses PCA for preprocessing. 
+
 aizerman1964theoretical
 -----------------------
     * The original hyperplane algorithm used a linear kernel.
@@ -37,23 +47,41 @@ bengio2017consciousness
 
 bi2020gc
 --------
-    * Bi et al. proposed a CNN model that incorporated GC-MS data fusion for food science.
-    * The high-dimensional data was naturally suited towards the CNN.
-    * Their work classified the flavour quality of peanut oil with 93\% accuracy.
-    * Similar to this project, the existing technique for analysis was intractable large scale.
-    * The fusion of existing datasets improved the efficacy of their model.
+    * GC-MS Fingerprints Profiling Using Machine Learning Models for Food Flavor Prediction 
+    * (Bi 2022) proposed a CNN model that incorporated GC-MS data fusion for food science.
+    * Data: 
+        * Food flavour quality evaluation is interesting, but lacks evaluation techniques. 
+        * Olfactometry, an instrument used to detect and measure odor dilution, is unreliable due to user error or systematic laboratroy effect. 
+        * Existing technique for analysis was intractable large scale.
+        * Evaluated on existing Gas Chromatography - Mass Spectrometry (GC-MS) measurements on peanut oil data.
+    * Method: 
+        * A novel fingerprint modelling and profilling process 
+        * Dataset expansion 
+    * Results:
+        * Their work classified the flavour quality of peanut oil with 93\% accuracy.
+        * Dataset expansion: the fusion of existing datasets improved the efficacy of their model.
+    * Why it matters? 
+        * CNN can make accurate predictions on high-dimensional GC-MS data. 
+        * Proposes method can automate aroma analysis, reducing human labour, and improving accuracy.
+    Related: 
+        * (Eder 1995) is the original gas chromatrogaphy (GC) paper. 
+        * (Zhang 2008) preprocssing method for aligning gas chromatography (GC).
+        * (Wood 2022) performs classification / feature selection on gas chromatography data. 
 
 black2019rapid
 --------------
     * Rapid detection and specific identification of offals within minced beef samples utilising ambient mass spectrometry
     * (Black 2019) propsoe REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
     * Data: 
-        * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.
+        * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.``
         * Both DNA methodologies and vibrational spectroscopy are ineffective at detecting these adulterations. 
         * Minced beef with alteration from beef brain, heart, kidnesy, large insestine and liver tissues. 
     * Method: 
         * They propose Rapid evaportive ionization mass spectrometry (REIMS). 
         * Chemometric (?) analysis of REIMS could detect unique/significant markers. 
+        * Prinicapl component anaylsis linear discriminat anaylsis (PCA-LDA) (Abdi 2010) using orthogonal partial least squares discriminant analysis (OPLS-DA) (Boccard 2013).
+        * PCA was used for dimensionality reduction. 
+        * LDA, specificially OPLS-DA was used for classification.
     * Results: 
         * The adulteration levels were measured on raw/boiled minced beefs. 
         * Raw: brain (5%), heart (1-10%), kidney (1-5%), large intestincce (1-10%), liver (5-10%).
@@ -62,6 +90,13 @@ black2019rapid
         * REIMS is a cheap and rapid method for detecting adulteration in minced beef.
         * REIMS can provide a paradigm shift acorss many authenticity applications. 
         * REIMS can detect horse meat contamination in beef. A big scandal in Europe in 2013.
+
+boccard2013consensus
+--------------------
+    * A consensus orthogonal partial least squares discriminant analysis (OPLS-DA) strategy for multiblock Omics data fusion
+    * TODO [ ] Read 
+    * Related: 
+        * (black2019rapid) use OPLS-DA for adulteration detection in minced beef.
 
 boser1992training
 -----------------
