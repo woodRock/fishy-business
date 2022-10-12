@@ -13,6 +13,7 @@ Method:
 
 Related: 
     * (Black 2019) uses PCA for preprocessing. 
+    * (Goodfellow 2016) gives dervation using Linear Algebra. 
 
 aizerman1964theoretical
 -----------------------
@@ -1001,5 +1002,3 @@ Related:
     * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016, goodfellow2016deep) for a derivation of Kullback-Leibler divergence. 
     * (Brown 2012) generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
     * Two FS papers, (Lui 1995, Zhao 2019) use a synthetic datasets where redundant features are known.
-
-
