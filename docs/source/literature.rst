@@ -3,13 +3,16 @@ Literature Review
 
 abdi2010principal
 -----------------
-    * Principal component analysis 
+Principal component analysis 
+
+Notes: 
     * (Abdi 2010) propose Principal Component Analysis (PCA) for dimensionality reduction. 
     * Method: 
         * Project data along the principal components, the axis of maximum variance in descending order. 
         * The first principal component is the axis of maximum variance, the second principal component is orthogonal to the first and has the second largest variance, and so on.
-    * Related: 
-        * (Black 2019) uses PCA for preprocessing. 
+
+Related: 
+    * (Black 2019) uses PCA for preprocessing. 
 
 aizerman1964theoretical
 -----------------------
@@ -47,7 +50,9 @@ bengio2017consciousness
 
 bi2020gc
 --------
-    * GC-MS Fingerprints Profiling Using Machine Learning Models for Food Flavor Prediction 
+GC-MS Fingerprints Profiling Using Machine Learning Models for Food Flavor Prediction 
+
+Notes:     
     * (Bi 2022) proposed a CNN model that incorporated GC-MS data fusion for food science.
     * Data: 
         * Food flavour quality evaluation is interesting, but lacks evaluation techniques. 
@@ -63,10 +68,11 @@ bi2020gc
     * Why it matters? 
         * CNN can make accurate predictions on high-dimensional GC-MS data. 
         * Proposes method can automate aroma analysis, reducing human labour, and improving accuracy.
-    Related: 
-        * (Eder 1995) is the original gas chromatrogaphy (GC) paper. 
-        * (Zhang 2008) preprocssing method for aligning gas chromatography (GC).
-        * (Wood 2022) performs classification / feature selection on gas chromatography data. 
+
+Related: 
+    * (Eder 1995) is the original gas chromatrogaphy (GC) paper. 
+    * (Zhang 2008) preprocssing method for aligning gas chromatography (GC).
+    * (Wood 2022) performs classification / feature selection on gas chromatography data. 
 
 black2019rapid
 --------------
@@ -93,10 +99,13 @@ black2019rapid
 
 boccard2013consensus
 --------------------
-    * A consensus orthogonal partial least squares discriminant analysis (OPLS-DA) strategy for multiblock Omics data fusion
+A consensus orthogonal partial least squares discriminant analysis (OPLS-DA) strategy for multiblock Omics data fusion
+
+Notes: 
     * TODO [ ] Read 
-    * Related: 
-        * (black2019rapid) use OPLS-DA for adulteration detection in minced beef.
+
+Related: 
+    * (black2019rapid) use OPLS-DA for adulteration detection in minced beef.
 
 boser1992training
 -----------------
