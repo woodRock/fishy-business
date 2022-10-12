@@ -261,6 +261,8 @@ ding2005minimum
 ---------------
     * Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data. 
     * Original Minimum Redundancy - Maximum Relevance (MRMR) paper. 
+    
+Related: 
     * See (Zhao 2019, zhao2019maximum) for more recent Uber paper.
 
 
@@ -943,8 +945,11 @@ zhang2008two
 
 zhao2019maximum
 ---------------
-    * Maximum relevance and minimum redundancy feature selection methods for a marketing machine learning platform. 
-    * See (Ding 2005, ding2005minimum) for original MRMR paper. 
+Maximum relevance and minimum redundancy feature selection methods for a marketing machine learning platform. 
+
+(Zhao 2019) propose a feature selection method for a marketing machine learning platform.
+
+Intro: 
     * This (Zhao 2019) is a paper from Uber engineering. 
     * Business objectives: (1) user acquisition, (2) cross/up sell, (3) user churn. 
     * Curse of dimensionality: ineffeciency, overfitting, high maintance, low intrepretability. 
@@ -953,34 +958,48 @@ zhao2019maximum
     * By only using important features for prediction task, it is easier to interpret what features/patterns the model is using. 
     * The m best features are not the best m features - many features are correlated and redundant. 
     * MRMR is a filter bases FS method that considers both: (1) relevance for predicting outcome, (2) redundancy within selected features. 
-    * Original MRMR uses mutual information to measure both relevance and redundancy. 
-    * Information based FS methods were generalized into a conditional likelihood framework (Brown 2012, brown2012conditional).
-    * Mutual Information (MI): is a measure of the mutual depedence between two random variables. 
-    * :math:`I(X;Y) = H(X) - H(X|Y)`, the amount of information one can geain about one random variable from another. 
-    * :math:`I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X)`, let :math:`(X,Y)` be a pair of random variables, take the KL divergence between their join distribution :math:`P_{(X,Y)}` and the product of their maginal distribution :math:`P_X \otimes P_X`.
-    * For the MRMR framework, the feature importance can be expressed as :math:`f^{mRMR} = I(Y,X_i) - \frac{1}{|S|} \sum_{X_s \in S} I(X_s;X_i)`. where
-        - :math:`S` is the set of selected features. 
-        - :math:`|S|` ois the size of the feature set.
-        - :math:`X_s \in S` is one features of the set :math:`S`
-        - :math:`X_i` denotes a feature is currently not selected. 
-        - The function :math:`I(.;.)` os the mutual information. 
-    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016, goodfellow2016deep) for a derivation of Kullback-Leibler divergence. 
-    * It builds a set of best features based of maximum feature importance each iteration. 
+
+Background:
+    * Mutual Information (MI): 
+        * is a measure of the mutual depedence between two random variables. 
+        * :math:`I(X;Y) = H(X) - H(X|Y)`, the amount of information one can geain about one random variable from another. 
+        * :math:`I(X;Y) = D_{KL}(P_{(X,Y)} || P_X \otimes P_X)`, let :math:`(X,Y)` be a pair of random variables, take the KL divergence between their join distribution :math:`P_{(X,Y)}` and the product of their maginal distribution :math:`P_X \otimes P_X`.
+    * MRMR
+        * For the MRMR framework, the feature importance can be expressed as :math:`f^{mRMR} = I(Y,X_i) - \frac{1}{|S|} \sum_{X_s \in S} I(X_s;X_i)`. where
+            - :math:`S` is the set of selected features. 
+            - :math:`|S|` ois the size of the feature set.
+            - :math:`X_s \in S` is one features of the set :math:`S`
+            - :math:`X_i` denotes a feature is currently not selected. 
+            - The function :math:`I(.;.)` os the mutual information.   
+        * It builds a set of best features based of maximum feature importance each iteration.
+
+Datasets: 
+    * 3x real-world, 1x synthetic. 
+    * Goal: robust FS method that generalizes to many datasets. 
+    
+Method: 
     * Extensions are based on relatedness to downsteam machine learning models those features are then used on. 
     * RDC can identify redundancy in non-linear relationships. 
     * Random-Forest correlation quotient (RFCQ) uses the feature importance metric from random forest.
     * Issues: scale differences  between relevance and redundancy metrics. 
-    * Datasets: 3x real-world, 1x synthetic. 
-    * Goal: robust FS method that generalizes to many datasets. 
     * Metrics: computational efficiency (speed) and classification accuracy.
     * The FS methods (8) x classifiers (3) x datasets (4) are all combined to produce a multiplicity (96) sets of results. 
-    * Both (Lui 1995, liu1995chi2), and this - two FS papers, use a synthetic dataset where redundant features are known. 
     * Splines used to generated various kinds of features for the synthetic dataset. 
     * Computation efficiency (speed) is a useful metric for motivating FS methods. 
     * Correlation heatmaps are an effectieve way to visualize correlation and redundancy in a dataset. Motives FS methods. 
     * Box and whisker plots provide a stunning visual for comparison of classification performance across different FS methods. 
     * Metadata is provided for each dataset, i.e. Number of features, Number of users. 
     * Random forest classifier is run twice using different parameters, explicit sklearn parameters for python given for reproduceability. 
+    
+Why it matters? 
     * Could include "Implementation in Production" section in my thesis, even if theoretical, to ground work in real-world application. 
-    * Future work/lterantive approaches are discussed in conclusion, they propose additional extenions of MRMR. 
+    * Future work/alterantive approaches are discussed in conclusion, they propose additional extenions of MRMR. 
     * Nice to give back to the research community by thanking reviewers in the acknowledgements. 
+
+Related: 
+    * MRMR (Ding 2005, ding2005minimum) uses mutual information to measure both relevance and redundancy.
+    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016, goodfellow2016deep) for a derivation of Kullback-Leibler divergence. 
+    * (Brown 2012) generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
+    * Two FS papers, (Lui 1995, Zhao 2019) use a synthetic datasets where redundant features are known.
+
+
