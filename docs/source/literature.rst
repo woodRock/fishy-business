@@ -105,6 +105,27 @@ chen2019deep
     * Deep reasoning networks: Thinking fast and slow
     * System 1 and System 2 thinking. 
 
+chen2020deep
+------------
+    * A deep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks
+    * (Chen 2022) propose a Cyclic Spectral Coherence (CsCoh) + Convolutional Neural Networks (CNNs) for rolling element fault diagnosis. 
+    * Data: 
+        * The domain is rolling element fault diagnosis - i.e. ball bearings in a factory setting. 
+        * A rotating bearing will modulate (go up and down) in ptich in a non-periodic manner, this is a telltale sign of a faulty ball bearing. 
+    * Method: 
+        * Combine CsCoh + CNNs for fault diagnosis of rotating elements in a factory. 
+        * Cyclic Speherical Coherence (CsCoh) is used to preprocess virbation signals, estimated by the fourier transform of Cyclic ACF (see paper for derivation). 
+        * Group Normalization (GN) is developed to reduce the internal covariant shift by data distribution discrepency, extends applications of the algorithm to real industrial environments. 
+    * Results: 
+        * Their proposed method improves classification performance, >95% accuracy needed for use in real-world. 
+        * CsCoh proivde superior dsciminate feature representations for bearing health statuses under varying conditions. 
+        * Group Normalization increases robustness for data from differenet domains (with different data distributions). 
+    * Why it matters? 
+        * Garbage-in-garbage out - Preprocessing can dramatically improve the performance of a CNN.
+        * Group Normalization makes the method robust, and applicable to out-of-distribution data from unseen domains. 
+        * Detecting faults in ball bearings is crucial for safety, automation, and efficiency in factories.
+    * See 2022-10-12 - Deep Learning for more. 
+
 chen2019looks
 -------------
     * This looks like that: deep learning for interpretable image recognition
@@ -788,6 +809,25 @@ xue2014particle
     * The initialization strategy utilized both forward and backwards selection.
     * The updating mechanism overcame the limitations of the traditional method by considering the number of features.
     * The proposed algorithm had better performance in terms of computing, fewer features selected and classification accuracy.
+
+yang2022noise
+-------------
+    * Noise-Aware Sparse Gaussian Processes and Application to Reliable Industrial Machinery Health Monitoring
+    * (Yang 2022) proposed a Noise-Aware Sparse Gaussain Process (NASGP) with Bayesian Inference Network. 
+    * Data: 
+        * Domain - maintainace of machinary equipment requires real-time health monitoring. Most state-of-the-art models require high quality monitoring data, but are not robust to noise present in real-world applications. 
+        * Problem - predict an estimate of the reamining useful life of machinary equipment using noisy data. 
+    * Method: 
+        * Noise-Awate Sparse Gaussain Processes (NASGP) + Bayesian Inference Network. 
+    * Results: 
+        * NASGP are capable of high-performance and credible assessment under strong noises. 
+        * Developed a generative additive model to bridge the gap between latent inference mechanism and domain expert knowledge. 
+        * Method worked well in two different domains: (1) remaining useful life prognosis, (2) fault diagnosis in rolling bearings. 
+    * Why it matters?
+        * The method is robust to noise, and can be applied to real-world applications, not just academic benchmarks (toy datasets). 
+        * Method provides a generative additive model that works well in two different domains.
+        * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
+    * See 2022-10-12 Deep Learning for more 
 
 zemmal2016adaptative
 --------------------
