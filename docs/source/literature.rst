@@ -264,7 +264,7 @@ ding2005minimum
     * Original Minimum Redundancy - Maximum Relevance (MRMR) paper. 
     
 Related: 
-    * See (Zhao 2019, zhao2019maximum) for more recent Uber paper.
+    * See (Zhao 2019) for more recent Uber paper.
 
 
 eder1995gas
@@ -998,7 +998,7 @@ Why it matters?
     * Nice to give back to the research community by thanking reviewers in the acknowledgements. 
 
 Related: 
-    * MRMR (Ding 2005, ding2005minimum) uses mutual information to measure both relevance and redundancy.
-    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016, goodfellow2016deep) for a derivation of Kullback-Leibler divergence. 
+    * MRMR (Ding 2005) uses mutual information to measure both relevance and redundancy.
+    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016) for a derivation of Kullback-Leibler divergence. 
     * (Brown 2012) generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
     * Two FS papers, (Lui 1995, Zhao 2019) use a synthetic datasets where redundant features are known.
