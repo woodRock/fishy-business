@@ -260,3 +260,20 @@ brewer2006brown
     * Medium article https://medium.com/analytics-vidhya/anomaly-detection-using-generative-adversarial-networks-gan-ca433f2ac287
     * Could use a GAN Anomoly detection approach as a state-of-the-art benchmark for contaimination checking for thesis. 
     * Potential to use GANs to generate synthetic data as well, to increase sample complexity, due to low sample size.  
+
+2022-10-13 - GC-MS Images 
+-------------------------
+    * After FASLIP, Jordan MacLachlan suggested visualizing the GC-MS as an image. 
+    * Storing a 4800x500 matrix of pixels, where each pixel is the MS intensity value. 
+    * This can be visualized as a heatmap, to see if their are signficant patterns in the data.
+    * Ideally, the fingerprint for an instance would resemble a barcode. 
+    * If that data, is bad, is would resemble static noise on an old television. 
+    * This means the data can be stored as an image, and can leverage existing image loaders in python. 
+    * This would allow for use of 2D convolutional neural networks on the GC-MS data, and visualizaion of that data.
+    * I visualized a few instances in a colab notebook here https://bit.ly/3rTdjG2 
+    * There is a clear pattern in the data which corresponds to intensity peaks. 
+    * Interestingly, also their is systematic labarotory error, at approximately timestamp 4500 for every sample. 
+    * Timestamp 4500 for every sample, is end of each sample.
+    * This is verified by the slight increase at the end of the Gas Chromatograph as well, non-zero values after 4500. 
+    * This could be due to the GC-MS instrument, or the lab technician, or both.
+    * I should ask Daniel if this data is useful or noise? 
