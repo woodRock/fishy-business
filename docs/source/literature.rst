@@ -516,6 +516,21 @@ kerber1992chimerge
 ------------------
     * Chimerge: Discretization of numeric attributes 
     * Predecessor to Chi2 (Liu 1995, liu1995chi2)
+    
+khakimov2015trends
+------------------
+Trends in the application of chemometrics to foodomics studies
+
+Daniel email:
+   * Re: using the 4800x500 image, would it be possible to use a three dimensional ‘data cube’ instead of a 2D image? i.e. time x peak intensity x mass spectrometry (See image below I took from the attached paper)? When we started the work on the GC data, that was the kind of format I hoped to use.
+   
+Why it matter? 
+   * Data cube, a useful representation of GS-MS data. 
+   
+Related: 
+   * (Bi 2022) proposed a CNN model that incorporated GC-MS data fusion for food science.
+   * (Zhang 2008) proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry.
+   * (eder1995gas) The original paper on gas chromatrography (GC). 
   
 kingma2014adam
 --------------
