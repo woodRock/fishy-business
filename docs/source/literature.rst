@@ -113,6 +113,15 @@ Notes:
 Related: 
     * (Black 2019) use OPLS-DA for adulteration detection in minced beef.
 
+bourque2018ten
+--------------
+Ten things you should know about transposable elements
+
+Related: 
+    * Julie discussed this at ECRG - 2022-10-14 
+    * (Hof 2016) gives an example of tranposons affecting moths. 
+    * (Kulasekara 2014) says changes passed to offspring. 
+
 boser1992training
 -----------------
     * Kernal trick for SVM.
@@ -392,6 +401,20 @@ ho1995random
 -------------
     * Random forest. 
 
+hof2016industrial
+-----------------
+The industrial melanism mutation in British peppered moths is a transposable element
+
+(Hof 2016) moth that changes colour of its wings due to transposons. 
+
+* TODO [ ] Read this paper.
+* Nature article 
+
+Related: 
+    * Julie ECRG - 2022-10-14 mentioned this. 
+    * (Bourque 2018) explains transposons in detail.
+    * (Kulasekara 2014) says changes passed to offspring. 
+
 Hofstadter1979godel 
 -------------------
     * Godel Escher Bach 
@@ -573,6 +596,19 @@ koppen2000curse
 ---------------
     * Curse of dimensionality. 
 
+kulasekara2014transposon
+------------------------
+
+Transposon mutagenesis
+
+Notes: 
+    * Transposons effects are passed on to offsrping, because their effects are encorporated into the genome. 
+
+Related: 
+    * (Hof 2016) discussed tranposons affect on Moths. 
+    * (Bourque 2018) discussed transposons in general. 
+    * Julie discussed this in 2022-10-14 - ECRG 
+
 kullback1951information
 -----------------------
     * Kullback-Leibler (KL) divergence. 
@@ -694,6 +730,15 @@ muller2021transformers
     * Their method restates the objective prosterior apprimixation as a supervised classification problem with set valued input: it repeatedly draws a task (or function) from the prior, draws a set of data points and their labels from it, marks on of the labels and learns to make probabilistic predictions for it based on the set-valued input of the rest of the data points.
     * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
     * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
+
+nickerson2022creating
+---------------------
+Creating Diverse Ensembles for Classification with Genetic Programming and Neuro-MAP-Elites
+   
+* TODO [ ] - READ 
+    
+Related: 
+    * Hengzhe is working on MAP-Elites in GP. 
 
 nielsen2020survae
 -----------------
@@ -945,6 +990,12 @@ zhang2008two
     * Zhang et al. proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry. 
     * The algorithm warps local regions of the data to maximise the correlation with known reference samples. 
     * This work uses data fusion with labelled reference samples, to improve the quality of new samples.
+
+zhang2021evolutionary
+---------------------
+    * An Evolutionary Forest for Regression 
+    * Hengzhe Zhang's paper from ECRG. 
+    * TODO [ ] READ
 
 zhao2019maximum
 ---------------

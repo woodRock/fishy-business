@@ -2920,3 +2920,99 @@ Notes for (Yang 2022):
         * The method is robust to noise, and can be applied to real-world applications, not just academic benchmarks (toy datasets). 
         * Method provides a generative additive model that works well in two different domains.
         * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
+
+2022-10-13 - Weekly 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyn, Jesse
+
+Notes: 
+    * Send Bing the passport scan + frequent flyer number to lock in the tickets for the flight to AJCAI 2022. 
+    * Bing has purchased a full registratioj for AJCAI 2022, at least one author needs full registration by October 14th. 
+    * Send Bing a copy of the regristration confirmation email when it comes through.
+    * Limitations, a good section to include as a header for my literature review :ref:`literature-review` notes. 
+    * Try cross validation on train to improve genelization - EvoStar deadline for submissions is coming up at November 1st.
+    * Book accomodation for AJCAI 2022 at Ibis Styles Perth https://ibisstylesperth.com/ 
+
+
+TODO: 
+    * [x] Passport + Frequenct Flyer Number
+    * [ ] Forward Registration Confirmation Email to Bing 
+    * [ ] Book accomodation for AJCAI
+    * [ ] Crossvalidation to improve test performance. 
+
+2022-10-13 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Hengzhe Zhang, Mengjie Zhang, Bing Xue, Bach Nguyen, et al. 
+
+Hengzhe Zhang gave a presentation on "Genetic Programming for Feature Construction and Symbolic Regression". 
+
+Notes: 
+    * Feature construction technique to transform  features into a better feature space. 
+    * "An Evotluionary Forest for Regression" (Zhang 2021)
+    * Good ensemble = good quality + good diversity 
+    * Methods: 
+        1. Niching and clearing 
+        2. Novelty search 
+        3. MAP-Elites 
+    * Genotype: 
+        * Semantic space - don't sum loss (MSE), represent loss as a vector. 
+        * Behaviour space 
+        * MAP-Elites - grid 
+    * Dimensionality reduction: 
+        * PCA 
+        * t-SNE
+        * VAE 
+    * These methods are not appropriate to define a behaviour space of GP. Euclidean distance is not an accurate measure for quality/diversity, cosine similarity is not ideal, but better measure of quality/diversity. 
+    * VAE struggles on out-of-distribution data, it does not generalize well to new domains. 
+    * "Creating Diverse Ensembles for Classification with Genetic Programming" (Nickerson 2022)
+    * SYntehtic symmetric guided vectors, i.e. a mirror image in behaviour space to increase diversity. 
+
+2022-10-14 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:**: 15:00 - 17:00, **Attendees:** Julie Blommaert, Mengjie Zhang, Bing Xue, Yi Mei, Bach Nguyen, et al. 
+
+General notes: 
+    * Julie Blommaert from Plant and Food Research (PFR) is here at ECRG http://julieblommaert.com/ 
+    * Yi had a survey paper on "Intrepretable Programming in GP" accepted with minor revisions, I should read this. 
+    * IEEE CIS elections for board positions, suprising number of people from Evolutionary Computation (EC). Vote Bing in this election. 
+    * IEEE CEC deadline for tutorials is at the end of themonth, plenary talks and conference attendence, start planning now! 
+    * The EvoStar deadline is the November 1st - usually there is a 7-10 day extension for this conference. 
+    * Can make submission to EvoMUSART, although not entirely popular within the group, perhaps discuss with Bach/Meng/Bing. 
+    * Introduction: discussed ENGR489 background, trip to PFR in Nelson, fish classification on gas chromatography. now working on classification/regression/XAI for REIMS fish data, for detction of adulterations in food products. 
+
+
+Julie Bommaerty gave a presentation on "Wierd and Wonderful Genomes" http://julieblommaert.com/  
+
+Notes: 
+    * Julie did her PhD on Zooitic plankton that leaves in sea water, post-doc in bord genomics phylogeny.
+    * Philogeny - a tree dlinieating evolutionary history, see (Weinstein 2022) ch. 1 and Bret's PhD thesis. 
+    * Genomic data, high-dimensionality low sample size, exsiting work uses statisitcal methods, lack state-of-the-art AIML approaches. 
+    * Take advantage of "wierdness in genomics" to apply domain exptertise to enhance modeeling genomics data. 
+    * Genomics is an interdiscplinary field  of biology focussing on structure, function, evolution, mapping, and editing of genomes.
+    * Size analogy: 
+        * Genome, from Rome -> Paris 
+        * Long read - bus 
+        * Short read - smart phone
+    * Research objective: 
+        1. Genetic variation in snappered linked to trasnposbale elements in valuable traits? 
+        2. Where is the sex determiniation region hiding? 
+        3. Gut microbiome influence fowth and interact with last genome? 
+    * Genomic variations: 
+        * insertion/deletion 
+        * microsatellite 
+        * TE insertion 
+        * SNP 
+    * Visualizations: 
+        * Sequence tube map - similar to a public transport map. https://github.com/vgteam/sequenceTubeMap 
+    * Transposable elements (TE), were where they accumluate, they can change expression of genes
+        *  Maize corn -> rainbo corn. 
+        * (Borque 2018, Hof 2016) related materials. 
+        * (Hof 2016) moth that changes colour of its wings due to transposons. 
+    * Sex determination for snapper; variants, copy number, TE accumulation. 
+    * Fast vs sklow growing snapoper; F1 vs F4; sea penn vs ocean. 
+    * Def. transposons, a class of genetic elements that can "jump" to different locations within a genome. Although these elements are frequencly called "jumping genes", they are always maintained in an integrated site in the genomes. In addition, most tranposons eventually become inactive and no longer move. https://www.britannica.com/science/transposon
+    * Effects of tranposons are passed on to offsrping, they are encorporated into the genome ()
+    * Hardware limiktations of computers, memory, storages, read/write, gpu/cpus, are barriers to effective processing of genomic data (Kulasekara 2014).
+    
+Related: 
+    * Very similar 2022-09-08 - FASLIP where Jinyan Li gave a talk on “Compression for DNA/RNA Sequencing”.
