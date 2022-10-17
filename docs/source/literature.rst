@@ -1,3 +1,5 @@
+.. _literature-review:
+
 Literature Review
 =================
 
