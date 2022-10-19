@@ -77,31 +77,100 @@ Related:
     * (Zhang 2008) preprocssing method for aligning gas chromatography (GC).
     * (Wood 2022) performs classification / feature selection on gas chromatography data. 
 
+black2017real
+---------------
+A real time metabolomic profiling approach to detecting fish fraud using rapid evaporative ionisation mass spectrometry
+
+(Black 2017) prose REIMS for fish fraud detection.
+
+Notes: 
+    * TODO [ ] Read this paper 
+
+Related: 
+    * (Black 2019) propose REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
+
 black2019rapid
 --------------
 Rapid detection and specific identification of offals within minced beef samples utilising ambient mass spectrometry
 
-(Black 2019) propsoe REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
+(Black 2019) propose REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
     
-Data: 
-    * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.``
+Background: 
+    * Criminals add stuff to meat products (adulteration) for economic gains. 
+    * Meat adulteration in non-meat products of <1% expected (and allowed) as it is considered cross-contaminiation, and not for economic gains. 
+    * Adulterations levels from (15%-20%) are considered criminal as they are likely for economic gains.
+    * 2013 European Horsemeat scandal is an example of this. 
+    * In repsonse, European Union (EU) decalared that non-meat opffcal cuts must be declared on product labels. 
+    * Recent study (BBC 2018) in the UK (n=665), found >1/5 of samples contained non-declared meat species.
+    * E.g., for 2013 European horsemeat scandal, REIMS could detect the adulteration, and identify that adulterant as horse.
+    * Rapid evaportive ionization mass spectrometry (REIMS)
+    * Minced beef products are often ready-to-go, and pre-cooked, so a method is needed that works on raw/cooked meat products. 
+
+Motivation: 
+    * DNA sequencing can only differentiate between different species, not offal adulteration from the same species. 
+    * Virbration spectroscopy cand etect adulteration, but not the specific offal present. 
     * Both DNA methodologies and vibrational spectroscopy are ineffective at detecting these adulterations. 
-    * Minced beef with alteration from beef brain, heart, kidnesy, large insestine and liver tissues. 
+    * Traditional chromatroagprahy/mass spectromety hasn't been tried, due to time to prepare/analyze samples. 
+    * Ambient Mass Spectromerty (AMS) has potential to identify unique/signficiant metabolites. GC-MS cannot do this!
+    * Significant Markers (or important variables) are ions that are unique to a specific offal cut, and present in all samples. 
+    * Looking for a reliable, accurate and rapid method that can be deployed in a food processing plant for quality assurance. 
+    * Looking for a model that can detect adulteration levels for criminal activity adulteration for economic gains.
+
+Data: 
+    * Cheap offal products can be addded to beef tissues when they are minced in food processing to cut corners and increase profits.
+    * Minced beef (1 class) with alteration from beef brain, heart, kidney, large intestine and liver tissues (5 classes).
+    * Outliers are hybrid spectra - a homogenous mix of beef and adulteration - at a given adulteration level (i.e. 20%, 10%, 5%, 1%). 
+    * Pre-processing (before PCA-LDA):
+        1. Prototpye abstract model builder 
+        2. Masslynx pre-processing algorithms
+        3. Background subtracted 
+        4. Lockmass corrected 
+        5. Normalized by TIC (total ion count) 
+    * Post-processing (after PCA-LDA): 
+        1. Mean-centered 
+        2. Pareto scaled 
+        3. Grouped by class 
+    * Method facilitates real-time classification, with classification output prodived every second. 
+    * METLIN metabolies databas, and LIPID MAPS can proved annotated lables for spectra. 
+
 Method: 
-    * They propose Rapid evaportive ionization mass spectrometry (REIMS). 
-    * Chemometric (?) analysis of REIMS could detect unique/significant markers. 
+    * They propose REIMS for detecting beef adulteration.
+    * Metrics: 
+        1. :math:`R^2` measures the variation in samples. 
+        2. :math:`Q^2` measures the accuracy of classification of class. 
+        3. RMSE-CV measure cross validated root means squared error. 
+    * Feature Selection: 
+        * Variable Importance Projection (VIP)
+        * S-plots? 
+    * Chemometric analysis (VIP + S-plots) of REIMS could detect unique/significant markers. 
     * Prinicapl component anaylsis linear discriminat anaylsis (PCA-LDA) (Abdi 2010) using orthogonal partial least squares discriminant analysis (OPLS-DA) (Boccard 2013).
-    * PCA was used for dimensionality reduction. 
-    * LDA, specificially OPLS-DA was used for classification.
+    * PCA-LCA used for dimensionality reduction - classification, respectively. 
+    * Detect outliers based on standard deviation outside 20:math:`\sigma` of the mean for any class. 
+    * They provide a very detailed description of their method from the chemistry side, including instruments and their settings. Good for reproducability and understanding.
+
 Results: 
+    * PCA/LDA (with manual hyper-parameter tuining) can effecitvely detect adulteration - i.e. cluster different classes within adulteration levels (i.e. 15-20%).
     * The adulteration levels were measured on raw/boiled minced beefs. 
     * Raw: brain (5%), heart (1-10%), kidney (1-5%), large intestincce (1-10%), liver (5-10%).
+    * Beef and large intestine were too similar to detect outliers with PCA-LDA. Perhaps very similar tissue composition.
+    * Within adulteration levels (i.e. 15-20%), their model can predict adulteration with perfect precision :math:`P(C|\hat{C}) = 1`, i.e., all predicted alduterations were correct.
     * Boiled: brain (5-10%), heart (1-10%), kidney (1-5%), large intestine (1-10%), live (5-10%). 
+    * Boiled samples are harder to classify. More principle components were needed to correctly identify adularation for boiled samples. 
 
 Why it matters? 
-    * REIMS is a cheap and rapid method for detecting adulteration in minced beef.
-    * REIMS can provide a paradigm shift acorss many authenticity applications. 
-    * REIMS can detect horse meat contamination in beef. A big scandal in Europe in 2013.
+    * REIMS is a cheap and rapid method for detecting adulteration in minced beef in a factory setting. 
+    * REIMS can detect both adulterations, and the specific adulteration present, superior to other methods.
+    * Many meat products are pre-cooked, REIMS detects adulteration (at criminal levels) in raw/boiled meat. 
+    * REIMS can provide a paradigm shift across many authenticity applications.  
+
+Limitations: 
+    * Basic dimensioanlity reduction techniques (PCA) were used. Future work should consider t-SNE. 
+    * Basic sueprvised statistical models were (LDA, OPLS-DA) were used for classification. Future work should consider GANs, VAEs, Diffusion, CNNs. 
+    * Potential for transfer learning (encorporate previously existing data) to improve performance for few-shot classification tasks. 
+
+Related: 
+    * (Black 2017) use REIMS for fish fraud detection. 
+    * (BBC 2018) Recent study in the UK (n-665), found >1/5 of samples contained non-declared meat species. https://www.bbc.com/news/uk-45371852
 
 boccard2013consensus
 --------------------
