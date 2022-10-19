@@ -162,6 +162,7 @@ Why it matters?
     * REIMS can detect both adulterations, and the specific adulteration present, superior to other methods.
     * Many meat products are pre-cooked, REIMS detects adulteration (at criminal levels) in raw/boiled meat. 
     * REIMS can provide a paradigm shift across many authenticity applications.  
+    * (Black 2017) shows can be successfully applied to fish REIMS data.
 
 Limitations: 
     * Basic dimensioanlity reduction techniques (PCA) were used. Future work should consider t-SNE. 
