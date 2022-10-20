@@ -1616,7 +1616,7 @@ Notes:
     * Proposed a new LRE method for UCARP problems. 
     * This presentations recieved a best paper nomination for GECCO 2022. 
 
- 2022-07-06 - Deep Learning 
+ 2022-07-06 - Deep Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 **Location:** Zoom, **Time**: Wednesday 3pm-4pm , **Attendees:** Jesse Wood, Bastiaan Kleign, et al.
 
@@ -3016,3 +3016,18 @@ Notes:
     
 Related: 
     * Very similar 2022-09-08 - FASLIP where Jinyan Li gave a talk on “Compression for DNA/RNA Sequencing”.
+
+2022-10-19 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 15:00 - 17:00, **Attendees:** Syed Faisal Ishtiaq, Felix Yan, Paul teal, JP Lewis et al. 
+
+Syed discussed the paper "Denoising diffusion implicit models" (Song 2022), Bastiaan Kleign previously discussed this paper in :ref:`2022-07-06 - Deep Learning<2022-07-06 - Deep Learning>`. 
+
+Notes: 
+    * Denoising diffusion implicit models (DDIM) generalize the forward diffusion process using in DDPM (Song 2020). 
+    * The proposed method can produce high-quality images 10x - 50x faster, a tradeoff with computation for sample quality. 
+    * Can perform semantically meaningful interpolation in the latent space. DDIM can interpolate direcrly in the latent space, DDPM cannot, the model can interpolate smoothly between two images. 
+    * DDIM has an accelerated generative processing, the denoising process does not depend on a specific forward process, we can choose forward processes with less timesteps, accelerating the corresponding geenration, without having to train a new model. 
+    * Principle: "Train a mdoel with an arbitrary number of forward steps, but only sample from some of them in the generative process".
+
+    
