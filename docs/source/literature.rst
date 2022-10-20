@@ -469,7 +469,16 @@ hildebrandt2010towards
 
 ho1995random
 -------------
-    * Random forest. 
+    * Random forest.
+
+ho2020denoising
+---------------
+Denoising diffusion probabilistic models
+
+Related: 
+    * :ref:`(Song 2020)<song2020denoising>` proposed DDIM, a generalized DDPM that is faster.
+    * Stable Diffusion https://github.com/CompVis/stable-diffusion
+    * Deforum Notebook https://t.co/mWNkzWtPsK
 
 hof2016industrial
 -----------------
@@ -936,8 +945,19 @@ smart2005using
 
 song2020denoising
 -----------------
-    * Denoising diffusion implicit models. 
-    * See 2022-07-06 - Deep Learning
+Denoising diffusion implicit models. 
+
+(Song 2020) propose Deosing Diffusion Implicit Models (DDIM) a generalized DDPM that is faster and deterministic. 
+
+Notes: 
+    * TODO [ ] Read this paper! 
+
+Related: 
+    * See :ref:`(Ho 2022)<ho2020denoising>` for original DDPM paper. 
+    * See 2022-07-06 - Deep Learning 
+    * See 2022-10-19 - Deep Learning 
+    * Stable Diffusion https://github.com/CompVis/stable-diffusion
+    * Deforum Notebook https://t.co/mWNkzWtPsK
 
 szegedy2013intriguing
 ---------------------
