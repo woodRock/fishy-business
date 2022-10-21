@@ -277,3 +277,8 @@ brewer2006brown
     * This is verified by the slight increase at the end of the Gas Chromatograph as well, non-zero values after 4500. 
     * This could be due to the GC-MS instrument, or the lab technician, or both.
     * I should ask Daniel if this data is useful or noise? 
+
+2022-10-22 - Social pain 
+------------------------
+    * `2:42<https://youtu.be/n3Xv_g3g-mA?t=162>`__ "To avoid that, your body came up with "social pain. Pain of this kind is is an evolutionary adaptation to rejection."
+    * Perhaps social pain would be a good fitness measure for co-evolutionary algorithms, to punish lone wolf invidiudals, that do not conform with the population.
