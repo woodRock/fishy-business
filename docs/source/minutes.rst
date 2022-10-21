@@ -2642,8 +2642,8 @@ TODO:
     * [x] AJCAI Response Letter (DUE: 2022-10-05)
     * [x] Camera-ready paper for AJCAI (DUE: 2022-10-05).
     * [x] Poster for AJCAI (DUE: 2022-10-05).
-    * [ ] Organize travel plans for AJCAI 2022 (ASAP).
-    * [ ] Cross-validation fitness evaluation for MCIFC. 
+    * [x] Organize travel plans for AJCAI 2022 (ASAP).
+    * [x] Cross-validation fitness evaluation for MCIFC. 
 
 2022-09-22 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -2820,10 +2820,10 @@ Notes:
 
 TODO: 
     * [x] Read Daniels email 
-    * [ ] Notes / follow up on Daniels email 
-    * [ ] Flights, accomodation, registration for AJCAI
-    * [ ] Poster/Presentation for AJCAI 
-    * [ ] Proposal proper tempalte + more writing 
+    * [x] Flights, accomodation, registration for AJCAI
+    * [x] Notes / follow up on Daniels email 
+    * [x] Poster/Presentation for AJCAI 
+    * [ ] Proposal proper template + more writing 
 
 2022-08-06 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -2936,9 +2936,9 @@ Notes:
 
 TODO: 
     * [x] Passport + Frequenct Flyer Number
+    * [x] Book accomodation for AJCAI
+    * [x] Crossvalidation to improve test performance. 
     * [ ] Forward Registration Confirmation Email to Bing 
-    * [ ] Book accomodation for AJCAI
-    * [ ] Crossvalidation to improve test performance. 
 
 2022-10-13 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -3035,4 +3035,29 @@ Notes:
 **Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse 
 
 Notes: 
-    * Gave a 
+    * Gave a presentation about (Black 2019) paper to my supverisors, slide available https://github.com/woodRock/fishy-business/blob/main/resources/2022-10-20_black2019rapid.pdf 
+    * I need to start writing the proposal, get my research objectives together, two per week. Need to finish my proposal ASAP. 
+    * Aim for a draft proposal by the end of the 9th month of my Phd. Need to get cracking, crack the whip. 
+    * Need to get some preliminary work done for my PhD proposal, currently exploring multi-tree classification with winner-takes-all and wrapper-based methods for gas chromatograph.
+
+TODO 
+    * [ ] Proposal - 2 reseach objectives 
+    * [ ] Preliminary work 
+    * [ ] NESI HPC Niwa Compute application 
+    * [ ] IEEE Webmaster self-nomination 
+
+2022-10-20 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 16: 00, **Attendees:** Dylon Zeng, Bing Xue, Bach Nguyen, Jesse et al. 
+
+Dylon Zang suggested a talk from Simon Lucas on "Evolutionary Algorithms on Game AI". https://www.youtube.com/watch?v=MM3JoMYcAYQ 
+
+Notes: 
+    * EA suited to problems where we can easily design a fitness function, example given is procedural generation of a 2D maze. 
+    * EAs work suprisingly well 'out-of-the-box' for select problems, population-based evolutionary algorithms are good at exploring combinatorially explosive search space. 
+    * Providing we don't aim for optimal, we fan find 'good enough' solutions for large search spaces. 
+    * GANs + EAs (Volz 2018), to evolve mario levels in the latext space of a deep convolutional generative adversarial neural network. 
+    * Rolling Horizon Evolutionary Algorithm (RHEA) good for desinging good enough at a given task, not god-tier, not super-human. 
+    * You need a model that can be advanced forward rather rapidly. 
+    * RHEA lookahead, considers multiple futures, and chooses actions with best outcome, similar to death crystals from Rick and Morty S04E01 https://rickandmorty.fandom.com/wiki/Death_Crystal
+    * NBTEA to tune the hyperparameters for balancing game play.
