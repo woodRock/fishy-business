@@ -3061,3 +3061,34 @@ Notes:
     * You need a model that can be advanced forward rather rapidly. 
     * RHEA lookahead, considers multiple futures, and chooses actions with best outcome, similar to death crystals from Rick and Morty S04E01 https://rickandmorty.fandom.com/wiki/Death_Crystal
     * NBTEA to tune the hyperparameters for balancing game play.
+
+2022-10-21 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:** Hayden Anderson, Wolfgang Benzhaf, Bing Xue, Yi Mei, Bach Nguyen, Jesse et al.
+
+General notes: 
+    * Computer cience often never gets ist own category for academics. It is often lumped in with other disciplines, such as mathematics and engineering.
+    * The EvoStar conference deadline is coming up, the deadline is 2022-11-01. We are encourages to submit papers for this conference. 
+    * Progress report: 
+        * background / literature review 
+        * presentation on (Black 2019) https://github.com/woodRock/fishy-business/blob/main/resources/2022-10-20_black2019rapid.pdf 
+    * Overseas conference leave (OCL) is for staff wishing to travel to conferences overseas, important to submit a paper to the conference, to increase the changes of OCL being accepted. 
+    * Counter-factual explanation? A few students mentioned this for explainable AI in Genetic Programming (GP). 
+    * Christian is doing "meta-learning for loss function", I should investigate this further. 
+    * There was a Niwa / VUW workshop on science/AI, I should follow up with Bing to get invited to future events. 
+
+Hayden Anderson gave a presentation on "The Programming Language Julia" https://julialang.org/ 
+
+Notes: 
+    * Julia won the 2019 James H Wilkinson Prize for Numerical Software. 
+    * Used at NASA and CERN. 
+    * Read-eval-print-loop (REPL), it is a compiled language, but REPL allows for code testing during development. 
+    * We do not need to provide typing, as we would for strictly typed languages like c++ or Java, Julia is duck-typed, with optional static typing. 
+    * Julia supports c++ style string interpolation. 
+    * Short circuit evaluation, 1-indexed, single-line function definition, easy vectorization of functions. 
+    * Each function can have an arbitrary number of method implementations, each operating on different types. 
+    * Multiple-dispatch https://www.youtube.com/watch?v=TPuJsgyu87U 
+    * Make any type iterable, indexable, ... 
+    * LLVM (low level virtual machine), compiles to byecode, no c backend, 
+    * Julia has first class functions; they can be assigned to variables and called using the standard funciton call syntax from the variable it was assigned too. 
+    * Julia represented code as a data structure in the language itself. 
