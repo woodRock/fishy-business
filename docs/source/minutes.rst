@@ -3011,7 +3011,7 @@ Notes:
     * Sex determination for snapper; variants, copy number, TE accumulation. 
     * Fast vs sklow growing snapoper; F1 vs F4; sea penn vs ocean. 
     * Def. transposons, a class of genetic elements that can "jump" to different locations within a genome. Although these elements are frequencly called "jumping genes", they are always maintained in an integrated site in the genomes. In addition, most tranposons eventually become inactive and no longer move. https://www.britannica.com/science/transposon
-    * Effects of tranposons are passed on to offsrping, they are encorporated into the genome ()
+    * Effects of tranposons are passed on to offsrping, they are encorporated into the genome.
     * Hardware limiktations of computers, memory, storages, read/write, gpu/cpus, are barriers to effective processing of genomic data (Kulasekara 2014).
     
 Related: 
@@ -3030,4 +3030,9 @@ Notes:
     * DDIM has an accelerated generative processing, the denoising process does not depend on a specific forward process, we can choose forward processes with less timesteps, accelerating the corresponding geenration, without having to train a new model. 
     * Principle: "Train a mdoel with an arbitrary number of forward steps, but only sample from some of them in the generative process".
 
-    
+2022-10-20 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse 
+
+Notes: 
+    * Gave a 
