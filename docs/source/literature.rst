@@ -444,6 +444,14 @@ godden1975context
     * Same true for words learnt on land. 
     * Recall accuracy depends on similarity of context in sensory information. 
 
+goodman2020weighting
+--------------------
+Weighting NTBEA for game AI optimisation
+
+Related: 
+    * :ref:`(Volz 2018)<volz2018evolving>` same author evolves mario levels using EAs on GAN latent spaces. 
+    * :ref:`(Perez 2019)<perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
+
 grcic2021densly
 ---------------
     * Normalizing flows are bijective mappings between input and latent representations with a fully factoritzed distribution. 
@@ -861,6 +869,14 @@ pearce2021empirical
     * CoPilot outperforms other state-of-the-art NLP code generation models. 
     * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
 
+perez2019analysis
+-----------------
+Analysis of statistical forward planning methods in Pommerman
+
+Related: 
+    * :ref:`(Volz 2018)<volz2018evolving>` same author evolves Mario levels using EAs on GAN latent spaces. 
+    * :ref:`(Goodman 2020)<goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
+
 qin2021one
 ----------
     * From One Hand to Multiple Hands: Imitation Learning for Dexterous Manipulation from Single-Camera Teleoperation. 
@@ -1011,8 +1027,16 @@ tran2018variable
 
 vaswani2017attention
 --------------------
-     * Attention is all you need
+Attention is all you need
 
+volz2018evolving
+----------------
+Evolving mario levels in the latent space of a deep convolutional generative adversarial network
+
+Related: 
+    * :ref:`(Perez 2019)<perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
+    * :ref:`(Goodman 2020)<goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
+    
 Weinstein2022hunter 
 -------------------
     * A Hunter Gatherer's Guide to the 21st Century (Book).
