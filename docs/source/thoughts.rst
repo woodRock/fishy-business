@@ -281,4 +281,9 @@ brewer2006brown
 2022-10-22 - Social pain 
 ------------------------
     * `2:42<https://youtu.be/n3Xv_g3g-mA?t=162>`__ "To avoid that, your body came up with "social pain. Pain of this kind is is an evolutionary adaptation to rejection."
-    * Perhaps social pain would be a good fitness measure for co-evolutionary algorithms, to punish lone wolf invidiudals, that do not conform with the population.
+    * Back in the days of cavemen, life was incredibly difficult, and you needed a tribe to survive. 
+    * "No Man is an Island" - John Donne
+    * An early warning system to make sure you stop behaviour that would isolate you. 
+    * You ancestors who experienced rejection as more painful were more likely to stop that behaviour, and thus stayed in the tribe.
+    * Those who did not got kicked out, and most likely died. 
+    * Perhaps social pain would be a good fitness measure for co-evolutionary algorithms, to punish lone wolf invidiudals, that do not conform with the population
