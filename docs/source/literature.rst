@@ -14,8 +14,8 @@ Method:
     * The first principal component is the axis of maximum variance, the second principal component is orthogonal to the first and has the second largest variance, and so on.
 
 Related: 
-    * (Black 2019) uses PCA for preprocessing. 
-    * (Goodfellow 2016) gives dervation using Linear Algebra. 
+    * :ref:`(Black 2019)<black2019rapid>` uses PCA for preprocessing. 
+    * :ref:`(Goodfellow 2016)<goodfellow2016deep>` gives dervation using Linear Algebra. 
 
 aizerman1964theoretical
 -----------------------
@@ -73,8 +73,8 @@ Why it matters?
     * Proposes method can automate aroma analysis, reducing human labour, and improving accuracy.
 
 Related: 
-    * (Eder 1995) is the original gas chromatrogaphy (GC) paper. 
-    * (Zhang 2008) preprocssing method for aligning gas chromatography (GC).
+    * :ref:`(Eder 1995)<eder1995gas>` is the original gas chromatrogaphy (GC) paper. 
+    * :ref:`(Zhang 2008)<zhang2008two>` preprocssing method for aligning gas chromatography (GC).
     * (Wood 2022) performs classification / feature selection on gas chromatography data. 
 
 black2017real
@@ -87,7 +87,8 @@ Notes:
     * TODO [ ] Read this paper 
 
 Related: 
-    * (Black 2019) propose REIMS for rapid and specific identification of foffal cuts within minced beef samples. 
+    * :ref:`(Black 2019)<black2019rapid>` propose REIMS for rapid and specific identification of foffal cuts within minced beef samples.
+    * (Wood 2022) performs classification / feature selection on gas chromatography data on fish data. 
 
 black2019rapid
 --------------
@@ -170,7 +171,7 @@ Limitations:
     * Potential for transfer learning (encorporate previously existing data) to improve performance for few-shot classification tasks. 
 
 Related: 
-    * (Black 2017) use REIMS for fish fraud detection. 
+    * :ref:`(Black 2017)<black2017real>` use REIMS for fish fraud detection. 
     * (BBC 2018) Recent study in the UK (n-665), found >1/5 of samples contained non-declared meat species. https://www.bbc.com/news/uk-45371852
 
 boccard2013consensus
@@ -181,7 +182,8 @@ Notes:
     * TODO [ ] Read 
 
 Related: 
-    * (Black 2019) use OPLS-DA for adulteration detection in minced beef.
+    * :ref:`(Black 2019)<black2019rapid>` use OPLS-DA for adulteration detection in minced beef.
+    * :ref:`(Black 2017)<black2017real>` uses OPLS-DA for fish fraud detection. 
 
 bourque2018ten
 --------------
@@ -189,8 +191,8 @@ Ten things you should know about transposable elements
 
 Related: 
     * Julie discussed this at ECRG - 2022-10-14 
-    * (Hof 2016) gives an example of tranposons affecting moths. 
-    * (Kulasekara 2014) says changes passed to offspring. 
+    * :ref:`(Hof 2016)<hof2016industrial>` gives an example of tranposons affecting moths. 
+    * :ref:`(Kulasekara 2014)<kulasekara2014transposon>` says changes passed to offspring. 
 
 boser1992training
 -----------------
@@ -444,6 +446,10 @@ godden1975context
     * Same true for words learnt on land. 
     * Recall accuracy depends on similarity of context in sensory information. 
 
+goodfellow2016deep
+------------------
+Deep Learning 
+
 goodman2020weighting
 --------------------
 Weighting NTBEA for game AI optimisation
@@ -499,8 +505,8 @@ The industrial melanism mutation in British peppered moths is a transposable ele
 
 Related: 
     * Julie ECRG - 2022-10-14 mentioned this. 
-    * (Bourque 2018) explains transposons in detail.
-    * (Kulasekara 2014) says changes passed to offspring. 
+    * :ref:`(Bourque 2018)<bourque2018ten>` explains transposons in detail.
+    * :ref:`(Kulasekara 2014)<kulasekara2014transposon>` says changes passed to offspring. 
 
 Hofstadter1979godel 
 -------------------
@@ -615,9 +621,9 @@ Why it matter?
    * Data cube, a useful representation of GS-MS data. 
    
 Related: 
-   * (Bi 2022) proposed a CNN model that incorporated GC-MS data fusion for food science.
-   * (Zhang 2008) proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry.
-   * (eder1995gas) The original paper on gas chromatrography (GC). 
+   * :ref:`(Bi 2022)<bi2020gc>` proposed a CNN model that incorporated GC-MS data fusion for food science.
+   * :ref:`(Zhang 2008)<zhang2008two>` proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry.
+   * :ref:`(Eder 1995)<eder1995gas>` The original paper on gas chromatrography (GC). 
   
 kingma2014adam
 --------------
@@ -707,8 +713,8 @@ Notes:
     * Transposons effects are passed on to offsrping, because their effects are encorporated into the genome. 
 
 Related: 
-    * (Hof 2016) discussed tranposons affect on Moths. 
-    * (Bourque 2018) discussed transposons in general. 
+    * :ref:`(Hof 2016)<hof2016industrial>` discussed tranposons affect on Moths. 
+    * :ref:`(Bourque 2018)<bourque2018ten>` discussed transposons in general. 
     * Julie discussed this in 2022-10-14 - ECRG 
 
 kullback1951information
@@ -840,7 +846,7 @@ Creating Diverse Ensembles for Classification with Genetic Programming and Neuro
 * TODO [ ] - READ 
     
 Related: 
-    * Hengzhe is working on MAP-Elites in GP. 
+    * Hengzhe is working on MAP-Elites in GP. See 2022-10-13 - FASLIP 
 
 nielsen2020survae
 -----------------
@@ -1086,7 +1092,7 @@ Why it matters?
     * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
 
 Related: 
-    * See 2022-10-12 Deep Learning for more 
+    * See 2022-10-12 - Deep Learning for more 
 
 zemmal2016adaptative
 --------------------
@@ -1180,7 +1186,7 @@ Why it matters?
     * Nice to give back to the research community by thanking reviewers in the acknowledgements. 
 
 Related: 
-    * MRMR (Ding 2005) uses mutual information to measure both relevance and redundancy.
+    * MRMR :ref:`(Ding 2005)<ding2005minimum>` uses mutual information to measure both relevance and redundancy.
     * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016) for a derivation of Kullback-Leibler divergence. 
-    * (Brown 2012) generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
-    * Two FS papers, (Lui 1995, Zhao 2019) use a synthetic datasets where redundant features are known.
+    * :ref:`(Brown 2012)<brown2012conditional>` generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
+    * Two FS papers, (:ref:`Lui 1995<liu1995chi2>`, :ref:`Zhao 2019<zhang2008two>`) use a synthetic datasets where redundant features are known.

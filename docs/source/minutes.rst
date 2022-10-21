@@ -3015,7 +3015,7 @@ Notes:
     * Hardware limiktations of computers, memory, storages, read/write, gpu/cpus, are barriers to effective processing of genomic data (Kulasekara 2014).
     
 Related: 
-    * Very similar 2022-09-08 - FASLIP where Jinyan Li gave a talk on “Compression for DNA/RNA Sequencing”.
+    * Very similar :ref:`2022-09-08 - FASLIP<2022-09-08 - FASLIP>` where Jinyan Li gave a talk on “Compression for DNA/RNA Sequencing”.
 
 2022-10-19 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
