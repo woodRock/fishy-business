@@ -1,5 +1,6 @@
 """
 PSO - PSO.y 
+===========
 
 This module contains a Particle Swarm Optimization (PSO) for feature selection of Gas Chromatography data. 
 The PSO mimicks the social behaviour of a flock of birds, or school of fish. 
