@@ -280,7 +280,7 @@ brewer2006brown
 
 2022-10-22 - Social pain 
 ------------------------
-    * `2:42<https://youtu.be/n3Xv_g3g-mA?t=162>`_ "To avoid that, your body came up with "social pain. Pain of this kind is is an evolutionary adaptation to rejection."
+    * `2:42 <https://youtu.be/n3Xv_g3g-mA?t=162>`_ "To avoid that, your body came up with "social pain. Pain of this kind is is an evolutionary adaptation to rejection."
     * Back in the days of cavemen, life was incredibly difficult, and you needed a tribe to survive.
     * "No Man is an Island" - John Donne
     * An early warning system to make sure you stop behaviour that would isolate you.
