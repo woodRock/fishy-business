@@ -9,7 +9,7 @@ This page contains the minutes for our weekly meetings.
 
 Notes: 
     * Faculty of Graduate Research (FGR) - office on Kelburn Parade. 
-    * Forms and information for enrollment is available at the FGR website. 
+    * Forms and information for enrollment is available at the FGR website https://www.wgtn.ac.nz/fgr
     * Booked a room for study in MARU101 - Desk 33
     * See Duncan in ECS for an account. 
     * Can work up to 12 hours per week. 
