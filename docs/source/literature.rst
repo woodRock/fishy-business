@@ -403,6 +403,16 @@ fawzi2022discovering
     * Fast matrix multplication can lead to exponential speedups in deep learning.
     * TODO [ ] - Read this paper 
 
+fahy2009update
+--------------
+Update of the LIPID MAPS comprehensive classification system for lipids1
+
+Def. lipidomics
+    Lipidomics is the study of reaction pathways involved in lipid metabolism within biological systems. The lipidome consists of the lipid profile of a particular sample such as cell, tissue or organism, which can be integrated as a metabolome sub-set
+
+Related: 
+    * See Propsoal, lipidomics definition used in glossary.
+
 fix1989discriminatory
 ---------------------
     * K-nearest neighbours (KNN).
@@ -767,9 +777,15 @@ Related:
 
 kullback1951information
 -----------------------
+On information and sufficiency
+
+Notes: 
     * Kullback-Leibler (KL) divergence. 
     * Measures distance between two probability distributions. 
     * Most common loss function for deep learning with stochastic gradient descent. 
+
+Related: 
+    * :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence.
 
 lecun1989generalization
 -----------------------
