@@ -9,7 +9,7 @@ This page contains the minutes for our weekly meetings.
 
 Notes: 
     * Faculty of Graduate Research (FGR) - office on Kelburn Parade. 
-    * Forms and information for enrollment is available at the FGR website. 
+    * Forms and information for enrollment is available at the FGR website https://www.wgtn.ac.nz/fgr
     * Booked a room for study in MARU101 - Desk 33
     * See Duncan in ECS for an account. 
     * Can work up to 12 hours per week. 
@@ -2642,8 +2642,8 @@ TODO:
     * [x] AJCAI Response Letter (DUE: 2022-10-05)
     * [x] Camera-ready paper for AJCAI (DUE: 2022-10-05).
     * [x] Poster for AJCAI (DUE: 2022-10-05).
-    * [ ] Organize travel plans for AJCAI 2022 (ASAP).
-    * [ ] Cross-validation fitness evaluation for MCIFC. 
+    * [x] Organize travel plans for AJCAI 2022 (ASAP).
+    * [x] Cross-validation fitness evaluation for MCIFC. 
 
 2022-09-22 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -2820,10 +2820,10 @@ Notes:
 
 TODO: 
     * [x] Read Daniels email 
-    * [ ] Notes / follow up on Daniels email 
-    * [ ] Flights, accomodation, registration for AJCAI
-    * [ ] Poster/Presentation for AJCAI 
-    * [ ] Proposal proper tempalte + more writing 
+    * [x] Flights, accomodation, registration for AJCAI
+    * [x] Notes / follow up on Daniels email 
+    * [x] Poster/Presentation for AJCAI 
+    * [ ] Proposal proper template + more writing 
 
 2022-08-06 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -2936,9 +2936,9 @@ Notes:
 
 TODO: 
     * [x] Passport + Frequenct Flyer Number
+    * [x] Book accomodation for AJCAI
+    * [x] Crossvalidation to improve test performance. 
     * [ ] Forward Registration Confirmation Email to Bing 
-    * [ ] Book accomodation for AJCAI
-    * [ ] Crossvalidation to improve test performance. 
 
 2022-10-13 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -3015,7 +3015,7 @@ Notes:
     * Hardware limiktations of computers, memory, storages, read/write, gpu/cpus, are barriers to effective processing of genomic data (Kulasekara 2014).
     
 Related: 
-    * Very similar 2022-09-08 - FASLIP where Jinyan Li gave a talk on “Compression for DNA/RNA Sequencing”.
+    * Very similar :ref:`2022-09-08 - FASLIP<2022-09-08 - FASLIP>` where Jinyan Li gave a talk on “Compression for DNA/RNA Sequencing”.
 
 2022-10-19 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3035,4 +3035,60 @@ Notes:
 **Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse 
 
 Notes: 
-    * Gave a 
+    * Gave a presentation about (Black 2019) paper to my supverisors, slide available https://github.com/woodRock/fishy-business/blob/main/resources/2022-10-20_black2019rapid.pdf 
+    * I need to start writing the proposal, get my research objectives together, two per week. Need to finish my proposal ASAP. 
+    * Aim for a draft proposal by the end of the 9th month of my Phd. Need to get cracking, crack the whip. 
+    * Need to get some preliminary work done for my PhD proposal, currently exploring multi-tree classification with winner-takes-all and wrapper-based methods for gas chromatograph.
+
+TODO 
+    * [ ] Proposal - 2 reseach objectives 
+    * [ ] Preliminary work 
+    * [ ] NESI HPC Niwa Compute application 
+    * [ ] IEEE Webmaster self-nomination 
+
+2022-10-20 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 16: 00, **Attendees:** Dylon Zeng, Bing Xue, Bach Nguyen, Jesse et al. 
+
+Dylon Zang suggested a talk from Simon Lucas on "Evolutionary Algorithms on Game AI". https://www.youtube.com/watch?v=MM3JoMYcAYQ 
+
+Notes: 
+    * EA suited to problems where we can easily design a fitness function, example given is procedural generation of a 2D maze. 
+    * EAs work suprisingly well 'out-of-the-box' for select problems, population-based evolutionary algorithms are good at exploring combinatorially explosive search space. 
+    * Providing we don't aim for optimal, we fan find 'good enough' solutions for large search spaces. 
+    * GANs + EAs (Volz 2018), to evolve mario levels in the latext space of a deep convolutional generative adversarial neural network. 
+    * Rolling Horizon Evolutionary Algorithm (RHEA) good for desinging good enough at a given task, not god-tier, not super-human. 
+    * You need a model that can be advanced forward rather rapidly. 
+    * RHEA lookahead, considers multiple futures, and chooses actions with best outcome, similar to death crystals from Rick and Morty S04E01 https://rickandmorty.fandom.com/wiki/Death_Crystal
+    * NBTEA to tune the hyperparameters for balancing game play.
+
+2022-10-21 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:** Hayden Anderson, Wolfgang Benzhaf, Bing Xue, Yi Mei, Bach Nguyen, Jesse et al.
+
+General notes: 
+    * Computer cience often never gets ist own category for academics. It is often lumped in with other disciplines, such as mathematics and engineering.
+    * The EvoStar conference deadline is coming up, the deadline is 2022-11-01. We are encourages to submit papers for this conference. 
+    * Progress report: 
+        * background / literature review 
+        * presentation on (Black 2019) https://github.com/woodRock/fishy-business/blob/main/resources/2022-10-20_black2019rapid.pdf 
+    * Overseas conference leave (OCL) is for staff wishing to travel to conferences overseas, important to submit a paper to the conference, to increase the changes of OCL being accepted. 
+    * Counter-factual explanation? A few students mentioned this for explainable AI in Genetic Programming (GP). 
+    * Christian is doing "meta-learning for loss function", I should investigate this further. 
+    * There was a Niwa / VUW workshop on science/AI, I should follow up with Bing to get invited to future events. 
+
+Hayden Anderson gave a presentation on "The Programming Language Julia" https://julialang.org/ 
+
+Notes: 
+    * Julia won the 2019 James H Wilkinson Prize for Numerical Software. 
+    * Used at NASA and CERN. 
+    * Read-eval-print-loop (REPL), it is a compiled language, but REPL allows for code testing during development. 
+    * We do not need to provide typing, as we would for strictly typed languages like c++ or Java, Julia is duck-typed, with optional static typing. 
+    * Julia supports c++ style string interpolation. 
+    * Short circuit evaluation, 1-indexed, single-line function definition, easy vectorization of functions. 
+    * Each function can have an arbitrary number of method implementations, each operating on different types. 
+    * Multiple-dispatch https://www.youtube.com/watch?v=TPuJsgyu87U 
+    * Make any type iterable, indexable, ... 
+    * LLVM (low level virtual machine), compiles to byecode, no c backend, 
+    * Julia has first class functions; they can be assigned to variables and called using the standard funciton call syntax from the variable it was assigned too. 
+    * Julia represented code as a data structure in the language itself. 
