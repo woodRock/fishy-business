@@ -3104,6 +3104,6 @@ Notes:
     * GAN sate-of-the-art but temperamental, we want to beat GANs. 
     * DDPM (Ho 2020, Song 2020); slow backward mdoel. Synchonony thikning, performance limited by ELBO-like criterion. 
     * Forward SDE and backward SDE :math:`=` Langvein; no synchrony, good but also slow. 
-    * Normalizing flows; fast, too much structure prevents good prevents good performance, but max likelihood. 
+    * Normalizing flows (Kobyzev 2020); fast, too much structure prevents good prevents good performance, but max likelihood. 
     * CNF; fast, no structure requirements, max likelihood, yet not so good. 
     * (Tegmark 2022) propose Poisson Flow Generative Models (PFGM) which map a uniform distribution on a high-diemsnaioal hemisphere into any data distriubtion.

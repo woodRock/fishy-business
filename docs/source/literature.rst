@@ -14,8 +14,8 @@ Method:
     * The first principal component is the axis of maximum variance, the second principal component is orthogonal to the first and has the second largest variance, and so on.
 
 Related: 
-    * :ref:`(Black 2019)<black2019rapid>` uses PCA for preprocessing. 
-    * :ref:`(Goodfellow 2016)<goodfellow2016deep>` gives dervation using Linear Algebra. 
+    * :ref:`(Black 2019) <black2019rapid>` uses PCA for preprocessing. 
+    * :ref:`(Goodfellow 2016) <goodfellow2016deep>` gives dervation using Linear Algebra. 
 
 aizerman1964theoretical
 -----------------------
@@ -73,8 +73,8 @@ Why it matters?
     * Proposes method can automate aroma analysis, reducing human labour, and improving accuracy.
 
 Related: 
-    * :ref:`(Eder 1995)<eder1995gas>` is the original gas chromatrogaphy (GC) paper. 
-    * :ref:`(Zhang 2008)<zhang2008two>` preprocssing method for aligning gas chromatography (GC).
+    * :ref:`(Eder 1995) <eder1995gas>` is the original gas chromatrogaphy (GC) paper. 
+    * :ref:`(Zhang 2008) <zhang2008two>` preprocssing method for aligning gas chromatography (GC).
     * (Wood 2022) performs classification / feature selection on gas chromatography data. 
 
 black2017real
@@ -87,7 +87,7 @@ Notes:
     * TODO [ ] Read this paper 
 
 Related: 
-    * :ref:`(Black 2019)<black2019rapid>` propose REIMS for rapid and specific identification of foffal cuts within minced beef samples.
+    * :ref:`(Black 2019) <black2019rapid>` propose REIMS for rapid and specific identification of foffal cuts within minced beef samples.
     * (Wood 2022) performs classification / feature selection on gas chromatography data on fish data. 
 
 black2019rapid
@@ -171,7 +171,7 @@ Limitations:
     * Potential for transfer learning (encorporate previously existing data) to improve performance for few-shot classification tasks. 
 
 Related: 
-    * :ref:`(Black 2017)<black2017real>` use REIMS for fish fraud detection. 
+    * :ref:`(Black 2017) <black2017real>` use REIMS for fish fraud detection. 
     * (BBC 2018) Recent study in the UK (n-665), found >1/5 of samples contained non-declared meat species. https://www.bbc.com/news/uk-45371852
 
 boccard2013consensus
@@ -182,8 +182,8 @@ Notes:
     * TODO [ ] Read 
 
 Related: 
-    * :ref:`(Black 2019)<black2019rapid>` use OPLS-DA for adulteration detection in minced beef.
-    * :ref:`(Black 2017)<black2017real>` uses OPLS-DA for fish fraud detection. 
+    * :ref:`(Black 2019) <black2019rapid>` use OPLS-DA for adulteration detection in minced beef.
+    * :ref:`(Black 2017) <black2017real>` uses OPLS-DA for fish fraud detection. 
 
 bourque2018ten
 --------------
@@ -191,8 +191,8 @@ Ten things you should know about transposable elements
 
 Related: 
     * Julie discussed this at ECRG - 2022-10-14 
-    * :ref:`(Hof 2016)<hof2016industrial>` gives an example of tranposons affecting moths. 
-    * :ref:`(Kulasekara 2014)<kulasekara2014transposon>` says changes passed to offspring. 
+    * :ref:`(Hof 2016) <hof2016industrial>` gives an example of tranposons affecting moths. 
+    * :ref:`(Kulasekara 2014) <kulasekara2014transposon>` says changes passed to offspring. 
 
 boser1992training
 -----------------
@@ -340,19 +340,21 @@ di2019survey
     * Medium article https://medium.com/analytics-vidhya/anomaly-detection-using-generative-adversarial-networks-gan-ca433f2ac287 
     * TODO [ ] - READ     
 
+Related: 
+    * :ref:`(Goodfellow 2014) <goodfellow2014generative>` proposed Generative Adversarial Networks (GANs). 
 
 ding2005minimum
 ---------------
-    * Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data. 
-    * Original Minimum Redundancy - Maximum Relevance (MRMR) paper. 
+Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data. 
+
+(Ding 2005) is the original Minimum Redundancy - Maximum Relevance (MRMR) paper. 
     
 Related: 
-    * See (Zhao 2019) for more recent Uber paper.
-
+    * See :ref:`(Zhao 2019) <zhao2019maximum>` for more recent Uber paper.
 
 eder1995gas
 -----------
-    * Gas chromatography (GC) \cite{eder1995gas} is a method that can identify chemicial structures in these fish oils.
+    * Gas chromatography (GC) is a method that can identify chemicial structures in these fish oils.
     * This produces high-dimensional low sample size data from the fish oils.
     * Chemists compare a given sample to a reference sample to determine what chemicals are present.
     * The existing analytical techniques to perform these tasks are time-consuming and laborious.
@@ -450,13 +452,23 @@ goodfellow2016deep
 ------------------
 Deep Learning 
 
+goodfellow2014generative
+------------------------
+Generative adversarial networks
+
+(Goodfellow 2014) is the original paper on GANs, a deep learning technique for generating new data, based of a game theoretic approach with discriminator and generator networks.
+
+Related: 
+    * See 2022-10-26 Deep Learning 
+    * :ref:`(Di 2019) <di2019survey>` for a survey on GANs for anomaly detection.
+
 goodman2020weighting
 --------------------
 Weighting NTBEA for game AI optimisation
 
 Related: 
-    * :ref:`(Volz 2018)<volz2018evolving>` same author evolves mario levels using EAs on GAN latent spaces. 
-    * :ref:`(Perez 2019)<perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
+    * :ref:`(Volz 2018) <volz2018evolving>` same author evolves mario levels using EAs on GAN latent spaces. 
+    * :ref:`(Perez 2019) <perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
 
 grcic2021densly
 ---------------
@@ -505,8 +517,8 @@ The industrial melanism mutation in British peppered moths is a transposable ele
 
 Related: 
     * Julie ECRG - 2022-10-14 mentioned this. 
-    * :ref:`(Bourque 2018)<bourque2018ten>` explains transposons in detail.
-    * :ref:`(Kulasekara 2014)<kulasekara2014transposon>` says changes passed to offspring. 
+    * :ref:`(Bourque 2018) <bourque2018ten>` explains transposons in detail.
+    * :ref:`(Kulasekara 2014) <kulasekara2014transposon>` says changes passed to offspring. 
 
 Hofstadter1979godel 
 -------------------
@@ -621,9 +633,9 @@ Why it matter?
    * Data cube, a useful representation of GS-MS data. 
    
 Related: 
-   * :ref:`(Bi 2022)<bi2020gc>` proposed a CNN model that incorporated GC-MS data fusion for food science.
-   * :ref:`(Zhang 2008)<zhang2008two>` proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry.
-   * :ref:`(Eder 1995)<eder1995gas>` The original paper on gas chromatrography (GC). 
+   * :ref:`(Bi 2022) <bi2020gc>` proposed a CNN model that incorporated GC-MS data fusion for food science.
+   * :ref:`(Zhang 2008) <zhang2008two>` proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry.
+   * :ref:`(Eder 1995) <eder1995gas>` The original paper on gas chromatrography (GC). 
   
 kingma2014adam
 --------------
@@ -641,6 +653,13 @@ kishore2021fixed
     * Pre-trained stenograph, results in non-zero error, we need perfect reconstruction for encryption.
     * Face anonymization, post a persons face online, then regenerate the face, but encrypt the private face. 
     * This lets friends anonmyously share images with their face online, without revealing their identity.
+
+kobyzev2020normalizing
+----------------------
+Normalizing flows: An introduction and review of current methods
+
+Related:    
+    * See 2022-10-26 - Deep Learning 
 
 kononenko1994estimating
 -----------------------
@@ -713,8 +732,8 @@ Notes:
     * Transposons effects are passed on to offsrping, because their effects are encorporated into the genome. 
 
 Related: 
-    * :ref:`(Hof 2016)<hof2016industrial>` discussed tranposons affect on Moths. 
-    * :ref:`(Bourque 2018)<bourque2018ten>` discussed transposons in general. 
+    * :ref:`(Hof 2016) <hof2016industrial>` discussed tranposons affect on Moths. 
+    * :ref:`(Bourque 2018) <bourque2018ten>` discussed transposons in general. 
     * Julie discussed this in 2022-10-14 - ECRG 
 
 kullback1951information
@@ -880,8 +899,8 @@ perez2019analysis
 Analysis of statistical forward planning methods in Pommerman
 
 Related: 
-    * :ref:`(Volz 2018)<volz2018evolving>` same author evolves Mario levels using EAs on GAN latent spaces. 
-    * :ref:`(Goodman 2020)<goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
+    * :ref:`(Volz 2018) <volz2018evolving>` same author evolves Mario levels using EAs on GAN latent spaces. 
+    * :ref:`(Goodman 2020) <goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
 
 qin2021one
 ----------
@@ -975,7 +994,7 @@ Notes:
     * TODO [ ] Read this paper! 
 
 Related: 
-    * See :ref:`(Ho 2022)<ho2020denoising>` for original DDPM paper. 
+    * See :ref:`(Ho 2022) <ho2020denoising>` for original DDPM paper. 
     * See 2022-07-06 - Deep Learning 
     * See 2022-10-19 - Deep Learning 
     * Stable Diffusion https://github.com/CompVis/stable-diffusion
@@ -1053,8 +1072,8 @@ volz2018evolving
 Evolving mario levels in the latent space of a deep convolutional generative adversarial network
 
 Related: 
-    * :ref:`(Perez 2019)<perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
-    * :ref:`(Goodman 2020)<goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
+    * :ref:`(Perez 2019) <perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
+    * :ref:`(Goodman 2020) <goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
     
 Weinstein2022hunter 
 -------------------
@@ -1199,7 +1218,7 @@ Why it matters?
     * Nice to give back to the research community by thanking reviewers in the acknowledgements. 
 
 Related: 
-    * MRMR :ref:`(Ding 2005)<ding2005minimum>` uses mutual information to measure both relevance and redundancy.
+    * MRMR :ref:`(Ding 2005) <ding2005minimum>` uses mutual information to measure both relevance and redundancy.
     * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016) for a derivation of Kullback-Leibler divergence. 
-    * :ref:`(Brown 2012)<brown2012conditional>` generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
-    * Two FS papers, (:ref:`Lui 1995<liu1995chi2>`, :ref:`Zhao 2019<zhang2008two>`) use a synthetic datasets where redundant features are known.
+    * :ref:`(Brown 2012) <brown2012conditional>` generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
+    * Two FS papers, (:ref:`Lui 1995 <liu1995chi2>`, :ref:`Zhao 2019 <zhang2008two>`) use a synthetic datasets where redundant features are known.
