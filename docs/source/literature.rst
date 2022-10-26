@@ -636,6 +636,8 @@ khakimov2015trends
 ------------------
 Trends in the application of chemometrics to foodomics studies
 
+TODO [ ] READ THIS !!! 
+
 Daniel email:
    * Re: using the 4800x500 image, would it be possible to use a three dimensional ‘data cube’ instead of a 2D image? i.e. time x peak intensity x mass spectrometry (See image below I took from the attached paper)? When we started the work on the GC data, that was the kind of format I hoped to use.
    
@@ -817,6 +819,33 @@ mantyla1998cue
 marhsall2022cybermarine
 -----------------------
     * Cybermarine research magazine aims. girshick2014rich
+
+@misc{, 
+    title={Tackling Seafood Fraud}, url={}, 
+    journal={MSC International - English}, 
+    publisher={Marine Steward Council}
+} 
+
+marine2020tackling
+------------------
+Tackling Seafood Fraud
+
+(Marine 2020) is an article from the Marine Steward Council (MSC) on seafood fraud in New Zealand. 
+
+TODO [ ] READ THIS!!!
+
+Def. fish fraud: 
+    Food fraud, simply put, is the selling of food products with a misleading label, description or promise.
+
+Links: 
+    * Available: https://www.msc.org/media-centre/news-opinion/news/2020/02/25/tackling-seafood-fraud 
+    * Cool video: https://www.youtube.com/watch?v=Kac1cqkjX1U
+
+Related: 
+    * :ref:`(Pardo 2016) <pardo2016misdescription>` 30% of seafood is mislabelled.
+    * :ref:`(Black 2017) <black2017real>` REIMS for fish fraud detection. 
+    * :ref:`(Wood 2022) <wood2022automated>` fish speciation with Gas Chromatography.
+
 matyushin2020gas
 ----------------
     * Matyshuin et al. proposed a stacking model for analysis of gas-chromatograph data.
@@ -906,6 +935,10 @@ Highlights:
 * Misdescription incidents are significantly greater in restaurants than retailers.
 * Gadoids, flatfish and salmonids comprise almost the 60% of the total.
 * Future surveys should be focused on other commercial species.
+
+Related: 
+    * :ref:`(Black 2017) <black2017real>` REIMS for fish fraud detection. 
+    * :ref:`(Marine 2020) <marine2020tackling>` for fish fraud definition. 
 
 pearce2021empirical
 -------------------
@@ -1099,6 +1132,17 @@ Weinstein2022hunter
 -------------------
     * A Hunter Gatherer's Guide to the 21st Century (Book).
     * pg. 229 "Evolutionary stable strategy - A strategy incapable of invasion by competitors"
+
+wood2022automated
+-----------------
+Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
+
+Available: https://woodrock.github.io/#/AJCAI
+
+Related: 
+    * :ref:`(Black 2017) <black2017real>` used REIMS for fish fraud detection. 
+    * :ref:`()`
+
 
 wolpert1997no
 -------------
