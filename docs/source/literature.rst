@@ -342,6 +342,7 @@ di2019survey
 
 Related: 
     * :ref:`(Goodfellow 2014) <goodfellow2014generative>` proposed Generative Adversarial Networks (GANs). 
+    * See (Goodfellow 2016) Chapter 20, pg 690, 20.10.4 Generative Adversarial Networks https://www.deeplearningbook.org/contents/generative_models.html
 
 ding2005minimum
 ---------------
@@ -461,6 +462,7 @@ Generative adversarial networks
 Related: 
     * See 2022-10-26 Deep Learning 
     * :ref:`(Di 2019) <di2019survey>` for a survey on GANs for anomaly detection.
+    * See (Goodfellow 2016) Chapter 20, pg 690, 20.10.4 Generative Adversarial Networks https://www.deeplearningbook.org/contents/generative_models.html
 
 goodman2020weighting
 --------------------
