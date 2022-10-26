@@ -525,6 +525,16 @@ Hofstadter1979godel
     * Godel Escher Bach 
     * The hand that draws itself. 
 
+hussain2016food
+---------------
+Food contamination: major challenges of the future
+
+Def. Food contamination: 
+    Food contamination is generally defined as foods that are spoiled or tainted because they either contain microorganisms, such as bacteria or parasites, or toxic substances that make them unfit for consumption. A food contaminant can be biological, chemical or physical in nature, with the former being more common. These contaminants have several routes throughout the supply chain (farm to fork) to enter and make a food product unfit for consumption.
+
+Related: 
+    * See proposal, fish contamination deteciton. 
+
 jacot2018neural
 ---------------
     * Neural tangent kernel: Convergence and generalization in neural networks
@@ -886,6 +896,16 @@ olah2018building
     * Distill https://distill.pub/2018/building-blocks/
     * Visualization techniques are powerful for understanding black-box systems.
     * Gain intution for semantically meaninful features in complex models. 
+
+pardo2016misdescription
+-----------------------
+Misdescription incidents in seafood sector
+
+Highlights: 
+* The average percentage of reported misdescription is 30%.
+* Misdescription incidents are significantly greater in restaurants than retailers.
+* Gadoids, flatfish and salmonids comprise almost the 60% of the total.
+* Future surveys should be focused on other commercial species.
 
 pearce2021empirical
 -------------------
