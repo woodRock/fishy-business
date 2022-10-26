@@ -15,6 +15,11 @@ The proposal directory contains the following files.
 └── README.md
 ```
 
+This directory contains the following files: 
+
+* [**proposal.zip**](https://github.com/woodRock/fishy-business/blob/main/proposal/proposal.zip) is the zip file of the proposal.
+* [**proposal.pdf**](https://github.com/woodRock/fishy-business/blob/main/proposal/proposal.pdf) is the pdf of the proposal.
+
 ## Overleaf (Point of Truth)
 
 The proposal is written in LaTeX and hosted on Overleaf. We link the final version of the poster to the Overleaf project. This repository contains a snapshot of the Overleaf project at the time of submission, with a zip folder and pdf version of the paper.
