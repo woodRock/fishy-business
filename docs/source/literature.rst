@@ -75,7 +75,7 @@ Why it matters?
 Related: 
     * :ref:`(Eder 1995) <eder1995gas>` is the original gas chromatrogaphy (GC) paper. 
     * :ref:`(Zhang 2008) <zhang2008two>` preprocssing method for aligning gas chromatography (GC).
-    * (Wood 2022) performs classification / feature selection on gas chromatography data. 
+    * :ref:`(Wood 2022) <wood2022automated>` performs classification / feature selection on gas chromatography data. 
 
 black2017real
 ---------------
@@ -88,7 +88,7 @@ Notes:
 
 Related: 
     * :ref:`(Black 2019) <black2019rapid>` propose REIMS for rapid and specific identification of foffal cuts within minced beef samples.
-    * (Wood 2022) performs classification / feature selection on gas chromatography data on fish data. 
+    * :ref:`(Wood 2022) <wood2022automated>` performs classification / feature selection on gas chromatography data on fish data. 
 
 black2019rapid
 --------------
