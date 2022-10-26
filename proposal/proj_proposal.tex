@@ -1,0 +1,187 @@
+%% $RCSfile: proj_proposal.tex,v $
+%% $Revision: 1.4 $
+%% $Date: 2017/10/06 02:55:50 $
+%% $Author: kevin $
+
+\documentclass[11pt, a4paper, twoside, openright]{report}
+
+\usepackage{float} % lets you have non-floating floats
+
+\usepackage{url} % for typesetting urls
+
+%  We don't want figures to float so we define
+%
+\newfloat{fig}{thp}{lof}[chapter]
+\floatname{fig}{Figure}
+
+%% These are standard LaTeX definitions for the document
+%%
+\title{Rapid detection and identification of contamination within fish products using rapid ionisation evaporative mass spectrometry}
+\author{Jesse Wood}
+
+%% This file can be used for creating a wide range of reports
+%%  across various Schools
+%%
+%% Set up some things, mostly for the front page, for your specific document
+%
+% Current options are:
+% [ecs|msor|sms]          Which school you are in.
+%                         (msor option retained for reproducing old data)
+% [bschonscomp|mcompsci]  Which degree you are doing
+%                          You can also specify any other degree by name
+%                          (see below)
+% [font|image]            Use a font or an image for the VUW logo
+%                          The font option will only work on ECS systems
+%
+\usepackage[font,ecs]{vuwproject} 
+
+% You should specifiy your supervisor here with
+%     \supervisor{Firstname Lastname}
+% use \supervisors if there are more than one supervisor
+
+\supervisors{Bach Hoai Nguyen, Bing Xue, Mengjie Zhang}
+
+% Unless you've used the bschonscomp or mcompsci
+%  options above use
+%   \otherdegree{OTHER DEGREE OR DIPLOMA NAME}
+% here to specify degree
+
+\otherdegree{Doctorate of Philosophy - Artificial Intelligence}
+
+% Comment this out if you want the date printed.
+\date{}
+
+\begin{document}
+
+% Make the page numbering roman, until after the contents, etc.
+\frontmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+  This document gives some ideas about how to write a project
+  proposal, and provides a template for a proposal. You should discuss
+  your proposal with your supervisor.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+
+%\tableofcontents
+
+% we want a list of the figures we defined
+%\listof{fig}{Figures}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\mainmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{1. Introduction}
+
+In this section you should include a very brief introduction to the
+problem to the problem and the project.
+
+Your project proposal should cover the following points:
+
+\begin{itemize}
+\item the engineering problem that you are going to solve;
+\item how you plan to solve your problem;
+\item how you intend to evaluate your solution; and
+\item any resource requirements for your project such as software,
+  hardware or other resources that will be needed in the course of the
+  project.
+\end{itemize}
+
+Your proposal should be not more than than 3 pages long.
+
+\section*{2. The Problem}
+
+In this section you should give a brief description of the problem
+itself. You want to briefly explain the problem, why it is important
+to solve the problem and define your project aims. After reading this
+section, the reader should understand why it is a problem, believe
+that it is important to solve and have a clear idea of the aims of
+your project.
+
+When describing the aims of the project, you should avoid vague,
+unmeasurable words like `analyse', `investigate', `describe', and use
+specific, measurable words like `implement', `demonstrate', `show',
+`prove'.
+
+For example:
+
+\begin{itemize}
+\item[\bf Good] The aim of this project is to implement and evaluate a
+  management system for network switches;
+\end{itemize}
+is much better than:
+\begin{itemize}
+\item[\bf Bad] The aim of this project is to investigate management
+  systems for network switches.
+\end{itemize}
+
+In the second case there is no idea of how much work is involved, and
+you will never know whether you have finished. You and your supervisor
+(and the markers of your project) may have very different ideas about
+what such an `investigation' involves. Of course, it is possible that
+the task you set yourself is not achievable, but if you are clear from
+the outset this is less likely, and will more easily be corrected.
+
+\section*{3. Proposed Solution}
+
+In this section you will explain how solve the problem, that is, how
+you intend to carry the project out. At this early stage you need to
+be both clear about what you are going to do and flexible enough to
+adapt to changing circumstances. Making an early plan will not prevent
+you from running into trouble, but it will help you identify possible
+problems early. For example, if you intended to run an experiment in
+HCI, you might realise early on that there would be problems gathering
+sufficient data to get reliable results, and that you should re-design
+your experiment.
+
+Part of the planning process involves producing a timetable for when
+the work is actually going to be done.
+
+Each part of the project should produce some output. For example you
+might plan on spending two weeks on background reading: the output of
+this will be a bibliography, and a possibly a literature survey for
+your report. Indeed, if you take the advice given above about having
+specific, measurable goals, you should describe this part of your
+project as:
+
+\begin{itemize}
+\item[\bf Good] Produce bibliography (est: 2 weeks)
+\end{itemize}
+rather than
+\begin{itemize}
+\item[\bf Bad] Background reading (est: 2 weeks)
+\end{itemize}
+
+Note that the methodology you outline here is dependent upon the type
+of project and engineering area. You must talk to your supervisor
+about this.
+
+\section*{4. Evaluating your Solution}
+
+In this section you will explain how you will evaluate your solution
+once you have built it. The method of evaluation will be domain
+specific. Your supervisor should provide guidance as to what is an
+appropriate form of evaluation. For example, user testing for a HCI
+project or performance measurement for a Network Engineering project.
+
+\section*{5. Resource Requirements}
+
+In this section you will detail any resource requirements such as
+hardware, software or access to subjects.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\bibliographystyle{ieeetr}
+\bibliographystyle{acm}
+\bibliography{sample}
+\end{document}
