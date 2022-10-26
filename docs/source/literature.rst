@@ -947,9 +947,17 @@ Highlights:
 * Gadoids, flatfish and salmonids comprise almost the 60% of the total.
 * Future surveys should be focused on other commercial species.
 
+Method: 
+    * DNA testing, good for species identification
+    * compares 51 studies with total n=4,500 seafood samples. 
+
+Results: 
+    * found an average mislabelling rate of 30%
+
 Related: 
     * :ref:`(Black 2017) <black2017real>` REIMS for fish fraud detection. 
     * :ref:`(Marine 2020) <marine2020tackling>` for fish fraud definition. 
+    * :ref:`(Black 2019) <black2019rapid>` discusses DNA methods for speciation. 
 
 pearce2021empirical
 -------------------
