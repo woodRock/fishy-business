@@ -825,13 +825,17 @@ mantyla1998cue
 
 marhsall2022cybermarine
 -----------------------
-    * Cybermarine research magazine aims. girshick2014rich
+Cyber-marine: 100 percent utilisation, maximised value
 
-@misc{, 
-    title={Tackling Seafood Fraud}, url={}, 
-    journal={MSC International - English}, 
-    publisher={Marine Steward Council}
-} 
+(Marshall 2022) from Cyber-marine gives an overview of their research aims on pg. 49 of Seafood New Zealand - Issue #226. 
+
+TODO [ ] READ THIS 
+
+Notes: 
+    * Cybermarine research magazine aims. 
+
+Related:
+    * :ref:`(Wood 2016) <wood2022automated>` was colab between Cybermarine and VUW.
 
 marine2020tackling
 ------------------
