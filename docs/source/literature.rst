@@ -1016,6 +1016,19 @@ tegmark2021aipoincare
     * AI Poincaré 2.0: Machine Learning Conservation Laws from Differential Equations
     * TODO [ ] READ 
 
+tegmark2022poisson
+------------------
+Poisson Flow Generative Models
+
+(Tegmark 2022) propose Poisson Flow Generative Models (PFGM)< which map a uniform distribution on a high-diemsnaioal hemisphere into any data distriubtion. 
+
+Notes: 
+    * TODO [ ] READ 
+
+Related: 
+    * See 2022-10-26 - Deep Learning
+
+
 tomasi2004correlation
 ---------------------
     * Tomasi et al. investigated correlation optimisation warping (COW) and dynamic time warping (DT) for preprocessing chromatography data.
