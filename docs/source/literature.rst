@@ -1151,10 +1151,10 @@ Visualizing data using t-SNE.
 
 (Van 2008) prose t-distributed stochastic neighbor embedding (t-SNE) for visualizing high-dimensional data.
 
-Notes: 
-    * The t-SNE algorithm comprises two main stages. First, t-SNE constructs a probability distribution over pairs of high-dimensional objects in such a way that similar objects are assigned a higher probability while dissimilar points are assigned a lower probability. 
-    * Second, t-SNE defines a similar probability distribution over the points in the low-dimensional map, 
-    * and it minimizes the Kullback-Leibler divergence (KL divergence) between the two distributions with respect to the locations of the points in the map.
+Method: 
+    * The t-SNE algorithm comprises two main stages. 
+    1. First, t-SNE constructs a probability distribution over pairs of high-dimensional objects in such a way that similar objects are assigned a higher probability while dissimilar points are assigned a lower probability. 
+    2. Second, t-SNE defines a similar probability distribution over the points in the low-dimensional map, and it minimizes the Kullback-Leibler divergence (KL divergence) between the two distributions with respect to the locations of the points in the map.
 
 Related:
     * See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence. 
