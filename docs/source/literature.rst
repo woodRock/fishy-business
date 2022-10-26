@@ -342,7 +342,7 @@ di2019survey
 
 Related: 
     * :ref:`(Goodfellow 2014) <goodfellow2014generative>` proposed Generative Adversarial Networks (GANs). 
-    * See (Goodfellow 2016) Chapter 20, pg 690, 20.10.4 Generative Adversarial Networks https://www.deeplearningbook.org/contents/generative_models.html
+    * See (Goodfellow 2016) Chapter 20, pg. 690, 20.10.4 Generative Adversarial Networks https://www.deeplearningbook.org/contents/generative_models.html
 
 ding2005minimum
 ---------------
@@ -453,6 +453,8 @@ goodfellow2016deep
 ------------------
 Deep Learning 
 
+Available: https://www.deeplearningbook.org/
+
 goodfellow2014generative
 ------------------------
 Generative adversarial networks
@@ -462,7 +464,7 @@ Generative adversarial networks
 Related: 
     * See 2022-10-26 Deep Learning 
     * :ref:`(Di 2019) <di2019survey>` for a survey on GANs for anomaly detection.
-    * See (Goodfellow 2016) Chapter 20, pg 690, 20.10.4 Generative Adversarial Networks https://www.deeplearningbook.org/contents/generative_models.html
+    * See :ref:`(Goodfellow 2016) <goodfellow2016deep>` Chapter 20, pg. 690, 20.10.4 Generative Adversarial Networks https://www.deeplearningbook.org/contents/generative_models.html
 
 goodman2020weighting
 --------------------
@@ -732,6 +734,9 @@ kononenko1994estimating
     * Relief-F and normalized mutual infomration estimates important features for the tumour dataset correctly.
     * Myopy - narrow-minded/focussed on a single idea.  
     * Calls out reviewer in the acknowledgements section. 
+
+Related: 
+    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence. 
 
 koppen2000curse
 ---------------
@@ -1285,6 +1290,6 @@ Why it matters?
 
 Related: 
     * MRMR :ref:`(Ding 2005) <ding2005minimum>` uses mutual information to measure both relevance and redundancy.
-    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See (Goodfellow 2016) for a derivation of Kullback-Leibler divergence. 
+    * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence. 
     * :ref:`(Brown 2012) <brown2012conditional>` generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
     * Two FS papers, (:ref:`Lui 1995 <liu1995chi2>`, :ref:`Zhao 2019 <zhang2008two>`) use a synthetic datasets where redundant features are known.
