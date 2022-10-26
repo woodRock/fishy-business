@@ -543,6 +543,16 @@ jacot2018neural
 ---------------
     * Neural tangent kernel: Convergence and generalization in neural networks
 
+jha2015rapid
+------------
+Rapid detection of food adulterants and contaminants: theory and practice
+
+Def. adulteration: 
+    Food adulteration is the act of intentionally debasing the quality of food offered for sale either by the admixture or substitution of inferior substances or by the removal of some valuable ingredient 
+
+Related:    
+    * :ref:`(Black 2019)` uses REIMS to detect beef adulteration. 
+
 jing2020learning
 ----------------
     * Graph nerual Networks can be used for protien folding. 
@@ -1134,6 +1144,20 @@ tran2018variable
     * The proposed algorithm allows particles to have shorter and different variable lengths.
     * Their length changing mechanism allows PSO to escape local optima.
     * Results across several high dimensional datasets showed improved performance in terms of computational time, fewer features selected and classification accuracy.
+
+van2008visualizing
+------------------
+Visualizing data using t-SNE.
+
+(Van 2008) prose t-distributed stochastic neighbor embedding (t-SNE) for visualizing high-dimensional data.
+
+Notes: 
+    * The t-SNE algorithm comprises two main stages. First, t-SNE constructs a probability distribution over pairs of high-dimensional objects in such a way that similar objects are assigned a higher probability while dissimilar points are assigned a lower probability. 
+    * Second, t-SNE defines a similar probability distribution over the points in the low-dimensional map, 
+    * and it minimizes the Kullback-Leibler divergence (KL divergence) between the two distributions with respect to the locations of the points in the map.
+
+Related:
+    * See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence. 
 
 vaswani2017attention
 --------------------
