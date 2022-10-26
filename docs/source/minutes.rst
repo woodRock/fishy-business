@@ -3102,7 +3102,7 @@ Notes:
     * Fokker-Planck is :math:`\approx` Forward Kolmogorov, Fokker-Planck invented it 50 years earlier than Kolmogorov https://en.wikipedia.org/wiki/Fokker%E2%80%93Planck_equation
     * Bastiaan went to the same school as Fokker, who invented the Fokker-Planch equation 50 years before he attended that school. 
     * GAN sate-of-the-art but temperamental, we want to beat GANs. 
-    * DDPM; slow backward mdoel. Synchonony thikning, performance limited by ELBO-like criterion. 
+    * DDPM (Ho 2020, Song 2020); slow backward mdoel. Synchonony thikning, performance limited by ELBO-like criterion. 
     * Forward SDE and backward SDE :math:`=` Langvein; no synchrony, good but also slow. 
     * Normalizing flows; fast, too much structure prevents good prevents good performance, but max likelihood. 
     * CNF; fast, no structure requirements, max likelihood, yet not so good. 
