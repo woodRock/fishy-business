@@ -23,6 +23,8 @@ The SVM model is interpretable through visualization which can highlight importa
 Lastly, experiments demonstrated that applying feature selection significantly reduced dimensionality and improved classification performance on high-dimensional low sample-size datasets.
 According to the reduction rate, feature selection could accelerate the classification system up to four times.
 
+## Related
+
 Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper.pdf)
 
 Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
