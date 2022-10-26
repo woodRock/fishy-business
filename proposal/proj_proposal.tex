@@ -81,73 +81,189 @@
 
 \section*{1. Introduction}
 
-In this section you should include a very brief introduction to the
-problem to the problem and the project.
+% In this section you should include a very brief introduction to the
+% problem to the problem and the project.
 
-Your project proposal should cover the following points:
+% Your project proposal should cover the following points:
+
+% \begin{itemize}
+% \item the engineering problem that you are going to solve;
+% \item how you plan to solve your problem;
+% \item how you intend to evaluate your solution; and
+% \item any resource requirements for your project such as software,
+%   hardware or other resources that will be needed in the course of the
+%   project.
+% \end{itemize}
+
+% Your proposal should be not more than than 3 pages long.
 
 \begin{itemize}
-\item the engineering problem that you are going to solve;
-\item how you plan to solve your problem;
-\item how you intend to evaluate your solution; and
-\item any resource requirements for your project such as software,
-  hardware or other resources that will be needed in the course of the
-  project.
+  \item Scope - place the problem in the world. 
+  \item Specifics to New Zealand, sustainability. 
+  \item Fish processing - automation, quality control, contaimination. 
+  \item Current state-of-the-art
+  \begin{itemize}
+    \item GC-MS, manual, time consuming, expensive, destructive, instrumental drift. 
+  \end{itemize}
 \end{itemize}
-
-Your proposal should be not more than than 3 pages long.
 
 \section*{2. Literature Review}
 
-In this section you should give a brief description of the problem
-itself. You want to briefly explain the problem, why it is important
-to solve the problem and define your project aims. After reading this
-section, the reader should understand why it is a problem, believe
-that it is important to solve and have a clear idea of the aims of
-your project.
+% In this section you should give a brief description of the problem
+% itself. You want to briefly explain the problem, why it is important
+% to solve the problem and define your project aims. After reading this
+% section, the reader should understand why it is a problem, believe
+% that it is important to solve and have a clear idea of the aims of
+% your project.
 
-When describing the aims of the project, you should avoid vague,
-unmeasurable words like `analyse', `investigate', `describe', and use
-specific, measurable words like `implement', `demonstrate', `show',
-`prove'.
+% When describing the aims of the project, you should avoid vague,
+% unmeasurable words like `analyse', `investigate', `describe', and use
+% specific, measurable words like `implement', `demonstrate', `show',
+% `prove'.
 
-For example:
+% For example:
+
+% \begin{itemize}
+% \item[\bf Good] The aim of this project is to implement and evaluate a
+%   management system for network switches;
+% \end{itemize}
+% is much better than:
+% \begin{itemize}
+% \item[\bf Bad] The aim of this project is to investigate management
+%   systems for network switches.
+% \end{itemize}
+
+% In the second case there is no idea of how much work is involved, and
+% you will never know whether you have finished. You and your supervisor
+% (and the markers of your project) may have very different ideas about
+% what such an `investigation' involves. Of course, it is possible that
+% the task you set yourself is not achievable, but if you are clear from
+% the outset this is less likely, and will more easily be corrected.
 
 \begin{itemize}
-\item[\bf Good] The aim of this project is to implement and evaluate a
-  management system for network switches;
+  \item Mass spectrometry \cite{eder1995gas}
+  \item REIMS 
+  \item Classification 
+  \item Feature Selection 
+  \item Interpretable ML 
+  \item Genetic Programming 
+  \item Transfer Learning 
 \end{itemize}
-is much better than:
-\begin{itemize}
-\item[\bf Bad] The aim of this project is to investigate management
-  systems for network switches.
-\end{itemize}
-
-In the second case there is no idea of how much work is involved, and
-you will never know whether you have finished. You and your supervisor
-(and the markers of your project) may have very different ideas about
-what such an `investigation' involves. Of course, it is possible that
-the task you set yourself is not achievable, but if you are clear from
-the outset this is less likely, and will more easily be corrected.
 
 \section*{3. Prelimary Work}
 
 \begin{itemize}
-  \item CNN for gas chromatography 
-  \item Multi-tree GP Wrapper-based Feature Construction for Gas Chromatography 
-  \item Multi-tree GP winner-takes-all classifier for gas chromatography. 
+  \item Automated Fish Classification on GC-MS data. 
+  \item CNN for Fish classification on GC-MS data. 
+  \item Genetic Programming (GP) for GC-MS data 
+  \begin{itemize}
+    \item Single-Tree GP 
+    \item Multi-tree GP 
+  \end{itemize}
+  \item REIMS exploratory data analysis 
 \end{itemize}
+
 
 \section*{4. Contributions}
 
+\begin{itemize}
+  \item Each research question applies to the REIMS and Data Infusion . 
+  \item For each dataset, hoki and mackeral. 
+\end{itemize}
+
+These are the research questions from Plant and Food Research. 
+
+\begin{itemize}
+  \item Can REIMS data be used to classify different species tissues? What variables are responsible?
+  \begin{itemize}
+    \item Classification 
+    \item Feature Importance - Interpretable 
+  \end{itemize}
+  \item Can REIMS data detect mixed-species contaminiation in fish tissues? At what concentration? What varaibles are responsible? 
+  \begin{itemize}
+    \item Classification 
+    \item Regression 
+    \item Feature importance - Interpretable
+  \end{itemize}
+  \item Can REIMS data detect mineral oil contamination in fish? At what concentration? What variables are responsible?
+  \begin{itemize}
+    \item Classification 
+    \item Regression 
+    \item Feature importance - Interpretable 
+  \end{itemize}
+  \item Can REIMS data be used to distinguish between different fish individuals? What variables are responsible?
+  \begin{itemize}
+    \item Identification 
+    \item Feature imporance - Interpretable 
+  \end{itemize}
+\end{itemize}
+
 \section*{5. Milestones}
 
+\begin{itemize}
+  \item Literature Review 
+  \item EDA 
+  \item Preprocessing 
+  \item Classification 
+  \item Cross-species Contaminiation 
+  \item Mineral-oil Contaminiation  
+  \item Individual Identification 
+  \item Auto ML 
+  \item Thesis 
+\end{itemize}
+
 \section*{6. Thesis Outline}
+
+\begin{enumerate}
+  \item Introduction 
+  \item Background 
+  \begin{itemize}
+    \item Mass Spectrometry 
+    \item REIMS 
+    \item Classifcation / Regression 
+    \item Interpretable ML
+  \end{itemize}
+  \item Preparations
+  \begin{itemize}
+    \item Exploratory Data Analysis 
+    \item Preprocessing 
+  \end{itemize}
+  \item Applications 
+  \begin{itemize}
+    \item Classification 
+    \item Contaminiation Detection 
+    \item Individual Identification 
+    \item Auto ML  
+  \end{itemize} 
+  \item Discussion 
+  \item Conclusion
+\end{enumerate}
 
 \section*{7. Resources}
 
 In this section you will detail any resource requirements such as
 hardware, software or access to subjects.
+
+\begin{itemize}
+  \item Hardware 
+  \begin{itemize}
+    \item ECS Grid Compute 
+    \item Rapoi 
+    \item Niwa HPC - via Auckland University
+  \end{itemize}
+  \item Software 
+  \begin{itemize}
+    \item Repository - Github 
+    \item Project Management - Github Projects 
+    \item Programming language - Python
+    \item Documentation - Read the Docs  
+  \end{itemize}
+  \item Experience 
+  \begin{itemize}
+    \item Field-trip to Callaghan Innovation to see REIMS 
+    \item Field-trip to NZ Plant and Food Research (if necessary for future datasets). 
+  \end{itemize}
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \backmatter
