@@ -1200,6 +1200,15 @@ Related:
     * :ref:`(Perez 2019) <perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
     * :ref:`(Goodman 2020) <goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
     
+wang2018evolving
+----------------
+Evolving deep convolutional neural networks by variable-length particle swarm optimization for image classification
+
+(Wang 2018) propose EvoCNN to automatically search for optimal CNN architecture without any manual work involved.
+
+Related:
+    * See 2022-10-27 - FASLIP
+
 Weinstein2022hunter 
 -------------------
     * A Hunter Gatherer's Guide to the 21st Century (Book).
