@@ -1088,12 +1088,20 @@ shahriari2015taking
 
 smart2005using
 --------------
+Genetic programming for multiclass object classification.
+
+(Smart 2005) describe classification maps as a method for mutli-class classification using GP. 
+
+Notes: 
     * Using genetic programming for multiclass classification by simultaneously solving component binary classification problems 
     * Multi-class classification with Genetic Programs using a Classification Map (CM). 
     * Maps a float to a classification label using a classification map.
     * Create class boundaries sequentially on a floating point number line. 
     * If program output is within a class boundary, it belongs to that class. 
     * For multi-class classification, their is an identical interval of 1.0. 
+
+Related:
+    * See proposal for preliminary work section, where classification maps are used. 
 
 song2020denoising
 -----------------
@@ -1120,9 +1128,17 @@ szegedy2013intriguing
 
 tran2019genetic
 ---------------
+Genetic programming for multiple-feature construction on high-dimensional classification.
+
+(Tran 2019) propose multiple multi-tree GP methods for multi-class classification problems, including multi class-indepdent feature construction (MCIFC).
+
+Notes:
     * Genetic programming for multiple-feature construction on high-dimensional Classification Data 
     * This paper includes an example of Multi-tree GP. 
-    * I can apply Multi-tree GP for a one-vs-all multi-class classification problem. 
+    * I have apply Multi-tree GP for a one-vs-all multi-class classification problem. 
+
+Related: 
+    * See proposal for preliminary work section, MCIFC is used. 
 
 tegmark2020aifeynman
 --------------------
