@@ -985,6 +985,19 @@ Related:
     * :ref:`(Marine 2020) <marine2020tackling>` for fish fraud definition. 
     * :ref:`(Black 2019) <black2019rapid>` discusses DNA methods for speciation. 
 
+pascual2022fullband
+-------------------
+Full-band General Audio Synthesis with Score-based Diffusion
+
+Linked: 
+    * Website https://diffusionaudiosynthesis.github.io/ 
+    * ArVix https://arxiv.org/abs/2210.14661
+    * Video https://twitter.com/_akhaliq/status/1585431732916027392
+
+Related: 
+    * :ref:`(Song 2020) <song2020denoising>` DDPM. 
+    * :ref:`(Ho 2020) <ho2020denoising>` DDIM. 
+
 pearce2021empirical
 -------------------
     * 70% accuracy for basic DSA problems. 
