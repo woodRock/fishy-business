@@ -3107,3 +3107,26 @@ Notes:
     * Normalizing flows (Kobyzev 2020); fast, too much structure prevents good prevents good performance, but max likelihood. 
     * CNF; fast, no structure requirements, max likelihood, yet not so good. 
     * (Tegmark 2022) propose Poisson Flow Generative Models (PFGM) which map a uniform distribution on a high-diemsnaioal hemisphere into any data distriubtion.
+
+2022-10-27 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** 12:00 - 13:00, **Attendees:** Bach Nguyen, Jesse Wood. 
+
+Note: Meng and Bing are away in Auckland this week. 
+
+Notes: 
+    * t-SNE (Van 2008) is a blackbox kernel-based method, it is good for visualization, but not so much for interpretability. The transformation applied to the data is not interpretable. We don't get a direct mapping between the original features and their transformation.
+    * I mentioned the GC-MS image representation as part of the preliminary work, and Daniel's comments on the GC-MS datacbe (Khakimov 2015). 
+    * The probelm is not clear, this should be at the start of the introduction. More from the AIML side on problem, less on chemistry, or make the equilance between terms clear upfront. 
+    * Write a summary on my tree GP results. Analyze these results, compared to existing work. 
+    * Daniel's focus is on the chemistry dataset, his expertise/research follows this, however my PhD is applying AIML to these datasets. My proposal should focus on AIML and attempt to bridge the gap between the two fields for this domain. 
+
+TODO: 
+    * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+    * [ ] Focus on problem from AIML perspective, 
+    * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+
+Related: 
+    * t-SNE (Van 2008) is a dimensionality reduction / visualization technique. 
+    * (Khakimov 2015) use a datacube to visualize GC-MS data. 
+    * (Wood 2022) performs classification/feature selection on GC-MS fish data.  
