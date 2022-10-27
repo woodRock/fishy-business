@@ -3130,3 +3130,55 @@ Related:
     * t-SNE (Van 2008) is a dimensionality reduction / visualization technique. 
     * (Khakimov 2015) use a datacube to visualize GC-MS data. 
     * (Wood 2022) performs classification/feature selection on GC-MS fish data.  
+
+2022-10-27 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Mengjie Zhang, Bach Nguyen, Jordan MacLachlan, Christain Raymond, Jesse et al. 
+
+Mengjie Zhang gave a plenary talk at WCCI 2018 in Brazil on "Evolutionary
+Deep Learning for Image Analysis". We watched a recording in todays meeting https://ieeetv.ieee.org/mengjie-zhang-evolutionary-deep-learning-for-image-analysis
+
+Notes:  
+    * Def. Computervision - The "art" os making computers see (and understand what they see). 
+    * Table of human and computer analogies for computer vision.  
+
++-----------------------------------------------+--------------------------+
+| Human                                         | Computer                 |
++===============================================+==========================+
+| Perception                                    | Image Acquistion         |
+| Selection informaiton extraction              | Feature Extraction       |
+| Grouping by similarity                        | Segmentation             |
+| Spatial information                           | 3D information recovery  |
+| Object Recognition + Semantic interpretation  | Image understanding      |
++-----------------------------------------------+--------------------------+
+
+    * Deep learning requires siffucient model complexity. Relates to (Chase 1973) which shows domain expertise allows people to build meaningful schema to represent patterns.
+    * Popular DL methods for computer vision: 
+        1. Convolutional Neural Networks (CNNs) (Lecun 1989)
+        2. Deep Belief Networks
+        3. Autoencoders (Krammer 1991)
+    * Evolutionary Deep Learning (EDL), a controversial claim by Meng, that EC techniques are technically deep learning. 
+    * Limitations of DL:
+        1. Hyperparameters - too many, manual tuning, black magic, student gradient descent (Gencoglu 2019).
+        2. Gradient Descent - stuck in local optima, doesn't gurantee global optima, differntiable, GPUs/TPUs compute needed. 
+        3. Fixed network structure - no flexible representation, rigid. 
+        4. Blackbox - not interpretable, difficult to verify, no human understanding of the model.
+        5. Sample complexity - many samples needed, high volume of data required. 
+        6. Domain expertise - required in ML and Application domain, very expensive and time consuming. 
+    * EDL/EC methods address these limitations of conventional DL techniques. 
+    * (Wang 2018) propose EvoCNN to automatically search for an optimal CNN architecture without any manual work evolved. 
+    * Cartesian Genetic Programming (CGP) is a form of GP that uses a graph representation to enocde a computer program. It is called cartesian because it presents a program using a 2D grid of nodes. 
+    * 2-tier GP (2012) automatically determine facial features without any domain knowledge required. 
+    * ConvGP - an honours student of Meng introduced a convolutional operator to GP, to improve performance on image analysis. 
+    * EDL benefits: 
+        1. Great accuracy 
+        2. Efficiency 
+        3. Small training set :math:`\to` surrogate model 
+        4. Intrepretable 
+    * Meng includes an advert for a Wellington conference the university was hosting in 2018. Class act. 
+    
+
+Related:
+    * (Chase 1973) which measures recongition of chess pieces by players of varying skill. Expert players could recall more pieces in standard positions. Caveat, skill lever didn't effect recall on random board positions. 
+    * See (Goodfellow 2016) chapter 14 Autoencoders. 
+    * (Gencoglu 2019) proposes the term "grad student descent" for the flawed process of tuning hyperparameters by hand.
