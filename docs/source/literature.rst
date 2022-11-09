@@ -1176,19 +1176,24 @@ Related:
 
 tegmark2020aifeynman
 --------------------
-    * AI Feynman: A physics-inspired method for symbolic regression
+AI Feynman: A physics-inspired method for symbolic regression
+    
+Notes: 
     * Tegmark et al. developed they AI Feynman \cite{udrescu2020ai}. 
     * This algorithm can derive physics equations from data using symbolic regression. 
     * Symbolic regression is a difficult task, but by simplifying properties exhibited by physics equations (i.e symmetry, composability, separability), the problem can be reduced. 
     * Their work uses blackbox neural networks, to derive interpretable models that can easily be verified by humans. 
 
 Related: 
+    * See :ref:`(Tegmark 2022) <tegmark2020aifeynman2>` for the second iteration. 
     * Banzahf discussed the Feynman AI benchmark dataset at 2022-10-28 - ECRG. 
-        * He employed correlation + linear scaling to exploit the shape of the data, a global measure, to find the best fit and reduce the search space. 
+    * He employed correlation + linear scaling to exploit the shape of the data, a global measure, to find the best fit and reduce the search space. 
 
 tegmark2020aifeynman2
 -----------------------
-    * AI Feynman 2.0: Pareto-optimal symbolic regression exploiting graph modularity
+AI Feynman 2.0: Pareto-optimal symbolic regression exploiting graph modularity
+    
+Notes: 
     * 2nd iteration for the AI Feynman 2.0. 
     * More robust towards noise and bad data. 
     * Can discover more formulas that previous method. 
@@ -1196,8 +1201,9 @@ tegmark2020aifeynman2
     * Method for generalized symmetries (abitrary modularity in the compuational graph formula)
 
 Related: 
+    * See :ref:`(Tegmark 2020) <tegmark2020aifeynman>` for the original AI Feynman. 
     * Banzahf discussed the Feynman AI benchmark dataset at 2022-10-28 - ECRG. 
-        * He employed correlation + linear scaling to exploit the shape of the data, a global measure, to find the best fit and reduce the search space. 
+    * He employed correlation + linear scaling to exploit the shape of the data, a global measure, to find the best fit and reduce the search space. 
 
 tegmark2021aipoincare
 ---------------------

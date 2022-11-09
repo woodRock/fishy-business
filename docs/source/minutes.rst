@@ -3250,4 +3250,4 @@ Related:
     * (Banzhaf 2006) a review article on EC and its biological inspiration published in nature.
     * (Dawkins 1995) proposed that animals evolve as models of their world, similar to GP as a model of a discrete fitness landscape. 
     * (Tegmark 2020, Tegmark 2022), Feynman AI and Feynman AI 2.0, explore the simplfiying properties for physics equations on the Feynman AI benchmark dataset. 
-        * Similar to Banzhaf's work with correlation + linear scaling, they exploit the general symmetry of physics equation, to reduce the search space from general symbolic regression to physics-based symbolic regression.
+    * Similar to Banzhaf's work with correlation + linear scaling, in (Tegmark 2020, Tegmark 2022) they exploit the general symmetry of physics equation, to reduce the search space from general symbolic regression to physics-based symbolic regression.
