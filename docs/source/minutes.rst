@@ -2789,7 +2789,7 @@ Notes:
 
 2022-08-05 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 15:00 - 17:00, **Attendees:** Felix Yan, Paul, JP, Hayden, Daniel, Jesse et al. 
+**Location:** Zoom, **Time:** Wednesday 15:00 - 17:00, **Attendees:** Felix Yan, Paul, JP, Hayden, Daniel, Jesse et al. 
 
 Felix Yan discussed the paper "Densely Connected Normalizing Flows" (Grcic 2021, grcic2021densly) https://openreview.net/pdf?id=JNSwviqJhS
 
@@ -2804,7 +2804,7 @@ Notes:
 
 2022-08-06 - Weekly
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Daniel Killeen, Bing Xue, Bach Hoai Nguyen, Jesse Wood. 
+**Location:** CO352, **Time:** Thursday 12:00 - 13:00, **Attendees:** Daniel Killeen, Bing Xue, Bach Hoai Nguyen, Jesse Wood. 
 
 Notes: 
     * The camera-ready version of the AJCAI paper has been submitted to the conference. This is all ready to go, all that is left is preparing flights, accomodation, registration, and also the poster/presentation. 
@@ -2827,7 +2827,7 @@ TODO:
 
 2022-08-06 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Ziyi Sun, Bing Xue, Bach Hoai Nguyen, Jordan, Jesse et al. 
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Ziyi Sun, Bing Xue, Bach Hoai Nguyen, Jordan, Jesse et al. 
 
 Ziyi Sun gave a talk about Mask RCNNS.
 
@@ -2842,7 +2842,7 @@ Notes:
 
 2022-08-06 - ECRG 
 ~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgan Benzhaf, Bing Xue, Yi Mei. 
+**Location:** CO350, **Time:** Friday 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgan Benzhaf, Bing Xue, Yi Mei. 
 
 General notes: 
     * Meng is attending an Agriculture + Seafood Conference in nelson, he iw working on organizing some industry collaborations.
@@ -2879,7 +2879,7 @@ Notes:
 
 2022-10-12 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Attendees:** Madhurjra Choudhary, Bastiaan Kleign, Paul Teal, Daniel, Maxwell, Jesse et al. 
+**Location:** Zoom, **Time:** Wednesday 15:00 - 16:00, **Attendees:** Madhurjra Choudhary, Bastiaan Kleign, Paul Teal, Daniel, Maxwell, Jesse et al. 
 
 Madhurjra discussed two papers: 
     1.  Adeep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks (chen2020deep) https://www.sciencedirect.com/science/article/pii/S0888327020300698
@@ -2923,7 +2923,7 @@ Notes for (Yang 2022):
 
 2022-10-13 - Weekly 
 ~~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyn, Jesse
+**Location:** CO352, **Time:** Friday 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse
 
 Notes: 
     * Send Bing the passport scan + frequent flyer number to lock in the tickets for the flight to AJCAI 2022. 
@@ -2942,7 +2942,7 @@ TODO:
 
 2022-10-13 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Hengzhe Zhang, Mengjie Zhang, Bing Xue, Bach Nguyen, et al. 
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Hengzhe Zhang, Mengjie Zhang, Bing Xue, Bach Nguyen, et al. 
 
 Hengzhe Zhang gave a presentation on "Genetic Programming for Feature Construction and Symbolic Regression". 
 
@@ -2969,7 +2969,7 @@ Notes:
 
 2022-10-14 - ECRG 
 ~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:**: 15:00 - 17:00, **Attendees:** Julie Blommaert, Mengjie Zhang, Bing Xue, Yi Mei, Bach Nguyen, et al. 
+**Location:** CO350, **Time:**: Friday 15:00 - 17:00, **Attendees:** Julie Blommaert, Mengjie Zhang, Bing Xue, Yi Mei, Bach Nguyen, et al. 
 
 General notes: 
     * Julie Blommaert from Plant and Food Research (PFR) is here at ECRG http://julieblommaert.com/ 
@@ -3019,7 +3019,7 @@ Related:
 
 2022-10-19 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Zoom, **Time:** 15:00 - 17:00, **Attendees:** Syed Faisal Ishtiaq, Felix Yan, Paul teal, JP Lewis et al. 
+**Location:** Zoom, **Time:** Wednesday 15:00 - 17:00, **Attendees:** Syed Faisal Ishtiaq, Felix Yan, Paul teal, JP Lewis et al. 
 
 Syed discussed the paper "Denoising diffusion implicit models" (Song 2022), Bastiaan Kleign previously discussed this paper in :ref:`2022-07-06 - Deep Learning<2022-07-06 - Deep Learning>`. 
 
@@ -3032,7 +3032,7 @@ Notes:
 
 2022-10-20 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse 
+**Location:** CO352, **Time:** Friday 12:00 - 13:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse 
 
 Notes: 
     * Gave a presentation about (Black 2019) paper to my supverisors, slide available https://github.com/woodRock/fishy-business/blob/main/resources/2022-10-20_black2019rapid.pdf 
@@ -3048,7 +3048,7 @@ TODO
 
 2022-10-20 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 15:00 - 16: 00, **Attendees:** Dylon Zeng, Bing Xue, Bach Nguyen, Jesse et al. 
+**Location:** CO350, **Time:** Thursday 15:00 - 16: 00, **Attendees:** Dylon Zeng, Bing Xue, Bach Nguyen, Jesse et al. 
 
 Dylon Zang suggested a talk from Simon Lucas on "Evolutionary Algorithms on Game AI". https://www.youtube.com/watch?v=MM3JoMYcAYQ 
 
@@ -3064,7 +3064,7 @@ Notes:
 
 2022-10-21 - ECRG 
 ~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:** Hayden Anderson, Wolfgang Benzhaf, Bing Xue, Yi Mei, Bach Nguyen, Jesse et al.
+**Location:** CO350, **Time:** Friday 15:00 - 17:00, **Attendees:** Hayden Anderson, Wolfgang Benzhaf, Bing Xue, Yi Mei, Bach Nguyen, Jesse et al.
 
 General notes: 
     * Computer cience often never gets ist own category for academics. It is often lumped in with other disciplines, such as mathematics and engineering.
@@ -3110,7 +3110,7 @@ Notes:
 
 2022-10-27 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO364, **Time:** 12:00 - 13:00, **Attendees:** Bach Nguyen, Jesse Wood. 
+**Location:** CO364, **Time:** Friday 12:00 - 13:00, **Attendees:** Bach Nguyen, Jesse Wood. 
 
 Note: Meng and Bing are away in Auckland this week. 
 
@@ -3133,7 +3133,7 @@ Related:
 
 2022-10-27 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Mengjie Zhang, Bach Nguyen, Jordan MacLachlan, Christain Raymond, Jesse et al. 
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Mengjie Zhang, Bach Nguyen, Jordan MacLachlan, Christain Raymond, Jesse et al. 
 
 Mengjie Zhang gave a plenary talk at WCCI 2018 in Brazil on "Evolutionary
 Deep Learning for Image Analysis". We watched a recording in todays meeting https://ieeetv.ieee.org/mengjie-zhang-evolutionary-deep-learning-for-image-analysis
@@ -3146,9 +3146,13 @@ Notes:
 | Human                                         | Computer                 |
 +===============================================+==========================+
 | Perception                                    | Image Acquistion         |
++-----------------------------------------------+--------------------------+
 | Selection informaiton extraction              | Feature Extraction       |
++-----------------------------------------------+--------------------------+
 | Grouping by similarity                        | Segmentation             |
++-----------------------------------------------+--------------------------+
 | Spatial information                           | 3D information recovery  |
++-----------------------------------------------+--------------------------+
 | Object Recognition + Semantic interpretation  | Image understanding      |
 +-----------------------------------------------+--------------------------+
 
@@ -3182,3 +3186,68 @@ Related:
     * (Chase 1973) which measures recongition of chess pieces by players of varying skill. Expert players could recall more pieces in standard positions. Caveat, skill lever didn't effect recall on random board positions. 
     * See (Goodfellow 2016) chapter 14 Autoencoders. 
     * (Gencoglu 2019) proposes the term "grad student descent" for the flawed process of tuning hyperparameters by hand.
+
+2022-10-28 - ECRG 
+~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Wednesday 15:00 - 17:00, **Attendees:** Qi Chen, Wolfgang Banzhaf, Fanfan Chen, Bing, Meng et al. 
+
+General notes: 
+    * My topic: "Mutli-label classification / multi-output regression for the application area of rapid determination of bulk composition and quality if marine biomass for mass spectrometry". 
+    
+Wolfgang Banzhaf gave a presenation on "Computational Evolution Needs Guidance". 
+
+Notes: 
+    * Wolfgang comes from Baden - Wurttemberg, Germany. A small town in the south-west of the country, known for its wine.
+    * He said while touring local vineyards in Wellington with Meng, he liked the wine in New Zealand as well. 
+    * Baden-Wurttemberg has produced many famous people, Einstein, Ernst M... 
+    * The COVID-19 virus and all of its variants demonstrates the power of evolutions, marvellous examples natural evolution from the real-world. 
+    * "From artificial evolution to computational evolution: a research agenda" (Banzhaf 2006). 
+    * EC must avoid the mistake of GOFAI, GOFAI abstracted away the substrate of knowledge. 
+    * The central dogma of EC is a unimodal representation:
+
++-----------+-----------+
+| DNA       | Genotype  |
++-----------+-----------+
+| Proteins  | Phenotype |
++-----------+-----------+
+| Function  | Fitness   |
++-----------+-----------+
+
+    * In reality this a far more complex graph-like process with many feebdakcs. 
+    * Limitations: 
+        * Static fitness 
+        * Fixed representation 
+        * Closed systems 
+        * Genomes composed of discrete and indepdent genes 
+        * No role for expressed material 
+        * Scalability 
+        * No epigenetics 
+    * Breaking points: in biology the DAN specifies specific places where it can break, the locations for crossover are encoded in the genotype. 
+    * Bacterial stress response: stress-induced mutagenssis raised the level of mutation in biology. Dynamic/scheduled/adaptive mutation rate. 
+    * Niche construction: feedback loops make causation very difficult to determine, e.g. chicken and egg analogy.
+    * Fitness is a naive (post-hoc explanation) metric, not the signal. It is a concept humans invented to describe an organisms fit the the environment it is in.
+    * Neutrality - do we properly jump to other places without a change in fitness, is this related to diversity? 
+    * GA vs GP; two mexican hat functions where: 
+        * GA - find a global optima in a continuous fitness landscape. 
+        * GP - find a mathematical model th represent the discrete fitness landscape. 
+        * Similar to (Dawkins 1995) "The Evolved Imagination: Ainimas as models fo their world". 
+    * Evolutionary design of structures, this is the heart of engineering, i.e. agile, iterations, development, science itself. 
+    * Science itself is an iterative refining of world models, that represent the world at sufficient complexity to match empircal observation. 
+    * Guided mutation: provide guided mutations, constraints direct and reduce the search space for an evolutionary search algorithm. 
+    * Rules: have a clear picture of what is allowed beforehand, throwout everything else. 
+    * Secrets of evolution: 
+        1. Elements (both recurvsive and elementary)
+        2. Randomness of combinations 
+        3. Rules 
+        4. Guidance 
+    * Koza's Sextuc polynomial, e.g. :math:`x^6 - 2x^4 + x^2`, 
+    * Root means squared error (RSME) doesn't get it right, it is a very local measure that considers :math:`|\hat{y} - y|` (point-wise distance). 
+    * Correlation, which looks at the shape, is a global measure. Maximise correlation; then finally apply linear scaling. 
+    * Active learning: Using least amount of data that still solves the problem (look where it matters). 
+    * Benchmakred RMSE vs Correlation + Linear Scaling on Feynman AI benchmark dataset for symbolic regression. 
+
+Related: 
+    * (Banzhaf 2006) a review article on EC and its biological inspiration published in nature.
+    * (Dawkins 1995) proposed that animals evolve as models of their world, similar to GP as a model of a discrete fitness landscape. 
+    * (Tegmark 2020, Tegmark 2022), Feynman AI and Feynman AI 2.0, explore the simplfiying properties for physics equations on the Feynman AI benchmark dataset. 
+        * Similar to Banzhaf's work with correlation + linear scaling, they exploit the general symmetry of physics equation, to reduce the search space from general symbolic regression to physics-based symbolic regression.

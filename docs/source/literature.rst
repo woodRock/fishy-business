@@ -42,6 +42,17 @@ bao2022estimating
     * Paper shows how to go from noisy-to-clean with a deterministic process. 
     * A new approach to diffusion based models.
 
+banzhaf2006artificial
+---------------------
+From artificial evolution to computational evolution: a research agenda
+
+(Banzahf 2006) proposes a research agenda for evolutional computataion, published in nature magazine. Available https://www.nature.com/articles/nrg1921
+
+TODO [ ] Read this paper! 
+
+Related: 
+    * See ECRG - 2022-10-28
+
 banzhaf2009genetic
 ------------------
     * Genetic Programming: An Introduction On The Automatic Evolution Of Computer Programs And Its Applications
@@ -327,6 +338,18 @@ da2018evolutionary
     * Optimizes fitness as multi-objective function of correctness and exectution time. 
     * Graph building algorithm that uses evolutionary techniques, mutation and crossover. 
     * Don't reinvet the wheel, encourage reuse of existing services. 
+
+dawkins1995evolved
+-------------------
+The Evolved Imagination: Animals as models of their world
+
+(Dawkins 1995) proposed animals are models of their world. 
+
+Available https://richarddawkins.net/1995/09/the-evolved-imagination-animals-as-models-of-their-world-2/ 
+
+Related: 
+    * See Wolfgang's talk at 2022-10-28 - ECRG , GP as a model of a discrete fitness landscape. 
+    * See 12:18 from "Psychedlics, Consciosness, and AI \| Richard Dawkins \| #256" https://youtu.be/HbGoUwmqIEQ?t=738
 
 di2019survey
 ------------
@@ -1148,7 +1171,11 @@ tegmark2020aifeynman
     * Symbolic regression is a difficult task, but by simplifying properties exhibited by physics equations (i.e symmetry, composability, separability), the problem can be reduced. 
     * Their work uses blackbox neural networks, to derive interpretable models that can easily be verified by humans. 
 
-tegmark2020aifeynman2.0
+Related: 
+    * Banzahf discussed the Feynman AI benchmark dataset at 2022-10-28 - ECRG. 
+        * He employed correlation + linear scaling to exploit the shape of the data, a global measure, to find the best fit and reduce the search space. 
+
+tegmark2020aifeynman2
 -----------------------
     * AI Feynman 2.0: Pareto-optimal symbolic regression exploiting graph modularity
     * 2nd iteration for the AI Feynman 2.0. 
@@ -1156,6 +1183,10 @@ tegmark2020aifeynman2.0
     * Can discover more formulas that previous method. 
     * Implements Normalizaing flows. 
     * Method for generalized symmetries (abitrary modularity in the compuational graph formula)
+
+Related: 
+    * Banzahf discussed the Feynman AI benchmark dataset at 2022-10-28 - ECRG. 
+        * He employed correlation + linear scaling to exploit the shape of the data, a global measure, to find the best fit and reduce the search space. 
 
 tegmark2021aipoincare
 ---------------------
