@@ -3252,3 +3252,63 @@ Related:
     * RMSE (root mean square error) given by :math:`\frac{1}{|T|}\sqrt{\sum_{i \in T} || y_i - \hat{y_i} ||^2}`, there :math:`T` is the datset, :math:`y` is actual value, :math:`\hat{y}` is the predicted value, :math:`||.||^2` is the L2 norm. See :ref:`(Goodfellow 2016) <goodfellow2016deep>` Chapter 2, page 36 for explanation of L2 norm
     * (Tegmark 2020, Tegmark 2022), Feynman AI and Feynman AI 2.0, explore the simplfiying properties for physics equations on the Feynman AI benchmark dataset. 
     * Similar to Banzhaf's work with correlation + linear scaling, in (Tegmark 2020, Tegmark 2022) they exploit the general symmetry of physics equation, to reduce the search space from general symbolic regression to physics-based symbolic regression.
+
+2022-10-31 - Guest Speaker 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 16:00, **Attendees:** Huanhuan Chen, Mengjie Zhang, Bing Xue, Jesse et al. 
+
+Huanhuan Chen gave a talk on "Neural Network Learning in the model space" http://staff.ustc.edu.cn/~hchen/pub.htm 
+
+Notes: 
+    * Limitations of Deep Learning: 
+        1. High-volume - sample complexity 
+        2. Black-box 
+        3. Distance metric 
+    * Learning the model space with signal fitting mode (e.g. deterministic reservoir computing). 
+    * Map local data into a function space, and construct models in that function space. 
+    * Grey box, try to imrpove the interpretability of learning methods by repreenting data with generative models. 
+    * Model learning framework: 
+        1. Generation 
+        2. Measurement
+        3. Employment 
+    * Difficult to compare DL methods by comparing their parameter space, KL-divergence needs to use integrals to calculate :math:`D_{KL}(P||Q)`. 
+    * Fault diagnosis: 
+        1. Detection 
+        2. Isolation 
+        3. Identificaiton 
+    * Reservoir computing is a framework for computing dervied from Recurrent Neural Networks (RNNs) theory, that maps input singals into higher dimensional computational spaces through the dynamics of a fixed, non-linear sustem called a reservoir. After the input signal is fed to the reservoir, which is treates as a black box, a simple readout mechanism is trained to read the state of the reservoir and map it to the desired output. https://en.wikipedia.org/wiki/Reservoir_computing 
+    * Van de Pol Oscillator - a two dimensioanl times-series, a non-conservative oscilator with non-linear damping. It evolves in time according to a second-order differential equation. https://en.wikipedia.org/wiki/Van_der_Pol_oscillator
+
+    .. image:: https://en.wikipedia.org/wiki/File:VanderPol-lc.svg
+        :alt: Van der Pol oscillator phase portrait
+    * Conservative force: a force only depends on the position of the object. A non-conservative force dependts on the apth taken. A scalar definition is not possible, because different paths result in different forces. E.g. gravity is a conservative force, friction is not! 
+    * A differentail equation conssits of a function and its second-order derivative is called a second order differential equation. 
+    * Damping is an influence within or upon an oscillatory system that has the effect of reducing or preventing its oscillation. 
+    * Spatio-temporal graph to understand video semnatics, apply Hidden Markov Models (HMM) to perceive spatio-temporal information. 
+
+Related: 
+    * See (Russell 2010), chapter 15 probabilistic reasoning over time, for explannation of Markov processings and Hidden Markov Models (HMM). 
+
+2022-11-09 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** 15:00 - 16:00, **Attendees:** Paul Teal, Bastiaan Kleign, Maxwell Clarke, Hayden Dyne, Daniel Braithwaite et al. 
+
+Paul discussed the paper "The Submerged part of the AI-Ceberg [perspectives]" (Couillet 2022). 
+
+Notes:
+    * The paper is a powerful critique of the sustainability and environmental impacts of AI on the planet. 
+    * Thoughts: 
+        1. Existential threat to our jobs, personal/touchy subject. 
+        2. AI applied directly to sustainability applications ignored, e.g. JSS, Routing, controlling plasma in nuclear fusion reactor. 
+        3. Carbon is a negative externality, planned obscelence, incentives for longevity. 
+        4. Article places blame at foot of the consumer, not the companies which are repsonsible for 71% of the GHG emissions.
+        5. The population of Uganda uses less electricity than the populaiton of California uses to heat their pools. 
+    * Negative externality when the production/consumption of a product has cost on a third party. E.g. carbon/GHG emissions, affective polarization. 
+    * Carbon credits, also known as carbon offsets, are permits that allow the owner to emit a ccertain amount of carbon dioxide or other greenhouse gases. 
+    * Maxwell's thought: The solutions to carbon emissions of AI are non-specific to AI, and apply to all industries that consume carbon, so all industries. 
+
+Related: 
+    * See (Couillet 2022) for sustainability perspectives on AI. 
+    * See (DeepMind 2022)"Successfully controlling the nuclear fusion plasma in a tokamak with deep reinforcement learning"  https://www.deepmind.com/blog/accelerating-fusion-science-through-learned-plasma-control
+    * See (Guardian 2017) Just 100 companies responsible for 71% of global emissions, study says https://www.theguardian.com/sustainable-business/2017/jul/10/100-fossil-fuel-companies-investors-responsible-71-global-emissions-cdp-study-climate-change
+    * See (Lomberg 2021) California uses more electricity on pools and hot tubs than all 44m people use in Uganda https://twitter.com/BjornLomborg/status/1445808507362500618
