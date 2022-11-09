@@ -320,6 +320,17 @@ cortes1995support
     * We are performing multi-class classification, so it used a one-vs-all approach \cite{sklearn2021feature}.
     * This creates a divide between one class and the rest, then repeats for the other classes.
 
+couillet2022submerged
+---------------------
+The submerged part of the AI-Ceberg [Perspectives]
+
+(Couillet 2022) provide a critize of AI based on its sustainability and environmental impacts on the planet. 
+
+TODO [ ] Read this paper. 
+
+Related: 
+    * See 2022-11-09 - Deep Learning
+
 craik1972levels
 ---------------
     * Levels of processing: A framework for memory research. 
