@@ -493,6 +493,15 @@ godden1975context
     * Same true for words learnt on land. 
     * Recall accuracy depends on similarity of context in sensory information. 
 
+gonick2012cartoon
+-----------------
+The cartoon guide to calculus
+
+(Gonick 2012) is a great book for learning calculus with heaps of pictures.
+
+Related: 
+    * See notes - Differential Equations
+
 goodfellow2016deep
 ------------------
 Deep Learning 
@@ -1107,6 +1116,12 @@ robinson2020genetic
 robnik2003theoretical
 ---------------------
     * releifF classifier. 
+
+russell2010artificial
+---------------------
+Artificial intelligence a modern approach
+
+(Russell 2010) is the phat textbook I own on AI. 
 
 scholkopf2000new
 ----------------
