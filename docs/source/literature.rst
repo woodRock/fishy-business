@@ -537,6 +537,17 @@ grcic2021densly
     * They refer to their proposed achitecture as DenseFlwo, since both cross-unit and intra-module couplings rely on dense connectivity. 
     * Experiments show significant improvements due to prposed contributions and reveal state-of-the-art density estimation under moderate computing budgets. 
 
+handa2006robust
+---------------
+Robust route optimization for gritting/salting trucks: A CERCIA experience
+
+(Hand 2006) use evolutionary computation for route optimization for gritting trucks. 
+
+Related: 
+    * :ref:`(Li 2002) <li2002novel>` use evolutionary computation to solve differentiral equations for deriving physics laws. 
+    * :ref:`(Li 2002) <li2002novel>` is another paper by same author, with EC for solving DE in materials science.
+    * :ref:`(Runarsson 2000) <runarsson2000stochastic>` used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
+
 he2020bayesian
 --------------
     * Bayesian deep ensembles via the neural tangent kernel
@@ -847,6 +858,54 @@ lehman2020surprising
     * The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
     * Annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
 
+li2002novel
+-----------
+A novel evolutionary algorithm for determining unified creep damage constitutive equations
+
+(Li 2002) use evolutionary computation to solve differentiral equations for deriving physics laws. 
+
+Notes:
+    * Creep behaviours of different materials are often described by physically based unified creep damage constitutive equations.
+    * Such equations are extremely complex.
+    * They often contain undecided constants (parameters).
+    * Traditional approaches are unable to find good near optima for these parameters. 
+    * Evolutionary algorithms (EAs) have been shown to be very effective.
+
+Related: 
+    * See 2022-11-10 - FASLIP where author Xin Yao discussed this paper. 
+    * :ref:`(Li 2004) <li2004evolutionary>`, by  Xin Yao same author, with EC for solving DE in astrophysics. 
+    * :ref:`(Runarsson 2000) <runarsson2000stochastic>` used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
+    * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks. 
+
+li2004evolutionary
+------------------
+An evolutionary approach to modeling radial brightness distributions in elliptical galaxies
+
+(Li 2004) use evolutionary computation to find models that fit observational data in astrophysics.
+
+Notes:
+    * Empirical laws are widely used in astrophysics.
+    * However, as the observational data increase, some of these laws do not seem to describe the data very well.
+    * Can we discover new empirical laws that describe the data better?
+    * Previous approach: 
+        * Select a functional form in advance
+        * Drawbacks: ad hoc, difficult to determine and may only suit a smaller number of profiles
+        * Apply fitting algorithms to find suitable parameters for the function. Usually adopt the non-linear reduced c2 minimization
+        * Drawbacks: difficult to set initial values and easily trapped in local minima
+    * Proposed (Li 2004) evolutionary approach: 
+        1. Find functional forms using GP (Genetic Programming) :
+            * A data-driven process without assuming a functional form in advance
+            * A bottom up process which suits modelling a large number of galaxy profiles without any prior knowledge of them
+        2. Fit parameters in the form found using FEP (Fast Evolutionary Programming):
+            * Not sensitive to initial setting values
+            * More likely to find global minima
+
+Related: 
+    * See 2022-11-10 - FASLIP where author Xin Yao discussed this paper.
+    * :ref:`(Li 2002) <li2002novel>`, Xin Yao same author, with EC for solving DE in materials science.
+    * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
+    * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks.
+
 lin2017feature
 --------------
     * Feature pyramid networks for object detection. 
@@ -1117,11 +1176,51 @@ robnik2003theoretical
 ---------------------
     * releifF classifier. 
 
+runarsson2000stochastic
+-----------------------
+Stochastic ranking for constrained evolutionary optimization
+
+(Runarsson 2000) used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
+
+Notes:
+    * Real-world problem has many constraints, e.g., linear, nonlinear, equality, inequality, ...
+    * It works better than other methods because 
+        * More effective;
+        * Good at dealing with non-differentiable
+        and nonlinear problems;
+        * Avoid unnecessary and unrealistic
+        assumptions.
+    * Stochastic Ranking
+        * It is a simple yet effective constraint
+        handling method.
+        * It exploits the characteristics of
+        evolutionary algorithms.
+
+Related: 
+    * :ref:`(Li 2002) <li2002novel>`, by Xin Yao same author, use evolutionary computation to solve differentiral equations for deriving physics laws. 
+    * :ref:`(Li 2002) <li2002novel>`, by Xin Yao same author, with EC for solving DE in materials science.
+    * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks. 
+    * :ref:`(Schnier 2004) <schnier2004digital>`, by Xin Yao same author, use evolutionary computation for multi-objective optimisation in computer hardware. 
+
+
 russell2010artificial
 ---------------------
 Artificial intelligence a modern approach
 
 (Russell 2010) is the phat textbook I own on AI. 
+
+schnier2004digital
+------------------
+Digital filter design using multiple pareto fronts
+
+(Schnier 2004) use evolutionary computation for multi-objective optimisation in computer hardware. 
+
+Related: 
+    * :ref:`(Li 2002) <li2002novel>`, by Xin Yao same author, use evolutionary computation to solve differentiral equations for deriving physics laws. 
+    * :ref:`(Li 2002) <li2002novel>`, by Xin Yao same author is another paper by same author, with EC for solving DE in materials science.
+    * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, by Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
+    * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks. 
+
 
 scholkopf2000new
 ----------------
