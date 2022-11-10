@@ -3319,6 +3319,8 @@ Related:
 
 Prof. Xin Yao gave a talk "What can evolutionary computation do for you?" several years ago at the Worksop of Grand Challenges in Computational Intelligence. https://www.youtube.com/watch?v=pcl08XA1REM
 
+Slides available here https://homepages.ecs.vuw.ac.nz/foswiki/pub/Users/BingXue/Topics/XinYao%20What%20EC%20can%20do%20For%20you.pdf
+
 Notes: 
     * Discovering "new" physical laws in astrophysics - Modelling Radial brightness Distributions in Elliptical Galaxies. (Li 2004).
     * As obvervational data icnreases some of these laws do not seem to describe the data bery well. 
