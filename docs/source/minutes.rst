@@ -1235,7 +1235,7 @@ Notes:
     * Fast enough, their are faster algorithms, but this is fast enough in signal processing. 
     * ADMM is a distributed MSE. 
     * Primal-Dual Method of Multipliers (PDMM). 
-    * Lifting - add a new variable, then constrin them, this allows us to associate variables with models only. 
+    * Lifting - add a new variable, then constrain them, this allows us to associate variables with models only. 
     * PDMMM was developed for solving decomposible optimisation problems in a distributed fashion. 
     * Note: traditional somewhat ad-hoc deviations, nicer alternative is is <unlegible> greater based. 
 
@@ -1934,7 +1934,7 @@ Bing suggested "Wolfgang Banzhaf - Full Interview" https://www.youtube.com/watch
 Notes: 
     * AI effect - as soon as we solve an issue it is no longer considered intelligent. 
     * Active devices force solutions to adapt representations with changing complexities. 
-    * Real-world application- given the correct constrainted/discretized representation we ca creativly apply randomness to many applications.
+    * Real-world application - given the correct constrainted/discretized representation we ca creativly apply randomness to many applications.
     * Evolution takes shortcuts the programmers were not expecting, we have to gradually evolve our fitness functions to get the desired behaviour. Similar to (Lehman 2022). 
     * Hardware - Technologies for parallell and distributed computing should allow for harware growth in Evonltionary Computation. 
     * Proofs - proofs are very difficult to formulate for real-world problems. Engineers can write tests for safety critical systems. But it is difficult to find proofs for complex evolutionary computations. 
@@ -3312,3 +3312,34 @@ Related:
     * See (DeepMind 2022)"Successfully controlling the nuclear fusion plasma in a tokamak with deep reinforcement learning"  https://www.deepmind.com/blog/accelerating-fusion-science-through-learned-plasma-control
     * See (Guardian 2017) Just 100 companies responsible for 71% of global emissions, study says https://www.theguardian.com/sustainable-business/2017/jul/10/100-fossil-fuel-companies-investors-responsible-71-global-emissions-cdp-study-climate-change
     * See (Lomberg 2021) California uses more electricity on pools and hot tubs than all 44m people use in Uganda https://twitter.com/BjornLomborg/status/1445808507362500618
+
+2022-11-10 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** 14:00 - 15:00, **Attendees:** Prof. Xin Yao, Bing Xue, Bach Nguyen, Jordan MacLachlan, Jesse et al. 
+
+Prof. Xin Yao gave a talk "What can evolutionary computation do for you?" several years ago at the Worksop of Grand Challenges in Computational Intelligence. https://www.youtube.com/watch?v=pcl08XA1REM
+
+Notes: 
+    * Discovering "new" physical laws in astrophysics - Modelling Radial brightness Distributions in Elliptical Galaxies. (Li 2004).
+    * As obvervational data icnreases some of these laws do not seem to describe the data bery well. 
+    *  EC is an enitrely data-driven apporach, that removes human bias, that can compliment existing work in another field (e.g. astrophysics).
+    * Previous work had applied fitting algorithms to find suitable paramters for a function. 
+    * Their approach (Li 2004) was Genetic Programming (GP) and Fast Evolutionary Programming (FEP). 
+    * EC can be used to derive unknown constants in differential equations derived from physical laws. 
+    * You can publish papers in a hournal by converting a matlab codebase for stochastic ranking (fancy bubblesort) into C programming language. 
+    * Real-world problem has many constraints, e.g., linear, nonlinear, equality, inequality
+    * Constraint handling, EC works better (Runarsson 2000), it is more effective; good at dealing with non-differentiable and non-linear problems; Avoid unecessary and unrealistic assmptions. 
+    * Similar to 2022-09-23 - ECR where Carlos discussed constraint handling. 
+    * Route optimization for getting trucks, where EC outperfomed all other existing algorithms (Handa 2006). 
+    * Ubiquity of mutli-objective problem solving in hardware. "Digital filter deisng using multiple paretor fronts" (Schnier 2004)
+    * Theoretical foundations for Evolutionary Computation are lacking. It is unclear from the outset if EC and which EC will perform well before evluating the algorithms on a dataset. 
+    * Interpretability- we want to understand the relationship between the problem and the algorithms. 
+    * The sapce and time complexity of EC is lacking, usually happy with :math:`O(n^2)`, and exponentials don't play nice at scale. 
+    * EC is a darkhorse, it can do far more than might have initially thought. 
+    * This is an old talk, but his pioints are still valid today, and the field is still growing and EC is in a golden age for research.
+
+Related: 
+    * (Li 2002) use evolutionary computation to solve differentiral equations for deriving physics laws. 
+    * (Li 2004) use evolutionary computation to find models that fit observational data in astrophysics.
+    * (Runarsson 2000) used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computation.
+    * See 2022-09-23 - ECRG where Carlos A. Coello Coello applied Multi-objective (MO) Evolutionary Computation (EC) with constraint handling.  
