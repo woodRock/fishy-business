@@ -3279,8 +3279,9 @@ Notes:
     * Reservoir computing is a framework for computing dervied from Recurrent Neural Networks (RNNs) theory, that maps input singals into higher dimensional computational spaces through the dynamics of a fixed, non-linear sustem called a reservoir. After the input signal is fed to the reservoir, which is treates as a black box, a simple readout mechanism is trained to read the state of the reservoir and map it to the desired output. https://en.wikipedia.org/wiki/Reservoir_computing 
     * Van de Pol Oscillator - a two dimensioanl times-series, a non-conservative oscilator with non-linear damping. It evolves in time according to a second-order differential equation. https://en.wikipedia.org/wiki/Van_der_Pol_oscillator
 
-    .. image:: https://en.wikipedia.org/wiki/File:VanderPol-lc.svg
+    .. image:: https://42796r1ctbz645bo223zkcdl-wpengine.netdna-ssl.com/wp-content/uploads/2018/07/Dd3xGi9d-YY.jpg
         :alt: Van der Pol oscillator phase portrait
+        
     * Conservative force: a force only depends on the position of the object. A non-conservative force dependts on the apth taken. A scalar definition is not possible, because different paths result in different forces. E.g. gravity is a conservative force, friction is not! 
     * A differentail equation conssits of a function and its second-order derivative is called a second order differential equation. 
     * Damping is an influence within or upon an oscillatory system that has the effect of reducing or preventing its oscillation. 
