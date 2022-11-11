@@ -1,7 +1,7 @@
 Notes
 =====
 
-REIMS 
+2022-08-23 - REIMS 
 -----
 
 These are my notes from the presentation slides on REIMS https://github.com/woodRock/fishy-business/blob/main/resources/REIMS.pdf
@@ -36,6 +36,9 @@ Notes:
         3. Samples taken in sequential order, but plates randomized to minimize impact of instrumental drift. 
         4. More steps to combat instrumental drift should be addressed.  
 
+Related:
+    * See 2022-08-23 - PFR Daniel and Kevin
+
 ECS Grid 
 --------
 
@@ -50,8 +53,8 @@ Notes:
     - My griduser folder is ``woodjess3``, but my ECS username is ``woodj4``, be careful with this difference when writing scripts. 
     - For email notifications of job completion, I must use my ECS email Jesse.Wood@ecs.vuw.ac.nz. 
 
-Differential Equations
-----------------------
+2022-11-11 Differential Equations
+---------------------------------
 
 "Any equation that caontains derivities [...] is called a differential equation."
 
@@ -67,3 +70,6 @@ Notes:
     or 
     :math:`F = kx`
     * That is the second-order derivitive can be expressed as a function of itself multiplied by a constant. 
+
+Bias Variance Tradeoff 
+----------------------
