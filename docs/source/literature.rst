@@ -236,10 +236,47 @@ brown2012conditional
     * Generalized model for information based feature selection methods. 
     * These models generazlize to iterative maximizers of conditional likelihood. 
 
+brownlee2016gentle
+----------------------
+Gentle Introduction to the Bias-Variance Trade-Off in Machine Learning
+
+(Brownlee 2016) shows "[s]upervised learning can be best understood through the lens of the bias-variance tradeoff." 
+
+Available here https://machinelearningmastery.com/gentle-introduction-to-the-bias-variance-trade-off-in-machine-learning/
+
+Notes:
+    * The goal of supervised learning is to find the best estimate function (:math:`f`) for the output variable (:math:`y`) given the input data (:math:`x`) - often referred to as the target function. 
+    * Bias are simplfying assumtions made by the model to make the target function easier to learn. 
+    * Bias E.g.
+        * Low-bias: DT, KNN, SVM 
+        * High-bias: LDA, Linear/Logistic Regression 
+    * Variance is the amount that the estiamte of the target function will change if different training data were used. 
+    * Variance E.g.
+        * Low-variance: LDA, Linear/Logistic Regression
+        * High-variance: DT, KNN, SVM
+    * Trend (often):
+        * Linear models will have high-bias low-variance 
+        * Non-linear models will have low-bias high-variance 
+    * Trade-off E.g.
+        * The KNN has low-bais high-variance, tradeoff can be changed by increasing :math:`k` (which increases the number of neighbors that contribute t the prediction), increases the bias of the model. 
+        * The SVM has low-bias high-variance, increasing C parameter (influences the number of violations of the margin allowed) increases bias, but decreases variance
+    * The parameterisation of ML algorithms is often a battle to balnce out bias and variance. 
+
+Related: 
+    * See :ref:`(Cortes 1995) <cortes1995support>` for SVM. 
+    * See :ref:`(Fix 1989) <fix1989discriminatory>` for KNN.
+    * See :ref:`(Loh 2011) <loh2011classification>` for DT.
+    * See (:ref:`Black 2017 <black2017real>`, :ref:`Black 2019 <black2019rapid>`, :ref:`Boccard 2013 <boccard2013consensus>`) that use LDA.
+
 brudigam2021gaussian
 --------------------
-    * Gaussian Process-based Stochastic Model Predictive Control for Overtaking in Autonomous Racing
-    * See 2022-07-20 - Deep Learning 
+Gaussian Process-based Stochastic Model Predictive Control for Overtaking in Autonomous Racing
+
+(Brudigam) uses Gaussain Processes in Reinforcement Learning to design controllers for race cars to overtake. 
+    
+Related:
+    * See 2022-07-20 - Deep Learning where Hayden Dyne discusses this paper. 
+    * See :ref:`(Codevilla 2018) <codevilla2018end>`, another racing paper, for RL drifiting controller.
 
 cai2020high 
 -----------
@@ -311,7 +348,11 @@ codevilla2018end
     * High-speed autonomous drifting with deep reinforcement learning. 
     * Far easier to use real-world data on driving that has already been collected than generate simulation data. 
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
-    
+
+Related: 
+    * See :ref:`(Brudigam 2021) <brudigam2021gaussian>`, another racing paper, for RL overtaking controller. 
+    * See 2022-07-20 - Deep Learning where Hayden Dyne discusses this paper. 
+
 cortes1995support
 -----------------
     * Cortes and Vapnik proposed the Support Vector Machine (SVM).
@@ -499,8 +540,23 @@ The cartoon guide to calculus
 
 (Gonick 2012) is a great book for learning calculus with heaps of pictures.
 
-Related: 
-    * See notes - Differential Equations
+"Any equation that caontains derivities [...] is called a differential equation."
+
+Notes: 
+    * A differential equation is an queation that contains a derivite. 
+    * Examples of differential equations include Newton's second law, hookes law (or the spring equation). 
+    * Newton's second law states that a froce is equal to the mass of an object multiplied by its acceleration, :math:`F = ma`
+    * We can express accelaration as the first-order derivite of velocity :math:`\frac{d}{dt}(v)`.
+    * Therefore we can give Newton's second as, :math:`f = \frac{d}{dt}(mv)`.
+    * This is an example of a differential equation (DE). 
+    * Hookes law, which can be derived from newtons first law (describing inertia) can be given as, 
+    :math:`x''(t)=\frac{k}{m} x(t)` 
+    or 
+    :math:`F = kx`
+    * That is the second-order derivitive can be expressed as a function of itself multiplied by a constant. 
+
+Related:
+    * See 2022-10-31 - Guest Speaker
 
 goodfellow2016deep
 ------------------
