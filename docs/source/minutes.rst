@@ -3384,8 +3384,8 @@ TODO:
         * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
     * [!] Forward Registration Confirmation Email to Bing (never recieved this!)
 
-2022-11-11 
-~~~~~~~~~~
+2022-11-11 - ECRG 
+~~~~~~~~~~~~~~~~~
 **Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:** Christian Raymond, Mengjie Zhang, Bing Xue, Wolfgang Banzhaf.
 
 General notes:
@@ -3399,7 +3399,7 @@ General notes:
         * AJCAI poster/presentation 2022-11-24 
     * "Who enjoyed the proposal stage?" -- Meng, *I raise my hand* , "Who finished and enjoyed it?" -- Meng. 
 
-`Christain Raymond <https://ecs.wgtn.ac.nz/Main/GradChristianRaymond>`_ gave a talk on "Meta Learning loss functions". 
+`Christian Raymond <https://ecs.wgtn.ac.nz/Main/GradChristianRaymond>`_ gave a talk on "Meta Learning loss functions". 
 
 Notes: 
     * M.C. Escher Drawing Hands (1948)
@@ -3422,7 +3422,7 @@ Notes:
         1. Selection 
         2. Task specificity 
         3. Goal-alignment. 
-    * Goodhart's Law - "When a measure becomes a target, it ceases to be a good measure" (`Wikipedia <https://en.wikipedia.org/wiki/Goodhart%27s_law>_`).
+    * Goodhart's Law - "When a measure becomes a target, it ceases to be a good measure" (`Wikipedia <https://en.wikipedia.org/wiki/Goodhart%27s_law>`_).
     * Spearch space design: 
         1. Superset 
         2. Dense 
