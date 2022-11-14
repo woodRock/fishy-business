@@ -2823,7 +2823,7 @@ TODO:
     * [x] Flights, accomodation, registration for AJCAI
     * [x] Notes / follow up on Daniels email 
     * [x] Poster/Presentation for AJCAI 
-    * [ ] Proposal proper template + more writing 
+    * [x] Proposal proper template + more writing 
 
 2022-08-06 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -2938,7 +2938,7 @@ TODO:
     * [x] Passport + Frequenct Flyer Number
     * [x] Book accomodation for AJCAI
     * [x] Crossvalidation to improve test performance. 
-    * [ ] Forward Registration Confirmation Email to Bing 
+    * [!] Forward Registration Confirmation Email to Bing (never recieved this!)
 
 2022-10-13 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -3041,10 +3041,10 @@ Notes:
     * Need to get some preliminary work done for my PhD proposal, currently exploring multi-tree classification with winner-takes-all and wrapper-based methods for gas chromatograph.
 
 TODO 
-    * [ ] Proposal - 2 reseach objectives 
+    * [x] IEEE Webmaster self-nomination 
+    * [x] Proposal - 2 reseach objectives 
+    * [-] NESI HPC Niwa Compute application 
     * [ ] Preliminary work 
-    * [ ] NESI HPC Niwa Compute application 
-    * [ ] IEEE Webmaster self-nomination 
 
 2022-10-20 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -3346,3 +3346,95 @@ Related:
     * (Li 2004) use evolutionary computation to find models that fit observational data in astrophysics.
     * (Runarsson 2000) used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computation.
     * See 2022-09-23 - ECRG where Carlos A. Coello Coello applied Multi-objective (MO) Evolutionary Computation (EC) with constraint handling.  
+
+2022-11-11 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday 14:00 - 15:00, **Attendees:** Bing Xue, Bach Nguyen, Mengjie Zhang, Jesse 
+
+Notes: 
+    * Candidate Development Plan (CDP) - Write a draft for the CDP, first half is due by Wednesday 2022-11-16. 
+        * Previous goals;
+            * [x] GP Algorithm 
+            * [x] Paper 
+            * [x] Agile 
+            * [!] Proposal
+        * Future goals 
+            * [ ] Propsoal 
+            * [ ] AJCAI Conference 
+            * [ ] New piece of work 
+    * Proposal  
+        * Write chapter 1 introduction, for the proposal, full draft. 
+        * Write research objectives. 
+        * Important to finish proposal before christmas. 
+        * Check out Bing/Bach/Christains proposal as exemplars for the proposal.
+    * Holiday season - university closes from 2022-12-22 -> 2023-01-10 (22nd Dec -> 10th Jan).
+    * Journals, can target journals for papers as well. 
+        * Journals hve no deadlines. 
+        * Process: Submit -> Major revision -> Minor Revision -> Accept. 
+        * Target IEEE transactions for high impact journals. 
+    * Dylon's proposal is next Monday 2022-11-14
+
+TODO: 
+    * [x] Write draft CDP before 2022-11-16 and send to supervisors. 
+    * [ ] Write chapter 1 introduction for my proposal. 
+    * [ ] Write research objectives for my proposal.
+    * Bach's proposal feedback: 
+        * [ ] Focus on problem from AIML perspective, 
+        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+    * [!] Forward Registration Confirmation Email to Bing (never recieved this!)
+
+2022-11-11 
+~~~~~~~~~~
+**Location:** CO350, **Time:** 15:00 - 17:00, **Attendees:** Christian Raymond, Mengjie Zhang, Bing Xue, Wolfgang Banzhaf.
+
+General notes:
+    * University has stopped supporting PhD/Masters students attending international conferences, the department will still try to support the students as best tehy can. No longer an automatic acceptance process. 
+    * If students have papers acepted at top journals/conferences, the department can request grant money to facilitate this. 
+    * Our papers, for the conferences/journals ECRG target, are fully refereed (peer-reviewed), sio ECRG is often given priority, Other discplines are not peer-reviewed. 
+    * ECRG was the largest contributed to conference on Evolutionary Computation. E.g. GECCO, EvoStar. 
+    * Progress report: 
+        * CDP 2022-11-26
+        * Proposal - Chapter 1 / Research Objectives 
+        * AJCAI poster/presentation 2022-11-24 
+    * "Who enjoyed the proposal stage?" -- Meng, *I raise my hand* , "Who finished and enjoyed it?" -- Meng. 
+
+`Christain Raymond <https://ecs.wgtn.ac.nz/Main/GradChristianRaymond>`_ gave a talk on "Meta Learning loss functions". 
+
+Notes: 
+    * M.C. Escher Drawing Hands (1948)
+    .. image:: https://upload.wikimedia.org/wikipedia/en/thumb/b/ba/DrawingHands.jpg/270px-DrawingHands.jpg
+        :alt: M.C. Escher Drawing Hands (1948)
+        :target: https://en.wikipedia.org/wiki/Drawing_Hands    
+    * Humans can quickly/efficiently solve complex and novel tasks. 
+    * Inductive bias - an inductive bias of a learning algorithm is the set of assumptions that the laearner uses to predict outputs of given inputs it has yet encountered (`Wikipedia <https://en.wikipedia.org/wiki/Inductive_bias>`_).
+    * Meta learning - Intelligent systemes leverage their past experiences over m learning episodes covering a distribution of related tasks to automatically select the suitable inductive bias. 
+    * Trends in AI: Hand designed features :math:`\rightarrow` End-to-end training (AlexNet) - automatically learn features :math:`\rightarrow` Automatically designed algorithsm (Meta Learning).
+    * Taxonomy: 
+        * Meta-objective - Why? 
+        * Meta-representation - What? 
+        * Meta-optimizer - How?
+    * Cost vs. loss vs. objective 
+        * Loss function - loss for an instance 
+        * Cost function - loss for a set of instances (a dataset)
+        * Objective function - cost function + regularization term. 
+    * Limitations of loss: 
+        1. Selection 
+        2. Task specificity 
+        3. Goal-alignment. 
+    * Goodhart's Law - "When a measure becomes a target, it ceases to be a good measure" (`Wikipedia <https://en.wikipedia.org/wiki/Goodhart%27s_law>_`).
+    * Spearch space design: 
+        1. Superset 
+        2. Dense 
+        3. Satisfy GP closure 
+        4. Task and model agnostic
+    * Rather small poulation size, similar to neural architecture search (NAS).
+    * Constraints: 
+        1. Required arguments. 
+        2. Non-negative output (i.e distance metric)
+    * Meta-objective, this tells us what the task is, i.e. classification/regression. 
+    * Loss functions are converted from GP trees to loss networks. 
+    * The loss network is a computational graph, we can apply forward/backward proposation to the loss network to optimize the meta-parameters. 
+    * Affine transformation - is a geometric transofmration that preserves lines and parellelsim (`Wikipedia <https://en.wikipedia.org/wiki/Affine_transformation>`_).
+    * Automatic differentiation - is a set of techniques to evaluate the deriviate of a function specified by a computer program (`Wikipedia <https://en.wikipedia.org/wiki/Automatic_differentiation>`_) 
+    * Benchmarks: ML:math:`^3`, TaylorGLO, GP-LFL, (theirs) EvoMAL.
