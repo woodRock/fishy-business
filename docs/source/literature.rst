@@ -1193,7 +1193,9 @@ raissi2019physics
 
 ramesh2022hierarchical
 ----------------------
-    * Hierarchical Text-Conditional Image Generation with CLIP Latents. 
+Hierarchical Text-Conditional Image Generation with CLIP Latents. 
+
+Notes:
     * a.k.a. Dalle 2 and Very popular on the internet.
     * Original was a d-VAE (discrete), Dalle 2 is a diffusion based model that uses CLIP. 
     * CLIP trains an auto-enocder to have minimize the distance between image and text embeddings in the latent space. 
@@ -1203,6 +1205,13 @@ ramesh2022hierarchical
     * We can use CLIP to interpolate between two images in the latent space. 
     * As we increase the dimensionality of the latent space we can represent more complex hierarchical structures. 
     * CLIP fails at producing text, and reconstruction can mix up objects and their attributes. 
+
+Related: 
+    * Available to the public on their website https://openai.com/dall-e-2/
+    * See :ref:`(Ho 2022) <ho2020denoising>` for Denoising Diffusion Probabilistic Models (DDPM), canonical diffusion paper. 
+    * See :ref:`(Song 2020) <song2020denoising>` for Denoising Diffusion Implicit Models (DDIM), faster diffusion process.
+    * See 2022-07-06 - Deep Learning 
+    * See 2022-10-19 - Deep Learning 
 
 rampal2022high
 --------------
@@ -1361,7 +1370,7 @@ song2020denoising
 -----------------
 Denoising diffusion implicit models. 
 
-(Song 2020) propose Deosing Diffusion Implicit Models (DDIM) a generalized DDPM that is faster and deterministic. 
+(Song 2020) propose Denoising Diffusion Implicit Models (DDIM) a generalized DDPM that is faster and deterministic. 
 
 Notes: 
     * TODO [ ] Read this paper! 
