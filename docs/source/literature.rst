@@ -1204,6 +1204,56 @@ ramesh2022hierarchical
     * As we increase the dimensionality of the latent space we can represent more complex hierarchical structures. 
     * CLIP fails at producing text, and reconstruction can mix up objects and their attributes. 
 
+rampal2022high
+--------------
+High-resolution downscaling with interpretable deep learning: Rainfall extremes over New Zealand
+
+(Rampal 2020) propose CNN rainfall downscaling for prediction of extreme rainfall. 
+
+Available https://www.sciencedirect.com/science/article/pii/S2212094722001049
+
+Data: 
+    * Daily gridded accymlated ranfall from the Viritual Climatete Station network (VCSN), was used here as the predicted rainfall in statistical downscaling, and as the ground truth in out-of-sample testing period. 
+    * VCSN data covers the New Zealand regoion on a 0.05 degree grid, derived from sufrace interpolation of station weather data. 
+    * Precipitation biases are likely to occur in regions where station density is particularly low, namely across rugged and remote terrian like the Southern Alps. 
+
+Method: 
+    * The model trains predictor fields, the variables represent both dynamical and thermodynamical drivers of rainfall. 
+    * Loss functions of Mean Squared Error (MSE) and log-likelihood of Bernoilli-gamma distribution. 
+    * 5 deep learning achrictures were evaluated
+        1. Non-linear CNN (Gamma)
+        2. Linear CNN 
+        3. Non-linear Gamma 
+        4. Linear Gamma 
+        5. Linear Dense
+    * Explainabile AI, deep learning models are often referred to as black box models. 
+    * Gradient-weighted class-activation maps (Grad-Cam)
+    * Alternative methods, salience maps and layerwise relevance propogation were considered.
+        * Saliency maps:
+            * but don't necessarily imply importance. Instead, they show how the output changes when a set of predicotr values are slightly perturbed. 
+            * Saliency maps also tend to focus on local gradients in the input spoace whereas a more global view if odten required.
+        * Layerwise relevance propogation (LRP):
+            * LRP is only available for a relatively small set of neural entwrok architectures. 
+            * Grad-CAM can be applied more widely. 
+
+Results: 
+    * When spatially aggregates across the region, the fraciton of explained vaiation on wet days increased from 0.35 to 0.52. The existing dry bais for rainfall extremes decreased from approximately 40% to 15%. 
+    * Largest benefits came from implementing a probablistic loss function. Further improvements come from convolutional layers and non-linear activations. 
+    * Non-linear CNN is capable of outperforming existing statistical approaches, both in terms of variance and mean predictions for extreme rainfall.
+    * The trained CNN could target the most relevant meteorological features. Suggests the model is capable of learning complex and physically plausible relationships. 
+    * Increasing the domain size over which predictor fields are sampled and increasing the number of training samples generally improves out-of-sample donwscaling performance. The domain size had less effect on linear models (i.e. low variance), sugggesting linear CNNs are better suited for extracting complex information across an extended domain. 
+
+Why it matters? 
+    * Simple CNN models can easily outperform statistical models on high-dimensional data.
+    * Deep learning can be analyzed post-hoc, to build trust in the prediction, or may even lead to new insights.
+    * Interpretable models are important bo build trust in their predictions. Also for troubleshooting/diagnosi, as in :ref:`(Zhao 2019 <zhao2019maximum>`.
+
+Related:
+    * :ref:`(Lecun 1989) <lecun1989generalization>` propsoed the original CNN as a shared weight network. 
+    * :ref:`(Wang 2018) <wang2018evolving>` proposed EvoCNN, uses variable length PSO to perform neural architecture search. 
+    * :ref:`(Girsich 2014) <girshick2014rich>` proposed R-CNN, a CNN with region proposals.
+    * :ref:`(Bi 2020) <bi2020gc>` used CNN to predict food flavor from GS-MS datasets. 
+
 rasmussen2003gaussian
 ---------------------
     * Gaussian Processes in machine learning. 
