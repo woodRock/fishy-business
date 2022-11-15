@@ -1,11 +1,11 @@
 # AJCAI 2022 - Paper
 
 Title: Automated Fish Classification Using Unprocessed Fatty Acid Chromatographic Data: A Machine Learning Approach
-Authors: Jesse Wood, Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Daniel Killeen 
+Authors: Jesse Wood, Bach Hoai Nguyen, Bing Xue, Mengjie Zhang, Daniel Killeen
 
-## Organization 
+## Organization
 
-The AJCAI directory contains the following files. 
+The AJCAI directory contains the following files.
 
 ```
 .
@@ -15,8 +15,9 @@ The AJCAI directory contains the following files.
 └── README.md
 ```
 
-We have files: 
-- [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/3476.zip) which contains the source files used to generate the paper. 
+We have files:
+
+- [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/3476.zip) which contains the source files used to generate the paper.
 - [license_to_publish.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/license_to_publish.pdf) which is the license to publish the paper.
 - [paper3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf) which is the paper itself.
 
@@ -29,13 +30,13 @@ Their website - [AJCAI](https://ajcai2022.org/).
 
 ## Abstract
 
-Fish is approximately 40\% edible fillet. 
+Fish is approximately 40\% edible fillet.
 The remaining 60\% can be processed into low-value fertilizer or high-value pharmaceutical-grade omega-3 concentrates.
 High-value manufacturing options depend on the composition of the biomass, which varies with fish species, fish tissue and seasonally throughout the year.
 Fatty acid composition, measured by Gas Chromatography, is an important measure of marine biomass quality.
 This technique is accurate and precise, but processing and interpreting the results is time-consuming and requires domain-specific expertise.
 The paper investigates different classification and feature selection algorithms for their ability to automate the processing of Gas Chromatography data.
-Experiments found that SVM could classify compositionally diverse marine biomass based on raw chromatographic fatty acid data. 
+Experiments found that SVM could classify compositionally diverse marine biomass based on raw chromatographic fatty acid data.
 The SVM model is interpretable through visualization which can highlight important features for classification.
 Experiments demonstrated that applying feature selection significantly reduced dimensionality and improved classification performance on high-dimensional low sample-size datasets.
 According to the reduction rate, feature selection could accelerate the classification system up to four times.
@@ -43,6 +44,8 @@ According to the reduction rate, feature selection could accelerate the classifi
 Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf)
 
 Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
+
+Presentation - [PDF](Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Presentation/presentation3476.pdf))
 
 ## Overleaf (Point of Truth)
 

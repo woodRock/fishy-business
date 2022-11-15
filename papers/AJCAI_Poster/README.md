@@ -1,8 +1,8 @@
 # AJCAI 2022 - Poster
 
-## Organization 
+## Organization
 
-The AJCAI_Poster directory contains the following files. 
+The AJCAI_Poster directory contains the following files.
 
 ```
 .
@@ -11,8 +11,9 @@ The AJCAI_Poster directory contains the following files.
 └── README.md
 ```
 
-We have files: 
-- [poster3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.zip) which contains the source files used to generate the poster. 
+We have files:
+
+- [poster3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.zip) which contains the source files used to generate the poster.
 - [poster3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf) which is the poster itself.
 
 ## ACJAI
@@ -26,20 +27,21 @@ Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/mai
 
 Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
 
+Presentation - [PDF](Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Presentation/presentation3476.pdf))
+
 ## Overleaf (Point of Truth)
 
 The poster is written in LaTeX and hosted on Overleaf. We link the final version of the poster to the Overleaf project. This repository contains a snapshot of the Overleaf project at the time of submission, with a zip folder and pdf version of the paper.
 
 Overleaf - [Link](https://www.overleaf.com/project/633bfa5378f35f6cb8c49371)
 
-## QR Code 
+## QR Code
 
 A QR code on the poster takes the user to a personal website, where they can download the paper, poster, and see other relevant information. The QR code was generated with the free (no subscription required) website: https://qr-code-generator.org/
 
 ![QR Code](./QR_code.png)
 
-
-## References 
+## References
 
 1. Better Poster from Mike Morrison https://www.youtube.com/watch?v=1RwJbhkCA58
 2. Better Poster (v2) https://www.youtube.com/watch?v=SYk29tnxASs
