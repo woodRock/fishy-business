@@ -659,6 +659,15 @@ Def. Food contamination:
 Related: 
     * See proposal, fish contamination deteciton. 
 
+huszar2022algorithmic
+---------------------
+Algorithmic amplification of politics on Twitter
+
+(Huszar 2022), study by former Twitter employees, reveal amplification of political content on Twitter.
+
+Related:
+    * Discussed in Deep Learning - 2022-11-30
+
 jacot2018neural
 ---------------
     * Neural tangent kernel: Convergence and generalization in neural networks
@@ -672,6 +681,15 @@ Def. adulteration:
 
 Related:    
     * :ref:`(Black 2019)` uses REIMS to detect beef adulteration. 
+
+jiang2019degenerate
+-------------------
+Degenerate Feedback Loops in Recommender Systems
+
+(Jiang 2019) is a deep mind paper on degeneracy in positive feedback loops on social media.
+
+Related:
+    * See Deep Learning - 2022-11-30 for discussion on this paper.
 
 jing2020learning
 ----------------

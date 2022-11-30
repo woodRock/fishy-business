@@ -3438,3 +3438,44 @@ Notes:
     * Affine transformation - is a geometric transofmration that preserves lines and parellelsim (`Wikipedia <https://en.wikipedia.org/wiki/Affine_transformation>`_).
     * Automatic differentiation - is a set of techniques to evaluate the deriviate of a function specified by a computer program (`Wikipedia <https://en.wikipedia.org/wiki/Automatic_differentiation>`_) 
     * Benchmarks: ML:math:`^3`, TaylorGLO, GP-LFL, (theirs) EvoMAL.
+
+2022-11-30 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Wednesday 14:00 - 15:00, **Attendees:** Mengjie Zhang, Bach Nguyen, Bing Xue, Jesse
+
+Notes: 
+    * CDP: 
+        * Current progress towards my thesis is "good"
+        * I met 3/4 of my previous CDP goals. 
+        * CDP goals for next 3 months are very clear. 
+    * Proposal: 
+        * Revisit proposal (refresh memory)
+        * Describe the data
+        * Write up preliminary work 
+        * A few rounds of revision are needed 
+    * DEADLINE: 
+        * November 30th marks 9 months into my thesis, proposal should be done. 
+        * Focus on finishing my proposal before I go on holiday in January (2023-01-18)
+
+TODO: 
+    * [!] Forward RegiAJCAIh objectives for my proposal.
+    * Bach's proposal feedback: 
+        * [ ] Focus on problem from AIML perspective, 
+        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+
+2022-11-30 - Deep Learning
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Locaiton:** Zoom, **Time:** Wednesday 15:00 - 16:00, **Attendees:** Ali Knott, Bastiaan Kliegn, Paul Teal, Marcus Frean, Jesse at al.
+
+Ali not gave a talk on social media recommender systems. This is related to his GPAI 2022 report https://gpai.ai/projects/responsible-ai/social-media-governance/transparency-mechanisms-for-social-media-recommender-algorithms.pdf
+
+Notes: 
+    * Combat Terrorism and Violent Extremesim Content (TVEC).
+    * Deboost/derank unwanted content. 
+    * After March 2019 Christchurch Mosque Shoting, a NZ lead call to end TVEC online. 
+    * Cognitive bias revealed by social media, moral-emotional expressions, violent comments, political out-group, false information. 
+
+Related: 
+    * See (Huszar 2022) for study by Twitter employees on amplification of political content. 
+    * See (Jiang 2019) for degenerative feeback loops on social media reccomender systems from DeepMind. 
