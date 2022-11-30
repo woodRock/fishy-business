@@ -3458,7 +3458,14 @@ Notes:
         * Focus on finishing my proposal before I go on holiday in January (2023-01-18)
 
 TODO: 
-    * [!] Forward RegiAJCAIh objectives for my proposal.
+    * [!] Forward Registration Confirmation Email to Bing (never recieved this!)
+    * [x] Write draft CDP before 2022-11-16 and send to supervisors.
+    * [x] Submit CDP by November 30th 2022-11-30
+    * [x] AJCAI Print poster 2022-22-02
+    * [x] AJCAI memorize presentation 2022-22-02
+    * [ ] AJCAI dress rehearsal at FASLIP 2022-12-01
+    * [ ] Write chapter 1 introduction for my proposal. 
+    * [ ] Write research objectives for my proposal.
     * Bach's proposal feedback: 
         * [ ] Focus on problem from AIML perspective, 
         * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
