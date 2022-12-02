@@ -3473,7 +3473,7 @@ TODO:
 
 2022-11-30 - Deep Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Locaiton:** Zoom, **Time:** Wednesday 15:00 - 16:00, **Attendees:** Ali Knott, Bastiaan Kliegn, Paul Teal, Marcus Frean, Jesse at al.
+**Location:** Zoom, **Time:** Wednesday 15:00 - 16:00, **Attendees:** Ali Knott, Bastiaan Kliegn, Paul Teal, Marcus Frean, Jesse at al.
 
 Ali not gave a talk on social media recommender systems. This is related to his GPAI 2022 report https://gpai.ai/projects/responsible-ai/social-media-governance/transparency-mechanisms-for-social-media-recommender-algorithms.pdf
 
@@ -3486,3 +3486,48 @@ Notes:
 Related: 
     * See (Huszar 2022) for study by Twitter employees on amplification of political content. 
     * See (Jiang 2019) for degenerative feeback loops on social media reccomender systems from DeepMind. 
+
+2022-12-01 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location**: CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Bin Tang, Jesse Wood, Bach Hoai Nguyen, Qi Chen, Andrew Lensen, Peter Andreae 
+
+(Joseph) Binh Tang gave a presentaion on "Greedy algorithm for the discounted knapsack problem (DKP)". 
+
+Notes: 
+    * Discounted Knapscak problem (DKP):
+        * N-groups of items. 
+        * Each item has a value and cost. 
+        * We muse selecect a list of items to maximize value. 
+        * Discount - certain groups of items have a discount when purchased together; this creates complex feature interactions (NP-hard!!!). 
+    * All related work: GR-DKP, NROA, D-GROA; all these methods use an H list of 3n items sorted in descinding order by their value/cost ratios. 
+    * Tran proposes a binary representation, state transition, contribution-based value-cost heyristic. 
+    * Borda count, a family of poisitional voting rules which gives each candidated, for each ballot, a number of points corresponding to the number of candidates ranked lower. 
+    * Consensus (not majoritarian) - the borda count is intended to elect boradly acceptatable options, rather than those preferred by the majority.
+    * Proposed algorithm: operation-based greedy algorithn for DKP. 
+
+Jesse Wood (me) gave a presentation on "Automated Fish Classification". Here is the feedback from my supervisor and questions that were asked.
+
+Questions: 
+    * Is this the first application of ML to gas chromatrography on fish oil?
+    * Why use gas chromatography (why not computer vision)?
+
+Feedback: 
+    * Too much focus on gas chromatrography. 
+    * Move PSO slide to the section on feature selection. 
+
+2022-12-02 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday 15:00 - 17:00, **Attendees:** Yifan Yang, Yi Mei, Jordan MacLachlan, Hengzhe Zhang, Jesse et al. 
+
+Yifan Yang gave a presentation on adaptive mutation techniques for dual-tree genetic programming for DCDWSC. 
+
+Notes: 
+    * Task: deadline-constrained dynamic workflow scheduling in cloud computing (DCDWSC).
+    * Adaptive mutation techniques for dual-tree genetic programming (DTGP). 
+    * Virtual Machine Selection Rules (VMSR).
+    * Task Selection Rule (TSR). 
+    * Example: A problem instance contains 6 VM types and 30 random workflows.
+    * Mutation success ratio :math:`\hat{\Phi}`, is ratio of success mutations over total mutations :math:`\Phi = \frac{S}{S+T}` where :math:`S` is the number of successful mutations and :math:`T` is the number of total mutations.
+    * 1/5 rules, increase :math:`\alpha` the mutation deviation :math:`\hat{\Phi}`, when :math:`\hat{\Phi} < \frac{1}{5}`. Increase :math:`\alpha` if :math:`\hat{\Phi} > \frac{1}{5}`. 
+    * Control the mutation deviation based on the mutation success ratio.
+    * Loss function is the log likelihood, see (Goodfellow 2016) for derivation of the log likelihood from maximum likelihood formula.
