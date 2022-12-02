@@ -1,6 +1,6 @@
 # AJCAI 2022 - Response Letter
 
-Reponse letter available [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Response_Letter/paper.pdf)
+Reponse letter available [PDF](paper.pdf)
 
 ## ACJAI
 

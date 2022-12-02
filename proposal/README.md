@@ -17,8 +17,8 @@ The proposal directory contains the following files.
 
 This directory contains the following files: 
 
-* [**proposal.zip**](https://github.com/woodRock/fishy-business/blob/main/proposal/proposal.zip) is the zip file of the proposal.
-* [**proposal.pdf**](https://github.com/woodRock/fishy-business/blob/main/proposal/proposal.pdf) is the pdf of the proposal.
+* [**proposal.zip**](proposal.zip) is the zip file of the proposal.
+* [**proposal.pdf**](proposal.pdf) is the pdf of the proposal.
 
 ## Overleaf (Point of Truth)
 
