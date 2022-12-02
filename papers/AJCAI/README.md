@@ -17,9 +17,9 @@ The AJCAI directory contains the following files.
 
 We have files:
 
-- [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/3476.zip) which contains the source files used to generate the paper.
-- [license_to_publish.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/license_to_publish.pdf) which is the license to publish the paper.
-- [paper3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf) which is the paper itself.
+- [3476.zip](3476.zip) which contains the source files used to generate the paper.
+- [license_to_publish.pdf](license_to_publish.pdf) which is the license to publish the paper.
+- [paper3476.pdf](paper3476.pdf) which is the paper itself.
 
 ## ACJAI
 
@@ -27,6 +27,12 @@ We invite you to the 35th Australasian Joint Conference on Artificial Intelligen
 The AI2022 is the flagship conference for Australasian AI community. It is also an annual event to advance communication between academic researchers and industry AI practitioners. We encourage cutting-edge works contributing to the theory and practice of AI. Novel application domains including cybersecurity, healthcare, IoT, robotics, social media and big data real-world applications are highly welcome.
 
 Their website - [AJCAI](https://ajcai2022.org/).
+
+Full paper available - [PDF](paper3476.pdf)
+
+Poster - [PDF](../AJCAI_Poster/poster3476.pdf)
+
+Presentation - [PDF](Poster - [PDF](../AJCAI_Presentation/presentation3476.pdf)
 
 ## Abstract
 
@@ -41,11 +47,11 @@ The SVM model is interpretable through visualization which can highlight importa
 Experiments demonstrated that applying feature selection significantly reduced dimensionality and improved classification performance on high-dimensional low sample-size datasets.
 According to the reduction rate, feature selection could accelerate the classification system up to four times.
 
-Full paper available - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI/paper3476.pdf)
+Full paper available - [PDF](paper3476.pdf)
 
-Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Poster/poster3476.pdf)
+Poster - [PDF](poster3476.pdf)
 
-Presentation - [PDF](Poster - [PDF](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Presentation/presentation3476.pdf))
+Presentation - [PDF](Poster - [PDF](../papers/AJCAI_Presentation/presentation3476.pdf)
 
 ## Overleaf (Point of Truth)
 

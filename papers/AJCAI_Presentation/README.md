@@ -9,6 +9,8 @@ The AJCAI directory contains the following files.
 
 ```
 .
+├── cuecards.zip
+├── cuecards.pdf
 ├── presentation3476.zip
 ├── presentation3476.pdf
 └── README.md
@@ -16,8 +18,10 @@ The AJCAI directory contains the following files.
 
 We have files:
 
-- [3476.zip](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Presentation/presentation3476.zip) which contains the source files used to generate the presentation.
-- [presentation3476.pdf](https://github.com/woodRock/fishy-business/blob/main/papers/AJCAI_Presentation/presentation3476.pdf) which is the presentation itself.
+- [cuecards.zip](cuecards.zip) - source files used to generate the cue cards.
+- [cuecards.pdf](cuecards.pdf) - cuecards for the presentation.
+- [3476.zip](presentation3476.zip) which contains the source files used to generate the presentation.
+- [presentation3476.pdf](presentation3476.pdf) which is the presentation itself.
 
 ## ACJAI
 
@@ -25,6 +29,12 @@ We invite you to the 35th Australasian Joint Conference on Artificial Intelligen
 The AI2022 is the flagship conference for Australasian AI community. It is also an annual event to advance communication between academic researchers and industry AI practitioners. We encourage cutting-edge works contributing to the theory and practice of AI. Novel application domains including cybersecurity, healthcare, IoT, robotics, social media and big data real-world applications are highly welcome.
 
 Their website - [AJCAI](https://ajcai2022.org/).
+
+Full paper available - [PDF](../AJCAI/paper3476.pdf)
+
+Poster - [PDF](../AJCAI_Poster/poster3476.pdf)
+
+Presentation - [PDF](Poster - [PDF](presentation3476.pdf)
 
 ## Abstract
 

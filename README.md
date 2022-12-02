@@ -26,11 +26,11 @@ This repository is organized into the following directory structure:
 (In an attempt) to organize my Phd thesis work (into a semblance of) order, we have folders:
 
 - [**code**](code), which includes the documentated codebases used to produce the results of the experiments presented in this thesis.
-- [**docs**](https://github.com/woodRock/fishy-business/tree/main/docs), documentation that organizes my literature reviews, minutes of meetings, thoughts, and miscellaneous, into an indexed/searchable and available anywhere anytime and on any device, website available online.
-- [**literature**](https://github.com/woodRock/fishy-business/tree/main/literature), which contains a PDF filee for all the literature cited in my work. Ordered by their latex bib file name (e.g. wood2022automation), for sanity purposes.
+- [**docs**](docs), documentation that organizes my literature reviews, minutes of meetings, thoughts, and miscellaneous, into an indexed/searchable and available anywhere anytime and on any device, website available online.
+- [**literature**](literature), which contains a PDF filee for all the literature cited in my work. Ordered by their latex bib file name (e.g. wood2022automation), for sanity purposes.
 - [**papers**](https://github.com/woodRock/fishy-business/tree/main/papers), the LaTeX source files for the papers I have written. 
-- [**proposal**](https://github.com/woodRock/fishy-business/tree/main/proposal), the LaTeX document for my PhD proposal.
-- [**resources**](https://github.com/woodRock/fishy-business/tree/main/resources), a dumping ground for anything that doesn't quite fit the literature category, but is nonetheless useful. E.g. presentation/lecture slides, article/magazine clippings.
+- [**proposal**](proposal), the LaTeX document for my PhD proposal.
+- [**resources**](resources), a dumping ground for anything that doesn't quite fit the literature category, but is nonetheless useful. E.g. presentation/lecture slides, article/magazine clippings.
 
 ## Playful
 
