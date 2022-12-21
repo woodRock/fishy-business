@@ -3554,7 +3554,7 @@ Notes:
     * In the tutorial we aim for the knowledge step.
 
 .. image:: https://mitosystems.com/wp-content/uploads/2012/07/PyramidSqare.png
-    
+
     * NLTK is the best tokenizer to use in Python, it uses machine learning libraries to perform smart tokenisation. https://www.nltk.org/
     * Terminology: 
         * corpus - a body of text. 
@@ -3664,5 +3664,5 @@ Related:
     * (Wayne 2018) propose the Memory, RL, and Inference Network (MERLIN), in which memory formation is guided by a process of predictive modeling.
     * (Hung 2019) deal with naviagation with distraction, a model that requires semantic control.
     * (Ecoffet 2021) propose an RL agent that remembers promising states and returning to such states before intentionally exploring.
-    * See MuJoCo benmarck, janky walking robots https://www.youtube.com/watch?v=n0Cpqzqzroo
+    * See MuJoCo benchmark, janky walking robots https://www.youtube.com/watch?v=n0Cpqzqzroo
     * See Github Demo https://github.com/thaihungle/AJCAI22-Tutorial
