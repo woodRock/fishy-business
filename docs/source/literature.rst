@@ -428,6 +428,15 @@ Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data.
 Related: 
     * See :ref:`(Zhao 2019) <zhao2019maximum>` for more recent Uber paper.
 
+ecoffet2021first
+----------------
+First return, then explore
+
+(Ecoffet 2021) propose an RL agent that remembers promising states and returning to such states before intentionally exploring.
+
+Related:
+    * See 2022-12-05 - AJCAI #01
+
 eder1995gas
 -----------
     * Gas chromatography (GC) is a method that can identify chemicial structures in these fish oils.
@@ -648,6 +657,15 @@ Hofstadter1979godel
 -------------------
     * Godel Escher Bach 
     * The hand that draws itself. 
+
+hung2019optimizing
+------------------
+Optimizing agent behavior over long time scales by transporting value
+
+(Hung 2019) deal with naviagation with distraction, a model that requires semantic control.
+
+Related:   
+    * See 2022-12-05 - AJCAI #01
 
 hussain2016food
 ---------------
@@ -1093,6 +1111,15 @@ miller1994exploiting
     * Mate choice / mate preference. 
     * **TODO** read 
 
+mnih2013playing
+---------------
+Playing atari with deep reinforcement learning
+
+(Mnih 2013) from Deep Mind propose deep q-learning for Atari games.
+
+Related: 
+    * 2022-12-05 - AJCAI #01
+
 moraglio2012geometric
 ---------------------
     * Genetic semantic genetic programming. 
@@ -1400,6 +1427,15 @@ Related:
     * Stable Diffusion https://github.com/CompVis/stable-diffusion
     * Deforum Notebook https://t.co/mWNkzWtPsK
 
+stewart2022quarry
+-----------------
+QUARRY: A Graph Model for Queryable Association Rules
+
+(Stewart 2022) propose QUARRY a model for association rule mining from short technical text in maintenance data.
+
+Related: 
+    * See 2022-12-05 - AJCAI #01, author gave workshop on knowledge graphs. 
+
 szegedy2013intriguing
 ---------------------
     * Intriguing properties of neural networks.
@@ -1519,6 +1555,24 @@ Evolving deep convolutional neural networks by variable-length particle swarm op
 
 Related:
     * See 2022-10-27 - FASLIP
+
+watkins1992q
+------------
+Q-learning
+
+(Watkins 1992) proposed q-learning, the foundation of reinforcment learning.
+
+Related :
+    * See 2022-12-05 - AJCAI #01
+
+wayne2018unsupervised
+---------------------
+Unsupervised Predictive Memory in a Goal-Directed Agent
+
+(Wayne 2018) propose the Memory, RL, and Inference Network (MERLIN), in which memory formation is guided by a process of predictive modeling.
+
+Related:
+    * See 2022-12-05 - AJCAI #01 
 
 Weinstein2022hunter 
 -------------------

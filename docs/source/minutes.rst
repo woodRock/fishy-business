@@ -3359,9 +3359,9 @@ Notes:
             * [x] Agile 
             * [!] Proposal
         * Future goals 
-            * [ ] Propsoal 
-            * [ ] AJCAI Conference 
-            * [ ] New piece of work 
+            * [x] Propsoal 
+            * [x] AJCAI Conference 
+            * [x] New piece of work 
     * Proposal  
         * Write chapter 1 introduction, for the proposal, full draft. 
         * Write research objectives. 
@@ -3463,7 +3463,7 @@ TODO:
     * [x] Submit CDP by November 30th 2022-11-30
     * [x] AJCAI Print poster 2022-22-02
     * [x] AJCAI memorize presentation 2022-22-02
-    * [ ] AJCAI dress rehearsal at FASLIP 2022-12-01
+    * [x] AJCAI dress rehearsal at FASLIP 2022-12-01
     * [ ] Write chapter 1 introduction for my proposal. 
     * [ ] Write research objectives for my proposal.
     * Bach's proposal feedback: 
@@ -3531,3 +3531,134 @@ Notes:
     * 1/5 rules, increase :math:`\alpha` the mutation deviation :math:`\hat{\Phi}`, when :math:`\hat{\Phi} < \frac{1}{5}`. Increase :math:`\alpha` if :math:`\hat{\Phi} > \frac{1}{5}`. 
     * Control the mutation deviation based on the mutation success ratio.
     * Loss function is the log likelihood, see (Goodfellow 2016) for derivation of the log likelihood from maximum likelihood formula.
+
+2022-12-05 - AJCAI #01
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Freshwater Bay, Hyatt, Perth, **Time:** Monday 9:00 - 12:00, **Attendees:** Michael Stewart
+
+A practical guide to knowledge graph constructions from technical short text
+Michael Stewart michael.stewart@uda.edu.ac
+
+Notes: 
+    * A Google colab notebook for this workshop is available here https://colab.research.google.com/drive/1JK2UIb0XZwtLyduGUwNXL-fXjOdqekNk
+    * A knowledge graph is a type of grapb databasee that captures knowledge/information about objects, entites and relationships. 
+    * Echinda: an example of a knowledge graph that has been applied to the domain application of maintanence. 
+    * IBM, LinkedIn, AirBnB, Walmart, Ebay, Volvo - all companies that employ knowledge graphs in the real-world. 
+    * Wikipedia, freebase, YAGO, semantic scholar - examples of general purpose knowledge graphs. 
+    * "The search for information takes 14-20% of an engineers times" - Deloitte. 
+    * Knowledge graphs serve as a hyperspace route (Star Wars) that link discrete places (information spaces) together. 
+.. image:: https://static.wikia.nocookie.net/starwars/images/f/f2/GalaxyNEC.jpg/revision/latest/scale-to-width-down/250?cb=20060704150253
+    * Flair is a deep learning library for natural language processing. https://github.com/flairNLP/flair
+    * In the tutorial we aim for the knowledge step.
+.. image:: https://mitosystems.com/wp-content/uploads/2012/07/PyramidSqare.png
+    * NLTK is the best tokenizer to use in Python, it uses machine learning libraries to perform smart tokenisation. https://www.nltk.org/
+    * Terminology: 
+        * corpus - a body of text. 
+        * tokenisation - split text into smaller units.  
+        * vocabulary - set of unique words in corpus.
+        * word embeddings - numerical representations of language. 
+    * Language models: 
+        * word2vect - word-context predictyion.
+        * gloVE - log-bilinear regression model. 
+        * Fasttext - feed forward nerual network. 
+        * ElMo - bi-directional LSTM. 
+        * BERT - bi-directional transformer. 
+        * Flair - bi-LSTM + conditional random fields.
+    * Tasks:
+        * Sequence labelling - assigning a label to every tiem in a sequence. 
+        * Text classification - assign on or more labels to an entire sequence. 
+    * ML progression:
+        * Rule-based approachs to NLP have to be handcrafted, often used in industry, but very time consumung and laborious to maintain. 
+        * Feature extraction, hidden markov models, conditional random fields, trained on hand-crafted features. 
+        * Representation learning, bi-dreictional LSTM/Transformers, very little effort/domain expertise needed, they simply need a set of annotated training data. 
+    * Lexicon normalizer - a simple model that can replace a phrase with its correct form.
+        * Gist: used to fix spelling/grammer mistakes. 
+    * Name entity recognition (NER) - extract entites from short text descriptions and construct nodes from these entities. 
+    * Labels: 
+        * B - beginning 
+        * I - inside 
+        * O - outside 
+        * tokens ["michael","works","at","university","of","western","australia"]
+        * labels ["B-PER","O","O","B-ORG","I-ORG","I-ORG","I-ORG"]
+        * (Note: Copilot wrote this above line purely from context)
+    * A good idea to create an "abstract base class" to represent a NER model. This means we can create classes that inherit from this. Each model must implement the base class functions.
+    * Relation extraction is the process of definition relationsgips between entites in text. It procides the realtion component of each triple. 
+    * Query Entity Relation Model - We can mine knowledge, by crafting semantically meaningful queries, on the Entity Relation Model that was constructed from natural lnaguage models. 
+    * Lexiclean, c tool that can be used to produce synthetic training data rapidly https://github.com/nlp-tlp/lexiclean 
+    * Cofereference resolution - Automatically determine coreference of words in text. 
+        * E.g. "Pump is broken. It is not working."
+        * In this example "it" references "pump". We replace "it" with "pump" so information is not lost in tokenisation. 
+    * Related works: 
+        * Community detection
+        * Knowledge graph embeddings 
+        * Reasoning over knowledge graphs 
+        * Ontologies 
+        * RDF graphs 
+        * Entity linkings
+    * Related: 
+        * (Stewart 2022) https://link.springer.com/chapter/10.1007/978-3-031-22695-3_22
+
+Reinforcement learning - an agent which interacts with environment, transition, can be stochastic/deterministic, find a policy to maximize expected return. 
+Hung Le thai.le@deakin.edu.au
+
+Notes: 
+    * Grid-world: 
+        * state - state is discrete 
+        * action - space is discrete 
+        * reward - nothing or n cheese 
+        * transition - move agent to grid / update cheese count 
+    * Choose certain that maximises the value (:math:`\epsilon`-greedy algorithm) - bootstrap learning. 
+    * Memory - Q-table in value learning can be considered as a memory. It remembers how good a state-action pair is on average. The memory is very basic, non-smooth and redundan (Watkins 1992).
+    * RL challenge - the optimal policy can be complex. The solution to a task can be very complex policy, the reward is very simple and sprase. It is very difficult to reach the goal state by accident. 
+    * Human vs. RL - most RL agents still fial compared to human performance. RL agents lack a good memory. 
+    * Neural networks stoate task-specifc semantic memories. 
+    * Episodic memory is the memory of everyday events that can be explicitly stated or conjured. 
+        * e.g. Popped try, bump sound, car analogy from Lex Fridman podcast. 
+    * Types of memory: 
+        * Working memory - short-term, quick, RAM. 
+        * Episodic memory - long-term, quick.
+        * Semantic memory - long-term, slow. 
+    * Thinking fast and slow - Daniel Kahneman https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow 
+        * System 1 - fast, automatic, emotional, intuitive, associative, unconscious, effortless.
+        * System 2 - slow, controlled, logical, rational, analytical, conscious, effortful.
+    * Deep Q-Network (DQN) is a type of reinforcment learning algorithm that uses a neural network to apprimiate the Q-value function for a given state-action pair. This allows the algorithm to learn from experience and make decisions based on what it has learned (Mnih 2013).
+    * Semantic control:
+        * the ability to regular which memories are retrieved and used. 
+        * This can involve actively searching for specific memories, or suppressing unwanted memories. 
+        * Important for problem-solving/decision making. 
+        * Thought to be mediated by prefrontal cortext, involved in executive function. 
+    * DQN limitations: 
+        1. Inefficency 
+        2. Boostrap noise 
+        3. Reply buffer 
+    * Episodic control paradigm: 
+        * key-value table, key :math:`\to` experience, value :math:`\to` returns.
+        * Directly binds epxerience to return, returns to experiences that have high return to make decsions. 
+    * They propose a hybrid of episodic + semantic memory. 
+    * Model-free limitations: 
+        1. Near-deterministic assumption 
+        2. Sample inefficiency 
+        3. Fixed tradeof of episodic + semantic 
+    * RNN varients: RL-LSTM, RL-MEM 
+    * Distraction - naviagation with distraction, a model that requires "semantic control", it must learn to ignore noise in the benchmark dataset (Hung 2019). 
+        * working memomry methods always perform better for these benchmarks. 
+    * Exploration limitations: Rewards can be very sparse, RL agents cannot learn anything until they collect the right reward. Should it explore randomly forever? 
+    * Efficient exploration methods: need sampling-efficiency in the exploration of RL agents/ Don't just randomly walk through the search space. 
+    * Intrininsic motivation, a hunch, gut, desired. E.g. humans pursue purpose. Agents can be motivated towards interesting consequences. 
+    * Novelty - a state is boring if it can reached from working memory - maximize entropy (finroamtion gain), punish repition. 
+    * Deep Mind have a maze benchmark dataset for reinforcement learning. 
+    * First return, then explore (Ecoffet 2021). Jump between states in working memory, and explore from those states that are promising. 
+    * Continious action - MuJoCo benmarch, is that funny simulation of robots struggling to walk, the janky.
+    * Trust-region is better than naive policy gradient.
+        * Trust-region - if an adequate model is found within the trust region, then the trust region is expanded; conversely, if apprimixation is poor, than the region is contracted. 
+    * Limitations: stuck in local optima? Store many past policy and rely on all of them. Backup trust region from virtual policy.
+
+
+Related: 
+    * (Watkins 1992) proposed q-learning, the foundation of reinforcment learning.
+    * (Mnih 2013) from Deep Mind propose deep q-learning for Atari games.
+    * (Wayne 2018) propose the Memory, RL, and Inference Network (MERLIN), in which memory formation is guided by a process of predictive modeling.
+    * (Hung 2019) deal with naviagation with distraction, a model that requires semantic control.
+    * (Ecoffet 2021) propose an RL agent that remembers promising states and returning to such states before intentionally exploring.
+    * See MuJoCo benmarck, janky walking robots https://www.youtube.com/watch?v=n0Cpqzqzroo
+    * See Github Demo https://github.com/thaihungle/AJCAI22-Tutorial
