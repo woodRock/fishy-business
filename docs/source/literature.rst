@@ -17,6 +17,12 @@ Related:
     * :ref:`(Black 2019) <black2019rapid>` uses PCA for preprocessing. 
     * :ref:`(Goodfellow 2016) <goodfellow2016deep>` gives dervation using Linear Algebra. 
 
+adebayo2018sanity
+-----------------
+Sanity checks for saliency maps
+
+(Adebayo 2018) suggests salience maps are glorified edge detectors.
+
 aizerman1964theoretical
 -----------------------
     * The original hyperplane algorithm used a linear kernel.
@@ -329,7 +335,13 @@ Related :
 
 chen2019looks
 -------------
-    * This looks like that: deep learning for interpretable image recognition
+This looks like that: deep learning for interpretable image recognition
+
+(Chen 2019) forces a deep neural network to use a reasoning process in a human-understandable way. 
+
+Method:     
+    * (Chen 2019) forces a deep neural network to use a reasoning process in a human-understandable way. 
+    * But while the model's predictions can be explained easily to humans, the parameters of that model remain black-box, an utter mystery.
     * Add a prototype layer to neural networks to for interpretable models for black-box nets. 
 
 chen2021evaluating
