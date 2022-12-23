@@ -3548,9 +3548,9 @@ Notes:
     * "The search for information takes 14-20% of an engineers times" - Deloitte. 
     * Knowledge graphs serve as a hyperspace route (Star Wars) that link discrete places (information spaces) together. 
 
-.. image:: https://static.wikia.nocookie.net/starwars/images/f/f2/GalaxyNEC.jpg/revision/latest/scale-to-width-down/250?cb=20060704150253
-    * Flair is a deep learning library for natural language processing. https://github.com/flairNLP/flair
+.. image:: https://static.wikia.nocookie.net/starwars/images/f/f2/GalaxyNEC.jpg
 
+    * Flair is a deep learning library for natural language processing. https://github.com/flairNLP/flair
     * In the tutorial we aim for the knowledge step.
 
 .. image:: https://mitosystems.com/wp-content/uploads/2012/07/PyramidSqare.png
