@@ -259,12 +259,61 @@ Notes:
 
 Related: 
     * :ref:`(Lex 2022) <lex2022noam>` fairness lead to self-destructive behaviour for retribution in the game of diplomacy.
+    * :ref:`(Brown 2022) <brown2022human>` shows that AI can beat humans at diplomacy.
 
 brown2012conditional
 --------------------
     * Conditional likelihood maximisation: a unifying framework for information theoretic feature selection
     * Generalized model for information based feature selection methods. 
     * These models generazlize to iterative maximizers of conditional likelihood. 
+
+brown2018superhuman
+-------------------
+Superhuman AI for heads-up no-limit poker: Libratus beats top professionals
+
+(Brown 2018) shows that AI can beat humans at poker.
+
+Libratus: Brown was also a lead researcher on the Libratus project, which developed an AI system that was able to consistently beat human professionals at two-player no-limit Texas hold 'em poker. 
+
+The research paper describing Libratus was published in the journal Science in 2017 and can be found here: https://www.science.org/doi/full/10.1126/science.aao1733
+
+Related:
+    * :ref:`(Lex 2022) <lex2022noam>` interviews Noam Brown, the author of this paper.
+    * :ref:`(Brown 2019) <brown2019superhuman>` shows that AI can beat humans at poker.
+    * :ref:`(Brown 2022) <brown2022human>` shows that AI can beat humans at diplomacy.
+    * :ref:`(Morvavvcik 2017) <moravvcik2017deepstack>` DeepStack beats humans at heads-up no-limit Texas hold 'em poker.
+
+brown2019superhuman
+-------------------
+Superhuman AI for multiplayer poker
+
+(Brown 2019) shows that AI can beat humans at poker.
+
+Brown was one of the lead researchers on the Pluribus project, which developed a new type of AI system that was able to consistently beat human professionals at six-player no-limit Texas hold 'em poker. 
+
+The research paper describing Pluribus was published in the journal Science in 2019 and can be found here: https://www.science.org/doi/full/10.1126/science.aay2400
+
+Related: 
+    * :ref:`(Lex 2022) <lex2022noam>` interviews Noam Brown, the author of this paper.
+    * :ref:`(Brown 2018) <brown2018superhuman>` shows that AI can beat humans at poker.
+    * :ref:`(Brown 2022) <brown2022human>` shows that AI can beat humans at diplomacy.
+    * :ref:`(Morvavvcik 2017) <moravvcik2017deepstack>` DeepStack beats humans at heads-up no-limit Texas hold 'em poker.
+
+brown2022human
+--------------
+Human-level play in the game of Diplomacy by combining language models with strategic reasoning.
+
+(Brown 2022) shows that AI can beat humans at diplomacy.
+
+Cicero: Brown co-created an AI system that can strategically out-negotiate humans using natural language in a popular board game called diplomacy which is a war game that emphasizes negotiation.
+
+The research paper describing Pluribus was published in the journal Science in 2019 and can be found here: https://www.science.org/doi/10.1126/science.ade9097
+
+Related: 
+    * :ref:`(Lex 2022) <lex2022noam>` interviews Noam Brown, the author of this paper.
+    * :ref:`(Brown 2018) <brown2018superhuman>` shows that AI can beat humans at poker.
+    * :ref:`(Brown 2019) <brown2019superhuman>` shows that AI can beat humans at poker.
+    * :ref:`(Brosnan 2003) <brosnan2003monkeys>` shows monkeys reject unequal pay.
 
 brownlee2016gentle
 ----------------------
@@ -1009,11 +1058,11 @@ Notes:
 Available: https://youtu.be/2oHH4aClJQs
 
 Related: 
-    * Pluribus: Brown was one of the lead researchers on the Pluribus project, which developed a new type of AI system that was able to consistently beat human professionals at six-player no-limit Texas hold 'em poker. The research paper describing Pluribus was published in the journal Science in 2019 and can be found here: https://www.science.org/doi/full/10.1126/science.aay2400
-    * Libratus: Brown was also a lead researcher on the Libratus project, which developed an AI system that was able to consistently beat human professionals at two-player no-limit Texas hold 'em poker. The research paper describing Libratus was published in the journal Science in 2017 and can be found here: https://www.science.org/doi/full/10.1126/science.aao1733
-    * DeepStack: In addition to his work on Pluribus and Libratus, Brown was also involved in the development of DeepStack, an AI system that was able to consistently beat human professionals at two-player no-limit Texas hold 'em poker. The research paper describing DeepStack was published in the journal Science in 2016 and can be found here: https://www.science.org/doi/full/10.1126/science.aam6960
-    * Cicero: Brown co-created an AI system that can strategically out-negotiate humans using natural language in a popular board game called diplomacy which is a war game that emphasizes negotiation https://www.science.org/doi/10.1126/science.ade9097
-    * :ref:`(Brosnan 2003) <brosnan2003monkeys>` shows monkeys reject unequal pay.
+    * :ref:`(Brown 2019) <brown2019superhuman>` Pluribus beats humans at 6 person no-limit Texas hold 'em poker
+    * :ref:`(Brown 2018) <brown2018superhuman>` Libratus beats humans at heads-up no-limit Texas hold 'em poker.
+    * :ref:`(Brown 2022) <brown2022human>` shows that AI can beat humans at diplomacy.
+    * :ref:`(Morvavvcik 2017) <moravvcik2017deepstack>` DeepStack beats humans at heads-up no-limit Texas hold 'em poker.
+    * :ref:`(Brosnan 2003) <brosnan2003monkeys>` monkeys reject unequal pay.
 
 li2002novel
 -----------
@@ -1199,6 +1248,21 @@ moraglio2012geometric
     * **TODO** read - related to Qi Chen talk on 2022-03-18 ECRG. 
     * Unimodal fitness landscape, one global optima, but semantic search is intractable. 
     * We approximate semantic search through geometric genetic programming methods. 
+
+moravvcik2017deepstack
+----------------------
+Deepstack: Expert-level artificial intelligence in heads-up no-limit poker
+
+(Moravcik 2017) shows that AI can beat human professionals at two-player no-limit Texas hold 'em poker.
+
+DeepStack: DeepStack, an AI system that was able to consistently beat human professionals at two-player no-limit Texas hold 'em poker.
+
+The research paper describing DeepStack was published in the journal Science in 2016 and can be found here: https://www.science.org/doi/full/10.1126/science.aam6960
+
+Related: 
+    * :ref:`(Brown 2019) <brown2019superhuman>` Pluribus beats humans at 6 person no-limit Texas hold 'em poker
+    * :ref:`(Brown 2018) <brown2018superhuman>` Libratus beats humans at heads-up no-limit Texas hold 'em poker.
+    * :ref:`(Morvavvcik 2017) <moravvcik2017deepstack>` DeepStack beats humans at heads-up no-limit Texas hold 'em poker.
 
 muller2021transformers
 ----------------------
