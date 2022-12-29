@@ -245,6 +245,21 @@ brochu2010tutorial
     * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
     * **TODO** read this! 
 
+brosnan2003monkeys
+------------------
+Monkeys reject unequal pay
+
+(Brosnan 2003), in parntership with Frans de Waal, show that monkeys reject unequal pay.
+
+Notes: 
+    * Monkeys are given a simple task with a reward.
+    * One monkey is given plain cucumbers, the other is given grapes.
+    * The monkey that is given cucumbers goes bananas over the inequity.
+    * Repeat experiments where both monkeys are given cucumbers, show no reaction.
+
+Related: 
+    * :ref:`(Lex 2022) <lex2022noam>` fairness lead to self-destructive behaviour for retribution in the game of diplomacy.
+
 brown2012conditional
 --------------------
     * Conditional likelihood maximisation: a unifying framework for information theoretic feature selection
@@ -970,6 +985,35 @@ lehman2020surprising
 --------------------
     * The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
     * Annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
+
+lex2022noam
+-----------
+Noam Brown: AI vs Humans in Poker and Games of Strategic Negotiation | Lex Fridman Podcast #344
+
+Notes: 
+    * Counter-factural regret minimization (CFR) https://youtu.be/2oHH4aClJQs?t=951
+    * Imperfect information games, e.g. poker, rock-paper-scissors, etc.
+    * Litratus - latin for balance - how often to play each action. 
+    * Elo rating system - https://en.wikipedia.org/wiki/Elo_rating_system
+    * Top chess players have an Elo around 3,600.
+    * Strongest version of AlphaZero is around 52,000 Elo.
+    * If you remove search, forward-planning, Elo drops to 3,000.
+    * Niether Libratus/Pluribus use neural nets, instead constrain the state-space search in a clever way! 
+    * Diplomacy - natural lanaguage game that is similar to Civilisation. 
+    * Action-state is near infinite.
+    * Set in pre-war Europe, need to form alliances, goal to conquer the entire map (Europe).
+    * Human-like, turing test - as humans gang up on bots when they find them (in-group preference?), implied that human-like behaviour is needed to win.
+    * Fairness, humans kill teammates to seek retribution for unfiarness, even at the cost of winning, bots don't do this.
+    * Very similar behaviour to Monkeys :ref:`(Brosnan 2003) <brosnan2003monkeys>`.
+
+Available: https://youtu.be/2oHH4aClJQs
+
+Related: 
+    * Pluribus: Brown was one of the lead researchers on the Pluribus project, which developed a new type of AI system that was able to consistently beat human professionals at six-player no-limit Texas hold 'em poker. The research paper describing Pluribus was published in the journal Science in 2019 and can be found here: https://www.science.org/doi/full/10.1126/science.aay2400
+    * Libratus: Brown was also a lead researcher on the Libratus project, which developed an AI system that was able to consistently beat human professionals at two-player no-limit Texas hold 'em poker. The research paper describing Libratus was published in the journal Science in 2017 and can be found here: https://www.science.org/doi/full/10.1126/science.aao1733
+    * DeepStack: In addition to his work on Pluribus and Libratus, Brown was also involved in the development of DeepStack, an AI system that was able to consistently beat human professionals at two-player no-limit Texas hold 'em poker. The research paper describing DeepStack was published in the journal Science in 2016 and can be found here: https://www.science.org/doi/full/10.1126/science.aam6960
+    * Cicero: Brown co-created an AI system that can strategically out-negotiate humans using natural language in a popular board game called diplomacy which is a war game that emphasizes negotiation https://www.science.org/doi/10.1126/science.ade9097
+    * :ref:`(Brosnan 2003) <brosnan2003monkeys>` shows monkeys reject unequal pay.
 
 li2002novel
 -----------
