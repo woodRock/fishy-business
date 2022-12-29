@@ -48,6 +48,15 @@ bao2022estimating
     * Paper shows how to go from noisy-to-clean with a deterministic process. 
     * A new approach to diffusion based models.
 
+batstone1999new
+---------------
+New Zealand’s quota management system: the first ten years
+
+(Batstone 1999) describes the first 10 years of the New Zealand Quota Management System (QMS) for fisheries management.
+
+Related: 
+    * :ref:`(lock2007new) <lock2007new>` gives a history of NZ QMS for first 20 years.
+
 banzhaf2006artificial
 ---------------------
 From artificial evolution to computational evolution: a research agenda
@@ -1042,6 +1051,14 @@ liu1995chi2
     * Results show predictive accuracy and size, same or improved for all datasets where Chi2 was applied.
     * Chi2 was able to remove noise (irrelvant features) from synthetic and real world data.
     
+lock2007new
+-----------
+New Zealand's quota management system: a history of the first 20 years
+
+(Lock 2007) gives a history of the New Zealand Quota Management System (QMS) for the first 20 years.
+
+Related: 
+    * :ref:`(batstone 1999) <batstone1999new>` give history of QMS in NZ for 10 years.
 
 loh2011classification
 ---------------------
