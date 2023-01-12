@@ -3662,3 +3662,103 @@ Related:
     * (Ecoffet 2021) propose an RL agent that remembers promising states and returning to such states before intentionally exploring.
     * See MuJoCo benchmark, janky walking robots https://www.youtube.com/watch?v=n0Cpqzqzroo
     * See Github Demo https://github.com/thaihungle/AJCAI22-Tutorial
+
+2022-12-15 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday 14:00 - 15:00, **Attendees:** Mengjie Zhang, Bach Nguyen, Bing Xue, Jesse
+
+Notes: 
+    * Presentation - Bing thought my presentation was really good. It showed passion in the subject. Made the topic interesting to the aduience, then zoomed in on the technical details. 
+    * Plan to discuss my presentation at the ECRG meeting. 
+    * Don't send Meng too many emails over the break. But can email Bach/Bing over the university shutdown, from December 20th to January 10ths. 
+
+TODO: 
+    * [x] Send Bing a copy of my slides. 
+    * [x] Continue writing my proposal. 
+    * [ ] Write research objectives for my proposal.
+    * Bach's proposal feedback: 
+        * [ ] Focus on problem from AIML perspective, 
+        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+
+2022-12-15 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Quinyu Wang, Mengjie Zhang, Bach Nguyen, Bing Xue, Jesse
+
+Notes: 
+    * Qinyu Wang gave a presentation for her proposal, the topic was Genetic Programming for fine-grained image classification. 
+    * Fine-grained - distinguish different objects with a subclass of a aparent class. I.e. Dog species classification where all dogs are variations the dog species. Or birds, where all birds are variations of the bird species.
+    * Difficulties - large number of classes and limited number of instances - low sample complexity.
+    * Proposed method - automatically prepocess, flexible feature extraction. 
+
+2022-12-15 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Neil, Bing Xue, Yi Mei, Mengjie Zhang, Bach Nguyen, Jesse
+
+Notes: 
+    * Neil, Bing and Yi have been awarded a fellowship in Engineering New Zealand. We celebrate this in today's ECRG. 
+    * This is the final formal week of the 2022 year, we will resume business as usual in mid-January, Wednesday 2023-01-11.  
+    * We should not be on-site during the university shutdown, need to email security if we plane to be onside. 
+    * Nobody email Meng, he needes a break during the university shutdown, from December 20th to January 10th. 
+    * Do not email Bing until after the New Year, supervisors need breaks too! 
+    * Progress: 
+        * Attended AJCAI 2022
+        * Presented paper/poster 
+        * Presentation went well 
+        * Start writing my proposal 
+        * Submit proposal by mid-Jan 
+    * Participation award - Andrew mentioned that I attened the entire conference, the most attendence in the group. 
+    * Conference venues: 
+        * Next year AJCAI 2023 will be held in Brisbane
+        * AJCAI 2024 is held in Melbourne
+        * IJCAI 2025 will be held in Shanghai.
+    * Andrew was right! No one believed Andrew whenhe said all buses were free in the West Perth area. Instead we walked for 40 minutes to our hotel. 
+
+2023-01-12 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** C0350, **Time:** Monday 12:00 - 13:00, **Attendees:** Bach Nguyen, Bing Xue, Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * I should have a draft for my proposal, share as a PDF with supversirs, should expect a lot of feedback for the first revision. 
+    * Overleaf - Make the proposal on Overleaf available to Bing, Bach and Meng. 
+    * Chemistry - Share with Daniel, after a few rounds of revisions from supvervisors, not to waste his time. Daniel can help with introduction/background chapters on chemistry domain knowledge. 
+    * Ohope - I leave for my holiday on the Wednesday 2023-01-18. Submit a draft to supvervisors, then see if we need to have a meeting afterwards. 
+    * Write! - My supvervisors expected the first or second chapter to be complete by New Year. I have set the goal of completing a first draft of the entire document before my holiday. Now it is time to write, write, write! 
+
+TODO: 
+    * Proposal 
+        * [x] Introduction 
+        * [ ] Background 
+        * [ ] Contributions 
+        * [x] Milestones 
+        * [x] Thesis Outlines 
+        * [x] Resources 
+    * [ ] Write research objectives for my proposal.
+    * Bach's proposal feedback: 
+        * [ ] Focus on problem from AIML perspective, 
+        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+
+2023-01-12 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Shanshan Tang, Bing Xue, Mengjie Zhang 
+
+Notes: 
+    * Topic -  Research on mutli-task learning algorithms for Alzheimer's disease prediction. 
+    * Alzheimers is a gradually progressive neurodegenerative disease affecting cognitive functions, without a cure, **early** detection can prevent worsening. 
+    * Cognitive tests: 
+        * MMES - mini mental state examiniation 
+        * CLOCK - clock drawing test, i.e. draw an analog clock 
+    * Neural imaging: 
+        * MRI - magnetic resonance imaging 
+    * Tasks: 
+        1. Identify relevant biomarkers.
+        2. Predict cognitive scores from MRI.
+    * MRI :math:`\to` extraction :math:`\to` features :math:`\to` cognitive scores 
+    * Mutlitask regression - loss function :math:`\min_W \frac{1}{2} ||y_j - x_j w_j ||^2_2 + \lambda R (W)`
+    * Regularization term has correlation matrix, not a simple sum up. 
+    * Assumptions: 
+        1. All tasks related 
+        2. no outliers 
+        3. Tasks have group structures 
+        4. Relationship is not symmetric - i.e. directed acyclic graph (DAG)
