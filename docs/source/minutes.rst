@@ -3762,3 +3762,73 @@ Notes:
         2. no outliers 
         3. Tasks have group structures 
         4. Relationship is not symmetric - i.e. directed acyclic graph (DAG)
+
+2023-01-13 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday 14:00 - 15:00, **Attendees:** Bing Xue, Yi Mei, Mengjie Zhang, Bach Nguyen, Jordan, Hayden, Hengzhe, Jesse
+
+Meng gave his talk on "How to write a paper?"
+
+Example Format: 
+    0. Abstract 
+    1. Introduction 
+    2. Background
+    3. Proposed Method 
+    4. Results & Discussion 
+    5. Further Discussion 
+    6. Conclusion 
+    7. Acknowledgements 
+    8. References 
+
+Notes:
+    * If you use research methodlogy another paper. Dicuss this with your supervisors, see if their evaluation methods are justified with theory! 
+    * To write our ideas clearly, is vey difficult.
+    * "If you can't explain it to a five-yeard-old, you do not understand it." - Feynman Technique. 
+    * When we write, we organize our thoughts and iron out contradictions, misconceptions and mistakes - JBP. 
+    * A thesis/journal paper will require a liteature review, identify gaps in the existing literature. 
+    * See journal for table on literature gaps. 
+    * Novelty is often the first acceptance criteria for a paper. 
+    * For writing a thesis, the audience is general computer scientist. We need to attract people's attention to read the paper! Hook, line, sinker!. 
+    * Application area, neighbouring works have implemented similar techniques, this paper is a novel application of these methods in this field. 
+
+Explained:
+    0. Abstract 
+    1. Introduction 
+        * General statement (scope)
+        * Why (motivation)
+        * What to do? (have done) 
+        * How to do? (proposed method)
+            * Goals/aims/objectives/research objectives 
+            * Hypothesis/contributions (contributions are only positive)
+            * Overarching goal - single sentence 
+                * Coherence; overall goal and objectives/contributions need to match up! 
+                * Objectives should address the gaps in existing literature, coherant logic, inlimitated limitations in existing work, but only ones relevant to our work are required in the paper.
+    2. Background
+        * Background (general knowledge) - you will find this in a text book. 
+        * Related work - 5-10 years work 
+            * Don't just list general descriptions of work. 
+            * Need to identify in detail limitations in their work.
+            * Provide motivations for the paper based on related work. 
+        * Summary - provide coherence between objectives -> references. 
+    3. Proposed Method 
+        * Benchmark dataset/simulation 
+        * Comparison method (competitors)
+        * Parameter settings/configurations 
+        * (Optional) performance measure (if non-standard, i.e. claiming interpretability)
+        * Flow-chart / psudeo-code (reproducability)
+    4. Results & Discussion 
+        * Overall results 
+        * Abalation studies 
+        * Quantitative, e.g. tables, evolutionary process, numbers 
+        * Qualitative, e.g. interpretability of model, graphs, visualization 
+    5. Further Discussion
+        * Unusual results:  
+            * Many - seperate sections. 
+            * One - a single subsection  
+    6. Conclusion 
+        * Not a sumary!
+        * Have goals been achieved? 
+        * Something new!
+    7. Acknowledgements 
+    8. References 
+
