@@ -3884,4 +3884,57 @@ Notes:
     * Don't need to manually design handcrafted rules, just need to identify important features, and feed to a GPHH. 
     * Consider, differential and federated learning for preserving patient privacy. 
     * [x] Give Jordan "Data Science" - MIT Press book, for Privacy and Ethics chapter, to read. 
-    
+
+2023-02-02 - Weekly 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO355 (Meng's office), **Time:** Thursday, 12:00 - 13:00 
+
+Notes:
+    * Plant and Food Research (PFR) are having a workshop on Tuesday 9th of February (2023-02-09). The workshop is being held in Lower Hutt. 
+    * Collaboration between: 
+        * Plant and Food Research
+        * Callaghan Innovation 
+        * Victoria University of Wellington 
+        * Otago University 
+        * Deaqin University (Victoria, Australia)
+    * Domains:
+        * Chemistry
+        * Biology 
+        * Machine Learning
+    * Presentation - AJAI 2022 presentation should be sufficient for PFR workshop, can add preliminary results from proposal, if time allows. 
+
+TODO:
+    - [ ] Send supervisors draft for Chapter 4 - Prelminary work
+    - [ ] Chapter 2 - Literature Review 
+    - [ ] Chapter 3 - Contributions 
+    - [ ] PRF Workshop Presentation 2023-02-09
+    - [ ] (Optional) PFR Workshop + Preliminary Work
+
+2023-02-02 - FASLIP
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday 14:00 - 15:00, **Attendees:** Hengzhe Zhang, Mengjie Zhang, Bing Xue, Yi Mei, Jordan MacLachlan, Andrew Lensen, Hayden Anderson, Jesse 
+
+Hengzhe gave a talk about "GP-based Ensebmle Tips and Tricks".
+
+Notes: 
+    * Motivations: 
+        1. Generate diverse set of solutions in single run. 
+        2. Ensemble learning avoids overfitting. 
+        3. Mult-tree GP much better than single-tree GP. 
+    * Protected division is non-differentiable, numerical instablity, use analytical quotient instead :math:`AQ(x,y) = \frac{x}{\sqrt{1 + y^2}}`
+        * For gradient descent methods, consider using analytical quotient over protected division.
+    * "Mutli-tree GP is unbelievably good" - Hengzhe Zhang 2023 
+    * Boosting theory tells us weak learners are not weak. 
+    * Chinese proverb - "Two heads are better than one."
+    * ^ This relates to the strenfth of boosting / multi-tree GP methods. 
+    * (Hengzhe 2021) An Evolutionary Tree for Regression
+    * Diversity is important for weak learners in an Ensemlbe model, if the populaiton is not diverse enough, the Ensemble will overfit. 
+    * Lexicase selection > tournament selection 
+    * (Zhang 2023) SR-Forest: A Genetic Programming-based Hetergenous Ensemble Learning Method with Symbolic Regression. IEEE TVEC.
+    * Heterogenous ensemble refers to an ensemble with classifiers from different tribes of AI (Domingos 2015), e.g. a mix of Random Decision Trees (RDTs) and Linear Regression (LR) trees.
+    * Conversely, a Homogenous ensemble refers to an ensemble with classifiers that are identifical, e.g. 5x random decision-trees (RDTs).
+
+Related: 
+    * (Hengzhe 2021) An Evolutionary Forest for Regression, TVEC 2021 paper. 
+    * (Hengzhe 2023) SR-Forest, an upcoming TVEC 2023 paper.
+    * (Domingos 2015) The Master Algorithm - book from Pedro Domingos.
