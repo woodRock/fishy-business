@@ -1345,6 +1345,26 @@ pearce2021empirical
     * CoPilot outperforms other state-of-the-art NLP code generation models. 
     * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
 
+peng2022prenastvec
+--------------
+PRE-NAS: Evolutionary Neural Architecture Search with Predictor. IEEE Transactions on Evolutionary Computation.
+
+(Peng 2022) is a IEEE TVEC paper on Pre-NAS (first paper).
+
+Related:
+    * See ECRG - 2023-01-20 for talk from author.
+    * See :ref:`(Peng 2022) <peng2022prenastvec>` for GECCO paper, published later.
+
+Peng2021prenasgecco
+---------------
+PRE-NAS: Evolutionary Neural Architecture Search with Predictor. IEEE Transactions on Evolutionary Computation.
+
+(Peng 2022) is a GECCO paper on Pre-NAS (second paper).
+
+Related: 
+    * See ECRG - 2023-01-20 for talk from author.
+    * See :ref:`(Peng 2022) <peng2022prenastvec>` for TVEC paper, published earlier.
+
 perez2019analysis
 -----------------
 Analysis of statistical forward planning methods in Pommerman

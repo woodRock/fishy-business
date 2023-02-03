@@ -3832,3 +3832,56 @@ Explained:
     7. Acknowledgements 
     8. References 
 
+2023-01-20 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday 15:00 - 17:00, **Attendees:** Andy Song, Bing Xue, Yi Mei, Mengjie Zhang, Bach Nguyen, Jordan, Hayden, Hengzhe, Jesse
+
+Andy Song from RMIT gave a talk "Fast Evolutionary Neural Achitecture Search with Performance Predictors" https://www.rmit.edu.au/contact/staff-contacts/academic-staff/s/song-associate-professor-andy
+
+Notes:
+    * Neural Architecture Search (NAS) ofteb requires a high computation cost to evaluate candidate networks from the search space. 
+    * That cost can be mitaged by performance prediction so there is no need to evaluate every candidate network. 
+    * Evaluation: 
+        * NAS-Bench-201 
+        * Darts 
+    * AmoebaNet is a representative evolutionary NAS method from (AAAI 2019).
+    * Training a predictor can be difficult, requires a large number of evaluated architectures. 
+    * Song proposes a novel evolutionary based predictor-assisted e3volutionary NAS (Pre-NAS). 
+    * Pre-NAS leverages new evolutionary search strategies and integrated high-fidelity weight inheritance over generations. 
+    * His most recent work on the topuic has been publiced in TVEC/GECCO (Peng 2022, Peng 2022) are the two papers on Pre-NAS.
+    * Key differences between Pre-NAS and EAS:
+        * Random mutations 
+        * mutation: operation/cpnnection 
+        * representation: cell-based 
+        * 48 :math:`\to` 0.6 GPU days
+            * (Improvement in training time using Pre-NAS vs train from scratch!!!)
+
+Related: 
+    * (Peng 2022) for IEEE TVEC, first paper on Pre-NAS.
+    * (Peng 2022) for GECCO, follow up paper on Pre-NAS.
+
+2023-01-30 - Proposal
+~~~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Monday 14:00 - 15:00, **Attendees:** Jordan MacLachlan, Andrew Lensen, Yi Mei, Mengjie Zhang, Bing Xue, Hayden, Hengzhe, Jesse 
+
+Jordan gave his proposal seminar for his PhD on "Genetic Programming for Emergency Medical Dispatch".
+
+Notes: 
+    * Vehicle types (ascending in urgency level): 
+        1. Patient transfer 
+        2. Ambulance
+        3. Intensive care vehicles 
+    * Emergency Medical Dispatch (EMD) 
+    * Multi-agent, collaborative, non-stationary, multi-response. 
+    * :math:`C(i) = \frac{1}{n} \sum^{n}_{t=1} (\tau_i^a - \tau_i^r) omega_t`
+    * Weighted average response time is :math:`\frac{\varphi_i}{(\tau_t^i)^2 \Theta_t}`
+    * Genetic Programming Hyper Heuristic (GPHH) is the proposed method to solve (optimize) the objective (fitness) function above. 
+    * GPHH provides more interpretable solutions than reinforcement learning (RL) techniques. 
+    * Dispatch methods: 
+        1. reactive
+        2. global 
+        3. pro-active 
+    * Don't need to manually design handcrafted rules, just need to identify important features, and feed to a GPHH. 
+    * Consider, differential and federated learning for preserving patient privacy. 
+    * [x] Give Jordan "Data Science" - MIT Press book, for Privacy and Ethics chapter, to read. 
+    
