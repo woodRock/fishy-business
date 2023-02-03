@@ -513,6 +513,15 @@ Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data.
 Related: 
     * See :ref:`(Zhao 2019) <zhao2019maximum>` for more recent Uber paper.
 
+domingos2015master
+-----------------
+The Master Algorithm: How the Quest for the Ultimate Learning Machine Will Remake Our World
+
+(Domingos 2015) gives a broad introduction for beginners to Artificial Intelligence.
+
+Related: 
+    * See FASLIP - 2023-02-02
+
 ecoffet2021first
 ----------------
 First return, then explore
@@ -701,6 +710,16 @@ Related:
 he2020bayesian
 --------------
     * Bayesian deep ensembles via the neural tangent kernel
+
+hengzhe2021evolutionary
+-----------------------
+
+An Evolutionary Forest for regression
+
+(Hengzhe 2021) is a TVEC paper for Evolutionary Forest.
+
+Related:
+    * See FASLIP - 2023-02-02 
 
 hand2001idiot
 -------------
