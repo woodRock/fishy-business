@@ -3941,7 +3941,7 @@ Related:
 
 2023-02-03 - ECRG 
 ~~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Attendees:** Mengjie Zhang, Bing Xue, Yi Mei, Huia Ma, Andrew Lensen 
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Mengjie Zhang, Bing Xue, Yi Mei, Huia Ma, Andrew Lensen 
 
 General notes:
     * Jordan passsed his proposal seminsar that he gave on :ref:`2023-01-30 - Jordan's proposal<2023-01-30 - Jordan's proposal>`.
@@ -3979,3 +3979,23 @@ Related:
     * See (Goodfellow 2016), Chapter 3 page 64, for Mixtures of Distributions. https://www.deeplearningbook.org/contents/prob.html
     * See (Goodfellow 2016), Chapter 3 page 60, for Bernoulli Distributio. https://www.deeplearningbook.org/contents/prob.html
     * See (Do 2008) for nature paper that introduces Expectation Maximisation (EM). 
+
+2023-02-08 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wednesday, 15:00 - 16:00, **Attendees:** Bastiaan Kleign 
+
+Notes: 
+    * Particles - in the stochastic situation, a particle movement is equivalent to the diffusion process of real-world particles in a gas, where the aprticles converge to an equilibrium. 
+    * I sent (Wood 2022) to Bastiaan, which cited (Karras 2022) paper, in September 2022. 
+    * :math:`dx = (f(t)_x - \frac{1}{2} g(t)^2 \nabla_x \log P_t(X)) dt`
+    * Evolution of :math:`P_t(X)` is governed by the Fokker-Planck equation.
+    * For initial :math:`X(0)^t`, the forward solution of Fokker-Planch can be written as: 
+    * :math:`P(x(t) | x(0)) = \mathcal{N} (X(t);s(t)x(0),s(t)^2\sigma(t)^2 I)`
+    * Physics analogy: Deforum art diffusion-based video generation uses (Karras 2022), which is absed on diffusion models, which modles a real-world process of diffusion of gas in particle physics. 
+        * Perhaps, understanding the underlyinh physics theory behind ideas that have been grafted into AIML, is easier than launching straight into the differential calculus. 
+    * Denoiser - MMSE estmitaor is the best L2 norm, the best denoiser for Rembrant paintings, we can't dinf a perfect denoiser, but can approximate this by training a neural network to do so. 
+
+Related:
+    * (Karras 2022) is the paper on elucidating design spaces for generative models. 
+    * Deforum Art - Twitter profile https://twitter.com/deforum_art
+    * (Wood 2022) Glimpse of Us - Joji (AI Generated Music Video) https://youtu.be/IzhWOuCzzzs
