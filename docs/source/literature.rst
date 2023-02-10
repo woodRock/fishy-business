@@ -513,6 +513,15 @@ Minimum Redudancy Featyre Selection from MicroArray Gene Expression Data.
 Related: 
     * See :ref:`(Zhao 2019) <zhao2019maximum>` for more recent Uber paper.
 
+do2008expectation
+-----------------
+What is the expectation maximization algorithm?
+
+(Do 2008) is a nature paper that explains the EM algorithm.
+
+Related:
+    * See 2023-02-03 - ECRG where Jiabin uses EM. 
+
 domingos2015master
 -----------------
 The Master Algorithm: How the Quest for the Ultimate Learning Machine Will Remake Our World

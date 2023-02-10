@@ -3860,7 +3860,7 @@ Related:
     * (Peng 2022) for IEEE TVEC, first paper on Pre-NAS.
     * (Peng 2022) for GECCO, follow up paper on Pre-NAS.
 
-2023-01-30 - Proposal
+2023-01-30 - Jordan's Proposal
 ~~~~~~~~~~~~~~~~~~~~~~
 **Location:** CO350, **Time:** Monday 14:00 - 15:00, **Attendees:** Jordan MacLachlan, Andrew Lensen, Yi Mei, Mengjie Zhang, Bing Xue, Hayden, Hengzhe, Jesse 
 
@@ -3938,3 +3938,44 @@ Related:
     * (Hengzhe 2021) An Evolutionary Forest for Regression, TVEC 2021 paper. 
     * (Hengzhe 2023) SR-Forest, an upcoming TVEC 2023 paper.
     * (Domingos 2015) The Master Algorithm - book from Pedro Domingos.
+
+2023-02-03 - ECRG 
+~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Attendees:** Mengjie Zhang, Bing Xue, Yi Mei, Huia Ma, Andrew Lensen 
+
+General notes:
+    * Jordan passsed his proposal seminsar that he gave on :ref:`2023-01-30 - Jordan's proposal<2023-01-30 - Jordan's proposal>`.
+    * GECCO abstract registration is due on Sunday 1AM, Huia suggests jokingly we use ChatGPT to synthesize a fake but convincing abstract, and submit it.
+    * "Hi, I am Jesse, I am a PhD student... not candidate" - Meng believes that there is an important distinction between students who have, and have not, passed their proposal seminar. 
+    * Progress report (me): 
+        * Finished preliminary work 
+        * Writing Chapter 3 - Contributions
+        * PFR workshop - Thursday 2023-02-09 
+    * Peng Wang, https://ecs.wgtn.ac.nz/Main/GradPengWang, has his last week as a PhD student at ECRG, next week he will join the post-doc faculty. 
+    * Huia Ma, and Andrew Lensen, are happy for me to tutor for the SWEN304 - Databases course, I should apply online! 
+
+Jiabin Lin, https://ecs.wgtn.ac.nz/Main/GradJiabinLin, have a talk on "AMTEA-based Multi-task optimiztion for multi-objective feature selection in classification". 
+
+Notes:
+    * AMTEA - An evolutionary sequentail transfer learning method which addresses a target task by the help of knowledge learned from a source domain.
+    * Multi-task - multiple tasks are addressed simultanesouly! 
+    * Online learning - online update of knowledge pool for multi-task.
+    * They build a mixture model, see (Goodfellow 2016), mixture models includes probability distributions from each sub-task of the multi-task problem. 
+    * Factored bernoulli distrubution, (Goodfellow 2016), is used to describe the join probability distribution model. 
+    * Competitors: 
+        * SPEA2 
+        * SPEA2-FSMTO 
+    * Wilcoxon Signed Rank Test (W-test) for statisitical signficance of classification results. 
+    * Expectation-maximisation (EM) is used to fit the mixture model, see (Do 2008).
+    * ChatGPT (OpenAI 2022): 
+        * Jesse: "Explain a mixture model to a five year old, using toys and colours as examples."
+        * Expectation: "A mixutre model in statistics is a way to descibe a set of data that comes from more than one type of underlying distribution.
+        
+        E.g. Imagine you have a box of toys that contains balls of two colours, red and blue. If you draw a toy from the box, it can be either red or blue. This is like having two sperate "mixtures" in the box that are mixed together to form an overall colletion. The mixture models help us understand the proportion of each colour in the box, as well as how they are combined."
+    * Transfer Learning (in principle): There exists some transferable skills between these tasks, the target and source, and the source may be easier to learn. 
+        * e.g. Riding a bike, and a motorcycle. Someone who can ride a bike, may be able to ride a motorcycle with less training.
+
+Related: 
+    * See (Goodfellow 2016), Chapter 3 page 64, for Mixtures of Distributions. https://www.deeplearningbook.org/contents/prob.html
+    * See (Goodfellow 2016), Chapter 3 page 60, for Bernoulli Distributio. https://www.deeplearningbook.org/contents/prob.html
+    * See (Do 2008) for nature paper that introduces Expectation Maximisation (EM). 
