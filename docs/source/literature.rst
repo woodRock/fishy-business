@@ -844,6 +844,16 @@ karras2020analyzing
     * Manipulating latent layer gives a sense of semantically meaninful feature space. 
     * We can see the change in style that sampling latent layer gives. 
 
+karras2022elucidating
+---------------------
+Elucidating the design space of diffusion-based generative models
+
+(Karras 2022) provides a clear explanation of the design of generative models.
+
+Related: 
+    * Deforum Art - Twitter profile https://twitter.com/deforum_art
+    * (Wood 2022) Glimpse of Us - Joji (AI Generated Music Video) https://youtu.be/IzhWOuCzzzs
+
 ke2018sparse
 ------------
     * Sparse attentive backtracking: Temporal credit assignment through reminding
