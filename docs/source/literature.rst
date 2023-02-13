@@ -942,6 +942,15 @@ Related:
    * :ref:`(Zhang 2008) <zhang2008two>` proposed a 2-D COW algorithm for aligning gas chromatography and mass spectrometry.
    * :ref:`(Eder 1995) <eder1995gas>` The original paper on gas chromatrography (GC). 
   
+killeen2017fast
+---------------
+Fast sampling, analyses and chemometrics for plant breeding: bitter acids, xanthohumol and terpenes in lupulin glands of hops (Humulus lupulus)
+
+(Killeen 2017) addressed rapid chemical analysis techniques for hops. 
+
+Related: 
+    * See 2023-02-08 - Callaghan Innovation Workshop, for Daniels talk on this paper. 
+
 kingma2014adam
 --------------
     * Adam optimizer for neural networks. 
