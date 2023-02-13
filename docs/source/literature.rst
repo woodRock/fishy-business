@@ -1302,6 +1302,14 @@ Related:
     * :ref:`(Brown 2018) <brown2018superhuman>` Libratus beats humans at heads-up no-limit Texas hold 'em poker.
     * :ref:`(Morvavvcik 2017) <moravvcik2017deepstack>` DeepStack beats humans at heads-up no-limit Texas hold 'em poker.
 
+mouret2015illuminating
+----------------------
+Illuminating search spaces by mapping elites
+
+Related: 
+    * (Hengzhe 2023) his GECCO 2023 paper uses MAP-elites in the semantic space. 
+    * See 2023-02-10 - ECRG where Hengzhe discussed this paper, and his work above.
+
 muller2021transformers
 ----------------------
     * Transformers Can Do Bayesian Inference
