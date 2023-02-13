@@ -3999,3 +3999,169 @@ Related:
     * (Karras 2022) is the paper on elucidating design spaces for generative models. 
     * Deforum Art - Twitter profile https://twitter.com/deforum_art
     * (Wood 2022) Glimpse of Us - Joji (AI Generated Music Video) https://youtu.be/IzhWOuCzzzs
+
+2023-02-08 - Callaghan Innovation Workshop
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Callaghan Innovation, Lower Hutt, **Time:** Thursday, 9:30 - 16:00, **Attendees:** Sue Marshal (PFR), Daniel Killeen (PFR), Mengjie Zhang, Bing Xue, Qi Chen, Amir
+
+Callaghan Innovation, https://www.callaghaninnovation.govt.nz/, hosted an industry/academia workshop to share progress towards the Cyber-Marine project.
+
+Collaboration between: 
+    * Plant and Food Research
+    * Callaghan Innovation 
+    * Victoria University of Wellington 
+    * Otago University 
+    * Deaqin University (Victoria, Australia)
+Domains:
+    * Chemistry
+    * Biology 
+    * Machine Learning
+
+Daniel Killeen daniel.killeen@plantandfood.co.nz gave a presentation the first two research objectives of the Cyber-Marine program. 
+
+Notes: 
+    * Variable biomass - a variety of species coming in, in heterogenous batches of species. A unique challenge for New Zealand fisheries, as opposed to other countries with homogonous catches of one species, i.e. Salmon in Norway.
+    * Flex-factory - the aim is to build the flex-factory, irrespective of biomass coming in, optimize the biomass coming out.
+    * Compositional refernce data is "time-sensitive". It is two expensive to analyze the biomass using traditional methods. We seek to optimize/automate the analysis of the biomass.
+    * Data fusion - combine data streams from multiple streams of spectroscopic data for better predictions, analogous to multi-modal machine learning. 
+    * Homogenous wet biomass - Traditionally, chemistry techniques are applied to dry powders. However, we are working on raw-fish, a homogonized wet biomass, a.k.a. raw fish that is unprocessed, this is state-of-the-art. 
+    * Reference data - at the moment there is literally no reference data, last study was done in 1980s, need accurate profiles for NZ biomass. 
+    * Direct infusion HRMS - direct infusion high resolution mass spectrometry (HRMS), is a benchmark to compare the REIMS dataset. 
+    * Future dataset - all the models we build for the REIMS/HRMS can be applied to future datasets when PFR have created them.
+    * Hoki-Mackeral - hoki-mackerl compositions, only four or five papers published on these datsets. 
+    * Bycatch - the New Zealand government plans to introduce new legislation that would require all biomass to come in, this would increase the heterogenity of mixes of species in biomass, more mixed species, increasing the challenge of creating value from the incoming biomass in the flex-factory.
+    * Anomoly detection - given the variability of incoming biomass due to bycatch laws, we need a robust AIML model, that can identify species outside of the training data entirely, catch all anomlies in a mixed bag of bycatch - a robust model to handle heterogenity. 
+    * Limitations - the REIMS/HRMS project is about finding the limitations of the ambient mass spectrometry techniques for real-time rapid detection of raw homogenous wet biomass. 
+    * The Hodge-podge, a uniquely NZ problem - heterogenous species with batches of hodge-podge catches. This is a quniuely NZ problem, Canada is mostly homogounous, i.e. single species of Salmon. 
+    * Seasonal variation - Make sure the mdoels are learning semantically meaninfgul :math:`\approx` chemical specific, not batch-species noise, as NZ marine biomass has a seasonal variation, which leads to data drift. 
+    * Online/transfer learnig - Have an AI model that can grow with new datasets, online learning to cope withs easonabl variationa and data drift. Transfer learning approach to share knowledge between related tasks. 
+
+Kirill Lagutin, a Principal Research Scientist from Callaghan Innovation https://www.rd.callaghaninnovation.govt.nz/about-us/our-people/page-33/, gave a presentation on hoki-mackeral compositions.
+
+Notes: 
+    * Labels on food products have: 
+        * Serving information 
+        * Calories 
+        * Nutrients 
+    * Chemistry things they look for: 
+        * Lipid yields 
+        * Lipid classes
+        * Fatty acids 
+        * Phospholids (big bucks $$$ - 15x increase in price per capsule)
+    * Hoki suck out all their lipids at put them into their eggs, when they spawn, they are left a wreck after this. Important to note, seasonal variation in chemical composition of Hoki, due to spawning process. 
+        * I.e. we cant rely on lipids for detection of Hoki species, or else a spawning Hoki would be missed by an AI model.
+    * Def. "Spawn", 
+        * ChatGPT: "In the context of hoki fish, "spawn" refers to the process of laying and fertilizing eggs. Hoki are a type of saltwater fish that belong to the cod family and are found in the cold waters of the southern Pacific Ocean. When hoki are ready to reproduce, they release their eggs and sperm into the water, where the eggs are fertilized and begin to develop into new hoki fish. This process is known as "spawning."
+    * Fatty Acids: 
+        * SUFA - Saturated fatty acids
+        * PUFA - Polyunsaturated fatty acids
+        * MOFA - Monounsaturated Fatty Acids
+    * Fatty acids explained by ChatGPT: 
+        * SUFA, PUFA, and MUFA are acronyms used to classify different types of fatty acids based on their molecular structure.
+        * SUFA stands for Saturated Fatty Acids, which are fatty acids that have no double bonds between the carbon atoms in their molecular structure. They are typically solid at room temperature and are known to raise LDL cholesterol levels (the "bad" cholesterol), which can contribute to the development of cardiovascular disease.
+        * PUFA stands for Polyunsaturated Fatty Acids, which are fatty acids that have more than one double bond in their molecular structure. These double bonds cause the fatty acid molecule to bend and kink, making it less likely to pack together and more likely to remain liquid at room temperature. There are two main types of PUFAs: omega-3 fatty acids and omega-6 fatty acids. These are considered to be "good" fats and are important for overall health, as they provide a number of health benefits, including reducing inflammation and improving heart health.
+        * MUFA stands for Monounsaturated Fatty Acids, which are fatty acids that have only one double bond in their molecular structure. These double bonds cause the fatty acid molecule to bend, but not as much as in PUFAs. MUFAs are liquid at room temperature and tend to be more stable than PUFAs, meaning they are less prone to oxidation and less likely to contribute to the development of chronic diseases. Foods high in MUFAs include olive oil, avocados, and nuts.
+        * It is important to note that all three types of fatty acids are needed in the diet, but in different proportions. A healthy diet should include a balance of all three types, with an emphasis on PUFAs and MUFAs, and limited amounts of SUFAs.
+    * Hoki-mackerel mix - the Hoki-Mackeral mix is made from weighted measurements, put ina blender, and then minced. 
+    * Mackeral (not worth it!) - Mackerel are worth nithing, so the fisherman do not even catch this species to quota. There is no financial incentive for fisherman to catch is. 
+        * $2 per kilo (sold whole)
+        * $8 per kilo (repurposed by flex-factory)
+    * Story - the value of the fish in the story, a fish byproduct is being pruposed into fish products at human good grade levels. Re-use, sustainability, save the planet, etc... 
+    * Bigger variation in the individual hoki species, than the Hoki-Mackerel mix.
+
+Jeremy Rooney gave a presentation on spectroscopy for mutli-variate analysis of a Hoki-Mackerel dataset. 
+
+Notes: 
+    * Cross-validation - low sample size hoki-mackerel datasets, so cross-validation is used to validate the model. 
+    * Mutli-variate analysis, profile metrics for multiple features of interest for Hoki-Mackerel datset. 
+    * 3 spectroscopic datasets: 
+        * FT-Ramen 
+        * Micro-Ramen 
+        * InGaAs Ramen 
+        * FT-NIR 
+    * "Spectrally meaninful" :math:`\approx` "semantically meaningful", There is a bit of noise, but we want "spectrally meaningful" information, similar to semantically meaningful gas chromatrography from (Wood 2022). 
+    * Commerical vs research - Commercial measurement methodlogies are very shoddy, they only care about using the standard methods (perscribe in the 1950s), however researchers have more accurated methods (but industry refuse to use them!)
+    * For internation trade, the more error prone stand methods are used! They care more about compliance than accuracy. 
+    * PUFA/MUFA satured fatty acids are identified with spectroscopic methods. 
+    * Error - measurement techniques a measurement error margin, i.e. FT-NIR, these error margins can be added as box-and whisker or error bars, to demosntrate the uncertainty of the chemistry measurements.
+    * Hoki - If you are in the Hoki Season, the incoming species for fish processing factory is mostly homogenous. However, outside of the Hoki season, the incoming species are more heterogenous (e.g. hodge-podge). AI models must be robust, to deal with varying class imbalances. 
+    * Online vs. offline tradeoff: 
+        * There exists a tradeoff between speed and accuracy. 
+        * online: 
+            * quick/instant 
+            * low resoution 
+        * offline 
+            * 3 days 
+            * sent away
+        * An important terminology, when referring to factory equipment. Wan't to avoid offline, unless strictly necessary, or provides a significant benefit. 
+    * Callibration: PFR callibrates the instruments of industry, industry are too lazy to calibrate their measurements themsevles, industry care more about compliance than accuracy, researchers care more about accuracy than compliance.
+        * Similar to how a professional vs novice guitarist, a professional will always tune their guitar before playing, whereas a novice will not.
+
+Related:    
+    * (Wood 2022) performs interpretable/accurate/efficient automatic fish classification on Gas Chromatography data.
+
+Mengjie Zhang gave a presentaiton on the contributions of ECRG to the Cyber-Marine project. 
+
+Notes: 
+    * Our team - five students from VUW who are working on Artificial Intelligence side of things with Cyber-Marine. 
+    * Topics/areas of interet: 
+        1. Data processing 
+        2. Data-driven modelling 
+        3. Interpreting model features 
+        4. Mutli-objective optimization / Decision making 
+    * AJCAI 2023 - I presented with conference, journal, book chapter. 
+    * Jargon - the chemistry people say variable, the AI people say feature. The terminology can be used inter-changeably, but there are important differences. 
+        * AI people use the term feature with domain agnosticism, we don't care / or understand the exact meaning of the feature with respect to the domain. In fact, we would rather not have to, good to build models that don't require domain exerptise at all, or at least very little.
+        * Chemistry people use the term variable. This refers to the domain, and the task at hand. If they are interested in lipids, a variable is a lipid of interest. When a chemist says variable it is inherantly linked to domain-specific knowledge, and means a very specific thing. 
+    * Center for Data Science and Artificial Intelligence (CDSAI) - VUW has approved the creation of a new center, which will be a hub for AI research and education.
+
+Jesse Wood (look Ma! I'm on TV) gave my AJCAI 2022 presentation at the workshop: 
+
+Notes: 
+    * Identify imporant features with HRMS / GC techniques, then use faster, simpler, detection methods in production. 
+    * In other words, prototypes are expensive, but proof-of-concept, find what is possible. 
+    * Production is hard, and we can take engineering shortcuts to make the prototype at scale, cheaper and more efficient. 
+    * Ask Kirill for a new dataset on Mass Resonance for Vineyards, similar approach to (Wood 2022) for explainable AI models. 
+    * Daniel proposed 1-2 week visit to Callaghan Innovation, sit down with LCMS, understand the tool inside and out. 
+    * Domain expertise is time consuming! 
+    * Related important features back to domain expertise. 
+    * Multi-modal; both REIMS + HRMS, identify an important superset of features/variables. 
+    * GC-MS - 3D datacube for classificaiton. 
+    * Blackbox; chemists can verify the model, build trust in its predictions. 
+    * Demo; every AI company needs a stunt department, build trust, and encourage academic/industry trust in AI models. 
+
+Most important takeaway(s):
+    * For adoption of technology, for example AI models, we need models the domain experts can understand and trust.
+    * Explainable AI is almost more important than accuracy, for adoption of technology by domain experts in academia and industry. 
+    * For adoption in industry, there needs to be an economic incentive, accuracy is not enough! There needs to be profits. 
+
+2023-02-10 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Mengjie Zhang, Bing Xue, Yi Mei, Andrew, Jordan, Hayden, Christian
+
+General notes: 
+    * GECCO deadline - GECCO deadline is midnight Sunday, big conference for ECRG, important to submit work for this conference. 
+    * Evening - The ECRG official evening is between 5pm - 8pm, Meng is accepting later revisions by email. 
+    * Progress report: 
+        * Callaghan Innovation - Industry workshop. 
+        * Domain experts in chemistry fields care more about interpretability and exlpainable AI, than perfect accuracy. 
+        * Toy datasets provide good benchmarks for state-of-the-art new methods, but real-wrodl appliacations will have real-world impact. 
+    * GIS - Jordan is working on converting graphs for EMD to real-wrold maps. 
+    * Niwa - former CRG sutdent, whose supervisors were Huia and Aaron, works for Niwa now. Still works closely with his former supvervisors. He does work with Niwa's NESI High Performance Computing (HPC).
+
+Hengzhe Zhang, https://ecs.wgtn.ac.nz/Main/GradHengzheZhang, gave a presentation on "Map-Elites with Cosine-Similarity for Evolutionary Ensemble Learning"
+
+Notes:
+    * Ensemble learning can ensure a diverse set of candiate solutions - this ensures that models don't overfit the training data. 
+    * A quality-diversity (QD) metric ensures that candidates have both quality and diversity in the populaiton of candidate solutions. 
+    * Multi-dimensional archive of phenotypic elites (MAP-elites)
+    * (Mouret 2015) is the paper that proposed MAP-elites. 
+    * Dimensionality reductiont techniques:
+        * Domain knowledge 
+        * Variational-autoencoders (VAE)
+        * Cosine-based similarity 
+        * t-SNE, PCA, KPCA 
+    * Cosine-based PCA (KPCA) is better than euclidian distance, and t-SNE, for a large number of datasets, no worse for others. 
+
+Related:
+    * (Mouret 2015) is the paper that proposed MAP-elites for diversity. 
