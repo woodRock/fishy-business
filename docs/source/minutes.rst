@@ -4164,4 +4164,4 @@ Notes:
     * Cosine-based PCA (KPCA) is better than euclidian distance, and t-SNE, for a large number of datasets, no worse for others. 
 
 Related:
-    * (:ref:`Mouret 2015<Literature Review:mouret2015illuminating>`) is the paper that proposed MAP-elites for diversity. 
+    * (:ref:`Mouret 2015<mouret2015illuminating>`) is the paper that proposed MAP-elites for diversity. 
