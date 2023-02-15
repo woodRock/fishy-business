@@ -4165,3 +4165,25 @@ Notes:
 
 Related:
     * (:ref:`Mouret 2015<mouret2015illuminating>`) is the paper that proposed MAP-elites for diversity. 
+
+2023-02-13 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Marcus Frean, https://people.wgtn.ac.nz/Marcus.Frean, gave a presentation on "Bayesian Linear Regression and Biological Neurons".
+
+Notes:
+    * Bayesians track a distribution of parameters, :math:`p(W) \to p(W | \mathcal{D})` and predict by integrating over that distribution. 
+    * Generally, bayesian updating is ahrd. But it's easy fo rthe right ("conjucate") combinations of prior and likelihood, i.e. when the functional forms of prior and likelihood are such that the posterior takes the same form as the prior. 
+    * For example: 
+        * Gaussian prior, and 
+        * Linear/Gaussian likelihood 
+        * => Gaussian posterior
+    * Gaussian-Linear sweet spot - with a gaussian prior on weights :math:`P(W) = \mathcal{N} (w|m_0v_0)` and a lienar prediction with gaussian noise :math:`\mathcal{N} (y|w.x, \sigma^2_{noise})`, linear algebra shows the posterios over weights is also Gaussian with updated precision and mean: 
+        * precision: :math:`V^{-1} = v_0^{-1} + \frac{1}{\sigma^2} X^TX)`
+        * mean: :math:`m = V^{-1} (v_0^{-1}m_0 + \frac{1}{\sigma^2} X^Ty)`
+    * RVFL - Random Vector Functional Link - a neural network with random weights.
+    * RVFL, a.k.a. "extreme learning machine", a random hidden layer with non-linearity.
+    * Reparameterization trick - Marcus uses a similar method as the non-linear SVM (`Cortes 1995<cortes1995support>`), the reparameterization trick, to use a kernal to project the data into a higher dimensional space. 
+
+Related: 
+    * See (`Cortes 1995<cortes1995support>`) for the non-linear SVM, and the reparameterization trick.
