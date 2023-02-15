@@ -3127,9 +3127,9 @@ TODO:
     * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
 
 Related: 
-    * t-SNE (`Van 2008<van2008visualizing>`) is a dimensionality reduction / visualization technique. 
-    * (`Khakimov 2015<khakimov2015trends>`) use a datacube to visualize GC-MS data. 
-    * (`Wood 2022<wood2022automated>`) performs classification/feature selection on GC-MS fish data.  
+    * t-SNE (:ref:`Van 2008<van2008visualizing>`) is a dimensionality reduction / visualization technique. 
+    * (:ref:`Khakimov 2015<khakimov2015trends>`) use a datacube to visualize GC-MS data. 
+    * (:ref:`Wood 2022<wood2022automated>`) performs classification/feature selection on GC-MS fish data.  
 
 2022-10-27 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -3183,9 +3183,9 @@ Notes:
     
 
 Related:
-    * (`Chase 1973<chase1973perception>`) which measures recongition of chess pieces by players of varying skill. Expert players could recall more pieces in standard positions. Caveat, skill lever didn't effect recall on random board positions. 
-    * See (`Goodfellow 2016>goodfellow2016deep`) chapter 14 Autoencoders. 
-    * (`Gencoglu 2019<gencoglu2019hark>`) proposes the term "grad student descent" for the flawed process of tuning hyperparameters by hand.
+    * (:ref:`Chase 1973<chase1973perception>`) which measures recongition of chess pieces by players of varying skill. Expert players could recall more pieces in standard positions. Caveat, skill lever didn't effect recall on random board positions. 
+    * See (:ref:`Goodfellow 2016>goodfellow2016deep`) chapter 14 Autoencoders. 
+    * (:ref:`Gencoglu 2019<gencoglu2019hark>`) proposes the term "grad student descent" for the flawed process of tuning hyperparameters by hand.
 
 2022-10-28 - ECRG 
 ~~~~~~~~~~~~~~~~~~
@@ -3247,10 +3247,10 @@ Notes:
     * Benchmakred RMSE vs Correlation + Linear Scaling on Feynman AI benchmark dataset for symbolic regression. 
 
 Related: 
-    * (`Banzhaf 2006<banzhaf2006artificial>`) a review article on EC and its biological inspiration published in nature.
-    * (`Dawkins 1995<dawkins1995evolved>`) proposed that animals evolve as models of their world, similar to GP as a model of a discrete fitness landscape. 
+    * (:ref:`Banzhaf 2006<banzhaf2006artificial>`) a review article on EC and its biological inspiration published in nature.
+    * (:ref:`Dawkins 1995<dawkins1995evolved>`) proposed that animals evolve as models of their world, similar to GP as a model of a discrete fitness landscape. 
     * RMSE (root mean square error) given by :math:`\frac{1}{|T|}\sqrt{\sum_{i \in T} || y_i - \hat{y_i} ||^2}`, there :math:`T` is the datset, :math:`y` is actual value, :math:`\hat{y}` is the predicted value, :math:`||.||^2` is the L2 norm. See :ref:`(Goodfellow 2016) <goodfellow2016deep>` Chapter 2, page 36 for explanation of L2 norm
-    * (`Tegmark 2020<tegmark2020aifeynman>`, `Tegmark 2022<tegmark2020aifeynman2>`), Feynman AI and Feynman AI 2.0, explore the simplfiying properties for physics equations on the Feynman AI benchmark dataset. 
+    * (:ref:`Tegmark 2020<tegmark2020aifeynman>`, `Tegmark 2022<tegmark2020aifeynman2>`), Feynman AI and Feynman AI 2.0, explore the simplfiying properties for physics equations on the Feynman AI benchmark dataset. 
     * Similar to Banzhaf's work with correlation + linear scaling, in (Tegmark 2020, Tegmark 2022) they exploit the general symmetry of physics equation, to reduce the search space from general symbolic regression to physics-based symbolic regression.
 
 2022-10-31 - Guest Speaker 
@@ -3288,7 +3288,7 @@ Notes:
     * Spatio-temporal graph to understand video semnatics, apply Hidden Markov Models (HMM) to perceive spatio-temporal information. 
 
 Related: 
-    * See (`Russell 2010<russell2010artificial>`), chapter 15 probabilistic reasoning over time, for explannation of Markov processings and Hidden Markov Models (HMM). 
+    * See (:ref:`Russell 2010<russell2010artificial>`), chapter 15 probabilistic reasoning over time, for explannation of Markov processings and Hidden Markov Models (HMM). 
 
 2022-11-09 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3309,7 +3309,7 @@ Notes:
     * Maxwell's thought: The solutions to carbon emissions of AI are non-specific to AI, and apply to all industries that consume carbon, so all industries. 
 
 Related: 
-    * See (`Couillet 2022<couillet2022submerged>`) for sustainability perspectives on AI. 
+    * See (:ref:`Couillet 2022<couillet2022submerged>`) for sustainability perspectives on AI. 
     * See (`DeepMind 2022<https://www.deepmind.com/blog/accelerating-fusion-science-through-learned-plasma-control>`_)"Successfully controlling the nuclear fusion plasma in a tokamak with deep reinforcement learning"  
     * See (`Guardian 2017<https://www.theguardian.com/sustainable-business/2017/jul/10/100-fossil-fuel-companies-investors-responsible-71-global-emissions-cdp-study-climate-change>`_) Just 100 companies responsible for 71% of global emissions, study says 
     * See (`Lomberg 2021<https://twitter.com/BjornLomborg/status/1445808507362500618>`_) California uses more electricity on pools and hot tubs than all 44m people use in Uganda 
@@ -3342,9 +3342,9 @@ Notes:
     * This is an old talk, but his pioints are still valid today, and the field is still growing and EC is in a golden age for research.
 
 Related: 
-    * (`Li 2002<li2002novel>`) use evolutionary computation to solve differentiral equations for deriving physics laws. 
-    * (`Li 2004<li2004evolutionary>`) use evolutionary computation to find models that fit observational data in astrophysics.
-    * (`Runarsson 2000<runarsson2000stochastic>`) used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computation.
+    * (:ref:`Li 2002<li2002novel>`) use evolutionary computation to solve differentiral equations for deriving physics laws. 
+    * (:ref:`Li 2004<li2004evolutionary>`) use evolutionary computation to find models that fit observational data in astrophysics.
+    * (:ref:`Runarsson 2000<runarsson2000stochastic>`) used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computation.
     * See `2022-09-23 - ECRG<2022-09-23 - ECRG>` where Carlos A. Coello Coello applied Multi-objective (MO) Evolutionary Computation (EC) with constraint handling.  
 
 2022-11-11 - Weekly 
@@ -3484,8 +3484,8 @@ Notes:
     * Cognitive bias revealed by social media, moral-emotional expressions, violent comments, political out-group, false information. 
 
 Related: 
-    * See (`Huszar 2022<huszar2022algorithmic>`) for study by Twitter employees on amplification of political content. 
-    * See (`Jiang 2019<jiang2019degenerate>`) for degenerative feeback loops on social media reccomender systems from DeepMind. 
+    * See (:ref:`Huszar 2022<huszar2022algorithmic>`) for study by Twitter employees on amplification of political content. 
+    * See (:ref:`Jiang 2019<jiang2019degenerate>`) for degenerative feeback loops on social media reccomender systems from DeepMind. 
 
 2022-12-01 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
@@ -3596,7 +3596,7 @@ Notes:
         * RDF graphs 
         * Entity linkings
     * Related: 
-        * (`Stewart 2022<stewart2022quarry>`) https://link.springer.com/chapter/10.1007/978-3-031-22695-3_22
+        * (:ref:`Stewart 2022<stewart2022quarry>`) https://link.springer.com/chapter/10.1007/978-3-031-22695-3_22
 
 Reinforcement learning - an agent which interacts with environment, transition, can be stochastic/deterministic, find a policy to maximize expected return. 
 Hung Le thai.le@deakin.edu.au
@@ -3655,11 +3655,11 @@ Notes:
 
 
 Related: 
-    * (`Watkins 1992<watkins1992q>`) proposed q-learning, the foundation of reinforcment learning.
-    * (`Mnih 2013<mnih2013playing>`) from Deep Mind propose deep q-learning for Atari games.
-    * (`Wayne 2018<wayne2018unsupervised>`) propose the Memory, RL, and Inference Network (MERLIN), in which memory formation is guided by a process of predictive modeling.
-    * (`Hung 2019<hung2019optimizing>`) deal with naviagation with distraction, a model that requires semantic control.
-    * (`Ecoffet 2021<ecoffet2021first>`) propose an RL agent that remembers promising states and returning to such states before intentionally exploring.
+    * (:ref:`Watkins 1992<watkins1992q>`) proposed q-learning, the foundation of reinforcment learning.
+    * (:ref:`Mnih 2013<mnih2013playing>`) from Deep Mind propose deep q-learning for Atari games.
+    * (:ref:`Wayne 2018<wayne2018unsupervised>`) propose the Memory, RL, and Inference Network (MERLIN), in which memory formation is guided by a process of predictive modeling.
+    * (:ref:`Hung 2019<hung2019optimizing>`) deal with naviagation with distraction, a model that requires semantic control.
+    * (:ref:`Ecoffet 2021<ecoffet2021first>`) propose an RL agent that remembers promising states and returning to such states before intentionally exploring.
     * See MuJoCo benchmark, janky walking robots https://www.youtube.com/watch?v=n0Cpqzqzroo
     * See Github Demo https://github.com/thaihungle/AJCAI22-Tutorial
 
@@ -3857,8 +3857,8 @@ Notes:
             * (Improvement in training time using Pre-NAS vs train from scratch!!!)
 
 Related: 
-    * (`Peng 2022<peng2022prenastvec>`) for IEEE TVEC, first paper on Pre-NAS.
-    * (`Peng 2022<Peng2021prenasgecco>`) for GECCO, follow up paper on Pre-NAS.
+    * (:ref:`Peng 2022<peng2022prenastvec>`) for IEEE TVEC, first paper on Pre-NAS.
+    * (:ref:`Peng 2022<Peng2021prenasgecco>`) for GECCO, follow up paper on Pre-NAS.
 
 2023-01-30 - Jordan's Proposal
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -3927,7 +3927,7 @@ Notes:
     * Boosting theory tells us weak learners are not weak. 
     * Chinese proverb - "Two heads are better than one."
     * ^ This relates to the strenfth of boosting / multi-tree GP methods. 
-    * (`Hengzhe 2021<hengzhe2021evolutionary>`) An Evolutionary Tree for Regression
+    * (:ref:`Hengzhe 2021<hengzhe2021evolutionary>`) An Evolutionary Tree for Regression
     * Diversity is important for weak learners in an Ensemlbe model, if the populaiton is not diverse enough, the Ensemble will overfit. 
     * Lexicase selection > tournament selection 
     * (Zhang 2023) SR-Forest: A Genetic Programming-based Hetergenous Ensemble Learning Method with Symbolic Regression. IEEE TVEC.
@@ -3935,9 +3935,9 @@ Notes:
     * Conversely, a Homogenous ensemble refers to an ensemble with classifiers that are identifical, e.g. 5x random decision-trees (RDTs).
 
 Related: 
-    * (`Hengzhe 2021``) An Evolutionary Forest for Regression, TVEC 2021 paper. 
+    * (:ref:`Hengzhe 2021``) An Evolutionary Forest for Regression, TVEC 2021 paper. 
     * (Hengzhe 2023) SR-Forest, an upcoming TVEC 2023 paper.
-    * (`Domingos 2015<domingos2015master>`) The Master Algorithm - book from Pedro Domingos.
+    * (:ref:`Domingos 2015<domingos2015master>`) The Master Algorithm - book from Pedro Domingos.
 
 2023-02-03 - ECRG 
 ~~~~~~~~~~~~~~~~~~
@@ -3976,9 +3976,9 @@ Notes:
         * e.g. Riding a bike, and a motorcycle. Someone who can ride a bike, may be able to ride a motorcycle with less training.
 
 Related: 
-    * See (`Goodfellow 2016<goodfellow2016deep>`), Chapter 3 page 64, for Mixtures of Distributions. https://www.deeplearningbook.org/contents/prob.html
-    * See (`Goodfellow 2016<goodfellow2016deep>`), Chapter 3 page 60, for Bernoulli Distributio. https://www.deeplearningbook.org/contents/prob.html
-    * See (`Do 2008<do2008expectation>`) for nature paper that introduces Expectation Maximisation (EM). 
+    * See (:ref:`Goodfellow 2016<goodfellow2016deep>`), Chapter 3 page 64, for Mixtures of Distributions. https://www.deeplearningbook.org/contents/prob.html
+    * See (:ref:`Goodfellow 2016<goodfellow2016deep>`), Chapter 3 page 60, for Bernoulli Distributio. https://www.deeplearningbook.org/contents/prob.html
+    * See (:ref:`Do 2008<do2008expectation>`) for nature paper that introduces Expectation Maximisation (EM). 
 
 2023-02-08 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3996,7 +3996,7 @@ Notes:
     * Denoiser - MMSE estmitaor is the best L2 norm, the best denoiser for Rembrant paintings, we can't dinf a perfect denoiser, but can approximate this by training a neural network to do so. 
 
 Related:
-    * (`Karras 2022<karras2022elucidating>`) is the paper on elucidating design spaces for generative models. 
+    * (:ref:`Karras 2022<karras2022elucidating>`) is the paper on elucidating design spaces for generative models. 
     * (`Deforum 2022<https://twitter.com/deforum_art>`_) Deforum Art - Twitter profile 
     * (`Wood 2022<https://youtu.be/IzhWOuCzzzs>`_) Glimpse of Us - Joji (AI Generated Music Video) 
 
@@ -4098,7 +4098,7 @@ Notes:
         * Similar to how a professional vs novice guitarist, a professional will always tune their guitar before playing, whereas a novice will not.
 
 Related:    
-    * (`Wood 2022<wood2022automated>`) performs interpretable/accurate/efficient automatic fish classification on Gas Chromatography data.
+    * (:ref:`Wood 2022<wood2022automated>`) performs interpretable/accurate/efficient automatic fish classification on Gas Chromatography data.
 
 Mengjie Zhang gave a presentaiton on the contributions of ECRG to the Cyber-Marine project. 
 
