@@ -575,6 +575,15 @@ eich1975state
     * Subjects who learn something high, are more likely to retrieve that information high.
     * People can not recall their drug-induced experience easily when they sober up. 
 
+espeholt2022deep
+----------------
+Deep learning for twelve hour precipitation forecasts
+
+(Espeholt 2022) prepose MetNet-2 that can outperform SOTA for 12 hour precipitation forecasts.
+
+Notes: 
+    * TODO read 
+
 eyesenck1980effects
 -------------------
     * Effects of processing depth, distinctiveness, and word frequency on retention. 
