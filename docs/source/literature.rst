@@ -242,7 +242,7 @@ brochu2010tutorial
         2. Hierarchical Reinforcement Learning
     * Covers the theory and intuition behind Bayesian optimizaiton with visual examples. 
     * Discusses preference galleries, hierachichal control
-    * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
+    * Recommended reading from the :ref:`2022-03-24 - FASLIP<2022-03-24 - FASLIP>` talk on Bayesian Optimizatio .
     * **TODO** read this! 
 
 brosnan2003monkeys
@@ -354,7 +354,7 @@ Gaussian Process-based Stochastic Model Predictive Control for Overtaking in Aut
 (Brudigam) uses Gaussain Processes in Reinforcement Learning to design controllers for race cars to overtake. 
     
 Related:
-    * See 2022-07-20 - Deep Learning where Hayden Dyne discusses this paper. 
+    * See :ref:`2022-07-20 - Deep Learning<2022-07-20 - Deep Learning>` where Hayden Dyne discusses this paper. 
     * See :ref:`(Codevilla 2018) <codevilla2018end>`, another racing paper, for RL drifiting controller.
 
 cai2020high 
@@ -404,7 +404,7 @@ Why it matters?
     * Detecting faults in ball bearings is crucial for safety, automation, and efficiency in factories.
 
 Related : 
-    * See 2022-10-12 - Deep Learning for more. 
+    * See :ref:`2022-10-12 - Deep Learning<2022-10-12 - Deep Learning>` for more. 
 
 chen2019looks
 -------------
@@ -436,7 +436,7 @@ codevilla2018end
 
 Related: 
     * See :ref:`(Brudigam 2021) <brudigam2021gaussian>`, another racing paper, for RL overtaking controller. 
-    * See 2022-07-20 - Deep Learning where Hayden Dyne discusses this paper. 
+    * See :ref:`2022-07-20 - Deep Learning<2022-07-20 - Deep Learning>` where Hayden Dyne discusses this paper. 
 
 cortes1995support
 -----------------
@@ -455,7 +455,7 @@ The submerged part of the AI-Ceberg [Perspectives]
 TODO [ ] Read this paper. 
 
 Related: 
-    * See 2022-11-09 - Deep Learning
+    * See :ref:`2022-11-09 - Deep Learning<2022-11-09 - Deep Learning>`
 
 craik1972levels
 ---------------
@@ -529,7 +529,7 @@ The Master Algorithm: How the Quest for the Ultimate Learning Machine Will Remak
 (Domingos 2015) gives a broad introduction for beginners to Artificial Intelligence.
 
 Related: 
-    * See FASLIP - 2023-02-02
+    * See :ref:`2023-02-02 - FASLIP<2023-02-02 - FASLIP>`
 
 ecoffet2021first
 ----------------
@@ -646,7 +646,7 @@ girshick2014rich
     * Rich feature hierarchies for accurate object detection and semantic segmentation 
     * R-CNNs, Region-based Convolutional Neural Networks.
     * Combine region proposals and CNNs. 
-    * See FASLIP - 2022-10-06 for more details.
+    * See :ref:`2022-10-06 - FASLIP<2022-10-06 - FASLIP>` for more details.
 
 godden1975context
 -----------------
@@ -662,7 +662,7 @@ On ensemble techniques for data stream regression
 (Gomes 2020) talks about ADR-Reg in data stream mining
 
 Related: 
-    * See `FASLIP - 2023-02-16<FASLIP - 2023-02-16>` where ADR-Reg is mentioned.
+    * See :ref:`2023-02-16 - FASLIP<2023-02-16 - FASLIP>` where ADR-Reg is mentioned.
 
 gonick2012cartoon
 -----------------
@@ -746,7 +746,7 @@ An Evolutionary Forest for regression
 (Hengzhe 2021) is a TVEC paper for Evolutionary Forest.
 
 Related:
-    * See FASLIP - 2023-02-02 
+    * See :ref:`2023-02-02 - FASLIP<2023-02-02 - FASLIP>`
 
 hand2001idiot
 -------------
@@ -991,7 +991,7 @@ kobyzev2020normalizing
 Normalizing flows: An introduction and review of current methods
 
 Related:    
-    * See 2022-10-26 - Deep Learning 
+    * See :ref:`2022-10-26 - Deep Learning<2022-10-26 - Deep Learning>`
 
 kononenko1994estimating
 -----------------------
@@ -1143,7 +1143,7 @@ Notes:
     * Evolutionary algorithms (EAs) have been shown to be very effective.
 
 Related: 
-    * See 2022-11-10 - FASLIP where author Xin Yao discussed this paper. 
+    * See :ref:`2022-11-10 - FASLIP<2022-11-10 - FASLIP>` where author Xin Yao discussed this paper. 
     * :ref:`(Li 2004) <li2004evolutionary>`, by  Xin Yao same author, with EC for solving DE in astrophysics. 
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>` used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
     * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks. 
@@ -1172,7 +1172,7 @@ Notes:
             * More likely to find global minima
 
 Related: 
-    * See 2022-11-10 - FASLIP where author Xin Yao discussed this paper.
+    * See :ref:`2022-11-10 - FASLIP<2022-11-10 - FASLIP>` where author Xin Yao discussed this paper.
     * :ref:`(Li 2002) <li2002novel>`, Xin Yao same author, with EC for solving DE in materials science.
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
     * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks.
@@ -1181,7 +1181,7 @@ lin2017feature
 --------------
     * Feature pyramid networks for object detection. 
     * Feature Pyramid Network (FPN)
-    * See FASLIP - 2022-10-06 for more details.
+    * See :ref:`2022-10-06 - FASLIP<2022-10-06 - FASLIP>`-  for more details.
 
 liu1995chi2
 -----------
@@ -1354,7 +1354,7 @@ Creating Diverse Ensembles for Classification with Genetic Programming and Neuro
 * TODO [ ] - READ 
     
 Related: 
-    * Hengzhe is working on MAP-Elites in GP. See 2022-10-13 - FASLIP 
+    * Hengzhe is working on MAP-Elites in GP. See :ref:`2022-10-13 - FASLIP<2022-10-13 - FASLIP>`
 
 nielsen2020survae
 -----------------
@@ -1464,7 +1464,7 @@ raine1997brain
 raissi2019physics
 -----------------
     * Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations
-    * Discussed by Bastiaan from 2022-09-14 - Deep Learning  
+    * Discussed by Bastiaan from :ref:`2022-09-14 - Deep Learning<2022-09-14 - Deep Learning>`  
 
 ramesh2022hierarchical
 ----------------------
@@ -1485,8 +1485,8 @@ Related:
     * Available to the public on their website https://openai.com/dall-e-2/
     * See :ref:`(Ho 2022) <ho2020denoising>` for Denoising Diffusion Probabilistic Models (DDPM), canonical diffusion paper. 
     * See :ref:`(Song 2020) <song2020denoising>` for Denoising Diffusion Implicit Models (DDIM), faster diffusion process.
-    * See 2022-07-06 - Deep Learning 
-    * See 2022-10-19 - Deep Learning 
+    * See :ref:`2022-07-06 - Deep Learning<2022-07-06 - Deep Learning>`
+    * See :ref:`2022-10-19 - Deep Learning<2022-10-19 - Deep Learning>` 
 
 rampal2022high
 --------------
@@ -1621,7 +1621,7 @@ scholkopf2000new
 shahriari2015taking
 -------------------
     * Taking the Human Out of theLoop: A Review of Bayesian Optimization.
-    * Recommended reading from the FASLIP talk on Bayesian Optimizatio 2022-03-24.
+    * Recommended reading from the :ref:`2023-03-24 - FASLIP<2023-03-24 - FASLIP>` on Bayesian Optimization
     * **TODO** read this. 
 
 smart2005using
@@ -1652,8 +1652,8 @@ Notes:
 
 Related: 
     * See :ref:`(Ho 2022) <ho2020denoising>` for original DDPM paper. 
-    * See 2022-07-06 - Deep Learning 
-    * See 2022-10-19 - Deep Learning 
+    * See :ref:`2022-07-06 - Deep Learning<2022-07-06 - Deep Learning >` 
+    * See :ref:`2022-10-19 - Deep Learning<2022-10-19 - Deep Learning>` 
     * Stable Diffusion https://github.com/CompVis/stable-diffusion
     * Deforum Notebook https://t.co/mWNkzWtPsK
 
@@ -1673,7 +1673,7 @@ SOKNL: A novel way of integrating K-nearest neighbours with adaptive random fore
 (Sun 2022) proposes self optimizing k-nearest neighbours (SOKNL) for data stream mining.
 
 Related: 
-    * See `FASLIP - 2023-02-16<FASLIP 2023-02-16>` where author gave talk on this paper.
+    * See :ref:`2023-02-16 - FASLIP<2023-02-16 - FASLIP>` where author gave talk on this paper.
 
 szegedy2013intriguing
 ---------------------
@@ -1729,7 +1729,11 @@ Related:
 
 tegmark2021aipoincare
 ---------------------
-    * AI Poincaré 2.0: Machine Learning Conservation Laws from Differential Equations
+AI Poincaré 2.0: Machine Learning Conservation Laws from Differential Equations
+    
+(Temark 2021) use deep learning to model conservation laws from physics.
+
+Notes: 
     * TODO [ ] READ 
 
 tegmark2022poisson
@@ -1742,8 +1746,7 @@ Notes:
     * TODO [ ] READ 
 
 Related: 
-    * See 2022-10-26 - Deep Learning
-
+    * See :ref:`2022-10-26 - Deep Learning<2022-10-26 - Deep Learning>`
 
 tomasi2004correlation
 ---------------------
@@ -1793,7 +1796,7 @@ Evolving deep convolutional neural networks by variable-length particle swarm op
 (Wang 2018) propose EvoCNN to automatically search for optimal CNN architecture without any manual work involved.
 
 Related:
-    * See 2022-10-27 - FASLIP
+    * See :ref:`2022-10-27 - FASLIP<2022-10-27 - FASLIP>`
 
 watkins1992q
 ------------
@@ -1873,7 +1876,7 @@ Why it matters?
     * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
 
 Related: 
-    * See 2022-10-12 - Deep Learning for more 
+    * See :ref:`2022-10-12 - Deep Learning<2022-10-12 - Deep Learning>` for more 
 
 zemmal2016adaptative
 --------------------
