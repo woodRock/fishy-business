@@ -4203,9 +4203,9 @@ Notes:
     * I have ordered my contributions as four tasks, in ascending order of increasing difficulty. These all related directly to domain specific problems in fish processing. AIML techniques of incerasing complexity will likely be required to solves these problems as their difficulty increases.  
 
 Related: 
-    * See `PFR Workshop<2023-02-08 - Callaghan Innovation Workshop>`
-    * See (`Di 2009<di2019survey>`) for literature survey on GANs for anomoly detection
-    * See (`Black 2019<black2019rapid>`) for outlier detection with variance thresholding
+    * See :ref:`PFR Workshop<2023-02-08 - Callaghan Innovation Workshop>`
+    * See (:ref:`Di 2009<di2019survey>`) for literature survey on GANs for anomoly detection
+    * See (:ref:`Black 2019<black2019rapid>`) for outlier detection with variance thresholding
 
 2023-02-16 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~~
@@ -4240,5 +4240,5 @@ Notes:
     * Self optimizing k-nearest leaves (SOKNL)
 
 Related: 
-    * See (`Gomes 2020<gomes2020ensemble>`) for ADR-Reg. 
-    * See (`Sun 2022<sun2022soknl>`) for SONKL paper.
+    * See (:ref:`Gomes 2020<gomes2020ensemble>`) for ADR-Reg. 
+    * See (:ref:`Sun 2022<sun2022soknl>`) for SONKL paper.
