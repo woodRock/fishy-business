@@ -4187,3 +4187,58 @@ Notes:
 
 Related: 
     * See (`Cortes 1995<cortes1995support>`) for the non-linear SVM, and the reparameterization trick.
+
+2023-02-16 - Weekly
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 12:00 - 13:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * Proposal page limit - 40 pages + references - although ECRG is known for going over the page limit. 
+    * Introduction - my introduction is ar too breif. I need to expand on this a lot more. This section is usually 10+ pages. I should briefly cover the contents of each section, and/or, include a table of contents. 
+    * Write - I need to write, the 1 ear deadline for the proposal submission is rapidly approaching, 2023-03-01, and I need to submit before this deadline. 
+    * Daniel and Bach send their apologies for not being able to attend the weekly meeting. Daniel is busy, and Bach just got back from overseas. 
+    * There was no weekly meeting last week, due to the `PFR Workshop<2023-02-08 - Callaghan Innovation Workshop>`. 
+    * Story - Although, after the PFR workshop, I can definitely see the forest for the trees. I ee the 'story' if the Cyber-Marine flex-factory, and its niche in the New Zealand fish processing market. 
+    * Outliers - PFR emphasized the robustness required, our AIML models need to handle out-of-distribution data, that is to identify classes that are possibly not even in the training data. See (`Di 2009<di2019survey>`) for anomoly detection using GANs, similar to (`Black 2019<black2019rapid>`) where thresholds are established for unknown outliers. 
+    * I have ordered my contributions as four tasks, in ascending order of increasing difficulty. These all related directly to domain specific problems in fish processing. AIML techniques of incerasing complexity will likely be required to solves these problems as their difficulty increases.  
+
+Related: 
+    * See `PFR Workshop<2023-02-08 - Callaghan Innovation Workshop>`
+    * See (`Di 2009<di2019survey>`) for literature survey on GANs for anomoly detection
+    * See (`Black 2019<black2019rapid>`) for outlier detection with variance thresholding
+
+2023-02-16 - FASLIP 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** YiBin Sun, Heitor Murilo Gomes, Mengjie Zhang, Bing Xue, Jordan MacLauchlan, Hengzhe Zhang, Jesse Wood
+
+Notes: 
+    * YaBin Sun, https://www.researchgate.net/profile/Yibin_Sun3, is a PhD candidate from Waikato University, one of his supervisors is Heitor Murilo Gomes, http://heitorgomes.com/ 
+    * Datastream - "Data like a stream" - an apt metaphor to describe the nature of a digital stream of data. 
+        * We may only have access to an instance for a short period of time, or once. 
+    * 3Vs 
+        * Volume - the amount of data 
+        * Velocity - the rate at which data is generated 
+        * Variety - the different types of data
+    * Concept drift - the change in the underlying distribution of data.
+    * Types of concept drift: 
+        * Virtual drift: shift in distribution that does not effect decision boundaries. 
+        * Real drift: shift in distribution that does effect decision boundaries. 
+    * Types of drift: 
+        * Sudden 
+        * Gradual
+        * Incremental 
+        * Reocrruing - seasonal variation is an example. 
+    * Concept drift detection: 
+        * Statistical analysis 
+        * Performance Metrics 
+        * Drift Detection Algorithms 
+    * Drift detection algorithms: 
+        1. Page-Hinkley 
+        2. ADWIn 
+    * Fast Incremental Model Tree with drift detection (FIMT-DD)
+    * Adaptive Random Forest for Regression (ADR-Reg)
+    * Self optimizing k-nearest leaves (SOKNL)
+
+Related: 
+    * See (`Gomes 2020<gomes2020ensemble>`) for ADR-Reg. 
+    * See (`Sun 2022<sun2022soknl>`) for SONKL paper.

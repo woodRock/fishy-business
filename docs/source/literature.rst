@@ -646,6 +646,15 @@ godden1975context
     * Same true for words learnt on land. 
     * Recall accuracy depends on similarity of context in sensory information. 
 
+gomes2020ensemble
+-----------------
+On ensemble techniques for data stream regression
+
+(Gomes 2020) talks about ADR-Reg in data stream mining
+
+Related: 
+    * See `FASLIP - 2023-02-16<FASLIP - 2023-02-16>` where ADR-Reg is mentioned.
+
 gonick2012cartoon
 -----------------
 The cartoon guide to calculus
@@ -1647,6 +1656,15 @@ QUARRY: A Graph Model for Queryable Association Rules
 
 Related: 
     * See 2022-12-05 - AJCAI #01, author gave workshop on knowledge graphs. 
+
+sun2022soknl
+------------
+SOKNL: A novel way of integrating K-nearest neighbours with adaptive random forest regression for data streams
+
+(Sun 2022) proposes self optimizing k-nearest neighbours (SOKNL) for data stream mining.
+
+Related: 
+    * See `FASLIP - 2023-02-16<FASLIP 2023-02-16>` where author gave talk on this paper.
 
 szegedy2013intriguing
 ---------------------
