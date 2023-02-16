@@ -103,6 +103,16 @@ Related:
     * :ref:`(Zhang 2008) <zhang2008two>` preprocssing method for aligning gas chromatography (GC).
     * :ref:`(Wood 2022) <wood2022automated>` performs classification / feature selection on gas chromatography data. 
 
+bifet2007learning
+-----------------
+Learning from time-changing data with adaptive windowing
+
+(Bifet 2007) propsoed the ADWIN method for detecting concept drift in data streams.
+
+Related: 
+    * See (:ref:`Gomes 2020<gomes2020ensemble>`) for paper that cites. 
+    * See :ref:`2023-02-16 - FASLIP<2023-02-16 - FASLIP>`
+
 black2017real
 ---------------
 A real time metabolomic profiling approach to detecting fish fraud using rapid evaporative ionisation mass spectrometry
@@ -662,6 +672,8 @@ On ensemble techniques for data stream regression
 (Gomes 2020) talks about ADR-Reg in data stream mining
 
 Related: 
+    * See (:ref:`Mouss 2004<mouss2004test>`) for Page-Hinkley method for drift detection.
+    * See (:ref:`Bifet 2007<bifet2007learning>`) for ADWIN drift detection algorithm.
     * See :ref:`2023-02-16 - FASLIP<2023-02-16 - FASLIP>` where ADR-Reg is mentioned.
 
 gonick2012cartoon
@@ -1336,6 +1348,15 @@ Illuminating search spaces by mapping elites
 Related: 
     * (Hengzhe 2023) his GECCO 2023 paper uses MAP-elites in the semantic space. 
     * See 2023-02-10 - ECRG where Hengzhe discussed this paper, and his work above.
+
+mouss2004test
+-------------
+Test of page-hinckley, an approach for fault detection in an agro-alimentary production system
+
+Related: 
+    * See (:ref:`Gomes 2020<gomes2020ensemble>`) for a paper that cites this. 
+    * See :ref:`2023-02-16 - FASLIP<2023-02-16 - FASLIP>` where this method is mentioned.
+    * See (:ref:`Sun 2022<sun2022soknl>`) for paper on data stream mining.
 
 muller2021transformers
 ----------------------
