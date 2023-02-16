@@ -4234,11 +4234,13 @@ Notes:
         * Drift Detection Algorithms 
     * Drift detection algorithms: 
         1. Page-Hinkley 
-        2. ADWIn 
+        2. ADWIN
     * Fast Incremental Model Tree with drift detection (FIMT-DD)
     * Adaptive Random Forest for Regression (ADR-Reg)
     * Self optimizing k-nearest leaves (SOKNL)
 
 Related: 
+    * See (:ref:`Mouss 2004<mouss2004test>`) for Page-Hinkley method for drift detection.
+    * See (:ref:`Bifet 2007<bifet2007learning>`) for ADWIN drift detection algorithm.
     * See (:ref:`Gomes 2020<gomes2020ensemble>`) for ADR-Reg. 
     * See (:ref:`Sun 2022<sun2022soknl>`) for SONKL paper.
