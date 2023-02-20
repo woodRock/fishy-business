@@ -3663,6 +3663,21 @@ Related:
     * See MuJoCo benchmark, janky walking robots https://www.youtube.com/watch?v=n0Cpqzqzroo
     * See Github Demo https://github.com/thaihungle/AJCAI22-Tutorial
 
+
+2022-12-07 - AJCAI
+~~~~~~~~~~~~~~~~~~~
+**Location:** Ballroom, Hyatt, Perth, **Time:** Monday 9:00 - 12:00, **Attendees:** Tim Miller
+
+A talk from Tim Miller 
+
+Notes: 
+    * TODO Fill out this stuff! 
+
+Related: 
+    * :ref:`(Miller 2021) <miller2021contrastive>` contrastive explanation.
+    * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
+    * :ref:`(Miller 2017) <miller2017explainable>` explainable AI.
+
 2022-12-15 - Weekly
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Thursday 14:00 - 15:00, **Attendees:** Mengjie Zhang, Bach Nguyen, Bing Xue, Jesse
