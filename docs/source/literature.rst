@@ -1310,6 +1310,39 @@ miller1994exploiting
     * Mate choice / mate preference. 
     * **TODO** read 
 
+miller2017explainable
+---------------------
+Explainable AI: Beware of inmates running the asylum or: How I learnt to stop worrying and love the social and behavioural sciences},
+
+(Miller 2017) talks about the pitfalls of academics defining XAI. 
+
+Related: 
+    * :ref:`(Miller 2021) <miller2021contrastive>` contrastive explanation.
+    * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
+    * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
+
+miller2019explanation
+---------------------
+Explanation in artificial intelligence: Insights from the social sciences},
+
+(Millier 2019) addresses the disconnect between XAI and social sciences. 
+
+Related: 
+    * :ref:`(Miller 2021) <miller2021contrastive>` contrastive explanation.
+    * :ref:`(Miller 2017) <miller2017explainable>` explainable AI.
+    * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
+
+miller2021contrastive
+---------------------
+Contrastive explanation: A structural-model approach
+
+(Miller 2021) proposes a new approach to explainable AI, called contrastive explanation.
+
+Related:
+    * :ref:`(Miller 2017) <miller2017explainable>` explainable AI.
+    * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
+    * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
+
 mnih2013playing
 ---------------
 Playing atari with deep reinforcement learning
