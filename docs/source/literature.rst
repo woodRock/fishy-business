@@ -1285,6 +1285,18 @@ matyushin2020gas
     * Once identified the retention index can be used for further identification.
     * GC-MS data has underlying patterns that correspond to chemical compounds.
 
+mclean2005differences
+---------------------
+Differences in lipid profile of New Zealand marine species over four seasons
+
+(Mclean 2005) describes the seasonal-variation for lipids in Hoki fish when spawning.
+
+Related: 
+    * :ref:`(Sun 2022)<sun2022soknl>` for concept drift from data steam mining. 
+    * See :ref:`(2023-02-16 - FASLIP)<2023-02-16 - FASLIP>` for talk from (Sun 2022) author.
+    * :ref:`(Gomes 2022)<gomes2020ensemble>` for concept drift from data stream mining.
+    * See (Wood 2023), my proposal, which references Hoki seasonal variation.
+
 mikolov2013linguistic
 ---------------------
     * Mikolov et al. found the word embeddings used in NLP were semantically meaningful \cite{mikolov2013linguistic}. 
