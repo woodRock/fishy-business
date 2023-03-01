@@ -833,6 +833,15 @@ jacot2018neural
 ---------------
     * Neural tangent kernel: Convergence and generalization in neural networks
 
+jaegle2021perceiver
+-------------------
+Perceiver: General perception with iterative attention
+
+(Jaegle 2021) is a DeepMind paper on a multi-modal perceptron with attention.
+
+Related:
+    * See :ref:`2023-03-01 - Deep Learning<2023-03-01 - Deep Learning>` for discussion on this paper.
+
 jha2015rapid
 ------------
 Rapid detection of food adulterants and contaminants: theory and practice
@@ -1188,6 +1197,37 @@ Related:
     * :ref:`(Li 2002) <li2002novel>`, Xin Yao same author, with EC for solving DE in materials science.
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
     * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks.
+
+li2021learnable
+---------------
+Learnable fourier features for multi-dimensional spatial positional encoding
+
+(Li 2021) propose a spatial encoding that works for multi-dimensional data, such as multi-modal input. 
+
+Background: 
+    * :ref:`(Vaswani 2017)<vaswani2017attention>` originally proposed sinosoidal positional encodings for 1D data.
+        * This was the original transformers paper, with catchy title, "Attention is all you need".
+    * Sinosoidal positional encodings are not suited for multi-dimensional or multi-modal data. 
+    * Previous methods rely on hard-coding each position as a token or a vector.
+
+Data: 
+    * High volume structured data, such as video, images, audio, etc...
+    * Multi-modal - inputs from different modalities, such as video, audio, text, etc...
+
+Method: 
+    * They propose positional encodings that use Learnable Fourier features
+    * we represent each position:
+        * which can be multi-dimensional, 
+        * as a trainable encoding based on learnable Fourier feature mapping, 
+        * modulated with a multi-layer perceptron
+
+Why it matters?
+    * Use positional encodings for multi-modal / multi-dimensional data. 
+    * Useful for semi-supervised learning applications. 
+
+Related: 
+    * See :ref:`(Vaswani 2017)<vaswani2017attention>` proposed sinosoidal positional encodings for 1D data.
+    * See :ref:`(Jaegle 2021)<jaegle2021perceiver>` for Perciever paper that uses these encodings. 
 
 lin2017feature
 --------------
