@@ -288,3 +288,17 @@ brewer2006brown
     * Those who did not got kicked out, and most likely died.
     * Loneliness is as dangerous as smoking a pack of cigarettes a day.
     * Perhaps social pain would be a good fitness measure for co-evolutionary algorithms, to punish lone wolf invidiudals, that do not conform with the population
+    
+2023-02-26 - LLaMA 
+-------------------
+   * Applied for access to LLaMA large language model for AI research.
+   * Announcement: https://ai.facebook.com/blog/large-language-model-llama-meta-ai/
+   * Paper: https://research.facebook.com/publications/llama-open-and-efficient-foundation-language-models/
+   * Here is the application statement (may be useful for proposal):
+      I plan to use LLaMA to help humans evaluate outputs of more complex models, specifically models for processing fish oil mass spectrometry data, for down stream applications in fish species and part identification, contamination detection, and individual identification.
+
+      I see a fine-tuned LLM on mass spectrometry, fish processing, and machine learning questions, as an excellent bridge between the multi-disciplinary effort of my research. Domain experts in chemistry, machine learning, and fish processing, can provide supervised human feedback with RLHF to fine-tune a model to answer specific questions related to explainable AI for the AIML models a design for those tasks.
+
+      I see LLaMA as an intermediary tool, to foster multi-disciplinary collaboration, and provide a Digital Aristotle, so existing researchers can understand concepts outside their field, such as chemists understanding machine learning, and so new researchers can easily be onboarded, and take the torch and pass it on. Ultimately, a very domain-specific assistant tool, or even just knowledge graph visualization based on the LLaMA word embeddings, would be useful to bridge the gap in understanding between fields.
+
+      The existing work in this field is lost in translation. Chemists, statisticians, and AI researchers are essentially doing the exact same thing, but each field with its own jargon and dogma. I see LLaMA as a tool to bridge the gap between the terminology, translate the jargon, and progress the field of multi-disciplinary application based AI.
