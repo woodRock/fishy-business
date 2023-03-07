@@ -244,6 +244,15 @@ brewer2006brown
     * But our memory is shit, so we often re-write and incorrectly recall these events. 
     * The distinictness of flashbulb memories, does help recall them longer, but does not guarantee correctness. 
 
+bridle1989training
+------------------
+Training stochastic model recognition algorithms as networks can lead to maximum mutual information estimation of parameters
+
+(Bridle 1989) is the first paper to mention "softmax" in neural networks.
+
+Related: 
+    * According to StackExchange, this is the original "softmax" paper for neural networks https://ai.stackexchange.com/questions/22426/which-paper-introduced-the-term-softmax
+
 brochu2010tutorial
 ------------------
     * A Tutorial on Bayesian Optimization of Expensive Cost Functions
