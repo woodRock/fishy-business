@@ -4259,3 +4259,39 @@ Related:
     * See (:ref:`Bifet 2007<bifet2007learning>`) for ADWIN drift detection algorithm.
     * See (:ref:`Gomes 2020<gomes2020ensemble>`) for ADR-Reg. 
     * See (:ref:`Sun 2022<sun2022soknl>`) for SONKL paper.
+
+2023-02-17 - ECRG 
+-----------------
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Mengjie Zhang, Bing Xue, Hui Ma, Hayden, Christian, Jesse 
+
+General notes: 
+    * Teaching starts: 
+        * AIML 427 - Data Processing 
+        * COMP 307 - Artificial Intelligence (tutor)
+    * An A+ in COMp307 means a student can launch into a PhD / Summer Research / Masters project, according to Meng. 
+    * Human feedback - a human study provides qualitative/quantitative feedback on human interactions with an AIML model, good for claiming interpretability in explainable AI (XAI) research. 
+    
+Hamish O'Keeffe `okeefhami@myvuw.ac.nz<okeefhami@myvuw.ac.nz>` gave a talk on CNN-based Instance Segmentation for the Assessment of Mussel Harvests. 
+
+Notes: 
+    * Application-based research, not a novel technique as in academia, but application of existing techniques in exciting new ways. 
+    * Computer vision tasks (increasing order of difficulty): 
+        1. Image classification 
+        2. Object Detection
+        3. Segmentation 
+        4. Semantic Segmentation 
+        5. Instance Segmentation
+    * Instance segmentation - combines object detection and semantic segmentation. 
+    * Panoptic segmentation - combines semantic segmentation and instance segmentation, "again things and stuff" -- Hamish 
+    * Panoptic segmentation is used in the real-world application of self-driving cars, e.g. Tesla FSD. 
+    * Techniques: 
+        1. YOLACT 
+        2. CenterMask 
+        3. Anchor Free 
+        4. R-CNN 
+        5. Blend Mask
+    * Augmentation: For datasets of small size, we can use augmentation to artificially increase the sample complexity of the image dataset. 
+    * Average precision (?) : The average precision of the model was evaluated for the mussel dataset. An average taken from Area Under (AUC), and thresholds :math:`\in \[ 0.5, 0.95 \]`
+    * Framerate - 2.5 - 3.5 seconds per frame, Mussel Havervest Assessment. Slow, but still faster than manual assessment by human eye.
+    * Online learning - in deployment for mobile devices users should be able to identify edge-cases and send them back to be part of the new training data, similar to Tesla's FSD and long tail of computer vision, i.e. edge cases. 
+    * Standardization - checkered background to standardize the photos, also useful for measurements in future applications. 
