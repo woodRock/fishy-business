@@ -237,8 +237,7 @@ Limitations:
 Related: 
     * DDPM :ref:`(Ho 2020) <ho2020denoising>` was the original Denoising diffusion probabilistic models (DDPM)
     * DDIM :ref:`(Song 2020) <song2020denoising>` Denoising diffusion implicit models (DDIM), improved DDPM
-    * Elucidating :ref:`(Karras 2022 ) <karras2022elucidating>` provided a concrete design space for LDM architectures. 
-
+    * Elucidating :ref:`(Karras 2022) <karras2022elucidating>` provided a concrete design space for LDM architectures. 
 
 boccard2013consensus
 --------------------
@@ -820,6 +819,7 @@ Related:
     * :ref:`(Song 2020)<song2020denoising>` proposed DDIM, a generalized DDPM that is faster.
     * Stable Diffusion https://github.com/CompVis/stable-diffusion
     * Deforum Notebook https://t.co/mWNkzWtPsK
+    * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
 
 hof2016industrial
 -----------------
@@ -922,6 +922,9 @@ karras2020analyzing
     * Manipulating latent layer gives a sense of semantically meaninful feature space. 
     * We can see the change in style that sampling latent layer gives. 
 
+Related: 
+    * See :ref:`(Karras 2022) <karras2022elucidating>` for LDM design space paper from same author.
+
 karras2022elucidating
 ---------------------
 Elucidating the design space of diffusion-based generative models
@@ -947,9 +950,13 @@ Why it matters?
 Limitations: 
     * No video, consistency across time, recurrence needed. 
 
-Related: 
-    * Deforum Art - Twitter profile https://twitter.com/deforum_art
+Applications: 
     * (Wood 2022) Glimpse of Us - Joji (AI Generated Music Video) https://youtu.be/IzhWOuCzzzs
+    * Deforum Art - Twitter profile https://twitter.com/deforum_art
+
+Related: 
+    * See :ref:`(Karras 2020) <karras2020analyzing>` for StyleGAN paper from same author.
+    * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
 
 ke2018sparse
 ------------
@@ -1690,6 +1697,7 @@ Related:
     * See :ref:`(Song 2020) <song2020denoising>` for Denoising Diffusion Implicit Models (DDIM), faster diffusion process.
     * See :ref:`2022-07-06 - Deep Learning<2022-07-06 - Deep Learning>`
     * See :ref:`2022-10-19 - Deep Learning<2022-10-19 - Deep Learning>` 
+    * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
 
 rampal2022high
 --------------
@@ -2045,6 +2053,7 @@ Notes:
 
 Related: 
     * See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 16, page 567, [Available] https://www.deeplearningbook.org/contents/graphical_models.html
+    * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
 
 volz2018evolving
 ----------------
