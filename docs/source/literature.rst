@@ -210,6 +210,36 @@ Related:
     * :ref:`(Black 2017) <black2017real>` use REIMS for fish fraud detection. 
     * (BBC 2018) Recent study in the UK (n-665), found >1/5 of samples contained non-declared meat species. https://www.bbc.com/news/uk-45371852
 
+
+blattmann2023align
+------------------
+Align your Latents: High-Resolution Video Synthesis with Latent Diffusion Models
+
+Notes: 
+    * NVIDIA Paper on text-to-video synthesis.
+    * [Available] https://arxiv.org/abs/2304.08818
+    * TODO [ ] Read
+
+Background: 
+
+Motivations: 
+
+Data: 
+
+Method: 
+
+Results: 
+
+Why it matters? 
+
+Limitations:
+
+Related: 
+    * DDPM :ref:`(Ho 2020) <ho2020denoising>` was the original Denoising diffusion probabilistic models (DDPM)
+    * DDIM :ref:`(Song 2020) <song2020denoising>` Denoising diffusion implicit models (DDIM), improved DDPM
+    * Elucidating :ref:`(Karras 2022 ) <karras2022elucidating>` provided a concrete design space for LDM architectures. 
+
+
 boccard2013consensus
 --------------------
 A consensus orthogonal partial least squares discriminant analysis (OPLS-DA) strategy for multiblock Omics data fusion
@@ -898,6 +928,25 @@ Elucidating the design space of diffusion-based generative models
 
 (Karras 2022) provides a clear explanation of the design of generative models.
 
+Background:
+    * Diffusion-based generative models were unnecessarily convoluted. 
+
+Motivation:
+    * Simplify Latent Diffusion Model (LDM) architecture, decouple architecture,
+    * Provide a clear explanation of the design space of generative models.
+
+Data: 
+
+Method:
+
+Results:
+
+Why it matters? 
+    * NeurIPS 2022 paper for LDMs, provided code that EVERYBODY uses (steals!)
+
+Limitations: 
+    * No video, consistency across time, recurrence needed. 
+
 Related: 
     * Deforum Art - Twitter profile https://twitter.com/deforum_art
     * (Wood 2022) Glimpse of Us - Joji (AI Generated Music Video) https://youtu.be/IzhWOuCzzzs
@@ -908,28 +957,43 @@ ke2018sparse
 
 kennedy1995particle
 -------------------
-    * Particle Swarm Optimisation (PSO). 
-    * Purpose: POS optimizes non-linear functions with particle swarn methedology. 
-    * Applications: (1) non-linear function optimization, (2) neural network training. 
-    * PSO was discovered through simulation of a simpleified social behaviourmodel. Then taken from a social behaviour model, and turned into an optimizer. 
-    * Model is very simple, requires a few lines of code, primitive mathematics operators, both effecient in memory and speed. 
-    * Applications: Train ANN weights, Model Schaffers f6 function a GA from (Davis 1991). 
-    * Paradigms: (1) Artificial life - i.e. fish schooling, birds flocking, (2) Genetic algorithms / evotionary programming. 
-    * School of Fish https://youtu.be/15B8qN9dre4
-    * (Reynolds 1987) was intrigued by the aesthetics of bird flocking, the choreography, synchonocity. He wanted to understand the mechanics of bird flocking - as set of simple rules that governed the behaviour. 
-    * With the assumption, like Conway's Game of Life for cellular automata, that a simple set of rules, my underpin the unpredictable and complex group dynamics of bird social behaviour. 
+Particle Swarm Optimisation (PSO). 
+
+Purpose: 
+    * PSO optimizes non-linear functions with particle swarn methedology. 
+    * PSO was discovered through simulation of a simpleified social behaviour model. Then taken from a social behaviour model, and turned into an optimizer. 
+
+Background: 
     * The synchonicit was though of as a function of the bird trying to maintain an optimal distance between itself and its neighbours.
-    * Perhaps these same rules govern social behaviour in humans. Social sharing of infomration amoung members of the same species (cospeciates) offers an evolutionary advantage (Wilson 1975).
-    * Motivation for simulation: to model human behaviour. Humans are more complex, we don't just update our velocity/direction as animals flocking do, we update our beliefs/views to conform to our peers around us - i.e. social desirability bias, cultural homogenuity. 
-    * In abstract multi-dimenisional space, our psychological space, we allow colluions within a population - i.e. two individuals may share the same beliefs. Thus our model allows collisions, e.g. "collision-proof birds". 
-    * Aristotle spoke of Qualitative and quantitative movement. 
-    * Initial approach: a nearest neighbour method to synchonocity that matched velocity resulted in unifrom unchanging direction. 
-    * Stochasity, randomness, "craziness" was required to add variation to the flocks direciton. Enough stochacity to give the illusion of aritificial life. 
+    * All birds in the flock know the global best position, the roost. 
+    * (Millonas 1995) developed 5 basic principles of swarm intelligence. 
+        1. Prxomity - perform space/time computations. 
+        2. Quality - respond to quality features in the environment 
+        3. Diversity - not commit to narrow channels. 
+        4. Stablity - Don't change mode behaviour each iteration. 
+        5. Adaptability - Change behaviour if it is worth it. 
+    * Paradigms: 
+        1. Artificial life - i.e. fish schooling, birds flocking, 
+        2. Genetic algorithms / evotionary programming. 
+    * Train ANN weights, Model Schaffers f6 function a GA from (Davis 1991).
+    * School of Fish https://youtu.be/15B8qN9dre4
     * (Heppner 1990) had simulations which introduced a "roost", a global maximum, or home the birds, that they all know. 
     * But, how do birds find food? I.e. a new bird feeder is found within hours. 
-    * Agents move towards their best know value - the cornfield, in search of food. 
-    * Birds store their local maxima, the cornfield vector (I know there is food here!). 
-    * All birds in the flock know the global best position, the roost. 
+    * Agents move towards their best know value - the cornfield, in search of food.
+    * Birds store their local maxima, the cornfield vector (I know there is food here!).  
+    * Model is very simple, requires a few lines of code, primitive mathematics operators, both effecient in memory and speed. 
+    * (Reynolds 1987) was intrigued by the aesthetics of bird flocking, the choreography, synchonocity. He wanted to understand the mechanics of bird flocking - as set of simple rules that governed the behaviour. 
+    * With the assumption, like Conway's Game of Life for cellular automata, that a simple set of rules, my underpin the unpredictable and complex group dynamics of bird social behaviour. 
+
+Motivations: 
+    * Motivation for simulation: to model human behaviour. Humans are more complex, we don't just update our velocity/direction as animals flocking do, we update our beliefs/views to conform to our peers around us - i.e. social desirability bias, cultural homogenuity. 
+
+.. Data: 
+
+Method: 
+    * Explorers and settlers model, explorers overrun target, settlers more precise, had little improvement, Occam's razor removed the complex model. 
+    * Initial approach: a nearest neighbour method to synchonocity that matched velocity resulted in unifrom unchanging direction. 
+    * Stochasity, randomness, "craziness" was required to add variation to the flocks direciton. Enough stochacity to give the illusion of aritificial life. 
     * Simulation behaviour: a high p/g increment had violent fast behaviour, an approximately equal p/g increment had synchronocity, low p/g increment had no convergence.
     * Improvements: removed craziness, removed nearest neighbour (NN), without NN collisions were enabled, the flock was now a swarm. A swarm not a flock, because we have collisions. 
     * g/p increment values had to be chosen carefully. 
@@ -939,14 +1003,9 @@ kennedy1995particle
     * Stochastic factor, which amplifieid the randomness, was set to 2. This makes the agents "overfly" or overshoot the target about half of the time. Tuned with black magic, a more formal derivation could be done in future work. 
     * Tried a model with one midpoint between :math:`gbest` and pbest, but it converged at the midpoint. 
     * The stochasity was necesarry for good results. 
-    * Explorers and settlers model, explorers overrun target, settlers more precise, had little improvement, Occam's razor removed the complex model. 
     * Version without momentum, had no knowledge of previous motion, and failed to find the global optima. 
-    * (Millonas 1995) developed 5 basic principles of swarm intelligence. 
-        1. Prxomity - perform space/time computations. 
-        2. Quality - respond to quality features in the environment 
-        3. Diversity - not commit to narrow channels. 
-        4. Stablity - Don't change mode behaviour each iteration. 
-        5. Adaptability - Change behaviour if it is worth it. 
+    
+Results: 
     * PSO met all 5 of (Millonas 1995) swarm intelligence principles: 
         1. n-d space calucaltions computed over a series of time setps. 
         2. Responds to quality factors :math:`gbest` and pbest. 
@@ -958,26 +1017,50 @@ kennedy1995particle
     * PSO is a form of Evolutionary Computation, somewhere between genetic algorithms and evolutionary programming.
     * :math:`gbest` / :math:`pbest` is similar to crossover operator, it also has a fitness function, both from evolutionary computation (EC).
     * The momentum of the swarm flying towards better solutions, and often overshooting, is a strength. IT allows the swarm to explore unkown regions in the problem domain. 
+
+Applications: 
+    1. non-linear function optimization, 
+    2. neural network training. 
+
+Philosophy (some beautiful philosophical musings from the end of the paper): 
+    * Perhaps these same rules govern social behaviour in humans. Social sharing of infomration amoung members of the same species (cospeciates) offers an evolutionary advantage (Wilson 1975).
+    * In abstract multi-dimenisional space, our psychological space, we allow colluions within a population - i.e. two individuals may share the same beliefs. Thus our model allows collisions, e.g. "collision-proof birds". 
+    * Aristotle spoke of Qualitative and quantitative movement. 
     * PSO walks a fine line between order (known) and chaos (unknown). 
-    * Philosophy (some beautiful philosophical musings from the end of the paper) 
-        * Allows wisom to emerge rather than impose it. 
-        * Emulates nature rather than trying to control it. 
-        * Makes things simpler than more complex.
+    * Allows wisom to emerge rather than impose it. 
+    * Emulates nature rather than trying to control it. 
+    * Makes things simpler than more complex.
+
+Related: 
+    * :ref:`(Kennedy 1997) <kennedy1997discrete>` Discrete PSO, for feature selection.
+    * :ref:`(Wood 2022) <wood2022automated>` uses PSO for feature selection in GC-MS data.
 
 kennedy1997discrete
 -------------------
-    * PSO for feature selection. 
+PSO for feature selection. 
+
+Notes: 
+    * TODO [ ] Read this paper.
+
+Related: 
+    * :ref:`(Kennedy 1995) <kennedy1995particle>` original PSO paper. 
 
 kerber1992chimerge
 ------------------
-    * Chimerge: Discretization of numeric attributes 
+Chimerge: Discretization of numeric attributes 
+   
+Notes: 
     * Predecessor to Chi2 (Liu 1995, liu1995chi2)
+
+Related: 
+    * :ref:`(Liu 1995) <liu1995chi2>` the successor to Chimerge. 
     
 khakimov2015trends
 ------------------
 Trends in the application of chemometrics to foodomics studies
 
-TODO [ ] READ THIS !!! 
+Notes: 
+    * TODO [ ] READ THIS !!! 
 
 Daniel email:
    * Re: using the 4800x500 image, would it be possible to use a three dimensional ‘data cube’ instead of a 2D image? i.e. time x peak intensity x mass spectrometry (See image below I took from the attached paper)? When we started the work on the GC data, that was the kind of format I hoped to use.
@@ -1025,8 +1108,11 @@ Related:
 
 kononenko1994estimating
 -----------------------
-    * Estimating attributes: Analysis and extensions of Relief. 
-    * ReliefF paper, an extension of Relief (Kira 1992, kira1992practical)
+Estimating attributes: Analysis and extensions of Relief. 
+    
+
+Notes: 
+    * ReliefF paper
     * ReliefF feature selection method. 
     * Original Relief method (Kira 1992), could not handle multi-class problems. 
     * Contributions: extend Relief (Kira 1992) to ReliefF (Kononeko 1994) to handle 
@@ -1083,6 +1169,8 @@ kononenko1994estimating
 
 Related: 
     * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence. 
+    * :ref:`(Kira 1992) <kira1992practical>` an extension of Relief
+    * :ref:`(Wood 2022) <wood2022automated>` used Relief-F for feature selection benchmark. 
 
 koppen2000curse
 ---------------
@@ -1772,6 +1860,55 @@ Related:
     * Stable Diffusion https://github.com/CompVis/stable-diffusion
     * Deforum Notebook https://t.co/mWNkzWtPsK
 
+song2023consistency
+-------------------
+Consistency Models 
+
+(Song 2023) proposes consistency models, a faster alternative to diffusion. [Available] https://arxiv.org/abs/2303.01469
+
+Background: 
+    * OpenAI paper, so it's a big deal.
+    * OpenAI, ChatGPT, GPT-3/4/5, Bing, DALLE-2 
+
+Motivations:
+    * inpainting, colorization, and super-resolution
+    * inpainting: remove objects, fill in missing pixels
+    * photograph-to-drawing (and vice versa)
+
+Data: 
+    * Trained as either:
+        1. distilling an existing pre-trained DM
+        2. standalone generative models
+
+Method: 
+    * The math in figure 1 & 2 https://twitter.com/jrhwood/status/1653620236145528833?s=20
+    * Artificial noise is added to pictures. 
+    * Consistency models learn to map and reverse that noise process, 
+    * track the ODE trajectory back to its origin, 
+    * i.e. the denoised original input image.
+
+Results: 
+    * See figure 12 https://twitter.com/jrhwood/status/1653625255238459394?s=20
+    * (top) the same input image with different levels of noise, and,
+    * (bottom) the output of the consistency model.
+    * The model *consistently* denoised very similar images, that closely resemble the original input image, and each other.
+
+Why it matters? 
+    * Consistency models are based on diffusion, but cheaper for inference and at least as good as SOTA.
+    * Explicit fast one-step generation by design.
+    * (Optional) few-step sampling, improves quality with more compute needed.
+    * Zero-shot editing without explicit training.
+
+Limitations: 
+    * Text information is not encoded in the embedding space. 
+
+Related: 
+    * See :ref:`(Ho 2022) <ho2020denoising>` for original DDPM paper. 
+    * See :ref:`2022-07-06 - Deep Learning<2022-07-06 - Deep Learning >` 
+    * See :ref:`2022-10-19 - Deep Learning<2022-10-19 - Deep Learning>` 
+    * Stable Diffusion https://github.com/CompVis/stable-diffusion
+    * Deforum Notebook https://t.co/mWNkzWtPsK
+
 stewart2022quarry
 -----------------
 QUARRY: A Graph Model for Queryable Association Rules
@@ -1895,6 +2032,19 @@ Related:
 vaswani2017attention
 --------------------
 Attention is all you need
+
+vincent2011connection
+---------------------
+A connection between score matching and denoising autoencoders
+
+(Vincent 2011) propose a connection between score matching and denoising autoencoders.
+
+Notes: 
+    * Denoising score matcher 
+    * Shows a simple denoising autoencoder training criterion is equivalent to matvching the score (with respect to the data) of a specific energy-based model to that of a nonparametric Pazen density estimator of the data. 
+
+Related: 
+    * See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 16, page 567, [Available] https://www.deeplearningbook.org/contents/graphical_models.html
 
 volz2018evolving
 ----------------
@@ -2030,6 +2180,33 @@ zhang2021evolutionary
     * An Evolutionary Forest for Regression 
     * Hengzhe Zhang's paper from ECRG. 
     * TODO [ ] READ
+
+zhang2023adding
+---------------
+Adding conditional control to text-to-image diffusion models
+
+Methods: 
+    * Augment existing LDM, e.g. StableDiffusion, with ControlNets, 
+    * to enable conditional inputs like: 
+        1. edge maps, 
+        2. segmentation maps, 
+        3. and keypoints.
+
+Results:    
+    * See figure 1, https://twitter.com/jrhwood/status/1653612277294309378?s=20
+    * Input: the cany edge map (bottom left)
+    * Prompt: "A high-quality, detailed, professional image"
+    * Output: the 4x generated images on the right
+
+Applications: 
+    * Image generation 
+    * Fine-grained control over LDM output 
+    * Memes in art styles https://twitter.com/jrhwood/status/1653612282935656449?s=20
+
+Related: 
+    * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
+    * See :ref:`(Ho 2020) <ho2020denoising>` for more on diffusion models.
+    * See :ref:`(Song 2020) <song2020denoising>` for more on diffusion models.
 
 zhao2019maximum
 ---------------
