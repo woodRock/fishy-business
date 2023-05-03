@@ -4295,3 +4295,15 @@ Notes:
     * Framerate - 2.5 - 3.5 seconds per frame, Mussel Havervest Assessment. Slow, but still faster than manual assessment by human eye.
     * Online learning - in deployment for mobile devices users should be able to identify edge-cases and send them back to be part of the new training data, similar to Tesla's FSD and long tail of computer vision, i.e. edge cases. 
     * Standardization - checkered background to standardize the photos, also useful for measurements in future applications. 
+
+TODO - Big ass note catchup needed here!!! 
+
+2023-05-03 - Deep Learning
+-----------------
+**Location:** Zoom, **Time:** Thursday, 15:00 - 14:00, **Attendees:** Bastiaan Kleign, Maxwell Clarke, Paul Teal, Amr Mossy 
+
+Related: 
+    * See :ref:`(Song 2020) <song2020denoising>`
+    * See :ref:`(Song 2023) <song2023consistency>`
+    * See :ref:`(Karras 2022) <karras2022elucidating>`
+    * See :ref:`(Zhang 2023) <zhang2023adding>`
