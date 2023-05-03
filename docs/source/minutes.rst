@@ -4261,7 +4261,7 @@ Related:
     * See (:ref:`Sun 2022<sun2022soknl>`) for SONKL paper.
 
 2023-02-17 - ECRG 
------------------
+~~~~~~~~~~~~~~~~~
 **Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Mengjie Zhang, Bing Xue, Hui Ma, Hayden, Christian, Jesse 
 
 General notes: 
@@ -4299,7 +4299,7 @@ Notes:
 TODO - Big ass note catchup needed here!!! 
 
 2023-05-03 - Deep Learning
------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time:** Thursday, 15:00 - 14:00, **Attendees:** Bastiaan Kleign, Maxwell Clarke, Paul Teal, Amr Mossy 
 
 Related: 
