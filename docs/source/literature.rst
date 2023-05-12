@@ -293,6 +293,57 @@ brochu2010tutorial
     * Recommended reading from the :ref:`2022-03-24 - FASLIP<2022-03-24 - FASLIP>` talk on Bayesian Optimizatio .
     * **TODO** read this! 
 
+bromley1993signature
+---------------------
+Signature verification using a" siamese" time delay neural network
+
+(Bromley 1993), from LeCun's lab, proposes Siamese Neural Networks, a contrastive learning technique, for signature verification.
+
+Task: 
+    * Signature verification
+    * Pair-wise comparison of signatures.
+    * Given: 
+        * Reference - a genuine signature 
+        * Query - a signature to be verified.
+    * Determine if query is a genuine signature
+
+Data:  
+    * Signature verification.
+    * Eliminate redundancies - forgeries must attempt to copy a genuine signature.
+    * Genuine signatures have between 80% to 120% of the original strokes of the reference signature.
+    * Note: 120% implies a signature with a few more strokes than the reference is still considered genuine.
+    * 219 people signed between 10 and 20 signatures each, 145 signed genuines, 74 signed forgeries. 
+    * Few-shot learning - A person must have signed at least 6 genuine signatures or forgeries. 
+
+Method:
+    * Siamese network - two identical networks, with shared weights.
+    * The two networks are fed the reference and query signatures.
+    * Euclidean distance between the two networks is used to determine if the query is genuine.
+    * A form of contrastive learning. 
+
+Results: 
+    * Best performance was obtained with Network 4. With the threshold set to detect 80% of forgeries, 95.5% of genuine signatures were detected (24 signatures rejected).
+    * Performance could be improved to 97.0% genuine signatures detected (13 rejected) by removing all first and second signature from the test set 2. 
+    * For 9 of the remaining 13 rejected signatures pen up trajectories differed from the person's typical signature.
+
+Why it matters? 
+    * Siamese networks are a form of contrastive learning.
+    * Contrastive learning is a form of self-supervised learning.
+    * Contastrive learning is an efficient technique for few-shot learning.
+
+Limitations: 
+    * "Another cause of error came from a few people who seemed unable to sign consistently and would miss out letters or add new strokes to their signature."
+    * The authors note that the performance of the system is limited by the quality of the signatures. 
+
+Applications: 
+    * (Bromley 1993) was a proof-of-concept for the signature verification system.
+    * It worked equally well for American, European and Chinese signatures. 
+    * A field trial needed before it could be deployed in a real-world setting.
+
+Related: 
+    * :ref:`(Zhu 2020) <zhu2020masked>` uses Siamese networks for malware detection. 
+    * :ref:`(Jing 2020) <jing2022masked>` propose masked siamese networks. 
+
 brosnan2003monkeys
 ------------------
 Monkeys reject unequal pay
@@ -910,6 +961,20 @@ jing2020learning
     * In protein folding, their are chemical propoerties of protiens that simplify the combinatorial search space for the graphical neural network. 
     * This is similar to how the AI Feynman (Tegmark 2020) used properties of physics equations to simplify symbolic regression. 
 
+jing2022masked
+--------------
+Masked siamese convnets
+
+Task: 
+    * low-shot image classification and outperforms previous methods on object detection benchmarks
+
+Data: 
+    * object detection benchmarks
+    
+Related: 
+    * :ref:`(Bromley 1993) <bromley1993signature>` is the original siamese network paper.
+    * :ref:`(Zhu 2020) <zhu2020masked>` propose siamese networks for ransomware detection.
+
 kajiya1993get
 -------------
     * How to get your SIGGRAPH paper rejected
@@ -1208,14 +1273,86 @@ Notes:
 Related: 
     * :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence.
 
+
+lecun1989backpropagation
+------------------------
+Backpropagation applied to handwritten zip code recognition
+
+(Lecun 1989) proposed the original form of LeNet
+
+Motivations: 
+    * CNNs are a special case of multilayer perceptrons (MLPs).
+    * MLPs are not translation invariant.
+    * MLPs are not robust to distortions in the input.
+
+Dataset: 
+    * MNIST handwritten digits dataset.
+    * 60,000 training images, 10,000 test images.
+
+Method: 
+    * Architecture is called the LeNet-5.
+    * Model consists of: Convolutional layers, Pooling layers, MLP layers.
+    * Convolution and pooling layers perform automatic feature extraction.
+    * Fully connected layers learn to perform classification based on the extracted features.
+    * LeNet-5 Architrecture: 
+        1. Input layer: The input layer takes in the 28x28 pixel grayscale images of handwritten digits from the MNIST dataset.
+        2. Convolutional layers: The first convolutional layer applies six filters to the input image, each filter being 5x5 pixels in size. The second convolutional layer applies 16 filters to the output of the first layer.
+        3. Subsampling layers: The subsampling layers perform down-sampling on the output of the convolutional layers, reducing the dimensions of the output. The subsampling is done using a max-pooling operation with a 2x2 window.
+        4. Fully connected layers: The output of the subsampling layers is then passed through three fully connected layers, with 120, 84, and 10 neurons, respectively. The final layer has 10 neurons, each representing a possible digit from 0 to 9.
+
+Results:
+    * 99.2% accuracy on MNIST test set.
+    * 0.8% error rate on MNIST test set.
+
+Why it matters? 
+    * CNNs are a powerful architecture for computer vision tasks. 
+    * CNNs recognique local connectivity in data that is spatially related (e.g. images).
+    * CNNs are translation invariant.
+
+Limitations: 
+    * CNNs are not rotation invariant.
+    * CNNs are not scale invariant.
+    * CNNs are not robust to distortions in the input.
+
+Related: 
+    * :ref:`(Lecun 1998) <lecun1998gradient>` describres practical applications for CNNs.
+    * :ref:`(Lecun 1989) <lecun1989generalization>` describes the generalization ability of CNNs.
+    * :ref:`(Lecun 1989) <lecun1989handwritten>` describes practical applications of CNNs for handwritten digit recognition (MNIST).
+    * :ref:`(Lecun 1998) <lecun1998gradient>` describes practical applications for CNNs.
+
 lecun1989generalization
 -----------------------
-    * Original Convolutional Neural Network (CNN) paper. 
+Handwritten digit recognition with a back-propagation network
+
+Yann LeCun (Lecun 1989) proves that minimizing the number of free parameters in neural networks can enhance the generalization ability of neural networks.
+
+Related: 
+    * :ref:`(Lecun 1989) <lecun1989backpropagation>` is the original CNN paper.
+    * :ref:`(Lecun 1989) <lecun1989handwritten>` describes practical applications of CNNs for handwritten digit recognition (MNIST).
+    * :ref:`(Lecun 1998) <lecun1998gradient>` describres practical applications for CNNs.
+
+lecun1989handwritten
+--------------------
+Handwritten digit recognition with a back-propagation network
+
+(Lecun 1989) describes the application of backpropagation networks in handwritten digit recognition once again.
+
+Related: 
+    * :ref:`(Lecun 1989) <lecun1989backpropagation>` is the original CNN paper.
+    * :ref:`(Lecun 1989) <lecun1989generalization>` describes the generalization ability of CNNs.
+    * :ref:`(Lecun 1998) <lecun1998gradient>` practical applications of LeNet. 
 
 lecun1998gradient
 -----------------
-    * Gradient-based learning applied to document recognition
-    
+Gradient-based learning applied to document recognition
+
+(Lecun 1998) shows the practical applications of LeNet for document recognition.
+
+Related: 
+    * :ref:`(Lecun 1989) <lecun1989backpropagation>` is the original CNN paper.
+    * :ref:`(Lecun 1989) <lecun1989generalization>` describes the generalization ability of CNNs.
+    * :ref:`(Lecun 1989) <lecun1989handwritten>` describes practical applications of CNNs for handwritten digit recognition (MNIST).
+
 lee2019wide
 -----------
     * Wide neural networks of any depth evolve as linear models under gradient descent
@@ -2275,3 +2412,11 @@ Related:
     * Mutual information can be given for a discrete and continuos by a double sum and integral respectively. See :ref:`(Goodfellow 2016) <goodfellow2016deep>` chapter 3 pg. 72 for a derivation of Kullback-Leibler divergence. 
     * :ref:`(Brown 2012) <brown2012conditional>` generalizes information based FS methods, e.g. MRMR, into conditional likelihood framework.
     * Two FS papers, (:ref:`Lui 1995 <liu1995chi2>`, :ref:`Zhao 2019 <zhang2008two>`) use a synthetic datasets where redundant features are known.
+
+zhu2022few
+----------
+A few-shot meta-learning based siamese neural network using entropy features for ransomware classification},
+
+Related: 
+    * :ref:`(Bromley 1993) <bromley1993signature>` is the original siamese network paper.
+    * :ref:`(Jing 2022) <jing2022masked>` proposed masked siamse convnets for few-shot learning.
