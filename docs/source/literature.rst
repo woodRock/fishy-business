@@ -23,6 +23,13 @@ Sanity checks for saliency maps
 
 (Adebayo 2018) suggests salience maps are glorified edge detectors.
 
+agarwal2011building
+------------------
+Building rome in a day
+
+TODO:
+    * READ https://dl.acm.org/doi/abs/10.1145/2001269.2001293
+
 aizerman1964theoretical
 -----------------------
     * The original hyperplane algorithm used a linear kernel.
@@ -835,13 +842,28 @@ Related:
     * :ref:`(Li 2002) <li2002novel>` is another paper by same author, with EC for solving DE in materials science.
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>` used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
 
+he2016deep
+----------
+Deep residual learning for image recognition
+
+(He 2016) is the original paper on ResNet.
+
+Related: 
+    * See :ref:`(Lecun 1989) <lecun1989backpropagation>` for LeNet.
+    * See :ref:`(Krizhevsky 2012) <krizhevsky2017imagenet>` for AlexNet.
+    * See :ref:`(Simonyan 2014) <simonyan2014very>` for VGGNet.
+    * See :ref:`(Szegedy 2015) <szegedy2015going>` for GoogLeNet.
+    
 he2020bayesian
 --------------
-    * Bayesian deep ensembles via the neural tangent kernel
+Bayesian Deep Ensembles via the Neural Tangent Kernel
+
+TODO: 
+    * read https://proceedings.neurips.cc/paper/2020/hash/0b1ec366924b26fc98fa7b71a9c249cf-Abstract.html
+
 
 hengzhe2021evolutionary
 -----------------------
-
 An Evolutionary Forest for regression
 
 (Hengzhe 2021) is a TVEC paper for Evolutionary Forest.
@@ -890,6 +912,12 @@ Hofstadter1979godel
 -------------------
     * Godel Escher Bach 
     * The hand that draws itself. 
+
+huang2017densely
+----------------
+Densely connected convolutional networks
+
+(Huang 2017) is the original paper on DenseNet, a deep learning technique for image classification.
 
 hung2019optimizing
 ------------------
@@ -1260,6 +1288,15 @@ Related:
     * :ref:`(Hof 2016) <hof2016industrial>` discussed tranposons affect on Moths. 
     * :ref:`(Bourque 2018) <bourque2018ten>` discussed transposons in general. 
     * Julie discussed this in 2022-10-14 - ECRG 
+
+krizhevsky2017imagenet
+----------------------
+Imagenet classification with deep convolutional neural networks
+
+(Krizhevsky 2012) proposed AlexNet
+
+Related: 
+    * :ref:`(Lecun 1989) <lecun1989backpropagation>` proposed the original form of LeNet
 
 kullback1951information
 -----------------------
@@ -1972,6 +2009,19 @@ shahriari2015taking
     * Recommended reading from the :ref:`2023-03-24 - FASLIP<2023-03-24 - FASLIP>` on Bayesian Optimization
     * **TODO** read this. 
 
+simonyan2014very
+----------------
+Very deep convolutional networks for large-scale image recognition
+
+(Simonyan 2014) is the original VGG paper.
+
+Related: 
+    * :ref:`(Lecun 1989) <lecun1989backpropagation>` proposed LeNet, the original CNN.
+    * :ref:`(Krizhevsky 2017) <krizhevsky2017imagenet>` proposed AlexNet, the first CNN to win ImageNet.
+    * :ref:`(He 2015) <he2015deep>` proposed ResNet, a CNN with residual connections.
+    * :ref:`(Szegedy 2015) <szegedy2015going>` proposed GoogLeNet, a CNN with inception modules.
+    * :ref:`(Huang 2017) <huang2017densely>` proposed DenseNet, a CNN with dense connections.
+
 smart2005using
 --------------
 Genetic programming for multiclass object classification.
@@ -2074,10 +2124,21 @@ Related:
 
 szegedy2013intriguing
 ---------------------
-    * Intriguing properties of neural networks.
+Intriguing properties of neural networks.
+
+Notes: 
     * Adversarial attacks on neural networks. 
     * Trick neural nets into making the wrong prediction on purpose. 
     * Long tail problem of AI. 
+
+TODO: 
+    * https://arxiv.org/abs/1312.6199
+
+szegedy2015going
+----------------
+Going deeper with convolutions
+
+(Szegedy 2015) propose GoogLeNet, a CNN with inception modules.
 
 tran2019genetic
 ---------------
