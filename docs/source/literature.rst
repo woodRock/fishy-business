@@ -885,7 +885,17 @@ Deep residual learning for image recognition
 
 (He 2016) is the original paper on ResNet.
 
+Notes: 
+    * A residual neural network (He 2016) is a deep learning model in which the weight layers learn redidual functions with reference to the layer inputs. 
+    * Defn. a network with skip connectionts that perform identity mappings, merged with layer outputs by addition. 
+    * (He 2016) proposed ResNet for imace Recognition, the original Resnet paper that won the ILSVRC 2015 classification task. Residual neurons, or skip connetions between layers.
+    * Skip connections provide shortcuts for information flow between layers of a nerual network. Skip connections allow a network to better propogage information between layers, which inproves performance overall. * A residual neural network (He 2016) is a deep learning model in which the weight layers learn redidual functions with reference to the layer inputs. 
+    * Defn. a network with skip connectionts that perform identity mappings, merged with layer outputs by addition. 
+    * (He 2016) proposed ResNet for imace Recognition, the original Resnet paper that won the ILSVRC 2015 classification task. Residual neurons, or skip connetions between layers.
+    * Skip connections provide shortcuts for information flow between layers of a nerual network. Skip connections allow a network to better propogage information between layers, which inproves performance overall. 
+
 Related: 
+    * Dicussed in :ref:`2023-05-25 - FASLIP <2023-05-25 - FASLIP>`
     * See :ref:`(Lecun 1989) <lecun1989backpropagation>` for LeNet.
     * See :ref:`(Krizhevsky 2012) <krizhevsky2017imagenet>` for AlexNet.
     * See :ref:`(Simonyan 2014) <simonyan2014very>` for VGGNet.
@@ -1088,6 +1098,26 @@ Related:
     * See :ref:`(Karras 2020) <karras2020analyzing>` for StyleGAN paper from same author.
     * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
 
+katharopoulos2020transformers
+-----------------------------
+Transformers are rnns: Fast autoregressive transformers with linear attention
+
+`(katharopoulos 2020) <https://proceedings.mlr.press/v119/katharopoulos20a.html>`__ propose :math:`O(n)` transformers with self-attention as a linear dot-product of kernel feature maps.
+
+Notes: 
+    * Transformers achieve remarkable performance in several tasks but due to their quadratic complexity, with respect to the input's length, they are prohibitively slow for very long sequences. 
+    * To address this limitation, we express the self-attention as a linear dot-product of kernel feature maps and make use of the associativity property of matrix products to reduce the complexity from :math:`O(n^2)` to :math:`O(n)`, where N is the sequence length. 
+    * We show that this formulation permits an iterative implementation that dramatically accelerates autoregressive transformers and reveals their relationship to recurrent neural networks. 
+    * Linear Transformers achieve similar performance to vanilla Transformers and they are up to 4000x faster on autoregressive prediction of very long sequences.
+
+Related: 
+    * Discussed in :ref:`2023-05-10 - Deep Learning <2023-05-10 - Deep Learning>`
+    * See :ref:`(Zhai 2021) <zhai2021attention>` for Attention Free Transformer (AFT)
+    * See :ref:`(Peng 2023) <peng2023rwkv>` for RWKV - transformers + RNNs. 
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper. 
+
 ke2018sparse
 ------------
     * Sparse attentive backtracking: Temporal credit assignment through reminding
@@ -1235,6 +1265,24 @@ kishore2021fixed
     * Pre-trained stenograph, results in non-zero error, we need perfect reconstruction for encryption.
     * Face anonymization, post a persons face online, then regenerate the face, but encrypt the private face. 
     * This lets friends anonmyously share images with their face online, without revealing their identity.
+
+kitaev2020reformer
+------------------
+Reformer: The efficient transformer
+
+`(Kitaev 2020) <https://arxiv.org/abs/2001.04451>`__ propose the Reformer, an :math:`O(L\log L)` efficient transformer.
+
+Notes: 
+    * replace dot-product attention by one that uses locality-sensitive hashing, changing its complexity from :math:`O(L^2)` to :math:`O(L\log L)`, where :math:`L` is the length of the sequence
+
+Related: 
+    * Discussed in :ref:`2023-05-10 - Deep Learning <2023-05-10 - Deep Learning>`
+    * See :ref:`(Wang 2020) <wang2020linformer>` for linformer. 
+    * See :ref:`(Peng 2023) <peng2023rwkv>` for RWKV transformer + RNNs paper. 
+    * See :ref:`(Zhai 2021) <zhai2021attention>` for attention free transformer (AFT paper).
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper. 
 
 kobyzev2020normalizing
 ----------------------
@@ -1543,6 +1591,11 @@ Why it matters?
 Related: 
     * See :ref:`(Vaswani 2017)<vaswani2017attention>` proposed sinosoidal positional encodings for 1D data.
     * See :ref:`(Jaegle 2021)<jaegle2021perceiver>` for Perciever paper that uses these encodings. 
+    * See :ref:`(Peng 2023) <peng2023rwkv>` for RWKV paper that builds on this. 
+    * See :ref:`(Zhai 2021) <zhai2021attention>` for attention free transformer (AFT paper).
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
+    * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
 
 lin2017feature
 --------------
@@ -1861,7 +1914,7 @@ Related:
     * See :ref:`(Peng 2022) <peng2022prenastvec>` for GECCO paper, published later.
 
 Peng2021prenasgecco
----------------
+-------------------
 PRE-NAS: Evolutionary Neural Architecture Search with Predictor. IEEE Transactions on Evolutionary Computation.
 
 (Peng 2022) is a GECCO paper on Pre-NAS (second paper).
@@ -1870,6 +1923,44 @@ Related:
     * See ECRG - 2023-01-20 for talk from author.
     * See :ref:`(Peng 2022) <peng2022prenastvec>` for TVEC paper, published earlier.
 
+peng2023rwkv
+------------
+RWKV: Reinventing RNNs for the Transformer Era
+
+`(Peng 2023) <https://arxiv.org/abs/2305.13048>`__ propose Receptance Weighted Key Value (RWKV). 
+
+Notes: 
+    * A hybrid model of transformers and RNNs.
+    * More efficient inference than regular GPT-based transformers. 
+    * Don't need GPU clusters to fine-tune - works on commodity hardware. 
+
+
+Background:
+    * The computation graph of a transformer is setup in a way that isi is very efficient to be computed in parallel on GPU clusters. 
+    * (Zhai 2021) proposed the Attention Free Transformer (AFT), the predecessor to today's paper, the Receptance Weighted Key Value (RWKV) transformer. 
+
+Method:
+    * RKWV is an pen source language model, pronounced "rwa-kuv", it is a 7 billion parameter attention free architecture, with hypothetically infinite context length.
+    * Idea: replace the multi-head attention in a transformer with an Attention Free Transformer (AFT) from (Zhai 2021).
+    * Linformer, Reformer, and Linear transformer, (Wang 2020, Kitaev 2020, Katharopoulos 2020) are the inspiration for RWKV.
+
+Why it matters?: 
+    * RWKV takes ess memory over inference.
+    * Run GPT-4 based start-up on cheaper hardware that requires less memory.
+    * Democracy of AI technology, availability of LLMs on commodity hardware. 
+
+Applications: 
+    * RWKV Raven 14B Demo - Hugging Face https://huggingface.co/spaces/BlinkDL/ChatRWKV-gradio
+    * Github https://github.com/BlinkDL/RWKV-LM
+    
+Related:
+    * See :ref:`2023-05-10 - Deep Learning <2023-05-10 - Deep Learning>` where paper was dicussed.
+    * See :ref:`(Zhai 2021) <zhai2021attention>` for Attention Free Transformer (AFT).
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
+    * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper.
+    
 perez2019analysis
 -----------------
 Analysis of statistical forward planning methods in Pommerman
@@ -2066,7 +2157,7 @@ Very deep convolutional networks for large-scale image recognition
 Related: 
     * :ref:`(Lecun 1989) <lecun1989backpropagation>` proposed LeNet, the original CNN.
     * :ref:`(Krizhevsky 2017) <krizhevsky2017imagenet>` proposed AlexNet, the first CNN to win ImageNet.
-    * :ref:`(He 2015) <he2015deep>` proposed ResNet, a CNN with residual connections.
+    * :ref:`(He 2016) <he2016deep>` proposed ResNet, a CNN with residual connections.
     * :ref:`(Szegedy 2015) <szegedy2015going>` proposed GoogLeNet, a CNN with inception modules.
     * :ref:`(Huang 2017) <huang2017densely>` proposed DenseNet, a CNN with dense connections.
 
@@ -2107,7 +2198,7 @@ song2023consistency
 -------------------
 Consistency Models 
 
-(Song 2023) proposes consistency models, a faster alternative to diffusion. [Available] https://arxiv.org/abs/2303.01469
+`(Song 2023) <https://arxiv.org/abs/2303.01469>`__ proposes consistency models, a faster alternative to diffusion. [Available] https://arxiv.org/abs/2303.01469
 
 Background: 
     * OpenAI paper, so it's a big deal.
@@ -2318,6 +2409,25 @@ Evolving deep convolutional neural networks by variable-length particle swarm op
 Related:
     * See :ref:`2022-10-27 - FASLIP<2022-10-27 - FASLIP>`
 
+wang2020linformer
+-----------------
+Linformer: Self-attention with linear complexity},
+
+`(Wang 2020) <https://arxiv.org/abs/2006.04768>` propose Linformer an :math:`O(n)` appromimation of self-attention.
+
+Notes: 
+    * Self-attention mechanism can be approximated with a low rank matrix. 
+    * Reduces space and time complexity from :math:`O(n^2)` to :math:`O(n)`.
+    * Performance on par with standard transformer models, whilst being much more memory and time efficient. 
+
+Related:
+    * See :ref:`(Peng 2023) <peng2023rwkv>` is inspired by Linformer.
+    * See :ref:`(Zhai 2021) <zhai2021attention>` for Attention Free Transformer (AFT).
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
+    * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper.
+
 watkins1992q
 ------------
 Q-learning
@@ -2358,6 +2468,14 @@ wolpert1997no
     * No classification algorithm that beats the rest for every problem. 
     * As training instances approaches infinity, classification accuracy on all distributions of noise, approaches predicting mean class. 
     * All machine learning algorithms are task specific, don't generalize to all problems, no artifical general intelligence (AGI), yet... 
+
+xie2022physics
+--------------
+A Physics-Guided Reversible Residual Neural Network Model: Applied to Build Forward and Inverse Models for Turntable Servo System
+
+Related: 
+    * Author gave talk in :ref:`2023-05-25 - FASLIP <2023-05-25 - FASLIP>`
+    * Residual Neural Networks - Resnet, see :ref:`(He 2016) <he2016deep>`
 
 xin2022current
 --------------
@@ -2423,6 +2541,24 @@ Why it matters?
 
 Related: 
     * TODO [ ] - read. 
+
+zhai2021attention
+-----------------
+An attention free transformer
+
+`(Zhai 2021) <https://arxiv.org/abs/2105.14103>`__ is an apple paper that presents the Attenion Free Transformer (AFT).
+
+Notes: 
+    * Recurent Neural Network for inference. 
+    * Cheaper inference method for GPT-like transformer models. 
+
+Related: 
+    * See :ref:`2023-06-10 - Deep Learning <2023-07-10 - Deep Learning>` where paper was dicussed. 
+    * See :ref:`(Peng 2023) <peng2023rwkv>` for RWKV paper that builds on this. 
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
+    * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper. 
 
 zhang2008two
 ------------
