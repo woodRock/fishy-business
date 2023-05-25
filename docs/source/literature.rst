@@ -80,6 +80,16 @@ banzhaf2009genetic
     * Genetic Programming: An Introduction On The Automatic Evolution Of Computer Programs And Its Applications
     * TODO [ ] must read book for foundations of GP. (buy?)
 
+behmo2010towards
+----------------
+Towards optimal naive bayes nearest neighborhood
+
+`(Behmo 2010) <https://link.springer.com/chapter/10.1007/978-3-642-15561-1_13>` proposes a Naive Bayes Nearest Neighbour (NBNN) classifier.
+
+Related: 
+    * :ref:`(Crall 2013) <crall2013hotspotter>` uses LBNN for instance recognition. 
+    * :ref:`(McCann 2012) <mccann2012local>` proposed Local Naive Bayes Nearest Neighbour (LNBNN).
+
 bengio2017consciousness
 -----------------------
     * The consciousness prior
@@ -562,6 +572,33 @@ TODO [ ] Read this paper.
 
 Related: 
     * See :ref:`2022-11-09 - Deep Learning<2022-11-09 - Deep Learning>`
+
+crall2013hotspotter
+-------------------
+HotSpotter — Patterned species instance recognition
+
+`(Crall 2013)<https://ieeexplore.ieee.org/abstract/document/6475023>`__ is an instance recognition computer vision paper. 
+
+Purpose: 
+    HotSpotter a model to recognize instances based on their unique spots. 
+    
+Dataset: 
+    * This is a species invariant model, that differentiates between dissimilar species, e.g. zebras, giraffes, leopards, and lionfish. Fish and mammals are dissimilar but share spots. 
+
+Method:
+    * Local Naive Bayes Nearest Neighbours (:BNN)
+
+Limitations: 
+    * relatively dated paper, 2012 paper \cite{mccann2012local} that proposed \acrfull{LNBNN}, 
+    * an extension of \acrfull{NBNN} \cite{behmo2010towards}. 
+    * where "only the classes represented in the local neighborhood of a descriptor contribute significantly and reliabl to their posterior probability estimates". 
+    * The authors admit {LNBNN, did not beat state-of-the-art methods such as feature pyramid networks :ref:`(Lin 2017) <lin2017feature>`, which rely on local soft assignment and max pooling operators. Convolutions and max-pooling are utilized in CNNs \cite{lecun1989backpropagation}, a powerful model for computer vision-related tasks. Which with advancements in hardware, and the lifting of the AI winter, are efficient to train at scale using GPUs. Since then, a a plethor of CNN-based architectures dominate computer-vision tasks:
+    
+Related: 
+     * While images are far from rapid mass spectrometry data, this research aims to perform a similar task, by providing a species-invariant model that differentiates between dissimilar species of fish, e.g. whitefish and oily fish, based on their unique chemical compositions.
+     * See :ref:`(Lecun 1989) <lecun1989backpropagation>` for original CNN paper.
+     * Local Naive Bayes Nearest Neighrbour (LNBNN) :ref:`(Behmo 2010) <behmo2010towards>`
+     * Naive Bayes Nearest Neighbour (NBNN) :ref:`(McCann 2012) <mccann2012local>`
 
 craik1972levels
 ---------------
@@ -1603,6 +1640,17 @@ matyushin2020gas
     * Once identified the retention index can be used for further identification.
     * GC-MS data has underlying patterns that correspond to chemical compounds.
 
+mccann2012local
+---------------
+Local naive bayes nearest neighbor for image classification
+
+`(McCann 2012) <https://ieeexplore.ieee.org/abstract/document/6248111>` propose a local naive bayes nearest neighbor (LNBNN) classifier.
+
+Related: 
+    * :ref:`(Crall 2013) <crall2013hotspotter>` uses LNBNN for instance recognition.
+    * :ref:`(Behmo 2010) <behmo2010towards>` proposed Naive Bayes Nearest Neighbor (NBNN).
+
+
 mclean2005differences
 ---------------------
 Differences in lipid profile of New Zealand marine species over four seasons
@@ -1745,7 +1793,7 @@ nielsen2020survae
     * SurVAE Flows: Surjections to Bridge the Gap between VAEs and Flows 
     * TODO [ ] read 
 
-nguyen2014filter
+nguyen2014filtermccann2012local
 ----------------
     * Nguyen et al. proposed a wrapper based PSO technique for feature selection in classification.
     * The algorithm uses a wrapper based fitness function of the classification error rate.
