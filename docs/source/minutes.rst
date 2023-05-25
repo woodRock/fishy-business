@@ -4302,8 +4302,97 @@ TODO - Big ass note catchup needed here!!!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time:** Thursday, 15:00 - 14:00, **Attendees:** Bastiaan Kleign, Maxwell Clarke, Paul Teal, Amr Mossy 
 
+Bastian presented a talk on the paper :ref:`(Song 2023) <song2023consistency>` on consistency models.
+
+Notes: 
+    * Consistency models (Song 2023) - new family of generative models that achieve high sample quality without adversarial training. 
+    * Cheaper at inference and at least as good. 
+    * No text embedding in the latent space. 
+    * Applications; editing images, images :math:`\to` painting/drawing, in-painting - filling missing pixels. 
+    * Denosing score matching from (Vinent 2011) - paper that sows a simple denoising autoencoder training criterion is equivalent to matvching the score (with respect to the data) of a specific energy-based model to that of a nonparametric Pazen density estimator of the data. 
+    * (Karras 2022) provdes a design space that clearly seperates the concrete deisgn choices for generative models. Before the design was uncessarily convoluted. 
+    * Original diffusion mdels for text-to-image were (Ho 2020, Song 2020). Papers from (Karras 2022) provide clarity to their design. However, (Song 2023) propose consistency models, as an alternative to diffusion altogether.
+    * ControlNet from (Zhang 2023), adds conditional control to existing diffusion models, such as stable diffusion. For example canny edge maps for semantic consistency of edges in generate images.
+
 Related: 
-    * See :ref:`(Song 2020) <song2020denoising>`
-    * See :ref:`(Song 2023) <song2023consistency>`
-    * See :ref:`(Karras 2022) <karras2022elucidating>`
-    * See :ref:`(Zhang 2023) <zhang2023adding>`
+    * See :ref:`(Song 2023) <song2023consistency>` - the paper presented today. 
+    * See :ref:`(Vincent 2011) <vincent2011connection>` for score matcher
+    * See :ref:`(Goodfewllow 2016) <goodfellow2016deep>` Chapter 16, page 567, for energy-based models. 
+    * See :ref:`(Karras 2022) <karras2022elucidating>` provides a concrete design space for generative models. 
+    * See :ref:`(Ho 2020) <ho2020denoising>` Denoising diffusion probablistic models (DDPM) - original diffusion paper.
+    * See :ref:`(Song 2020) <song2020denoising>` Denoising Diffusion Implicit Models (DDIM) - faster diffusion process. 
+    * See :ref:`(Zhang 2023) <zhang2023adding>` ControlNet adds conditional control existing diffusion models, such as stable diffusion. 
+
+2023-05-04 - Weekly
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday, 12:00 - 13:00, **Attendees:** Mengjie Zhang, Bing Xue, Jesse Wood
+
+Notes:
+    * Sunday, 5 PM deadline, neet to extend the bullet points, send a draft to my supervisors, they will give my feedback on Monday.
+    * The Candidate Development Plan (CDP) is due this month, important to focus on the proposal submissionf or this month.
+    * The preliminary work (3), Contributions (4), Resources (5), are for administration purposes. Don't fuss about Literature Review (2) for now. 
+    * Important to stop adding to proposal, assume knowledge cut-off of today, and write my ideas of then.
+
+TODO: 
+    * [x] Candidate Development Plan 
+    * [x] Proposal introduction draft to supervisors 
+
+2023-05-10 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wednesday, 15:00 - 16:00, **Attendees:** Maxwell Clarke, Bastian Kleign, Felix, Brijesh, Paul. 
+
+Notes:
+    * The computation graph of a transformer is setup in a way that isi is very efficient to be computed in parallel on GPU clusters. 
+    * (Zhai 2021) proposed the Attention Free Transformer (AFT), the predecessor to today's paper, the Receptance Weighted Key Value (RWKV) transformer. 
+    * RKWV is an pen source language model, pronounced "rwa-kuv", it is a 7 billion parameter attention free architecture, with hypothetically infinite context length.
+    * Live demo RWKV Raven available on Huggine face, see (Peng 2023) for more link. 
+    * Idea: replace the multi-head attention in a transformer with an Attention Free Transformer (AFT) from (Zhai 2021).
+    * Linformer, Reformer, and Linear transformer, (Wang 2020, Kitaev 2020, Katharopoulos 2020) are the inspiration for RWKV.
+    * Advantages: 
+        * RWKV takes ess memory over inference.
+        * Run GPT-4 based start-up on cheaper hardware that requires less memory.
+        * Democracy of AI technology, availability of LLMs on commodity hardware. 
+
+Related: 
+    * See :ref:`(Peng 2023) <peng2023rwkv>` for RWKV paper that builds on this. 
+    * See :ref:`(Zhai 2021) <zhai2021attention>` for attention free transformer (AFT paper).
+    * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
+    * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
+    * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper. 
+
+2023-05-25 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 12:00 - 12:30, **Attendees:** Mengjie Zhang, Bing Xue, Bach Hoai Nguyen, Jesse Wood 
+
+Notes: 
+    * Need to come in early to unviersity to have enough time work on PhD during office hours. Difficult to juggle schedule with tutoring, personal commitments, and PhD, without spending some more time in the office. 
+    * Candidate Development Plan is due, need to send my supervisors a draft today, so they can sign off on this. 
+
+TODO: 
+    * [x] Candidate Development Plan (CDP) due 2023-05-25 - today!
+    * [ ] Come in early for PhD work.
+
+
+2023-05-25 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Cheng Xie, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jordan MacLachlan
+
+Cheng Xie from the Harbin Institute of Technology China gave a talk on Particle Swarm Optimization (PSO)-based Neural Architecture Search (NAS) for Physics-Guided Reversible Residual Neural Networks 
+
+Notes: 
+    * Turtable servo system - large simulation experimental equipment use to simulate flight altitude. 
+    * Use advanced control methods to improve trackin performance of servo system: 
+        1. Model predictive Control - Forward 
+        2. Supervised control - Inverse 
+        3. Inner model control - Forward/Inverse 
+    * (Xie 2023) is a physics-guided reversiable rediedual nerual netwro model: applied to build foward/inverse models for turntable servo systems. 
+    * A residual neural network (He 2016) is a deep learning model in which the weight layers learn redidual functions with reference to the layer inputs. 
+    * Defn. a network with skip connectionts that perform identity mappings, merged with layer outputs by addition. 
+    * (He 2016) proposed ResNet for imace Recognition, the original Resnet paper that won the ILSVRC 2015 classification task. Residual neurons, or skip connetions between layers.
+    * Skip connections provide shortcuts for information flow between layers of a nerual network. Skip connections allow a network to better propogage information between layers, which inproves performance overall. 
+
+Related: 
+    * See :ref:`(Xie 2023) <xie2022physics>` for the paper he discussed today. 
+    * See :ref:`(He 2016) <he2016deep>` for ResNet paper. 
+
