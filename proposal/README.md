@@ -10,6 +10,7 @@ The proposal directory contains the following files.
 
 ```
 .
+├── feedback
 ├── proposal.zip
 ├── proposal.pdf
 └── README.md
@@ -17,6 +18,7 @@ The proposal directory contains the following files.
 
 This directory contains the following files: 
 
+* [**feedback**](feedback) is the directory containing feedback from my supervisors.
 * [**proposal.zip**](proposal.zip) is the zip file of the proposal.
 * [**proposal.pdf**](proposal.pdf) is the pdf of the proposal.
 
