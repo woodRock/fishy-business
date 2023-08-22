@@ -199,7 +199,7 @@ Method:
     * Chemometric analysis (VIP + S-plots) of REIMS could detect unique/significant markers. 
     * Prinicapl component anaylsis linear discriminat anaylsis (PCA-LDA) (Abdi 2010) using orthogonal partial least squares discriminant analysis (OPLS-DA) (Boccard 2013).
     * PCA-LCA used for dimensionality reduction - classification, respectively. 
-    * Detect outliers based on standard deviation outside 20:math:`\sigma` of the mean for any class. 
+    * Detect outliers based on standard deviation outside 20 :math:`\sigma` of the mean for any class. 
     * They provide a very detailed description of their method from the chemistry side, including instruments and their settings. Good for reproducability and understanding.
 
 Results: 
