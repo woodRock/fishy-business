@@ -415,6 +415,19 @@ Related:
     * :ref:`(Brown 2022) <brown2022human>` shows that AI can beat humans at diplomacy.
     * :ref:`(Morvavvcik 2017) <moravvcik2017deepstack>` DeepStack beats humans at heads-up no-limit Texas hold 'em poker.
 
+brown2020language
+-----------------
+Language Models are Few-Shot Learners
+
+Notes: 
+    * Scaling up language models greatly improves task-agnostic, few-shot performance
+    * tasks: NLP datasets, including translation, question-answering, and cloze tasks
+    * tasks with on-the-fly reasoning or domain adaptation: unscrambling words, using a novel word in a sentence, or performing 3-digit arithmetic.
+    * GPT can produce convincing fake news articles that humans struggle to spot.
+
+Related: 
+    * :ref:`(Dong 2022) <dong2022survey>` suvery paper on ICL 
+
 brown2022human
 --------------
 Human-level play in the game of Diplomacy by combining language models with strategic reasoning.
@@ -673,6 +686,23 @@ The Master Algorithm: How the Quest for the Ultimate Learning Machine Will Remak
 
 Related: 
     * See :ref:`2023-02-02 - FASLIP<2023-02-02 - FASLIP>`
+
+
+dong2022survey
+--------------
+A survey for in-context learning
+
+Available: https://arxiv.org/pdf/2301.00234.pdf
+
+Notes: 
+    * Mechanisms for in-context learning (ICL) are unclear 
+    * Paradigm for training-free learning. 
+    * In-context, learn a new task when presented with a demonstration, without any further optimiztion.
+
+Related: 
+    * OpenAI GPT-3 
+    * :ref:`(Brown 2020) <brown2020language>` LLMs are few shot learners papers 
+
 
 ecoffet2021first
 ----------------
