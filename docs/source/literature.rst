@@ -305,7 +305,9 @@ brochu2010tutorial
     * Application: 
         1. Active User Modeling 
         2. Hierarchical Reinforcement Learning
-    * Covers the theory and intuition behind Bayesian optimizadevlin2018bert
+    * Covers the theory and intuition behind Bayesian optimiza
+    
+bromley1993signature
 ---------------------
 Signature verification using a" siamese" time delay neural network
 
