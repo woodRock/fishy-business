@@ -305,12 +305,7 @@ brochu2010tutorial
     * Application: 
         1. Active User Modeling 
         2. Hierarchical Reinforcement Learning
-    * Covers the theory and intuition behind Bayesian optimizaiton with visual examples. 
-    * Discusses preference galleries, hierachichal control
-    * Recommended reading from the :ref:`2022-03-24 - FASLIP<2022-03-24 - FASLIP>` talk on Bayesian Optimizatio .
-    * **TODO** read this! 
-
-bromley1993signature
+    * Covers the theory and intuition behind Bayesian optimizadevlin2018bert
 ---------------------
 Signature verification using a" siamese" time delay neural network
 
@@ -427,6 +422,7 @@ Notes:
 
 Related: 
     * :ref:`(Dong 2022) <dong2022survey>` suvery paper on ICL 
+    * :ref:`2023-02-22 - Deep Learning  <2023-02-22 - Deep Learning >` discusses this. 
 
 brown2022human
 --------------
@@ -644,6 +640,18 @@ Related:
     * See Wolfgang's talk at 2022-10-28 - ECRG , GP as a model of a discrete fitness landscape. 
     * See 12:18 from "Psychedlics, Consciosness, and AI \| Richard Dawkins \| #256" https://youtu.be/HbGoUwmqIEQ?t=738
 
+devlin2018bert
+--------------
+Bert: Pre-training of deep bidirectional transformers for language understanding
+
+Available: https://arxiv.org/abs/1810.04805
+
+BERT is a bidrectionanal transformer model proposed by google. 
+
+Related: 
+    * :ref:`2023-02-22 - Deep Learning <2023-02-22 - Deep Learning >` discussed here. 
+    * :ref:`(Vaswani 2017) <vaswani2017attention>` attention paper
+
 di2019survey
 ------------
     * A survey on gans for anomaly detection
@@ -698,6 +706,13 @@ Notes:
     * Mechanisms for in-context learning (ICL) are unclear 
     * Paradigm for training-free learning. 
     * In-context, learn a new task when presented with a demonstration, without any further optimiztion.
+    * Few-shot ICL is possible with a large enough corpus of text and sufficient model complexity.
+    * ICL is where a language model can learn a task from a few examples without any further fine-tuning.
+    * Tasks are often specified in the text, e.g. a textbook may contain word problems with answers.
+    * A task-specific language model can be conditioned to perform a certain task, for example answering word problems.
+    * Arbitrary tasks could be learnt by scaling up models and training on a very large corpus - more data and parameters improves task-agnostic performance.
+    * While the mechanisms of in context-learning `(Dong 2022) <dong2022survey>` are a mystery, :ref:`(Brown 2020) <brown2020language>` shows that scaling up language models improves task-agnostic few-shot performance.
+    * ICL is an "emergent property" of LLMs (airquotes as term is controversial)
 
 Related: 
     * OpenAI GPT-3 
@@ -1969,17 +1984,7 @@ Background:
     * The computation graph of a transformer is setup in a way that isi is very efficient to be computed in parallel on GPU clusters. 
     * (Zhai 2021) proposed the Attention Free Transformer (AFT), the predecessor to today's paper, the Receptance Weighted Key Value (RWKV) transformer. 
 
-Method:
-    * RKWV is an pen source language model, pronounced "rwa-kuv", it is a 7 billion parameter attention free architecture, with hypothetically infinite context length.
-    * Idea: replace the multi-head attention in a transformer with an Attention Free Transformer (AFT) from (Zhai 2021).
-    * Linformer, Reformer, and Linear transformer, (Wang 2020, Kitaev 2020, Katharopoulos 2020) are the inspiration for RWKV.
-
-Why it matters?: 
-    * RWKV takes ess memory over inference.
-    * Run GPT-4 based start-up on cheaper hardware that requires less memory.
-    * Democracy of AI technology, availability of LLMs on commodity hardware. 
-
-Applications: 
+Method:devlin2018bert
     * RWKV Raven 14B Demo - Hugging Face https://huggingface.co/spaces/BlinkDL/ChatRWKV-gradio
     * Github https://github.com/BlinkDL/RWKV-LM
     
@@ -2005,6 +2010,19 @@ qin2021one
     * TODO read 
     * This paper shows single-camera teleoperation capabilities for SCARA. 
     * This could be used to allow for remote intervention in edge cases for our SCARA. 
+
+radford2018improving
+--------------------
+Improving language understanding by generative pre-training
+
+Notes: 
+    * Generative pre-training (GPT) paper from OpenAI. 
+
+Available: https://www.mikecaptain.com/resources/pdf/GPT-1.pdf
+
+Related: 
+    * :ref:`2023-02-22 - Deep Learning <2023-02-22 - Deep Learning>` describes this paper. 
+
 
 raine1997brain
 --------------

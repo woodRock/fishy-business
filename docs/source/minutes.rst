@@ -4198,7 +4198,7 @@ Notes:
         * mean: :math:`m = V^{-1} (v_0^{-1}m_0 + \frac{1}{\sigma^2} X^Ty)`
     * RVFL - Random Vector Functional Link - a neural network with random weights.
     * RVFL, a.k.a. "extreme learning machine", a random hidden layer with non-linearity.
-    * Reparameterization trick - Marcus uses a similar method as the non-linear SVM (`Cortes 1995<cortes1995support>`), the reparameterization trick, to use a kernal to project the data into a higher dimensional space. 
+    * Reparameterization trick - Marcus uses a similar method as the non-linear SVM :ref:`(Cortes 1995) <cortes1995support>`, the reparameterization trick, to use a kernal to project the data into a higher dimensional space. 
 
 Related: 
     * See (`Cortes 1995<cortes1995support>`) for the non-linear SVM, and the reparameterization trick.
@@ -4296,7 +4296,36 @@ Notes:
     * Online learning - in deployment for mobile devices users should be able to identify edge-cases and send them back to be part of the new training data, similar to Tesla's FSD and long tail of computer vision, i.e. edge cases. 
     * Standardization - checkered background to standardize the photos, also useful for measurements in future applications. 
 
+
+2023-02-22 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wednesday, 15:00 - 16:00, **Attendees:** Bastiaan Kleign, Maxwell Clarke, Paul Teal, Amr Mossy, Jesse Wood
+
+Ali Knot gave a presentation on GPT-2 :math:`\to` GPT-3
+
+Notes: 
+    * query: a soft database lookup, that shows you what you should be focussing on, what is related. 
+    * Colocation, e.g. "pissed off", erefers to certain words or phrases that co-occur frequently within a given context. 
+    * Word embeddings - distributed input representations, can be throught of as word emebeddings. 
+    * Attention - using attention :ref:`(Vaswani 2017) <vaswani2017attention>` to repreent an input sentnece, attnetion can be calucated efficiently in parallel. 
+    * Transformer architrecutre often used stacked attention blocks, with multi-head attention mechanisms (i.e. hydra). 
+    * Transformer pre-traning is essentially transfer leraning, - semi-supvervised learning to lear general knowledge. 
+    * Generative pre-trained (GPT) proposed in :ref:`(Radford 2018 <radford2018improving>)` from OpenAI. 
+    * BERT :ref:`(Delvin 2018) <devlin2018bert>`, a Google competitor, to build a general purpose, bidrectional, it can see both ways, left to right. 
+    * Tasks are often specieid in text, a task specific language model, conditioned to perform tasks.
+    * Learn arbitrary tasks simply by being trained on a very large corpus. 
+    * Assumption that training corpu includes textual descriptions of tasks, along with examples of their performance. 
+    * :ref:`(Brown 2020) <brown2020language>` intoduces in context learning with GPT-3, the model can be taught a new task in the input text passed tp the model. 
+    * Coined "few-shot" learning without fine-tuning, no further optimization needed, learning from example at inference time.
+
+Related: 
+    * :ref:`(Radford 2018 <radford2018improving>)` GPT paper
+    * :ref:`(Vaswani 2017) <vaswani2017attention>` attention paper
+    * :ref:`(Delvin 2018) <devlin2018bert>` BERT paper
+    * :ref:`(Brown 2020) <brown2020language>` in-context learning (ICL) in GPT-3
+
 TODO - Big ass note catchup needed here!!! 
+
 
 2023-05-03 - Deep Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
