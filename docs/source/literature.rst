@@ -301,13 +301,18 @@ Related:
 
 brochu2010tutorial
 ------------------
+A Tutorial on Bayesian Optimization of Expensive Cost Functions, with Application to Active User Modeling and Hierarchical Reinforcement Learning
+
+(Brochu 2010) is useful for Gaussian Processes, predictions with confidence intervals, or uncertainty thresholds.
+
+Notes: 
     * A Tutorial on Bayesian Optimization of Expensive Cost Functions
     * Application: 
         1. Active User Modeling 
         2. Hierarchical Reinforcement Learning
-    * Covers the theory and intuition behind Bayesian optimiza
+    * Covers the theory and intuition behind Bayesian optimization
     
-bromley1993signature
+bromley1993signatured
 ---------------------
 Signature verification using a" siamese" time delay neural network
 
