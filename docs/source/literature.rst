@@ -1677,6 +1677,11 @@ Notes:
     * Requires on foward and one reverse pass to propogate error and adjusrt the weights through the network.
     * However, it requires more memory than forward mode automatic differentiation, as it needs to store the intermediate values of the forward pass.
 
+Related:
+    * Everything that uses backpropagation. 
+    * All of deep learning. 
+    * :ref:`(LeCun 1989) <lecun1989backpropagation>` is the original CNN paper.
+
 liu1995chi2
 -----------
     * Chi2: feature selection and discretization of numeric attributes
