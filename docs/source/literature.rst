@@ -949,7 +949,7 @@ Notes:
 Related: 
     * Dicussed in :ref:`2023-05-25 - FASLIP <2023-05-25 - FASLIP>`
     * See :ref:`(Lecun 1989) <lecun1989backpropagation>` for LeNet.
-    * See :ref:`(Krizhevsky 2012) <krizhevsky2017imagenet>` for AlexNet.
+    * See :ref:`(Krizhevsky 2012) <krizhevsky2012imagenet>` for AlexNet.
     * See :ref:`(Simonyan 2014) <simonyan2014very>` for VGGNet.
     * See :ref:`(Szegedy 2015) <szegedy2015going>` for GoogLeNet.
     
@@ -1426,11 +1426,21 @@ Related:
     * :ref:`(Bourque 2018) <bourque2018ten>` discussed transposons in general. 
     * Julie discussed this in 2022-10-14 - ECRG 
 
+krizhevsky2012imagenet
+----------------------
+Imagenet classification with deep convolutional neural networks
+
+(Krizhevsky 2012) proposed AlexNet.
+
+Related: 
+    * :ref:`(Krizhevsky 2017) <krizhevsky2017imagenet>` further AlexNet paper.
+    * :ref:`(Lecun 1989) <lecun1989backpropagation>` proposed LeNet, the original CNN.
+
 krizhevsky2017imagenet
 ----------------------
 Imagenet classification with deep convolutional neural networks
 
-(Krizhevsky 2012) proposed AlexNet
+(Krizhevsky 2012) improved AlexNet
 
 Related: 
     * :ref:`(Lecun 1989) <lecun1989backpropagation>` proposed the original form of LeNet
@@ -1654,6 +1664,18 @@ lin2017feature
     * Feature pyramid networks for object detection. 
     * Feature Pyramid Network (FPN)
     * See :ref:`2022-10-06 - FASLIP<2022-10-06 - FASLIP>`-  for more details.
+
+linnainmaa1970representation
+----------------------------
+The representation of the cumulative rounding error of an algorithm as a Taylor expansion of the local rounding errors
+
+(Linnainmaa 1970) proposed automatic differentiation (AD).
+
+Notes: 
+    * Backpropagation is a special case of reverse mode automatic differentiation. 
+    * Reverse mode automatic differentiation is more efficient than forward mode automatic differentiation.
+    * Requires on foward and one reverse pass to propogate error and adjusrt the weights through the network.
+    * However, it requires more memory than forward mode automatic differentiation, as it needs to store the intermediate values of the forward pass.
 
 liu1995chi2
 -----------
@@ -2211,7 +2233,7 @@ Very deep convolutional networks for large-scale image recognition
 
 Related: 
     * :ref:`(Lecun 1989) <lecun1989backpropagation>` proposed LeNet, the original CNN.
-    * :ref:`(Krizhevsky 2017) <krizhevsky2017imagenet>` proposed AlexNet, the first CNN to win ImageNet.
+    * :ref:`(Krizhevsky 2012) <krizhevsky2012imagenet>` proposed AlexNet, the first CNN to win ImageNet.
     * :ref:`(He 2016) <he2016deep>` proposed ResNet, a CNN with residual connections.
     * :ref:`(Szegedy 2015) <szegedy2015going>` proposed GoogLeNet, a CNN with inception modules.
     * :ref:`(Huang 2017) <huang2017densely>` proposed DenseNet, a CNN with dense connections.
