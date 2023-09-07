@@ -2279,6 +2279,24 @@ Notes:
 Related:
     * See proposal for preliminary work section, where classification maps are used. 
 
+sobieczky1999parametric
+-----------------------
+Parametric Airfoils and Wings
+
+(Sobieczky 1999) propose the PARSEC parametric airfoil and wing design system.
+
+Notes: 
+    * Parameteric model that uses 11 or 12 parameters to repreent major structural sectional features of an airfoil. 
+    * Including:   
+        * leading edge radii,
+        * upper and lower crest location,
+    * Constructs an airfoil using a sixth-order polynomial.
+
+Available: https://link.springer.com/chapter/10.1007/978-3-322-89952-1_4
+
+Related: 
+    * This real-world task is discussed in :ref:`2023-08-31 - FASLIP <2023-08-31 - FASLIP >`
+
 song2020denoising
 -----------------
 Denoising diffusion implicit models. 
