@@ -4319,7 +4319,7 @@ Notes:
     * Coined "few-shot" learning without fine-tuning, no further optimization needed, learning from example at inference time.
 
 Related: 
-    * :ref:`(Radford 2018 <radford2018improving>)` GPT paper
+    * :ref:`(Radford 2018) <radford2018improving>` GPT paper
     * :ref:`(Vaswani 2017) <vaswani2017attention>` attention paper
     * :ref:`(Delvin 2018) <devlin2018bert>` BERT paper
     * :ref:`(Brown 2020) <brown2020language>` in-context learning (ICL) in GPT-3
