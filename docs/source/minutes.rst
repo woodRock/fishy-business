@@ -4408,6 +4408,7 @@ TODO:
 **Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Cheng Xie, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jordan MacLachlan
 
 Cheng Xie from the Harbin Institute of Technology China gave a talk on Particle Swarm Optimization (PSO)-based Neural Architecture Search (NAS) for Physics-Guided Reversible Residual Neural Networks 
+Cheng Xie - https://ieeexplore.ieee.org/author/37089449701
 
 Notes: 
     * Turtable servo system - large simulation experimental equipment use to simulate flight altitude. 
@@ -4425,3 +4426,98 @@ Related:
     * See :ref:`(Xie 2023) <xie2022physics>` for the paper he discussed today. 
     * See :ref:`(He 2016) <he2016deep>` for ResNet paper. 
 
+2023-05-30 - CDP Sign Off 
+~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Tuesday: 09:00 - 09:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Jesse Wood
+
+Notes: 
+    * Bing thinks my CDP is very clear, I have laid out in detalk what needs to be done, and how I will do it.
+    * I had personally had "minor concerns" with my progress on my proposal, however, Bing was not concerned. 
+    * I need to submit my propsoal and move to full registration ASAP. 
+    * Send a draft of my proposal to my supervisors, and they will give me feedback.
+
+2023-06-02 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Pondy's farewell. 
+
+Peter Andreae ("Pondy") https://people.wgtn.ac.nz/Peter.Andreae
+
+Notes: 
+    * Peng has officially completed his PhD, as he submitted his manuscript to the school library. 
+    * Visiting student from the US who is a biology major, doing a PhD in AI, with computer vision for duck identification with multi-modal images + genetic reference samples. 
+    * Progress report: 
+        * I have simbitted a revised propsoal introduction to my supversivers. 
+        * Based on Bach's feedback to my previous draft. 
+        * Will revise and resubmit based on further feedback. 
+    * Passion: Pondy enjoyed his teaching the most, and told me in person it is importaant to show an interest (perhaps even exaggerated) in the topic your are teaching, to make the cirriculum bearable to the students. 
+    * MIT researcher - Pondy is an MIT Alumni, who did his PhD in symbolic AI in 1986, has since conceded that GOFAI does not work, rather than sit in resentment, he decided to help others with their research, as a non-primary contributing author.
+    * "To help others succeed in what they whnt to do, by making them do it better" - another pathway in academia (support role). 
+    * Pondy warned about specializing too heavily in one field, it is important to have a broad knowledge of AI topics, and even a broad knowlege of science in general, as this can facilitate future collaborations in other fields, you may have not have otherwise known exist! 
+
+2023-08-22 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Tuesday, 15:30 - 16:30, **Attendees:** Bing Xue, Jesse Wood
+
+Notes:  
+    * 15-month deadline for the preliminary registration, proposal needs to be submitted by then. 
+    * Proposal is a proof-of-work, or research ability, that demosntrates I am capable of doing a PhD.
+    * Routine is important, exercise, sleep routine, good diet, etc... - lifestyle changes to support good mental health. 
+
+
+2023-08-31 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 12:00 - 12:30, **Attendees:** Bach Hoai Nguyen, Jesse Wood
+
+Note: 
+    * Health is the first priority.
+    * No unnecessary pressure ATM, ease back into PhD work.
+    * (If able) send supversiors a draft of my proposal, and they will give me feedback.
+
+
+2023-09-07 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
+
+Notes: 
+    * Need to submit my proposal ASAP. 
+    * Send proposal to supvervisors for feedback. 
+    * Get feedback on introduction from Daniel. 
+    * Changed weekly meeting time to Thursday, 10:00 - 10:30.
+    * Good habit, to be a morning person, to be early in the office on a Thurday.
+
+2023-08-31 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Huixiang Zhen, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Huixiang Zhen gave a talk on "Model Selection Based Offline Data-driven Evolutionary Algorithm (MSEA)"
+
+Huixiang Zhen, China University of Geosciences, China, Nov. 2022-Nov. 2023 https://www.researchgate.net/profile/Huixiang-Zhen
+
+Notes: 
+    * Offline - real fitness evaluation not available during the optimmization process, and can only be predicted on historcial data. 
+    * Challeges: 
+        * Not enough data, especially for high-dimensional problems. 
+        * Cannot collect new data 
+        * Cannot validate the quality of the solution during optimization. 
+    * Symmetric search space - existing ensemble models have a preference a symmetric search space (e.g. fitness landscape). 
+    * Expensive evaluation - true objective function may be intractable or very difficult/expensive to evaluate. 
+    * Instead, we use a surrogate model to approximate the true objective function.
+    * Evaulate fitness of candidate solutions using a surrogate model, rather than the true objective function.
+    * Airfoil - a wing of an aircraft, the shape of the wing is important for aerodynamics.
+    * Real-world problem - airfoil optimization is an example of an offline optimization. Design an airfoil specification that provides the largest lift coefficient. 
+    * :ref:`(Sobienczky 1999) <sobieczky1999parametric>` PARSEC - Parameteric model that uses 11 or 12 parameters to repreent major structural sectional features of an airfoil. 
+    * Including:   
+        * leading edge radii,
+        * upper and lower crest location,
+    * Constructs an airfoil using a sixth-order polynomial.
+
+Related: 
+    * :ref:`(Sobienczky 1999) <sobieczky1999parametric>` propose the PARSEC parametric airfoil and wing design system.
+
+2023-09-07 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Huixiang Zhen, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Huixiang Zhen gave a talk on "Model Selection Based Offline Data-driven Evolutionary Algorithm (MSEA)"
+
+Huixiang Zhen, China University of Geosciences, China, Nov. 2022-Nov. 2023 https://www.researchgate.net/profile/Huixiang-Zhen
