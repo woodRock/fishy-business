@@ -2295,7 +2295,7 @@ Notes:
 Available: https://link.springer.com/chapter/10.1007/978-3-322-89952-1_4
 
 Related: 
-    * This real-world task is discussed in :ref:`2023-08-31 - FASLIP <2023-08-31 - FASLIP>`
+    * This real-world task is discussed in :ref:`2023-09-07 - FASLIP <2023-09-07 - FASLIP>`
 
 song2020denoising
 -----------------
