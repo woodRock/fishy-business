@@ -3310,9 +3310,9 @@ Notes:
 
 Related: 
     * See (:ref:`Couillet 2022<couillet2022submerged>`) for sustainability perspectives on AI. 
-    * See (`DeepMind 2022<https://www.deepmind.com/blog/accelerating-fusion-science-through-learned-plasma-control>`_)"Successfully controlling the nuclear fusion plasma in a tokamak with deep reinforcement learning"  
-    * See (`Guardian 2017<https://www.theguardian.com/sustainable-business/2017/jul/10/100-fossil-fuel-companies-investors-responsible-71-global-emissions-cdp-study-climate-change>`_) Just 100 companies responsible for 71% of global emissions, study says 
-    * See (`Lomberg 2021<https://twitter.com/BjornLomborg/status/1445808507362500618>`_) California uses more electricity on pools and hot tubs than all 44m people use in Uganda 
+    * See (`DeepMind 2022 <https://www.deepmind.com/blog/accelerating-fusion-science-through-learned-plasma-control>`_)"Successfully controlling the nuclear fusion plasma in a tokamak with deep reinforcement learning"  
+    * See (`Guardian 2017 <https://www.theguardian.com/sustainable-business/2017/jul/10/100-fossil-fuel-companies-investors-responsible-71-global-emissions-cdp-study-climate-change>`_) Just 100 companies responsible for 71% of global emissions, study says 
+    * See (`Lomberg 2021 <https://twitter.com/BjornLomborg/status/1445808507362500618>`_) California uses more electricity on pools and hot tubs than all 44m people use in Uganda 
 
 2022-11-10 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -3950,7 +3950,7 @@ Notes:
     * Conversely, a Homogenous ensemble refers to an ensemble with classifiers that are identifical, e.g. 5x random decision-trees (RDTs).
 
 Related: 
-    * (:ref:`Hengzhe 2021``) An Evolutionary Forest for Regression, TVEC 2021 paper. 
+    * (:ref:`Hengzhe 2021 <hengzhe2021evolutionary>`) An Evolutionary Forest for Regression, TVEC 2021 paper. 
     * (Hengzhe 2023) SR-Forest, an upcoming TVEC 2023 paper.
     * (:ref:`Domingos 2015<domingos2015master>`) The Master Algorithm - book from Pedro Domingos.
 
