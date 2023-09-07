@@ -4310,7 +4310,7 @@ Notes:
     * Attention - using attention :ref:`(Vaswani 2017) <vaswani2017attention>` to repreent an input sentnece, attnetion can be calucated efficiently in parallel. 
     * Transformer architrecutre often used stacked attention blocks, with multi-head attention mechanisms (i.e. hydra). 
     * Transformer pre-traning is essentially transfer leraning, - semi-supvervised learning to lear general knowledge. 
-    * Generative pre-trained (GPT) proposed in :ref:`(Radford 2018 <radford2018improving>)` from OpenAI. 
+    * Generative pre-trained (GPT) proposed in :ref:`(Radford 2018) <radford2018improving>` from OpenAI. 
     * BERT :ref:`(Delvin 2018) <devlin2018bert>`, a Google competitor, to build a general purpose, bidrectional, it can see both ways, left to right. 
     * Tasks are often specieid in text, a task specific language model, conditioned to perform tasks.
     * Learn arbitrary tasks simply by being trained on a very large corpus. 
