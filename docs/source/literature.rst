@@ -1046,6 +1046,25 @@ Algorithmic amplification of politics on Twitter
 Related:
     * Discussed in Deep Learning - 2022-11-30
 
+ioffe2015batch
+--------------
+Batch normalization: Accelerating deep network training by reducing internal covariate shift
+
+Available: https://arxiv.org/abs/1502.03167
+
+Notes: 
+    * Batch Normalization is a popular technique used to train deep neural networks. It normalizes the input to a layer during every training iteration using a mini-batch of data. It smooths and simplifies the optimization function leading to a more stable and faster training.
+    * Batch Normalization works by scaling its input—the previous layer's output—to a mean of zero and a standard deviation of one per mini-batch.
+    * Although correctly initializing a network can significantly impact convergence, the stability offered by Batch Normalization makes training deep neural networks less sensitive to a specific weight initialization scheme. Since Batch Normalization normalizes values, it reduces the likelihood of running into vanishing or exploding gradients.
+    * Batch Normalization does require extra computations, making individual iterations slower. However, it will dramatically reduce the number of iterations needed to achieve convergence, making the training process much faster.
+    * However, at initialization, batch normalization in fact induces severe gradient explosion in deep networks. Practically, this means deep batchnorm networks are untrainable.
+    * This is only relieved by skip connections in the fashion of residual networks :ref:`(He 2016) <he2016deep>`
+
+Related: 
+    * :ref:`(He 2016) <he2016deep>` ResNet fixes gradient explosion in deep networks with batchnorm. 
+    * :ref:`(Szegedy 2015) <szegedy2015going>` GoogLeNet - same author. 
+    * :ref:`(Szegedy 2013) <szegedy2013intriguing>` same author.
+
 jacot2018neural
 ---------------
     * Neural tangent kernel: Convergence and generalization in neural networks
