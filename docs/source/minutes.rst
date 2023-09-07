@@ -4485,7 +4485,7 @@ Notes:
     * Changed weekly meeting time to Thursday, 10:00 - 10:30.
     * Good habit, to be a morning person, to be early in the office on a Thurday.
 
-2023-08-31 - FASLIP 
+2023-08-31 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Huixiang Zhen, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
 
