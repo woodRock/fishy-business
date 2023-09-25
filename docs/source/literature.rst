@@ -1012,11 +1012,26 @@ Hofstadter1979godel
     * Godel Escher Bach 
     * The hand that draws itself. 
 
+howard2017mobilenets
+--------------------
+Mobilenets: Efficient convolutional neural networks for mobile vision applications
+
+Available: https://arxiv.org/abs/1704.04861
+
+Related: 
+    * Discussed in :ref:`2023-09-21 - FASLIP <2023-09-21 - FASLIP>`
+
+
 huang2017densely
 ----------------
 Densely connected convolutional networks
 
 (Huang 2017) is the original paper on DenseNet, a deep learning technique for image classification.
+
+Available: https://openaccess.thecvf.com/content_cvpr_2017/html/Huang_Densely_Connected_Convolutional_CVPR_2017_paper.html
+
+Related:
+    * Discussed in :ref:`2023-09-21 - FASLIP <2023-09-21 - FASLIP>`
 
 hung2019optimizing
 ------------------
@@ -2567,8 +2582,21 @@ Related:
 
 Weinstein2022hunter 
 -------------------
-    * A Hunter Gatherer's Guide to the 21st Century (Book).
+A Hunter Gatherer's Guide to the 21st Century (Book).
+
+Notes:
     * pg. 229 "Evolutionary stable strategy - A strategy incapable of invasion by competitors"
+
+white2023neural
+---------------
+Neural Architecture Search: Insights from 1000 Papers
+
+(White 2023) is a literature survey of NAS.
+
+Available: https://arxiv.org/abs/2301.08727
+
+Related: 
+    * See :ref:`(Zoph 2016) <zoph2016neural>` paper that popularized NAS.
 
 wood2022automated
 -----------------
@@ -2784,3 +2812,13 @@ A few-shot meta-learning based siamese neural network using entropy features for
 Related: 
     * :ref:`(Bromley 1993) <bromley1993signature>` is the original siamese network paper.
     * :ref:`(Jing 2022) <jing2022masked>` proposed masked siamse convnets for few-shot learning.
+
+zoph2016neural
+--------------
+Neural Architecture Search: Insights from 1000 Papers
+
+Available: https://arxiv.org/abs/2301.08727
+
+Related: 
+    * Mentioned in :ref:`2022-09-21 - FASLIP<2022-09-21 - FASLIP>`
+    * See :ref:`(White 2023) <white2023neural>` for a literature survey of NAS.
