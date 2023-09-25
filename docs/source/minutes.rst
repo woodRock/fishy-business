@@ -4513,3 +4513,15 @@ Notes:
 
 Related: 
     * :ref:`(Sobienczky 1999) <sobieczky1999parametric>` propose the PARSEC parametric airfoil and wing design system.
+
+2023-09-21 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
+
+Notes: 
+    * Revise and resubmit the proposal based on Bach's feedback. Subtmit within the next two weeks. 
+    * Mention that it is an ongoing project, new datasets or objectives mau come through. 
+    * Need to submit the proposal ASAP, and move to full registration.
+    * Bing. Meng, Bach all play table tennis, a bit rusty, but they enjoy the game.
+    * Just send chapter 1, delete other pages from pdf, send to Bing / Daniel.
+    * Iteratively change it, small chunks often, revise based on feedback.
