@@ -4526,7 +4526,7 @@ Notes:
     * Just send chapter 1, delete other pages from pdf, send to Bing / Daniel.
     * Iteratively change it, small chunks often, revise based on feedback.
 
-2023-09-21 - FASLIP 
+2023-09-21 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Junhao Huang, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
 
