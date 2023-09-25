@@ -4525,3 +4525,28 @@ Notes:
     * Bing. Meng, Bach all play table tennis, a bit rusty, but they enjoy the game.
     * Just send chapter 1, delete other pages from pdf, send to Bing / Daniel.
     * Iteratively change it, small chunks often, revise based on feedback.
+
+2023-09-21 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Junhao Huang, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Junhao Huang gave a talk on "Automated Design of Efficient Multi-scale NEtworks via Multi-Path Weight Sampling". 
+
+Notes:  
+    * Single branch CNN - AlenxNet, VGG-net
+    * Multi-branch CNN - GoogLeNet
+    * ResNet - slip connections between layers, to avoid vanishing gradient problem, allow gradient to flow through the network.
+    * DenseNet, MobileNet - efficient model representation for commodity hardware and mobile/client/CPU devices.
+    * Neural architecture search (NAS) - automatically design network architectures in a predefined search space.
+    * Huang proposes EMixNet - a lightweight multi-scale network. 
+    * Warms starts with weights sampled frmo supvernet, fine-tune for 1 epoch. 
+    * 0.01% improvement on performance on CIFAR-10. 
+
+Related: 
+    * AlexNet :ref:`(Krizhevsky 2012) <krizhevsky2012imagenet>`
+    * VGGNet :ref:`(Simonyan 2014) <simonyan2014very>`
+    * GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
+    * ResNet :ref:`(He 2016) <he2016deep>`
+    * DenseNet :ref:`(Huang 2017) <huang2017densely>`
+    * MobileNet :ref:`(Howard 2017) <howard2017mobilenets>`
+    * NAS :ref:`(Zoph 2016) <zoph2016neural>`
