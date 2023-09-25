@@ -2820,5 +2820,5 @@ Neural Architecture Search: Insights from 1000 Papers
 Available: https://arxiv.org/abs/2301.08727
 
 Related: 
-    * Mentioned in :ref:`2022-09-21 - FASLIP<2022-09-21 - FASLIP>`
+    * Mentioned in :ref:`2022-09-21 - FASLIP <2022-09-21 - FASLIP>`
     * See :ref:`(White 2023) <white2023neural>` for a literature survey of NAS.
