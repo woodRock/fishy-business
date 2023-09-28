@@ -4550,3 +4550,35 @@ Related:
     * DenseNet :ref:`(Huang 2017) <huang2017densely>`
     * MobileNet :ref:`(Howard 2017) <howard2017mobilenets>`
     * NAS :ref:`(Zoph 2016) <zoph2016neural>`
+
+2023-09-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
+
+Notes: 
+    * Send an update tomorrow, and complete chapter 1 ASAP. 
+    * Deadline, needs to be completed within the next 3 weeks. 
+    * Maori Scholarsghhip Evening - go to CO350 at 4pm, free food/drink, meet Maori undergraduate students.
+
+2023-09-28 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Peng Wang, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Peng Wang gave a talk on "GP for dimensionality reduction".
+
+Notes: 
+    * Feature selection - select a subset of features from the original feature set.
+    * Feature construction - construct new features from the original feature set.
+    * Single-tree GP strugges for multi-class classification tasks, can use a classification map :ref:`(Smart 2005) <smart2005using>`
+    * M2GP -  a multi-dimensional generptric programming approach for multi-class classification problems. 
+    * M2GP is used for feature construction, performs best with random forest classifier appneded for downstream classification tasks. 
+    * Limitations: M2GP has a fixed number of dimensions :math:`d` for the constructed feature space. 
+    * M3GP - multi-class classification with GP, with progressively searched for an optimal number of dimensions :math:`d` for the constructed feature space.
+    * Pruning - pruning operator iterates through each dimension, removes it, and checks if fitness improves, then removes that dimension, if so.
+    * Similar to Accumulated Local Effect Plots (ALE), are a tool for functional decomposition. They depict how changing a single feature impacts the model’s prediction.
+
+Related:
+    * Classification map for multi-class single-tree GP :ref:`(Smart 2005) <smart2005using>`
+    * M2GP :ref:`(ingalalli 2014) <ingalalli2014multi>`
+    * M3GP :ref:`(Munoz 2015) <munoz2015m3gp>`
+    * Mentioned :ref:`(Lensen 2017) <lensen2017new>`

@@ -1080,6 +1080,23 @@ Related:
     * :ref:`(Szegedy 2015) <szegedy2015going>` GoogLeNet - same author. 
     * :ref:`(Szegedy 2013) <szegedy2013intriguing>` same author.
 
+ingalalli2014multi
+------------------
+A multi-dimensional genetic programming approach for multi-class classification problems
+
+(Ingalalli 2014) propose M2GP, for feature construction for mutli-class classification tasks.
+
+Available: https://link.springer.com/chapter/10.1007/978-3-662-44303-3_5
+
+Notes: 
+    * M2GP is a multi-dimensional genetic programming approach for multi-class classification problems.
+    * Fixed number of dimensions :math:`d`
+    * Predecessor to M3GP 
+
+Related: 
+    * Discussed in FASLIP :ref:`2023-09-28 - FASLIP <2023-09-28>`.
+    
+
 jacot2018neural
 ---------------
     * Neural tangent kernel: Convergence and generalization in neural networks
@@ -1556,7 +1573,7 @@ Handwritten digit recognition with a back-propagation network
 (Lecun 1989) describes the application of backpropagation networks in handwritten digit recognition once again.
 
 Related: 
-    * :ref:`(Lecun 1989) <lecun1989backpropagation>` is the original CNN paper.
+    * :ref:`(Lecun 1989) <lecun1munoz2015m3gp989backpropagation>` is the original CNN paper.
     * :ref:`(Lecun 1989) <lecun1989generalization>` describes the generalization ability of CNNs.
     * :ref:`(Lecun 1998) <lecun1998gradient>` practical applications of LeNet. 
 
@@ -1579,6 +1596,15 @@ lehman2020surprising
 --------------------
     * The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
     * Annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
+
+lensen2017new
+-------------
+New representations in genetic programming for feature construction in k-means clustering
+
+(Lensen 2017) 
+
+Related: 
+    * Discussed in :ref:`2023-09-08 - FASLIP <2023-09-08 - FASLIP>`
 
 lex2022noam
 -----------
@@ -1657,7 +1683,7 @@ Related:
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
     * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks.
 
-li2021learnable
+li2021learnablelensen2017new
 ---------------
 Learnable fourier features for multi-dimensional spatial positional encoding
 
@@ -1734,7 +1760,7 @@ liu1995chi2
     * Phase 1: Extends ChiMerge to be an automated one, to select an ideal value for :math:`\alpha` based on the data. 
     * Phase 2: Each feature is assigned signfnicance level and merged in a round robin fashion - until stopping criterion met. 
     * Attributes only merged to one value are elminianted as part of feature selection. 
-    * Degrees of freedom: the maximum number of logically independent values, which are values that have the freedom to vary, :math:`D_F = N - 1`, where :math:`N =` samples, :math:`D_F =` degrees of freedom. 
+    * Degrees of freedomlensen2017new: the maximum number of logically independent values, which are values that have the freedom to vary, :math:`D_F = N - 1`, where :math:`N =` samples, :math:`D_F =` degrees of freedom. 
     * If :math:`R_i` or :math:`C_i` is zero, set to 0.1. Similar to zero frequency problem from Naive Bayes. I.e. Multiplication by zero is always 0, so all other information is lost. 
     * Experiments: DT (C4.5), Data with Noise, and Synthetic data. 
     * Datasets: Iris (continious), Breat (discrete), Heart (mixed).
@@ -1755,7 +1781,7 @@ loh2011classification
 ---------------------
     * Decision tree. 
 
-mantyla1998cue
+mantyla1998cuelensen2017new
 --------------
     * Cue distinctiveness and forgetting: Effectiveness of self-generated retrieval cues in delayed recall. 
     * Students were given a word list, and asked to make 1 or 3 retrieval cues. 
@@ -1833,7 +1859,7 @@ mikolov2013linguistic
 ---------------------
     * Mikolov et al. found the word embeddings used in NLP were semantically meaningful \cite{mikolov2013linguistic}. 
     * They showed arithmetic could be applied to these word vectors that were interpretable. 
-    * For example "King" - "Man" + "Woman" = "Queen". 
+    * For example "King" - "Manmunoz2015m3gp" + "Woman" = "Queen". 
     * The feature space was semantically meaningful, which serves as a powerful representation, that we intuitively reason with. 
     * Similar thought has been applied to computer vision \cite{olah2018building, karras2020analyzing}. 
     * Semantically meaningful feature spaces allow for intuition about the behaviour of complex models, be it through visualisation or arithmetic.
@@ -1860,7 +1886,7 @@ Explainable AI: Beware of inmates running the asylum or: How I learnt to stop wo
 
 (Miller 2017) talks about the pitfalls of academics defining XAI. 
 
-Related: 
+Related: lensen2017new
     * :ref:`(Miller 2021) <miller2021contrastive>` contrastive explanation.
     * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
     * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
@@ -1944,6 +1970,19 @@ muller2021transformers
     * Their method restates the objective prosterior apprimixation as a supervised classification problem with set valued input: it repeatedly draws a task (or function) from the prior, draws a set of data points and their labels from it, marks on of the labels and learns to make probabilistic predictions for it based on the set-valued input of the rest of the data points.
     * PFNs can nearly perfectly mimic Gaussian Processes and also enable efficient Bayesian Inference for intractable problems, with 200-fold speedups in networks evaluated. 
     * PFNs perofrm well in GP regression, Bayesian NNs, classification on tabular data, few-shot iamge classification - there applications demonstrate generality of PFNs. 
+
+munoz2015m3gp
+-------------
+M3GP – Multiclass Classification with GP
+
+Available: https://link.springer.com/chapter/10.1007/978-3-319-16501-1_7
+
+Notes: 
+
+
+Related: 
+    * Discussed in :ref:`2023-09-28 - FASLIP <2023-09-28 - FASLIP>`
+    * Variation of M2GP from :ref:`(Ingalalli 2014) <ingalalli2014multi>`
 
 nickerson2022creating
 ---------------------
