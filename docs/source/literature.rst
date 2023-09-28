@@ -1094,8 +1094,7 @@ Notes:
     * Predecessor to M3GP 
 
 Related: 
-    * Discussed in FASLIP :ref:`2023-09-28 - FASLIP <2023-09-28>`.
-    
+    * Discussed in FASLIP :ref:`2023-09-28 - FASLIP <2023-09-28 - FASLIP>`. 
 
 jacot2018neural
 ---------------
@@ -1604,7 +1603,7 @@ New representations in genetic programming for feature construction in k-means c
 (Lensen 2017) 
 
 Related: 
-    * Discussed in :ref:`2023-09-08 - FASLIP <2023-09-08 - FASLIP>`
+    * Discussed in :ref:`2023-09-28 - FASLIP <2023-09-28 - FASLIP>`
 
 lex2022noam
 -----------
