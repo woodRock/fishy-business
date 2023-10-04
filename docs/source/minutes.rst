@@ -4607,3 +4607,4 @@ Notes:
 Related: 
     * See :ref:`(Dong 2022) <dong2022survey>` for a survey on in-context learning (ICL).
     * See :ref:`(Schulman 2017) <schulman2017proximal>` for proximal policy optimization (PPO).
+    * See :ref:`(Brown 2022) <brown2022human>` for RL agent playing diplomacy
