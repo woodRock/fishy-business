@@ -4582,3 +4582,28 @@ Related:
     * M2GP :ref:`(ingalalli 2014) <ingalalli2014multi>`
     * M3GP :ref:`(Munoz 2015) <munoz2015m3gp>`
     * Mentioned :ref:`(Lensen 2017) <lensen2017new>`
+    
+2023-09-04 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wednesday, 15:00 - 16:00, **Attendees:** Ali Knott, Bastian Kleign, Paul Teal, Marcus Frean.
+
+Ali Knott gave a talk on "GPT Alignment" https://people.wgtn.ac.nz/ali.knott
+
+Notes:
+    * GPT can generalize to text/images that exist outside of training distribution entirely. 
+    * In-context learning (ICL), few-shot learning on unseen tasks, without further optimiztion. A few papers on this, but still largely a mystery as to how it works :ref:`(Dong 2022) <dong2022survey>`.
+    * Intuition: basicallu pointing to a region of the text latent space and saying I want to produce text here."
+    * Prompt length: longer promts point to more precise regions of the text latent space.
+    * Next word prediction is orthogonal to harmful content. 
+    * Most harmful content can be detected due to its characteristics. Misfinromation is much harder, and requires domain experts to detect.
+    * Remove harmful content from the training set, otherwise the language model can emulate that behaviour implicitly.
+    * Harmful content detection: Use (other) AI to filter the training set for harmful content. 
+    * Fine-tuning - transformer-based models are readily fine tunable (this property originated with transformers).
+    * Get GPT-4b to generate a range of responses, assign a reward value to each response, train a reward model, that maps any text onto a reward value.
+    * This is done by a type of reinforcement learning called proximal policy optimization (PPO) :ref:`(Schulman 2017) <schulman2017proximal>`.
+    * Policy gradient methods work by an esimation of the policy gradient and plugigng that into stochastic gradient descent. 
+    * PPO is a policy gradient method that uses a surrogate objective function to estimate the policy gradient. Approximating human behaviour.
+
+Related: 
+    * See :ref:`(Dong 2022) <dong2022survey>` for a survey on in-context learning (ICL).
+    * See :ref:`(Schulman 2017) <schulman2017proximal>` for proximal policy optimization (PPO).
