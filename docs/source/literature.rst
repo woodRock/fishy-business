@@ -2277,6 +2277,12 @@ Artificial intelligence a modern approach
 
 (Russell 2010) is the phat textbook I own on AI. 
 
+shahriari2015taking
+-------------------
+    * Taking the Human Out of theLoop: A Review of Bayesian Optimization.
+    * Recommended reading from the :ref:`2023-03-24 - FASLIP<2023-03-24 - FASLIP>` on Bayesian Optimization
+    * **TODO** read this. 
+
 schnier2004digital
 ------------------
 Digital filter design using multiple pareto fronts
@@ -2289,18 +2295,22 @@ Related:
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, by Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
     * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks. 
 
-
 scholkopf2000new
 ----------------
     * Nu-SVC classifier. 
     * Setting the number of support vectors is a hyper-parameter.
     * Usually this is learned by the system. 
 
-shahriari2015taking
--------------------
-    * Taking the Human Out of theLoop: A Review of Bayesian Optimization.
-    * Recommended reading from the :ref:`2023-03-24 - FASLIP<2023-03-24 - FASLIP>` on Bayesian Optimization
-    * **TODO** read this. 
+schulman2017proximal
+--------------------
+Proximal Policy Optimization Algorithms
+
+(Schulman 2017) propose Proximal Policy Optimization (PPO) for reinforcement learning.
+
+Available: https://arxiv.org/abs/1707.06347
+
+Related: 
+    * :ref:`2023-09-04 - Deep Learning <2023-09-04 - Deep Learning>`
 
 simonyan2014very
 ----------------
