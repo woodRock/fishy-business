@@ -58,7 +58,7 @@ Available: https://pubsonline.informs.org/doi/abs/10.1287/opre.17.6.941
 
 Related: 
     * Mentioned in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
-    * Vehicle routing with transformers :ref:`(Kool 2022) <kool2022transformer>`
+    * Vehicle routing with transformers :ref:`(Kool 2018) <kool2018attention>`
     * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
 
 bao2022estimating
@@ -589,14 +589,14 @@ Limitations:
 
 Method:
     * The job shop scheduling problem can be represneted as a disjunctive graph :ref:`(Balas 1969) <balas1969machine>`.
-    * Routing problems can be solved with attention-based representations :ref:`(Kool 2019) <kool2019attention>`.
+    * Routing problems can be solved with attention-based representations :ref:`(Kool 2018) <kool2018attention>`.
     * Node2vec :ref:`(Grover 2016) <grover2016node2vec>` is a technique for learning low-dimensional representations of nodes in a graph.
     * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>` is a technique for learning low-dimensional representations of words in a corpus.
 
 Related: 
     * Presented at :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
     * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
-    * Attention for routing problems :ref:`(Kool 2019) <kool2019attention>`
+    * Attention for routing problems :ref:`(Kool 2018) <kool2018attention>`
     * Disjunctive graphs :ref:`(Balas 1969) <balas1969machine>`
     * Attention mechanisms :ref:`(Vaswani 2017) <vaswani2017attention>`
     * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>`
