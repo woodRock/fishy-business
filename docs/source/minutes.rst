@@ -4643,7 +4643,7 @@ Notes:
 Related:
     * The authors paper presenting this work :ref:`(Chen 2022) <chen2022deep>`
     * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
-    * Attention for routing problems :ref:`(Kool 2019) <kool2019attention>`
+    * Attention for routing problems :ref:`(Kool 2018) <kool2018attention>`
     * Disjunctive graphs :ref:`(Balas 1969) <balas1969machine>`
     * Attention mechanisms :ref:`(Vaswani 2017) <vaswani2017attention>`
     * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>`
