@@ -48,6 +48,19 @@ al2019survey
     * Survey of evolutionary machine learning - Vuw staff. 
     * **TODO** read 
 
+balas1969machine
+----------------
+Machine Sequencing Via Disjunctive Graphs: An Implicit Enumeration Algorithm
+
+(Balas 1969) proposes a disjunctive graph for machine sequencing.
+
+Available: https://pubsonline.informs.org/doi/abs/10.1287/opre.17.6.941
+
+Related: 
+    * Mentioned in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+    * Vehicle routing with transformers :ref:`(Kool 2022) <kool2022transformer>`
+    * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
+
 bao2022estimating
 -----------------
     * Estimating the Optimal Covariance with Imperfect Mean in Diffusion Probabilistic Models 
@@ -556,6 +569,44 @@ chen2021evaluating
     * CoPilot outperforms other state-of-the-art NLP code generation models. 
     * Requires "fine-tuning", supervised human intervention to hint towards correct answer. 
 
+chen2022deep
+------------
+A deep reinforcement learning framework based on an attention mechanism and disjunctive graph embedding for the job-shop scheduling problem
+
+(Chen 2022) propose Disjunctive Graph Embedded Recurrent Decoding Transformer (DGERD).
+
+Available: https://arxiv.org/abs/1301.3781
+
+Task: 
+    * Job shop scheduling:
+        * Job shop sechduling refers to the allocation of resrouces, such as machines and operators, subject to certrain constraints. 
+        * It  inovles determing order and timing of a set of jobs to be processed.
+        * Goal of optimizing one (or more) objective(s), such as minimizing completion time, minimzing delays, or maximizing resource utilization.
+
+Limitations: 
+    * Human designed heuristics rely on domain exerptise, and are often sub-optimal. They are static, and cannot adapt to changing conditions.
+    * Traditional deep reinforcement learning (DRL) have fixed input size, and fixed parameterization (architecture) that do not generalize well to other problems. 
+
+Method:
+    * The job shop scheduling problem can be represneted as a disjunctive graph :ref:`(Balas 1969) <balas1969machine>`.
+    * Routing problems can be solved with attention-based representations :ref:`(Kool 2019) <kool2019attention>`.
+    * Node2vec :ref:`(Grover 2016) <grover2016node2vec>` is a technique for learning low-dimensional representations of nodes in a graph.
+    * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>` is a technique for learning low-dimensional representations of words in a corpus.
+
+Related: 
+    * Presented at :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+    * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
+    * Attention for routing problems :ref:`(Kool 2019) <kool2019attention>`
+    * Disjunctive graphs :ref:`(Balas 1969) <balas1969machine>`
+    * Attention mechanisms :ref:`(Vaswani 2017) <vaswani2017attention>`
+    * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>`
+
+Results: 
+    * Performs worse than state-of-the-art methods for smaller problems. 
+    * Outperforms state-of-the-art methods on on larger problems.
+    * Requires re-training for each new problem.
+    * GP approaches are competitive with DRL approaches.
+
 chevalier2018babyai
 -------------------
     * Babyai: A platform to study the sample efficiency of grounded language learning
@@ -920,6 +971,17 @@ grcic2021densly
     * They refer to their proposed achitecture as DenseFlwo, since both cross-unit and intra-module couplings rely on dense connectivity. 
     * Experiments show significant improvements due to prposed contributions and reveal state-of-the-art density estimation under moderate computing budgets. 
 
+grover2016node2vec
+------------------
+node2vec: Scalable Feature Learning for Networks
+
+(Grover 2016) is a paper on node2vec, a method for learning low-dimensional representations of nodes in a graph.
+
+Available: https://dl.acm.org/doi/abs/10.1145/2939672.2939754
+
+Related: 
+    * Mentioned in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+
 handa2006robust
 ---------------
 Robust route optimization for gritting/salting trucks: A CERCIA experience
@@ -1091,7 +1153,7 @@ Available: https://link.springer.com/chapter/10.1007/978-3-662-44303-3_5
 Notes: 
     * M2GP is a multi-dimensional genetic programming approach for multi-class classification problems.
     * Fixed number of dimensions :math:`d`
-    * Predecessor to M3GP 
+    * Predecessor to M3GP 2023-10-06 - ECRG
 
 Related: 
     * Discussed in FASLIP :ref:`2023-09-28 - FASLIP <2023-09-28 - FASLIP>`. 
@@ -1392,6 +1454,19 @@ Normalizing flows: An introduction and review of current methods
 
 Related:    
     * See :ref:`2022-10-26 - Deep Learning<2022-10-26 - Deep Learning>`
+
+kobyzev2020normalizing
+----------------------
+Attention, Learn to Solve Routing Problems!
+
+(Kobyzev 2020) propose a transformer for solving routing problems.
+
+Related: 
+    * See :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+    * See :ref:`(Grover 2016) <grover2016node2vec>` for node2vec.
+    * See :ref:`(Balas 1969) <balas1969machine>` for disjunctive graph.
+
+
 
 kononenko1994estimating
 -----------------------
@@ -1856,12 +1931,22 @@ Related:
 
 mikolov2013linguistic
 ---------------------
+Efficient Estimation of Word Representations in Vector Space
+
+(Mikolov 2013) found semantically meaningful feature embeddings for natural language, e.g. "King" - "Man" + "Woman" = "Queen"
+
+Notes: 
     * Mikolov et al. found the word embeddings used in NLP were semantically meaningful \cite{mikolov2013linguistic}. 
     * They showed arithmetic could be applied to these word vectors that were interpretable. 
-    * For example "King" - "Manmunoz2015m3gp" + "Woman" = "Queen". 
+    * For example "King" - "Man" + "Woman" = "Queen". 
     * The feature space was semantically meaningful, which serves as a powerful representation, that we intuitively reason with. 
     * Similar thought has been applied to computer vision \cite{olah2018building, karras2020analyzing}. 
     * Semantically meaningful feature spaces allow for intuition about the behaviour of complex models, be it through visualisation or arithmetic.
+
+Related: 
+    * Mentioned in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+    * Related to node2vec (Grover 2016) for graph embeddings.
+    * Related to (Olah 2018) for feature visualisation.
 
 miles1998state
 --------------
@@ -2007,10 +2092,22 @@ nguyen2014filtermccann2012local
 
 olah2018building
 ----------------
+The Building Blocks of Interpretability
+
+(Olah 2018) from Distill shows how to visualise semantically meaningful features in computer vision.
+
+Available: https://distill.pub/2018/building-blocks/?translate=1&translate=1&translate=1&translate=1&student&student&student&student
+
+Notes: 
     * Semantically meaningful features in computer vision. 
     * Distill https://distill.pub/2018/building-blocks/
     * Visualization techniques are powerful for understanding black-box systems.
     * Gain intution for semantically meaninful features in complex models. 
+
+Related: 
+    * Original CNN paper :ref:`(Lecun 1989) <lecun1989backpropagation>`
+    * word2vec, semantically meaningful feature embeddings for natural language :ref:`(Mikolov 2013) <mikolov2013linguistic>`
+    * node2vec, feature embeddings for graphs :ref:`(Grover 2016) <grover2016node2vec>` 
 
 pardo2016misdescription
 -----------------------

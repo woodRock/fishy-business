@@ -4608,3 +4608,42 @@ Related:
     * See :ref:`(Dong 2022) <dong2022survey>` for a survey on in-context learning (ICL).
     * See :ref:`(Schulman 2017) <schulman2017proximal>` for proximal policy optimization (PPO).
     * See :ref:`(Brown 2022) <brown2022human>` for RL agent playing diplomacy
+
+2023-10-06 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Yi Mei, Felix Yan, Hayden, Kaan, Hengzhe, Peng, Junhao, Jesse Wood
+
+General notes:
+    * Felix Yan is a new post-doc, I know him from Deep Learning https://scholar.google.co.nz/citations?user=9dezUbIAAAAJ&hl=en
+    * Andrew sent out an email about NeSI High Performance Computing (HPC) training, I NEED to signed up for this.
+    * Jennifer Ferreira is the new postgraduate coordinator for COMP / AIML courses https://people.wgtn.ac.nz/Jennifer.Ferreira
+    * Progress report:
+        - Working on revising my proposal based on supervisor feedback.
+        - Aim to submit in the next week.
+
+TODO:  
+    * [ ] 2023-10-31 October - Apply for NeSI HPC https://www.nesi.org.nz/services/applyforaccess
+    * [ ] 2023-10-08 Midnight - send supervisors revised draft. 
+    * [ ] 2023-10-13 Submit proposal 
+
+Ruiqi Chen gave a talk on "Deep Reinforcement Learning for Job Shop Scheduling". https://ruiqi-chen.cn/
+
+Notes:
+    * Job shop scheduling:
+        * Job shop sechduling refers to the allocation of resrouces, such as machines and operators, subject to certrain constraints. 
+        * It  inovles determing order and timing of a set of jobs to be processed.
+        * Goal of optimizing one (or more) objective(s), such as minimizing completion time, minimzing delays, or maximizing resource utilization.
+    * Human designed heuristics rely on domain exerptise, and are often sub-optimal. They are static, and cannot adapt to changing conditions.
+    * Traditional deep reinforcement learning (DRL) have fixed input size, and fixed parameterization (architecture) that do not generalize well to other problems. 
+    * The job shop scheduling problem can be represneted as a disjunctive graph :ref:`(Balas 1969) <balas1969machine>`.
+    * Routing problems can be solved with attention-based representations :ref:`(Kool 2019) <kool2019attention>`.
+    * Node2vec :ref:`(Grover 2016) <grover2016node2vec>` is a technique for learning low-dimensional representations of nodes in a graph.
+    * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>` is a technique for learning low-dimensional representations of words in a corpus.
+
+Related:
+    * The authors paper presenting this work :ref:`(Chen 2022) <chen2022deep>`
+    * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
+    * Attention for routing problems :ref:`(Kool 2019) <kool2019attention>`
+    * Disjunctive graphs :ref:`(Balas 1969) <balas1969machine>`
+    * Attention mechanisms :ref:`(Vaswani 2017) <vaswani2017attention>`
+    * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>`
