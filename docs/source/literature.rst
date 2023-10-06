@@ -308,7 +308,7 @@ bridle1989training
 Training stochastic model recognition algorithms as networks can lead to maximum mutual information estimation of parameters
 
 (Bridle 1989) is the first paper to mention "softmax" in neural networks.
-
+kool2018attention
 Related: 
     * According to StackExchange, this is the original "softmax" paper for neural networks https://ai.stackexchange.com/questions/22426/which-paper-introduced-the-term-softmax
 
@@ -1534,6 +1534,22 @@ Related:
     * :ref:`(Kira 1992) <kira1992practical>` an extension of Relief
     * :ref:`(Wood 2022) <wood2022automated>` used Relief-F for feature selection benchmark. 
 
+kool2018attention
+-----------------
+Attention, learn to solve routing problems!
+
+(Kool 2018) propose a transformer for solving routing problems.
+
+Available: https://arxiv.org/abs/1803.08475
+
+Related: 
+    * Discused in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+    * Transformers for job shop scheduling :ref:`(Chen 2022) <chen2022deep>`
+    * node2vec :ref:`(Grover 2016) <grover2016node2vec>`
+    * Disjunctive graphs :ref:`(Balas 1969) <balas1969machine>`
+    * Attention mechanisms :ref:`(Vaswani 2017) <vaswani2017attention>`
+    * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>`
+
 koppen2000curse
 ---------------
     * Curse of dimensionality. 
@@ -1929,9 +1945,19 @@ Related:
     * :ref:`(Gomes 2022)<gomes2020ensemble>` for concept drift from data stream mining.
     * See (Wood 2023), my proposal, which references Hoki seasonal variation.
 
-mikolov2013linguistic
+mikolov2013efficient
 ---------------------
 Efficient Estimation of Word Representations in Vector Space
+
+(Mikolov 2013) proposed word2vec.
+
+Related; 
+    * Cited in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
+    * Same author of :ref:`(Mikolov 2013) <mikolov2013linguistic>`.
+
+mikolov2013linguistic
+---------------------
+Linguistic Regularities in Continuous Space Word Representations
 
 (Mikolov 2013) found semantically meaningful feature embeddings for natural language, e.g. "King" - "Man" + "Woman" = "Queen"
 
@@ -1944,9 +1970,9 @@ Notes:
     * Semantically meaningful feature spaces allow for intuition about the behaviour of complex models, be it through visualisation or arithmetic.
 
 Related: 
-    * Mentioned in :ref:`2023-10-06 - ECRG <2023-10-06 - ECRG>`
     * Related to node2vec (Grover 2016) for graph embeddings.
     * Related to (Olah 2018) for feature visualisation.
+    * Same author as :ref:`(Mikolov 2013) <mikolov2013efficient>`.
 
 miles1998state
 --------------
