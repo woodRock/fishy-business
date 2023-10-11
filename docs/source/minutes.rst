@@ -4647,3 +4647,26 @@ Related:
     * Disjunctive graphs :ref:`(Balas 1969) <balas1969machine>`
     * Attention mechanisms :ref:`(Vaswani 2017) <vaswani2017attention>`
     * Word2vec :ref:`(Mikolov 2013) <mikolov2013efficient>`
+
+2023-08-11 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wednesday, 15:00 - 16:00, **Attendees:** Bastian Kleign, Paul Teal, Marcus Frean, Hayden Dyne, Ali Knott, Jesse Wood
+
+Baastian presented the :ref:`(Liu 2023) <lui2023instaflow>` work for discussion. 
+
+Notes: 
+    * One-step stable diffusion with rectified flow :ref:`(Liu 2023) <lui2023instaflow>`. 
+    * Rectified flow is a unified ODE-based framework for generative modelling and domain transfer. 
+    * It uses interpolation to learn a vector fiel  that maps between two probability distributions. These vector fields contain parallel vectors (that do not touch!)
+    * Retification, given a flow already, this effectively gives us pairs, that we can train on, sampled randomly from distributions :math:`P(x)` and :math:`Q(x)`.
+    * Instablity with InstaFlow for regions where there are holes in the probability distribution. Bastiaan suggests adding a small amount of noise to the input, to avoid this instability.
+    * SDXL is used to refine the generated output into high-resolution images. 
+    * The diffusion process, or denoising autoencoder, architecture is based on concepts from physics, e.g. thermodynamics :ref:`(Sohl 2015) <sohl2015deep>`
+
+Related: 
+    * Discussed in :ref:`2023-08-11 - Deep Learning <2023-08-11 - Deep Learning>`
+    * Used in InstaFlow :ref:`(Liu 2023) <lui2023instaflow>`
+    * DDPM :ref:`(Ho 2022) <ho2020denoising>`
+    * DDIM :ref:`(Song 2020) <song2020denoising>`
+    * Consistency models :ref:`(Song 2023) <song2023consistency>`
+    * Physics ideas from thermodynamics applied to denoising autoencoder :ref:`(Sohl 2015) <sohl2015deep>`

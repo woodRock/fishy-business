@@ -1857,6 +1857,22 @@ liu1995chi2
     * C4.5, a DT classification algorithm, is run on its default setting.
     * Results show predictive accuracy and size, same or improved for all datasets where Chi2 was applied.
     * Chi2 was able to remove noise (irrelvant features) from synthetic and real world data.
+
+liu2023instaflow
+----------------
+InstaFlow: One Step is Enough for High-Quality Diffusion-Based Text-to-Image Generation
+
+(Liu 2023) propose InstaFlow as a faster/cheaper one-step diffusion model for text-to-image generation.
+
+Available: https://arxiv.org/abs/2309.06380
+
+Related: 
+    * Discussed in :ref:`2023-08-11 - Deep Learning <2023-08-11 - Deep Learning>`
+    * DDPM :ref:`(Ho 2020) <ho2020denoising>`
+    * DDIM :ref:`(Song 2020) <song2020denoising>`
+    * Consistency models :ref:`(Song 2023) <song2023consistency>`
+    * Diffusion borrows concepts from thermodyamics :ref:`(Sohl 2015) <sohl2014deep>`
+    * Uses SDXL to improve resolution of generated output  :ref:`(Podel 2023) <podell2023sdxl>`
     
 lock2007new
 -----------
@@ -2233,6 +2249,19 @@ Related:
     * :ref:`(Volz 2018) <volz2018evolving>` same author evolves Mario levels using EAs on GAN latent spaces. 
     * :ref:`(Goodman 2020) <goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
 
+podell2023sdxl
+--------------
+Sdxl: Improving latent diffusion models for high-resolution image synthesis
+
+(Podel 2023) propose SDXL for scaling up images to high resolution.
+
+Available: https://arxiv.org/abs/2307.01952
+
+Related: 
+    * Discussed in :ref:`2023-08-11 Deep Learning <2023-08-11 Deep Learning>`
+    * Used in InstaFlow :ref:`(Liu 2023) <lui2023instaflow>`
+    * Diffusion process based on thermodyamics :ref:`(Sohl-Diskstein 2015) <sohl2014deep>`
+
 qin2021one
 ----------
     * From One Hand to Multiple Hands: Imitation Learning for Dexterous Manipulation from Single-Camera Teleoperation. 
@@ -2482,6 +2511,21 @@ Available: https://link.springer.com/chapter/10.1007/978-3-322-89952-1_4
 
 Related: 
     * This real-world task is discussed in :ref:`2023-09-07 - FASLIP <2023-09-07 - FASLIP>`
+
+sohl2015deep
+------------
+Deep unsupervised learning using nonequilibrium thermodynamics
+
+(Sohl 2015) borrow ideas from thermodynamics denoising autoencoders. 
+
+Available: http://proceedings.mlr.press/v37/sohl-dickstein15.html
+
+Related: 
+    * Discussed in :ref:`2023-08-11 - Deep Learning <2023-08-11 - Deep Learning>`
+    * Used in InstaFlow :ref:`(Liu 2023) <lui2023instaflow>`
+    * DDPM :ref:`(Ho 2022) <ho2020denoising>`
+    * DDIM :ref:`(Song 2020) <song2020denoising>`
+    * Consistency models :ref:`(Song 2023) <song2023consistency>`
 
 song2020denoising
 -----------------
