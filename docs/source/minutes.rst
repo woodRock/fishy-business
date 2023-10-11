@@ -4665,7 +4665,7 @@ Notes:
 
 Related: 
     * Discussed in :ref:`2023-08-11 - Deep Learning <2023-08-11 - Deep Learning>`
-    * Used in InstaFlow :ref:`(Liu 2023) <lui2023instaflow>`
+    * Used in InstaFlow :ref:`(Liu 2023) <liu2023instaflow>`
     * DDPM :ref:`(Ho 2022) <ho2020denoising>`
     * DDIM :ref:`(Song 2020) <song2020denoising>`
     * Consistency models :ref:`(Song 2023) <song2023consistency>`
