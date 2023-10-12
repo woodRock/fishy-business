@@ -993,6 +993,18 @@ Related:
     * :ref:`(Li 2002) <li2002novel>` is another paper by same author, with EC for solving DE in materials science.
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>` used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
 
+haralick1973textual
+-------------------
+Textural Features for Image Classification
+
+(Haralick 1973) propose grey-level co-occurence matrix for image analysis.
+
+Available: https://ieeexplore.ieee.org/abstract/document/4309314
+
+Related: 
+    * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
+    * Sklearn documentation and code available: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
+
 he2016deep
 ----------
 Deep residual learning for image recognition
@@ -1032,7 +1044,16 @@ An Evolutionary Forest for regression
 Related:
     * See :ref:`2023-02-02 - FASLIP<2023-02-02 - FASLIP>`
 
-hand2001idiot
+hand2001idiotHaralick1973textual
+-------------------
+Textural Features for Image Classification
+
+(Haralick 1973) propose grey-level co-occurence matrix for image analysis.
+
+Available: https://ieeexplore.ieee.org/abstract/document/4309314
+
+Related: 
+    * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
 -------------
     * Naive bayes. 
 
@@ -1948,6 +1969,16 @@ Related:
     * :ref:`(Crall 2013) <crall2013hotspotter>` uses LNBNN for instance recognition.
     * :ref:`(Behmo 2010) <behmo2010towards>` proposed Naive Bayes Nearest Neighbor (NBNN).
 
+mcconnell1986method
+-------------------
+Method of and apparatus for pattern recognition
+
+(McConnell 1986) proposed Histograms of Oriented Gradients (HOG) for pattern recognition.
+
+Available: https://www.osti.gov/biblio/6007283
+
+Related: 
+    * Discussed in :ref:`2023-10-12 FASLIP <2023-10-12 FASLIP>`
 
 mclean2005differences
 ---------------------
@@ -2493,6 +2524,27 @@ Notes:
 
 Related:
     * See proposal for preliminary work section, where classification maps are used. 
+
+sobel1990isotropic
+------------------
+An Isotropic 3x3 Image Gradient Operator
+
+Available: https://www.researchgate.net/publication/239398674_An_Isotropic_3x3_Image_Gradient_Operator
+
+Related: 
+    * Discussed in :ref:`2023-10-12 - FASLIP <2023-10-12 - FASLIP>`
+    * See history of Sobel operator :ref:`(Sobel 2014) <sobel2014history>`
+
+sobel2014history
+----------------
+History and Definition of the so-called "Sobel Operator",more appropriately named th eSobel-Feldman Operator
+
+Available: https://www.researchgate.net/publication/239398674_An_Isotropic_3x3_Image_Gradient_Operator
+
+Related:
+    * Discussed in :ref:`2023-10-12 - FASLIP <2023-10-12 - FASLIP>`
+    * See history of Sobel operator :ref:`(Sobel 2014) <sobel2014history>`
+
 
 sobieczky1999parametric
 -----------------------

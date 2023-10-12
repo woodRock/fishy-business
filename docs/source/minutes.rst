@@ -4682,3 +4682,29 @@ Notes:
     * Proposal won't be perfect, but can revise it retroactively for the thesis. 
     * Proposal seminar is a 35 - 40 minutes presentation in which I defend my proposal.
     * Deadline is very early for the $20,000 scholarship, likely I won't get it, as it geared towards Education / Environment. Focus on proposal first, and hope for the best.
+
+2023-10-12 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Lin, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood\
+
+Lin gave a talk on "Image Operators for Image Processing and Computer Vision".
+
+Notes: 
+    * Dectectors: 
+        1. Edge detectors 
+        2. Texture detectors
+        3. Shape detectors
+    * Sobel operator - edge detector :ref:`(Sobel 1990) <sobel1990isotropic>`
+    * uses convolution to detect edges in an image. An isotropic 3x3 image gradient operator .
+    * Grey-level co-occurence matrix (GLCM) - texture detector :ref:`(Karalick 1973) <haralick1973textual>`. 
+    * A GCLM is a histogram of co-occuring grescale values of a diven offset over an image .
+    * Histogram of Oriented Gradients (HOG) - shape detector. :ref:`(McConnell 1986) <mcconell1986histogram>`.
+    * The technique counts occurrences of gradient orientation in localized portions of an image.
+
+Related: 
+    * See :ref:`(Sobel 1990) <sobel1990isotropic>` for Sobel operator.
+    * See history of Sobel operator :ref:`(Sobel 2014) <sobel2014history>`
+    * See Grey-level co-occurence matrix (GLCM) :ref:`(Karalick 1973) <haralick1973textual>`
+    * Sklearn documentation and code available: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
+    * See Histrogram of Oriented Gradients (HOG) :ref:`(McConnell 1986) <mcconell1986histogram>`
+    
