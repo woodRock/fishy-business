@@ -4670,3 +4670,15 @@ Related:
     * DDIM :ref:`(Song 2020) <song2020denoising>`
     * Consistency models :ref:`(Song 2023) <song2023consistency>`
     * Physics ideas from thermodynamics applied to denoising autoencoder :ref:`(Sohl 2015) <sohl2015deep>`
+
+2023-10-12 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Daniel Killeen, Jesse Wood
+
+Notes: 
+    * Need to submit my proposal this week. PGR had given me a 3 week deadline, that expires at the end of this week. 
+    * Next week meeting is at 10 AM , important to show up on time, and early. 
+    * I will submit this week, may have to work over the weekend. 
+    * Proposal won't be perfect, but can revise it retroactively for the thesis. 
+    * Proposal seminar is a 35 - 40 minutes presentation in which I defend my proposal.
+    * Deadline is very early for the $20,000 scholarship, likely I won't get it, as it geared towards Education / Environment. Focus on proposal first, and hope for the best.
