@@ -4662,6 +4662,9 @@ Notes:
     * Instablity with InstaFlow for regions where there are holes in the probability distribution. Bastiaan suggests adding a small amount of noise to the input, to avoid this instability.
     * SDXL is used to refine the generated output into high-resolution images. 
     * The diffusion process, or denoising autoencoder, architecture is based on concepts from physics, e.g. thermodynamics :ref:`(Sohl 2015) <sohl2015deep>`
+    * Brownian moation is the random motion of particles suspsended in a medium (a liquid or gas).
+    * The many-body interactions that yield the Brownian pattern cannot be solved by a model accounting for every involved molecule. 
+    * Thus, only probablity-based models can be used to describe the Brownian motion.
 
 Related: 
     * Discussed in :ref:`2023-08-11 - Deep Learning <2023-08-11 - Deep Learning>`
