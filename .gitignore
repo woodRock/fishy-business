@@ -1,2 +1,8 @@
+# Keep the IP / Business Secrets from public access.
+code/data
+
+# Save some space on large datasets.
 code/cnn/data
+
+# Remove IDE specific configurations.
 .vscode
