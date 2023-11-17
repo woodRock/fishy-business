@@ -4710,4 +4710,12 @@ Related:
     * See Grey-level co-occurence matrix (GLCM) :ref:`(Karalick 1973) <haralick1973textual>`
     * Sklearn documentation and code available: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
     * See Histrogram of Oriented Gradients (HOG) :ref:`(McConnell 1986) <mcconell1986histogram>`
-    
+
+2023-10-13 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Yi Mei, Felix Yan, Hayden, Kaan, Hengzhe, Peng, Junhao, Jesse Wood
+
+Tapabrata Rohan Chakraborty (guest speaker) gave a keynote on CHAI. This talk was very popular, and we ran out of seats in the room. He is a well decorated academic scholar in deep learning and medical applications. Here is a proof: https://www.turing.ac.uk/people/researchers/tapabrata-rohan-chakraborty
+
+Notes: 
+    * 
