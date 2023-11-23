@@ -4719,3 +4719,77 @@ Tapabrata Rohan Chakraborty (guest speaker) gave a keynote on CHAI. This talk wa
 
 Notes: 
     * 
+
+2023-11-23 - Taran Proposal Seminar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** CO431, **Time:** Thursday, 10:00 - 10:45, **Attendees:** Taran, Mengjie Zhang, Aaron Chen, Andrew Lensen, Jordan MacLauchlan, Jesse Wood
+
+
+
+2023-11-23 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 12:00 - 12:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
+
+Candidate Development Plan (CDP)
+    * Last 6 months 
+        * Proposal submission 
+        * Preliminary work 
+        * Literature review 
+        * Reverse suspension (TODO)
+    * Next 6 months: 
+        * Proposal seminar
+        * First contribution - identification 
+        * Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
+    * Issues 
+        * Mum passed away (discussed last CDP)
+        * Psychiatric ward - 19 day involuntary suspension 
+        * 6 month voluntary reverse suspension
+        * Funding for last 6 months of my PhD. 
+
+Convolutional Neural Networks: 
+    * Allowed to report the best + mean run 
+    * But cannot claim the best run as a contribution 
+    * Need to show that the best run is 
+        1. statistically significant, 
+        2. reproducible
+        3. generalizable 
+        4. not overfitting or underfitting
+
+Datasets: 
+    * GC,MS,GC+MS data:
+        * Mass Spectrometry (MS)
+        * Gas Chromatography (GC)
+        * Gas Chromatography (GC) + Mass Spectrometry (MS) = Gas Chromatography-Mass Spectrometry (GC-MS)
+        * GC+MS is multi-modal dataset. 
+        * GC,MS is single-modal dataset.
+    * Evaluate these datasets with classification techniques.
+        * Convolutional Neural Network (CNN) 
+        * Single-Tree/Multi-tree Genetic Programming (ST/MT-GP) 
+        * Multi-Feature Class-Independent Feature Construction (MFCIFC)
+        * Linear Discriminant Anaylsis (LDA)
+        * Support Vector Machines (SVM)
+        * Random Forest (RF) 
+        * K-Nearest Neighbour (KNN)
+        * Multi-later Perceptron (MLP)
+        * Naive Bayes (NB)
+        * Logistic Regression (LR)
+        * Decision Tree (DT) 
+       
+    * A model that generalizes and performs well across all datasets is ideal.
+    * Compare these datasets to other datasets in the literature
+    * Evaluate using 
+
+Next meeting: 
+    * Today we meet at 12PM becuase of Taran's proposal seminar 
+
+Related: 
+    * Taran's proposal seminar :ref:`(Taran 2023) <2023-11-23 - Taran Proposal Seminar>`
+    * Support Vector Machines (SVM) :ref:`(Cortes 1995) <cortes1995support>`
+    * Linear Discriminant Anaylsis (LDA) (:ref:`Black 2017<black2017real>`, :ref:`Black 2019<black2019rapid>`)
+    * My original paper (:ref:`(Wood 2023) <wood2022automated>)
+
+TODO: 
+    1. [ ] Reverse suspension
+    2. [ ] Proposal seminar 
+    3. [ ] First contribution 
+    4. [ ] Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
