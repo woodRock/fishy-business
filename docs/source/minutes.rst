@@ -4798,7 +4798,7 @@ TODO:
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Mohamed Rimas, Hamish O'Keefe, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
 
-Rimas gave a presentation on "Bloat detection by Tree Replcament in Genetic Programming based Symbolic Regression"
+Rimas gave a presentation on "Bloat detection by Tree Replcament in Genetic Programming based Symbolic Regression" https://ecs.wgtn.ac.nz/Main/GradMohamadRimasMohamadAnfar
 
 What is it?
     * Bloat detection of Genetic Programming (GP) trees 
