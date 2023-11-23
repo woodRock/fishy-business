@@ -4793,3 +4793,89 @@ TODO:
     2. [ ] Proposal seminar 
     3. [ ] First contribution 
     4. [ ] Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
+
+2023-11-23 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Mohamed Rimas, Hamish O'Keefe, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Rimas gave a presentation on "Bloat detection by Tree Replcament in Genetic Programming based Symbolic Regression"
+
+What is it?
+    * Bloat detection of Genetic Programming (GP) trees 
+    * Application domain of ransomware detection
+    * AJCAI 2023 paper accpeted to conference, as 7 minute talk.
+    
+Methods: 
+    * Bloat detection - a simple if statement is used to detect bloating. 
+    * Wilcox statistical signifance test, not standard t-test. 
+    * Standard GP for symbolic regression 
+    * Train for 60 epochs 
+    * Population size 100
+    * Terminal set: input as arguments 
+    * Function set: arithmetic, trigonometric, logarithmic, exponential 
+
+Results:
+    * Improves tree size 
+    * Reduces bloating 
+    * No effect on fitness
+
+Why does it matter? 
+    * Real-world application of AI in cybersecurity.
+    * Bloat detection is a common problem in GP.
+    * Prevent real-world harm from cyber-attacks.
+
+Issues: 
+    * Note: fitness is not encorporated into the tree replacement algorithm.
+    * Tree Replacement algorithm does not improve fitness.
+
+Future work: 
+    * Encorporate fitness into the objective function of the tree replacement algorithm.
+
+Related: 
+    * :ref:`(Wood 2022) <wood2022automated>` I previously had a paper accepted to AJCAI 2022.
+
+Hamish gave a presentation for "Instance Segmentation Techniques using Neural Networks for Assessment of Green-Lipped Mussells"
+
+What is it? 
+    * Computer vision segmentation tasks 
+
+Methods: 
+    * YOLACT - You Only Look At CoefficienTs (Githut Copilot)
+    * CenterMask - Anchor-free Instance Masking (Githut Copilot)
+
+Results: 
+    * Average Precision (AP) 
+       * YOLACT low 
+       * CenterMask high
+    * Frame rate (FPS)
+       * YOLACT high
+       * CenterMask low
+
+Why it matters? 
+    * Niche New Zealand Seafood Industry 
+    * Real-world application of AI
+
+Novelty: 
+    * Using a standardized checkered board for measuring fish size.
+
+Issues: 
+    * Paralax effect for checkers board for measuring fish size. 
+    * As you get closer to the fish or board, the size of the checkers board changes.
+    * Impossible to fix, or account for, without a 3D camera, or deep learning.
+
+Future work: 
+    * Fix paralax effect with
+        * 3D camera, or 
+        * deep learning,  e.g. 
+            * denoising autoencoder, 
+            * vision transforme,
+            * diffusion,
+            * ...,
+            * etc...
+
+Related: 
+    * :ref:`(Wood 2022) <wood2022automated>` I previously had a paper accepted to AJCAI 2022.
+
+TODO: 
+    * [ ] Hamish - 2 slides elevator pitch 
+    * [ ] Rimas - 2 slides elevator pitch 
