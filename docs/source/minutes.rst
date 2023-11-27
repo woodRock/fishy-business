@@ -4725,6 +4725,7 @@ Notes:
 **Location:** Zoom, **Time:** Monday, 15:00 - 16:00, **Attendees:** Jesse Wood
 
 First speaker 
+=============
     - NZ Algorithm Hub: open-source repository of existing AI algorithms that can be applied to existing domain applications in health. Explicitly provides code for easy use by Scientists without technical expertise in computer science. Also discussed ethical implications of an algorithm, and what applications it is suitable for.
     - De-indentification: releasing sensitive data to the public in an anonymous manner, that doesn't share private/personal/medical information with the world. Encrypted datasets?
     - Bias: open-soirce medical datasets often remove outliers/minorities, at the risk of sharing their personal information, due to unique combination of their medical condition. But, that means public datasets are biased towards majority populations, and unfairly not representative of minority populations in a community.
@@ -4737,6 +4738,7 @@ First speaker
 
 
 Sanhya - Lincoln University (Otago)
+===================================
     - AI to detect and cure disease and improve health
     - Biology breakthrough, decoding of the human genome. If you open the double helix you have a bunch of letters, e.g. ATCG. The book of life.
     - Gene is like a word in the book. Proteins are the machines of life. 
@@ -4763,13 +4765,13 @@ Sanhya - Lincoln University (Otago)
     - Deep neural network and explainable AI for ealrly detection of Alzheimers. Chris Hemsworth, Marvel's Thor, developed ealrly on-set dementia. Incurable or treatable once Alzheimers reaches last-stage. My grandmother passed away from Alzheimers several years ago.
 
 Q&A
-    - Q1. Advice for data scientist or computer scientists?
-    -A1. Don't need a formal background in the application domain. Can have expertise in software engineering or artificial intelligence, and learn enough domain knowledge in the application of medical biology to be a researcher in of AI in a real-world application domain. Resources available: online courses available, YouTube, Talks, Events. Interest in the application domain, e.g. I'm interested in fish 🐟, is crucial to real-world AI applications.
-    - Q2. Inter-disciplinary collaboration, how difficult is it for medical professionals to work with data scientists? 🥼
-    - A2. Most difficulty comes from the bureaucracy needed to get access to the data, and keep patients private medical information private. Most research collaborations are positive, medical professionals want to trust models, and be able to understand them easily.
-
-Q3. Tangent on drug discovery for cancer.
-A3. Evolutionary game theory with evolutionary arms race between the cancer and the treatment. Don't want to develop treatment-resistant super-cancers.
+===
+    - **Q1.** Advice for data scientist or computer scientists?
+    - **A1.** Don't need a formal background in the application domain. Can have expertise in software engineering or artificial intelligence, and learn enough domain knowledge in the application of medical biology to be a researcher in of AI in a real-world application domain. Resources available: online courses available, YouTube, Talks, Events. Interest in the application domain, e.g. I'm interested in fish 🐟, is crucial to real-world AI applications.
+    - **Q2.** Inter-disciplinary collaboration, how difficult is it for medical professionals to work with data scientists? 🥼
+    - **A2.** Most difficulty comes from the bureaucracy needed to get access to the data, and keep patients private medical information private. Most research collaborations are positive, medical professionals want to trust models, and be able to understand them easily.
+    - **Q3.** Tangent on drug discovery for cancer.
+    - **A3.** Evolutionary game theory with evolutionary arms race between the cancer and the treatment. Don't want to develop treatment-resistant super-cancers.
 
 
 2023-11-23 - Taran Proposal Seminar
