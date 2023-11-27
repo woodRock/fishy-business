@@ -4758,8 +4758,71 @@ e2E data-driven
     * DL procedures coerce output that is fine-tuned by mechanistic model.
     * layers are differnetiable and so errors can be back-propoogated for trainig together.
 
+Real-world 
+    * models that are deploted in real-world domains 
+    * it can be expensive, time/money, to generate high-quality annotated label data. 
 
+Toy dataset 
+    * This is differnet to real-world dataset.
+    * must suit DL methods, and benchmarks, from CHAI. 
+    * Task: Fuzy waterflow model, standard task in CHAT. 
 
+Causal inference: 
+    * Causal nference as Baysian inference 
+    * Sufficient samples sufficiency 
+    * can derive counterfactual explanations that mimic causal inference. 
+    * i.e. examples of almost every <diseases>
+    * go from bayesian association to causal inference
+
+Contrastive learning 
+    * compare two patients 
+    * ask doctors if there was a difference in the decision
+    * intuition: what if?... scenarios, long tail of edge cases, e.g. Tesla FSD. 
+    * outliers 
+    * catastrophic forgetting
+
+Causality 
+    * Proximal <eligible> distal causaility (work in progress).
+
+Robots
+    * Automated annotator 
+    * semi-supervised artificial learning 
+    * <eligble>taining generator 
+
+Strucutred missingness
+    *  learning from data with structure missingness - published in Natur MI 2023.
+    * e.g. bias to minorites, access to healthcare, bias inherent to dataset. 
+    * goal: can missingness itself be a singal for bias in large scale health datasets. 
+
+Quantify uncertainty 
+    * Conformal predictions to quantify uncertainty.
+    * CHAI applications domains do not trust black-box models. 
+    * Doctos want to be the ones making the decisions.
+    * AI-powered tools can assist, but not replace, doctors.
+
+Conformal validation: 
+    1. training 
+    2. validation 
+    3. conformal validation 
+    4. test 
+
+Prostate cancer 
+    * Application: quantifying uncertainy in automated prostate cancer detection 
+
+DLSS 
+    * low-resolution image modailty, DLSS :math:`\to` high-resolution image modality, e.g. MRI.
+    * foundational models: transformers, neural rendering, GANs, etc...
+
+Projects:
+    1. Responsible AI in social media and health care. 
+    2. Global Partnership on AI (GPAI)
+    3. 3D shape analysis of Lithic Fragments (Maori stone tools)
+    * AI:  mechanstic models + deep learning
+
+IEEE CIM - IEEE Computation Intelligence Magazine 
+    * Special issue on AI for health care. 
+    * Guest editor: Tapabrata Rohan Chakraborty
+    
 
 2023-11-01 - Health + AI Seminar 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
