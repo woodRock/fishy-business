@@ -4720,6 +4720,58 @@ Tapabrata Rohan Chakraborty (guest speaker) gave a keynote on CHAI. This talk wa
 Notes: 
     * 
 
+2023-11-01 - Health + AI Seminar 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Monday, 15:00 - 16:00, **Attendees:** Jesse Wood
+
+First speaker 
+    - NZ Algorithm Hub: open-source repository of existing AI algorithms that can be applied to existing domain applications in health. Explicitly provides code for easy use by Scientists without technical expertise in computer science. Also discussed ethical implications of an algorithm, and what applications it is suitable for.
+    - De-indentification: releasing sensitive data to the public in an anonymous manner, that doesn't share private/personal/medical information with the world. Encrypted datasets?
+    - Bias: open-soirce medical datasets often remove outliers/minorities, at the risk of sharing their personal information, due to unique combination of their medical condition. But, that means public datasets are biased towards majority populations, and unfairly not representative of minority populations in a community.
+    - ChatBots: level 1 help desk support for medical inquires, summarisation of clinical notes from PDF documents in lay terms, technical jargon for practitioners.
+    - New Zealand country-specific datasets, rather than reliance on international models that don't generalise to our niche demographic population.
+    - Understanding data sovereignty, see Rosey Dobson. What do people, end-users from the public, expect medical professionals and the government from using their health records to  do. The privacy and consent of patients must be honoured.
+    - Narrow AI applications where AO can outperform human domain experts in medical diagnosis. For example,  predicting a patient's ethnicity from an x-ray, unintended phrenology from unintentionally capabilities of AI models that humans can't understand. Important to sure the patients sentive and private immutable characteristics are not made publicly available or exploited by bad faith actors. 
+    - AI doomers: foomers make Medical AI applications difficult, e.g. risk in safety critical domains. 
+    - Maori: data sovereignty, co-governace, equity, DEI, colonialism, ..., etc.
+
+
+Sanhya - Lincoln University (Otago)
+    - AI to detect and cure disease and improve health
+    - Biology breakthrough, decoding of the human genome. If you open the double helix you have a bunch of letters, e.g. ATCG. The book of life.
+    - Gene is like a word in the book. Proteins are the machines of life. 
+    - Biology applications: gene and protein networks 
+    - Medical diagnosis application: NZ has the highest breast cancer rate I'm the world. 
+    - Tools for diagnosis:
+    ultrasound, blood, plasma biological sample
+    - Detection is a classification task, cancer or benign
+    - Motivations: results need to be: accurate, interpretable and trustworth
+    - Methods: morphological feature extraction.
+    - Hierarchical clustering to see feature importance.
+    - Machine learning techniques:
+    KNN, LDA, NC, MLNN/SOM
+    - MLNN/SOM gives a highly accurate and parsimonious output that extracts meaningful feature and provide interpretable results.
+    - For AI applications in a safety critical domain of medicine the models need to be interpretable, explainable, and trustworthy.
+    -  BIology jargon: genetic and proteomics, differentially expressed genes, active genes
+    -  protein and gene networks to see how active genes and proteins are for performing a mechanistic operation or function in the body.
+    -  Human genome: 30,000 base pairs.
+    -  Each person has 7,000+ genes.
+    -  Feature selection: select a small set of discriminating genes, bi-biological filter with best-first-search with SVM.
+    -  Dimensionality reduction via spectral clustering for genomic datasets. Spectral clustering groups genes that perform familiar functions. E.g. 17 clusters for cancer dataset 15 clusters for benign dataset, shared two clusters in common. Can reduce dimensionality of genomic datasets by filtering for clusters that are useful in differenting between belign and malignant cancer samples, a binary classification task that is a downstream medical application of the feature election/ feature construction.
+    -  94% accuracy with just 13 genes. Down from 97% accuracy with the full dataset. A reasonable tradeoff between accuracy and dimensionality, for smaller, explainable, interpretable models, that can be easily understood and trusted by domain experts in medicine.
+    -  Future proof vaccine development. AI applications for drug discovery. mRNA and micro-RNA cells. Current application: tuberculosis vaccine drug discovery. Future work - Effective for developing covid vaccines. 
+    - Deep neural network and explainable AI for ealrly detection of Alzheimers. Chris Hemsworth, Marvel's Thor, developed ealrly on-set dementia. Incurable or treatable once Alzheimers reaches last-stage. My grandmother passed away from Alzheimers several years ago.
+
+Q&A
+    - Q1. Advice for data scientist or computer scientists?
+    -A1. Don't need a formal background in the application domain. Can have expertise in software engineering or artificial intelligence, and learn enough domain knowledge in the application of medical biology to be a researcher in of AI in a real-world application domain. Resources available: online courses available, YouTube, Talks, Events. Interest in the application domain, e.g. I'm interested in fish 🐟, is crucial to real-world AI applications.
+    - Q2. Inter-disciplinary collaboration, how difficult is it for medical professionals to work with data scientists? 🥼
+    - A2. Most difficulty comes from the bureaucracy needed to get access to the data, and keep patients private medical information private. Most research collaborations are positive, medical professionals want to trust models, and be able to understand them easily.
+
+Q3. Tangent on drug discovery for cancer.
+A3. Evolutionary game theory with evolutionary arms race between the cancer and the treatment. Don't want to develop treatment-resistant super-cancers.
+
+
 2023-11-23 - Taran Proposal Seminar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** CO431, **Time:** Thursday, 10:00 - 10:45, **Attendees:** Taran, Mengjie Zhang, Aaron Chen, Andrew Lensen, Jordan MacLauchlan, Jesse Wood
@@ -4789,9 +4841,9 @@ Related:
     * My original paper (:ref:`(Wood 2023) <wood2022automated>)
 
 TODO: 
-    1. [ ] Reverse suspension
-    2. [ ] Proposal seminar 
-    3. [ ] First contribution 
+    1. [x] First contribution 
+    2. [ ] Reverse suspension
+    3. [ ] Proposal seminar 
     4. [ ] Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
 
 2023-11-23 - FASLIP
@@ -4877,5 +4929,336 @@ Related:
     * :ref:`(Wood 2022) <wood2022automated>` I previously had a paper accepted to AJCAI 2022.
 
 TODO: 
-    * [ ] Hamish - 2 slides elevator pitch 
-    * [ ] Rimas - 2 slides elevator pitch 
+    * [x] Hamish - 2 slides elevator pitch 
+    * [x] Rimas - 2 slides elevator pitch 
+
+2023-11-27 - GNS Science tour 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** GNS Science, **Time:** Monday, 10:00 - 11:00, **Attendees:** Jesse Wood, Colin <last-name>
+
+Green Hydrogen
+By Colin <last-name>
+====================
+
+Hydrogen 
+- Hydrogen, odourless colourless gas.
+- first element on the periodic table.
+- most abundant element in the universe.
+- fuel of stars, and our sun.
+
+Colours of space 
+- gold, green, pink hydrogen
+- trapped, zero-CO2, nuclear
+- grey hydrogen, natural gas, steam methane reformation.
+
+Chemistry 
+- only chemistry slide: 2H20 :math:`\to` 2H2 + 02
+- electrolysis is very inefficient, needs to be innovated upon.
+- Electro catalytic reaction
+- I lied, here's more: 2H2 + O2 :math:`\to` Energy + 2H20
+
+Hydrogen Car
+- Electrolysis + Fuel cell = Hydrogen car
+- yellow hydrogen, if we were using a solar panel, it would be green hydrogen.
+- two tanks, one makes hydrogen the other. makes water. Usually these would be seperated, a hydrogen car, and a fuel ststion. Hydrogen car is for demonstrative effect.
+- see video
+
+Hindenburg
+- Hydrogen is flammable.
+- long-haul trucks - green hydrogen.
+- Toyota FCV.
+- next generation FCEV.
+- Auckland - first hydrogen bus.
+- America's Cup chase boat powered by hydrogen.
+
+Hydrogen conference 
+- New Zealand Hydrogen Symposium 
+- Starts at 31st Jan
+
+Research and Development
+- Needs to be cheaper and easier to make.
+- Need to replace lost energy.
+- Rare earth metals, or transition metals.
+- Catalyst: Iridium, Platinum.
+- cheaper, more efficient, electrolysis.
+- only need catalyst at the surface.
+- any catalyst not at surface is wasted.
+- make a very thin layer of catalyst.
+
+Microcommunites in remote communities.
+- Hydrogen supported microgrids.
+- supports remote communities.
+- previously: microgrid to support energy. needs, diesel-powered.
+- now: hydrogen-powered microgrid supports their energy needs today.
+- 10 days of autonomy if solar is not available.
+
+Ngahina Marae
+- 750 Marae in Aoeteroa
+- previously, diesel-powered generator
+- now, slowly, transferred to hydrogen-powered generators
+- Ngahina Marae - first case study 
+
+"computer scientist so not a real scientist" 😭🥼 -- Jesse Wood
+
+--
+
+Composite magnetic materials development for applications in inroads charging systems
+By <unknown>
+=====================================================================================
+
+Charge onroad
+- charge cars parked or at traffic lights.
+- need EVs to reduce emissions.
+
+Diffusion of innovation 
+1. certain sectors are keen
+2. certain sectors want it easy
+3. certain sectors are laggards
+
+Materials engineering 
+- Different from Tesla coils
+- Wireless charging, capacitance charger
+- rare earth metals, transition metals, Iridium and platinum - are very brittle, and break easily.
+- Composite material, magnetic concrete
+- materials engineering 
+- Soft magnetic composite (SMC)
+    - mechanically robust
+    - shapeable
+    - low losses
+- Multi-objective (MO) optimisation problem with multiple tradeoffs between
+    1. permeability
+    2. losses
+    3. durability
+    4. cost
+- modelling through simulation is iterative, make material, model it, test IRL, compare to model, improve model, improve composite.
+- New Zealand iron sand - composition, common on North Island beaches
+- Iron Beam Analysis (IBM) - smashing particles. To test composite materials for MO Pareto optimal solutions.
+
+Manufacturing methods
+    1. 3D printed moulds
+    2. pressed composite 
+    3. Binder
+
+Permeability
+- B = uI / r^2
+- in air u=1
+- iron sand u=4
+- composites
+u=100
+- tradeoff: permeability vs durability
+
+Shape of water
+- spherical/elongated particles
+- spherical: spread equally across the circle, not a good packing, Escher tiling problem
+- elongated has much better permeability
+
+Mathematic losses
+- inefficient :math:`\to` high loss
+- high loss :math:`\to` heat transfer
+- 😔
+- don't want to start a fire 🔥
+
+Electric recharging
+- charging pads under roads
+- charge while moving
+- charging pads for EVs on left most lane
+
+"The slow lane, would turn into, a fast lane"
+#IAmSpeed 
+
+-- 
+
+Energy efficiency Research
+By Murray 
+Energy Material Scientist, SSIF 
+===============================
+
+Efficiency 
+- using less energy to perform the same task.
+- thermal energy focus
+    1. increasing thermal conductivity
+    2. decreasing thermal conductivity 
+
+Fridges
+- fridges - enhancing heat transfer
+- energy rating +0.5 to +1
+- improving heat transfer in refrigerating units
+
+Controlling heat transfer
+- structures:
+    1. flat
+    2. nanostructures
+    3. microstructure
+    4. hierarchical 
+
+Anisotropic wetting surface 
+- anisotropic wetting surface development
+- works in separation, but fails integration testing
+- still an active research area.
+
+Knudsen effect 
+- Knudsen effect :math:`\to` gas conduction, free path reaches averge size of a pore, the pore will stop producing heat.
+- pores need to be as small as possible, to prevent above, and ensure heat transfer.
+- solid conduction
+    1. heavy elements
+    2. strong anharmonicity
+    3. complex cell unit
+
+Heat Transfer 
+- heat is transferred through a material by vibrations in the lattice
+- anharmonicity - bonds don't have harmonics
+- complex cell - complex structures in the smallest unit of the material, bonds going all over the place.
+- nano particles (NP)
+- nano composites (MC)
+- super lattices (SL)
+- NPs, SLs
+
+Allen-Feldman
+- Allen-Feldman theory
+    1. propagon - atom propogating as wave
+    2. diffuson - <unseen>
+    3. locom - atom chilling 
+
+--
+
+Energy Harvesting
+By Martin Markwitz
+==================
+
+- 66% of energy is wasted into heat transfer.
+- Voyager, rocket ship, space probes.
+- rock of plutonium, thermo electric heat. transfer tools to harvest heat.
+- cars - heat transfer from engine to the car battery.
+- ...
+- [REDACTED]
+- commercially sensitive 
+- [REDACTED]
+- ...
+- conductor: metal
+- insulator: glass
+- semi-conductor, somewhere in between
+- arrangement of atoms give it their special Proper
+- glass is a particular arrangement of oxygen and silicon that gives you a transparent window 🪟
+
+"You guys are trying to make Greek letters really big, without breaking the laws of physics, or the materials you are working with." -- Jesse Wood this
+
+The rock does float, but not for the right reason #LK-99 
+- diamagnetism, not Meissner effect
+- repulsion, not superconduction
+
+--
+
+Gupta
+By Gupta
+- arrange carbon in different configurations to create diamond 💎
+- doping a material, implant nitrogen/phosphorus, make it conductive.
+- construct based material for quantum computers 🥼🧑‍🔬⌨️🖥️🖱️🧑‍🔬🥼
+- tungsten-carbonite
+
+    "You've heard of alchemy?"
+Gupta said
+    "Did you make gold?" 🪙
+I replied
+    "We did better, we made platinum!"
+Gupta finished
+
+Ammonia
+- in our bodies, 4th most abundant element is nitrogen.
+- half of that nitrogen in the body is from. ammonia
+- half of the planet depend on ammonia.
+- plants can naturally fix nitrogen into ammonia.
+- 200,000,000 tonnes of ammonia, 500,000,000 tones of carbon dioxide.
+- thermodynamics: entropy always wants to increase the number of molecules. 
+- synthesize ammonia at a farm when it is needed. Excess ammonia can be stored as a fuel. Ammonia contains hydrogen, and has much greater volumetric density than regular hydrogen.
+- it's a better energy vector
+- electrocatalyst can produce ammonia in seconds, rather than years by traditional chemistry methods. 
+- A surface where the field passes electricity, a catalyst speeds up a reaction, electrocatalyst uses electrons to do this.
+- 500 bar pressure and 299 degree temperature, WWI Germany was trying to synthesize ammonia, Heber & Bosch, allies tried to cut off ammonia supply. 
+
+--
+
+Career pathway talks
+By et al.
+====================
+
+Study
+- masters the PhD
+- research assistant, lab, desk job
+- research scientist
+- reports, emails, days like this
+
+Next
+- chemical engineering
+- university of Canterbury
+- didn't want to get a job
+- offered job at the university
+- research assistant
+- post-doctorate
+- patent office for 6 months
+- learning about intellectual property
+- open-polytechnic drip-fed degree in economics.
+- research consulting for (originally) coal, (now) energy and consulting
+- young, dumb, and...
+
+Maori + Chemistry
+- te reo māori is a valuable skill in industry/research.
+- applying chemistry to Māori knowledge.
+- outreach & education
+- future work: study geomorphology
+- Taniwha, science and Māori spoken word, purakou, parallels for explaining volcanoes 🌋
+
+They said
+    "technical role, you are an aspiring scientist, and you are overqualified."
+She said
+    "Don't put me in a box! 
+     Please reconsider my application."
+Then she got the job.
+
+Next
+- earth sciences at university 
+- tried consulting but was never hired
+- camel scientific: instrumentation company
+- basically a sales job, e.g. cambell data logger
+- on the phones
+- weather station for solar monitoring
+- solar farms being built in eastern Canada
+- blew it up on site plugging it in wrong.
+- working on every project in Ontario.
+
+"Noone ever told me what to do!
+  I just did what I thought was best.
+  I booked flight, booked hotels, worked onsite." 👨‍🔧
+
+"This is a new role, we don't really know
+  Just go do things, and work it out!" 💪
+
+General
+- Wellington is a small place 🤏🌏
+- not what you know, but 
+, who you know
+- science is broken
+- create the job role you dream of working
+
+Advice for young scientists:
+    1. Networking is valuable
+    2. Know your audience
+    3. Less is more
+    4. Be yourself
+    5. Writing is important 
+
+--
+
+Lab and facilities tour
+By et al.
+=======================
+
+- see photos
+- Vaan set Graaf
+- Hip replacement with particle splattering 
+- in a small layer of angstrom (1 million times smoother than a table) of composite silver.
+- They didn't have to be replaced afterwards. Just used once. But it worked.
+- argon - the Penning Effect, Ag is a heavy element, efficient mass transfer when seperating water with electrolysis.
+- mass spectrometer - limited to 100 atomic units (photo with helmet in it)
+- MS data with X axis showing atomic weights. Much easier to interpret and understand.
+- AI for chemistry analysis, writing grants, and drafting emails. It gets 80% of the job dome, and requires 20% human intervention.
+
