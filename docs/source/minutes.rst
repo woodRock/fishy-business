@@ -4852,13 +4852,19 @@ Notes:
     - Biology applications: gene and protein networks 
     - Medical diagnosis application: NZ has the highest breast cancer rate I'm the world. 
     - Tools for diagnosis:
-    ultrasound, blood, plasma biological sample
+        1. ultrasound
+        2. blood
+        3. plasma 
+        4. biological sample
     - Detection is a classification task, cancer or benign
     - Motivations: results need to be: accurate, interpretable and trustworth
     - Methods: morphological feature extraction.
     - Hierarchical clustering to see feature importance.
     - Machine learning techniques:
-    KNN, LDA, NC, MLNN/SOM
+        1. KNN
+        2. LDA
+        3. NC, 
+        3. MLNN/SOM
     - MLNN/SOM gives a highly accurate and parsimonious output that extracts meaningful feature and provide interpretable results.
     - For AI applications in a safety critical domain of medicine the models need to be interpretable, explainable, and trustworthy.
     -  BIology jargon: genetic and proteomics, differentially expressed genes, active genes
