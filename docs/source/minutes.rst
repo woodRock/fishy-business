@@ -4822,7 +4822,68 @@ Projects:
 IEEE CIM - IEEE Computation Intelligence Magazine 
     * Special issue on AI for health care. 
     * Guest editor: Tapabrata Rohan Chakraborty
+
+2023-11-18 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Daniel Killeen, Jesse Wood
+
+I sent my supervisors a copy of my slides, and overleaf link, in advance so Bing can bring it up on her screen.
+
+Layout: 
+    1. Problem statment 
+    2. What? Why? 
+    3. Motivations 
+        - Identification 
+        - Contamination 
+        - Traceability
+    4. Marine biomass 
+        - Identification 
+        - Contaminiation 
+        - Traceability 
+    5. Machine Learning 
+        - Feature construction 
+        - Few-shot similarity-based contrastive learning 
+        - Outlier thresholding 
+    6. Research Goals 
+    7. Preliminary Work 
+        - EDA of REIMS 
+        - GP on GC dataset
+    8. Contributions, Timeline, Thesis Outline 
+
+Notes:
+    * Use powerpoint, not LaTeX, easier, faster. 
+    * Application domain difficult for AIML people to understand.
+    * Explain new AIML concepts that the group is not familiar with. 
+
+TODO: 
+    * [x] Hide code/datasets from Github repository - industry project IP. 
+    * [x] Send supvervisors slides. 
+    * [x] Practise presentation.
+
+2023-10-18 - Deep Learning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Zoom, **Time:** Wednesday, 15:00 - 16:00, **Attendees:** Bastian Kleign, Paul Teal, Marcus Frean, Hayden Dyne, Ali Knott, Jesse Wood
     
+I gave a talk on Falcon-130B, a new state-of-the-art language model, released open-source to the public, by the United Arab Emirites. https://falconllm.tii.ae/
+
+ 
+
+Falcon-130B - a large language model (LLM) from the United Arab Emirites (UAE) in Adbu Dabi, An open-source LLM released with an Apache 2.0 License, on Github and Hugging face. 
+
+Bastian discussed CLIP 
+
+Bastiaan discussed Stable Diffusion Extra Large (SDXL)
+
+Releated: 
+    * Official Website - https://falconllm.tii.ae/
+    * HuggingFace - https://huggingface.co/blog/falcon
+    * Deep Learning - https://www.deeplearning.ai/the-batch/falcon-the-new-open-source-commercial-llm-explained/
+    * CLIP 
+        * paper :ref:`(Radford 2021) <radford2021learning>`
+        * paper :ref:`(Radford 2021) <radford2021zero>`
+    * SDXL paper :ref:`(Podell 2023) <podell2023sdxl>)`
+
+
 
 2023-11-01 - Health + AI Seminar 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
