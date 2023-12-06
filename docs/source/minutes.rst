@@ -4884,7 +4884,6 @@ Releated:
     * SDXL paper :ref:`(Podell 2023) <podell2023sdxl>)`
 
 
-
 2023-11-01 - Health + AI Seminar 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time:** Monday, 15:00 - 16:00, **Attendees:** Jesse Wood
@@ -5463,7 +5462,7 @@ Progress:
     - Standard AIML algorthms applied to REIMS.
     - DT and RF perform best, near-perfect accuracy. 
 
-Future work 
+Future work:
     - Apply ST-GP, MT-GP, MCIFC to REIMS. 
     - Further exploratory data analysis.
     - Limitations, Motivations, Goals 
@@ -5478,3 +5477,10 @@ Future work
         - Meng suggested the following 
         - Apply my feature selection analysis from GC to REIMS dataset. 
         - See how many features are needed for good accuracy.
+
+TODO: 
+    - [ ] Explore the performance of gradually adding more features as you did for the AJICAI paper
+    - [ ] Analyse DT results, like the selection of the features,  over multiple runs of DT
+    - [ ] Discuss the findings of EDA, to explore what are the technical challenges in the data and discuss what possible techniques can be used to address each of the challenges
+    - [ ] Run experiments using the GP methods to see the results
+    - [ ] Bring hard copies of results/writing  or send the pdf file before the meeting.
