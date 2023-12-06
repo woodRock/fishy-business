@@ -2311,7 +2311,32 @@ Available: https://www.mikecaptain.com/resources/pdf/GPT-1.pdf
 
 Related: 
     * :ref:`2023-02-22 - Deep Learning <2023-02-22 - Deep Learning>` describes this paper. 
+    * Same author, CLIP - :ref:`(Radford 2021) <radford2021learning>`
+    * Same author, CLIP - :ref:`(Radford 2021) <radford2021zero>`
 
+radford2021learning
+-------------------
+Learning Transferable Visual Models From Natural Language Supervision
+
+(Radford 2021) propose CLIP a representational model for text-to-image feature embeddings.
+
+Available: http://proceedings.mlr.press/v139/radford21a
+
+Related: 
+    * Same author, same model, same year :ref:`(Radford 2021) <radford2021zero>`
+    * Same author :ref:`(Radford 2028) <radford2018improving>`
+
+radford2021zero
+---------------
+Zero-Shot Text-to-Image Generation
+
+(Radford 2021) propose CLIP a representational model for text-to-image feature embeddings.
+
+Available: https://proceedings.mlr.press/v139/ramesh21a.html?ref=journey-matters
+
+Related: 
+    * Same author, same model, same year :ref:`(Radford 2021) <radford2021learning>`
+    * Same author :ref:`(Radford 2028) <radford2018improving>`
 
 raine1997brain
 --------------
