@@ -4866,13 +4866,9 @@ TODO:
     
 I gave a talk on Falcon-130B, a new state-of-the-art language model, released open-source to the public, by the United Arab Emirites. https://falconllm.tii.ae/
 
- 
-
-Falcon-130B - a large language model (LLM) from the United Arab Emirites (UAE) in Adbu Dabi, An open-source LLM released with an Apache 2.0 License, on Github and Hugging face. 
-
-Bastian discussed CLIP 
-
-Bastiaan discussed Stable Diffusion Extra Large (SDXL)
+    * Falcon-130B - a large language model (LLM) from the United Arab Emirites (UAE) in Adbu Dabi, An open-source LLM released with an Apache 2.0 License, on Github and Hugging face. 
+    * Bastian discussed CLIP 
+    * Bastiaan discussed Stable Diffusion Extra Large (SDXL)
 
 Releated: 
     * Official Website - https://falconllm.tii.ae/
@@ -4881,7 +4877,48 @@ Releated:
     * CLIP 
         * paper :ref:`(Radford 2021) <radford2021learning>`
         * paper :ref:`(Radford 2021) <radford2021zero>`
-    * SDXL paper :ref:`(Podell 2023) <podell2023sdxl>)`
+    * SDXL paper :ref:`(Podell 2023) <podell2023sdxl>`
+
+2023-10-19 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Lin, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Improving Buoy Detection with Deep Transfer Learning for Mussell Farm Buoyancy - a talk by Carl McMillan `mcmillcar@myvuw.ac.nz <mailto:mcmillcarl@myvuw.ac.nz>`_
+
+Background: 
+    * YOLO is a state-of-the-art object detection model for computer vision.
+    * Each iteration of YOLO is an improvement on the previous iteration.
+    * YOLO versions are often made by different authors, and are not always compatible with each other.
+
+Dataset:
+    * Mussel buoy dataset - 1,000+ images of mussel buoys in the Marlborough Sounds, New Zealand.
+    * Human supverised label annotation of buoy images.
+    * Images are drawn from a video of a boat travelling through Mussell farms in the Marlborough Sounds.
+
+Method: 
+    * Manual label annotation of randomly selected video frames to generate a train/test datset.
+    * YOLOc7 pretrained on the MS-COCO dataset. Then retrained on the mussel buoy dataset.
+
+Experiment: 
+    * Compare different YOLO model sizes (tiny, v7) for buoy detection.
+    * Ablation studies - with adverse weather conditions
+
+Results: 
+    * YOLO-tiny vs YOLOv7 model size. Does not effect detection accuracy much. 
+    * Abalation studies - adverse weather conditions effect results more than model size.
+
+Limitations: 
+    * Label annotation is painfully slow.
+    * Carl labelled +1,000 images by himself. 
+    * YOLOv7, newer models now exist. 
+    * Adverse weather conitions
+
+Future work: 
+    * Weather invariant buoy detection via data augmentation 
+    * Super-resolution of buoy images. 
+        * E.g. 
+            1. Neural rendering to upscale. (NR)
+            2. Deep Learning Super Sampling (DLSS)
 
 
 2023-11-01 - Health + AI Seminar 
