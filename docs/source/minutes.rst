@@ -5378,7 +5378,7 @@ Notes:
     * MS data with X axis showing atomic weights. Much easier to interpret and understand.
     * AI for chemistry analysis, writing grants, and drafting emails. It gets 80% of the job dome, and requires 20% human intervention.
 
-2023-21-07 - Weekly
+2023-12-07 - Weekly
 ~~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
 
