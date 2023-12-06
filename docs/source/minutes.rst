@@ -5378,3 +5378,42 @@ Notes:
     * MS data with X axis showing atomic weights. Much easier to interpret and understand.
     * AI for chemistry analysis, writing grants, and drafting emails. It gets 80% of the job dome, and requires 20% human intervention.
 
+2023-21-07 - Weekly
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
+
+Proposal seminar results - Ali Knott will send me an email with my results, soon!
+
+Post-graduate people: 
+    - Ali Knott is the post-graduate coordinator of AI + CS 
+    - Jennifer Ferreira is the post-graduate coordinator for SE 
+    - Neil Dogeson is the dean of Faculty of Graduate Research (FGR)
+    - Nokthaba is the associate dean of the Faculty of Graduate Research (FGR)
+
+I will apply to change my course code to AIML 694, when it exists.
+
+Course codes: 
+    - 690 - standard AIML  
+    - 692 - engineering AIML (TBD)
+    - 694 - applications AIML (TBD)
+
+Progress:  
+    - Exploratory data analysis of REIMS.
+    - Standard AIML algorthms applied to REIMS.
+    - DT and RF perform best, near-perfect accuracy. 
+
+Future work 
+    - Apply ST-GP, MT-GP, MCIFC to REIMS. 
+    - Further exploratory data analysis.
+    - Limitations, Motivations, Goals 
+        1. Limitations - EDA finds technical limitations 
+        2. Motivations - find technical details to address the limitations 
+        3. Goals - formalize tehcnical details into novel approaches.
+    - An example of PSO - limitations, motivations, goals: 
+        1. Limitations - REIMS is a high-dimensional, noisy, few-shot dataset. 
+        2. Motivations - Global search, feature interactions, non-global local optima. 
+        3. Goals - PSO for feature selection, can perform global search and address these technical limitations.
+    - Feature selection 
+        - Meng suggested the following 
+        - Apply my feature selection analysis from GC to REIMS dataset. 
+        - See how many features are needed for good accuracy.
