@@ -4920,6 +4920,24 @@ Future work:
             1. Neural rendering to upscale. (NR)
             2. Deep Learning Super Sampling (DLSS)
 
+ECRG - 2023-10-20
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Yi Mei, Wang (new), Bing Xue, Mengjie Zhang, Yi Mei 
+
+General notes:
+    * Professor Wang s visiting researcher from China. Part of the China & New Zealand international research transfer programme. 
+    * NZ + China Research transfer - they previously offered only 2 eeks for the research and collaboartion visit, but it has now been extended "to be longer because it was too short".
+    * Hayden took a survey for 200 different 100-level students. 
+        * 50% did not attempt. 
+        * 10% did not finish.
+        * 40% finished.
+
+Progress: 
+    * I have submitted my proposal on Sunday at 2 AM. 
+    * I have started preparing my proposal seminar. 
+    * I plan to have 2-3 rehearsals before the seminar.
+    * Revise seminar based on supervisors feedback. 
+
 
 2023-11-01 - Health + AI Seminar 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
