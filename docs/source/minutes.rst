@@ -888,8 +888,8 @@ Notes:
     * Pre-training on NIST GC refraction index data - needs a parametric (neural network) model for this technique. 
     
 TODO: 
-    * [ ] Apply EvoCNN to GC data. 
-    * [ ] Apply Genetic Programming (GP) data to GC data. 
+    * [x] Apply Genetic Programming (GP) data to GC data. 
+    * [-] Apply EvoCNN to GC data. 
 
 2022-04-28 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -1083,10 +1083,10 @@ Notes:
     * CDP - Candidate Development Plan, is due this month. Scope is for 6 months only. This is my first so I have no goals from previous CDP. 
     
 TODO: 
-    * [ ] Readings on Genetic Programming (GP)
-        1. [ ] TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
-        2. [ ] tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
-        3. [ ] tran2017new https://ieeexplore.ieee.org/document/7956226
+    * [x] Readings on Genetic Programming (GP)
+        1. [x] TranEtAl2015GPfsfc https://link.springer.com/article/10.1007/s12293-015-0173-y
+        2. [x] tran2019genetic https://www.sciencedirect.com/science/article/pii/S0031320319301815?dgcid=rss_sd_all
+        3. [x] tran2017new https://ieeexplore.ieee.org/document/7956226
     * [x] Send a draft CDP to my supervisors for feedback. 
 
 2022-05-12 - FASLIP 
@@ -1411,8 +1411,8 @@ Notes:
     * GP has the opportunity to generate new knowledge that can be verifiedand encorporated by domain experts into their field. 
 
 TODO: 
-    * [ ] READ: GP for Multi-FC in skin cancer image classification. 
-    * [ ] READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
+    * [-] READ: GP for Multi-FC in skin cancer image classification. 
+    * [-] READ: Two-stage GP for auotmated dianoging Skin Cancer from Multi-Modelity Images 
 
 2022-06-17 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -2215,7 +2215,7 @@ Notes:
 TODO: 
     * [x] Implement Multi-tree GP in Python. 
     * [x] Prepare for Kevin+Daniel visit next week.
-    * [ ] Read (Tran 2019, tran2019genetic). 
+    * [X] Read (Tran 2019, tran2019genetic). 
 
 2022-08-19 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -2256,7 +2256,7 @@ TODO:
     * [x] 2022-08-24 Register for the IEEE Symposium 
     * [x] 2022-08-25 FASLIP Presentation 
     * [x] 2022-08-31 Prepare IEEE Symposium presentation 
-    * [ ] 2022-09-30 Plan a EvoStar 2023 paper. 
+    * [-] 2022-09-30 Plan a EvoStar 2023 paper. 
 
 2022-08-23 - PFR Daniel and Kevin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -3042,9 +3042,9 @@ Notes:
 
 TODO 
     * [x] IEEE Webmaster self-nomination 
-    * [x] Proposal - 2 reseach objectives 
+    * [x] Proposal - 2 reseach objectives
+    * [x] Preliminary work  
     * [-] NESI HPC Niwa Compute application 
-    * [ ] Preliminary work 
 
 2022-10-20 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
@@ -3122,9 +3122,9 @@ Notes:
     * Daniel's focus is on the chemistry dataset, his expertise/research follows this, however my PhD is applying AIML to these datasets. My proposal should focus on AIML and attempt to bridge the gap between the two fields for this domain. 
 
 TODO: 
-    * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
-    * [ ] Focus on problem from AIML perspective, 
-    * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+    * [x] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+    * [x] Focus on problem from AIML perspective, 
+    * [x] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
 
 Related: 
     * t-SNE (:ref:`Van 2008<van2008visualizing>`) is a dimensionality reduction / visualization technique. 
@@ -3376,13 +3376,13 @@ Notes:
 
 TODO: 
     * [x] Write draft CDP before 2022-11-16 and send to supervisors. 
-    * [ ] Write chapter 1 introduction for my proposal. 
-    * [ ] Write research objectives for my proposal.
+    * [x] Write chapter 1 introduction for my proposal. 
+    * [x] Write research objectives for my proposal.
     * Bach's proposal feedback: 
-        * [ ] Focus on problem from AIML perspective, 
-        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
-        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
-    * [!] Forward Registration Confirmation Email to Bing (never recieved this!)
+        * [x] Focus on problem from AIML perspective, 
+        * [x] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [x] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+    * [x] Forward Registration Confirmation Email to Bing (never recieved this!)
 
 2022-11-11 - ECRG 
 ~~~~~~~~~~~~~~~~~
@@ -3458,18 +3458,18 @@ Notes:
         * Focus on finishing my proposal before I go on holiday in January (2023-01-18)
 
 TODO: 
-    * [!] Forward Registration Confirmation Email to Bing (never recieved this!)
+    * [x] Forward Registration Confirmation Email to Bing (never recieved this!)
     * [x] Write draft CDP before 2022-11-16 and send to supervisors.
     * [x] Submit CDP by November 30th 2022-11-30
     * [x] AJCAI Print poster 2022-22-02
     * [x] AJCAI memorize presentation 2022-22-02
     * [x] AJCAI dress rehearsal at FASLIP 2022-12-01
-    * [ ] Write chapter 1 introduction for my proposal. 
-    * [ ] Write research objectives for my proposal.
+    * [x] Write chapter 1 introduction for my proposal. 
+    * [x] Write research objectives for my proposal.
     * Bach's proposal feedback: 
-        * [ ] Focus on problem from AIML perspective, 
-        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
-        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+        * [x] Focus on problem from AIML perspective, 
+        * [x] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [x] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
 
 2022-11-30 - Deep Learning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3690,11 +3690,11 @@ Notes:
 TODO: 
     * [x] Send Bing a copy of my slides. 
     * [x] Continue writing my proposal. 
-    * [ ] Write research objectives for my proposal.
+    * [x] Write research objectives for my proposal.
     * Bach's proposal feedback: 
-        * [ ] Focus on problem from AIML perspective, 
-        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
-        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+        * [x] Focus on problem from AIML perspective, 
+        * [x] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [x] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
 
 2022-12-15 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
@@ -3743,16 +3743,16 @@ Notes:
 TODO: 
     * Proposal 
         * [x] Introduction 
-        * [ ] Background 
-        * [ ] Contributions 
+        * [x] Background 
+        * [x] Contributions 
         * [x] Milestones 
         * [x] Thesis Outlines 
         * [x] Resources 
-    * [ ] Write research objectives for my proposal.
+    * [x] Write research objectives for my proposal.
     * Bach's proposal feedback: 
-        * [ ] Focus on problem from AIML perspective, 
-        * [ ] Write a summary on my tree GP results. Analyze these results, compared to existing work.
-        * [ ] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
+        * [x] Focus on problem from AIML perspective, 
+        * [x] Write a summary on my tree GP results. Analyze these results, compared to existing work.
+        * [x] State equivalent terms from chemistry upfront (i.e. Table or Glossary). 
 
 2023-01-12 - FASLIP
 ~~~~~~~~~~~~~~~~~~~
@@ -3919,11 +3919,11 @@ Notes:
     * Presentation - AJAI 2022 presentation should be sufficient for PFR workshop, can add preliminary results from proposal, if time allows. 
 
 TODO:
-    - [ ] Send supervisors draft for Chapter 4 - Prelminary work
-    - [ ] Chapter 2 - Literature Review 
-    - [ ] Chapter 3 - Contributions 
-    - [ ] PRF Workshop Presentation 2023-02-09
-    - [ ] (Optional) PFR Workshop + Preliminary Work
+    - [x] Send supervisors draft for Chapter 4 - Prelminary work
+    - [x] Chapter 2 - Literature Review 
+    - [x] Chapter 3 - Contributions 
+    - [x] PRF Workshop Presentation 2023-02-09
+    - [x] (Optional) PFR Workshop + Preliminary Work
 
 2023-02-02 - FASLIP
 ~~~~~~~~~~~~~~~~~~~~
@@ -4400,7 +4400,7 @@ Notes:
 
 TODO: 
     * [x] Candidate Development Plan (CDP) due 2023-05-25 - today!
-    * [ ] Come in early for PhD work.
+    * [x] Come in early for PhD work.
 
 
 2023-05-25 - FASLIP 
@@ -4622,9 +4622,9 @@ General notes:
         - Aim to submit in the next week.
 
 TODO:  
-    * [ ] 2023-10-31 October - Apply for NeSI HPC https://www.nesi.org.nz/services/applyforaccess
-    * [ ] 2023-10-08 Midnight - send supervisors revised draft. 
-    * [ ] 2023-10-13 Submit proposal 
+    * [-] 2023-10-31 October - Apply for NeSI HPC https://www.nesi.org.nz/services/applyforaccess
+    * [x] 2023-10-08 Midnight - send supervisors revised draft. 
+    * [x] 2023-10-13 Submit proposal 
 
 Ruiqi Chen gave a talk on "Deep Reinforcement Learning for Job Shop Scheduling". https://ruiqi-chen.cn/
 
@@ -5074,8 +5074,8 @@ Related:
 
 TODO: 
     1. [x] First contribution 
-    2. [ ] Reverse suspension
-    3. [ ] Proposal seminar 
+    2. [x] Proposal seminar 
+    3. [ ] Reverse suspension
     4. [ ] Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
 
 2023-11-23 - FASLIP
@@ -5534,8 +5534,14 @@ Future work:
         - See how many features are needed for good accuracy.
 
 TODO: 
-    - [ ] Explore the performance of gradually adding more features as you did for the AJICAI paper
-    - [ ] Analyse DT results, like the selection of the features,  over multiple runs of DT
-    - [ ] Discuss the findings of EDA, to explore what are the technical challenges in the data and discuss what possible techniques can be used to address each of the challenges
-    - [ ] Run experiments using the GP methods to see the results
-    - [ ] Bring hard copies of results/writing  or send the pdf file before the meeting.
+    - Chapter 2: Identification
+        - [ ] Explore the performance of gradually adding more features as you did for the AJICAI paper
+        - [ ] Analyse DT results, like the selection of the features,  over multiple runs of DT
+        - [ ] Discuss the findings of EDA, to explore what are the technical challenges in the data and discuss what possible techniques can be used to address each of the challenges
+        - [ ] Run experiments using the GP methods to see the results
+        - [ ] Bring hard copies of results/writing  or send the pdf file before the meeting.
+    - Future work
+        - [ ] Vector-based approach? (A third possible GP method to compare)
+    - Papers
+        - [ ] How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
+        - [ ] Suprising creativity of digital evolution :ref:`(Lehman 2020) <lehman2020surprising>`
