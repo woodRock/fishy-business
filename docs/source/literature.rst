@@ -1705,8 +1705,9 @@ lee2019wide
 
 lehman2020surprising
 --------------------
-    * The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
-    * Annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
+The surprising creativity of digital evolution: A collection of anecdotes from the evolutionary computation and artificial life research communities
+ 
+(Lehman 2020) give annecdotes from researchs in EC about their algorithms demonstrating bizzare interesting behaviour. 
 
 lensen2017new
 -------------
