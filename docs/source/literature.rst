@@ -2339,13 +2339,51 @@ Related:
     * Same author, same model, same year :ref:`(Radford 2021) <radford2021learning>`
     * Same author :ref:`(Radford 2028) <radford2018improving>`
 
+rajpurkar2017chexnet
+---------------------
+Chexnet: Radiologist-level pneumonia detection on chest x-rays with deep learning
+
+(Rajpurkar 2017) demonstrate leaky validation in medical x-ray images for computer vision.
+
+Available: https://arxiv.org/abs/1711.05225
+
+Background:
+    * In 2017, Andrew Ng's team published a paper on Deep Learning for pneumonia detection on chest X-rays.
+    
+Dataset:
+    * They used a dataset with 112,120 images belonging to 30,805 unique patients. They automatically labelled every sample with 14 different pathologies and randomly split the dataset into 80% training and 20% validation. Their process downscaled images to 224x224 pixels before inputting them into a neural network.
+    
+Limitations:
+    * After publishing the paper and listening to the community's feedback, they had to redo their experiments.
+    * The samples in the team's dataset are not independent. Different X-Ray images from the same patient will have similarities that a neural network could use to make a prediction.
+    * For example, a patient might have a scar from a previous surgery or a specific bone density or structure. These clues will help the model make a prediction, so having X-rays from the same patient in the training and validation sets will create a leaky validation strategy. Here is an excerpt from The Kaggle Book:
+    * "In a leaky validation strategy, the problem is that you have arranged your validation strategy in a way that favours better validation scores because some information leaks from the training data." (Kaggle)
+    
+Method:
+    * The team fixed the experiment in the third version of their paper. Here is what they did:
+    * "For the pneumonia detection task, we randomly split the dataset into training (28744 patients, 98637 images), validation (1672 patients, 6351 images), and test (389 patients, 420 images). There is no patient overlap between the sets." (Kaggle)
+    * Notice how they ensured that there was no overlap between sets.
+
+Conclusion:
+    * Leaky validation is an issue with identifiable instances, leaking information from train to validation, that artificially inflate validation accuracy.
+    * Leaky validation is a unique form of data leakage, datasets with identifiable features, such as medical/chemical/biological, are vulnerable to validation leakage.
+
+Why it matters? 
+    * For my research objectives of Identification, Contamination, and Traceability - the same fish in train and validation, is leaky validation.
+    * Leaky validation explains why my CNN train/validation performance is 100%, but the test is 60%.
+    * Lesson: stratify samples to avoid identifiable instances being leaked between train/validation/test datasets.
+
+Related: 
+   * The Kaggle Book https://www.amazon.com/Data-Analysis-Machine-Learning-Kaggle/dp/1801817472?crid=2ZSVOUZJCXMO5&keywords=kaggle+book&qid=1650818962&sprefix=kaggle+book,aps,72&sr=8-3&linkCode=sl1&tag=bnomial-20&linkId=6cf9fd66daf5893153a64f03302971f7&language=en_US&ref_=as_li_ss_tl
+   * "Target Leakage in Machine Learning" is a YouTube presentation that covers leakage, including during the partitioning of a dataset. https://www.youtube.com/watch?v=dWhdWxgt5SU 
+
 raine1997brain
 --------------
-    * Muderers pleading not guilty be reason of insanity (NGRI).
+    * Murderers pleading not guilty by reason of insanity (NGRI).
     * Pre-disposition to less activity in their pre-frontal cortex. 
     * Pre-frontal cortex associated with goal-directed planning and delayed gratification. 
     * Different brain chemistry meant more likely to perform violent impulsive behaviour. 
-    * Justification for lebotomy - electrocution of pre-frontal cortex - now replaced by anti-psychotics. 
+    * Justification for a lobotomy - electrocution of pre-frontal cortex - now replaced by antipsychotics. 
 
 raissi2019physics
 -----------------
