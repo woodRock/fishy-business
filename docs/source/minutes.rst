@@ -5493,6 +5493,79 @@ Notes:
     * MS data with X axis showing atomic weights. Much easier to interpret and understand.
     * AI for chemistry analysis, writing grants, and drafting emails. It gets 80% of the job dome, and requires 20% human intervention.
 
+2023-11-30 FASLIP
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Emrah, Bing Xue, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Emrah gave a talk on Nuceli Segmentation and Mitosis detection with deep learning.
+
+
+What is it? 
+    * Nuclei segmentation is a key part of cancer diagnosis.
+
+Background
+    * Histopathology - Hematoxylin and eosin (H&E) stain 
+    * H&E is one of the principal tissue stains used in histology. 
+    * It is the most widely used stain in medical diagnosis and is often the gold standard. 
+    * For example, when a pathologist looks at a biopsy of a suspected cancer, the histological section is likely to be stained with H&E. 
+
+Motivations:
+    * Use deep learning to automate nuclei segmentation and mitosis detection.
+    
+Method:
+    * Encoder-decoder architecture 
+    * generative model 
+    * U-Net (modified)
+        1. Reducing the depth of the architecture to 3
+        2. Applying same padding to each vonvolutional layer 
+        3. Dice pxiel classification layer,
+
+Results: 
+    * DL provided more meaningful features, higher generalization, robust to noise when compared to conventional methods.
+    * Dice pixel classification layer https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-022-04794-9
+
+Related:
+    * Paper from author :ref:`(Emrah 2022) <emrah2022imbalance>`
+    * Dice pixel classification layer :ref:`(Shaukat 2022) <shaukat2022state>`
+    * MoNuSeg dataset :ref::`(Kumar 2019) <kumar2019multi>`
+
+2023-12-01 - Weekly
+-------------------
+**Location:** CO352, **Time:** Friday, 14:00 - 15:00, **Attendees:** Bing Xue, Bach Hoai Nguyen, Jesse Wood
+
+Motivations and goals - they key focus of the proposal is coeherence between these two parts 
+    * problem statement 
+    * motivations 
+    * goals 
+
+Exemplar - look at Jordan's proposal as an example of how to structure these sections. 
+
+Goals != contributions 
+
+2023-12-02 - Proposal Seminar
+-----------------------------
+**Location:** CO431, **Time:** Friday, 10:00 - 11:00, **Attendees:** Jesse Wood, Mengjie Zhang, Bing Xue, Bach Hoai Nguyen, Daniel Killeen, Andrew Lensen 
+
+I gave my proposal seminar today. 
+
+Presentation notes: 
+    * open the following; 
+        1. fish + ai 
+        2. preliminary work 
+        3. literature review graph 
+    * room: CO431 at 12 PM 
+
+Questions: 
+    Q1. Technical details of methods proposed. 
+    A1. CNN, MCIFC, RF SVM, PCA-LDA :math:`\to` Occam's razor
+    Q2. (Excluding fish) what is the contribution? 
+    A2. Applications in a new domain fish + AI 
+    Q3. What are the staitiscal methods in question? 
+    A3. Grubb's test, outlier thresholding, oil detection in fish 
+    Q4. Apply existing paradigms to a new domain? Fish + AI 
+    Q5. Human-powered AI-assisted decision making.
+
+
 2023-12-07 - Weekly
 ~~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Thursday, 10:00 - 10:30, **Attendees:** Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
@@ -5545,3 +5618,77 @@ TODO:
     - Papers
         - [ ] How to get your SIGGRAPH paper rejected https://www.kormushev.com/public/How_to_Get_Your_SIGGRAPH_Paper_Rejected-by_Jim_Kajiya.pdf
         - [ ] Suprising creativity of digital evolution :ref:`(Lehman 2020) <lehman2020surprising>`
+
+2023-12-07 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Xinming Xi, Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Hengzhe Zhang, Jesse Wood
+
+Xinming Xi Southern University of Science and Technology China gave a talk on "Evolving circuits using Genetic Programming". 
+
+
+Background: 
+    * Memristor - "resistor with memory". 
+        * Calculate + store :math:`\to` same time.
+        * an analog process, faster than digital
+        * physical device, non-volatile, state-of-the-art electronices device for circuit design.
+        * A single memristor emulates a synapse in the brain. 
+    * Evolved Hardware Research (EHW)
+
+Motivations 
+    * Manual design of circuits is a time consuming, laborious, and intensive task. 
+    * Hence Evoled Hardware Research (EHW) is needed to automate the design of circuits.
+    
+Method 
+    * Analog circuit topology synthesis by means of evolutionary comptionation.
+    * Candidate solutions provide both circuit topology and component values. 
+    * Circuit representations can be: (1) string-based, (2) tree-based, (3) graph-based? 
+    * PMOS/NOMS are voltage controlled devices.
+    * One tree to represent the circuit topology, one tree per function, to represent the value, e.g. R, NMOS, PMOS. 
+    * Structure checks to prevent loops in the circuit topology, e.g. short circuits. 
+    * three types of strucutre checks
+        1. all external terminals 
+        2. devices are connected 
+        3. random generated terminals 
+
+2023-12-08 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday, 14:00 - 15:00, **Attendees:** Ruwang Jiao, Bing Xue, Bach Hoai Nguyen, Mengjie Zhang, Jesse Wood
+
+Ruwany Jiao gsave a talk on "Evolutionary Mutli-objective Feature slection for Classification" https://ruwangjiao.github.io/
+
+Multi-objective    
+    * a set of tradeoffs between different feature subsets to meet differetn requirements of different stakeholders. 
+
+Feature selection
+    *  high-dimensional datasets: curse of dimensionality 
+
+Classification 
+    * a simple example is to imagine a machine learning model for binary classification of cats and dogs.
+
+Feautre relevance 
+    * for cat and dog classification
+    * age is an irrelevant feature. 
+
+Feature redundancy
+    * for cat and dog classification
+    * tail shape, and tail height 
+    * shape may capture information needed for classification, making height redundant. 
+
+Challenges of feature selection: 
+    1. complex feature interactions 
+    2. large search space 
+    3. objectives conflict 
+
+Existing methods 
+    1. brute force 
+    2. sequential search 
+    3. stochastic search
+
+"Populationed based search is particularly suited to multi-objective optimization" :ref:`(Xue 2015) <xue2015survey>`
+
+Weekly related features can become complimentary features :math:`f_1 + f_2 = f_{new}`
+
+Related:
+    * Curse of dimensionality :ref:`(Koppen 2000) <koppen2000curse>`
+    * Feature selection literature survey :ref:`(Li 2017) <li2017feature>`
+    * Evolutionary Compuation methods for Feature Selection :ref:`(Xue 2015) <xue2015survey>`

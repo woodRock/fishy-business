@@ -821,6 +821,19 @@ eich1975state
     * Subjects who learn something high, are more likely to retrieve that information high.
     * People can not recall their drug-induced experience easily when they sober up. 
 
+emrah2022imbalance
+------------------
+An imbalance-aware nuclei segmentation methodology for H&E stained histopathology images
+  
+(Emrah 2022) proposes a novel nuclei segmentation method for cancer diagnosis in histopathology images.
+
+Available: https://www.sciencedirect.com/science/article/pii/S1746809423001532
+
+Related: 
+    * Author discussed in FASLIP at :ref:`2023-11-30 FASLIP <2023-11-30 FASLIP>`
+    * Nuclei segmentation dataset :ref:`(Kumar 2019) <kumar2019multi>`'
+    * Dice pixel classification layer :ref:`(Shaukat 2022) <shaukat2022state>`
+
 espeholt2022deep
 ----------------
 Deep learning for twelve hour precipitation forecasts
@@ -1487,8 +1500,6 @@ Related:
     * See :ref:`(Grover 2016) <grover2016node2vec>` for node2vec.
     * See :ref:`(Balas 1969) <balas1969machine>` for disjunctive graph.
 
-
-
 kononenko1994estimating
 -----------------------
 Estimating attributes: Analysis and extensions of Relief. 
@@ -1573,11 +1584,17 @@ Related:
 
 koppen2000curse
 ---------------
-    * Curse of dimensionality. 
+Curse of dimensionality. 
+
+(Koppen 2000) discussed the curse of dimensionality.
+
+Available: https://www.class-specific.com/csf/papers/hidim.pdf
+
+Related:
+    * Discussed by Ruwang in :ref:`2023-12-08 - ECRG <2023-12-08 - ECRG>`
 
 kulasekara2014transposon
 ------------------------
-
 Transposon mutagenesis
 
 Notes: 
@@ -1587,6 +1604,16 @@ Related:
     * :ref:`(Hof 2016) <hof2016industrial>` discussed tranposons affect on Moths. 
     * :ref:`(Bourque 2018) <bourque2018ten>` discussed transposons in general. 
     * Julie discussed this in 2022-10-14 - ECRG 
+
+kumar2019multi
+--------------
+A multi-organ nucleus segmentation challenge
+
+Available: https://ieeexplore.ieee.org/abstract/document/8880654
+
+Related:
+    * Discussed in :ref:`2023-11-30 FASLIP <2023-11-30 FASLIP>`
+    * Mentioned in :ref:`Emrah 2022 <emrah2022imbalance>`
 
 krizhevsky2012imagenet
 ----------------------
@@ -1794,6 +1821,17 @@ Related:
     * :ref:`(Li 2002) <li2002novel>`, Xin Yao same author, with EC for solving DE in materials science.
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>`, Xin Yao same author, used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
     * :ref:`(Handa 2006) <handa2006robust>`, by Xin Yao same author, use evolutionary computation for route optimization for gritting trucks.
+
+li2017feature
+-------------
+Feature selection: A data perspective
+
+(Li 2017) is a literature survey of feature selection algorithms.
+
+Available: https://dl.acm.org/doi/abs/10.1145/3136625
+
+Related: 
+    * Discussed by Ruwang in :ref:`2023-12-08 - ECRG <2023-12-08 - ECRG>`
 
 li2021learnablelensen2017new
 ---------------
@@ -2548,6 +2586,18 @@ scholkopf2000new
     * Setting the number of support vectors is a hyper-parameter.
     * Usually this is learned by the system. 
 
+shaukat2022state
+----------------
+A state-of-the-art technique to perform cloud-based semantic segmentation using deep learning 3D U-Net architecture
+
+(Shaukat 2022) use Dice pixel classification layer, a loss function for imbalanced datasets.
+
+Available: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-022-04794-9
+
+Related: 
+    * :ref:`2023-11-30 FASLIP <2023-11-30 FASLIP>`
+    * Auhtor of :ref:`(Emrah 2022) <emrah2022imbalance>` uses Dice loss for imbalanced data.
+
 schulman2017proximal
 --------------------
 Proximal Policy Optimization Algorithms
@@ -2967,6 +3017,16 @@ xue2014particle
     * The initialization strategy utilized both forward and backwards selection.
     * The updating mechanism overcame the limitations of the traditional method by considering the number of features.
     * The proposed algorithm had better performance in terms of computing, fewer features selected and classification accuracy.
+
+xue2015survey
+-------------
+A survey on evolutionary computation approaches to feature selection
+
+(Xue 2015) is a literature survey of EC methods for feature selection 
+
+Related: 
+    * Ruwang quoted this paper in :ref:`2023-12-08 - ECRG <2023-12-08 - ECRG>`
+
 
 yang2022noise
 -------------
