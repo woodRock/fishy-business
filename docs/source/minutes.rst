@@ -5769,7 +5769,7 @@ Philosphy:
 
 2024-02-01 - Weekly
 ~~~~~~~~~~~~~~~~~~~
-**Location:** CO352, **Time:** Thursday, 15:30 - 16:30, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
 
 Notes: 
     * Medical reason for absence from work.
