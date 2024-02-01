@@ -5765,3 +5765,24 @@ Proposed work:
 
 Philosphy: 
     * Occam's razor - the simplest solution is the best solution.
+
+
+2024-02-01 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:30, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+Notes: 
+    * Medical reason for absence from work.
+    * Move meeting to Thursday afternoon at 3:30 PM.
+    * Minutes - send a copy of the minutes to my supervisors after each meeting.
+    * 100% accuarcy - investigate results to see if this is too good to be true.
+
+What I've done? 
+    * Classificaation on fish species and part 
+    * Convolutional Neural Network (CNN) on fish species and part 
+    * Feature selection on fish species. 
+
+TODO: 
+    * [ ] Feature selection on fish part
+    * [ ] Decision tree explainability (XAI)
+    * [ ] Write a draft for a thesis chapter on this work
