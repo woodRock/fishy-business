@@ -5786,3 +5786,40 @@ TODO:
     * [ ] Feature selection on fish part
     * [ ] Decision tree explainability (XAI)
     * [ ] Write a draft for a thesis chapter on this work
+
+2024-02-02 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday, 15:00 - 17:00, **Attendees:** Lin Yida (Benny), Bing Xue, Mengjie Zhang, Christian Raymond, Jesse Wood
+
+Lin Yida (Benny) is a new student from Taiwan. 
+
+Notes:
+    * He studied at the National Taiwan University of Science and Technology. 
+    * He gave a presentation on his work he did there. 
+
+Previous work: 
+    * Fixed network transport job shop scheduling (FNT-JSS)
+    * Wrote code in C# for simulations.
+
+Background: 
+    * Pruning Radiata Pine trees.
+    * Branches take nutrition from the tree trunk.
+    * Pruning branches to ensure tree trunk is strong.
+    * Want strong trunks in pine trees for high quality wood.
+
+Data: 
+    * Drone imagery with monocular/stereo camera 
+    * (Why not) LiDAR
+
+Method:
+    * Computer vision for branch detection. 
+    * Manually annotate labels for data. 
+    * Camera types: 
+        1. monocular depth estimation 
+        2. stereo depth estimation
+        3. multi-view depth estimation
+
+Why it matters? 
+    * Forestry is an incredibly dangerous and laborious task. 
+    * Automatically identifying trees suitable for pruning is a valuable task.
+    * It can save time, money, and lives.
