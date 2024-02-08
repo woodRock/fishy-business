@@ -5835,8 +5835,8 @@ Notes:
     * Decision tree results are good, but need to be explained. 
 
 What I've done
-    * [ ] Feature selection on fish part
-    * [ ] Decision tree explainability (XAI) for 100% accuracy
+    * [x] Feature selection on fish part
+    * [x] Decision tree explainability (XAI) for 100% accuracy
     * [ ] Write a draft for a thesis chapter on this work
 
 TODO: 
