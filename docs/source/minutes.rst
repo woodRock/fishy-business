@@ -5823,3 +5823,33 @@ Why it matters?
     * Forestry is an incredibly dangerous and laborious task. 
     * Automatically identifying trees suitable for pruning is a valuable task.
     * It can save time, money, and lives.
+
+2024-02-08 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Notes: 
+    * Bach is still on leave.
+    * Mengjie was busy.
+    * Need to write drafts for experiments that I have run. 
+    * Decision tree results are good, but need to explained. 
+
+What I've done
+    * [ ] Feature selection on fish part
+    * [ ] Decision tree explainability (XAI) for 100% accuracy
+    * [ ] Write a draft for a thesis chapter on this work
+
+TODO: 
+    * [ ] Explain the decision tree output in English to accompany figure.
+        * [ ] Gini 
+        * [ ] Value 
+        * [ ] Samples 
+        * [ ] Class 
+    * [ ] Make decision tree figure more interpretable. 
+        * [ ] pure nodes have color 
+        * [ ] no color for internal nodes  
+    * [ ] Write drafts for experiments that I have run.
+        * [ ] Feautre selection 
+        * [ ] Classification 
+        * [ ] CNN 
+        * [ ] Decision tree
