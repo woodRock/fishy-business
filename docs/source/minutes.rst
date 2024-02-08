@@ -5832,7 +5832,7 @@ Notes:
     * Bach is still on leave.
     * Mengjie was busy.
     * Need to write drafts for experiments that I have run. 
-    * Decision tree results are good, but need to explained. 
+    * Decision tree results are good, but need to be explained. 
 
 What I've done
     * [ ] Feature selection on fish part
