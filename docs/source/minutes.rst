@@ -5858,7 +5858,7 @@ TODO:
 ~~~~~~~~~~~~~~~~~
 **Location** CO352, **Time:** Friday, 15:00 - 17:00, **Attendees:** Tom Bensky, Bing Xue, Mengjie Zhang, Christian Raymond, Jesse Wood
 
-Tom Benksy from the University of California San Luis Osispo (SLO) Poyltechnica gave a talk on "GP for class scheduling in a large physics department".
+Tom Benksy from the University of California San Luis Osispo (SLO) Poyltechnica gave a talk on "GP for class scheduling in a large physics department". Visiting ECRG for a couple months. https://physics.calpoly.edu/tbensky
 
 Background:
     * Tom is a physics professor 
