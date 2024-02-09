@@ -5853,3 +5853,31 @@ TODO:
         * [ ] Classification 
         * [ ] CNN 
         * [ ] Decision tree
+
+2024-02-09 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location** CO352, **Time:** Friday, 15:00 - 17:00, **Attendees:** Tom Bensky, Bing Xue, Mengjie Zhang, Christian Raymond, Jesse Wood
+
+Tom Benksy from the University of California San Luis Osispo (SLO) Poyltechnica gave a talk on "GP for class scheduling in a large physics department".
+
+Background:
+    * Tom is a physics professor 
+    * In November 22, ChatGPT took him be surprise in academia. Impossible to assess students work. Can we trust student's work wasn't done by ChatGPT. 
+    * 5x7 images for MNIST dataset using Artifical Neural Networks (ANNs) and squashing functions. During the second AI winter. 
+    * He was surprised not everyone in ECRG was learning LLMs. 
+
+AI Timeline: 
+    * 1950 - turing test 
+    * 1975 - AI winter
+    * 1980 - AI boom, expert systems 
+    * 1988 - Second AI winter 
+    * 2012 - Deep Learning revolution 
+    * 2019 - AI boom, LLMs, Attention, Transformers
+    * 2022 -  ChatGPT. 
+
+What was it? 
+    * Class scheduling for a large physics department. 
+    * Implementing a Genetic Algorithm (GA) to create teaching schedules for ~50 professors and ~200 classes in a university physics department.
+
+Method:
+    * Australian told him "long binary strings and mix them up and your results get better" - The Genetic Algorithm.
