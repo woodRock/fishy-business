@@ -300,10 +300,16 @@ Classification and Regression Trees
 
 (Breiman 2017) is the book on CART.
 
+Available: https://www.taylorfrancis.com/books/mono/10.1201/9781315139470/classification-regression-trees-leo-breiman-jerome-friedman-olshen-charles-stone
+
 Notes: 
     * Book orginally published in 1984
+    * decision trees are an algorithm that only contains conditional control statements, i.e. if-else statements.
 
-Available: https://www.taylorfrancis.com/books/mono/10.1201/9781315139470/classification-regression-trees-leo-breiman-jerome-friedman-olshen-charles-stone
+.. epigraph::
+    In 1977–1978 and again in 1981, the EPA funded projects for the construction of classification trees to recognize the presence of certain elements in compounds through the examination of their mass spectra. The EPA, as part of its regulatory function, collects numerous samples of air and water containing unknown compounds and tries to determine the presence of toxic substances. According to McLafferty: "The fragment ions indicate the pieces of which the molecule is composed, and the interpreter attempts to deduce how these pieces fit together in the original molecular structure. In such correlations have been achieved for the spectra of a variety of complex molecules." The critical element of the bromine tree was the construction of a set of questions designed to recognize bromine hallmarks. If bromine occurs in combination with chlorine, then since chlorine (weight 35) has an isotope of weight 37 that occurs 24.5 percent of the time, there is a different theoretical ratio vector.
+
+    -- Mass Spectra Classification
 
 Related: 
     * :ref:`(Von 1986) <von1986decision>` is another decision tree paper from the 80s.
@@ -1071,7 +1077,20 @@ An Evolutionary Forest for regression
 Related:
     * See :ref:`2023-02-02 - FASLIP<2023-02-02 - FASLIP>`
 
-hand2001idiotHaralick1973textual
+hand2001idiot
+-------------
+Idiot's Bayes—Not So Stupid After All?
+
+(Hand 2001) is a paper that discusses the Naive Bayes classifier.
+
+Available: https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1751-5823.2001.tb00465.x
+
+Notes:
+    * Despite the assumption of independence, Naive Bayes is a powerful classifier.
+    * Naive bayes assumption is that the features are conditionally independent given the class.
+    * This assumption is not always true, but the model still performs well in practice.
+
+Haralick1973textual
 -------------------
 Textural Features for Image Classification
 
@@ -1086,11 +1105,21 @@ Related:
 
 hildebrandt2010towards
 ----------------------
-    * Towards improved dispatching rules for complex shop floor scenarios: a genetic programming approach  
+Towards improved dispatching rules for complex shop floor scenarios: a genetic programming approach
 
+(Hildebrandt 2010) use genetic programming for dispatching rules in complex shop floor scenarios.
+
+Available: https://dl.acm.org/doi/abs/10.1145/1830483.1830530
 
 ho1995random
 -------------
+Random decision forests
+
+(Ho 1995) is the original paper on random forests.
+
+Available: https://ieeexplore.ieee.org/abstract/document/598994/
+
+Notes: 
     * Random forest.
 
 ho2020denoising
@@ -2932,10 +2961,15 @@ Related:
 
 von1986decision
 ---------------
+"Decision trees". Decision Analysis and Behavioral Research.
 
 (Von 1986) is cited on wikipedia for decision trees.
 
-Available: https://cir.nii.ac.jp/crid/1130000795953711872\
+Available: https://cir.nii.ac.jp/crid/1130000795953711872
+
+notes: 
+    * see pp. 63-89, an excerpt from the book, Decision Analysis and Behavioural Research, 
+    * decision trees are an algorithm that only contains conditional control statements, i.e. if-else statements.
 
 Related: 
     * :ref:`(Breiman 1984) <breiman2017classification>` proposed the original CART algorithm for decision trees.
@@ -2986,12 +3020,15 @@ Unsupervised Predictive Memory in a Goal-Directed Agent
 Related:
     * See 2022-12-05 - AJCAI #01 
 
-Weinstein2022hunter 
+weinstein2022hunter 
 -------------------
 A Hunter Gatherer's Guide to the 21st Century (Book).
 
 Notes:
     * pg. 229 "Evolutionary stable strategy - A strategy incapable of invasion by competitors"
+
+Related: 
+    * Steady-state algorithm mentioned in :ref:`2022-08-06 - ECRG <2022-08-06 - ECRG>`
 
 white2023neural
 ---------------
@@ -3058,6 +3095,8 @@ yang2022noise
 Noise-Aware Sparse Gaussian Processes and Application to Reliable Industrial Machinery Health Monitoring
 
 (Yang 2022) proposed a Noise-Aware Sparse Gaussain Process (NASGP) with Bayesian Inference Network. 
+
+Available: https://ieeexplore.ieee.org/abstract/document/9864068/
 
 Data: 
     * Domain - maintainace of machinary equipment requires real-time health monitoring. Most state-of-the-art models require high quality monitoring data, but are not robust to noise present in real-world applications. 
