@@ -5873,7 +5873,7 @@ AI Timeline:
     * 1988 - Second AI winter 
     * 2012 - Deep Learning revolution 
     * 2019 - AI boom, LLMs, Attention, Transformers
-    * 2022 -  ChatGPT. 
+    * 2022 - ChatGPT. 
 
 What was it? 
     * Class scheduling for a large physics department. 
