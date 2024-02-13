@@ -294,6 +294,20 @@ boser1992training
     * Kernal trick for SVM.
     * These employ the kernel trick. 
 
+breiman2017classification
+-------------------------
+Classification and Regression Trees 
+
+(Breiman 2017) is the book on CART.
+
+Notes: 
+    * Book orginally published in 1984
+
+Available: https://www.taylorfrancis.com/books/mono/10.1201/9781315139470/classification-regression-trees-leo-breiman-jerome-friedman-olshen-charles-stone
+
+Related: 
+    * :ref:`(Von 1986) <von1986decision>` is another decision tree paper from the 80s.
+
 brewer2006brown
 ---------------
     * Flashbuld memories - recollections that seem vivid and clear, so we take them to be accurate. 
@@ -2915,6 +2929,17 @@ Related:
     * :ref:`(Perez 2019) <perez2019analysis>` same author uses RHEA to design Game AI for ponnerman. 
     * :ref:`(Goodman 2020) <goodman2020weighting>` same user uses NBTEA to choose hyperparameters for balancing gamemplay.
     
+
+von1986decision
+---------------
+
+(Von 1986) is cited on wikipedia for decision trees.
+
+Available: https://cir.nii.ac.jp/crid/1130000795953711872\
+
+Related: 
+    * :ref:`(Breiman 1984) <breiman2017classification>` proposed the original CART algorithm for decision trees.
+
 wang2018evolving
 ----------------
 Evolving deep convolutional neural networks by variable-length particle swarm optimization for image classification
