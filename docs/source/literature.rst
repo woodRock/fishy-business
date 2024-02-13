@@ -302,10 +302,28 @@ Classification and Regression Trees
 
 Available: https://www.taylorfrancis.com/books/mono/10.1201/9781315139470/classification-regression-trees-leo-breiman-jerome-friedman-olshen-charles-stone
 
-Notes: 
+Background: 
     * Book orginally published in 1984
     * decision trees are an algorithm that only contains conditional control statements, i.e. if-else statements.
+    * The acronym is Classification and Regression Trees (CART).
+    * In 1984, Breiman et al \cite{breiman2017classification} proposed . 
+    The classification task predicts the class label an instance is most likely to belong to. 
+    
+Representation: 
+    * CART uses a tree-based structure of both nodes, branches and leaves. 
+    * The nodes are where decisions are made, branches give the outcome of those decisions, and leaves give the predicted class label.
 
+Method: 
+    * The algorithm uses a greedy approach to build the tree.
+    * It evaluates all possible splits and selects the one that best reduces the impurity of the resulting subsets.
+    * For classification, Gini impurity is the splitting criterion. 
+    * The lower the Gini impurity, the more pure a subset is. 
+    * For regression, the residual reduction is the splitting criterion. 
+    * The lower the residual reduction, the better fit the model is to the data. 
+    * Pruning: to prevent overfitting of the data, pruning can remove branches that do not improve the model's performance.
+    * Cost complexity and information gain pruning are two popular techniques.
+
+Applications: 
 .. epigraph::
     In 1977-1978 and again in 1981, the EPA funded projects for the construction of classification trees to recognize the presence of certain elements in compounds through the examination of their mass spectra. The EPA, as part of its regulatory function, collects numerous samples of air and water containing unknown cdompounds and tries to determine the presence of toxic substances. According to McLafferty: "The fragment ions indicate the pieces of which the molecule is composed, and the interpreter attempts to deduce how these pieces fit together in the original molecular structure. In such correlations have been achieved for the spectra of a variety of complex molecules." The critical element of the bromine tree was the construction of a set of questions designed to recognize bromine hallmarks. If bromine occurs in combination with chlorine, then since chlorine (weight 35) has an isotope of weight 37 that occurs 24.5 percent of the time, there is a different theoretical ratio vector.
 
@@ -313,6 +331,7 @@ Notes:
 
 Related: 
     * :ref:`(Von 1986) <von1986decision>` is another decision tree paper from the 80s.
+    * Geeks for Geeks https://www.geeksforgeeks.org/cart-classification-and-regression-tree-in-machine-learning/
 
 brewer2006brown
 ---------------
