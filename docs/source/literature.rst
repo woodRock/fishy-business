@@ -316,6 +316,8 @@ Representation:
 Method: 
     * The algorithm uses a greedy approach to build the tree.
     * It evaluates all possible splits and selects the one that best reduces the impurity of the resulting subsets.
+    * It splits at the feature that is the best splitting point.
+    * CART continues to split until a stopping rule is met, or no further best splits are available.
     * For classification, Gini impurity is the splitting criterion. 
     * The lower the Gini impurity, the more pure a subset is. 
     * For regression, the residual reduction is the splitting criterion. 
