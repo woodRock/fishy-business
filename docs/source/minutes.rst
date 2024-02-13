@@ -2863,9 +2863,9 @@ Notes:
     * Genertic operators: linear crossover, macro mutation, micro mutations. 
     * Representation: LGP is rperesented as a graph-based GP. 
     * Applying Linear Genetic Programing (LGP) to Dynamic Job Shop Scheduling (DJSS). 
-    * Dynamic JSS can repsonse to dynamic events (see 2022-09-30 - ECRG for more). 
+    * Dynamic JSS can repsonse to dynamic events (see :ref:`2022-09-30 - ECRG <2022-09-30 - ECRG>` for more). 
     * GP-based hyper-heuristics (Nguyen 2007)
-    * Instance rotation and generational EA (Hildebrait 2010, hildebrandt2010towards) - fitness between generations are no longer comparable with isntance rotation. 
+    * Instance rotation and generational EA (Hildebrait 2010) - fitness between generations are no longer comparable with instance rotation. 
     * Breathroughs are given as trial-and-error hyper-paremters that worked (Huang 2021, Huang 2022) - black magic? 
     * Mutli-task - optimize multiple similar tasks simultaenously, hopeing that shared information amoung tasks can mutually enhance the optimization performance - Beware, since (Xin 2022)!!!
     * Motivation - EC is time-consming while training resources are limited. For LGP share knwoelge through graph based structures. 
@@ -2877,12 +2877,17 @@ Notes:
     * "Mutate-and-divide", a prgoram to recursively propagate the error through the program using a semantic matrix. 
     * "LGP is a poor man's ADF" -- Wolfgang Banzhaf 2022. 
 
+Related: 
+    * :ref:`(Hildebrait 2010) <hildebrandt2010towards>`
+    * :ref:`2022-09-30 - ECRG <2022-09-30 - ECRG>` for Job Shop Scheduling (JSS).
+    * :ref:`(Weinstien 2022) <weinstein2022hunter>` for steady state algorithm.
+
 2022-10-12 - Deep Learning 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time:** Wednesday 15:00 - 16:00, **Attendees:** Madhurjra Choudhary, Bastiaan Kleign, Paul Teal, Daniel, Maxwell, Jesse et al. 
 
 Madhurjra discussed two papers: 
-    1.  Adeep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks (chen2020deep) https://www.sciencedirect.com/science/article/pii/S0888327020300698
+    1. Adeep learning method for bearing fault diagnosis based on cyclic spectral coherence and convolutional neural networks (chen2020deep) https://www.sciencedirect.com/science/article/pii/S0888327020300698
     2. Noise-Aware Sparse Gaussian Processes and Application to Reliable Industrial Machinery Health Monitoring (yang2022noise) https://ieeexplore.ieee.org/abstract/document/9864068
 
 These are to papers, CNN (Chen 2020) and Gaussian Process (Yang 2022) methods, for applications in real industry environments monitoring machinary. 
@@ -2920,6 +2925,11 @@ Notes for (Yang 2022):
         * The method is robust to noise, and can be applied to real-world applications, not just academic benchmarks (toy datasets). 
         * Method provides a generative additive model that works well in two different domains.
         * Important to monitor machinary equipment in real-world applications, to ensure safety, automation, and efficiency.
+
+
+Related: 
+    * See :ref:`(Chen 2020) <chen2020deep>` for first paper discussed.
+    * See :ref:`(Yang 2020) <yang2022noise>` for second paper.
 
 2022-10-13 - Weekly 
 ~~~~~~~~~~~~~~~~~~~~
