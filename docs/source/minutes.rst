@@ -5850,11 +5850,11 @@ What I've done
     * [ ] Write a draft for a thesis chapter on this work
 
 TODO: 
-    * [ ] Explain the decision tree output in English to accompany figure.
-        * [ ] Gini 
-        * [ ] Value 
-        * [ ] Samples 
-        * [ ] Class 
+    * [x] Explain the decision tree output in English to accompany figure.
+        * [x] Gini 
+        * [x] Value 
+        * [x] Samples 
+        * [x] Class 
     * [ ] Make decision tree figure more interpretable. 
         * [ ] pure nodes have color 
         * [ ] no color for internal nodes  
@@ -5862,7 +5862,7 @@ TODO:
         * [ ] Feautre selection 
         * [ ] Classification 
         * [ ] CNN 
-        * [ ] Decision tree
+        * [x] Decision tree
 
 2024-02-09 - ECRG
 ~~~~~~~~~~~~~~~~~
@@ -5891,3 +5891,66 @@ What was it?
 
 Method:
     * Australian told him "long binary strings and mix them up and your results get better" - The Genetic Algorithm.
+
+2024-02-15 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Carl McMillan, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Carl McMillan gave a talk on "Evolutionary deep learning for building a buoyancy detection alerting system for NZ mussel farms"
+
+https://ecs.wgtn.ac.nz/Main/GradCarlMcMillan
+
+Mussels: 
+    * Perna canaliculus,[a] the New Zealand green-lipped mussel, also known as the New Zealand mussel, the greenshell mussel, kuku, and kutai, is a bivalve mollusc in the family Mytilidae (the true mussels). P. canaliculus has economic importance as a cultivated species in New Zealand. https://en.wikipedia.org/wiki/Perna_canaliculus
+
+Motivation: 
+    * When mussels grow on floats, they weigh them down.
+    * This can cause the floats to sink, or even implode, due to water pressure. 
+    * Device needs to run on a portable device. 
+
+Limitations: 
+    * Few training examples. 
+    * Data has to be collected from the field.
+    * Label annotations are needed to done manually.
+
+Why it matters? 
+    * Planned $3 billion dolar expansion of aquaculture industry in New Zealand.
+
+Method: 
+    * YOLO, R-CNN, others 
+    * transfer learning to improve performance. 
+    * Float buoyance: 
+        * 0 - 10% :math:`to` very low  
+        * 10 - 30% :math:`to` low
+        * 30 - 60% :math:`to` medium
+        * 60 - 100% :math:`to` high
+
+2023-02-15 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Decision tree: 
+    * Original book from 1984 on Decision Trees mentions applications. 
+    * One such application is mass spectra analysis to toxic chemical detection.
+    * See :ref:`(Breiman 2017) <breiman2017classification>`
+
+What I've done
+    * Written up an explanation of the decision tree results, and explained the model output. 
+    * Fish species, 100% accuracy on test and train with decision tree 
+    * Fish part, 100% accuracy on whole dataset
+    * need to exclude test dataset from training. 
+    * Not a validation set, considering the whole GP process. 
+    * Instead can call it "sub-training" or "fitness evaluation set". 
+
+TODO: 
+    * [ ] Wrapper-based multi-tree GP on train, subtraining, and test dataset.
+    * [ ] Try alpha :math:`\alpha \in [0, 0.5, 1]` for the GP methods.
+    * [ ] Decision tree 
+        * [ ] Make decision tree figure more interpretable. 
+        * [ ] pure nodes have color 
+        * [ ] no color for internal nodes  
+    * [ ] Write drafts for experiments that I have run.
+        * [x] Decision tree
+        * [ ] Feautre selection 
+        * [ ] Classification 
+        * [ ] CNN 
