@@ -5954,3 +5954,31 @@ TODO:
         * [ ] Feautre selection 
         * [ ] Classification 
         * [ ] CNN 
+
+2024-02-13 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Friday, 15:00 - 17:00, **Attendees:** Bernhard Pfahringer, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Bernhard Pfahringer gave a talk on "All you need is patience & persistance" https://profiles.waikato.ac.nz/bernhard.pfahringer 
+
+Notes: 
+    * Phind v10 language model. prompt: "Who is Bernhard Phahringer?"
+    * TAIAI project, headed by Waikato, environmental datastreams.
+    * "plausiable fluent outputs with no guarantee of correctness." - Language models 
+    * Timeline: 
+        * 1990s - bagging and boosting, e.g. he attended conferences where ADABoost was presented. 
+        * 1997 - DeepBlue 
+        * 2000s - SVMs 
+        * 2014 - AlexNet 
+        * 2017 - Transformers 
+        * 2022 - ChatGPT 
+    * Impossible nowadays to submit a paper with instant acceptance. 
+    * Data leakage - an important problem in industry projects and datastreams. 
+    * For me: Data leakage 
+        * in fish dataset, ensure same fish isn't seen twice
+        * fish have ids in training labels, stratify based on fish id. 
+    * XGBoost - try using XGBoost for my dataset. 
+    * SO-KNL was mentioned, Benhard is an author on this paper. 
+
+Related:
+    * SO-KNL :ref:`(Sun 2022) <sun2022soknl>`, speaker author, along with Heitor.

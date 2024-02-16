@@ -2839,6 +2839,7 @@ SOKNL: A novel way of integrating K-nearest neighbours with adaptive random fore
 
 Related: 
     * See :ref:`2023-02-16 - FASLIP<2023-02-16 - FASLIP>` where author gave talk on this paper.
+    * Another author discussed this paper on :ref:`2024-02-13 - ECRG <2024-02-13 - ECRG>`.
 
 szegedy2013intriguing
 ---------------------
