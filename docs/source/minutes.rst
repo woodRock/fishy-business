@@ -5982,3 +5982,64 @@ Notes:
 
 Related:
     * SO-KNL :ref:`(Sun 2022) <sun2022soknl>`, speaker author, along with Heitor.
+
+
+2024-02-22 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+Visting student from Nanjing University, Mingqian gave a talk on "Differentiable Architecture Search in Image classification".
+
+Task: 
+    * Identify AI generate images with good generalization. 
+
+Methods: 
+    * Stable Diffusion, GANs, and other image generation methods. 
+    * Differentiable Architecture Search (DARTS)
+    * Attention mechanism 
+
+Results: 
+    * Performs well on in distribution data, i.e. other stable diffusion models.
+    * Does not generalize well to out of distribution data, i.e. other image generation methods.
+
+Related: 
+    * Attention mechanism :ref:`(Vaswani 2017) <vaswani2017attention>`
+    * Differentiable Architecture Search :ref:`(Liu 2018) <liu2018darts>`
+    * Denoising diffusion probabilistic models (DDPM) :ref:`(Ho 2022) <ho2020denoising>` for original DDPM paper. 
+    * Denoising diffusion implicit models (DDIM) :ref:`(Song 2022) <song2020denoising>`
+
+2024-02-22 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+What I've done? 
+    * [x] Wrapper-based multi-tree GP on train, subtraining, and test dataset.
+    * [1/2] Write drafts for experiments that I have run.
+        * [x] Decision tree
+    * [x] CNN with heavy regularization on fish parts.
+    * [x] Mass Bank of North America (MoNA) - mass spectrometry dataset (potential for transfer learning)
+
+Results: 
+    * Fish parts:
+        * MT-GP 50% on test dataset - very poor. 
+        * SVM getes 70% on test dataset - better.
+        * CNN with heavy regularization 80% on test dataset - very good.
+
+Discussion: 
+    * Meng suggested adding a distance measure to the fitness function.
+    * Such as intra-class distance, and inter-class distance.
+    * This has been done before in many MT-GP papers. 
+    * It serves as a regularization technique to improve generalization.
+
+TODO: 
+    * [ ] Wrapper-based multi-tree GP
+        * [ ] Intra/inter Distance metric for regularizations 
+        * [ ] Try alpha :math:`\alpha \in [0, 0.5, 1]` for the GP methods.
+    * [ ] Decision tree 
+        * [ ] Make decision tree figure more interpretable. 
+        * [ ] pure nodes have color 
+        * [ ] no color for internal nodes  
+    * [ ] Write drafts for experiments that I have run.
+        * [ ] Feautre selection 
+        * [ ] Classification 
+        * [ ] CNN 
