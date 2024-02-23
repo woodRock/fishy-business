@@ -941,6 +941,18 @@ gencoglu2019hark
     * Grad Student Descent 
     * **TODO** read this! 
 
+glorot2010understanding
+-----------------------
+Understanding the difficulty of training deep feedforward neural networks
+
+(Glorot 2010) is the original paper on Xavier initialization.
+
+Available: http://proceedings.mlr.press/v9/glorot10a
+
+Related: 
+    * Pytorch: https://pytorch.org/cppdocs/api/function_namespacetorch_1_1nn_1_1init_1ace282f75916a862c9678343dfd4d5ffe.html
+
+
 girshick2014rich
 ----------------
     * Rich feature hierarchies for accurate object detection and semantic segmentation 
@@ -1017,6 +1029,12 @@ Related:
 
 grcic2021densly
 ---------------
+Densely connected normalizing flows
+
+Available:
+    * https://proceedings.neurips.cc/paper/2021/hash/c950cde9b3f83f41721788e3315a14a3-Abstract.html
+
+Notes: 
     * Normalizing flows are bijective mappings between input and latent representations with a fully factoritzed distribution. 
     * Normalizing flows (NF) are attrictive due to exact likelihood evaluation and efficient sampling. 
     * However their effective capacity is often insuffiencet since bijectivity constraints limit the model width. 
@@ -1047,6 +1065,19 @@ Related:
     * :ref:`(Li 2002) <li2002novel>` is another paper by same author, with EC for solving DE in materials science.
     * :ref:`(Runarsson 2000) <runarsson2000stochastic>` used stocastic ranking (bubblesort variant) for constrained optimization with Evolutionary Computaiton.
 
+hand2001idiot
+-------------
+Idiot's Bayes—Not So Stupid After All?
+
+(Hand 2001) is a paper that discusses the Naive Bayes classifier.
+
+Available: https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1751-5823.2001.tb00465.x
+
+Notes:
+    * Despite the assumption of independence, Naive Bayes is a powerful classifier.
+    * Naive bayes assumption is that the features are conditionally independent given the class.
+    * This assumption is not always true, but the model still performs well in practice.
+
 haralick1973textual
 -------------------
 Textural Features for Image Classification
@@ -1058,6 +1089,18 @@ Available: https://ieeexplore.ieee.org/abstract/document/4309314
 Related: 
     * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
     * Sklearn documentation and code available: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
+
+Haralick1973textual
+-------------------
+Textural Features for Image Classification
+
+(Haralick 1973) propose grey-level co-occurence matrix for image analysis.
+
+Available: https://ieeexplore.ieee.org/abstract/document/4309314
+
+Related: 
+    * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
+    * Naive bayes. 
 
 he2016deep
 ----------
@@ -1098,31 +1141,18 @@ An Evolutionary Forest for regression
 Related:
     * See :ref:`2023-02-02 - FASLIP<2023-02-02 - FASLIP>`
 
-hand2001idiot
--------------
-Idiot's Bayes—Not So Stupid After All?
+hendrycks2016gaussian
+---------------------
+Gaussian error linear units (gelus)
 
-(Hand 2001) is a paper that discusses the Naive Bayes classifier.
+(Hendrycks 2016) is the original paper on Gaussian error linear units (GELUs).
 
-Available: https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1751-5823.2001.tb00465.x
+Available: https://arxiv.org/abs/1606.08415
 
-Notes:
-    * Despite the assumption of independence, Naive Bayes is a powerful classifier.
-    * Naive bayes assumption is that the features are conditionally independent given the class.
-    * This assumption is not always true, but the model still performs well in practice.
-
-Haralick1973textual
--------------------
-Textural Features for Image Classification
-
-(Haralick 1973) propose grey-level co-occurence matrix for image analysis.
-
-Available: https://ieeexplore.ieee.org/abstract/document/4309314
+:math:`GELU(x) = 0.5 * x * (1 + Tanh(\sqrt{2/\pi} * (x + 0.044715 * x^3)))`
 
 Related: 
-    * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
--------------
-    * Naive bayes. 
+    * pytorch https://pytorch.org/docs/stable/generated/torch.nn.GELU.html
 
 hildebrandt2010towards
 ----------------------
@@ -1131,6 +1161,18 @@ Towards improved dispatching rules for complex shop floor scenarios: a genetic p
 (Hildebrandt 2010) use genetic programming for dispatching rules in complex shop floor scenarios.
 
 Available: https://dl.acm.org/doi/abs/10.1145/1830483.1830530
+
+hinton2012improving
+-------------------
+Improving neural networks by preventing co-adaptation of feature detector
+
+Available https://arxiv.org/abs/1207.0580
+
+Notes:
+    "This "overfitting" is greatly reduced by randomly omitting half of the feature detectors on each training case" - abstract
+
+Related:
+    * Dropout paper :ref:`(Srivastava 2014) <srivastava2014dropout>`
 
 ho1995random
 -------------
@@ -1227,6 +1269,8 @@ Batch normalization: Accelerating deep network training by reducing internal cov
 
 Available: https://arxiv.org/abs/1502.03167
 
+:math:`y = \frac{x - E[x]}{\sqrt{Var[x] + \epsilon}} * \gamma + \beta`
+
 Notes: 
     * Batch Normalization is a popular technique used to train deep neural networks. It normalizes the input to a layer during every training iteration using a mini-batch of data. It smooths and simplifies the optimization function leading to a more stable and faster training.
     * Batch Normalization works by scaling its input—the previous layer's output—to a mean of zero and a standard deviation of one per mini-batch.
@@ -1239,6 +1283,7 @@ Related:
     * :ref:`(He 2016) <he2016deep>` ResNet fixes gradient explosion in deep networks with batchnorm. 
     * :ref:`(Szegedy 2015) <szegedy2015going>` GoogLeNet - same author. 
     * :ref:`(Szegedy 2013) <szegedy2013intriguing>` same author.
+    * Pytorch 1D https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm1d.html
 
 ingalalli2014multi
 ------------------
@@ -1982,6 +2027,17 @@ liu1995chi2
     * Results show predictive accuracy and size, same or improved for all datasets where Chi2 was applied.
     * Chi2 was able to remove noise (irrelvant features) from synthetic and real world data.
 
+liu2018darts
+------------
+DARTS: Differentiable Architecture Search
+
+(Liu 2018) propose DARTS, a differentiable architecture search algorithm.
+
+Available: https://arxiv.org/abs/1806.09055
+
+Related: 
+    * Discussed in :ref:`2024-02-22 - FASLIP <2024-02-22 - FASLIP>`
+
 liu2023instaflow
 ----------------
 InstaFlow: One Step is Enough for High-Quality Diffusion-Based Text-to-Image Generation
@@ -2010,6 +2066,17 @@ Related:
 loh2011classification
 ---------------------
     * Decision tree. 
+
+loshchilov2017decoupled
+-----------------------
+Decoupled weight decay regularization
+
+(Loshchilov 2017) propose AdamW
+
+Availbale: https://arxiv.org/abs/1711.05101
+
+Notes:
+    * "decoupling weight decay from the learning rate." - Christian Raymond 
 
 mantyla1998cuelensen2017new
 --------------
@@ -2830,6 +2897,19 @@ QUARRY: A Graph Model for Queryable Association Rules
 
 Related: 
     * See 2022-12-05 - AJCAI #01, author gave workshop on knowledge graphs. 
+
+srivastava2014dropout
+---------------------
+
+Dropout: a simple way to prevent neural networks from overfitting
+
+(Srivastava 2014) propose dropout for regularization in neural networks.
+
+Available: https://www.jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf
+
+Related: 
+    * Also about regularization :ref:`(Hinton 2012) <hinton2012improving>`
+
 
 sun2022soknl
 ------------
