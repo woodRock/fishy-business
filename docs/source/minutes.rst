@@ -6077,13 +6077,11 @@ Background:
         * Aspect level 
     * e.g. "Today's salad was delicious, but the steak was not fresh"
     * Aspects, salad :math:`\to` positive, steak :math:`\to` negative
-    * TomBert 
-    * CapBERT 
-    * BLIP-2 
+    * Related works: TomBert, CapBERT, BLIP-2 
 
 Related: 
-    * :ref:`(Li 2023) <li2023blip>` propose Blip-2 for multi-modal pre-training.
-    * :ref:`(Yu 2019) <yu2019adapting>` propose TomBERT for multi-modal sentiment classification.
+    * BLIP-2 :ref:`(Li 2023) <li2023blip>` propose Blip-2 for multi-modal pre-training.
+    * TomBERT :ref:`(Yu 2019) <yu2019adapting>` propose TomBERT for multi-modal sentiment classification.
 
 2024-02-29 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
