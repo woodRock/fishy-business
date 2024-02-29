@@ -6043,3 +6043,55 @@ TODO:
         * [ ] Feautre selection 
         * [ ] Classification 
         * [ ] CNN 
+
+2024-02-23 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** AM101, **Time:** Friday, 15:00 - 17:00, **Attendees:** Steven L Jaques, Mengjie Zhang, Jesse Wood, Chirstian Raymond, Kaan Demir 
+
+Steven L Jaques gave a talk on "Skin optics the connection between intrinsic properties of skin and the appearance."
+
+Notes:
+    * Measurements :math:`to` theory :math:`to` optical properties :math:`to` effects of light
+    * Measurements :math:`to` theory :math:`to` optical properties :math:`to` biological parameters :math:`to` clinical decision. 
+    * "Big different between observation and intrinsic properties"
+    * Method optical light spectroscopy 
+    * Absorbtion - escaping light reflectance.
+    * Fat from oil in milk, tiny bit of milk, lets the light escape.
+    * Cloudy eye in dead fish, no water to maintain constructive interference.
+    * Optimal Coherance Tomography (OCT) image 
+    * Blue skin is actually just melanin layer under collagen, an illusion.
+
+2024-02-29 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Junjia Feng, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Junjia Feng gave a talk on "Multi-modal aspect oriented sentiment analysis"
+
+Background:
+    * Mutli-modal - image and text 
+    * Most tweets before 2015 were text only. After 2015, more images were included.
+    * Sentiment analysis - positive, negative, neutral
+    * Aspect oriented - fine grained 
+        * Document level  
+        * Sentence level 
+        * Aspect level 
+    * e.g. "Today's salad was delicious, but the steak was not fresh"
+    * Aspects, salad :math:`\to` positive, steak :math:`\to` negative
+    * TomBert 
+    * CapBERT 
+    * BLIP-2 
+
+Related: 
+    * :ref:`(Li 2023) <li2023blip>` propose Blip-2 for multi-modal pre-training.
+    * :ref:`(Yu 2019) <yu2019adapting>` propose TomBERT for multi-modal sentiment classification.
+
+2024-02-29 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+Notes:
+    * Really good results for wrapper-based multi-tree GP. 
+    * Result: 100\% train accuracy, 75\% test accuracy. In 3/5 runs.
+    * Tinke - tinker with hyperparameters to see if results can be improved. 
+    * Too good to be true - +25\% is a massive improvement, check code to make sure this is not a mistake. 
+    * Feature analysis - find ways to visualize the constructed features. E.g. GP trees.
