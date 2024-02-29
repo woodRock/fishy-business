@@ -6088,8 +6088,9 @@ Related:
 **Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
 
 Notes:
-    * Really good results for wrapper-based multi-tree GP. 
-    * Result: 100\% train accuracy, 75\% test accuracy. In 3/5 runs.
-    * Tinke - tinker with hyperparameters to see if results can be improved. 
-    * Too good to be true - +25\% is a massive improvement, check code to make sure this is not a mistake. 
+    * Excellent results for wrapper-based multi-tree GP.
+    * Result: 100% train accuracy, 75% test accuracy. In 3/5 runs.
+    * Tinker - tinker with hyperparameters to see if results can be improved.
+    * Too good to be true - +25% is a massive improvement, check the code to ensure this is not a mistake.
     * Feature analysis - find ways to visualize the constructed features. E.g. GP trees.
+
