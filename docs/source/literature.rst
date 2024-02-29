@@ -1942,7 +1942,7 @@ Available: https://dl.acm.org/doi/abs/10.1145/3136625
 Related: 
     * Discussed by Ruwang in :ref:`2023-12-08 - ECRG <2023-12-08 - ECRG>`
 
-li2021learnablelensen2017new
+li2021learnable
 ---------------
 Learnable fourier features for multi-dimensional spatial positional encoding
 
@@ -1970,13 +1970,24 @@ Why it matters?
     * Useful for semi-supervised learning applications. 
 
 Related: 
-    * See :ref:`(Vaswani 2017)<vaswani2017attention>` proposed sinosoidal positional encodings for 1D data.
-    * See :ref:`(Jaegle 2021)<jaegle2021perceiver>` for Perciever paper that uses these encodings. 
+    * See :ref:`(Vaswani 2017) <vaswani2017attention>` proposed sinosoidal positional encodings for 1D data.
+    * See :ref:`(Jaegle 2021) <jaegle2021perceiver>` for Perciever paper that uses these encodings. 
     * See :ref:`(Peng 2023) <peng2023rwkv>` for RWKV paper that builds on this. 
     * See :ref:`(Zhai 2021) <zhai2021attention>` for attention free transformer (AFT paper).
     * See :ref:`(Wang 2020) <wang2020linformer>` for Linformer paper.
     * See :ref:`(Kitaev 2020) <kitaev2020reformer>` for Reformer paper. 
     * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
+
+li2023blip
+----------
+Blip-2: Bootstrapping language-image pre-training with frozen image encoders and large language models
+
+(Li 2023) propose Blip-2 for multimodal pre-training
+
+Available: https://arxiv.org/abs/2301.12597
+
+Related: 
+    * Discussed in :ref:`2024-02-29 - FASLIP <2024-02-29 - FASLIP>`
 
 lin2017feature
 --------------
@@ -3219,6 +3230,17 @@ Why it matters?
 
 Related: 
     * See :ref:`2022-10-12 - Deep Learning<2022-10-12 - Deep Learning>` for more 
+
+yu2019adapting
+--------------
+Adapting BERT for target-oriented multimodal sentiment classification
+
+(Yu 2019) propose TomBERT for multi-modal sentiment classification.
+
+Available: https://ink.library.smu.edu.sg/sis_research/4441/
+
+Related: 
+    * Discussed in :ref:`2024-02-29 - FASLIP <2024-02-29 - FASLIP>`
 
 zemmal2016adaptative
 --------------------
