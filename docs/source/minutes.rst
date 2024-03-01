@@ -6094,3 +6094,33 @@ Notes:
     * Too good to be true - +25% is a massive improvement, check the code to ensure this is not a mistake.
     * Feature analysis - find ways to visualize the constructed features. E.g. GP trees.
 
+2024-03-01 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Xiaocheng, Jigang Fan, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Xiaocheng have a talk on "traffic assignment via genetic programming".
+
+Notes:
+    * traffic efficiency
+    * Buiding roads simply building roads can backfire 
+    * Real world challenges: 
+        1. dynamic travel time 
+        2. unknown delay function 
+        3. dynamic/uncertain arrivals
+    * Dynamic travel time - if everyone takes the shortest path, it may not be the fastest, due to increased traffic. 
+    * Nash equilibrium, drivers are selfish and will take the fastest route, sacrificing the global optima - optimal system performance.
+
+Jigang Fang gave a talk on "intelligent fault diagosis methods"
+
+Notes: 
+    * Intelligent fault diagnosis (IFD)
+    * Rotating bearings are key components of rotating machinery.
+    * Data: photo, thermography, sensors. 
+    * Class imbalance - In the real world fault conditions contain fewer samples than in normal conditions. 
+    * Imbalanced data approaches: 
+        1. misclassifcation cost 
+        2. data augmentation 
+        3. hybrid methods 
+    * Proposed method is FAWGAN-GN 
+    * Visualization - 2D projection of class seperability with t-SNE for dimensionality reduction.
+        * Note: I should use this for my wrapper-based GP method. 
