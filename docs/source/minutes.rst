@@ -6124,3 +6124,55 @@ Notes:
     * Proposed method is FAWGAN-GN 
     * Visualization - 2D projection of class seperability with t-SNE for dimensionality reduction.
         * Note: I should use this for my wrapper-based GP method. 
+
+2024-03-14 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Serafina Slevin, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Serafina Slevin gave a talk on "AI in Climate Change: Ice sheet modelling using machine learning"
+
+Background: 
+    * The Antarctic Ice Sheet (AIS) has huge potential to increaase the sea level in changing climate conditions. 
+    * The total volume of the AIS would raise the water level by 55 - 60 meters. 
+    * Predicting climate change is hard. The current best way to do so is climate simulations. 
+
+Motivations: 
+    * Mimic climate simulations 
+    * Reduce computation 
+    * Interpretable models 
+
+Method:
+    * inputs: x-axis, y-axis, precipitation, air temperature 
+    * outputs: ice thickness, ice velocity, ice mask 
+    * Random forest, Logistic Regression, Linear/Polynomial SVM 
+    * Sequential modelling - taking the predicted value of one target as a feature for predicting another one. 
+
+Results:
+    * Random forest gets the best results on the training set. 
+
+Future work: 
+    * GP for feature construction that feeds into a random forest classifier.
+    * CNNs and RNNs, neural networks suited for spatial and temporal data, respectively.
+
+2023-03-14 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+What I have done? 
+    * Results are stochastic for wrapper-based GP feature construction 
+    * Frozen the seed for the random forest, so fitness evaluation is consistent.
+    * Feature selection, with MRMR can get 69\% accuracy.
+
+Randomness: 
+    - same random seed :math:`\to` same results 
+    - different random seed :math:`\to` different results 
+    - Control the random seed to get 30 independent runs. 
+
+Send an email/pdf with:
+    * Evolutionary process 
+    * Final tree 
+    * Table with results 
+
+Related: 
+    * Original MRMR paper :ref:`(Ding 2005) <ding2005minimum>`
+    * Uber's MRMR paper:ref:`(Zhao 2019) <zhao2019maximum>`
