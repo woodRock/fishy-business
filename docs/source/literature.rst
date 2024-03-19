@@ -52,6 +52,8 @@ ba2016layer
 -----------
 Layer Normalization
 
+(Ba 2016) propose Layer Normalization, a regularization technique for deep learning.
+
 Available: https://arxiv.org/abs/1607.06450
 
 Related: 
