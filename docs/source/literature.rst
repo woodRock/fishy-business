@@ -48,6 +48,15 @@ al2019survey
     * Survey of evolutionary machine learning - Vuw staff. 
     * **TODO** read 
 
+ba2016layer
+-----------
+Layer Normalization
+
+Available: https://arxiv.org/abs/1607.06450
+
+Related: 
+    * Transformer :ref:`(Vaswani 2017) <vaswani2017attention>`
+
 balas1969machine
 ----------------
 Machine Sequencing Via Disjunctive Graphs: An Implicit Enumeration Algorithm
@@ -1006,6 +1015,8 @@ goodfellow2016deep
 ------------------
 Deep Learning 
 
+(Goodfellow 2016) is a textbook on deep learning.
+
 Available: https://www.deeplearningbook.org/
 
 goodfellow2014generative
@@ -1089,17 +1100,6 @@ Available: https://ieeexplore.ieee.org/abstract/document/4309314
 Related: 
     * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
     * Sklearn documentation and code available: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
-
-Haralick1973textual
--------------------
-Textural Features for Image Classification
-
-(Haralick 1973) propose grey-level co-occurence matrix for image analysis.
-
-Available: https://ieeexplore.ieee.org/abstract/document/4309314
-
-Related: 
-    * Discussed in :ref:`2023-08-10 - FASLIP <2023-08-10 - FASLIP>`
     * Naive bayes. 
 
 he2016deep
@@ -1107,6 +1107,8 @@ he2016deep
 Deep residual learning for image recognition
 
 (He 2016) is the original paper on ResNet.
+
+Available: http://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html
 
 Notes: 
     * A residual neural network (He 2016) is a deep learning model in which the weight layers learn redidual functions with reference to the layer inputs. 
@@ -1405,6 +1407,17 @@ Related:
     * See :ref:`(Karras 2020) <karras2020analyzing>` for StyleGAN paper from same author.
     * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
 
+karpathy2023lets
+----------------
+Let's build GPT: from scratch, in code, spelled out.
+
+(Karpathy 2023) builds GPT from scratch 
+
+YouTube https://youtu.be/kCc8FmEb1nY?si=1vM4DhyqsGKUSAdV
+
+Related:
+    * Transformer :ref:`(Vaswani 2017) <vaswani2017attention>`
+            
 katharopoulos2020transformers
 -----------------------------
 Transformers are rnns: Fast autoregressive transformers with linear attention
@@ -2250,6 +2263,14 @@ Related:
     * :ref:`(Miller 2017) <miller2017explainable>` explainable AI.
     * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
     * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
+
+morgan1989generalization
+------------------------
+Generalization and parameter estimation in feedforward nets: Some experiments
+
+(Morgan 1989) propose early stopping for neural networks.
+
+Available: https://proceedings.neurips.cc/paper_files/paper/1989/hash/63923f49e5241343aa7acb6a06a751e7-Abstract.html
 
 mnih2013playing
 ---------------
