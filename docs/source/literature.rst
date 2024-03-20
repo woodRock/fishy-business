@@ -3203,6 +3203,17 @@ Related:
     * Author gave talk in :ref:`2023-05-25 - FASLIP <2023-05-25 - FASLIP>`
     * Residual Neural Networks - Resnet, see :ref:`(He 2016) <he2016deep>`
 
+xiong2020layer
+--------------
+On layer normalization in the transformer architecture
+
+(Xiong 2020) propose the Pre-Layer Normalization (Pre-LN) for transformers.
+
+Available: https://proceedings.mlr.press/v119/xiong20b
+
+Related: 
+    * Transformers :ref:`(Vaswani 2017) <vaswani2017attention>`
+
 xin2022current
 --------------
     * Do Current Multi-Task Optimization Methods in Deep Learning Even Help?
