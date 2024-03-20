@@ -2099,7 +2099,7 @@ Decoupled weight decay regularization
 
 (Loshchilov 2017) propose AdamW
 
-Availbale: https://arxiv.org/abs/1711.05101
+Available: https://arxiv.org/abs/1711.05101
 
 Notes:
     * "decoupling weight decay from the learning rate." - Christian Raymond 
