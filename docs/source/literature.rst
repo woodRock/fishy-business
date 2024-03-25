@@ -291,6 +291,22 @@ Related:
     * :ref:`(Black 2019) <black2019rapid>` use OPLS-DA for adulteration detection in minced beef.
     * :ref:`(Black 2017) <black2017real>` uses OPLS-DA for fish fraud detection. 
 
+bongiovanni2019electric
+-----------------------
+The electric autonomous dial-a-ride problem
+
+(Bongiovanni) introduces the Electric Autonomous Dial-A-Ride Problem (EA-DARP)
+
+Available: https://www.sciencedirect.com/science/article/pii/S0191261517309669
+
+Related: 
+    * Discussed by Guenther in :ref:`2024-03-22 - ECRG <2024-03-22 - ECRG >`
+
+boser1992training
+-----------------
+    * Kernal trick for SVM.
+    * These employ the kernel trick. 
+
 bourque2018ten
 --------------
 Ten things you should know about transposable elements
@@ -300,10 +316,6 @@ Related:
     * :ref:`(Hof 2016) <hof2016industrial>` gives an example of tranposons affecting moths. 
     * :ref:`(Kulasekara 2014) <kulasekara2014transposon>` says changes passed to offspring. 
 
-boser1992training
------------------
-    * Kernal trick for SVM.
-    * These employ the kernel trick. 
 
 breiman2017classification
 -------------------------

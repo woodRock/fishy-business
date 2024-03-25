@@ -6252,3 +6252,6 @@ Method:
     * Surrogate evaluation function 
         * Learning a surrogate evaluation function
         * During an supvervised learning offline phase. 
+
+Related: 
+    * The electric autonomous dial-a-ride problem :ref:`(bongiovanni 2019) <bongiovanni2019electric>`
