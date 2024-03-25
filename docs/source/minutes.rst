@@ -6179,6 +6179,8 @@ Related:
 
 2023-03-14 - FASLIP 
 ~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Quinyu Wang, Bing Xue, Mengjie Zhang, Jesse Wood
+
 Quinyu Wang gave a talk on "Genetic Programming with Aggregate Channel Features for Flower Localization" https://ecs.wgtn.ac.nz/Main/GradQinyuWang
 
 Background:
@@ -6215,3 +6217,38 @@ Method:
 Results: 
     * Outperforms YOLOv8 on the flower localization task.
     * Automatically extract and aggregate features for flower localization. 
+
+2024-03-22 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Guenther Raidl, Jigang Fan, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Günther Raidl gave a talk on "Advanced in Large Neighborhood Search for (Dynamic) Electric Dial-A-Ride Problems https://www.ac.tuwien.ac.at/people/raidl/
+
+Background: 
+    * Types of travel:
+        * public transit services 
+        * taxi services 
+        * Dial-A-Ride (DAR) services
+    * Dial-A-Ride problem (DARP) is NP-hard 
+    * Generalization of 
+        * Capaciatates vehicle routing problem 
+        * Pickup and delivery problem 
+    * Electric Autonmous DAPR 
+        * Vehicles have to be charged 
+        * Total travel time 
+        * Excess ride time 
+    
+Related work: 
+    * (Bongiovani et al. 2019, 2022, 2023)
+    * Mixed integer linear porgramming 
+    * Deterministic annealing 
+    * Bilevel large neighborhood search 
+
+Method:
+    * Large Neighborhood Search (LNS) 
+        * set of destroy operators 
+        * set of repair operators 
+    * Linear Programming (LP) 
+    * Surrogate evaluation function 
+        * Learning a surrogate evaluation function
+        * During an supvervised learning offline phase. 
