@@ -6255,3 +6255,18 @@ Method:
 
 Related: 
     * The electric autonomous dial-a-ride problem :ref:`(bongiovanni 2019) <bongiovanni2019electric>`
+
+2024-03-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * AIRA is a workshop, not a real peer-reviewed conference. False alarm for accepted paper. 
+    * Wrapper-based multi-tree GP gets 48.61% :math:`\pm` 19.04% test accuracy on fish part dataset in 10 independent runs. 
+    * Transformer based architecture gets 99.1 :math:`\pm` 1.66% test accuracy on fish species dataset in 10 independent runs.
+    * Next week I should bring a print out of my results to my meeting with Bach. 
+    * Bing and Meng will be away for the next couple of weeks. 
+    * SVM :math:`\to` KNN, for wrapper-based multi-tree GP.
+    * A simpler classifier is less likely to overfit the training set. 
+    * Use cross validation for the fish part dataset, due to limited number of samples. 
+    * Ask Daniel if there is any more data available for the fish parts classification problem.
