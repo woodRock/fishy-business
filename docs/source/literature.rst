@@ -2971,19 +2971,45 @@ szegedy2013intriguing
 ---------------------
 Intriguing properties of neural networks.
 
+(Szegedy 2013) uses adversarial attacks on neural networks to find exploits.
+
+Available: https://arxiv.org/abs/1312.6199
+
 Notes: 
     * Adversarial attacks on neural networks. 
     * Trick neural nets into making the wrong prediction on purpose. 
     * Long tail problem of AI. 
 
-TODO: 
-    * https://arxiv.org/abs/1312.6199
+Related: 
+    * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
+    * Same author, label smoothing :ref:`(Szegedy 2016) <szegedy2016rethinking>`
 
 szegedy2015going
 ----------------
 Going deeper with convolutions
 
 (Szegedy 2015) propose GoogLeNet, a CNN with inception modules.
+
+Available: https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Szegedy_Going_Deeper_With_2015_CVPR_paper.html
+
+Related: 
+    * Same author, label smoothing :ref:`(Szegedy 2016) <szegedy2016rethinking>`
+    * Same author, adversarial attacks on NNs :ref:`(Szegedy 2013) <szegedy2013intriguing>`
+
+szegedy2016rethinking
+---------------------
+Rethinking the inception architecture for computer vision
+
+(Szegedy 2016) proposed label smoothing for deep neural networks.
+
+Available: https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.html
+
+Related: 
+    * Medium article: https://medium.com/@nainaakash012/when-does-label-smoothing-help-89654ec75326
+    * Papers with code: https://paperswithcode.com/method/label-smoothing
+    * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
+    * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
+    * Same author, adversarial attacks on NNs :ref:`(Szegedy 2013) <szegedy2013intriguing>`
 
 tran2019genetic
 ---------------
