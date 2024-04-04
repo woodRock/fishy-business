@@ -6293,3 +6293,9 @@ Method:
 Results: 
     * Enseble method based on 3x LinkNet and 1x U-net performed worse than single model on validation.
     * However, the ensemble method performed best on the test set 
+
+Related: 
+    * PSPNet :ref:`(Zhao 2017) <zhao2017pyramid>`
+    * U-Net :ref:`(Ronneberger 2015) <ronneberger2015u>`
+    * ResNet :ref:`(He 2016) <he2016deep>`
+    * ResNeXt :ref:`(Xie 2017) <xie2017aggregated>`

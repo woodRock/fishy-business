@@ -2717,6 +2717,17 @@ robnik2003theoretical
 ---------------------
     * releifF classifier. 
 
+ronneberger2015u
+-----------------
+U-net: Convolutional networks for biomedical image segmentation
+
+(Ronneberger 2015) propose U-Net :ref:`(Ronneberger 2015) <ronneberger2015u>`
+
+Available: https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28
+
+Related:
+    * Discussed in :ref:`2024-04-04 - FASLIP <2024-04-04 - FASLIP>`
+
 runarsson2000stochastic
 -----------------------
 Stochastic ranking for constrained evolutionary optimization
@@ -3274,6 +3285,17 @@ Available: https://proceedings.mlr.press/v119/xiong20b
 Related: 
     * Transformers :ref:`(Vaswani 2017) <vaswani2017attention>`
 
+xie2017aggregated
+-----------------
+Aggregated residual transformations for deep neural networks
+
+(Xie 2017) propose the ResNeXt family of models for biomdeical image segmentation.
+
+Available: https://openaccess.thecvf.com/content_cvpr_2017/html/Xie_Aggregated_Residual_Transformations_CVPR_2017_paper.html
+
+Related: 
+    * Discussed in :ref:`2024-04-04 - FASLIP <2024-04-04 - FASLIP>`
+
 xin2022current
 --------------
     * Do Current Multi-Task Optimization Methods in Deep Learning Even Help?
@@ -3418,6 +3440,17 @@ Related:
     * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
     * See :ref:`(Ho 2020) <ho2020denoising>` for more on diffusion models.
     * See :ref:`(Song 2020) <song2020denoising>` for more on diffusion models.
+
+zhao2017pyramid
+---------------
+Pyramid scene parsing network
+
+(Zhao 2017) propose PSPNet for the scene parsing task.
+
+Available: http://openaccess.thecvf.com/content_cvpr_2017/html/Zhao_Pyramid_Scene_Parsing_CVPR_2017_paper.html
+
+Related: 
+    * Used in :ref:`2024-04-04 - FASLIP <2024-04-04 - FASLIP>`
 
 zhao2019maximum
 ---------------
