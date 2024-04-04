@@ -1116,6 +1116,17 @@ Related:
     * Sklearn documentation and code available: https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
     * Naive bayes. 
 
+he2015delving
+-------------
+Delving deep into rectifiers: Surpassing human-level performance on imagenet classification
+
+(He 2015) proposes Kaiming weight initialization. 
+
+Available: http://openaccess.thecvf.com/content_iccv_2015/html/He_Delving_Deep_into_ICCV_2015_paper.html
+
+Related: 
+    * Pytorch https://pytorch.org/cppdocs/api/function_namespacetorch_1_1nn_1_1init_1a5e807af188fc8542c487d50d81cb1aa1.html#exhale-function-namespacetorch-1-1nn-1-1init-1a5e807af188fc8542c487d50d81cb1aa1
+
 he2016deep
 ----------
 Deep residual learning for image recognition
@@ -2738,6 +2749,17 @@ russell2010artificial
 Artificial intelligence a modern approach
 
 (Russell 2010) is the phat textbook I own on AI. 
+
+saxe2013exact
+-------------
+Exact solutions to the nonlinear dynamics of learning in deep linear neural networks
+
+(Saxe 2013) proposes orthongal weight initialization
+
+Available: https://arxiv.org/abs/1312.6120
+
+Related: 
+    * Pytorch https://pytorch.org/cppdocs/api/function_namespacetorch_1_1nn_1_1init_1a5978fcc257460475f635b5960e892a8e.html#exhale-function-namespacetorch-1-1nn-1-1init-1a5978fcc257460475f635b5960e892a8e
 
 shahriari2015taking
 -------------------
