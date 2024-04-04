@@ -6270,3 +6270,26 @@ Notes:
     * A simpler classifier is less likely to overfit the training set. 
     * Use cross validation for the fish part dataset, due to limited number of samples. 
     * Ask Daniel if there is any more data available for the fish parts classification problem.
+
+2024-04-04 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Binke Xue, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Binke Xue gave a talk on "Ensemble learning based on nueral networks for tree segementation"
+
+Background: 
+    * Industry partner Manaaiki Whenua, Landcare Research, Informatics 
+
+Dataset: 
+    * Validation: 66 images 
+    * 256x256 pixel colour images 
+    * 512 images total
+
+Method: 
+    * PSPnet, U-net, LinkNet
+    * Resnet-152, ResNeXt
+    * Dice coefficient for evaluation metric for image segmentation.
+
+Results: 
+    * Enseble method based on 3x LinkNet and 1x U-net performed worse than single model on validation.
+    * However, the ensemble method performed best on the test set 
