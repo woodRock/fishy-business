@@ -2765,7 +2765,7 @@ saxe2013exact
 -------------
 Exact solutions to the nonlinear dynamics of learning in deep linear neural networks
 
-(Saxe 2013) proposes orthongal weight initialization
+(Saxe 2013) proposes orthongal weight initialization.
 
 Available: https://arxiv.org/abs/1312.6120
 
