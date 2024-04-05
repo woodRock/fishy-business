@@ -6299,3 +6299,38 @@ Related:
     * ResNet :ref:`(He 2016) <he2016deep>`
     * ResNeXt :ref:`(Xie 2017) <xie2017aggregated>`
     * PSPNet :ref:`(Zhao 2017) <zhao2017pyramid>`
+
+2024-04-05 - ECRG
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Zhixing Huang, Jigang Fan, Bing Xue, Mengjie Zhang, Jesse Wood
+
+Zhixing Huang gave a talk on Linear Genetic Programming (LGP) for Dynamic Job Shop Scheduling (DJSS). https://ecs.wgtn.ac.nz/Main/GradZhixingHuang
+
+Background: 
+    * Linear genetic programming (LGP)
+    * A sequence of register based instructions 
+    * Sequential execution of each instruction
+    * Destination register, source register, function 
+
+Differences from regular GP 
+    * Genotype - many programs 
+    * Phenotype - most essential programs 
+    * Semantics - program behaviours 
+    * Fitness function - objective function
+
+Motivations: 
+    1. Flexible building block reusing and compact representation 
+    2. Mutli-output, multi-input 
+    3. Assembly language 
+
+Limitations: 
+    1. Limited fitness evaluation 
+    2. LGP mainly focus on classifcation/regression problems 
+
+Method: 
+    * Multi-task Linear Genetic Programming (MTLGP)
+    * Multi-representation Linear Genetic programming (MRLGP)
+    * Grammar-guided Linear Genetirc Programming (GGMGP)
+
+Conclusions:
+    * GP search is essentially a symbolic search technique.
