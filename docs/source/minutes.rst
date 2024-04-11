@@ -6334,3 +6334,22 @@ Method:
 
 Conclusions:
     * GP search is essentially a symbolic search technique.
+
+2024-04-11 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Bach Nguyen, Mengjie Zhang, Jesse Wood
+
+We watched the talk from Xin Yao on "What can evolutionary computation do for you?" (again) https://www.youtube.com/watch?v=pcl08XA1REM
+
+Related: 
+    * Previous talk :ref:`2022-11-10 - FASLIP <2022-11-10 - FASLIP>`
+
+
+2024-03-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood 
+
+Notes:
+    * Random forest for wrapper-based GP with 6 constructed features.
+    * Class dependent GP. For fish parts, 6 classes, 6 trees. 
+    * Bing has a paper of class independent GP in the Pattern Recognition journal 
