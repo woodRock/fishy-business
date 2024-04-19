@@ -6353,3 +6353,32 @@ Notes:
     * Random forest for wrapper-based GP with 6 constructed features.
     * Class dependent GP. For fish parts, 6 classes, 6 trees. 
     * Bing has a paper of class independent GP in the Pattern Recognition journal 
+
+2024-04-18 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Yuye Zhang, Bing Xue, Jesse Wood
+
+Yuye Zhang gave a talk on "Multimodal Machine Learning (MML)"
+
+Background: 
+    * Modality - refers to the way in which something is expressed or percieved.
+    * Unimodal - refers to a problem or dataset with a single modality. 
+    * Mulitmodal - refers to a problem or dataset with multiple modalities.
+    * MML - multimodal machine learning
+    * Types of multimodal data: 
+        1. Multimedia for the same object. 
+        2. Same media type, different sensors. 
+        3. Information with different structure or representation.
+    * Principles of multimodal data:
+        1. Modalities are heterogenous 
+        2. Modalities are connected 
+        3. Modalities interact
+    
+Existing works: 
+    * Contrastive Language Image Pretraining (CLIP) :ref:`(Radford 2021) <radford2021learning>`
+    * Dataset WebImage text - 400 million text-image pairs 
+    * Momentum contrast for unsupvervised visual representation learning :ref:`(He 2020) <he2020momentum>`
+    * BERT: Pre-graining of deep bidirectional transformers for language understanding :ref:`(Devlin 2018) <devlin2018bert>`.
+    * Language dirven semantic segmentation :ref:`(Li 2022) <li2022language>`
+    * Deep multimodal multilinear fusion with high order polynomail pooling (Hou 2019).
+
