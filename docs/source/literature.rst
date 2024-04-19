@@ -972,7 +972,7 @@ Understanding the difficulty of training deep feedforward neural networks
 
 Available: http://proceedings.mlr.press/v9/glorot10a
 
-Related: 
+Related: it pu
     * Pytorch: https://pytorch.org/cppdocs/api/function_namespacetorch_1_1nn_1_1init_1ace282f75916a862c9678343dfd4d5ffe.html
 
 
@@ -1158,6 +1158,14 @@ Bayesian Deep Ensembles via the Neural Tangent Kernel
 TODO: 
     * read https://proceedings.neurips.cc/paper/2020/hash/0b1ec366924b26fc98fa7b71a9c249cf-Abstract.html
 
+he2020momentum
+--------------
+Momentum contrast for unsupervised visual representation learning
+
+Available: https://openaccess.thecvf.com/content_CVPR_2020/html/He_Momentum_Contrast_for_Unsupervised_Visual_Representation_Learning_CVPR_2020_paper.html
+
+Related: 
+    * Mentioned in :ref:`2024-04-18 - FASLIP <2024-04-18 - FASLIP>`
 
 hengzhe2021evolutionary
 -----------------------
@@ -1289,6 +1297,15 @@ Algorithmic amplification of politics on Twitter
 
 Related:
     * Discussed in Deep Learning - 2022-11-30
+
+li2022language
+--------------
+Language-driven semantic segmentation
+
+Available: https://arxiv.org/abs/2201.03546
+
+Related: 
+    * Mentioned at :ref:`2024-04-18 - FASLIP <2024-04-18 - FASLIP>`
 
 ioffe2015batch
 --------------
@@ -2487,7 +2504,8 @@ Background:
     * The computation graph of a transformer is setup in a way that isi is very efficient to be computed in parallel on GPU clusters. 
     * (Zhai 2021) proposed the Attention Free Transformer (AFT), the predecessor to today's paper, the Receptance Weighted Key Value (RWKV) transformer. 
 
-Method:devlin2018bert
+Method: 
+    * devlin 2018 bert
     * RWKV Raven 14B Demo - Hugging Face https://huggingface.co/spaces/BlinkDL/ChatRWKV-gradio
     * Github https://github.com/BlinkDL/RWKV-LM
     
@@ -2552,6 +2570,7 @@ Available: http://proceedings.mlr.press/v139/radford21a
 Related: 
     * Same author, same model, same year :ref:`(Radford 2021) <radford2021zero>`
     * Same author :ref:`(Radford 2028) <radford2018improving>`
+    * Mentioned in :ref:`2024-04-18 - FASLIP <2024-04-18 - FASLIP>`
 
 radford2021zero
 ---------------
