@@ -6380,5 +6380,15 @@ Existing works:
     * Momentum contrast for unsupvervised visual representation learning :ref:`(He 2020) <he2020momentum>`
     * BERT: Pre-graining of deep bidirectional transformers for language understanding :ref:`(Devlin 2018) <devlin2018bert>`.
     * Language dirven semantic segmentation :ref:`(Li 2022) <li2022language>`
-    * Deep multimodal multilinear fusion with high order polynomail pooling (Hou 2019).
+    * Deep multimodal multilinear fusion with high order polynomial pooling :ref:`(Hou 2019) <hou2019deep>`
 
+2024-04-18 - Weekly 
+~~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Notes:  
+    * Embedded GP for fish parts gets 75% test accuracy. 
+    * Try embedded GP for fish species 
+    * Bring results printed out to my next meeting.
+    * Write a report about class-dependent multi-tree GP. 
+    * Send Bing a PDF of my slides for my proposal.
