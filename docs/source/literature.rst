@@ -1249,6 +1249,15 @@ Hofstadter1979godel
     * Godel Escher Bach 
     * The hand that draws itself. 
 
+hou2019deep
+-----------
+Deep multimodal multilinear fusion with high-order polynomial pooling
+
+Available: https://proceedings.neurips.cc/paper_files/paper/2019/hash/f56d8183992b6c54c92c16a8519a6e2b-Abstract.html
+
+Related: 
+    * Mentioned in :ref:`2024-04-18 - FASLIP <2024-04-18 - FASLIP>`
+
 howard2017mobilenets
 --------------------
 Mobilenets: Efficient convolutional neural networks for mobile vision applications
