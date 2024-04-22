@@ -52,7 +52,7 @@ def random_augmentation(X, y, num_augmentations=5,
     return xs, ys
 
 def preprocess_dataset(is_data_augmentation=True, batch_size=64):
-    path = ['/vol','ecrg-solar', 'woodj4', 'fishy-business', 'data','REIMS_data.xlsx']
+    path = ['~/','Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)
 
     raw = pd.read_excel(path)

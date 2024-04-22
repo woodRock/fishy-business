@@ -1,0 +1,5 @@
+INFO:__main__:Reading the dataset.
+INFO:__main__:Reading the dataset.
+INFO:__main__:Reading the dataset.
+INFO:__main__:Pre-training the network: Masked Spectra Modelling
+INFO:pre_training:Epoch [1/20], Loss: 0.0882, Val: 0.0069
