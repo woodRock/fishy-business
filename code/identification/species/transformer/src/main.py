@@ -28,7 +28,7 @@ if __name__ == "__main__":
     dropout = 0.2
     label_smoothing = 0.1
     # Hyperparameters
-    num_epochs = 2
+    num_epochs = 50
     input_dim = 1023
     output_dim = 1023  # Same as input_dim for masked spectra prediction
     num_layers = 3
@@ -169,7 +169,7 @@ if __name__ == "__main__":
                 pred = model(x, x, src_mask=None)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
                 logger.info(f"{name} accuracy: {test_correct} / {len(x)}")
-                plot_confusion_matrix(name, y,pred)
+                plot_confusion_matrix(name, y.argmax(1).cpu(), pred.argmax(1).cpu())
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
     # First self-attention layer of the encoder.
