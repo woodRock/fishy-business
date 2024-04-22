@@ -8,7 +8,7 @@ from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra,
 from transformer import Transformer 
 from util import EarlyStopping, preprocess_dataset
 from train import train_model
-from plot import plot_attention_map
+from plot import plot_attention_map, plot_confusion_matrix
 
 if __name__ == "__main__":
     # Logging output to a file.
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     logging.basicConfig(filename=f'logs/results_{run}.log', level=logging.INFO)
     
     # Preprocessing
-    is_data_augmentation = True # @param {type:"boolean"}
+    is_data_augmentation = False # @param {type:"boolean"}
     # Pretraining
     is_next_spectra = False # @param {type:"boolean"}
     is_masked_spectra = True # @param {type:"boolean"}
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     dropout = 0.2
     label_smoothing = 0.1
     # Hyperparameters
-    num_epochs = 20
+    num_epochs = 2
     input_dim = 1023
     output_dim = 1023  # Same as input_dim for masked spectra prediction
     num_layers = 3
@@ -168,8 +168,8 @@ if __name__ == "__main__":
                 (x,y) = (x.to(device), y.to(device))
                 pred = model(x, x, src_mask=None)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
-                logger.info(f"{name} accuracy {test_correct} / {len(x)}")
-
+                logger.info(f"{name} accuracy: {test_correct} / {len(x)}")
+                plot_confusion_matrix(name, y,pred)
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
     # First self-attention layer of the encoder.

@@ -1,5 +1,7 @@
+import numpy as np
 import matplotlib.pyplot as plt
 import logging
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 def plot_attention_map(name, attention_weights, input_tokens, output_tokens):
     logger = logging.getLogger(__name__)
@@ -45,3 +47,12 @@ def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
     logger.info(f"Saving attention map to: {file_path}")
     # Show the plot (enable for interactive)
     # plt.show()
+
+def plot_confusion_matrix(name, actual, predicted):
+    actual = np.argmax(actual.cpu(), axis=0)
+    predicted = np.argmax(predicted.cpu(), axis=0)
+    cmatrix = confusion_matrix(actual, predicted)
+    cm_display = ConfusionMatrixDisplay(confusion_matrix = cmatrix, display_labels = [0, 1])
+
+    cm_display.plot()
+    plt.savefig(f"figures/{name}_confusion_matrix.png")
