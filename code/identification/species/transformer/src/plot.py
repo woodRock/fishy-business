@@ -49,10 +49,8 @@ def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
     # plt.show()
 
 def plot_confusion_matrix(name, actual, predicted):
-    actual = np.argmax(actual.cpu(), axis=0)
-    predicted = np.argmax(predicted.cpu(), axis=0)
     cmatrix = confusion_matrix(actual, predicted)
-    cm_display = ConfusionMatrixDisplay(confusion_matrix = cmatrix, display_labels = [0, 1])
+    cm_display = ConfusionMatrixDisplay(confusion_matrix = cmatrix, display_labels = ["Hoki", "Mackerel"])
 
     cm_display.plot()
     plt.savefig(f"figures/{name}_confusion_matrix.png")
