@@ -235,15 +235,3 @@ def pre_train_model_next_spectra(model,
     next_spectra_model = model
     torch.save(next_spectra_model.state_dict(), file_path)
     return model
-
-
-def transfer_learning(model, file_path='transformer_checkpoint.pth', output_dim=2):
-    # Load the state dictionary from the checkpoint.
-    checkpoint = torch.load(file_path)
-    # Modify the 'fc.weight' and 'fc.bias' parameters
-    checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]  # Keep only the first 2 rows
-    checkpoint['fc.bias'] = checkpoint['fc.bias'][:output_dim] # Keep only the first 2 elements
-    # Load the modified state dictionary into the model.
-    model.load_state_dict(checkpoint, strict=False)
-
-    return model

@@ -1,44 +1,78 @@
 import logging
-import sys
+import argparse
 import time
 import torch
 import torch.nn as nn 
 import torch.optim as optim
-from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra, transfer_learning
+from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra
 from transformer import Transformer 
-from util import EarlyStopping, preprocess_dataset
-from train import train_model
+from util import EarlyStopping, preprocess_dataset 
+from train import train_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
 
+
 if __name__ == "__main__":
+    # Handle the command line arguments for the script.
+    parser = argparse.ArgumentParser(
+                    prog='Transformer',
+                    description='A transformer for fish species classification.',
+                    epilog='Implemented in pytorch and written in python.')
+    parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint.pth")
+    parser.add_argument('-d', '--dataset', type=str, default="species")
+    parser.add_argument('-r', '--run', type=int, default=0)
+    parser.add_argument('-o', '--output', type=str, default=f"logs/results")
+
+    # Preprocessing
+    parser.add_argument('-da', '--data-augmentation',
+                    action='store_true', default=False)  
+    # Pre-training
+    parser.add_argument('-msm', '--masked-spectra-modelling',
+                    action='store_true', default=False)  
+    parser.add_argument('-nsp', '--next-spectra-prediction',
+                    action='store_true', default=False) 
+    # Regularization
+    parser.add_argument('-es', '--early-stopping',
+                    action='store_true', default=False) 
+    parser.add_argument('-do', '--dropout', type=float, default=0.2)
+    parser.add_argument('-ls', '--label-smoothing', type=float, default=0.1)
+    # Hyperparameters
+    parser.add_argument('-e', '--epochs', type=int, default=100)
+    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5)
+
+    args = vars(parser.parse_args())
+
     # Logging output to a file.
     logger = logging.getLogger(__name__)
     # Run argument for numbered log files.
-    run = sys.argv[1]
-    logging.basicConfig(filename=f'logs/results_{run}.log', level=logging.INFO)
-    
+    output = f"{args['output']}_{args['run']}.log"
+    # Filemode is write, so it clears the file, then appends output.
+    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
+    file_path = args['file_path']
+    dataset = args['dataset']
+
     # Preprocessing
-    is_data_augmentation = False # @param {type:"boolean"}
+    is_data_augmentation = args['data_augmentation'] # @param {type:"boolean"}
     # Pretraining
-    is_next_spectra = False # @param {type:"boolean"}
-    is_masked_spectra = True # @param {type:"boolean"}
+    is_next_spectra = args['next_spectra_prediction'] # @param {type:"boolean"}
+    is_masked_spectra = args['masked_spectra_modelling'] # @param {type:"boolean"}
     # Regularization
-    is_early_stopping = True # @param {type:"boolean"}
+    is_early_stopping = args['early_stopping'] # @param {type:"boolean"}
     patience = 5
-    dropout = 0.2
-    label_smoothing = 0.1
+    dropout = args['dropout']
+    label_smoothing = args['label_smoothing']
     # Hyperparameters
-    num_epochs = 50
+    num_epochs = args['epochs']
     input_dim = 1023
     output_dim = 1023  # Same as input_dim for masked spectra prediction
     num_layers = 3
     num_heads = 3
     hidden_dim = 128
-    learning_rate = 1E-5
-    file_path = 'transformer_checkpoint.pth'
+    learning_rate = args['learning_rate']
 
-    logger.info("Reading the dataset.")
-    train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(is_data_augmentation)
+    
+    logger.info(f"Reading the dataset: fish {dataset}")
+    
+    train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
 
     if is_masked_spectra:
         # Load the transformer.
@@ -86,7 +120,7 @@ if __name__ == "__main__":
 
         # Transfer learning
         if is_masked_spectra:
-            model = transfer_learning(model, file_path=file_path)
+            model = transfer_learning(dataset, model, file_path=file_path)
 
         # Label smoothing (Szegedy 2016)
         criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
@@ -117,7 +151,10 @@ if __name__ == "__main__":
                 model.load_state_dict(checkpoint, strict=False)
 
     # Define hyperparameters
-    output_dim = 2  # Example: number of output classes
+    if dataset == "species":
+        output_dim = 2  # Example: number of output classes
+    elif dataset =="part":
+        output_dim = 6
 
     # Early stopping (Morgan 1989)
     if is_early_stopping:
@@ -128,7 +165,7 @@ if __name__ == "__main__":
 
     # Transfer learning
     if is_masked_spectra or is_next_spectra:
-        model = transfer_learning(model, file_path=file_path)
+        model = transfer_learning(dataset, model)
 
     # Label smoothing (Szegedy 2016)
     criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
@@ -169,7 +206,7 @@ if __name__ == "__main__":
                 pred = model(x, x, src_mask=None)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
                 logger.info(f"{name} accuracy: {test_correct} / {len(x)}")
-                plot_confusion_matrix(name, y.argmax(1).cpu(), pred.argmax(1).cpu())
+                plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
     # First self-attention layer of the encoder.

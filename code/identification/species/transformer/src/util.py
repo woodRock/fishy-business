@@ -1,3 +1,4 @@
+import logging
 import os 
 from tqdm import tqdm
 import torch
@@ -51,7 +52,7 @@ def random_augmentation(X, y, num_augmentations=5,
     ys = np.array(ys)
     return xs, ys
 
-def preprocess_dataset(is_data_augmentation=True, batch_size=64):
+def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=64):
     path = ['~/','Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)
 
@@ -61,8 +62,29 @@ def preprocess_dataset(is_data_augmentation=True, batch_size=64):
     data = data[~data['m/z'].str.contains('QC')]
     data = data[~data['m/z'].str.contains('HM')]
     X = data.drop('m/z', axis=1) # X contains only the features.
-    # Onehot encoding for the class labels, e.g. [0,1] for Hoki, [1,0] for Mackeral.
-    y = data['m/z'].apply(lambda x: [0,1] if 'H' in x else [1,0])
+    
+    # Either fish "species" or "part" dataset.
+    if dataset == "species":
+        # Onehot encoding for the class labels, e.g. [0,1] for Hoki, [1,0] for Mackeral.
+        y = data['m/z'].apply(lambda x: [0,1] if 'H' in x else [1,0])
+    elif dataset == "part":
+        y = data['m/z'].apply(lambda x:
+                          [1,0,0,0,0,0] if 'Fillet' in x
+                    else ([0,1,0,0,0,0] if 'Heads' in x
+                    else ([0,0,1,0,0,0] if 'Livers' in x
+                    else ([0,0,0,1,0,0] if 'Skins' in x
+                    else ([0,0,0,0,1,0] if 'Guts' in x
+                    else ([0,0,0,0,0,1] if 'Frames' in x
+                    else None ))))))  # Labels (0 for Hoki, 1 for Moki)   
+        # Remove the "None" values from the dataset. 
+        xs = []
+        ys = []
+        for (x,y) in zip(X.to_numpy(),y):
+            if y is not None:
+                xs.append(x)
+                ys.append(y)
+        X = np.array(xs)
+        y = np.array(ys)
     
     # Convert to numpy arrays.
     X = np.array(X)
@@ -122,6 +144,7 @@ class EarlyStopping:
         self.val_loss_min = float('inf')
 
     def __call__(self, train_acc, val_loss, model, verbose=False):
+        logger = logging.getLogger(__name__)
         """
         Args:
             val_loss (float): Validation loss
@@ -138,7 +161,7 @@ class EarlyStopping:
             elif score < self.best_score + self.delta:
                 self.counter += 1
                 if verbose:
-                    print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+                    logger.info(f'EarlyStopping counter: {self.counter} out of {self.patience}')
                 if self.counter >= self.patience:
                     self.early_stop = True
             else:

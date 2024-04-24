@@ -48,9 +48,15 @@ def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
     # Show the plot (enable for interactive)
     # plt.show()
 
-def plot_confusion_matrix(name, actual, predicted):
+def plot_confusion_matrix(dataset, name, actual, predicted):
     cmatrix = confusion_matrix(actual, predicted)
-    cm_display = ConfusionMatrixDisplay(confusion_matrix = cmatrix, display_labels = ["Hoki", "Mackerel"])
+    labels = [] 
+    if dataset == "species":
+        labels = ["Hoki", "Mackerel"]
+    elif dataset == "part":
+        labels = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
+    
+    cm_display = ConfusionMatrixDisplay(confusion_matrix=cmatrix, display_labels=labels)
 
     cm_display.plot()
     plt.savefig(f"figures/{name}_confusion_matrix.png")
