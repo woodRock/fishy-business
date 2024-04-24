@@ -1,0 +1,7 @@
+INFO:__main__:Reading the dataset: fish part
+INFO:__main__:Training the network
+INFO:train:Epoch 1/2, Train Loss: 1.7884, Train Acc: 0.2917, Val Loss: 2.0970, Val Acc: 0.0000
+INFO:train:Epoch 2/2, Train Loss: 1.5502, Train Acc: 0.3750, Val Loss: 2.0274, Val Acc: 0.3333
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 1.86s
+INFO:__main__:train accuracy: 14 / 24

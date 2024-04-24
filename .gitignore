@@ -11,4 +11,4 @@ code/cnn/data
 data
 
 # Transformer checkpoints are too big.
-code/identification/species/transformer/src/transformer_checkpoint.pth
+code/transformer/transformer_checkpoint.pth
