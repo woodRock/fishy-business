@@ -4,6 +4,8 @@ from plot import plot_accuracy
 import logging
 
 def train(model, dataloader, criterion, optimizer, device):
+    logger = logging.getLogger(__name__)
+
     model.train()
     running_loss = 0.0
     correct_predictions = 0
@@ -11,7 +13,6 @@ def train(model, dataloader, criterion, optimizer, device):
 
     for inputs, targets in dataloader:
         inputs, targets = inputs.to(device), targets.to(device)
-
         optimizer.zero_grad()
         outputs = model(inputs, inputs, src_mask=None, tgt_mask=None)  # Assuming no masking is needed for now
         loss = criterion(outputs, targets)
@@ -92,12 +93,21 @@ def train_model(model,
 
     return train_losses, train_accuracies, val_losses, val_accuracies
 
-def transfer_learning(model, file_path='transformer_checkpoint.pth', output_dim=2):
-    # Load the state dictionary from the checkpoint.
-    checkpoint = torch.load(file_path)
-    # Modify the 'fc.weight' and 'fc.bias' parameters
-    checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]  # Keep only the first 2 rows
-    checkpoint['fc.bias'] = checkpoint['fc.bias'][:output_dim] # Keep only the first 2 elements
+def transfer_learning(dataset, model, file_path='transformer_checkpoint.pth'):
+    if dataset == "species":
+        # There are 2 classes in the fish species dataset.
+        output_dim = 2
+        checkpoint = torch.load(file_path)
+        checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]  # Keep only the first 2 rows
+        checkpoint['fc.bias'] = checkpoint['fc.bias'][:output_dim] # Keep only the first 2 elements
+        
+    elif dataset == "part":
+        # There are 6 classes in the fish parts dataset.
+        output_dim = 6
+        checkpoint = torch.load(file_path)
+        checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
+        checkpoint['fc.bias'] = torch.zeros(output_dim)
+
     # Load the modified state dictionary into the model.
     model.load_state_dict(checkpoint, strict=False)
 

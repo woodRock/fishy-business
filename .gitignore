@@ -6,3 +6,9 @@ code/cnn/data
 
 # Remove IDE specific configurations.
 .vscode
+
+# The folder containing the dataset.
+data
+
+# Transformer checkpoints are too big.
+code/identification/species/transformer/src/transformer_checkpoint.pth
