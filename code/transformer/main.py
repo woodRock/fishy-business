@@ -17,7 +17,7 @@ if __name__ == "__main__":
                     prog='Transformer',
                     description='A transformer for fish species classification.',
                     epilog='Implemented in pytorch and written in python.')
-    parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint.pth")
+    parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint")
     parser.add_argument('-d', '--dataset', type=str, default="species")
     parser.add_argument('-r', '--run', type=int, default=0)
     parser.add_argument('-o', '--output', type=str, default=f"logs/results")
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     output = f"{args['output']}_{args['run']}.log"
     # Filemode is write, so it clears the file, then appends output.
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
-    file_path = args['file_path']
+    file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
     dataset = args['dataset']
 
     # Preprocessing
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
         # AdamW (Loshchilov 2017)
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-
+       
         # Specify the device (GPU or CPU)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)

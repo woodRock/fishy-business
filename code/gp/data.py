@@ -12,7 +12,7 @@ import matplotlib.ticker as ticker
 def load_dataset(dataset="species"):
     logger = logging.getLogger(__name__)
 
-    path = ['/home','woodj', 'fishy-business', 'data','REIMS_data.xlsx']
+    path = ['~/Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)
 
     # Load the dataset
