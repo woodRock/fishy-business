@@ -156,7 +156,7 @@ def interclass_distance(_X,_y):
     d = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * _X.shape[1])
     return d
 
-def wrapper_classification_accuracy(X=None, y=None, k=3, verbose=False):
+def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
     """ Evaluate balanced classification accuracy over stratified k-fold cross validation.
 
     This method is our fitness measure for an individual. We measure each individual
@@ -182,7 +182,7 @@ def wrapper_classification_accuracy(X=None, y=None, k=3, verbose=False):
     test_accs = []
 
     # Reserve a test set that is not touched by the training algorithm.
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=42)
 
     # Stratified k-fold validation.
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
