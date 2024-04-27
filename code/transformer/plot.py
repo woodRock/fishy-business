@@ -35,6 +35,10 @@ def plot_attention_map(name, attention_weights, y_axis, x_axis):
     logger.info(f"Saving attention map to: {file_path}")
     # Show the plot (enable for interactive)
     # plt.show()
+    # Too many open figures
+    # Source: https://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
+    plt.clf()
+    plt.close()
 
 def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
     """ Plot the accuracy and loss curve for the training process.
@@ -65,6 +69,11 @@ def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
     logger.info(f"Saving attention map to: {file_path}")
     # Show the plot (enable for interactive)
     # plt.show()
+    # Too many open figures
+    # Source: https://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
+    plt.clf()
+    plt.close()
+    
 
 def plot_confusion_matrix(dataset, name, actual, predicted):
     """ Plots a confusion matrix for a dataset.
@@ -90,3 +99,7 @@ def plot_confusion_matrix(dataset, name, actual, predicted):
     file_path = f"figures/{name}_confusion_matrix.png"
     logger.info(f"Saving cofusion matrix map to: {file_path}")
     plt.savefig(file_path)
+    # Too many open figures
+    # Source: https://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
+    plt.clf()
+    plt.close()
