@@ -28,6 +28,7 @@ if __name__ == "__main__":
                     epilog='Implemented in deap and written in python.')
     parser.add_argument('-f', '--file-path', type=str, default="checkpoints/embedded-gp.pth")
     parser.add_argument('-d', '--dataset', type=str, default="species")
+    parser.add_argument('-l', '--load', type=bool, default=False)
     parser.add_argument('-r', '--run', type=int, default=0)
     parser.add_argument('-o', '--output', type=str, default=f"logs/results")
     parser.add_argument('-p', '--population', type=int, default=100)
@@ -65,7 +66,7 @@ if __name__ == "__main__":
 
     assert crossover_rate + mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
 
-    X,y = load_dataset()
+    X,y = load_dataset(dataset=dataset)
     
     n_features = 1023
     n_classes = 2
@@ -126,7 +127,7 @@ if __name__ == "__main__":
     pop, log, hof = None, None, None
 
     # If a saved model exists?
-    if os.path.isfile(file_path):
+    if args['load'] and os.path.isfile(file_path):
         s = f"Loading model from file: {file_path}"
         logger.info(s)
         print(s)

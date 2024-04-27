@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-def load_dataset():
+def load_dataset(dataset="species"):
     logger = logging.getLogger(__name__)
 
     path = ['/home','woodj', 'fishy-business', 'data','REIMS_data.xlsx']
@@ -18,15 +18,26 @@ def load_dataset():
     # Load the dataset
     data = pd.read_excel(path)
 
-    logger.info("[INFO] Reading the dataset.")
+    logger.info(f"Reading dataset fish: {dataset}")
     raw = pd.read_excel(path)
 
     data = raw[~raw['m/z'].str.contains('HM')]
     data = data[~data['m/z'].str.contains('QC')]
     data = data[~data['m/z'].str.contains('HM')]
     X = data.drop('m/z', axis=1) # X contains only the features.
-    # Binary encodings for class labels (1 for Hoki, 0 for Mackeral)
-    y = data['m/z'].apply(lambda x: 1 if 'H' in x else 0)
+    y = [] 
+    if dataset == "species":
+        # Binary encodings for class labels (1 for Hoki, 0 for Mackeral)
+        y = data['m/z'].apply(lambda x: 1 if 'H' in x else 0)
+    elif dataset == "part":
+        y = data['m/z'].apply(lambda x:
+                          0 if 'Fillet' in x
+                    else  1 if 'Heads' in x
+                    else (2 if 'Livers' in x
+                    else (3 if 'Skins' in x
+                    else (4 if 'Guts' in x
+                    else (5 if 'Frames' in x
+                    else None )))))  # For fish parts
     y = np.array(y)
 
     xs = []

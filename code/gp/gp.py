@@ -75,11 +75,6 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
         if verbose:
             logger.info(logbook.stream)
 
-        # Save the model every 10 epochs.
-        if gen % 10 == 0:
-            # Save model
-            save_model()
-
     return population, logbook
 
 
