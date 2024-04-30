@@ -107,7 +107,9 @@ class InterpreterWithInputBatch:
         accuracies = [] 
         metric = MulticlassAccuracy()
         for out in output:
-            metric.update(out, desired_output_batch)
+            prediction = torch.argmax(out, keepdim=True)
+            actual = torch.argmax(desired_output_batch, keepdim=True)
+            metric.update(prediction, actual)
             acc = metric.compute()
             accuracies.append(acc)
         accuracies = torch.as_tensor(accuracies, dtype=torch.float32)

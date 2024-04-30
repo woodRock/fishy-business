@@ -1,5 +1,0 @@
-INFO:data:Reading dataset fish: part
-INFO:data:Class Counts: [6 6 3 6 6 3], Class Ratios: [0.2 0.2 0.1 0.2 0.2 0.1]
-INFO:data:Number of features: 1023
-Number of instances: 30
-Number of classes 6.
