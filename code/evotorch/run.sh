@@ -7,7 +7,7 @@
 DATASET="part"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp";
+NAME="tmp_02";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -22,7 +22,7 @@ ts -S 3
 for i in {1..10}; 
 do 
     # Run the experiments using the ts command.
-    ts -G 1 python3 main.py \
+    ts -G 3 python3 main.py \
 	    --dataset "${DATASET}" \
 	    --file-path "checkpoints/run_${i}.pth" \
 	    --output "logs/${DATASET}/${NAME}/run" --run $i \
