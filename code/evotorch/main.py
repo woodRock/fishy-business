@@ -31,10 +31,12 @@ if __name__ == "__main__":
     generations = args['generations']
     crossover_rate = args['crossover_rate']
     mutation_rate = args['mutation_rate']
+    dataset = args['dataset']
     
     gp = GeneticProgram(
                         population=population, 
                         generations=generations, 
                         crossover_rate=crossover_rate,
-                        mutation_rate=mutation_rate)
+                        mutation_rate=mutation_rate,
+                        dataset=dataset)
     gp()

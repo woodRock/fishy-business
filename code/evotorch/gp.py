@@ -33,8 +33,8 @@ def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tens
 class GeneticProgram():
 
     def __init__(self, 
-                population=234, 
-                generations=50, 
+                population=1023, 
+                generations=100, 
                 dataset="species",
                 crossover_rate=0.8,
                 mutation_rate=0.2,
@@ -56,6 +56,13 @@ class GeneticProgram():
         self.X, self.y = load_dataset(dataset)
 
     def __call__(self):
+        """
+        Run the Genetic Program.
+
+        This code executes the genetic program to solve the problem.
+        The dataset can be specified as fish "species" or "part".
+        The program returns the best invidiual, and the instruction set for reference.
+        """
         logger = logging.getLogger(__name__)
 
         inputs = self.X
