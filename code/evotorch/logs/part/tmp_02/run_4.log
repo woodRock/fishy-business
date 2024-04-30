@@ -1,0 +1,29 @@
+INFO:data:Reading dataset fish: part
+INFO:data:Class Counts: [6 6 3 6 6 3], Class Ratios: [0.2 0.2 0.1 0.2 0.2 0.1]
+INFO:data:Number of features: 1023
+Number of instances: 30
+Number of classes 6.
+DEBUG:filelock:Attempting to acquire lock 140496616405168 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/node_ip_address.json.lock
+DEBUG:filelock:Lock 140496616405168 acquired on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/node_ip_address.json.lock
+DEBUG:filelock:Attempting to release lock 140496616405168 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/node_ip_address.json.lock
+DEBUG:filelock:Lock 140496616405168 released on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/node_ip_address.json.lock
+DEBUG:filelock:Attempting to acquire lock 140496616405696 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616405696 acquired on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to release lock 140496616405696 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616405696 released on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to acquire lock 140496616405168 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616405168 acquired on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to release lock 140496616405168 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616405168 released on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to acquire lock 140496616406512 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616406512 acquired on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to release lock 140496616406512 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616406512 released on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to acquire lock 140496616405168 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616405168 acquired on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to release lock 140496616405168 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616405168 released on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to acquire lock 140496616406512 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616406512 acquired on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Attempting to release lock 140496616406512 on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock
+DEBUG:filelock:Lock 140496616406512 released on /tmp/ray/session_2024-04-30_22-14-03_819236_3395002/ports_by_node.json.lock

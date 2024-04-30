@@ -38,8 +38,9 @@ class GeneticProgram():
                 dataset="species",
                 crossover_rate=0.8,
                 mutation_rate=0.2,
-                elitism = True,
-                num_actors = 3,
+                elitism=True,
+                num_actors=1,
+                num_gpus_per_actor=1
                 ) -> None:
         """ Genetic Program implemented in EvoTorch.
         
@@ -58,6 +59,7 @@ class GeneticProgram():
         self.mutation_rate = mutation_rate
         self.elitism = elitism
         self.num_actors = num_actors
+        self.num_gpus_per_actor = num_gpus_per_actor
         self.dataset = dataset
         self.X, self.y = load_dataset(dataset)
 
@@ -77,7 +79,9 @@ class GeneticProgram():
         inputs = torch.as_tensor(inputs, dtype=torch.float32)
         outputs = torch.as_tensor(outputs, dtype=torch.float32)
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if (torch.cuda.is_available() and self.num_actors == 1) else "cpu")
+        # Ray communicates between actors on the CPU, it is recommended that when you have num_actors > 1
+        # source: https://docs.evotorch.ai/v0.5.1/user_guide/problems/
         # device = "cpu"
     
         program_length = 2
@@ -85,6 +89,8 @@ class GeneticProgram():
             program_length = 2 
         elif self.dataset == "part":
             program_length = 6
+        else:
+            raise ValueError(f"Incorrect dataset specification: {self.dataset}")
 
         self.problem = ProgramSynthesisProblem(
             inputs=inputs,
@@ -93,7 +99,8 @@ class GeneticProgram():
             binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
             program_length=program_length,
             device=device,
-            num_actors=self.num_actors
+            num_actors=self.num_actors,
+            num_gpus_per_actor=self.num_gpus_per_actor,
         )
 
         ga = GeneticAlgorithm(
