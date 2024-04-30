@@ -2,13 +2,11 @@
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import datasets
 from sklearn.manifold import TSNE
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA
 import seaborn as sns
 import pandas as pd
-from deap import base, creator, gp
+from deap import gp
 import pygraphviz as pgv
 
 

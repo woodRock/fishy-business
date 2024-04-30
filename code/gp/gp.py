@@ -1,14 +1,11 @@
 import logging
 import pickle
-import os
 import random
 import numpy as np
 from tqdm import tqdm 
-from deap import base, creator, tools, gp
+from deap import tools
 from deap import algorithms
-from deap.algorithms import varAnd
-from deap import base, creator, tools, gp
-from deap.gp import PrimitiveTree, Primitive, Terminal
+from deap import tools
 
 def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
              halloffame=None, verbose=__debug__):

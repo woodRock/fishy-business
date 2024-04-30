@@ -4,10 +4,10 @@
 #
 # The task spooler (ts) command allows for parallel execution of python scripts.
  
-# DATASET="part"; 
-DATASET="species";
+DATASET="part"; 
+# DATASET="species";
 # Directory to save results to.
-NAME="tmp";
+NAME="tmp_01";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -26,5 +26,5 @@ do
 	    --dataset "${DATASET}" \
 	    --file-path "checkpoints/run_${i}.pth" \
 	    --output "logs/${DATASET}/${NAME}/run" --run $i \
-	    --generations 200 --population 1023;
+	    --generations 400 --beta 3;
 done
