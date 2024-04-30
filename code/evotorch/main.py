@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--generations', type=int, default=10)
     parser.add_argument('-mx', '--mutation-rate', type=float, default=0.2)
     parser.add_argument('-cx', '--crossover-rate', type=int, default=0.8)
-    parser.add_argument('-e', '--elitism', type=int, default=0.1)
+    parser.add_argument('-e', '--elitism', type=bool, default=True)
     args = vars(parser.parse_args())
     logger = logging.getLogger(__name__)
     output = f"{args['output']}_{args['run']}.log"
@@ -31,6 +31,7 @@ if __name__ == "__main__":
     generations = args['generations']
     crossover_rate = args['crossover_rate']
     mutation_rate = args['mutation_rate']
+    elitism = args['elitism']
     dataset = args['dataset']
     
     gp = GeneticProgram(
@@ -38,5 +39,6 @@ if __name__ == "__main__":
                         generations=generations, 
                         crossover_rate=crossover_rate,
                         mutation_rate=mutation_rate,
+                        elitism=elitism,
                         dataset=dataset)
     gp()

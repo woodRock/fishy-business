@@ -38,6 +38,8 @@ class GeneticProgram():
                 dataset="species",
                 crossover_rate=0.8,
                 mutation_rate=0.2,
+                elitism = True,
+                num_actors = 3,
                 ) -> None:
         """ Genetic Program implemented in EvoTorch.
         
@@ -47,11 +49,15 @@ class GeneticProgram():
             dataset (str): Fish "species" or "part". Defaults "species".
             crossover_rate (float): the probability of crossover. Defaults to 0.8
             mutation_rate (float): the probability of mutation. Defaults to 0.2
+            elitism (bool): Keep best individuals from each generation. defaults to True.
+            num_actors (int): Number of GPUs to run on. Defaults to 3 GPUs.
         """
         self.population = population
         self.generations = generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
+        self.elitism = elitism
+        self.num_actors = num_actors
         self.dataset = dataset
         self.X, self.y = load_dataset(dataset)
 
@@ -72,6 +78,7 @@ class GeneticProgram():
         outputs = torch.as_tensor(outputs, dtype=torch.float32)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # device = "cpu"
     
         program_length = 2
         if self.dataset == "species":
@@ -86,6 +93,7 @@ class GeneticProgram():
             binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
             program_length=program_length,
             device=device,
+            num_actors=self.num_actors
         )
 
         ga = GeneticAlgorithm(
@@ -98,6 +106,7 @@ class GeneticProgram():
                     partial(mutate_programs, self.problem, self.mutation_rate)],
             re_evaluate=False,
             popsize=self.population,
+            elitist=self.elitism
         )
 
         StdOutLogger(ga)
