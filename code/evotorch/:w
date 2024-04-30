@@ -25,8 +25,8 @@ class ProgramSynthesisProblem(Problem):
         self._program_length = int(program_length)        
         self._inputs = torch.as_tensor(inputs, dtype=torch.float32, device=device)
         self._outputs = torch.as_tensor(outputs, dtype=torch.float32, device=device)
-        self._input_batch_size, self._input_size = self._inputs.shape
-        [output_batch_size] = self._outputs.shape
+        self._input_batch_size, self._input, size = self._input.shape
+        [output_batch_size] = self._output.shape
         assert output_batch_size == self._input_batch_size
     
         self._unary_ops = list(unary_ops)
@@ -58,7 +58,7 @@ class ProgramSynthesisProblem(Problem):
                 unary_ops=self._unary_ops,
                 binary_ops=self._binary_ops,
                 pass_means_terminate=self._pass_means_terminate,
-                device=self._inputs.device,
+                device=self._input.device,
             )
         return self._interpreter
 
@@ -76,7 +76,8 @@ class ProgramSynthesisProblem(Problem):
         else:
             programs = batch.values
 
-        batch.set_evals(interpreter.compute_balanced_accuracy(programs, self._inputs, self._outputs)[:num_programs])
+        # Run the problem over the training, validation, and test datasets.
+        batch.set_evals(interpreter.compute_balanced_accuracy(programs, self_inputs, self._outputs)[:num_programs])
 
     @property
     def instructions(self) -> list:
