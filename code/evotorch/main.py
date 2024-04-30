@@ -35,7 +35,7 @@ if __name__ == "__main__":
     dataset = args['dataset']
     
     gp = GeneticProgram(
-                        population=population, 
+                        population_size=population, 
                         generations=generations, 
                         crossover_rate=crossover_rate,
                         mutation_rate=mutation_rate,

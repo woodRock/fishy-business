@@ -36,7 +36,7 @@ def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tens
 class GeneticProgram():
 
     def __init__(self, 
-                population=1023, 
+                population_size=1023, 
                 generations=100, 
                 dataset="species",
                 crossover_rate=0.8,
@@ -49,7 +49,7 @@ class GeneticProgram():
         """ Genetic Program implemented in EvoTorch.
         
         Args: 
-            population (int): the population size.
+            population_size (int): the population size.
             generations (int): the number of generations to train for.
             dataset (str): Fish "species" or "part". Defaults "species".
             crossover_rate (float): the probability of crossover. Defaults to 0.8
@@ -58,7 +58,7 @@ class GeneticProgram():
             num_actors (int): Number of GPUs to run on. Defaults to 3 GPUs.
             num_gpus_per_actor (float): the number of GPUs per actor.
         """
-        self.population = population
+        self.population_size = population_size
         self.generations = generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
@@ -120,9 +120,9 @@ class GeneticProgram():
                         cross_over_rate=self.crossover_rate), 
                     partial(mutate_programs, self.problem, self.mutation_rate)],
             re_evaluate=False,
-            popsize=self.population,
+            popsize=self.population_size,
             elitist=self.elitism
-            )
+        )
 
         StdOutLogger(ga)
         pandas_logger = PandasLogger(ga)
@@ -131,6 +131,7 @@ class GeneticProgram():
         progress = pandas_logger.to_dataframe()
         progress.mean_eval.plot()
         plt.savefig(self.file_path)
+
         # Evaluate on the validation set.
         self.problem = ProgramSynthesisProblem(
             inputs=X_val,
@@ -142,8 +143,9 @@ class GeneticProgram():
             num_actors=self.num_actors,
             num_gpus_per_actor=self.num_gpus_per_actor,
         )
-        ga.run(1)
-
+        self.problem.evaluate(ga.population)
+        val_eval = self.problem.status
+        print(f"val_eval: {val_eval}")
         # Evaluate on the test set.
         self.problem = ProgramSynthesisProblem(
             inputs=X_test,
@@ -155,8 +157,9 @@ class GeneticProgram():
             num_actors=self.num_actors,
             num_gpus_per_actor=self.num_gpus_per_actor,
         ) 
-        ga.run(1)
-
+        self.problem.evaluate(ga.population)
+        test_eval = self.problem.status
+        print(f"test_eval: {test_eval}")
         # Take the best solution and record it to a logging file.
         best_solution = ga.status["best"]
         logger.info("Below is the best solution encountered so far")
