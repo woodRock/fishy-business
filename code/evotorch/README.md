@@ -4,6 +4,8 @@ This example is based off of the example on the EvoTorch documentation for Genet
 
 This code has been modified from a regression to a multi-class classification problem. With the loss function being swapped from Mean Squared Error to Categorical Cross Entropy.
 
+The code runs on 3 GPUs, with problem parallelization enabled out of the box, for simulatanous evaluation of the population on multiple GPUs. See here for more: https://docs.evotorch.ai/v0.5.1/user_guide/problem_parallelization/?h=par
+
 ## Evaluation
 
 We can evaluate execution speed using the following command:
