@@ -10,6 +10,17 @@ from data import load_dataset
 from problem import ProgramSynthesisProblem
 
 def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tensor) -> torch.Tensor:
+    """
+    Perform the mutation operator on the population of programs.
+
+    Args:
+        problem (Problem): the problem contains the instruction list.
+        mutation_rate (float): the probability for mutation to occur.
+        programs (torch.Tensor): a list of programs in the population.
+
+    Returns
+        result (torch.Tensor): the mutated population is given.
+    """
     num_instructions = len(problem.instructions)
     mutate = torch.rand(programs.shape, device=programs.device) < mutation_rate
     num_mutations = int(torch.count_nonzero(mutate))
@@ -17,12 +28,6 @@ def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tens
     mutated = torch.randint(0, num_instructions, (num_mutations,), device=programs.device)
     result[mutate] = mutated
     return result
-
-
-def target_function(inputs: torch.Tensor) -> torch.Tensor:
-    x = inputs[:, 0]
-    y = inputs[:, 1]
-    return AdditionalTorchFunctions.binary_div(x + y, torch.cos(x)) + torch.sin(y)
 
 
 class GeneticProgram():
@@ -91,9 +96,11 @@ class GeneticProgram():
         StdOutLogger(ga)
         ga.run(self.generations)
 
+        # Take the best solution and record it to a logging file.
         best_solution = ga.status["best"]
+        logger.info("Below is the best solution encountered so far")
         logger.info(f"best solution: {best_solution}")
-
+        logger.info("This Genetic Program is for the following problem:")
         logger.info(f"self.problem:  {self.problem}")
-
+        logger.info("The program reported above can be analyzed with the help of this instruction set:")
         logger.info(f"problem.instruction_dict: {self.problem.instruction_dict}")
