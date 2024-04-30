@@ -132,34 +132,32 @@ class GeneticProgram():
         progress.mean_eval.plot()
         plt.savefig(self.file_path)
 
-        # Evaluate on the validation set.
-        self.problem = ProgramSynthesisProblem(
-            inputs=X_val,
-            outputs=y_val,
-            unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
-            binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
-            program_length=program_length,
-            device=device,
-            num_actors=self.num_actors,
-            num_gpus_per_actor=self.num_gpus_per_actor,
-        )
-        self.problem.evaluate(ga.population)
-        val_eval = self.problem.status
-        print(f"val_eval: {val_eval}")
-        # Evaluate on the test set.
-        self.problem = ProgramSynthesisProblem(
-            inputs=X_test,
-            outputs=y_test,
-            unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
-            binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
-            program_length=program_length,
-            device=device,
-            num_actors=self.num_actors,
-            num_gpus_per_actor=self.num_gpus_per_actor,
-        ) 
-        self.problem.evaluate(ga.population)
-        test_eval = self.problem.status
-        print(f"test_eval: {test_eval}")
+        with torch.no_grad():
+            # Evaluate on the validation set.
+            self.problem = ProgramSynthesisProblem(
+                inputs=X_val,
+                outputs=y_val,
+                unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
+                binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
+                program_length=program_length,
+                device=device,
+            )
+            self.problem.evaluate(ga.population)
+            val_eval = ga.status
+            print(f"val_eval: {val_eval}")
+            # Evaluate on the test set.
+            self.problem = ProgramSynthesisProblem(
+                inputs=X_test,
+                outputs=y_test,
+                unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
+                binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
+                program_length=program_length,
+                device=device
+            ) 
+            self.problem.evaluate(ga.population)
+            test_eval = ga.status
+            print(f"test_eval: {test_eval}")
+        
         # Take the best solution and record it to a logging file.
         best_solution = ga.status["best"]
         logger.info("Below is the best solution encountered so far")
