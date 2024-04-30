@@ -1,11 +1,12 @@
 import logging
+import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import random_split
 from torcheval.metrics import MulticlassAccuracy
 from operators import AdditionalTorchFunctions
 from evotorch.operators import TwoPointCrossOver
 from evotorch.algorithms import GeneticAlgorithm
-from evotorch.logging import StdOutLogger
+from evotorch.logging import StdOutLogger, PandasLogger
 from evotorch import Problem
 from functools import partial
 from data import load_dataset
@@ -42,7 +43,8 @@ class GeneticProgram():
                 mutation_rate=0.2,
                 elitism=True,
                 num_actors=1,
-                num_gpus_per_actor=1
+                num_gpus_per_actor=1,
+                file_path = "figures/evolutionary_process.png",
                 ) -> None:
         """ Genetic Program implemented in EvoTorch.
         
@@ -65,6 +67,7 @@ class GeneticProgram():
         self.num_gpus_per_actor = num_gpus_per_actor
         self.dataset = dataset
         self.X, self.y = load_dataset(dataset)
+        self.file_path = file_path
 
     def __call__(self):
         """
@@ -122,8 +125,13 @@ class GeneticProgram():
             )
 
         StdOutLogger(ga)
+        pandas_logger = PandasLogger(ga)
         ga.run(self.generations)
 
+        progress = pandas_logger.to_dataframe()
+        progress.mean_eval.plot()
+        plt.savefig(self.file_path)
+        # Evaluate on the validation set.
         self.problem = ProgramSynthesisProblem(
             inputs=X_val,
             outputs=y_val,
@@ -134,12 +142,12 @@ class GeneticProgram():
             num_actors=self.num_actors,
             num_gpus_per_actor=self.num_gpus_per_actor,
         )
-
         ga.run(1)
 
+        # Evaluate on the test set.
         self.problem = ProgramSynthesisProblem(
-            inputs=X_val,
-            outputs=y_val,
+            inputs=X_test,
+            outputs=y_test,
             unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
             binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
             program_length=program_length,
@@ -147,7 +155,6 @@ class GeneticProgram():
             num_actors=self.num_actors,
             num_gpus_per_actor=self.num_gpus_per_actor,
         ) 
-
         ga.run(1)
 
         # Take the best solution and record it to a logging file.
