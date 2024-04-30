@@ -1,6 +1,5 @@
 import logging
 import numpy as np
-import math
 from deap import gp
 from deap.gp import PrimitiveTree, Primitive, Terminal
 from sklearn.model_selection import StratifiedKFold, train_test_split
@@ -122,7 +121,7 @@ def euclidian_distance(a,b):
     dist = np.linalg.norm(a-b)
     return dist
 
-def intraclass_distance(_X,_y):
+def intraclass_distance(X,y):
     """
     Return the intra-class distance for a dataset.
     The average distance between all pairs of instances that are from the same class.
@@ -134,12 +133,13 @@ def intraclass_distance(_X,_y):
     Returns:
         Intra-class distance for a dataset.
     """
-    data = list(zip(_X, _y))
+    data = list(zip(X, y))
     pair_length = sum([1 if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
-    d = sum([euclidian_distance(a,b) if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * _X.shape[1])
+    pair_length = max(1, pair_length)
+    d = sum([euclidian_distance(a,b) if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
     return d
 
-def interclass_distance(_X,_y):
+def interclass_distance(X,y):
     """
     Return the inter-class distance for a dataset.
     The average distance between all pairs of instances that are from different classes.
@@ -151,9 +151,10 @@ def interclass_distance(_X,_y):
     Returns:
         Inter-class distance for a dataset.
     """
-    data = list(zip(_X, _y))
+    data = list(zip(X, y))
     pair_length = sum([1 if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
-    d = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * _X.shape[1])
+    pair_length = max(1, pair_length)
+    d = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
     return d
 
 def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
@@ -237,7 +238,7 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
 
         logger.info(f"Train intra-class: {train_intraclass_distance}, Train Inter-class: {train_interclass_distance}")
         logger.info(f"Val intra-class: {val_intraclass_distance}, Val Inter-class: {val_interclass_distance}")
-        logger.info(f"Test inter-class: {test_intrarclass_distance}, Test inter-class: {test_interclass_distance}")
+        logger.info(f"Test intra-class: {test_intrarclass_distance}, Test inter-class: {test_interclass_distance}")
 
     # Alpha balances the inter-class/intra-class distance.
     alpha = 0.5

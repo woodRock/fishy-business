@@ -18,7 +18,10 @@ from util import quick_evaluate, compileMultiTree, wrapper_classification_accura
 from operators import xmate, xmut, staticLimit
 from gp import SimpleGPWithElitism, train, save_model, load_model
 from data import load_dataset
-
+# Disable the warnings.
+# Source: https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
+import warnings
+warnings.filterwarnings("ignore")
 
 if __name__ == "__main__":
     # Handle the command line arguments for the script.
@@ -57,8 +60,8 @@ if __name__ == "__main__":
     
     # Hyperparameters
     beta = args['beta'] # @param {type: "integer"}
-    # population = n_features * beta
-    population = args['population']
+    population = n_features * beta
+    # population = args['population']
     generations = args['generations'] # @param {type: "integer"}
     elitism = args['elitism'] # @param {type: "number"}
     crossover_rate = args['crossover_rate'] # @param {type: "number"}
@@ -137,7 +140,7 @@ if __name__ == "__main__":
         logger.info(s)
         print(s)
         pop, log, hof = train(generations=generations, population=population, elitism=elitism, 
-                                crossover_rate=crossover_rate, mutation_rate=mutation_rate, toolbox=toolbox)
+                                crossover_rate=crossover_rate, mutation_rate=mutation_rate, run=run, toolbox=toolbox)
 
     logger.info(f"Saving model to file: {file_path}")
     save_model(file_path=file_path, population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run) # Best accuracy: 0.911423
