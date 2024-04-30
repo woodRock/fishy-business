@@ -124,6 +124,32 @@ class GeneticProgram():
         StdOutLogger(ga)
         ga.run(self.generations)
 
+        self.problem = ProgramSynthesisProblem(
+            inputs=X_val,
+            outputs=y_val,
+            unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
+            binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
+            program_length=program_length,
+            device=device,
+            num_actors=self.num_actors,
+            num_gpus_per_actor=self.num_gpus_per_actor,
+        )
+
+        ga.run(1)
+
+        self.problem = ProgramSynthesisProblem(
+            inputs=X_val,
+            outputs=y_val,
+            unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
+            binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
+            program_length=program_length,
+            device=device,
+            num_actors=self.num_actors,
+            num_gpus_per_actor=self.num_gpus_per_actor,
+        ) 
+
+        ga.run(1)
+
         # Take the best solution and record it to a logging file.
         best_solution = ga.status["best"]
         logger.info("Below is the best solution encountered so far")
