@@ -4,10 +4,10 @@
 #
 # The task spooler (ts) command allows for parallel execution of python scripts.
  
-DATASET="part"; 
-# DATASET="species";
+# DATASET="part"; 
+DATASET="species";
 # Directory to save results to.
-NAME="tmp_03";
+NAME="tmp_02";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
