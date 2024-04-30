@@ -1,5 +1,7 @@
 import logging
 import torch
+from torch.utils.data import random_split
+from torcheval.metrics import MulticlassAccuracy
 from operators import AdditionalTorchFunctions
 from evotorch.operators import TwoPointCrossOver
 from evotorch.algorithms import GeneticAlgorithm
@@ -52,6 +54,7 @@ class GeneticProgram():
             mutation_rate (float): the probability of mutation. Defaults to 0.2
             elitism (bool): Keep best individuals from each generation. defaults to True.
             num_actors (int): Number of GPUs to run on. Defaults to 3 GPUs.
+            num_gpus_per_actor (float): the number of GPUs per actor.
         """
         self.population = population
         self.generations = generations
@@ -73,11 +76,45 @@ class GeneticProgram():
         """
         logger = logging.getLogger(__name__)
 
-        inputs = self.X
-        outputs = self.y
+        # Optionally fix the generator for reproducible results
+        generator = torch.Generator().manual_seed(42)
+        X_train, X_val, X_test = random_split(self.X, [0.4, 0.3, 0.3], generator=generator)
+        y_train, y_val, y_test = random_split(self.y, [0.4, 0.3, 0.3], generator=generator)
+        
+        X_train = torch.as_tensor(X_train, dtype=torch.float32)
+        y_train = torch.as_tensor(y_train, dtype=torch.float32)
 
-        inputs = torch.as_tensor(inputs, dtype=torch.float32)
-        outputs = torch.as_tensor(outputs, dtype=torch.float32)
+        X_val = torch.as_tensor(X_val, dtype=torch.float32)
+        y_val = torch.as_tensor(y_val, dtype=torch.float32)
+
+        X_test = torch.as_tensor(X_test, dtype=torch.float32)
+        y_test = torch.as_tensor(y_test, dtype=torch.float32)
+
+
+
+        target_size = len(X_train)
+
+        # Define a function to pad a dataset
+        def pad_dataset(dataset, target_size):
+            padded_data = []
+            for data in dataset:
+                # Pad each data point to match the target size
+                padded_data.append(pad_data(data, target_size))
+            return padded_data
+
+        # Define a function to pad a single data point
+        def pad_data(data, target_size):
+            # Assuming data is a tensor or a list of tensors
+            pad_width = (0, target_size - data.shape[0])  # Pad only along the first dimension
+            padded_data = torch.nn.functional.pad(data, pad_width)
+            return padded_data
+        
+        # Pad the validation dataset
+        X_val = pad_dataset(X_val, target_size)
+        y_val = pad_dataset(y_val, target_size)
+        # Pad the test dataset
+        X_test = pad_dataset(X_test, target_size)
+        y_test = pad_dataset(y_test, target_size)
 
         device = torch.device("cuda" if (torch.cuda.is_available() and self.num_actors == 1) else "cpu")
         # Ray communicates between actors on the CPU, it is recommended that when you have num_actors > 1
@@ -93,10 +130,17 @@ class GeneticProgram():
             raise ValueError(f"Incorrect dataset specification: {self.dataset}")
 
         self.problem = ProgramSynthesisProblem(
-            inputs=inputs,
-            outputs=outputs,
+            X_train=X_train,
+            y_train=y_train,
+            X_val=X_val,
+            y_val=y_val,
+            X_test=X_test,
+            y_test=y_test,
             unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
             binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
+            # Simplify the genetic algorithm.
+            # unary_ops=[torch.neg],
+            # binary_ops=[torch.add, torch.sub, torch.mul],
             program_length=program_length,
             device=device,
             num_actors=self.num_actors,
@@ -114,7 +158,7 @@ class GeneticProgram():
             re_evaluate=False,
             popsize=self.population,
             elitist=self.elitism
-        )
+            )
 
         StdOutLogger(ga)
         ga.run(self.generations)
@@ -127,3 +171,20 @@ class GeneticProgram():
         logger.info(f"self.problem:  {self.problem}")
         logger.info("The program reported above can be analyzed with the help of this instruction set:")
         logger.info(f"problem.instruction_dict: {self.problem.instruction_dict}")
+
+        best_solution
+        # with torch.no_grad():
+            # metric = MulticlassAccuracy()
+            # accuracies = []
+            # for data, target in zip(X_val, y_val):
+                # pred = best_solution.evaluate(data)
+                # pred = torch.argmax(pred, keepdim=True)
+                # actual = torch.argmax(target, keepdim=True)
+                # metric(pred, actual)
+                # acc = metric.compute()
+                # accuracies.append(acc)
+            # accuracies = torch.as_tensor(accuracies.mean(), dtype=torch.float32)
+            # logger.info(f"Validation accuracy: {accuracies}")
+
+            
+                
