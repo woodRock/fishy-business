@@ -104,8 +104,8 @@ class InterpreterWithInputBatch:
             accuracies (torch.tensor): the balanced classification accuracy for a population of genetic programs.
         """
         output = self.run(program_batch, input_batch)
+        accuracies = [] 
         metric = MulticlassAccuracy()
-        accuracies = []
         for out in output:
             metric.update(out, desired_output_batch)
             acc = metric.compute()
