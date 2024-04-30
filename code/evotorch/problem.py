@@ -15,6 +15,7 @@ class ProgramSynthesisProblem(Problem):
         pass_means_terminate: bool = True,
         device: Optional[Union[str, torch.device]] = None,
         num_actors: Optional[Union[str, int]] = None,
+        num_gpus_per_actor: Optional[Union[str,int]] = None,    
     ):
         if device is None:
             device = torch.device("cpu")
@@ -37,12 +38,13 @@ class ProgramSynthesisProblem(Problem):
         num_instructions = len(self._get_interpreter(1).instructions)
 
         super().__init__(
-            objective_sense="min",
+            objective_sense="max",
             solution_length=self._program_length,
             dtype=torch.int64,
             bounds=(0, num_instructions - 1),
             device=device,
-            #num_actors=num_actors,
+            num_actors=num_actors,
+            num_gpus_per_actor=num_gpus_per_actor,
             store_solution_stats=True,
         )
 
@@ -74,7 +76,7 @@ class ProgramSynthesisProblem(Problem):
         else:
             programs = batch.values
 
-        batch.set_evals(interpreter.compute_categorical_cross_entropy(programs, self._inputs, self._outputs)[:num_programs])
+        batch.set_evals(interpreter.compute_balanced_accuracy(programs, self._inputs, self._outputs)[:num_programs])
 
     @property
     def instructions(self) -> list:
