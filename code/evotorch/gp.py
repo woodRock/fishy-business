@@ -91,11 +91,21 @@ class GeneticProgram():
         The program returns the best invidiual, and the instruction set for reference.
         """
         logger = logging.getLogger(__name__)
-
+        
+        # For batch evaluation, train, validation and test
+        # must be the same size as eachother.
+        split = []
+        if self.dataset == "species":
+            split = [78,78,78]
+        elif self.dataset == "part": 
+            split = [10,10,10]
+        
         # Optionally fix the generator for reproducible results
-        generator = torch.Generator().manual_seed(42)
-        X_train, X_val, X_test, _ = random_split(self.X, [0.3, 0.3, 0.3, 0.1], generator=generator)
-        y_train, y_val, y_test, _ = random_split(self.y, [0.3, 0.3, 0.3, 0.1], generator=generator)
+        # source: https://pytorch.org/docs/stable/data.html
+        generator1 = torch.Generator().manual_seed(42)
+        generator2 = torch.Generator().manual_seed(42)
+        X_train, X_val, X_test = random_split(self.X, split, generator=generator1)
+        y_train, y_val, y_test = random_split(self.y, split, generator=generator2)
        
         X_train = torch.as_tensor(X_train, dtype=torch.float32)
         y_train = torch.as_tensor(y_train, dtype=torch.float32)
@@ -103,15 +113,15 @@ class GeneticProgram():
         device = torch.device("cuda" if (torch.cuda.is_available() and self.num_actors == 1) else "cpu")
         # Ray communicates between actors on the CPU, it is recommended that when you have num_actors > 1
         # source: https://docs.evotorch.ai/v0.5.1/user_guide/problems/
-        # device = "cpu"
     
-        program_length = 2
-        if self.dataset == "species":
-            program_length = 2 
-        elif self.dataset == "part":
-            program_length = 6
-        else:
-            raise ValueError(f"Incorrect dataset specification: {self.dataset}")
+        # The length of the program in the number of output classes.
+        program_length = 10
+        # if self.dataset == "species":
+        #     program_length = 10
+        # elif self.dataset == "part":
+        #     program_length = 6
+        # else:
+        #     raise ValueError(f"Incorrect dataset specification: {self.dataset}")
 
         self.problem = FishClassificationProblem(
             X_train=X_train,
