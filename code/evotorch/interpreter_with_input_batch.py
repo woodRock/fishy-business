@@ -1,4 +1,3 @@
-import logging
 import torch 
 from torch.nn import CrossEntropyLoss
 from torcheval.metrics import MulticlassAccuracy
@@ -49,7 +48,8 @@ class InterpreterWithInputBatch:
             .reshape(self._program_batch_size, self._input_batch_size)
         )
 
-
+    @vectorized
+    @on_aux_device
     def compute_mean_squared_error(
         self,
         program_batch: torch.Tensor,

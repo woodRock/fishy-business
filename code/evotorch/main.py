@@ -22,7 +22,7 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     logger = logging.getLogger(__name__)
     output = f"{args['output']}_{args['run']}.log"
-    logging.basicConfig(filename=output, level=logging.DEBUG, filemode='w')
+    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     
     n_features = 1023
     beta = args['beta']
