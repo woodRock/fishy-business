@@ -2,7 +2,6 @@ import logging
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import random_split
-from torcheval.metrics import MulticlassAccuracy
 from operators import AdditionalTorchFunctions
 from evotorch.operators import TwoPointCrossOver
 from evotorch.algorithms import GeneticAlgorithm
@@ -10,7 +9,8 @@ from evotorch.logging import StdOutLogger, PandasLogger
 from evotorch import Problem
 from functools import partial
 from data import load_dataset
-from problem import ProgramSynthesisProblem
+from problem import FishClassificationProblem
+
 
 def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tensor) -> torch.Tensor:
     """
@@ -48,6 +48,19 @@ class GeneticProgram():
                 ) -> None:
         """ Genetic Program implemented in EvoTorch.
         
+        Examples:
+
+        ```python
+        gp = GeneticProgram(
+                        population_size=1000, 
+                        generations=50, 
+                        crossover_rate=0.8,
+                        mutation_rate=0.2,
+                        elitism=True,
+                        dataset="species")
+        gp()
+        ```
+        
         Args: 
             population_size (int): the population size.
             generations (int): the number of generations to train for.
@@ -81,9 +94,9 @@ class GeneticProgram():
 
         # Optionally fix the generator for reproducible results
         generator = torch.Generator().manual_seed(42)
-        X_train, X_val, X_test = random_split(self.X, [0.4, 0.3, 0.3], generator=generator)
-        y_train, y_val, y_test = random_split(self.y, [0.4, 0.3, 0.3], generator=generator)
-        
+        X_train, X_val, X_test, _ = random_split(self.X, [0.3, 0.3, 0.3, 0.1], generator=generator)
+        y_train, y_val, y_test, _ = random_split(self.y, [0.3, 0.3, 0.3, 0.1], generator=generator)
+       
         X_train = torch.as_tensor(X_train, dtype=torch.float32)
         y_train = torch.as_tensor(y_train, dtype=torch.float32)
 
@@ -100,9 +113,13 @@ class GeneticProgram():
         else:
             raise ValueError(f"Incorrect dataset specification: {self.dataset}")
 
-        self.problem = ProgramSynthesisProblem(
-            inputs=X_train,
-            outputs=y_train,
+        self.problem = FishClassificationProblem(
+            X_train=X_train,
+            y_train=y_train,
+            X_val=X_val,
+            y_val=y_val,
+            X_test=X_test,
+            y_test=y_test,
             unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
             binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
             program_length=program_length,
@@ -119,44 +136,23 @@ class GeneticProgram():
                         tournament_size=4,
                         cross_over_rate=self.crossover_rate), 
                     partial(mutate_programs, self.problem, self.mutation_rate)],
-            re_evaluate=False,
+            re_evaluate=True,
             popsize=self.population_size,
             elitist=self.elitism
         )
 
+        # [DEBUG] hide for now.
         StdOutLogger(ga)
+        # Pandas logger to help create the evolutionary process graph.
         pandas_logger = PandasLogger(ga)
+
+        # Run the experiment for set generations.
         ga.run(self.generations)
 
+        # Graph the evolutionary process.
         progress = pandas_logger.to_dataframe()
         progress.mean_eval.plot()
         plt.savefig(self.file_path)
-
-        with torch.no_grad():
-            # Evaluate on the validation set.
-            self.problem = ProgramSynthesisProblem(
-                inputs=X_val,
-                outputs=y_val,
-                unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
-                binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
-                program_length=program_length,
-                device=device,
-            )
-            self.problem.evaluate(ga.population)
-            val_eval = ga.status
-            print(f"val_eval: {val_eval}")
-            # Evaluate on the test set.
-            self.problem = ProgramSynthesisProblem(
-                inputs=X_test,
-                outputs=y_test,
-                unary_ops=[torch.neg, torch.sin, torch.cos, AdditionalTorchFunctions.unary_div],
-                binary_ops=[torch.add, torch.sub, torch.mul, AdditionalTorchFunctions.binary_div],
-                program_length=program_length,
-                device=device
-            ) 
-            self.problem.evaluate(ga.population)
-            test_eval = ga.status
-            print(f"test_eval: {test_eval}")
         
         # Take the best solution and record it to a logging file.
         best_solution = ga.status["best"]
@@ -164,5 +160,13 @@ class GeneticProgram():
         logger.info(f"best solution: {best_solution}")
         logger.info("This Genetic Program is for the following problem:")
         logger.info(f"self.problem:  {self.problem}")
+        
+        # Instruction dictionary stores a lookup table for instructions.
         logger.info("The program reported above can be analyzed with the help of this instruction set:")
         logger.info(f"problem.instruction_dict: {self.problem.instruction_dict}")
+
+        # Evaluate the test and training accuracy.
+        with torch.no_grad():
+            self.problem._evaluate_batch(ga.population, verbose=True)
+        
+        
