@@ -89,7 +89,11 @@ if __name__ == "__main__":
         n_classes = 2
     elif dataset == "part":
         n_classes = 6
-
+    elif dataset == "oil":
+        n_classes = 2
+    elif dataset == "cross-species":
+        n_classes = 2
+        
     pset = gp.PrimitiveSet("MAIN", n_features)
     pset.addPrimitive(operator.add, 2)
     pset.addPrimitive(operator.sub, 2)

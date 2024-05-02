@@ -38,6 +38,15 @@ def load_dataset(dataset="species"):
                     else (4 if 'Guts' in x
                     else (5 if 'Frames' in x
                     else None )))))  # For fish parts
+    elif dataset == "oil":
+        # Binary encodings for class labels (1 for Oil, 0 for No Oil)
+        # Oil contaminated samples contain 'MO' in their class label.
+        y = data['m/z'].apply(lambda x: 1 if 'MO' in x else 0)
+    elif dataset == "cross-species":
+        # Binary encodings for class labels (1 for HM, 0 for Not Cross-species)
+        # Cross-species contaminated samples contain 'HM' in their class label.
+        y = data['m/z'].apply(lambda x: 1 if 'HM' in x else 0)
+    
     y = np.array(y)
 
     xs = []
