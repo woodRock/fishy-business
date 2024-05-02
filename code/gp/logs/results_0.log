@@ -4,19 +4,19 @@ INFO:data:Number of features: 1023
 Number of instances: 30
 Number of classes 6.
 INFO:__main__:No model found. Train from scratch.
-INFO:gp:   	      	                         fitness                         	                      size                     
-   	      	---------------------------------------------------------	-----------------------------------------------
-gen	nevals	avg    	gen	max    	min     	nevals	std      	avg	gen	max	min	nevals	std    
-0  	100   	0.23272	0  	0.43872	0.104343	100   	0.0772075	5.7	0  	7  	3  	100   	1.45258
-INFO:gp:1  	78    	0.335022	1  	0.481963	0.148524	78    	0.074234 	5.58	1  	12 	3  	78    	1.6863 
-INFO:gp:2  	78    	0.389143	2  	0.494071	0.162078	78    	0.066661 	6.23	2  	14 	3  	78    	1.81028
-INFO:gp:3  	78    	0.417618	3  	0.55008 	0.183234	78    	0.0682026	6.37	3  	14 	3  	78    	1.63496
-INFO:gp:4  	82    	0.444041	4  	0.561463	0.178522	82    	0.0689473	7   	4  	10 	4  	82    	1.28841
-INFO:gp:5  	78    	0.483587	5  	0.647217	0.291769	78    	0.0641761	6.59	5  	9  	3  	78    	1.46352
+INFO:gp:   	      	                                 fitness                                 	                      size                     
+   	      	-------------------------------------------------------------------------	-----------------------------------------------
+gen	nevals	avg     	gen	max     	min     	nevals	std      	avg   	gen	max	min	nevals	std    
+0  	3069  	0.240225	0  	0.513378	0.102293	3069  	0.0753124	5.6494	0  	7  	3  	3069  	1.61057
+INFO:gp:1  	2310  	0.332788	1  	0.572796	0.107713	2310  	0.0671747	5.78234	1  	13 	3  	2310  	1.71595
+INFO:gp:2  	2308  	0.392148	2  	0.636818	0.124457	2308  	0.0651353	5.70968	2  	14 	3  	2308  	1.85446
+INFO:gp:3  	2294  	0.435424	3  	0.664823	0.125133	2294  	0.0694088	5.76344	3  	14 	3  	2294  	2.02318
+INFO:gp:4  	2299  	0.476036	4  	0.698794	0.165082	2299  	0.0722574	5.8058 	4  	14 	3  	2299  	2.00311
+INFO:gp:5  	2356  	0.518687	5  	0.698794	0.23442 	2356  	0.0700584	5.74845	5  	16 	3  	2356  	2.05637
 INFO:__main__:Saving model to file: checkpoints/embedded-gp.pth
-INFO:util:Train accuracy: 0.6722222222222222 +- 0.022222222222222143
-INFO:util:Val accuracy: 0.6722222222222222 +- 0.022222222222222143
-INFO:util:Test accuracy: 0.6666666666666666 +- 0.0
-INFO:util:Train intra-class: 0.059084394565952325, Train Inter-class: 0.15348042259416741
-INFO:util:Val intra-class: 0.11222205171080302, Val Inter-class: 0.17526798283436162
-INFO:util:Test intra-class: 0.0, Test inter-class: 0.21304859765093664
+INFO:util:Train accuracy: 0.7388888888888888 +- 0.03888888888888886
+INFO:util:Val accuracy: 0.7388888888888888 +- 0.03888888888888886
+INFO:util:Test accuracy: 0.5 +- 0.0
+INFO:util:Train intra-class: 0.08422012451036619, Train Inter-class: 0.16105107849956385
+INFO:util:Val intra-class: 0.1372758347049849, Val Inter-class: 0.18079311490655356
+INFO:util:Test intra-class: 0.0, Test inter-class: 0.20838902666458378

@@ -19,7 +19,7 @@ class FishClassificationProblem(Problem):
         device: Optional[Union[str, torch.device]] = None,
         num_actors: Optional[Union[str, int]] = None,
         num_gpus_per_actor: Optional[Union[str,int]] = None,
-        minimized: bool = True,
+        minimized: bool = False,
     ):
         """
         Fish classification problem.
@@ -128,7 +128,7 @@ class FishClassificationProblem(Problem):
         else:
             programs = batch.values
 
-        batch_evals = interpreter.compute_categorical_cross_entropy(programs, self._X_train, self._y_train)[:num_programs]
+        batch_evals = interpreter.compute_balanced_accuracy(programs, self._X_train, self._y_train)[:num_programs]
         batch.set_evals(batch_evals)
 
         # Display the balanced accuracy for each dataset.
@@ -136,6 +136,7 @@ class FishClassificationProblem(Problem):
         # It is expensive to perform this operation, so only use it once, at the end of training.
         if verbose:
             batch_evals = interpreter.compute_balanced_accuracy(programs, self._X_train, self._y_train)[:num_programs]
+            # print(f"batch_evals: {batch_evals}")
             median, mean, best, worst = torch.median(batch_evals), torch.mean(batch_evals), torch.max(batch_evals), torch.min(batch_evals)
             print(f"\tTraining\n\t\tmedian: {median} \n\t\tmean: {mean:.4f}\n\t\tbest: {best:.4f}\n\t\tworst:{worst:.4f}")
 

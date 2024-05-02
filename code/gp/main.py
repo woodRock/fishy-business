@@ -29,17 +29,28 @@ if __name__ == "__main__":
                     prog='Embedded Genetic Programming',
                     description='An embedded GP for fish species classification.',
                     epilog='Implemented in deap and written in python.')
-    parser.add_argument('-f', '--file-path', type=str, default="checkpoints/embedded-gp.pth")
-    parser.add_argument('-d', '--dataset', type=str, default="species")
-    parser.add_argument('-l', '--load', type=bool, default=False)
-    parser.add_argument('-r', '--run', type=int, default=0)
-    parser.add_argument('-o', '--output', type=str, default=f"logs/results")
-    parser.add_argument('-p', '--population', type=int, default=100)
-    parser.add_argument('-b', '--beta', type=int, default=1)
-    parser.add_argument('-g', '--generations', type=int, default=10)
-    parser.add_argument('-mx', '--mutation-rate', type=float, default=0.2)
-    parser.add_argument('-cx', '--crossover-rate', type=int, default=0.8)
-    parser.add_argument('-e', '--elitism', type=int, default=0.1)
+    parser.add_argument('-f', '--file-path', type=str, default="checkpoints/embedded-gp.pth", 
+                        help="The filepath to store the checkpoints. Defaults to checkpoints/embedded-gp.pth")
+    parser.add_argument('-d', '--dataset', type=str, default="species", 
+                        help="The fish species or part dataset. Defaults to species.")
+    parser.add_argument('-l', '--load', type=bool, default=False,
+                        help="To load a checkpoint from a file. Defaults to false.")
+    parser.add_argument('-r', '--run', type=int, default=0,
+                        help="The number for the run, this effects the random seed. Defaults to 0")
+    parser.add_argument('-o', '--output', type=str, default=f"logs/results",
+                        help="Partial filepath for the output logging.")
+    parser.add_argument('-p', '--population', type=int, default=100,
+                        help="The number of individuals in the population. Defaults to 100.")
+    parser.add_argument('-b', '--beta', type=int, default=-1,
+                        help="Specify beta * num_features as population size. Defaults to -1.")
+    parser.add_argument('-g', '--generations', type=int, default=10,
+                        help="The number of generations, or epochs, to train for. Defaults to 10.")
+    parser.add_argument('-mx', '--mutation-rate', type=float, default=0.2,
+                        help="The probability of a mutation operations occuring. Defaults to 0.2")
+    parser.add_argument('-cx', '--crossover-rate', type=int, default=0.8,
+                        help="The probability of a mutation operations occuring. Defaults to 0.2")
+    parser.add_argument('-e', '--elitism', type=int, default=0.1,
+                        help="The ratio of elitists to be kept each generation.")
 
     args = vars(parser.parse_args())
 
@@ -60,8 +71,9 @@ if __name__ == "__main__":
     
     # Hyperparameters
     beta = args['beta'] # @param {type: "integer"}
-    population = n_features * beta
-    # population = args['population']
+    population = beta * n_features
+    if beta == -1:
+        population = args['population']
     generations = args['generations'] # @param {type: "integer"}
     elitism = args['elitism'] # @param {type: "number"}
     crossover_rate = args['crossover_rate'] # @param {type: "number"}

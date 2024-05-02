@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--run', type=int, default=0)
     parser.add_argument('-o', '--output', type=str, default=f"logs/results")
     parser.add_argument('-p', '--population', type=int, default=1023)
-    parser.add_argument('-b', '--beta', type=int, default=1)
+    parser.add_argument('-b', '--beta', type=int, default=-1)
     parser.add_argument('-g', '--generations', type=int, default=10)
     parser.add_argument('-mx', '--mutation-rate', type=float, default=0.2)
     parser.add_argument('-cx', '--crossover-rate', type=int, default=0.8)
@@ -24,10 +24,13 @@ if __name__ == "__main__":
     output = f"{args['output']}_{args['run']}.log"
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     
+    # Two approaches to defining the population.
     n_features = 1023
     beta = args['beta']
     population = n_features * beta
-    # population = args['population']
+    if beta == -1:
+        population = args['population']
+        
     generations = args['generations']
     crossover_rate = args['crossover_rate']
     mutation_rate = args['mutation_rate']
