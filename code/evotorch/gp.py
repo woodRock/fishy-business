@@ -102,10 +102,9 @@ class GeneticProgram():
         
         # Optionally fix the generator for reproducible results
         # source: https://pytorch.org/docs/stable/data.html
-        generator1 = torch.Generator().manual_seed(42)
-        generator2 = torch.Generator().manual_seed(42)
-        X_train, X_val, X_test = random_split(self.X, split, generator=generator1)
-        y_train, y_val, y_test = random_split(self.y, split, generator=generator2)
+        generator = torch.Generator().manual_seed(42)
+        X_train, X_val, X_test = random_split(self.X, split, generator=generator)
+        y_train, y_val, y_test = random_split(self.y, split, generator=generator)
        
         X_train = torch.as_tensor(X_train, dtype=torch.float32)
         y_train = torch.as_tensor(y_train, dtype=torch.float32)
@@ -117,7 +116,7 @@ class GeneticProgram():
         # The length of the program in the number of output classes.
         program_length = 10
         # if self.dataset == "species":
-        #     program_length = 10
+        #     program_length = 2
         # elif self.dataset == "part":
         #     program_length = 6
         # else:
@@ -163,7 +162,7 @@ class GeneticProgram():
         progress = pandas_logger.to_dataframe()
         progress.mean_eval.plot()
         plt.savefig(self.file_path)
-        
+
         # Take the best solution and record it to a logging file.
         best_solution = ga.status["best"]
         logger.info("Below is the best solution encountered so far")
@@ -176,7 +175,6 @@ class GeneticProgram():
         logger.info(f"problem.instruction_dict: {self.problem.instruction_dict}")
 
         # Evaluate the test and training accuracy.
-        with torch.no_grad():
-            self.problem._evaluate_batch(ga.population, verbose=True)
+        self.problem._evaluate_batch(ga.population, verbose=True)
         
         

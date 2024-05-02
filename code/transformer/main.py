@@ -17,26 +17,36 @@ if __name__ == "__main__":
                     prog='Transformer',
                     description='A transformer for fish species classification.',
                     epilog='Implemented in pytorch and written in python.')
-    parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint")
-    parser.add_argument('-d', '--dataset', type=str, default="species")
+    parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint",
+                        help="Filepath to store the model checkpoints to. Defaults to transformer_checkpoint")
+    parser.add_argument('-d', '--dataset', type=str, default="species",
+                        help="The fish species or part dataset. Defaults to part")
     parser.add_argument('-r', '--run', type=int, default=0)
     parser.add_argument('-o', '--output', type=str, default=f"logs/results")
 
     # Preprocessing
     parser.add_argument('-da', '--data-augmentation',
-                    action='store_true', default=False)  
+                    action='store_true', default=False,
+                    help="Flag to perform data augmentation. Defaults to False.")  
     # Pre-training
     parser.add_argument('-msm', '--masked-spectra-modelling',
-                    action='store_true', default=False)  
+                    action='store_true', default=False,
+                    help="Flag to perform masked spectra modelling. Defaults to False.")  
     parser.add_argument('-nsp', '--next-spectra-prediction',
-                    action='store_true', default=False) 
+                    action='store_true', default=False,
+                    help="Flag to perform next spectra prediction. Defaults to False.") 
     # Regularization
-    parser.add_argument('-es', '--early-stopping', type=int, default=5) 
-    parser.add_argument('-do', '--dropout', type=float, default=0.2)
-    parser.add_argument('-ls', '--label-smoothing', type=float, default=0.1)
+    parser.add_argument('-es', '--early-stopping', type=int, default=5,
+                        help='Early stopping patience. To disable early stopping set to the number of epochs. Defaults to 5.')
+    parser.add_argument('-do', '--dropout', type=float, default=0.2,
+                        help="Probability of dropout. Defaults to 0.2")
+    parser.add_argument('-ls', '--label-smoothing', type=float, default=0.1,
+                        help="The alpha value for label smoothing. 1 is a uniform distribution, 0 is no label smoothing. Defaults to 0.1")
     # Hyperparameters
-    parser.add_argument('-e', '--epochs', type=int, default=100)
-    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5)
+    parser.add_argument('-e', '--epochs', type=int, default=100,
+                        help="The number of epochs to train the model for.")
+    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
+                        help="The learning rate for the model. Defaults to 1E-5.")
 
     args = vars(parser.parse_args())
 
