@@ -170,3 +170,79 @@ INFO:train:Epoch 65/100, Train Loss: 0.2003, Train Acc: 1.0000, Val Loss: 0.5998
 INFO:train:Epoch 66/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6104, Val Acc: 0.6957
 INFO:train:Epoch 67/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6109, Val Acc: 0.6957
 INFO:train:Epoch 68/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6149, Val Acc: 0.6957
+INFO:train:Epoch 69/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6111, Val Acc: 0.6957
+INFO:train:Epoch 70/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6322, Val Acc: 0.6522
+INFO:train:Epoch 71/100, Train Loss: 0.2004, Train Acc: 1.0000, Val Loss: 0.6193, Val Acc: 0.6957
+INFO:train:Epoch 72/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.5984, Val Acc: 0.6957
+INFO:train:Epoch 73/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6229, Val Acc: 0.6957
+INFO:train:Epoch 74/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.5957, Val Acc: 0.6957
+INFO:train:Epoch 75/100, Train Loss: 0.1999, Train Acc: 1.0000, Val Loss: 0.6311, Val Acc: 0.6957
+INFO:train:Epoch 76/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6179, Val Acc: 0.6957
+INFO:train:Epoch 77/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6128, Val Acc: 0.6957
+INFO:train:Epoch 78/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6142, Val Acc: 0.6957
+INFO:train:Epoch 79/100, Train Loss: 0.1999, Train Acc: 1.0000, Val Loss: 0.6120, Val Acc: 0.6957
+INFO:train:Epoch 80/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6291, Val Acc: 0.6957
+INFO:train:Epoch 81/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6258, Val Acc: 0.6957
+INFO:train:Epoch 82/100, Train Loss: 0.2001, Train Acc: 1.0000, Val Loss: 0.6334, Val Acc: 0.6957
+INFO:train:Epoch 83/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6045, Val Acc: 0.6957
+INFO:train:Epoch 84/100, Train Loss: 0.2000, Train Acc: 1.0000, Val Loss: 0.6146, Val Acc: 0.6957
+INFO:train:Epoch 85/100, Train Loss: 0.1999, Train Acc: 1.0000, Val Loss: 0.6000, Val Acc: 0.6957
+INFO:train:Epoch 86/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6004, Val Acc: 0.6957
+INFO:train:Epoch 87/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6014, Val Acc: 0.6957
+INFO:train:Epoch 88/100, Train Loss: 0.1999, Train Acc: 1.0000, Val Loss: 0.6046, Val Acc: 0.6957
+INFO:train:Epoch 89/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6136, Val Acc: 0.6957
+INFO:train:Epoch 90/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6168, Val Acc: 0.6957
+INFO:train:Epoch 91/100, Train Loss: 0.1997, Train Acc: 1.0000, Val Loss: 0.5964, Val Acc: 0.6957
+INFO:train:Epoch 92/100, Train Loss: 0.1999, Train Acc: 1.0000, Val Loss: 0.6025, Val Acc: 0.6957
+INFO:train:Epoch 93/100, Train Loss: 0.1997, Train Acc: 1.0000, Val Loss: 0.6292, Val Acc: 0.7391
+INFO:train:Epoch 94/100, Train Loss: 0.1997, Train Acc: 1.0000, Val Loss: 0.5969, Val Acc: 0.6957
+INFO:train:Epoch 95/100, Train Loss: 0.1997, Train Acc: 1.0000, Val Loss: 0.5928, Val Acc: 0.6957
+INFO:train:Epoch 96/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6190, Val Acc: 0.6957
+INFO:train:Epoch 97/100, Train Loss: 0.1997, Train Acc: 1.0000, Val Loss: 0.6223, Val Acc: 0.6957
+INFO:train:Epoch 98/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6039, Val Acc: 0.7391
+INFO:train:Epoch 99/100, Train Loss: 0.1998, Train Acc: 1.0000, Val Loss: 0.6179, Val Acc: 0.7391
+INFO:train:Epoch 100/100, Train Loss: 0.1997, Train Acc: 1.0000, Val Loss: 0.6202, Val Acc: 0.6957
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 153.20s
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 64 / 64
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train accuracy: 34 / 34
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:validation accuracy: 16 / 23
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:__main__:test accuracy: 16 / 24
+INFO:plot:Saving cofusion matrix map to: figures/test_confusion_matrix.png
+INFO:plot:Saving attention map to: figures/encoder_attention_map.png
+INFO:plot:Saving attention map to: figures/decoder_attention_map.png

@@ -32,3 +32,7 @@ $ ts -G 1 python3 main.py
 ```
 
 For more information on the `ts` command from task spooler see: https://justanhduc.github.io/2021/02/03/Task-Spooler.html
+
+## DEAP 
+
+For more information on DEAP, a python library for evolutionary compuation, see: https://deap.readthedocs.io/en/master/
