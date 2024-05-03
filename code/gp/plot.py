@@ -101,6 +101,7 @@ def plot_tsne_3D(X, features, file_path="figures/tsne_3D.png"):
         plt.close()
         # Show for interactive mode.
         # plt.show()
+    
      
 def plot_pair_plot(features, file_path="figures/pairplot.png"):
     feature_no = 2
@@ -122,6 +123,7 @@ def plot_pair_plot(features, file_path="figures/pairplot.png"):
     # Show for interactive mode.
     # plt.show()
 
+
 def plot_evolutionary_process(fitness, file_path="figures/pairplot.png"):
     plt.plot(fitness)
     plt.title("Fitness: evolutionary process")
@@ -131,6 +133,7 @@ def plot_evolutionary_process(fitness, file_path="figures/pairplot.png"):
     plt.close()
     # Show for interactive mode.
     # plt.show()
+
 
 def plot_gp_tree(multi_tree=None):
     for t_idx,tree in enumerate(multi_tree):
