@@ -89,7 +89,6 @@ if __name__ == "__main__":
     pset.addPrimitive(operator.neg, 1)
     # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
-    global toolbox
     toolbox = base.Toolbox()
 
     minimized = False

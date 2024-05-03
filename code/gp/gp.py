@@ -19,17 +19,17 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     Args:
         population: The number of individuals to evolve.
-        toolbox: The toolbox containing the genetic operators.
-        cxpb: The probability of a crossover between two individuals.
-        mutpb: The probability of a random mutation within an individual.
-        ngen: The number of genetations to evolve the population for.
+        toolbox (deap.base.Toolbox): The toolbox containing the genetic operators.
+        cxpb (float): The probability of a crossover between two individuals.
+        mutpb (float): The probability of a random mutation within an individual.
+        ngen (int): The number of genetations to evolve the population for.
         stats: That can be used to collect statistics on the evolution.
         halloffame: The hall of fame contains the best individual solutions.
-        verbose: Whether or not to print the logbook.
+        verbose (bool): Whether or not to print the logbook.
 
     Returns:
-        population: The final population the algorithm has evolved.
-        logbook: The logbook which can record important statistics.
+        population (deap.base.Toolbox.population): The final population the algorithm has evolved.
+        logbook (deap.tools.Logbook): The logbook which can record important statistics.
     """
     logger = logging.getLogger(__name__)
 
@@ -75,20 +75,25 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
     return population, logbook
 
 
-def train(generations=100, population=100, elitism=0.1, crossover_rate=0.5, mutation_rate=0.1, run=0, toolbox=None):
+def train(generations=100, population=1023, elitism=0.1, crossover_rate=0.5, mutation_rate=0.1, run=0, toolbox=None):
     """
-    This is a Multi-tree GP with Elitism for Multi-class classification.
+    This is a Multi-tree GP with Elitism for Multi-class classification.d
+
+    An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
 
     Args:
-        generations: The number of generations to evolve the populaiton for.
-        elitism: The ratio of elites to be kept between generations.
-        crossover_rate: The probability of a crossover between two individuals.
-        mutation_rate: The probability of a random mutation within an individual.
+        generations (int): The number of generations to evolve the populaiton for. Defaults to 100.
+        population (int): The number of individuals for the population. Defaults to 1023.
+        elitism (float): The ratio of elites to be kept between generations. Defaults to 0.1
+        crossover_rate (float): The probability of a crossover between two individuals. Defaults to 0.8.
+        mutation_rate (float): The probability of a random mutation within an individual. Defualts to 0.2
+        run (int): the number for the experimental run. Defaults to 0.
+        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
 
     Returns:
-        pop: The final population the algorithm has evolved.
-        log: The logbook which can record important statistics.
-        hof: The hall of fame contains the best individual solutions.
+        population (deap.base.Toolbox.population): The final population the algorithm has evolved.
+        logbook (deap.tools.Logbook): The logbook which can record important statistics.
+        hall_of_fame (deap.tools.tools.HallOfFame): The hall of fame contains the best individual solutions.
 
     References:
         1. Koza, J. R. (1994). Genetic programming II: automatic discovery of
@@ -109,9 +114,9 @@ def train(generations=100, population=100, elitism=0.1, crossover_rate=0.5, muta
     mu = round(elitism * population)
     if elitism > 0:
         # See https://www.programcreek.com/python/example/107757/deap.tools.HallOfFame
-        hof = tools.HallOfFame(mu)
+        hall_of_fame = tools.HallOfFame(mu)
     else:
-        hof = None
+        hall_of_fame = None
 
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     length = lambda a: np.max(list(map(len, a)))
@@ -124,39 +129,58 @@ def train(generations=100, population=100, elitism=0.1, crossover_rate=0.5, muta
     mstats.register("max", np.max)
 
     # Run the genetic program.
-    pop, log = SimpleGPWithElitism(pop, toolbox, crossover_rate, mutation_rate,
-                                   generations, stats=mstats, halloffame=hof,
+    population, logbook = SimpleGPWithElitism(pop, toolbox, crossover_rate, mutation_rate,
+                                   generations, stats=mstats, halloffame=hall_of_fame,
                                    verbose=True)
-    return pop, log, hof
+    return population, logbook, hall_of_fame
 
 
-def save_model(file_path="checkpoint_name.pkl", population=None, generations=None, hall_of_fame=None, toolbox=None, logbook=None, run=None):
+def save_model(file_path="checkpoint_name.pkl", generations=None, population=None, hall_of_fame=None, toolbox=None, logbook=None, run=None):
     """
     Save the model to a file.
 
+    This is a Multi-tree GP with Elitism for Multi-class classification.
+
+    An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
+
     Args:
-        file_path: The path to save the model to. Default is "checkpoint_name.pkl".
+        file_path (str): The filepath to store the model checkpoints to. Defaults to "checkpoint_name.pkl".
+        generations (int): The number of generations to evolve the populaiton for. Defaults to 100.            
+        population (int): The number of individuals for the population. Defaults to 1023.
+        elitism (float): The ratio of elites to be kept between generations. Defaults to 0.1
+        crossover_rate (float): The probability of a crossover between two individuals. Defaults to 0.8.
+        mutation_rate (float): The probability of a random mutation within an individual. Defualts to 0.2
+        run (int): the number for the experimental run. Defaults to 0.
+        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
     """
     cp = dict(population=population, generation=generations, halloffame=hall_of_fame, logbook=logbook, rndstate=random.getstate(), run=run)
     with open(file_path, "wb") as cp_file:
         pickle.dump(cp, cp_file)
 
 
-def load_model(file_path="checkpoint_name.pkl", toolbox=None, generations=100, crossover_rate=0.8, mutation_rate=0.2):
+def load_model(file_path="checkpoint_name.pkl", generations=100, crossover_rate=0.8, mutation_rate=0.2, toolbox=None):
     """
     Load a model from a file.
 
     Args:
-        file_path: The path to load the model from. Default is "checkpoint_name.pkl".
-        generations: The number of generations to train for. Default is 100.
+        file_path (str): The filepath to store the model checkpoints to. Defaults to "checkpoint_name.pkl".
+        generations (int): The number of generations to evolve the populaiton for. Defaults to 100.            
+        crossover_rate (float): The probability of a crossover between two individuals. Defaults to 0.8.
+        mutation_rate (float): The probability of a random mutation within an individual. Defualts to 0.2
+        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
+
+    Returns: 
+        population (deap.base.Toolbox.population): The final population the algorithm has evolved.
+        logbook (deap.tools.Logbook): The logbook which can record important statistics.
+        hall_of_fame (deap.tools.tools.HallOfFame): The hall of fame contains the best individual solutions.
     """
     with open(file_path, "rb") as cp_file:
         cp = pickle.load(cp_file)
 
     population = cp["population"]
-    start_gen = cp["generation"]
+    # start_gen = cp["generation"]
     halloffame = cp["halloffame"]
-    logbook = cp["logbook"]
+    # logbook = cp["logbook"]
     random.setstate(cp["rndstate"])
     run = cp["run"]
 

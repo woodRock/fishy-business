@@ -256,7 +256,7 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
 
     return fitness
 
-def evaluate_classification(individual, alpha = 0.9, verbose=False, toolbox=None, pset=None, X=None, y=None):
+def evaluate_classification(individual, verbose=False, toolbox=None, pset=None, X=None, y=None):
     """
     Evalautes the fitness of an individual for multi-tree GP multi-class classification.
 

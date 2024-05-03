@@ -1,0 +1,13 @@
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [108 126], Class Ratios: [0.46153846 0.53846154]
+INFO:data:Number of features: 1023
+Number of instances: 234
+Number of classes 2.
+INFO:__main__:No model found. Train from scratch.
+INFO:gp:   	      	                                 fitness                                 	                      size                     
+   	      	-------------------------------------------------------------------------	-----------------------------------------------
+gen	nevals	avg     	gen	max     	min     	nevals	std      	avg    	gen	max	min	nevals	std    
+0  	3069  	0.503211	0  	0.677146	0.321276	3069  	0.0448952	4.22906	0  	7  	2  	3069  	1.71323
+INFO:gp:1  	2301  	0.544015	1  	0.677146	0.341194	2301  	0.0431373	4.3379 	1  	13 	2  	2301  	1.85483
+INFO:gp:2  	2305  	0.564959	2  	0.698256	0.365366	2305  	0.0512523	4.40209	2  	13 	2  	2305  	1.89989
+INFO:gp:3  	2335  	0.583876	3  	0.710909	0.371487	2335  	0.0582392	4.4956 	3  	17 	2  	2335  	1.93787

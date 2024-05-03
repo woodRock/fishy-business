@@ -5,6 +5,19 @@ import pandas as pd
 
 
 def load_dataset(dataset="species"):
+    """Load and prepare the dataset from an excel spreadsheet.
+
+    This method loads the dataset from an excel spreadsheet.
+    The task is specified with the `dataset` argument. 
+    There is a choice between species, part, oil or cross-species.
+    An exception is thrown, if no valid dataset is specified.
+
+    Args: 
+        dataset (str): the species, part, oil or cross-species dataset. Defaults to species.
+
+    Returns: 
+        X,y (np.array, np.array): Returns the dataset split into features X, and class labels y.
+    """
     logger = logging.getLogger(__name__)
 
     path = ['~/Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
@@ -49,6 +62,9 @@ def load_dataset(dataset="species"):
                         else (1 if 'H' in x 
                         else (2 if 'M' in x
                         else None)))
+    else: 
+        # Return an excpetion if the dataset is not valid.
+        raise ValueError(f"No valid dataset was specified: {dataset}")
    
     X = data.drop('m/z', axis=1) # X contains only the features.
     y = np.array(y)
