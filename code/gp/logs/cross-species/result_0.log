@@ -18,7 +18,7 @@ INFO:gp:7  	770   	0.638413	7  	0.753   	0.313032	770   	0.091421 	3.95992	7  	1
 INFO:gp:8  	765   	0.65349 	8  	0.770247	0.30833 	765   	0.0926985	3.82502	8  	11 	3  	765   	1.36414
 INFO:gp:9  	783   	0.661225	9  	0.770732	0.293556	783   	0.0998076	3.62366	9  	10 	3  	783   	1.25533
 INFO:gp:10 	789   	0.668176	10 	0.770732	0.305922	789   	0.0956569	3.72532	10 	11 	3  	789   	1.41138
-INFO:__main__:Saving model to file: logs/cross-species/result
+INFO:__main__:Saving model to file: checkpoints/embedded-gp.pth
 INFO:util:Train accuracy: 0.8310049580027918 +- 0.021544303714551294
 INFO:util:Val accuracy: 0.8310049580027918 +- 0.021544303714551294
 INFO:util:Test accuracy: 0.8740740740740741 +- 0.0
