@@ -49,7 +49,6 @@ def load_dataset(dataset="species"):
     elif dataset == "cross-species":
         # Mutli-label encodings for class labels (1 for Hoki, 2 for Mackeral, 3 for Cross-species)
         # Cross-species contaminated samples contain 'HM' in their class label.
-        print(f"np.unique(data['m/z']): {np.unique(data['m/z'])}")
         y = data['m/z'].apply(lambda x: 
                               0 if 'HM' in x
                         else (1 if 'H' in x 
@@ -73,8 +72,6 @@ def load_dataset(dataset="species"):
     classes, class_counts = np.unique(y, axis=0, return_counts=True)
     n_features = X.shape[1]
     n_instances = X.shape[0]
-    print(f"y: {y}")
-    print(f"np.unique(y, axis=0): {np.unique(y, axis=0)}")
     n_classes = len(np.unique(y, axis=0))
     class_ratios = np.array(class_counts) / n_instances
 
