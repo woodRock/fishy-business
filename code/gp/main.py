@@ -7,7 +7,7 @@ from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
 from gp import train, save_model, load_model
 from data import load_dataset
-
+from plot import plot_tsne
 # Disable the warnings.
 # Source: https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
 import warnings
@@ -149,5 +149,7 @@ if __name__ == "__main__":
     save_model(file_path=file_path, population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run) # Best accuracy: 0.911423
      
     best = hof[0]
+    features = toolbox.compile(expr=best, pset=pset)
     evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X, y=y)
+    plot_tsne(X=X, features=features)
 
