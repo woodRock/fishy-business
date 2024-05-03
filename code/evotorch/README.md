@@ -1,29 +1,38 @@
-# Genetic Program in EvoTorch
+# Genetic Programming in EvoTorch
 
-This example is based off of the example on the EvoTorch documentation for Genetic Programming. That tutorial is available here: https://docs.evotorch.ai/v0.5.1/examples/notebooks/Genetic_Programming/?h=genetic
+## Run
 
-This code has been modified from a regression to a multi-class classification problem. With the loss function being swapped from Mean Squared Error to Categorical Cross Entropy.
+To run experiments, you can use the `run.sh` script. This uses the task spooler `ts` command to run 10 experiments with parallel execution on a GPU server.
 
-The code runs on 3 GPUs, with problem parallelization enabled out of the box, for simulatanous evaluation of the population on multiple GPUs. See here for more: https://docs.evotorch.ai/v0.5.1/user_guide/problem_parallelization/?h=par
-
-## Evaluation
-
-We can evaluate execution speed using the following command:
+Example usage:
 
 ```bash
-$ time python3 main.py -p 10 -g 5
+$ ./run.sh
 ```
 
-Here are some code evaluation stats from using the `time` command as:
+To run an individual experiment, you can execute the following command. Say we want to perform genetirc programming on the species dataset `-d`, with 50 generations `-g` , and a population beta `-b` of 1.
 
-```md
-# Cuda 11 GPU
-real    0m25.191s
-user    0m24.010s
-sys     0m1.158s
+Example usage:
 
-# CPU woodj4
-real    1m38.087s
-user    16m37.399s
-sys     1m53.307s
+```bash
+$ python3 main.py -d species -g 50 -b 1
 ```
+
+## Task Spooler
+
+Task Spooler was originally developed by Lluis Batlle i Rossell but is no longer maintained. The branch introduced here is a fork of the original program with more features including GPU support.
+
+Say we want to execute the main script on the GPU server, with one GPU `-G` per parallel exeuction of that script.
+
+Example usage:
+
+```bash
+# ts -G <number-of-gpus> <command>
+$ ts -G 1 python3 main.py
+```
+
+For more information on the `ts` command from task spooler see: https://justanhduc.github.io/2021/02/03/Task-Spooler.html
+
+## EvoTorch 
+
+For more information on EvoTorch, a pytorch library for evolutionary compuation, see: https://docs.evotorch.ai/v0.5.1/
