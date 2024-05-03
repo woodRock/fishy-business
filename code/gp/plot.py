@@ -48,7 +48,7 @@ def plot_tsne(
             labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
         elif dataset == "oil":
             labels = ["Oil", "None"]
-        elif dataste == "cross-species": 
+        elif dataset == "cross-species": 
             labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
         else: 
             raise ValueError(f"Invalid dataset: {dataset}")
@@ -109,7 +109,7 @@ def plot_pca_3D(
             labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
         elif dataset == "oil":
             labels = ["Oil", "None"]
-        elif dataste == "cross-species": 
+        elif dataset == "cross-species": 
             labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
         else: 
             raise ValueError(f"Invalid dataset: {dataset}")
@@ -165,7 +165,7 @@ def plot_tsne_3D(
             labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
         elif dataset == "oil":
             labels = ["Oil", "None"]
-        elif dataste == "cross-species": 
+        elif dataset == "cross-species": 
             labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
         else: 
             raise ValueError(f"Invalid dataset: {dataset}")
@@ -210,7 +210,7 @@ def plot_pair_plot(
         labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
     elif dataset == "oil":
         labels = ["Oil", "None"]
-    elif dataste == "cross-species": 
+    elif dataset == "cross-species": 
         labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
     else: 
         raise ValueError(f"Invalid dataset: {dataset}")
