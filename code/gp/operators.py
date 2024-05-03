@@ -1,9 +1,14 @@
 import random
 import copy
 from functools import wraps
-from deap import gp
+from deap import gp, creator
+from deap.gp import PrimitiveSet, genHalfAndHalf
+from typing import Iterable
 
-def xmate(ind1, ind2):
+def xmate(
+        ind1: Iterable, 
+        ind2: Iterable,
+    ) -> (Iterable, Iterable):
     """ Reproduction operator for multi-tree GP, where trees are represented as a list.
 
     Crossover happens to a subtree that is selected at random.
@@ -29,7 +34,11 @@ def xmate(ind1, ind2):
     return ind1, ind2
 
 
-def xmut(ind, expr, pset=None):
+def xmut(
+        individual: Iterable, 
+        expr: genHalfAndHalf, 
+        pset: PrimitiveSet
+    ) -> Iterable:
     """ Mutation operator for multi-tree GP, where trees are represented as a list.
 
     Mutation happens to a tree selected at random, when an individual is selected for crossover.
@@ -37,18 +46,21 @@ def xmut(ind, expr, pset=None):
     FIXME: Have to compile the trees (manually), which is frustrating.
 
     Args:
-        ind: The individual, a list of GP trees.
+        individual (creator.Invidual): The individual, a list of GP trees.
+
+    Returns: 
+        individual (creator.Invidual): the mutated invidiual.
     """
-    n = range(len(ind))
+    n = range(len(individual))
     selected_tree_idx = random.choice(n)
     for tree_idx in n:
-        g1 = gp.PrimitiveTree(ind[tree_idx])
+        g1 = gp.PrimitiveTree(individual[tree_idx])
         if tree_idx == selected_tree_idx:
             indx = gp.mutUniform(g1, expr, pset)
-            ind[tree_idx] = indx[0]
+            individual[tree_idx] = indx[0]
         else:
-            ind[tree_idx] = g1
-    return ind,
+            individual[tree_idx] = g1
+    return individual,
 
 def staticLimit(key, max_value):
     """
