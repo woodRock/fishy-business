@@ -17,11 +17,11 @@ def xmate(
     FIXME: Have to compile the trees (manually), which is frustrating.
 
     Args:
-        ind1 (Individual): The first parent.
-        ind2 (Individual): The second parent
+        ind1 (creator.Individual): The first parent.
+        ind2 (creator.Individual): The second parent
 
     Returns:
-        ind1, ind2 (Individual, Individual): The children from the parents reproduction.
+        ind1, ind2 (creator.Individual, creator.Individual): The children from the parents reproduction.
     """
     n = range(len(ind1))
     selected_tree_idx = random.choice(n)
