@@ -123,7 +123,7 @@ brewer2006brown
     * A noticeable divide between aritificial intelligence in an academic sense and industry applications for these technologies. 
     * As adoption of AI increases ( **cough** the academics enter these industries) the diffusion of innovation can continue. 
 
-2021-03-31 - CNN Results 
+2022-03-31 - CNN Results 
 ------------------------
     * Implemented the 1-dimensional CNN from ENGR489 - with some tweaks and adjustments. 
         * Assess the accuracy using k-fold stratified cross-validation (k = 10). 
@@ -142,7 +142,7 @@ brewer2006brown
         * Later include a genetic algorithm that constructs the network design - but this remains beyond my initial scope. 
         * If results are promising, a paper on "Evolutionary Computation for Neural Architecture Search in Fish Oil Analysis" would be appropriate.
 
-2021-04-04 - Chemical Stuff 
+2022-04-04 - Chemical Stuff 
 ---------------------------
     * MegaSYN - computation proof of concept for using AI to manufacture biological weapons https://bit.ly/3x2enuY
         * Adjusted objective function for MegaSYN and used deadly training data. 
@@ -157,10 +157,148 @@ brewer2006brown
         * Employing VAEs on unsupervised clustering algorithms combines clustering and auto-encoders. 
         * Model was more accurate that lab test results (i.e. 99% > 95% AUC)
 
-2021-04-07 - CNN Fish Part 
+2022-04-07 - CNN Fish Part 
 --------------------------
     * CNN classification results for fish part. 
     * Fish part needs a simpler neural network to achieve high accuracy on fish part. 
     * Network needs a 90% dropout rate, but can achieve 84% accuracy. 
     * Still need to manually tune this model more to be competitive with the SVM.
     * LeakyRelu activation function improves performance on both datasets.
+
+2022-04-22 - e2e with SCARA 
+---------------------------
+    * Could encorporate model-free reiforcement learning for simulation/real-world SCARA robot to take measurements in a factory. 
+    * A general purpose AI robot controller to automate the data collection of the GC-MS / REIM data. 
+    * This is a way to explore my interest in robotics / AI / computer vision - and encorporate this into my work. 
+    * Overall goal: propose an end-to-end engineering solution to quaility assurance in food science. 
+    * Moon-shot: (1) Data Collection, (2) Data Pre-processing, (3) Classification/Regression/Clustering, (4) Visualisation / NLP knowledge generated, (5) Verfication by Domain Expertise.
+    * Try apply Aritifical intelligence techniques to automate all the processes above. 
+
+2022-04-27 - Teleoperation SCARA 
+---------------------------------
+    * The paper (quin 2022, qin2022one) shows possibility for teleoperation of SCARA via a laptop webcam. 
+    * This requires no special, 3D sensor setup, and can be done with a simple webcam - available to anyone with a laptop. 
+    * This could be implemented to allow for remote operation of our SCARA for employees working from home (WFH). 
+    * Furthermore, this could be similar to Tesla FSD, where human intervention can resolve edge cases. 
+    * This dramatically increases the viability of the SCARA product for collecting REIMS data. 
+
+2022-04-28 - AI Day + SCRUM Board 
+---------------------------------
+    * Who says you can't enjoy your PhD research https://twitter.com/jrhwood/status/1519514331200643072 
+    * I presented the AI Day supercut to the FASLIP research group, and it was recieved very positively. 
+    * This was a moment of Jungian Synchronicity - a self actualising and deeply meaningful experience. 
+    * Side note: I made a gigantic prop replica of the SCRUM board from Silicon Valley https://www.youtube.com/watch?v=oyVksFviJVE 
+    * This is achieves a major PhD research goal that I set for my ENGR391 Work Experience paper. 
+    * I have successfully applied Project Management techniques to my study. 
+    * I added my own twist, by using playing cards as a ranking/priority heuristic for ordering tasks.
+    
+2022-05-11 - First GP 
+---------------------
+    * I wrote my first Genetic Program (GP) from scratch today. 
+    * We implement a tutorial by Jason from Machine Learning Mastery https://machinelearningmastery.com/simple-genetic-algorithm-from-scratch-in-python/
+    * It solved (1) onemax, and (2) 2nd-order polynomial equations. 
+    * GP implements evaluation, selection and reproduction on a bitstring representations of the solution.
+    * Evaluation measures the performance of the solution by the objective function.
+    * We perform tournament selection to decide which individuals are kepts. 
+    * The reproduction is done by crossover and mutation.
+
+2022-05-27 - COVID gap 
+----------------------
+    * I had COVID-19, was very sick, and self-isolated.
+    * This explains the gap, as you will, in my work here.
+
+2022-06-17 - Importance of Writing 
+----------------------------------
+    * Writing is an important part of research, we refine our ideas, and correct our incorrect assumptions, we organize our thoughts. 
+    * For example, when re-writing my draft paper, I realized my understanding of treated fish biomass waste was incorrect.
+    * Something I would have never realized if I did not explicitly have to re-write my introduction section.
+
+2022-08-18 - Github Copilot 
+--------------------------- 
+    * GitHub CoPiliot is an AI powered autocompletion code tool made using GPT-3 https://github.com/features/copilot/ 
+    * I was lucky enough to test the software during its closed beta period. 
+    * GitHub Copilot is available for free to developers with the Student License. 
+    * As a PhD student, I qualify for this license for the next three years. 
+    * I simply sent my Student ID and university email, and they verified I am a current student. 
+
+2022-08-19 - Biology in EC 
+--------------------------
+    * Read this https://www.nature.com/articles/s42256-020-00278-8 
+    * Genotype: the genetic makeup of an individual, i.e. the recessive gene for ginger hair. 
+    * Phenotype: the expression of a trait (or gene), i.e. Ginger hair. 
+    * These concepts from biology apply to Evolutionary Computation: 
+        - Genetype is the encoding for an individual, the representation, i.e. A GP tree or binary string. 
+        - Phenotype is that genotype after being decoded, the prediction, i.e. the output of the GP tree.
+
+2022-09-02 - Fitness
+--------------------
+    * Fitness function for mutli-label classification needs to penalize multi-label predictions. 
+    * A multi label prediction is a vector in form :math:`p = [1,0,1,0]`, where multiple classes are predicted. 
+    * The Hamming Distance is the magnitude of the difference of two vectors :math:`|v1 - v2|`. 
+    * We can use the hamming distance as distance-based regularization term to penalize multi-label predictions. 
+    * Our new fitness function becomes :math:`fitness = \alpha accuracy + (1 - \alpha |\hat(y) - y|)`
+        * where :math:`\alpha` is the weight of the accuracy vs regularization term,
+        * and :math:`|\hat(y) - y|` is the hamming distance between prediction and true label,
+        * and :math:`accuracy` is the balanced accuracy. 
+    * Generally we set :math:`\alpha = 0.98` very high, to favour solutions with higher accuracy first, then penalize multi-label predictions.
+    * To facilitate this approach, we must log the accuracy and fitness statistics independently, as they are no longer the same metric. 
+
+2022-09-08 - (New) Fitness
+--------------------------
+    * The previous fitness functions (thoughts 2022-09-02) does not work. 
+    * It optimizes the balanced accuracy until no improvement is possible, then optimizes the hamming distance. 
+    * However, we want these two metrics to be optimized simultaneously. 
+    * A new fitness function was proposed, that simply rejects invalid predictions entirely. 
+    * Thus the GP that makes the most valid and correct predictions will be selected. 
+    * It is slower to evalaute good solutions, because creating valid and correct solutions is a more difficult task. 
+    * But the best performing model will inherently have the most valid solutions. 
+
+2022-09-28 - Contaimination 
+---------------------------
+    * Generative Adversarial Networks (GANs) can be used for anomoly detection (Di 2019, di2019survey).
+    * See (Di 2019, di2019survey) notes for more details. 
+    * Medium article https://medium.com/analytics-vidhya/anomaly-detection-using-generative-adversarial-networks-gan-ca433f2ac287
+    * Could use a GAN Anomoly detection approach as a state-of-the-art benchmark for contaimination checking for thesis. 
+    * Potential to use GANs to generate synthetic data as well, to increase sample complexity, due to low sample size.  
+
+2022-10-13 - GC-MS Images 
+-------------------------
+    * After FASLIP, Jordan MacLachlan suggested visualizing the GC-MS as an image. 
+    * Storing a 4800x500 matrix of pixels, where each pixel is the MS intensity value. 
+    * This can be visualized as a heatmap, to see if their are signficant patterns in the data.
+    * Ideally, the fingerprint for an instance would resemble a barcode. 
+    * If that data, is bad, is would resemble static noise on an old television. 
+    * This means the data can be stored as an image, and can leverage existing image loaders in python. 
+    * This would allow for use of 2D convolutional neural networks on the GC-MS data, and visualizaion of that data.
+    * I visualized a few instances in a colab notebook here https://bit.ly/3rTdjG2 
+    * There is a clear pattern in the data which corresponds to intensity peaks. 
+    * Interestingly, also their is systematic labarotory error, at approximately timestamp 4500 for every sample. 
+    * Timestamp 4500 for every sample, is end of each sample.
+    * This is verified by the slight increase at the end of the Gas Chromatograph as well, non-zero values after 4500. 
+    * This could be due to the GC-MS instrument, or the lab technician, or both.
+    * I should ask Daniel if this data is useful or noise? 
+
+2022-10-22 - Social pain 
+------------------------
+    * `2:42 <https://youtu.be/n3Xv_g3g-mA?t=162>`_ "To avoid that, your body came up with "social pain. Pain of this kind is is an evolutionary adaptation to rejection."
+    * Back in the days of cavemen, life was incredibly difficult, and you needed a tribe to survive.
+    * "No Man is an Island" - John Donne
+    * An early warning system to make sure you stop behaviour that would isolate you.
+    * You ancestors who experienced rejection as more painful were more likely to stop that behaviour, and thus stayed in the tribe.
+    * Those who did not got kicked out, and most likely died.
+    * Loneliness is as dangerous as smoking a pack of cigarettes a day.
+    * Perhaps social pain would be a good fitness measure for co-evolutionary algorithms, to punish lone wolf invidiudals, that do not conform with the population
+    
+2023-02-26 - LLaMA 
+-------------------
+   * Applied for access to LLaMA large language model for AI research.
+   * Announcement: https://ai.facebook.com/blog/large-language-model-llama-meta-ai/
+   * Paper: https://research.facebook.com/publications/llama-open-and-efficient-foundation-language-models/
+   * Here is the application statement (may be useful for proposal):
+      I plan to use LLaMA to help humans evaluate outputs of more complex models, specifically models for processing fish oil mass spectrometry data, for down stream applications in fish species and part identification, contamination detection, and individual identification.
+
+      I see a fine-tuned LLM on mass spectrometry, fish processing, and machine learning questions, as an excellent bridge between the multi-disciplinary effort of my research. Domain experts in chemistry, machine learning, and fish processing, can provide supervised human feedback with RLHF to fine-tune a model to answer specific questions related to explainable AI for the AIML models a design for those tasks.
+
+      I see LLaMA as an intermediary tool, to foster multi-disciplinary collaboration, and provide a Digital Aristotle, so existing researchers can understand concepts outside their field, such as chemists understanding machine learning, and so new researchers can easily be onboarded, and take the torch and pass it on. Ultimately, a very domain-specific assistant tool, or even just knowledge graph visualization based on the LLaMA word embeddings, would be useful to bridge the gap in understanding between fields.
+
+      The existing work in this field is lost in translation. Chemists, statisticians, and AI researchers are essentially doing the exact same thing, but each field with its own jargon and dogma. I see LLaMA as a tool to bridge the gap between the terminology, translate the jargon, and progress the field of multi-disciplinary application based AI.
