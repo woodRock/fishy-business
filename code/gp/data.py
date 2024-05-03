@@ -1,13 +1,8 @@
 import logging 
-import scipy.io
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from tqdm import tqdm
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+
 
 def load_dataset(dataset="species"):
     logger = logging.getLogger(__name__)
