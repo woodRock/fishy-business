@@ -11,6 +11,13 @@ import pygraphviz as pgv
 
 
 def plot_tsne(X, features, file_path="figures/tsne.png"):
+    """ Plot a 2D t-SNE of the original and constructed features.
+    
+    Args: 
+        X (Iterable): the original feature set.
+        features (Iterable): the constructed features.
+        file_path (str): The filepath to store the figure. Defaults to "figures/tsne.png"
+    """
     logger = logging.getLogger(__name__)
     # Perform t-SNE dimensionality reduction
     perplexity = 10
@@ -43,6 +50,13 @@ def plot_tsne(X, features, file_path="figures/tsne.png"):
 
 
 def plot_pca_3D(X, features,  file_path="figures/pca_3D.png"):
+    """ Plot a 3D PCA of the original and constructed features.
+    
+    Args: 
+        X (Iterable): the original feature set.
+        features (Iterable): the constructed features.
+        file_path (str): The filepath to store the figure. Defaults to "figures/pca_3D.png"
+    """
     logger = logging.getLogger(__name__)
     # Assuming you have your own dataset with features X and labels y
     # Replace X and y with your actual data
@@ -76,6 +90,13 @@ def plot_pca_3D(X, features,  file_path="figures/pca_3D.png"):
 
 
 def plot_tsne_3D(X, features, file_path="figures/tsne_3D.png"):
+    """ Plot a 3D t-SNE of the original and constructed features.
+    
+    Args: 
+        X (Iterable): the original feature set.
+        features (Iterable): the constructed features.
+        file_path (str): The filepath to store the figure. Defaults to "figures/tsne_3D.png"
+    """
     for X_set in [X, features]:
         # Perform t-SNE dimensionality reduction
         tsne = TSNE(n_components=2, perplexity=10, random_state=42)
@@ -103,7 +124,13 @@ def plot_tsne_3D(X, features, file_path="figures/tsne_3D.png"):
         # plt.show()
     
      
-def plot_pair_plot(features, file_path="figures/pairplot.png"):
+def plot_pair_plot(features, file_path="figures/pairplot.png") -> None:
+    """ Plot a pairplot the constructed features.
+    
+    Args: 
+        features (Iterable): the constructed features.
+        file_path (str): The filepath to store the figure. Defaults to "figures/pairplot.png"
+    """
     feature_no = 2
     data = pd.DataFrame(features[:,:feature_no], columns=[f'feature_{i}' for i in range(feature_no)])
     data['class'] = y[:]
@@ -124,7 +151,14 @@ def plot_pair_plot(features, file_path="figures/pairplot.png"):
     # plt.show()
 
 
-def plot_evolutionary_process(fitness, file_path="figures/pairplot.png"):
+def plot_evolutionary_process(fitness, file_path="figures/pairplot.png") -> None:
+    """"
+    Plot the evolutionary process for an evolved genetic program.
+
+    Args: 
+        fitness (Iterable): the set of fitness values that were evolved.
+        file_path (str): The filepath where the figure is saved. Defaults to "figures/pairplot.png".
+    """
     plt.plot(fitness)
     plt.title("Fitness: evolutionary process")
     plt.xlabel("generation")
@@ -136,6 +170,12 @@ def plot_evolutionary_process(fitness, file_path="figures/pairplot.png"):
 
 
 def plot_gp_tree(multi_tree=None):
+    """
+    Plot subtrees from a multi-tree evolved using genetic programming.
+
+    Args:
+        mutli-tree (Iterable(creator.Individual)): a solution is represented by a multi-tree.
+    """
     for t_idx,tree in enumerate(multi_tree):
         nodes, edges, labels = gp.graph(tree)
 
