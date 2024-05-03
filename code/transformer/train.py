@@ -94,8 +94,8 @@ def train_model(model,
     return train_losses, train_accuracies, val_losses, val_accuracies
 
 def transfer_learning(dataset, model, file_path='transformer_checkpoint.pth'):
-    if dataset == "species":
-        # There are 2 classes in the fish species dataset.
+    if dataset == "species" or dataset == "oil":
+        # There are 2 classes in the fish species, oil and cross-species dataset.
         output_dim = 2
         checkpoint = torch.load(file_path)
         checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]  # Keep only the first 2 rows
@@ -104,6 +104,12 @@ def transfer_learning(dataset, model, file_path='transformer_checkpoint.pth'):
     elif dataset == "part":
         # There are 6 classes in the fish parts dataset.
         output_dim = 6
+        checkpoint = torch.load(file_path)
+        checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
+        checkpoint['fc.bias'] = torch.zeros(output_dim)
+    
+    elif dataset == "cross-species":
+        output_dim = 3
         checkpoint = torch.load(file_path)
         checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
         checkpoint['fc.bias'] = torch.zeros(output_dim)

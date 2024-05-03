@@ -80,7 +80,6 @@ if __name__ == "__main__":
 
     
     logger.info(f"Reading the dataset: fish {dataset}")
-    
     train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
 
     if is_masked_spectra:
@@ -159,15 +158,13 @@ if __name__ == "__main__":
                 # Load model parameters with best validation accuracy.
                 model.load_state_dict(checkpoint, strict=False)
 
-    # Define hyperparameters
-    if dataset == "species":
-        output_dim = 2  # Example: number of output classes
+    # Output dimension is the number of classes in the dataset.
+    if dataset == "species" or dataset == "oil":
+        output_dim = 2  # ['Hoki', 'Mackerel']
     elif dataset =="part":
-        output_dim = 6
-    elif dataset =="oil":
-        output_dim = 2
+        output_dim = 6 # ['Fillet'  'Heads' 'Livers' 'Skins' 'Guts' 'Frames']
     elif dataset =="cross-species":
-        output_dim = 2
+        output_dim = 3 # ['Hoki, 'Mackerel', 'Hoki-Mackerel']
     else:
         raise ValueError(f"Not a valid dataset: {dataset}")
 

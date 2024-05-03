@@ -87,14 +87,20 @@ def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=
         # Oil contaminated samples contain 'MO' in their class label.
         y = data['m/z'].apply(lambda x: [1,0] if 'MO' in x else [0,1])
     elif dataset == "cross-species":
+        print(f"I get here")
         # Onehot encodings for class labels (1 for HM, 0 for Not Cross-species)
         # Cross-species contaminated samples contain 'HM' in their class label.
-        y = data['m/z'].apply(lambda x: [1,0] if 'HM' in x else [0,1])
+        y = data['m/z'].apply(lambda x: 
+                              [1,0,0] if 'HM' in x 
+                        else ([0,1,0] if 'H' in x
+                        else ([0,0,1] if 'M' 
+                        else None)))
 
     # X contains only the features.
     X = data.drop('m/z', axis=1)
-    
+
     # Remove the "None" values from the dataset. 
+    # Discard instances not related to the current problem.
     xs = []
     ys = []
     for (x,y) in zip(X.to_numpy(),y):

@@ -23,6 +23,7 @@ def load_dataset(dataset="species"):
     data = data[~data['m/z'].str.contains('QC')]
         # Exclude cross-species samples from the dataset.
     if dataset == "species" or dataset == "part" or dataset == "oil":
+        logger.debug("I get here 3")
         data = data[~data['m/z'].str.contains('HM')]
     
     # Exclude mineral oil samples from the dataset.
@@ -46,13 +47,20 @@ def load_dataset(dataset="species"):
         # Oil contaminated samples contain 'MO' in their class label.
         y = data['m/z'].apply(lambda x: 1 if 'MO' in x else 0)
     elif dataset == "cross-species":
-        # Binary encodings for class labels (1 for HM, 0 for Not Cross-species)
+        # Mutli-label encodings for class labels (1 for Hoki, 2 for Mackeral, 3 for Cross-species)
         # Cross-species contaminated samples contain 'HM' in their class label.
-        y = data['m/z'].apply(lambda x: 1 if 'HM' in x else 0)
+        print(f"np.unique(data['m/z']): {np.unique(data['m/z'])}")
+        y = data['m/z'].apply(lambda x: 
+                              0 if 'HM' in x
+                        else (1 if 'H' in x 
+                        else (2 if 'M' in x
+                        else None)))
    
     X = data.drop('m/z', axis=1) # X contains only the features.
     y = np.array(y)
 
+    # Remove the classes that are not related to this dataset, 
+    # i.e. the instances whose class is None are discarded.
     xs = []
     ys = []
     for (x,y) in zip(X.to_numpy(),y):
@@ -65,6 +73,8 @@ def load_dataset(dataset="species"):
     classes, class_counts = np.unique(y, axis=0, return_counts=True)
     n_features = X.shape[1]
     n_instances = X.shape[0]
+    print(f"y: {y}")
+    print(f"np.unique(y, axis=0): {np.unique(y, axis=0)}")
     n_classes = len(np.unique(y, axis=0))
     class_ratios = np.array(class_counts) / n_instances
 

@@ -1,23 +1,13 @@
 import logging
 import argparse
-import math
-import copy
-import random
 import operator
 import os
-from re import I
-from operator import attrgetter
-from functools import wraps, partial
-import numpy as np
-from deap import algorithms
-from deap.algorithms import varAnd
 from deap import base, creator, tools, gp
-from deap.gp import PrimitiveTree, Primitive, Terminal
-from sklearn.metrics import balanced_accuracy_score
-from util import quick_evaluate, compileMultiTree, wrapper_classification_accuracy, normalize, evaluate_classification
+from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
-from gp import SimpleGPWithElitism, train, save_model, load_model
+from gp import train, save_model, load_model
 from data import load_dataset
+
 # Disable the warnings.
 # Source: https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
 import warnings
@@ -85,14 +75,12 @@ if __name__ == "__main__":
     
     n_features = 1023
     n_classes = 2
-    if dataset == "species":
-        n_classes = 2
+    if dataset == "species" or dataset == "oil":
+        n_classes = 2 
     elif dataset == "part":
         n_classes = 6
-    elif dataset == "oil":
-        n_classes = 2
     elif dataset == "cross-species":
-        n_classes = 2
+        n_classes = 3
         
     pset = gp.PrimitiveSet("MAIN", n_features)
     pset.addPrimitive(operator.add, 2)
