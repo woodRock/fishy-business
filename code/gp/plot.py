@@ -270,4 +270,5 @@ def plot_gp_tree(
             n = g.get_node(i)
             n.attr["label"] = labels[i]
 
-        g.draw(f"tree-{t_idx}.pdf")
+        file_path = f"figures/tree-{t_idx}.pdf"
+        g.draw(file_path)
