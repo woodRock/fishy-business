@@ -29,8 +29,8 @@ if __name__ == "__main__":
                         help="The number for the run, this effects the random seed. Defaults to 0")
     parser.add_argument('-o', '--output', type=str, default=f"logs/results",
                         help="Partial filepath for the output logging.")
-    parser.add_argument('-p', '--population', type=int, default=100,
-                        help="The number of individuals in the population. Defaults to 100.")
+    parser.add_argument('-p', '--population', type=int, default=1023,
+                        help="The number of individuals in the population. Defaults to 1023.")
     parser.add_argument('-b', '--beta', type=int, default=-1,
                         help="Specify beta * num_features as population size. Defaults to -1.")
     parser.add_argument('-g', '--generations', type=int, default=10,
