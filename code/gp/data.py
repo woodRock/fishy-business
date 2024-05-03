@@ -31,7 +31,6 @@ def load_dataset(dataset="species"):
     data = data[~data['m/z'].str.contains('QC')]
         # Exclude cross-species samples from the dataset.
     if dataset == "species" or dataset == "part" or dataset == "oil":
-        logger.debug("I get here 3")
         data = data[~data['m/z'].str.contains('HM')]
     
     # Exclude mineral oil samples from the dataset.
