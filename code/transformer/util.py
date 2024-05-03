@@ -56,12 +56,18 @@ def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=
     path = ['~/','Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)
 
-    raw = pd.read_excel(path)
+    data = pd.read_excel(path)
+    y = []
 
-    data = raw[~raw['m/z'].str.contains('HM')]
+    # Remove the quality control samples.
     data = data[~data['m/z'].str.contains('QC')]
-    data = data[~data['m/z'].str.contains('HM')]
-    X = data.drop('m/z', axis=1) # X contains only the features.
+        # Exclude cross-species samples from the dataset.
+    if dataset == "species" or dataset == "part" or dataset == "oil":
+        data = data[~data['m/z'].str.contains('HM')]
+    
+    # Exclude mineral oil samples from the dataset.
+    if dataset == "species" or dataset == "part" or dataset == "cross-species":
+        data = data[~data['m/z'].str.contains('MO')]
     
     # Either fish "species" or "part" dataset.
     if dataset == "species":
@@ -75,16 +81,28 @@ def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=
                     else ([0,0,0,1,0,0] if 'Skins' in x
                     else ([0,0,0,0,1,0] if 'Guts' in x
                     else ([0,0,0,0,0,1] if 'Frames' in x
-                    else None ))))))  # Labels (0 for Hoki, 1 for Moki)   
-        # Remove the "None" values from the dataset. 
-        xs = []
-        ys = []
-        for (x,y) in zip(X.to_numpy(),y):
-            if y is not None:
-                xs.append(x)
-                ys.append(y)
-        X = np.array(xs)
-        y = np.array(ys)
+                    else None ))))))  # Labels (0 for Hoki, 1 for Moki)
+    elif dataset == "oil":
+        # Onehot encodings for class labels (1 for Oil, 0 for No Oil)
+        # Oil contaminated samples contain 'MO' in their class label.
+        y = data['m/z'].apply(lambda x: [1,0] if 'MO' in x else [0,1])
+    elif dataset == "cross-species":
+        # Onehot encodings for class labels (1 for HM, 0 for Not Cross-species)
+        # Cross-species contaminated samples contain 'HM' in their class label.
+        y = data['m/z'].apply(lambda x: [1,0] if 'HM' in x else [0,1])
+
+    # X contains only the features.
+    X = data.drop('m/z', axis=1)
+    
+    # Remove the "None" values from the dataset. 
+    xs = []
+    ys = []
+    for (x,y) in zip(X.to_numpy(),y):
+        if y is not None:
+            xs.append(x)
+            ys.append(y)
+    X = np.array(xs)
+    y = np.array(ys)
     
     # Convert to numpy arrays.
     X = np.array(X)

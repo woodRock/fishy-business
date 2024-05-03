@@ -164,6 +164,12 @@ if __name__ == "__main__":
         output_dim = 2  # Example: number of output classes
     elif dataset =="part":
         output_dim = 6
+    elif dataset =="oil":
+        output_dim = 2
+    elif dataset =="cross-species":
+        output_dim = 2
+    else:
+        raise ValueError(f"Not a valid dataset: {dataset}")
 
     # Early stopping (Morgan 1989)
     if is_early_stopping:
