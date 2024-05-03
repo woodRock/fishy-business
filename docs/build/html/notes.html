@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes &mdash; fish 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Thoughts" href="thoughts.html" />
+    <link rel="prev" title="Literature Review" href="literature.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            fish
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+<li class="toctree-l1"><a class="reference internal" href="papers.html">Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="minutes.html">Minutes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="literature.html">Literature Review</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#reims">2022-08-23 - REIMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ecs-grid">ECS Grid</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="thoughts.html">Thoughts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contact.html">Contact</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fish</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Notes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/notes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="notes">
+<h1>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h1>
+<section id="reims">
+<h2>2022-08-23 - REIMS<a class="headerlink" href="#reims" title="Link to this heading"></a></h2>
+<p>These are my notes from the presentation slides on REIMS <a class="reference external" href="https://github.com/woodRock/fishy-business/blob/main/resources/REIMS.pdf">https://github.com/woodRock/fishy-business/blob/main/resources/REIMS.pdf</a></p>
+<dl class="simple">
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>REIMS -  Rapid Evaporative Ionisation Mass Spectrometry (REIMS) - a technique that allows rapid high resolution mass spectral fingerprinting of samples with no sample preparation.</p></li>
+<li><dl class="simple">
+<dt>Motivation:</dt><dd><ul>
+<li><p>High resolution masses can be used for basic compound identification.</p></li>
+<li><p>Existing MS/MS technique is possible, but time-consiming and required preprocessing and manual feature selection.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Method:</dt><dd><ul>
+<li><p>Samples taken from frozen (-80°c) tissue.</p></li>
+<li><p>Thawing may lead to better results.</p></li>
+<li><p>Calibration (1/2 day), cleaning required after each sample.</p></li>
+<li><p>Takes 8 mins / plate to process a sample.</p></li>
+<li><p>96 samples in triplicate, + 9 quality control (QCs), 306 samples total.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Feature Selection:</dt><dd><ul>
+<li><p>2080 features detected, GC-based FS method reduce to 1384 features.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Exploratory Data Analysis (EDA):</dt><dd><ul>
+<li><p>Unsupvervised Principle Component Analysis (Abdi 2020)</p></li>
+<li><p>Supervised OPLS-DA (Boccard 2013)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>QC - When quality controlled (QC) samples were only included with RSD &gt; 30% removed, the results were similar, and the data is likely less noisy.</p></li>
+<li><p>PCA - provides an overview of the variance in the daa. Difficult to gain intuition due to the large number classes. Notably “MG” is seperated.</p></li>
+<li><p>PC2 - the principal component 2 exmplains the variance between Hoki and Mackeral, “HM” the hoki-mackeral mix, is clearly spread acorss the two clusters.</p></li>
+<li><p>OPLS-DA is a form of supverised discriminant analysis (DA), similar to PLS-DA, except for forcing the difference between two groups to be along the first component.</p></li>
+<li><dl class="simple">
+<dt>OPLS-DA results:</dt><dd><ul>
+<li><p>For seperating Hoki and Mackeral - the model is robust (Q2 = 0.9).</p></li>
+<li><p>struggles with Hoki and Hoki-Mackeral Mix - (Q2 = 0.37), after FS with VIP &lt;1 (Q2 = 0.48).</p></li>
+<li><p>Struggles for Mackerl and Hoki-Mackeral Mix - (Q2 = 0.36), after FS with VIP &lt;1 (0.41).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Summary:</dt><dd><ol class="arabic simple">
+<li><p>REIMS can classify Hoki and Mackeral.</p></li>
+<li><p>Hoki, Mackeral and Hoki-Mackeral mix is more difficult.</p></li>
+<li><p>Samples taken in sequential order, but plates randomized to minimize impact of instrumental drift.</p></li>
+<li><p>More steps to combat instrumental drift should be addressed.</p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>Related:</dt><dd><ul class="simple">
+<li><p>See 2022-08-23 - PFR Daniel and Kevin</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="ecs-grid">
+<h2>ECS Grid<a class="headerlink" href="#ecs-grid" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>Commands:</dt><dd><ul class="simple">
+<li><p>To submit a job run <code class="docutils literal notranslate"><span class="pre">qsub</span> <span class="pre">job.sh</span></code> where <code class="docutils literal notranslate"><span class="pre">job.sh</span></code> is the name of the script.</p></li>
+<li><p>To see the state of current jobs run <code class="docutils literal notranslate"><span class="pre">qstat</span></code>.</p></li>
+<li><p>To see why a script is in an error state run <code class="docutils literal notranslate"><span class="pre">qstat</span> <span class="pre">-explain</span> <span class="pre">E</span> <span class="pre">-j</span> <span class="pre">&lt;jobid&gt;</span></code>.</p></li>
+</ul>
+</dd>
+<dt>Notes:</dt><dd><ul class="simple">
+<li><p>Instructions for the grid can be found here <a class="reference external" href="https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script">https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script</a></p></li>
+<li><p>Remote access to the grid is available via SSH <a class="reference external" href="https://ecs.wgtn.ac.nz/Support/TechNoteWorkingFromHome">https://ecs.wgtn.ac.nz/Support/TechNoteWorkingFromHome</a></p></li>
+<li><p>My griduser folder is <code class="docutils literal notranslate"><span class="pre">woodjess3</span></code>, but my ECS username is <code class="docutils literal notranslate"><span class="pre">woodj4</span></code>, be careful with this difference when writing scripts.</p></li>
+<li><p>For email notifications of job completion, I must use my ECS email <a class="reference external" href="mailto:Jesse&#46;Wood&#37;&#52;&#48;ecs&#46;vuw&#46;ac&#46;nz">Jesse<span>&#46;</span>Wood<span>&#64;</span>ecs<span>&#46;</span>vuw<span>&#46;</span>ac<span>&#46;</span>nz</a>.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="literature.html" class="btn btn-neutral float-left" title="Literature Review" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="thoughts.html" class="btn btn-neutral float-right" title="Thoughts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Daniel Killeen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

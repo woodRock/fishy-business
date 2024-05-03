@@ -10,6 +10,7 @@ Welcome to fish's documentation!
    :maxdepth: 1 
    :caption: Contents:
 
+   api
    about 
    papers
    minutes
@@ -17,17 +18,6 @@ Welcome to fish's documentation!
    notes
    thoughts
    contact
-
-Docs
-====
-
-.. autosummary::
-   :toctree: _autosummary
-   :template: custom-module-template.rst
-   :recursive:
-
-   mypackage
-
 
 Indices and tables
 ==================

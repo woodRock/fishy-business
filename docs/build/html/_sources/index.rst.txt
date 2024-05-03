@@ -10,13 +10,14 @@ Welcome to fish's documentation!
    :maxdepth: 1 
    :caption: Contents:
 
+   api
    about 
-   minutes
    papers
+   minutes
+   literature
+   notes
    thoughts
    contact
-
-
 
 Indices and tables
 ==================
