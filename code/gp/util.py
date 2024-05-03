@@ -127,11 +127,11 @@ def intraclass_distance(X,y):
     The average distance between all pairs of instances that are from the same class.
 
     Args:
-        _X: numpy array of features.
-        _y: numpy array of labels.
+        X (Iterable): numpy array of features.
+        y (Iterable): numpy array of labels.
 
     Returns:
-        Intra-class distance for a dataset.
+        d (float): Intra-class distance for a dataset.
     """
     data = list(zip(X, y))
     pair_length = sum([1 if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
@@ -145,11 +145,11 @@ def interclass_distance(X,y):
     The average distance between all pairs of instances that are from different classes.
 
     Args:
-        _X: numpy array of features.
-        _y: numpy array of labels.
+        X (Iterable): numpy array of features.
+        y (Iterable): numpy array of labels.
 
     Returns:
-        Inter-class distance for a dataset.
+        d (float): Inter-class distance for a dataset.
     """
     data = list(zip(X, y))
     pair_length = sum([1 if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
@@ -169,12 +169,13 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
     corresponds to a 2x speedup for training, when compared to the verbose method.
 
     Args:
-        X: entire dataset, train and test.
-        k: Number of folds, for cross validation. Defaults to 10.
-        verbose: If true, prints stuff. Defaults to false.
+        X (Iterable): the features of the evolved tree. Defaults to None.
+        y (Iterable): the class labels for comparison. Defaults to None.
+        k (int): Number of folds, for cross validation. Defaults to 2.
+        verbose (bool): If true, prints stuff. Defaults to false.
 
     Returns:
-        Average balanced classification accuracy with 10-fold CV on training set.
+        fitness (Iterable): Averaged balanced accuracy + distance metric.
     """
     logger = logging.getLogger(__name__)
 
@@ -264,10 +265,14 @@ def evaluate_classification(individual, verbose=False, toolbox=None, pset=None, 
 
     Args:
         individual (Individual): A candidate solution to be evaluated.
-        alpha (float): A parameter that balances the accuracy and regularization term. Defaults to 0.98.
+        verbose (bool): whether or not to print the verbose output.
+        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
+        pset (deap.gp.PrimitiveSet): The set of primitives that contains the terminal and function set(s). 
+        X (Iterable): the features for the dataset.
+        y (Iterable): the class labels for the dataset.
 
     Returns:
-        accuracy (tuple): The fitness of the individual.
+        accuracy (tuple(int,)): The fitness of the individual.
     """
     features = toolbox.compile(expr=individual, pset=pset)
     fitness = wrapper_classification_accuracy(X=features, y=y, verbose=verbose)

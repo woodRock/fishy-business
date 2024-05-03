@@ -82,12 +82,15 @@ if __name__ == "__main__":
     elif dataset == "cross-species":
         n_classes = 3
         
+    # Terminal set.
     pset = gp.PrimitiveSet("MAIN", n_features)
+
+    # Function set.
     pset.addPrimitive(operator.add, 2)
     pset.addPrimitive(operator.sub, 2)
     pset.addPrimitive(operator.mul, 2)
     pset.addPrimitive(operator.neg, 1)
-    # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
+    pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
     toolbox = base.Toolbox()
 
