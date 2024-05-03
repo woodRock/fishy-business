@@ -1,8 +1,6 @@
-# Transformer 
+# Genetic Programming in DEAP
 
-This script lets you run a transformer code on the GPUs.
-
-## Running
+## Run
 
 To run experiments, you can use the `run.sh` script. This uses the task spooler `ts` command to run 10 experiments with parallel execution on a GPU server.
 
@@ -12,12 +10,12 @@ Example usage:
 $ ./run.sh
 ```
 
-To run an individual experiment, you can execute the following command. Say we want to perform genetirc programming on the species dataset `-d`, with 50 epochs `-e`.
+To run an individual experiment, you can execute the following command. Say we want to perform genetirc programming on the species dataset `-d`, with 50 generations `-g` , and a population beta `-b` of 1.
 
 Example usage:
 
 ```bash
-$ python3 main.py -d species -e 50
+$ python3 main.py -d species -g 50 -b 1
 ```
 
 ## Task Spooler
