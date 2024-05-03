@@ -16,16 +16,19 @@ def load_dataset(dataset="species"):
     path = os.path.join(*path)
 
     # Load the dataset
-    data = pd.read_excel(path)
-
     logger.info(f"Reading dataset fish: {dataset}")
-    raw = pd.read_excel(path)
-
-    data = raw[~raw['m/z'].str.contains('HM')]
+    data = pd.read_excel(path)
+    y = []
+    # Remove the quality control samples.
     data = data[~data['m/z'].str.contains('QC')]
-    data = data[~data['m/z'].str.contains('HM')]
-    X = data.drop('m/z', axis=1) # X contains only the features.
-    y = [] 
+        # Exclude cross-species samples from the dataset.
+    if dataset == "species" or dataset == "part" or dataset == "oil":
+        data = data[~data['m/z'].str.contains('HM')]
+    
+    # Exclude mineral oil samples from the dataset.
+    if dataset == "species" or dataset == "part" or dataset == "cross-species":
+        data = data[~data['m/z'].str.contains('MO')]
+    
     if dataset == "species":
         # Binary encodings for class labels (1 for Hoki, 0 for Mackeral)
         y = data['m/z'].apply(lambda x: 1 if 'H' in x else 0)
@@ -46,7 +49,8 @@ def load_dataset(dataset="species"):
         # Binary encodings for class labels (1 for HM, 0 for Not Cross-species)
         # Cross-species contaminated samples contain 'HM' in their class label.
         y = data['m/z'].apply(lambda x: 1 if 'HM' in x else 0)
-    
+   
+    X = data.drop('m/z', axis=1) # X contains only the features.
     y = np.array(y)
 
     xs = []
