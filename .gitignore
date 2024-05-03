@@ -15,3 +15,5 @@ code/transformer/checkpoints/
 
 # Cache for python
 code/evotorch/__pycache__
+code/gp/__pycache__
+code/transformer/__pycache__
