@@ -1,0 +1,6 @@
+INFO:data:Reading dataset fish: cross-species
+INFO:data:Class Counts: [45 60 48], Class Ratios: [0.29411765 0.39215686 0.31372549]
+INFO:data:Number of features: 1023
+Number of instances: 153
+Number of classes 3.
+INFO:__main__:No model found. Train from scratch.
