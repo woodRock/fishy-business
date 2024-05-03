@@ -75,7 +75,7 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
     return population, logbook
 
 
-def train(generations=100, population=1023, elitism=0.1, crossover_rate=0.5, mutation_rate=0.1, run=0, toolbox=None):
+def train(generations=100, population=1023, elitism=0.1, crossover_rate=0.8, mutation_rate=0.2, run=0, toolbox=None):
     """
     This is a Multi-tree GP with Elitism for Multi-class classification.d
 
@@ -105,6 +105,8 @@ def train(generations=100, population=1023, elitism=0.1, crossover_rate=0.5, mut
           rates in genetic algorithm: a review. International Journal of Applied
           Engineering and Technology, 5(3), 38-41.
     """
+    assert crossover_rate + mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
+
     # Reproducuble results for each run.
     random.seed(run)
 
@@ -141,8 +143,6 @@ def save_model(file_path="checkpoint_name.pkl", generations=None, population=Non
 
     This is a Multi-tree GP with Elitism for Multi-class classification.
 
-    An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
-
     Args:
         file_path (str): The filepath to store the model checkpoints to. Defaults to "checkpoint_name.pkl".
         generations (int): The number of generations to evolve the populaiton for. Defaults to 100.            
@@ -161,6 +161,8 @@ def save_model(file_path="checkpoint_name.pkl", generations=None, population=Non
 def load_model(file_path="checkpoint_name.pkl", generations=100, crossover_rate=0.8, mutation_rate=0.2, toolbox=None):
     """
     Load a model from a file.
+
+    An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
 
     Args:
         file_path (str): The filepath to store the model checkpoints to. Defaults to "checkpoint_name.pkl".
@@ -183,6 +185,8 @@ def load_model(file_path="checkpoint_name.pkl", generations=100, crossover_rate=
     # logbook = cp["logbook"]
     random.setstate(cp["rndstate"])
     run = cp["run"]
+
+    assert crossover_rate + mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
 
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     length = lambda a: np.max(list(map(len, a)))
