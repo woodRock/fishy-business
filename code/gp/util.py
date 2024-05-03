@@ -157,7 +157,7 @@ def interclass_distance(X,y):
     d = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
     return d
 
-def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
+def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False, is_normalize=True):
     """ Evaluate balanced classification accuracy over stratified k-fold cross validation.
 
     This method is our fitness measure for an individual. We measure each individual
@@ -173,6 +173,7 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
         y (Iterable): the class labels for comparison. Defaults to None.
         k (int): Number of folds, for cross validation. Defaults to 2.
         verbose (bool): If true, prints stuff. Defaults to false.
+        normalize (bool): Normalize the features in the dataset. Defaults to True.
 
     Returns:
         fitness (Iterable): Averaged balanced accuracy + distance metric.
@@ -192,8 +193,10 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
     for train_idx, val_idx in skf.split(X_train,y_train):
         X_train, X_val = X[train_idx], X[val_idx]
         y_train, y_val = y[train_idx], y[val_idx]
+        
         # Normalize features to interclass/intraclass distance sum to 1.
-        X_train = normalize(X_train)
+        if is_normalize:
+            X_train = normalize(X_train)
         # Class-dependent multi-tree embedded GP (Tran 2019).
         y_predict = [np.argmax(x) for x in X_train]
         train_acc = balanced_accuracy_score(y_train, y_predict)
@@ -201,7 +204,8 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False):
 
         # 2x speedup: only evaluate test set in verbose mode.
         if verbose:
-            X_val, X_test = normalize(X_val), normalize(X_test)
+            if is_normalize:
+                X_val, X_test = normalize(X_val), normalize(X_test)
 
             y_predict = [np.argmax(x) for x in X_val]
             val_acc = balanced_accuracy_score(y_val, y_predict)

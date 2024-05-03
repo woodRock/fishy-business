@@ -10,7 +10,7 @@ from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
 from gp import train, save_model, load_model
 from data import load_dataset
-from plot import plot_tsne
+from plot import plot_tsne, plot_gp_tree
 # Disable the warnings.
 # Source: https://stackoverflow.com/questions/14463277/how-to-disable-python-warnings
 import warnings
@@ -88,20 +88,10 @@ if __name__ == "__main__":
     # Terminal set.
     pset = gp.PrimitiveSet("MAIN", n_features)
 
-    
-
-    # Define new functions
-    def protectedDiv(left, right):
-        try:
-            return left / right
-        except ZeroDivisionError:
-            return 1
-            
     # Function set.
     pset.addPrimitive(operator.add, 2)
     pset.addPrimitive(operator.sub, 2)
     pset.addPrimitive(operator.mul, 2)
-    pset.addPrimitive(protectedDiv, 2)
     pset.addPrimitive(operator.neg, 1)
     pset.addPrimitive(np.sin, 1)
     pset.addPrimitive(np.cos, 1)
@@ -171,4 +161,4 @@ if __name__ == "__main__":
     features = toolbox.compile(expr=best, pset=pset)
     evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X, y=y)
     plot_tsne(dataset=dataset, X=X, y=y, features=features, toolbox=toolbox)
-
+    plot_gp_tree(best)
