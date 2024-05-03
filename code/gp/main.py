@@ -1,8 +1,10 @@
 import logging
 import argparse
 import operator
+import math
 import os
 import random 
+import numpy as np 
 from deap import base, creator, tools, gp
 from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
@@ -86,11 +88,24 @@ if __name__ == "__main__":
     # Terminal set.
     pset = gp.PrimitiveSet("MAIN", n_features)
 
+    
+
+    # Define new functions
+    def protectedDiv(left, right):
+        try:
+            return left / right
+        except ZeroDivisionError:
+            return 1
+            
     # Function set.
     pset.addPrimitive(operator.add, 2)
     pset.addPrimitive(operator.sub, 2)
     pset.addPrimitive(operator.mul, 2)
+    pset.addPrimitive(protectedDiv, 2)
     pset.addPrimitive(operator.neg, 1)
+    pset.addPrimitive(np.sin, 1)
+    pset.addPrimitive(np.cos, 1)
+    pset.addPrimitive(np.tan, 1)
     # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
     toolbox = base.Toolbox()
