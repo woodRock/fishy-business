@@ -1,6 +1,6 @@
 import random
 import copy
-from functools import wraps, partial
+from functools import wraps
 from deap import gp
 
 def xmate(ind1, ind2):
