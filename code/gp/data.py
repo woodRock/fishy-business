@@ -2,9 +2,11 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+from typing import Iterable
 
-
-def load_dataset(dataset="species"):
+def load_dataset(
+        dataset: str = "species"
+    ) -> (Iterable, Iterable):
     """Load and prepare the dataset from an excel spreadsheet.
 
     This method loads the dataset from an excel spreadsheet.
@@ -13,7 +15,7 @@ def load_dataset(dataset="species"):
     An exception is thrown, if no valid dataset is specified.
 
     Args: 
-        dataset (str): the species, part, oil or cross-species dataset. Defaults to species.
+        dataset (str): the species, part, oil or cross-species dataset
 
     Returns: 
         X,y (np.array, np.array): Returns the dataset split into features X, and class labels y.

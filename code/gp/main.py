@@ -2,6 +2,7 @@ import logging
 import argparse
 import operator
 import os
+import random 
 from deap import base, creator, tools, gp
 from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     pset.addPrimitive(operator.sub, 2)
     pset.addPrimitive(operator.mul, 2)
     pset.addPrimitive(operator.neg, 1)
-    pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
+    # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
     toolbox = base.Toolbox()
 
@@ -154,5 +155,5 @@ if __name__ == "__main__":
     best = hof[0]
     features = toolbox.compile(expr=best, pset=pset)
     evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X, y=y)
-    plot_tsne(X=X, features=features)
+    plot_tsne(dataset=dataset, X=X, y=y, features=features, toolbox=toolbox)
 

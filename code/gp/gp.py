@@ -6,9 +6,20 @@ from tqdm import tqdm
 from deap import tools
 from deap import algorithms
 from deap import tools
+from deap.base import Toolbox
+from deap.tools import Logbook, HallOfFame
+from typing import Iterable
 
-def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
-             halloffame=None, verbose=__debug__):
+def SimpleGPWithElitism(
+        population: int, 
+        toolbox: Toolbox, 
+        cxpb: float, 
+        mutpb: float, 
+        ngen: int, 
+        stats=None,
+        halloffame=None, 
+        verbose: bool=False
+    ) -> (Iterable, Logbook):
     """
     Elitism for Multi-Tree GP for Multi-Class classification.
     A variation of the eaSimple method from the DEAP library that supports
@@ -18,7 +29,7 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
     best solution monotonically increases over time.
 
     Args:
-        population: The number of individuals to evolve.
+        population (int): The number of individuals to evolve.
         toolbox (deap.base.Toolbox): The toolbox containing the genetic operators.
         cxpb (float): The probability of a crossover between two individuals.
         mutpb (float): The probability of a random mutation within an individual.
@@ -75,7 +86,15 @@ def SimpleGPWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
     return population, logbook
 
 
-def train(generations=100, population=1023, elitism=0.1, crossover_rate=0.8, mutation_rate=0.2, run=0, toolbox=None):
+def train(
+        generations: int = 100, 
+        population: int = 1023, 
+        elitism: float =0.1, 
+        crossover_rate: float =0.8, 
+        mutation_rate: float =0.2, 
+        run: int = 0, 
+        toolbox: Toolbox = None
+    ) -> (Iterable, Logbook, HallOfFame):
     """
     This is a Multi-tree GP with Elitism for Multi-class classification.d
 
@@ -137,7 +156,15 @@ def train(generations=100, population=1023, elitism=0.1, crossover_rate=0.8, mut
     return population, logbook, hall_of_fame
 
 
-def save_model(file_path="checkpoint_name.pkl", generations=None, population=None, hall_of_fame=None, toolbox=None, logbook=None, run=None):
+def save_model(
+        file_path: str ="checkpoint_name.pkl", 
+        generations: int = 0, 
+        population: Iterable = None, 
+        hall_of_fame: HallOfFame = None, 
+        toolbox: Toolbox = None, 
+        logbook: Logbook = None, 
+        run: int = 0
+    ) -> None: 
     """
     Save the model to a file.
 
@@ -158,7 +185,13 @@ def save_model(file_path="checkpoint_name.pkl", generations=None, population=Non
         pickle.dump(cp, cp_file)
 
 
-def load_model(file_path="checkpoint_name.pkl", generations=100, crossover_rate=0.8, mutation_rate=0.2, toolbox=None):
+def load_model(
+        file_path: str = "checkpoint_name.pkl", 
+        generations: int =100, 
+        crossover_rate: float = 0.8, 
+        mutation_rate: float = 0.2, 
+        toolbox: Toolbox = None
+    ) -> (Iterable, Logbook, HallOfFame):
     """
     Load a model from a file.
 

@@ -8,21 +8,30 @@ import seaborn as sns
 import pandas as pd
 from deap import gp
 import pygraphviz as pgv
+from deap.base import Toolbox
+from deap.tools import Logbook, HallOfFame
+from typing import Iterable
 
-
-def plot_tsne(X, features, file_path="figures/tsne.png"):
+def plot_tsne(
+        X: Iterable, 
+        features: Iterable, 
+        y: Iterable,
+        dataset: str = "species",
+        file_path: str ="figures/tsne.png", 
+        toolbox: Toolbox = None
+    ) -> None:
     """ Plot a 2D t-SNE of the original and constructed features.
     
     Args: 
         X (Iterable): the original feature set.
         features (Iterable): the constructed features.
+        dataset (str): The fish species, part, oil or cross-species dataset. Defualts to species.
         file_path (str): The filepath to store the figure. Defaults to "figures/tsne.png"
+        toolbox: (deap.base.Toolbox): the toolbox contains the terminal and function set.
     """
     logger = logging.getLogger(__name__)
     # Perform t-SNE dimensionality reduction
     perplexity = 10
-    features = toolbox.compile(expr=hof[0], pset=pset)
-    evaluate_classification(hof.items[0], verbose=True)
 
     for X_set in [X, features]:
         tsne = TSNE(n_components=2, perplexity=perplexity, random_state=42)
@@ -31,7 +40,18 @@ def plot_tsne(X, features, file_path="figures/tsne.png"):
         # Plot the data
         plt.figure(figsize=(10, 8))
 
-        labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+        # Labels for the graph legend are provided for each task.
+        labels = []
+        if dataset == "species":
+            labels = ['Hoki', 'Mackerl']
+        elif dataset == "part":
+            labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+        elif dataset == "oil":
+            labels = ["Oil", "None"]
+        elif dataste == "cross-species": 
+            labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
+        else: 
+            raise ValueError(f"Invalid dataset: {dataset}")
 
         # Plot points belonging to different classes with different colors
         for idx, label in enumerate(np.unique(y)):
@@ -49,13 +69,23 @@ def plot_tsne(X, features, file_path="figures/tsne.png"):
         # plt.show()
 
 
-def plot_pca_3D(X, features,  file_path="figures/pca_3D.png"):
+def plot_pca_3D(
+        X: Iterable, 
+        y: Iterable, 
+        features: Iterable, 
+        dataset: str = "species",
+        file_path: str ="figures/pca_3D.png", 
+        toolbox: Toolbox = None
+    ) -> None:
     """ Plot a 3D PCA of the original and constructed features.
     
     Args: 
-        X (Iterable): the original feature set.
-        features (Iterable): the constructed features.
+        X (Iterable): the features for the orginal dataset.
+        y (Iterable): the class labels for the dataset.
+        features (Iterable): the constructed features from genetic programming.
+        dataset (str): The fish species, part, oil or cross-species dataset. Defualts to species.
         file_path (str): The filepath to store the figure. Defaults to "figures/pca_3D.png"
+        toolbox: (deap.base.Toolbox): the toolbox contains the terminal and function set.
     """
     logger = logging.getLogger(__name__)
     # Assuming you have your own dataset with features X and labels y
@@ -71,7 +101,18 @@ def plot_pca_3D(X, features,  file_path="figures/pca_3D.png"):
         fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(111, projection='3d')
 
-        labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+        # Labels for the graph legend are provided for each task.
+        labels = []
+        if dataset == "species":
+            labels = ['Hoki', 'Mackerl']
+        elif dataset == "part":
+            labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+        elif dataset == "oil":
+            labels = ["Oil", "None"]
+        elif dataste == "cross-species": 
+            labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
+        else: 
+            raise ValueError(f"Invalid dataset: {dataset}")
 
         # Plot points belonging to different classes with different colors
         for idx, label in enumerate(np.unique(y)):
@@ -89,13 +130,23 @@ def plot_pca_3D(X, features,  file_path="figures/pca_3D.png"):
         # plt.show()
 
 
-def plot_tsne_3D(X, features, file_path="figures/tsne_3D.png"):
+def plot_tsne_3D(
+        X: Iterable, 
+        y: Iterable, 
+        features: Iterable, 
+        dataset: str = "species",
+        file_path: str ="figures/tsne_3D.png", 
+        toolbox: Toolbox = None
+    ) -> None:
     """ Plot a 3D t-SNE of the original and constructed features.
     
     Args: 
-        X (Iterable): the original feature set.
+        X (Iterable): the orginal features from the dataset.
+        y (Iterable): the class labels from the dataset.
         features (Iterable): the constructed features.
+        dataset (str): The fish species, part, oil or cross-species dataset. Defaults to species.
         file_path (str): The filepath to store the figure. Defaults to "figures/tsne_3D.png"
+        toolbox: (deap.base.Toolbox): the toolbox contains the terminal and function set.
     """
     for X_set in [X, features]:
         # Perform t-SNE dimensionality reduction
@@ -106,7 +157,18 @@ def plot_tsne_3D(X, features, file_path="figures/tsne_3D.png"):
         fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(111, projection='3d')
 
-        labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+        # Labels for the graph legend are provided for each task.
+        labels = []
+        if dataset == "species":
+            labels = ['Hoki', 'Mackerl']
+        elif dataset == "part":
+            labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+        elif dataset == "oil":
+            labels = ["Oil", "None"]
+        elif dataste == "cross-species": 
+            labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
+        else: 
+            raise ValueError(f"Invalid dataset: {dataset}")
 
         # Plot points belonging to different classes with different colors
         for idx, label in enumerate(np.unique(y)):
@@ -124,19 +186,34 @@ def plot_tsne_3D(X, features, file_path="figures/tsne_3D.png"):
         # plt.show()
     
      
-def plot_pair_plot(features, file_path="figures/pairplot.png") -> None:
+def plot_pair_plot(
+        features: Iterable, 
+        dataset: str = "species",
+        file_path: str ="figures/pairplot.png"
+    ) -> None:
     """ Plot a pairplot the constructed features.
     
     Args: 
         features (Iterable): the constructed features.
+        dataset (str): The fish species, part, oil or cross-species dataset. Defaults to species.
         file_path (str): The filepath to store the figure. Defaults to "figures/pairplot.png"
     """
     feature_no = 2
     data = pd.DataFrame(features[:,:feature_no], columns=[f'feature_{i}' for i in range(feature_no)])
     data['class'] = y[:]
 
-    # Add class labels to the DataFrame
-    labels = ['Hoki','Mackerel']
+    # Labels for the graph legend are provided for each task.
+    labels = []
+    if dataset == "species":
+        labels = ['Hoki', 'Mackerl']
+    elif dataset == "part":
+        labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
+    elif dataset == "oil":
+        labels = ["Oil", "None"]
+    elif dataste == "cross-species": 
+        labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
+    else: 
+        raise ValueError(f"Invalid dataset: {dataset}")
 
     # Create pairplot
     plot = sns.pairplot(data, hue='class', palette='viridis')
@@ -151,7 +228,10 @@ def plot_pair_plot(features, file_path="figures/pairplot.png") -> None:
     # plt.show()
 
 
-def plot_evolutionary_process(fitness, file_path="figures/pairplot.png") -> None:
+def plot_evolutionary_process(
+        fitness: Iterable, 
+        file_path: str ="figures/pairplot.png"
+    ) -> None:
     """"
     Plot the evolutionary process for an evolved genetic program.
 
@@ -169,12 +249,14 @@ def plot_evolutionary_process(fitness, file_path="figures/pairplot.png") -> None
     # plt.show()
 
 
-def plot_gp_tree(multi_tree=None):
+def plot_gp_tree(
+        multi_tree: Iterable = None
+    ) -> None :
     """
     Plot subtrees from a multi-tree evolved using genetic programming.
 
     Args:
-        mutli-tree (Iterable(creator.Individual)): a solution is represented by a multi-tree.
+        mutli-tree (Iterable): a solution is represented by a multi-tree.
     """
     for t_idx,tree in enumerate(multi_tree):
         nodes, edges, labels = gp.graph(tree)
