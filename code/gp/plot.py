@@ -9,7 +9,6 @@ import pandas as pd
 from deap import gp
 import pygraphviz as pgv
 from deap.base import Toolbox
-from deap.tools import Logbook, HallOfFame
 from typing import Iterable
 
 def plot_tsne(
@@ -148,6 +147,7 @@ def plot_tsne_3D(
         file_path (str): The filepath to store the figure. Defaults to "figures/tsne_3D.png"
         toolbox: (deap.base.Toolbox): the toolbox contains the terminal and function set.
     """
+    logger = logging.getLogger(__name__)
     for X_set in [X, features]:
         # Perform t-SNE dimensionality reduction
         tsne = TSNE(n_components=2, perplexity=10, random_state=42)
@@ -198,6 +198,7 @@ def plot_pair_plot(
         dataset (str): The fish species, part, oil or cross-species dataset. Defaults to species.
         file_path (str): The filepath to store the figure. Defaults to "figures/pairplot.png"
     """
+    logger = logging.getLogger(__name__)
     feature_no = 2
     data = pd.DataFrame(features[:,:feature_no], columns=[f'feature_{i}' for i in range(feature_no)])
     data['class'] = y[:]
@@ -230,7 +231,7 @@ def plot_pair_plot(
 
 def plot_evolutionary_process(
         fitness: Iterable, 
-        file_path: str ="figures/pairplot.png"
+        file_path: str ="figures/evolutionary_process.png"
     ) -> None:
     """"
     Plot the evolutionary process for an evolved genetic program.
@@ -239,10 +240,12 @@ def plot_evolutionary_process(
         fitness (Iterable): the set of fitness values that were evolved.
         file_path (str): The filepath where the figure is saved. Defaults to "figures/pairplot.png".
     """
+    logger = logging.getLogger(__name__)
     plt.plot(fitness)
     plt.title("Fitness: evolutionary process")
     plt.xlabel("generation")
     plt.ylabel("fitness")
+    logger.info(f"Saving evolutionary process to file: {file_path}")
     plt.savefig(file_path)
     plt.close()
     # Show for interactive mode.
@@ -258,6 +261,7 @@ def plot_gp_tree(
     Args:
         mutli-tree (Iterable): a solution is represented by a multi-tree.
     """
+    logger = logging.getLogger(__name__)
     for t_idx,tree in enumerate(multi_tree):
         nodes, edges, labels = gp.graph(tree)
 
@@ -269,6 +273,7 @@ def plot_gp_tree(
         for i in nodes:
             n = g.get_node(i)
             n.attr["label"] = labels[i]
-
+            
         file_path = f"figures/tree-{t_idx}.pdf"
+        logger.info(f"Saving tree to file: {file_path}")
         g.draw(file_path)

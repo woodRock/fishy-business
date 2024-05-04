@@ -8,7 +8,7 @@ from deap import algorithms
 from deap import tools
 from deap.base import Toolbox
 from deap.tools import Logbook, HallOfFame
-from typing import Iterable
+from typing import Iterable, Union
 
 def SimpleGPWithElitism(
         population: int, 
@@ -19,7 +19,7 @@ def SimpleGPWithElitism(
         stats=None,
         halloffame=None, 
         verbose: bool=False
-    ) -> (Iterable, Logbook):
+    ) -> Union[Iterable, Logbook]:
     """
     Elitism for Multi-Tree GP for Multi-Class classification.
     A variation of the eaSimple method from the DEAP library that supports
@@ -94,7 +94,7 @@ def train(
         mutation_rate: float =0.2, 
         run: int = 0, 
         toolbox: Toolbox = None
-    ) -> (Iterable, Logbook, HallOfFame):
+    ) -> Union[Iterable, Logbook, HallOfFame]:
     """
     This is a Multi-tree GP with Elitism for Multi-class classification.d
 
@@ -191,7 +191,7 @@ def load_model(
         crossover_rate: float = 0.8, 
         mutation_rate: float = 0.2, 
         toolbox: Toolbox = None
-    ) -> (Iterable, Logbook, HallOfFame):
+    ) -> Union[Iterable, Logbook, HallOfFame]:
     """
     Load a model from a file.
 

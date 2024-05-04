@@ -1,11 +1,10 @@
 import logging
 import argparse
 import operator
-import math
 import os
-import random 
 import numpy as np 
 from deap import base, creator, tools, gp
+from deap.gp import PrimitiveSetTyped
 from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
 from gp import train, save_model, load_model
@@ -26,8 +25,8 @@ if __name__ == "__main__":
                         help="The filepath to store the checkpoints. Defaults to checkpoints/embedded-gp.pth")
     parser.add_argument('-d', '--dataset', type=str, default="species", 
                         help="The fish species or part dataset. Defaults to species.")
-    parser.add_argument('-l', '--load', type=bool, default=False,
-                        help="To load a checkpoint from a file. Defaults to false.")
+    parser.add_argument('-l', '--load', type=bool, action=argparse.BooleanOptionalAction, default=False,
+                        help="To load a checkpoint from a file. Defaults to false")
     parser.add_argument('-r', '--run', type=int, default=0,
                         help="The number for the run, this effects the random seed. Defaults to 0")
     parser.add_argument('-o', '--output', type=str, default=f"logs/results",
@@ -86,16 +85,19 @@ if __name__ == "__main__":
         n_classes = 3
         
     # Terminal set.
-    pset = gp.PrimitiveSet("MAIN", n_features)
+    # pset = gp.PrimitiveSet("MAIN", n_features)
+    pset = PrimitiveSetTyped("main", [bool, float], float)
 
-    # Function set.
-    pset.addPrimitive(operator.add, 2)
-    pset.addPrimitive(operator.sub, 2)
-    pset.addPrimitive(operator.mul, 2)
-    pset.addPrimitive(operator.neg, 1)
-    pset.addPrimitive(np.sin, 1)
-    pset.addPrimitive(np.cos, 1)
-    pset.addPrimitive(np.tan, 1)
+    # Basic arithmetic
+    pset.addPrimitive(operator.add, [float,float], float)
+    pset.addPrimitive(operator.mul, [float,float], float)
+    pset.addPrimitive(operator.sub, [float,float], float)
+    pset.addPrimitive(operator.neg, [float], float)
+
+    # Trigonometry
+    pset.addPrimitive(np.sin, [float], float)
+    pset.addPrimitive(np.cos, [float], float)
+    pset.addPrimitive(np.tan, [float], float)
     # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
     toolbox = base.Toolbox()

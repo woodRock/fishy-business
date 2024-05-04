@@ -1,14 +1,14 @@
 import random
 import copy
 from functools import wraps
-from deap import gp, creator
+from deap import gp
 from deap.gp import PrimitiveSet, genHalfAndHalf
-from typing import Iterable
+from typing import Iterable, Union
 
 def xmate(
         ind1: Iterable, 
         ind2: Iterable,
-    ) -> (Iterable, Iterable):
+    ) -> Union[Iterable, Iterable]:
     """ Reproduction operator for multi-tree GP, where trees are represented as a list.
 
     Crossover happens to a subtree that is selected at random.
