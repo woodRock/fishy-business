@@ -2,11 +2,11 @@ import logging
 import numpy as np
 import os
 import pandas as pd
-from typing import Iterable
+from typing import Iterable, Union
 
 def load_dataset(
         dataset: str = "species"
-    ) -> (Iterable, Iterable):
+    ) -> Union[Iterable, Iterable]:
     """Load and prepare the dataset from an excel spreadsheet.
 
     This method loads the dataset from an excel spreadsheet.
