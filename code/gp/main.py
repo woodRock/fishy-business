@@ -130,7 +130,7 @@ if __name__ == "__main__":
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("compile", compileMultiTree, X=X)
 
-    toolbox.register('evaluate', evaluate_classification, toolbox=toolbox, pset=pset, X=X, y=y)
+    toolbox.register('evaluate', evaluate_classification, toolbox=toolbox, pset=pset, y=y)
     toolbox.register("select", tools.selTournament, tournsize=7)
     toolbox.register("mate", xmate)
     toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
@@ -161,6 +161,6 @@ if __name__ == "__main__":
      
     best = hof[0]
     features = toolbox.compile(expr=best, pset=pset)
-    evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X, y=y)
+    evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, y=y)
     plot_tsne(dataset=dataset, X=X, y=y, features=features, toolbox=toolbox)
     plot_gp_tree(best)

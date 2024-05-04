@@ -1,35 +1,31 @@
-INFO:data:Reading dataset fish: part
-INFO:data:Class Counts: [6 6 3 6 6 3], Class Ratios: [0.2 0.2 0.1 0.2 0.2 0.1]
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [108 126], Class Ratios: [0.46153846 0.53846154]
 INFO:data:Number of features: 1023
-Number of instances: 30
-Number of classes 6.
+Number of instances: 234
+Number of classes 2.
 INFO:__main__:No model found. Train from scratch.
-INFO:gp:   	      	                                 fitness                                 	                      size                     
-   	      	-------------------------------------------------------------------------	-----------------------------------------------
-gen	nevals	avg     	gen	max     	min     	nevals	std      	avg    	gen	max	min	nevals	std    
-0  	1023  	0.233363	0  	0.468335	0.101487	1023  	0.0634021	5.30694	0  	7  	3  	1023  	1.26446
-INFO:gp:1  	792   	0.31513 	1  	0.468335	0.13153 	792   	0.0548587	5.35288	1  	10 	3  	792   	1.29802
-INFO:gp:2  	787   	0.368358	2  	0.508259	0.139445	787   	0.0502669	5.58651	2  	12 	3  	787   	1.32356
-INFO:gp:3  	791   	0.407061	3  	0.543304	0.146112	791   	0.0515971	5.68719	3  	12 	3  	791   	1.29964
-INFO:gp:4  	760   	0.441955	4  	0.543304	0.220103	760   	0.0452931	6.08993	4  	11 	3  	760   	1.15965
-INFO:gp:5  	766   	0.461952	5  	0.543593	0.187529	766   	0.055253 	6.53177	5  	12 	3  	766   	1.33701
-INFO:gp:6  	788   	0.488007	6  	0.582977	0.211211	788   	0.0532109	7.27468	6  	13 	4  	788   	1.58617
-INFO:gp:7  	745   	0.506679	7  	0.588914	0.224017	745   	0.0535889	7.88465	7  	16 	4  	745   	1.47656
-INFO:gp:8  	763   	0.514325	8  	0.588914	0.202522	763   	0.0495053	8.1564 	8  	14 	4  	763   	1.22414
-INFO:gp:9  	763   	0.519337	9  	0.588939	0.246036	763   	0.0547285	8.43695	9  	15 	5  	763   	1.22362
-INFO:gp:10 	778   	0.531635	10 	0.5892  	0.306828	778   	0.056009 	8.55621	10 	15 	6  	778   	1.19567
+INFO:gp:   	      	                             fitness                             	                      size                     
+   	      	-----------------------------------------------------------------	-----------------------------------------------
+gen	nevals	avg   	gen	max     	min     	nevals	std      	avg    	gen	max	min	nevals	std    
+0  	1023  	0.4985	0  	0.584355	0.413541	1023  	0.0205931	4.05181	0  	7  	2  	1023  	1.44033
+INFO:gp:1  	757   	0.519582	1  	0.584355	0.423419	757   	0.0227768	4.10166	1  	10 	2  	757   	1.53213
+INFO:gp:2  	802   	0.534974	2  	0.589589	0.425584	802   	0.0275576	4.11144	2  	10 	1  	802   	1.53846
+INFO:gp:3  	794   	0.549356	3  	0.589589	0.439868	794   	0.033361 	3.97458	3  	11 	2  	794   	1.65775
+INFO:gp:4  	793   	0.555575	4  	0.589589	0.452807	793   	0.0358747	4.43402	4  	11 	2  	793   	1.64471
+INFO:gp:5  	751   	0.554777	5  	0.589589	0.442206	751   	0.0404826	4.95015	5  	12 	2  	751   	1.67158
+INFO:gp:6  	777   	0.5578  	6  	0.590923	0.450436	777   	0.0388038	5.48778	6  	12 	2  	777   	1.90066
+INFO:gp:7  	783   	0.562532	7  	0.592866	0.450436	783   	0.0371103	6.32356	7  	16 	2  	783   	2.15297
+INFO:gp:8  	746   	0.567903	8  	0.592866	0.43614 	746   	0.0336587	6.51026	8  	17 	2  	746   	2.2235 
+INFO:gp:9  	783   	0.566355	9  	0.592866	0.43614 	783   	0.0364849	7.348  	9  	22 	2  	783   	2.91859
+INFO:gp:10 	775   	0.565554	10 	0.594317	0.450436	775   	0.0374694	9.16911	10 	19 	2  	775   	3.36879
 INFO:__main__:Saving model to file: checkpoints/embedded-gp.pth
-INFO:util:Train accuracy: 0.6055555555555555 +- 0.005555555555555536
-INFO:util:Val accuracy: 0.6055555555555555 +- 0.005555555555555536
-INFO:util:Test accuracy: 0.3333333333333333 +- 0.0
-INFO:util:Train intra-class: 0.13705341836160617, Train Inter-class: 0.1846074309722541
-INFO:util:Val intra-class: 0.13187610395045501, Val Inter-class: 0.15893018243421747
-INFO:util:Test intra-class: 0.0, Test inter-class: 0.18959229514756262
+INFO:util:Train accuracy: 0.6191586949783671 +- 0.008759834579506687
+INFO:util:Val accuracy: 0.6191586949783671 +- 0.008759834579506687
+INFO:util:Test accuracy: 0.5036363636363637 +- 0.0
+INFO:util:Train intra-class: 0.22286475391280813, Train Inter-class: 0.21276809092653806
+INFO:util:Val intra-class: 0.21447374082849324, Val Inter-class: 0.21520306137800002
+INFO:util:Test intra-class: 0.2246410566114127, Test inter-class: 0.2172078762449862
 INFO:plot:Saving t-SNE to file: figures/tsne.png
 INFO:plot:Saving t-SNE to file: figures/tsne.png
-INFO:plot:Saving tree to file: {file_path}
-INFO:plot:Saving tree to file: {file_path}
-INFO:plot:Saving tree to file: {file_path}
-INFO:plot:Saving tree to file: {file_path}
-INFO:plot:Saving tree to file: {file_path}
-INFO:plot:Saving tree to file: {file_path}
+INFO:plot:Saving tree to file: figures/tree-0.pdf
+INFO:plot:Saving tree to file: figures/tree-1.pdf

@@ -1,13 +1,20 @@
 import logging
 import numpy as np
 from deap import gp
-from deap.gp import PrimitiveTree, Primitive, Terminal
+from deap.gp import PrimitiveTree, Primitive, Terminal, PrimitiveSetTyped, genHalfAndHalf
+from deap.base import Toolbox
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.preprocessing import minmax_scale
 from sklearn.metrics import balanced_accuracy_score
+from typing import Iterable, Tuple
 
 
-def quick_evaluate(expr: PrimitiveTree, pset, data, prefix='ARG'):
+def quick_evaluate(
+        expr: PrimitiveTree, 
+        pset: PrimitiveSetTyped, 
+        data: Iterable, 
+        prefix: str = 'ARG'
+    ) -> Iterable:
     """ Quick evaluate offers a 500% speedup for the evluation of GP trees.
 
     The default implementation of gp.compile provided by the DEAP library is
@@ -23,9 +30,9 @@ def quick_evaluate(expr: PrimitiveTree, pset, data, prefix='ARG'):
 
     Args:
         expr (PrimitiveTree): The uncompiled (gp.PrimitiveTree) GP tree.
-        pset: The primitive set.
-        data: The dataset to evaluate the GP tree for.
-        prefix: Prefix for variable arguments. Defaults to ARG.
+        pset (PrimitiveSetTyped): The primitive set.
+        data (Iterable): The dataset to evaluate the GP tree for.
+        prefix (str): Prefix for variable arguments. Defaults to ARG.
 
     Returns:
         The (array-like) result of the GP tree evaluate on the dataset .
@@ -50,17 +57,22 @@ def quick_evaluate(expr: PrimitiveTree, pset, data, prefix='ARG'):
             stack[-1][1].append(result)
     return result
 
-def compileMultiTree(expr, pset, X=None):
+def compileMultiTree(
+        expr: genHalfAndHalf, 
+        pset: PrimitiveSetTyped, 
+        X: Iterable = None
+    ) -> Iterable:
     """Compile the expression represented by a list of trees.
 
     A variation of the gp.compileADF method, that handles Multi-tree GP.
 
     Args:
-        expr: Expression to compile. It can either be a PrimitiveTree,
+        expr (genHalfAndHalf): Expression to compile. It can either be a PrimitiveTree,
                  a string of Python code or any object that when
                  converted into string produced a valid Python code
                  expression.
-        pset: Primitive Set
+        pset (PrimitiveSetTyped): Primitive Set
+        X (Iterable): the features from the dataset.
 
     Returns:
         A set of functions that correspond for each tree in the Multi-tree.
@@ -79,12 +91,14 @@ def compileMultiTree(expr, pset, X=None):
     features = np.array(funcs).T
     return features
 
-def normalize(x):
+def normalize(
+        x: Iterable
+    ) -> Iterable:
     """
     Normalize a numpy array to interclass/intraclass distance sum to 1.
 
     Args:
-        x: numpy array to be normalized.
+        x (Iterable): numpy array to be normalized.
 
     Returns:
         numpy array normalized to interclass/intraclass distance sum to 1.
@@ -93,35 +107,44 @@ def normalize(x):
     x_norm = minmax_scale(x, feature_range=(0, 1), axis=0, copy=True)
     return x_norm
 
-def is_same_class(a,b):
+def is_same_class(
+        a: Tuple[Iterable, int],
+        b: Tuple[Iterable, int]
+    ) -> bool:
     """
     Return True if a and b are in the same class.
 
     Args:
-        a: first point
-        b: second point
+        a (Tuple[Iterable, int]): first point
+        b (Tuple[Iterable, int]): second point
 
     Returns:
         True if a and b are in the same class.
     """
     return a[1] == b[1]
 
-def euclidian_distance(a,b):
+def euclidian_distance(
+        a: Tuple[Iterable, int],
+        b: Tuple[Iterable, int]
+    ) -> Iterable:
     """
     Return the euclidian distance between two points.
 
     Args:
-        a: first point
-        b: second point
+        a (Tuple[Iterable, int]): first point
+        b (Tuple[Iterable, int]): second point
 
     Returns:
-        Euclidian distance between a and b.
+        distance (float): Euclidian distance between a and b.
     """
     a,b = a[0], b[0]
-    dist = np.linalg.norm(a-b)
-    return dist
+    distance = np.linalg.norm(a-b)
+    return distance
 
-def intraclass_distance(X,y):
+def intraclass_distance(
+        X: Iterable,
+        y: Iterable
+    ) -> float:
     """
     Return the intra-class distance for a dataset.
     The average distance between all pairs of instances that are from the same class.
@@ -131,15 +154,18 @@ def intraclass_distance(X,y):
         y (Iterable): numpy array of labels.
 
     Returns:
-        d (float): Intra-class distance for a dataset.
+        distance (float): Intra-class distance for a dataset.
     """
     data = list(zip(X, y))
     pair_length = sum([1 if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
     pair_length = max(1, pair_length)
-    d = sum([euclidian_distance(a,b) if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
-    return d
+    distance = sum([euclidian_distance(a,b) if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
+    return distance
 
-def interclass_distance(X,y):
+def interclass_distance(
+        X: Iterable,
+        y: Iterable
+    ) -> float:
     """
     Return the inter-class distance for a dataset.
     The average distance between all pairs of instances that are from different classes.
@@ -149,15 +175,21 @@ def interclass_distance(X,y):
         y (Iterable): numpy array of labels.
 
     Returns:
-        d (float): Inter-class distance for a dataset.
+        distance (float): Inter-class distance for a dataset.
     """
     data = list(zip(X, y))
     pair_length = sum([1 if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
     pair_length = max(1, pair_length)
-    d = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
-    return d
+    distance = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
+    return distance
 
-def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False, is_normalize=True):
+def wrapper_classification_accuracy(
+        X: Iterable = None, 
+        y: Iterable = None, 
+        k: int = 2, 
+        verbose: bool = False, 
+        is_normalize: bool = True
+    ) -> float:
     """ Evaluate balanced classification accuracy over stratified k-fold cross validation.
 
     This method is our fitness measure for an individual. We measure each individual
@@ -261,7 +293,13 @@ def wrapper_classification_accuracy(X=None, y=None, k=2, verbose=False, is_norma
 
     return fitness
 
-def evaluate_classification(individual, verbose=False, toolbox=None, pset=None, X=None, y=None):
+def evaluate_classification(
+        individual: Iterable, 
+        verbose: bool = False, 
+        toolbox: Toolbox = None, 
+        pset: PrimitiveSetTyped = None, 
+        y: Iterable = None
+    ) -> Tuple[int]:
     """
     Evalautes the fitness of an individual for multi-tree GP multi-class classification.
 
