@@ -15,17 +15,3 @@ INFO:gp:4  	783   	0.525405	4  	0.671152	0.388255	783   	0.0478772	5.12903	4  	1
 INFO:gp:5  	781   	0.521292	5  	0.671152	0.373656	781   	0.0531837	5.435  	5  	19 	2  	781   	2.71548
 INFO:gp:6  	803   	0.527843	6  	0.671152	0.407017	803   	0.0494358	5.65494	6  	17 	2  	803   	2.88136
 INFO:gp:7  	768   	0.533274	7  	0.671152	0.400766	768   	0.0500827	6.09384	7  	18 	1  	768   	3.04495
-INFO:gp:8  	762   	0.536097	8  	0.671152	0.403894	762   	0.0518345	6.32649	8  	23 	1  	762   	3.18368
-INFO:gp:9  	784   	0.528384	9  	0.671152	0.411494	784   	0.0545494	6.36168	9  	22 	1  	784   	3.04643
-INFO:gp:10 	765   	0.525065	10 	0.671152	0.417776	765   	0.0557761	6.34311	10 	22 	1  	765   	3.02782
-INFO:__main__:Saving model to file: checkpoints/embedded-gp.pth
-INFO:util:Train accuracy: 0.4994926142467126 +- 0.015162129916228284
-INFO:util:Val accuracy: 0.4994926142467126 +- 0.015162129916228284
-INFO:util:Test accuracy: 0.48545454545454547 +- 0.0
-INFO:util:Train intra-class: 0.1661743466474437, Train Inter-class: 0.16028838466850237
-INFO:util:Val intra-class: 0.16306546196914237, Val Inter-class: 0.16076054098005993
-INFO:util:Test intra-class: 0.16350930563577057, Test inter-class: 0.16433128925457713
-INFO:plot:Saving t-SNE to file: figures/tsne.png
-INFO:plot:Saving t-SNE to file: figures/tsne.png
-INFO:plot:Saving tree to file: figures/tree-0.pdf
-INFO:plot:Saving tree to file: figures/tree-1.pdf
