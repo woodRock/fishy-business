@@ -1,32 +1,31 @@
-INFO:data:Reading dataset fish: cross-species
-INFO:data:Class Counts: [45 60 48], Class Ratios: [0.29411765 0.39215686 0.31372549]
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [108 126], Class Ratios: [0.46153846 0.53846154]
 INFO:data:Number of features: 1023
-Number of instances: 153
-Number of classes 3.
+Number of instances: 234
+Number of classes 2.
 INFO:__main__:No model found. Train from scratch.
-INFO:gp:   	      	                                fitness                                 	                      size                     
-   	      	------------------------------------------------------------------------	-----------------------------------------------
-gen	nevals	avg     	gen	max     	min     	nevals	std     	avg    	gen	max	min	nevals	std    
-0  	1023  	0.369539	0  	0.510586	0.256805	1023  	0.038047	4.51417	0  	7  	2  	1023  	1.43533
-INFO:gp:1  	789   	0.4168  	1  	0.518852	0.261425	789   	0.0379742	4.53372	1  	11 	2  	789   	1.52803
-INFO:gp:2  	765   	0.451236	2  	0.518852	0.29662 	765   	0.0368889	4.69013	2  	13 	2  	765   	1.52745
-INFO:gp:3  	776   	0.469817	3  	0.526589	0.318315	776   	0.0401564	4.82014	3  	11 	2  	776   	1.48926
-INFO:gp:4  	761   	0.482397	4  	0.53088 	0.311773	761   	0.0414686	5.29326	4  	11 	2  	761   	1.42524
-INFO:gp:5  	790   	0.493301	5  	0.53088 	0.27743 	790   	0.0408643	5.99316	5  	14 	3  	790   	1.39085
-INFO:gp:6  	781   	0.499647	6  	0.534339	0.336382	781   	0.0406366	6.91105	6  	12 	3  	781   	1.21449
-INFO:gp:7  	799   	0.503658	7  	0.534339	0.332848	799   	0.0424373	7.20919	7  	13 	5  	799   	1.28957
-INFO:gp:8  	772   	0.503402	8  	0.534373	0.313379	772   	0.0479105	7.02542	8  	13 	3  	772   	1.3277 
-INFO:gp:9  	780   	0.506657	9  	0.534373	0.305438	780   	0.0490621	6.7566 	9  	13 	3  	780   	1.257  
-INFO:gp:10 	793   	0.506226	10 	0.538705	0.314215	793   	0.051529 	6.97849	10 	13 	4  	793   	1.49405
+INFO:gp:   	      	                                 fitness                                 	                      size                     
+   	      	-------------------------------------------------------------------------	-----------------------------------------------
+gen	nevals	avg     	gen	max     	min     	nevals	std      	avg    	gen	max	min	nevals	std    
+0  	1023  	0.498969	0  	0.631929	0.399204	1023  	0.0334086	4.47019	0  	7  	2  	1023  	1.81307
+INFO:gp:1  	769   	0.522625	1  	0.631929	0.413993	769   	0.0350159	4.81329	1  	13 	2  	769   	2.06193
+INFO:gp:2  	788   	0.525636	2  	0.671152	0.398968	788   	0.0420087	4.96383	2  	13 	2  	788   	2.1047 
+INFO:gp:3  	773   	0.527651	3  	0.671152	0.39951 	773   	0.046415 	4.95797	3  	16 	2  	773   	2.17405
+INFO:gp:4  	783   	0.525405	4  	0.671152	0.388255	783   	0.0478772	5.12903	4  	16 	2  	783   	2.26516
+INFO:gp:5  	781   	0.521292	5  	0.671152	0.373656	781   	0.0531837	5.435  	5  	19 	2  	781   	2.71548
+INFO:gp:6  	803   	0.527843	6  	0.671152	0.407017	803   	0.0494358	5.65494	6  	17 	2  	803   	2.88136
+INFO:gp:7  	768   	0.533274	7  	0.671152	0.400766	768   	0.0500827	6.09384	7  	18 	1  	768   	3.04495
+INFO:gp:8  	762   	0.536097	8  	0.671152	0.403894	762   	0.0518345	6.32649	8  	23 	1  	762   	3.18368
+INFO:gp:9  	784   	0.528384	9  	0.671152	0.411494	784   	0.0545494	6.36168	9  	22 	1  	784   	3.04643
+INFO:gp:10 	765   	0.525065	10 	0.671152	0.417776	765   	0.0557761	6.34311	10 	22 	1  	765   	3.02782
 INFO:__main__:Saving model to file: checkpoints/embedded-gp.pth
-INFO:util:Train accuracy: 0.5466543113490013 +- 0.027026796814865417
-INFO:util:Val accuracy: 0.5466543113490013 +- 0.027026796814865417
-INFO:util:Test accuracy: 0.6703703703703704 +- 0.0
-INFO:util:Train intra-class: 0.1955702178564353, Train Inter-class: 0.20938497185194135
-INFO:util:Val intra-class: 0.18979205704499338, Val Inter-class: 0.1964587009219379
-INFO:util:Test intra-class: 0.20334898775421062, Test inter-class: 0.22154144521219013
+INFO:util:Train accuracy: 0.4994926142467126 +- 0.015162129916228284
+INFO:util:Val accuracy: 0.4994926142467126 +- 0.015162129916228284
+INFO:util:Test accuracy: 0.48545454545454547 +- 0.0
+INFO:util:Train intra-class: 0.1661743466474437, Train Inter-class: 0.16028838466850237
+INFO:util:Val intra-class: 0.16306546196914237, Val Inter-class: 0.16076054098005993
+INFO:util:Test intra-class: 0.16350930563577057, Test inter-class: 0.16433128925457713
 INFO:plot:Saving t-SNE to file: figures/tsne.png
 INFO:plot:Saving t-SNE to file: figures/tsne.png
 INFO:plot:Saving tree to file: figures/tree-0.pdf
 INFO:plot:Saving tree to file: figures/tree-1.pdf
-INFO:plot:Saving tree to file: figures/tree-2.pdf
