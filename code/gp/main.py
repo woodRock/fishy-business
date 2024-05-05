@@ -85,19 +85,19 @@ if __name__ == "__main__":
         n_classes = 3
         
     # Terminal set.
-    pset = gp.PrimitiveSet("MAIN", n_features)
-    # pset = PrimitiveSetTyped("main", [float], float, )
+    # pset = gp.PrimitiveSet("MAIN", n_features)
+    pset = PrimitiveSetTyped("main", [float]*n_features, float, )
 
     # Basic arithmetic
-    pset.addPrimitive(operator.add, 2, name="+")
-    pset.addPrimitive(operator.mul, 2, name="x")
-    pset.addPrimitive(operator.sub, 2, name="-")
-    pset.addPrimitive(operator.neg, 1, name="-1*")
+    pset.addPrimitive(operator.add, [float, float], float, name="+")
+    pset.addPrimitive(operator.mul, [float, float], float, name="x")
+    pset.addPrimitive(operator.sub, [float, float], float, name="-")
+    pset.addPrimitive(operator.neg, [float], float, name="-1*")
 
     # Trigonometry
-    pset.addPrimitive(np.sin, 2, name="sin")
-    pset.addPrimitive(np.cos, 2, name="cos")
-    pset.addPrimitive(np.tan, 2, name="tan")
+    pset.addPrimitive(np.sin, [float, float], float, name="sin")
+    pset.addPrimitive(np.cos, [float, float], float, name="cos")
+    pset.addPrimitive(np.tan, [float, float], float, name="tan")
     # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
     toolbox = base.Toolbox()
