@@ -96,6 +96,9 @@ def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=
                         else ([0,1,0] if 'H' in x
                         else ([0,0,1] if 'M' 
                         else None)))
+    else: 
+        # Return an excpetion if the dataset is not valid.
+        raise ValueError(f"No valid dataset was specified: {dataset}")
 
     # X contains only the features.
     X = data.drop('m/z', axis=1)
