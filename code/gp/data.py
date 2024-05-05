@@ -89,5 +89,7 @@ def load_dataset(
     class_ratios = np.array(class_counts) / n_instances
 
     logger.info(f"Class Counts: {class_counts}, Class Ratios: {class_ratios}")
-    logger.info(f"Number of features: {n_features}\nNumber of instances: {n_instances}\nNumber of classes {n_classes}.")
+    logger.info(f"Number of features: {n_features}")
+    logger.info(f"Number of instances: {n_instances}")
+    logger.info(f"Number of classes {n_classes}.")
     return X,y 
