@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
     # Output dimension is the number of classes in the dataset.
     if dataset == "species" or dataset == "oil":
-        output_dim = 2  # ['Hoki', 'Mackerel']
+        output_dim = 2  # ['Hoki', 'Mackerel'] or ['Oil', 'None']
     elif dataset =="part":
         output_dim = 6 # ['Fillet'  'Heads' 'Livers' 'Skins' 'Guts' 'Frames']
     elif dataset =="cross-species":
