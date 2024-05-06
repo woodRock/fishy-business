@@ -94,7 +94,8 @@ def plot_confusion_matrix(
         dataset: str, 
         name: str, 
         actual: torch.Tensor, 
-        predicted: torch.Tensor
+        predicted: torch.Tensor,
+        color_map: str = "Blue"
     ) -> None:
     """ Plots a confusion matrix for a dataset.
     
@@ -103,6 +104,7 @@ def plot_confusion_matrix(
         name (str): the name of the dataset for titles.
         actual (np-array): the expected values for y labels.
         predicted (np-array): the predicted values for y labels.
+        color_map (str): the color map for the confusion matrix.
     """
     logger = logging.getLogger(__name__)
 
@@ -132,7 +134,8 @@ def plot_confusion_matrix(
         raise ValueError(f"Not a valid dataset: {dataset}")
     
     cm_display = ConfusionMatrixDisplay(confusion_matrix=cmatrix, display_labels=labels)
-    cm_display.plot()
+    # Use the blues color map, it is easy on the eyes.
+    cm_display.plot(cmap=color_map)
     # Disable the grid on the confusion matrix 
     # Source: https://stackoverflow.com/questions/53574918/how-to-get-rid-of-white-lines-in-confusion-matrix
     plt.grid(False)
