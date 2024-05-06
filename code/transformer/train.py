@@ -24,6 +24,7 @@ def train(
         model (Transformer): the transformer model to evaluate training performance for.
         data_loader (DataLoader): the pytorch DataLoader for the training set.
         criterion (CrossEntropyLoss): the loss function to evaluate the training set with.
+        optimizer (AdamW): the AdamW optimizer for gradient descent. 
         device (torch.device, str): the device to perform the training evaluation on.
     
     Returns: 
