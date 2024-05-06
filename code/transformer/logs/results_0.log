@@ -1,17 +1,15 @@
 INFO:__main__:Reading the dataset: fish part
 INFO:__main__:Training the network
-INFO:train:Epoch 1/10, Train Loss: 1.8027, Train Acc: 0.2000, Val Loss: 1.5864, Val Acc: 0.4286
-INFO:train:Epoch 2/10, Train Loss: 1.4816, Train Acc: 0.4667, Val Loss: 1.5218, Val Acc: 0.4286
-INFO:train:Epoch 3/10, Train Loss: 1.3131, Train Acc: 0.8000, Val Loss: 1.4807, Val Acc: 0.4286
-INFO:train:Epoch 4/10, Train Loss: 1.1644, Train Acc: 0.7333, Val Loss: 1.4620, Val Acc: 0.4286
-INFO:train:Epoch 5/10, Train Loss: 1.0675, Train Acc: 0.9333, Val Loss: 1.4484, Val Acc: 0.4286
-INFO:train:Epoch 6/10, Train Loss: 0.8829, Train Acc: 0.8667, Val Loss: 1.4387, Val Acc: 0.4286
-INFO:train:Epoch 7/10, Train Loss: 0.8983, Train Acc: 0.8000, Val Loss: 1.4334, Val Acc: 0.4286
-INFO:train:Epoch 8/10, Train Loss: 0.8699, Train Acc: 0.7333, Val Loss: 1.4275, Val Acc: 0.4286
-INFO:train:Epoch 9/10, Train Loss: 0.7259, Train Acc: 0.9333, Val Loss: 1.4186, Val Acc: 0.4286
-INFO:train:Epoch 10/10, Train Loss: 0.7601, Train Acc: 0.9333, Val Loss: 1.4054, Val Acc: 0.4286
+INFO:train:Epoch 1/10, Train Loss: 1.9031, Train Acc: 0.0667, Val Loss: 1.9329, Val Acc: 0.0000
+INFO:train:Epoch 2/10, Train Loss: 1.6128, Train Acc: 0.4667, Val Loss: 1.7832, Val Acc: 0.2857
+INFO:train:Epoch 3/10, Train Loss: 1.4311, Train Acc: 0.6000, Val Loss: 1.6715, Val Acc: 0.2857
+INFO:train:Epoch 4/10, Train Loss: 1.2109, Train Acc: 0.7333, Val Loss: 1.5883, Val Acc: 0.2857
+INFO:train:Epoch 5/10, Train Loss: 1.1353, Train Acc: 0.7333, Val Loss: 1.5302, Val Acc: 0.2857
+INFO:train:Epoch 6/10, Train Loss: 0.9478, Train Acc: 0.9333, Val Loss: 1.4889, Val Acc: 0.2857
+INFO:train:Epoch 7/10, Train Loss: 0.8683, Train Acc: 0.9333, Val Loss: 1.4585, Val Acc: 0.4286
+INFO:train:Epoch 8/10, Train Loss: 0.8442, Train Acc: 0.8000, Val Loss: 1.4309, Val Acc: 0.4286
+INFO:train:Epoch 9/10, Train Loss: 0.7570, Train Acc: 0.9333, Val Loss: 1.4095, Val Acc: 0.4286
+INFO:train:Epoch 10/10, Train Loss: 0.7409, Train Acc: 0.8667, Val Loss: 1.3930, Val Acc: 0.4286
 INFO:plot:Saving attention map to: figures/model_accuracy.png
-INFO:__main__:Total time taken to train the model: 2.25s
-INFO:__main__:train accuracy: 14 / 15
-INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:__main__:validation accuracy: 7 / 7
+INFO:__main__:Total time taken to train the model: 2.20s
+INFO:__main__:train accuracy: 13 / 15
