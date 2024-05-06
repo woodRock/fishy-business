@@ -15,6 +15,13 @@ class CustomDataset(Dataset):
             samples: Iterable, 
             labels: Iterable
         ) -> None:
+        """
+        CustomDataset is a tailored DataSet for loading fish data.
+
+        Args:
+            samples (Iterable): the input features
+            labels (Iterable): the class labels.
+        """
         self.samples = torch.tensor(samples, dtype=torch.float32)
         # Credit: https://stackoverflow.com/a/70323486
         self.labels = torch.from_numpy(np.vstack(labels).astype(float))
@@ -23,11 +30,15 @@ class CustomDataset(Dataset):
 
     def __len__(self
     ) -> int:
+        """Return the length of the dataset.
+        """
         return len(self.samples)
 
     def __getitem__(self, 
         idx: int
     ) -> Tuple[Iterable, Iterable]:
+        """Retrieve an instance from the dataset.
+        """
         return self.samples[idx], self.labels[idx]
 
 def random_augmentation(
@@ -41,6 +52,23 @@ def random_augmentation(
         shift_range: float = 0.1, 
         scale_range: float = 0.1
     ) -> Union[Iterable, Iterable]:
+    """
+    Perform random augmentation on the dataset.
+
+    Args: 
+        X (Iterable): the input features.
+        y (Iterable): the class labels.
+        num_augmentations (int): the number of augmentations per instance.
+        is_noise (bool): conditional flag for random noise.
+        is_shift (bool): conditional flag for random shift.
+        is_scale (bool): conditional flag for random scale.
+        noise_level (float): the factor to generate noise by.
+        shift_range (float): the factor to shift by.
+        scale_range (float): the factor to scale by.
+
+    Returns:
+        X,y (Iterable, Iterable): the augmented dataset.
+    """
     xs = []
     ys = []
     for (x,y) in tqdm(zip(X,y), desc="Data augmentation"):
@@ -73,6 +101,21 @@ def preprocess_dataset(
         is_data_augmentation: bool = True, 
         batch_size: int = 64
     ) -> Union[DataLoader, DataLoader, DataLoader, int, int, pd.DataFrame]:
+    """Preprocess the dataset for a downstream task.
+    
+    Args: 
+        dataset (str): Fish species, part, oil or cross-species. Defaults to species.
+        is_data_augmentation (bool): Conditional flag to perform data augmentation, or not.
+        batch_size (int): The batch_size for the DataLoaders.
+    
+    Returns:
+        train_loader (DataLoader), : the training set. 
+        val_loader (DataLoader), : the validation set.
+        test_loader (DataLoader), : the test set.
+        train_steps (int), : the number of training steps.
+        val_steps (int), : the number of validation steps.
+        data (pd>DataFrame): the dataframe storing the entire dataset.
+    """
     path = ['~/','Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)
 
@@ -154,9 +197,9 @@ def preprocess_dataset(
     val_dataset = CustomDataset(X_val, y_val)
     test_dataset = CustomDataset(X_test, y_test)
 
-    assert train_dataset.samples.shape[0] == train_dataset.labels.shape[0] , "train_dataset samples and labels should have same length."
-    assert val_dataset.samples.shape[0] == val_dataset.labels.shape[0] , "train_dataset samples and labels should have same length."
-    assert test_dataset.samples.shape[0] == test_dataset.labels.shape[0] , "train_dataset samples and labels should have same length."
+    assert train_dataset.samples.shape[0] == train_dataset.labels.shape[0], "train_dataset samples and labels should have same length."
+    assert val_dataset.samples.shape[0] == val_dataset.labels.shape[0], "train_dataset samples and labels should have same length."
+    assert test_dataset.samples.shape[0] == test_dataset.labels.shape[0], "train_dataset samples and labels should have same length."
 
     # Step 4: Create PyTorch DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -179,9 +222,11 @@ class EarlyStopping:
         path: str = 'checkpoint.pt'
     ) -> None:
         """
+        Early Stopping (Morgan 1989).
+
         Args:
             patience (int): How long to wait after last time validation loss improved.
-                            Default: 7
+                            Default: 5
             delta (float): Minimum change in the monitored quantity to qualify as an improvement.
                             Default: 0
             path (str): Path for the checkpoint to be saved to.
@@ -202,10 +247,13 @@ class EarlyStopping:
         verbose: bool=False
     ) -> None:
         logger = logging.getLogger(__name__)
-        """
+        """Checks the early stopping conditions.
+
         Args:
+            train_acc (float): Training loss
             val_loss (float): Validation loss
-            model (torch.nn.Module): Transformer model
+            model (Transformer): Transformer model
+            verbose (bool): whether or not to print verbose output.
         """
         score = -val_loss
 
@@ -230,10 +278,11 @@ class EarlyStopping:
             val_loss: Iterable, 
             model: Transformer
         ) -> None:
-        """
+        """Saves a checkpoint of the transformer weights.
+
         Args:
             val_loss (float): Validation loss
-            model (torch.nn.Module): Transformer model
+            model (Transformer): Transformer model
         """
         if val_loss < self.val_loss_min:
             torch.save(model.state_dict(), self.path)
