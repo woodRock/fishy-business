@@ -221,8 +221,9 @@ class DecoderLayer(nn.Module):
         ) -> torch.Tensor:
         """ A forward pass through the decoder layer.
         
-        Attention mechanism (Vasawin 2017)
-
+        This code implements the pre-norm formulation for layer normalization.
+        Dropout is performed with a given probability to regularize the network.
+        
         Args: 
             x (torch.Tensor): the input tensor
             encoder_output (torch.Tensor): the output of the encoder
@@ -232,6 +233,7 @@ class DecoderLayer(nn.Module):
         Returns:
             x (torch.Tensor): the output of a forward pass through the decoder layer.
         """
+        # Attention mechanism (Vaswani 2017)
         # Layer normalization (Ba 2016)
         # Pre-norm formulation (Xiong 2020, Karpathy 2023)
         x_norm = self.norm1(x)
