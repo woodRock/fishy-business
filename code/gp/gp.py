@@ -16,9 +16,9 @@ def SimpleGPWithElitism(
         cxpb: float, 
         mutpb: float, 
         ngen: int, 
-        stats=None,
-        halloffame=None, 
-        verbose: bool=False
+        stats = None,
+        halloffame = None, 
+        verbose: bool = False
     ) -> Union[Iterable, Logbook]:
     """
     Elitism for Multi-Tree GP for Multi-Class classification.
@@ -89,9 +89,9 @@ def SimpleGPWithElitism(
 def train(
         generations: int = 100, 
         population: int = 1023, 
-        elitism: float =0.1, 
-        crossover_rate: float =0.8, 
-        mutation_rate: float =0.2, 
+        elitism: float = 0.1, 
+        crossover_rate: float = 0.8, 
+        mutation_rate: float = 0.2, 
         run: int = 0, 
         toolbox: Toolbox = None
     ) -> Union[Iterable, Logbook, HallOfFame]:

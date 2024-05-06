@@ -12,7 +12,11 @@ from data import load_dataset
 from problem import FishClassificationProblem
 
 
-def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tensor) -> torch.Tensor:
+def mutate_programs(
+        problem: Problem, 
+        mutation_rate: float, 
+        programs: torch.Tensor
+    ) -> torch.Tensor:
     """
     Perform the mutation operator on the population of programs.
 
@@ -36,15 +40,15 @@ def mutate_programs(problem: Problem, mutation_rate: float, programs: torch.Tens
 class GeneticProgram():
 
     def __init__(self, 
-                population_size=1023, 
-                generations=100, 
-                dataset="species",
-                crossover_rate=0.8,
-                mutation_rate=0.2,
-                elitism=True,
-                num_actors=1,
-                num_gpus_per_actor=1,
-                file_path = "figures/evolutionary_process.png",
+                population_size: int = 1023, 
+                generations: int = 100, 
+                dataset: str = "species",
+                crossover_rate: float = 0.8,
+                mutation_rate: float = 0.2,
+                elitism: bool = True,
+                num_actors: int = 1,
+                num_gpus_per_actor: int = 1,
+                file_path: str = "figures/evolutionary_process.png",
                 ) -> None:
         """ Genetic Program implemented in EvoTorch.
         
