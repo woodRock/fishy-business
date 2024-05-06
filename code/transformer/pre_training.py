@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 from transformer import Transformer
+from util import EarlyStopping
 from typing import Union, Optional
 
 def pre_train_masked_spectra(
@@ -14,13 +15,33 @@ def pre_train_masked_spectra(
         train_loader: DataLoader = None, 
         val_loader: DataLoader = None, 
         file_path: str = "transformer_checkpoint.pth", 
-        device= None,
-        criterion=None,
-        optimizer=None,
-        is_early_stopping=False,
-        early_stopping = None,
-        mask_prob=0.2
+        device: Optional[Union[str, torch.device]] = None,
+        criterion: CrossEntropyLoss = None,
+        optimizer: AdamW = None,
+        is_early_stopping: bool = False,
+        early_stopping: EarlyStopping = None,
+        mask_prob: float = 0.2
     ) -> Transformer:
+    """ Masked spectra modelling.
+
+    Randomly masks spectra with a given probability, and pre-trains the model in predicting those masked spectra.
+
+    Args: 
+        model (Transformer): the nn.Module for the transformer.
+        num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
+        train_loader (DataLoader): the torch DataLoader containing the training set.
+        val_loader (DataLoader) the torch DataLoader containing the validation set.
+        file_path (str): the file path to store the model checkpoints to. Defaults to "transformer_checkpoint.pth"
+        device (str, torch,device): the device to perform the operations on. Defaults to None.
+        criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
+        optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
+        is_early_stopping (bool): whether or not to perform early stopping.
+        early_stopping (EarlyStopping): a class to manage early stopping by checkpointing weights with best validation losses.
+        mask_prob (float): the probability of masking a spectra. Defaults to 0.2
+
+    Returns:
+        model (Transformer): returns the pre-trained model.
+    """
     
     logger = logging.getLogger(__name__)
     
@@ -77,14 +98,12 @@ def pre_train_masked_spectra(
 
 def mask_left_side(
         input_spectra: torch.Tensor, 
-        mask_prob: float = 0.5
     ) -> torch.Tensor:
     """
     Masks the left-hand side of the input spectra tensor.
 
     Args:
         input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
-        mask_prob (float): Probability of masking each element of the left-hand side.
 
     Returns:
         torch.Tensor: Masked input spectra tensor.
@@ -97,14 +116,12 @@ def mask_left_side(
 
 def mask_right_side(
         input_spectra: torch.Tensor, 
-        mask_prob: float = 0.5
     ) -> torch.Tensor:
     """
     Masks the right-hand side of the input spectra tensor.
 
     Args:
         input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
-        mask_prob (float): Probability of masking each element of the right-hand side.
 
     Returns:
         torch.Tensor: Masked input spectra tensor.
@@ -134,7 +151,18 @@ def pre_train_model_next_spectra(
 
     Args:
         model (torch.nn.Module): The pre-trained model.
+        num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
+        train_loader (DataLoader): the torch DataLoader for the training set.
+        val_loader (DataLoader): the torch DataLoader for the validation set.
         file_path (str): The path to save the model weights.
+        device (str, torch,device): the device to perform the operations on. Defaults to None.
+        criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
+        optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
+        is_early_stopping (bool): whether or not to perform early stopping.
+        early_stopping (EarlyStopping): a class to manage early stopping by checkpointing weights with best validation losses.
+
+    Returns: 
+        model (Transformer): the pre-trained model
     """
     logger = logging.getLogger(__name__)
     # Assume train_loader is your DataLoader containing spectra data
@@ -244,11 +272,22 @@ def pre_train_model_next_spectra(
 
 
 def pre_train_transfer_learning(
-        dataset: str, 
         model: Transformer, 
         file_path: str = 'transformer_checkpoint.pth', 
         output_dim: int = 2
     ) -> Transformer:
+    """ Loads the weights from a pre-trained model.
+
+    This method handles the differences in dimensions for the output dimension between pre-training and training tasks.
+
+    Args: 
+        model (Transformer): the model to load the pre-trained weights to
+        file_path (str): the filepath where the checkpoint is stored.
+        output_dim (int): the number of classes for the output dimension. Defaults to 2 for next spectra prediction.
+
+    Returns:
+        model (Transformer): the model is returned with the pre-trained weights loaded into it.
+    """
     # Load the state dictionary from the checkpoint.
     checkpoint = torch.load(file_path)
     # Modify the 'fc.weight' and 'fc.bias' parameters

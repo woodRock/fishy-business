@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
         # Transfer learning
         if is_masked_spectra:
-            model = pre_train_transfer_learning(dataset, model, file_path=file_path)
+            model = pre_train_transfer_learning(model, file_path=file_path)
 
         # Label smoothing (Szegedy 2016)
         criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
@@ -143,7 +143,16 @@ if __name__ == "__main__":
         startTime = time.time()
 
         # Train the model
-        model = pre_train_model_next_spectra(model, num_epochs=num_epochs,  train_loader=train_loader, val_loader=val_loader,device=device,criterion=criterion,optimizer=optimizer,file_path=file_path)
+        model = pre_train_model_next_spectra(
+            model, 
+            num_epochs=num_epochs,  
+            train_loader=train_loader, 
+            val_loader=val_loader,
+            device=device,
+            criterion=criterion,
+            optimizer=optimizer,
+            file_path=file_path
+        )
 
         # finish measuring how long training took
         endTime = time.time()
@@ -170,7 +179,9 @@ if __name__ == "__main__":
 
     # Early stopping (Morgan 1989)
     if is_early_stopping:
-        early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
+        # early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
+        # patience = num_epochs, stores best run, but doesn't stop training early.
+        early_stopping = EarlyStopping(patience=num_epochs, delta=0.001, path=file_path)
 
     # Initialize the model, criterion, and optimizer
     model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
@@ -192,7 +203,17 @@ if __name__ == "__main__":
     startTime = time.time()
 
     # Train the model
-    train_losses, train_accuracies, val_losses, val_accuracies = train_model(model, num_epochs=num_epochs, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer, device=device)
+    train_losses, train_accuracies, val_losses, val_accuracies = train_model(
+        model, 
+        num_epochs=num_epochs, 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        criterion=criterion, 
+        optimizer=optimizer, 
+        device=device,
+        is_early_stopping=True,
+        early_stopping=early_stopping
+    )
 
     # finish measuring how long training took
     endTime = time.time()
@@ -201,11 +222,11 @@ if __name__ == "__main__":
     if is_early_stopping:
         # Early stopping (Morgan 1989)
         # If the model stopped early.
-        if early_stopping.early_stop:
-            # Load the checkpoint
-            checkpoint = torch.load(file_path)
-            # Load model parameters with best validation accuracy.
-            model.load_state_dict(checkpoint, strict=False)
+        # if early_stopping.early_stop:
+        # Load the checkpoint
+        checkpoint = torch.load(file_path)
+        # Load model parameters with best validation accuracy.
+        model.load_state_dict(checkpoint, strict=False)
 
     model.eval()
     # switch off autograd
