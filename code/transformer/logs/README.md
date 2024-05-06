@@ -125,6 +125,11 @@ Train: 1.0
 Validation: 0.8666666666666667
 Test: 0.875
 
+## Run 5
+Train: 1.0
+Validation: 0.8
+Test: 0.8125
+
 # Pre-training: MSM
 ## Run 1
 Train: 1.0
