@@ -124,6 +124,6 @@ def plot_confusion_matrix(
     logger.info(f"Saving cofusion matrix map to: {file_path}")
     plt.savefig(file_path)
     # Too many open figures
-    # Source: https://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
+    # Source: https://stackoverflow.com/questions/21884271/warning-about-too-many-open-figures
     plt.clf()
     plt.close()
