@@ -35,6 +35,9 @@ def plot_attention_map(
     # Show color bar
     plt.colorbar()
 
+    # Disable the grid
+    plt.grid(False)
+
     # Add title
     plt.title(f'{name} Attention Map')
     file_path = f"figures/{name}_attention_map.png"
@@ -102,6 +105,18 @@ def plot_confusion_matrix(
         predicted (np-array): the predicted values for y labels.
     """
     logger = logging.getLogger(__name__)
+
+    # Add padded values so each class is included in the confusion matrix.
+    # Fixes the error below.
+    # ValueError: The number of FixedLocator locations (4), 
+    # usually from a call to set_ticks, does not match the number of labels (6).
+    if name == "validation" or name == "test":
+        if dataset == "part":
+            # Padding includes on label from each class.
+            pad = torch.tensor([0,1,2,3,4,5])
+            actual = torch.concat([pad, actual])
+            predicted = torch.concat([pad, predicted])
+
     cmatrix = confusion_matrix(actual, predicted)
 
     labels = [] 
