@@ -175,7 +175,7 @@ def preprocess_dataset(
 class EarlyStopping:
     def __init__(self,
         patience: int = 5,
-        delta: int = 0, 
+        delta: float = 0, 
         path: str = 'checkpoint.pt'
     ) -> None:
         """

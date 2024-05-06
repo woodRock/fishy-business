@@ -17,6 +17,19 @@ def train(
         optimizer: AdamW , 
         device: Optional[Union[str, torch.device]] = None
     ) -> Union[Iterable, Iterable]:
+    """
+    Evaluate the training performance.
+
+    Args: 
+        model (Transformer): the transformer model to evaluate training performance for.
+        data_loader (DataLoader): the pytorch DataLoader for the training set.
+        criterion (CrossEntropyLoss): the loss function to evaluate the training set with.
+        device (torch.device, str): the device to perform the training evaluation on.
+    
+    Returns: 
+        epoch_loss (Iterable), : the loss for this epoch.
+        epoch_accuracy (Iterable), : the accuracy for this epoch.
+    """
     logger = logging.getLogger(__name__)
 
     model.train()
@@ -48,6 +61,18 @@ def evaluate(
         criterion: CrossEntropyLoss, 
         device: Optional[Union[str, torch.device]] = None
     ) -> Union[Iterable, Iterable]:
+    """Evaluate the validation performance.
+
+    Args: 
+        model (Transformer): the transformer model to evaluate.
+        data_loader (DataLoader): the pytorch DataLoader for the validation set.
+        criterion (CrossEntropyLoss): the loss function to evaluate the validation set with.
+        device (torch.device, str): the device to perform the evaluation on.
+    
+    Returns: 
+        epoch_loss (Iterable), : the loss for this epoch.
+        epoch_accuracy (Iterable), : the accuracy for this epoch.
+    """
     model.eval()
     running_loss = 0.0
     correct_predictions = 0
@@ -80,9 +105,27 @@ def train_model(
         optimizer: AdamW = None,
         is_early_stopping: bool = False,
         early_stopping: EarlyStopping = None,
-        file_path: str = "transformer_checkpoint.pth"
     ) -> Union[Iterable, Iterable, Iterable, Iterable]:
-    
+    """
+    Train the transformer model.
+
+    Args: 
+        model (Transformer): the transformer model to be trained.
+        num_epochs (int): the number of epochs to train it for.
+        train_loader (DataLoader): pytorch DataLoader with the training set.
+        val_loader (DataLoader): pytorch DataLaoder with the validation set.
+        device (torch.device, str): the device to perform the computation on.
+        criterion (CrossEntropyLoss): the loss function to optimize.
+        optimizer (AdamW): the AdamW optimizer for gradient descent. 
+        is_early_stopping (bool): whether or not early stopping is enabled.
+        early_stopping (EarlyStopping): a class to checkpoint models with best validation loss.
+
+    Returns:
+        train_losses: Iterable, 
+        train_accuracies: Iterable, 
+        val_losses Iterable, 
+        val_accuracies: Iterable,
+    """
     logger = logging.getLogger(__name__)
 
     train_losses = []
@@ -118,6 +161,19 @@ def transfer_learning(
         model: Transformer, 
         file_path: str = 'transformer_checkpoint.pth'
     ) -> Transformer:
+    """
+    Transfer learning loads weights from a pre-training task.
+
+    This method edits the final layer of the transformer to be ammenable to downstream tasks.
+
+    Args":
+        dataset (str): the dataset is either species, part, oil or cross-species.
+        model (Transformer): the tranformer model to transfer the weights to.
+        file_path (str): the file path to store the transformer checkpoint at.
+
+    Returns:
+        model (Transformer): the model with the pre-trained weights tranferred to it.
+    """
     if dataset == "species" or dataset == "oil":
         # There are 2 classes in the fish species, oil and cross-species dataset.
         output_dim = 2
@@ -137,6 +193,9 @@ def transfer_learning(
         checkpoint = torch.load(file_path)
         checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
         checkpoint['fc.bias'] = torch.zeros(output_dim)
+
+    else: 
+        raise ValueError(f"Invalid dataset specified: {dataset}")
 
     # Load the modified state dictionary into the model.
     model.load_state_dict(checkpoint, strict=False)
