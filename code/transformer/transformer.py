@@ -8,6 +8,12 @@ class MultiHeadAttention(nn.Module):
             input_dim: int, 
             num_heads: int
         ) -> None:
+        """Multi-head attention
+
+        Args: 
+            input_dim (int): the number of input dimensions.
+            num_heads (int): the number of heads for the multi-head attention.
+        """
         super(MultiHeadAttention, self).__init__()
         assert input_dim % num_heads == 0
         self.input_dim = input_dim
@@ -25,7 +31,17 @@ class MultiHeadAttention(nn.Module):
             value: torch.Tensor, 
             mask: torch.Tensor = None
         ) -> torch.Tensor:
-        """ Attention mechanism (Vaswani 2017)"""
+        """Attention mechanism (Vaswani 2017)
+        
+        Args:
+            query (torch.Tensor): the query tensor.
+            key (torch.Tensor): the key tensor.
+            value (torch.Tensor): the value tensor.
+            mask (torch.Tensor): the masking tensor. Defaults to None.
+
+        Returns:
+            x (torch.Tensor): the out tensor of the attention mechanism.
+        """
         batch_size = query.shape[0]
 
         # Split the heads
@@ -53,6 +69,13 @@ class FeedForward(nn.Module):
             hidden_dim: int, 
             dropout: float = 0.1
         ) -> None:
+        """A feedforward neural network.
+
+        Args:
+            input_dim (int): the number of input dimensions.
+            hidden_dim (int): the number of hidden dimensions.
+            dropout (float): the probability of performing dropout.
+        """
         super(FeedForward, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, input_dim)
@@ -62,6 +85,14 @@ class FeedForward(nn.Module):
     def forward(self, 
             x: torch.Tensor
         ) -> torch.Tensor:
+        """A forward pass of the feedforward neural network.
+        
+        Args: 
+            x (torch.Tensor): the input to the feedforward layer. 
+
+        Returns: 
+            x (torch.Tensor): the output of the feedforward layer.
+        """
         # GELU (Hendrycks 2016)
         x = F.gelu(self.fc1(x))
         # Dropout (Hinton 2012, Srivastava 2014)
@@ -76,6 +107,14 @@ class EncoderLayer(nn.Module):
             hidden_dim: int, 
             dropout: float = 0.1
         ) -> None:
+        """An encoder layer of the transformer.
+
+        Args: 
+            input_dim (int): the number of inpt dimensions.
+            num_heads (int): the number of heads for the multi-head attention.
+            hidden_dim (int): the number of hidden layers for the hidden dimensions.
+            dropout (float): the probability of performing dropout.
+        """
         super(EncoderLayer, self).__init__()
         self.self_attention = MultiHeadAttention(input_dim, num_heads)
         self.feed_forward = FeedForward(input_dim, hidden_dim, dropout)
@@ -88,6 +127,19 @@ class EncoderLayer(nn.Module):
             x: torch.Tensor, 
             mask: torch.Tensor = None
         ) -> torch.Tensor:
+        """
+        A forward pass through the encoder layer.
+
+        This code implements the pre-norm formulation for layer normalization.
+        Dropout is performed with a given probability to regularize the network.
+
+        Args: 
+            x (torch.Tensor): the input to the encoder layer, i.e. the input features.
+            mask (torch.Tensor): the masking for the encoder. Defaults to None.
+
+        Returns: 
+            x (torch.Tensor): the output of the forward pass through the encoder.
+        """
         # Layer normalization (Ba 2016)
         # Pre-norm formulation (Xiong 2020, Karpathy 2023)
         x_norm = self.norm1(x)
@@ -108,6 +160,15 @@ class Encoder(nn.Module):
             hidden_dim: int, 
             dropout: float = 0.1
         ) -> None:
+        """The Encoder Module
+
+        Args: 
+            input_dim (int): the number of input dimensions.
+            num_layers (int): the number of encoder layers to stack upon eachother.
+            num_heads (int): the number of heads for multi-head attention for each encoder layer.
+            hidden_dim (int): the number of hidden dimensions for each encoder layer.
+            dropout (float): the probaility of dropout. Defaults to 0.1
+        """
         super(Encoder, self).__init__()
         self.layers = nn.ModuleList([EncoderLayer(input_dim, num_heads, hidden_dim, dropout) for _ in range(num_layers)])
 
@@ -115,6 +176,15 @@ class Encoder(nn.Module):
             x: torch.Tensor, 
             mask: torch.Tensor = None
         ) -> torch.Tensor:
+        """A forward pass through the encoder module.
+
+        Args: 
+            x (torch.Tensor): the input tensor for the encoder.
+            mask (torch.Tensor): the mask for the encoder.
+        
+        Returns:
+            x (torch.Tensor): output tensorfrom a forward pass of the encoder.
+        """
         for layer in self.layers:
             x = layer(x, mask)
         return x
@@ -126,6 +196,14 @@ class DecoderLayer(nn.Module):
             hidden_dim: int, 
             dropout: float = 0.1
         ) -> None:
+        """A decoder layer of the transformer.
+        
+        Args: 
+            input_dim (int): the number of input dimensions.
+            num_heads (int): the number of heads for multi-head attention.
+            hidden_dim (int): the number of hidden dimensions for each decoder layer.
+            dropout (float): the probability of performing dropout.
+        """
         super(DecoderLayer, self).__init__()
         self.self_attention = MultiHeadAttention(input_dim, num_heads)
         self.cross_attention = MultiHeadAttention(input_dim, num_heads)
@@ -141,7 +219,19 @@ class DecoderLayer(nn.Module):
             src_mask: torch.Tensor = None, 
             tgt_mask: torch.Tensor = None
         ) -> torch.Tensor:
-        """ Attention mechanism (Vasawin 2017)"""
+        """ A forward pass through the decoder layer.
+        
+        Attention mechanism (Vasawin 2017)
+
+        Args: 
+            x (torch.Tensor): the input tensor
+            encoder_output (torch.Tensor): the output of the encoder
+            src_mask (torch.Tensor): the mask for the source input.
+            tgt_mask (torch.Tensor): the mask for the target input.
+        
+        Returns:
+            x (torch.Tensor): the output of a forward pass through the decoder layer.
+        """
         # Layer normalization (Ba 2016)
         # Pre-norm formulation (Xiong 2020, Karpathy 2023)
         x_norm = self.norm1(x)
@@ -164,6 +254,15 @@ class Decoder(nn.Module):
             hidden_dim: int, 
             dropout: float = 0.1
         ) -> None:
+        """ The decoder module for the transformer.
+        
+        Args: 
+            input_dim (int): the number of dimensions for the input.
+            num_layer (int): the number of decoder layers to stack on top of eachother.
+            num_heads (int): the number of heads for each multi-head attention layer.
+            hidden_dim (int): the number of hidden dimensions for each decoder layer.
+            dropout (float): the probability of dropout. Defaults to 0.1
+        """
         super(Decoder, self).__init__()
         self.layers = nn.ModuleList([DecoderLayer(input_dim, num_heads, hidden_dim, dropout) for _ in range(num_layers)])
 
@@ -173,6 +272,19 @@ class Decoder(nn.Module):
             src_mask: torch.Tensor = None, 
             tgt_mask: torch.Tensor = None
         ) -> torch.Tensor:
+        """ A forward pass through the decoder module.
+
+        The decoder performs cross-attention between the input and the output from the encoder layer.
+
+        Args: 
+            x (torch.Tensor): the input to the decoder layer.
+            encoder_output (torch.Tensor): the output of the encoder layer.
+            src_mask (torch.Tensor): the mask for the input.
+            tgt_msk (torch.Tensor): the mask for the encoder layer output.
+
+        Returns: 
+            x (torch.Tensor): the output of the forward pass through the decoder.
+        """
         for layer in self.layers:
             x = layer(x, encoder_output, src_mask, tgt_mask)
         return x
@@ -250,6 +362,16 @@ class Transformer(nn.Module):
             hidden_dim: int, 
             dropout: float = 0.1
         ) -> None:
+        """The transfomer layer.
+
+        Args:
+            input_dim (int): the number of input dimensions, i.e. the first layer
+            output_dim (int): the number of output dimensions, i.e. the final layer. 
+            num_layers (int): the number of encoders, and decoders, to stack, respectively.
+            num_heads (int): the number of heads for multi-head attention.
+            hidden_dim (int): the number of hidden layers, for each encoder and decoder, respectively.
+            dropout (float): the probability of dropout. Defaults to 0.1.
+        """
         super(Transformer, self).__init__()
         self.encoder = Encoder(input_dim, num_layers, num_heads, hidden_dim, dropout)
         self.decoder = Decoder(input_dim, num_layers, num_heads, hidden_dim, dropout)
@@ -270,6 +392,17 @@ class Transformer(nn.Module):
             src_mask: torch.Tensor = None, 
             tgt_mask: torch.Tensor = None
         ) -> torch.Tensor:
+        """ A forward pass through the transformer network
+        
+        Args:
+            src (torch.Tensor): the input to the transformer.
+            tgt (torch.Tensor): the target for the transformer (clone of src).
+            src_mask (torch.Tensor): the mask for the source.
+            tgt_mask (torch.Tensor): the mask for the target.
+
+        Returns: 
+            x (torch.Tensor): the output of a forward pass through the transformer network.
+        """
         x = self.encoder(src, src_mask)
         x = self.decoder(tgt, x, src_mask, tgt_mask)
         x = self.fc(x[:, 0, :])
