@@ -40,7 +40,7 @@ class MultiHeadAttention(nn.Module):
             mask (torch.Tensor): the masking tensor. Defaults to None.
 
         Returns:
-            x (torch.Tensor): the out tensor of the attention mechanism.
+            x (torch.Tensor): the output tensor of the attention mechanism.
         """
         batch_size = query.shape[0]
 
