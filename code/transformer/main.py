@@ -238,7 +238,8 @@ if __name__ == "__main__":
                 (x,y) = (x.to(device), y.to(device))
                 pred = model(x, x, src_mask=None)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
-                logger.info(f"{name} accuracy: {test_correct} / {len(x)}")
+                accuracy = test_correct / len(x)
+                logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
                 plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
