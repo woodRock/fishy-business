@@ -2,8 +2,11 @@ import logging
 import os
 import numpy as np
 import pandas as pd
+from typing import Iterable, Union
 
-def load_dataset(dataset="species"):
+def load_dataset(
+        dataset: str = "species"
+    ) -> Union[Iterable, Iterable]:
     logger = logging.getLogger(__name__)
     path = ['~/Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)

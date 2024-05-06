@@ -1,28 +1,26 @@
 import logging
-import numpy as np
 from tqdm import tqdm
 import random
-import time
 import torch
-import torch.nn.functional as F
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from util import EarlyStopping
+from torch.utils.data import DataLoader
+from torch.nn import CrossEntropyLoss
+from torch.optim import AdamW
 from transformer import Transformer
+from typing import Union, Optional
 
-
-def pre_train_masked_spectra(model, 
-                            num_epochs=100, 
-                            train_loader=None, 
-                            val_loader=None, 
-                            file_path="transformer_checkpoint.pth", 
-                            device = None,
-                            criterion=None,
-                            optimizer=None,
-                            is_early_stopping=False,
-                            early_stopping = None,
-                            mask_prob=0.2):
+def pre_train_masked_spectra(
+        model: Transformer, 
+        num_epochs: int = 100, 
+        train_loader: DataLoader = None, 
+        val_loader: DataLoader = None, 
+        file_path: str = "transformer_checkpoint.pth", 
+        device= None,
+        criterion=None,
+        optimizer=None,
+        is_early_stopping=False,
+        early_stopping = None,
+        mask_prob=0.2
+    ) -> Transformer:
     
     logger = logging.getLogger(__name__)
     
@@ -77,7 +75,10 @@ def pre_train_masked_spectra(model,
     return model
 
 
-def mask_left_side(input_spectra, mask_prob=0.5):
+def mask_left_side(
+        input_spectra: torch.Tensor, 
+        mask_prob: float = 0.5
+    ) -> torch.Tensor:
     """
     Masks the left-hand side of the input spectra tensor.
 
@@ -94,7 +95,10 @@ def mask_left_side(input_spectra, mask_prob=0.5):
     input_spectra[:split_index] = 0
     return input_spectra
 
-def mask_right_side(input_spectra, mask_prob=0.5):
+def mask_right_side(
+        input_spectra: torch.Tensor, 
+        mask_prob: float = 0.5
+    ) -> torch.Tensor:
     """
     Masks the right-hand side of the input spectra tensor.
 
@@ -112,16 +116,18 @@ def mask_right_side(input_spectra, mask_prob=0.5):
     return input_spectra
 
 
-def pre_train_model_next_spectra(model, 
-                            num_epochs=100, 
-                            train_loader=None, 
-                            val_loader=None, 
-                            file_path="transformer_checkpoint.pth", 
-                            device = None,
-                            criterion=None,
-                            optimizer=None,
-                            is_early_stopping=False,
-                            early_stopping = None):
+def pre_train_model_next_spectra(
+        model: Transformer, 
+        num_epochs: int = 100, 
+        train_loader: DataLoader = None, 
+        val_loader: DataLoader = None, 
+        file_path: str = "transformer_checkpoint.pth", 
+        device: Optional[Union[str, torch.device]] = None,
+        criterion: CrossEntropyLoss = None,
+        optimizer: AdamW = None,
+        is_early_stopping: bool = False,
+        early_stopping = None
+    ) -> Transformer:
     """
     Pre-trains the model with Next Spectra Prediction (NSP).
     This is a variant of Next Sentence Prediction (NSP) from (Devlin 2018).
@@ -237,7 +243,12 @@ def pre_train_model_next_spectra(model,
     return model
 
 
-def pre_train_transfer_learning(dataset, model, file_path='transformer_checkpoint.pth', output_dim=2):
+def pre_train_transfer_learning(
+        dataset: str, 
+        model: Transformer, 
+        file_path: str = 'transformer_checkpoint.pth', 
+        output_dim: int = 2
+    ) -> Transformer:
     # Load the state dictionary from the checkpoint.
     checkpoint = torch.load(file_path)
     # Modify the 'fc.weight' and 'fc.bias' parameters

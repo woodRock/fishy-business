@@ -1,16 +1,23 @@
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from typing import Iterable
 
-def plot_attention_map(name, attention_weights, y_axis, x_axis):
+def plot_attention_map(
+        name: str, 
+        attention_weights: torch.Tensor, 
+        y_axis: torch.Tensor, 
+        x_axis: torch.Tensor
+    ) -> None:
     """ Plot an attention map of an intermediary layer from the transformer.
     
     Args:
         name (str): the name for the layer
         attention_weights (np-array): the weights for the layer.
-        y_axis (np-array): the y-axis 
-        x_axis (np-array): the x-axis
+        y_axis (torch.Tensor): the y-axis 
+        x_axis (torch.Tensor): the x-axis
     """
     logger = logging.getLogger(__name__)
     # Plot attention weights as a heatmap
@@ -40,16 +47,21 @@ def plot_attention_map(name, attention_weights, y_axis, x_axis):
     plt.clf()
     plt.close()
 
-def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
+def plot_accuracy(
+        train_losses: Iterable, 
+        val_losses: Iterable, 
+        train_accuracies: Iterable, 
+        val_accuracies: Iterable
+    ) -> None:
     """ Plot the accuracy and loss curve for the training process.
 
     This method takes the output from the training process and turns it into a graph.
     
     Args: 
-        train_losses (np-array): the array for training losses.
-        val_losses (np-array): the array for validation losses.
-        train_accuracies (np-array): the array for training accuracies.
-        val_accuracies (np-array): the array for validation accuracies.
+        train_losses (Iteable): the array for training losses.
+        val_losses (Iterable): the array for validation losses.
+        train_accuracies (Iterable): the array for training accuracies.
+        val_accuracies (Iterable): the array for validation accuracies.
     """
     logger = logging.getLogger(__name__)
     # plot the training loss and accuracy
@@ -75,12 +87,17 @@ def plot_accuracy(train_losses, val_losses, train_accuracies, val_accuracies):
     plt.close()
     
 
-def plot_confusion_matrix(dataset, name, actual, predicted):
+def plot_confusion_matrix(
+        dataset: str, 
+        name: str, 
+        actual: torch.Tensor, 
+        predicted: torch.Tensor
+    ) -> None:
     """ Plots a confusion matrix for a dataset.
     
     Args: 
-        dataset (np-array): train, validation or test dataset.
-        name (str): the name of the datasset for titles.
+        dataset (str: train, validation or test dataset.
+        name (str): the name of the dataset for titles.
         actual (np-array): the expected values for y labels.
         predicted (np-array): the predicted values for y labels.
     """
@@ -91,7 +108,14 @@ def plot_confusion_matrix(dataset, name, actual, predicted):
         labels = ["Hoki", "Mackerel"]
     elif dataset == "part":
         labels = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
-    # Disable the grid on the confusion matrix 
+    elif dataset == "oil":
+        labels = ["Oil", "None"]
+    elif dataset == "cross-species":
+        labels = ["Hoki-Mackeral", "Hoki", "Mackerel"]
+    else:
+        raise ValueError(f"Not a valid dataset: {dataset}")
+    
+    # Disable the    grid on the confusion matrix 
     # Source: https://stackoverflow.com/questions/53574918/how-to-get-rid-of-white-lines-in-confusion-matrix
     cm_display = ConfusionMatrixDisplay(confusion_matrix=cmatrix, display_labels=labels)
     cm_display.plot()

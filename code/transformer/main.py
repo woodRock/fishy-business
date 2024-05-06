@@ -212,8 +212,8 @@ if __name__ == "__main__":
     with torch.no_grad():
         # loop over the test set
         datasets = [("train", train_loader), ("validation", val_loader), ("test", test_loader)]
-        for name, dataset in datasets:
-            for (x,y) in dataset:
+        for name, dataset_x_y in datasets:
+            for (x,y) in dataset_x_y:
                 (x,y) = (x.to(device), y.to(device))
                 pred = model(x, x, src_mask=None)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()

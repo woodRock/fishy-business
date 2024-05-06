@@ -7,24 +7,40 @@ import pandas as pd
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
+from transformer import Transformer
+from typing import Iterable, Tuple, Union
 
 class CustomDataset(Dataset):
-    def __init__(self, samples, labels):
+    def __init__(self, 
+            samples: Iterable, 
+            labels: Iterable
+        ) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)
         # Credit: https://stackoverflow.com/a/70323486
         self.labels = torch.from_numpy(np.vstack(labels).astype(float))
         # Normalize the features to be between in [0,1]
         self.samples = F.normalize(self.samples, dim = 0)
 
-    def __len__(self):
+    def __len__(self
+    ) -> int:
         return len(self.samples)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, 
+        idx: int
+    ) -> Tuple[Iterable, Iterable]:
         return self.samples[idx], self.labels[idx]
 
-def random_augmentation(X, y, num_augmentations=5,
-                        is_noise = True, is_shift = False, is_scale = False,
-                        noise_level=0.1, shift_range=0.1, scale_range=0.1):
+def random_augmentation(
+        X: Iterable, 
+        y: Iterable, 
+        num_augmentations: int = 5,
+        is_noise: bool = True, 
+        is_shift: bool = False, 
+        is_scale: bool = False,
+        noise_level: float = 0.1, 
+        shift_range: float = 0.1, 
+        scale_range: float = 0.1
+    ) -> Union[Iterable, Iterable]:
     xs = []
     ys = []
     for (x,y) in tqdm(zip(X,y), desc="Data augmentation"):
@@ -52,7 +68,11 @@ def random_augmentation(X, y, num_augmentations=5,
     ys = np.array(ys)
     return xs, ys
 
-def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=64):
+def preprocess_dataset(
+        dataset: str ="species", 
+        is_data_augmentation: bool = True, 
+        batch_size: int = 64
+    ) -> Union[DataLoader, DataLoader, DataLoader, int, int, pd.DataFrame]:
     path = ['~/','Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
     path = os.path.join(*path)
 
@@ -153,7 +173,11 @@ def preprocess_dataset(dataset="species", is_data_augmentation=True, batch_size=
 
 
 class EarlyStopping:
-    def __init__(self, patience=5, delta=0, path='checkpoint.pt'):
+    def __init__(self,
+        patience: int = 5,
+        delta: int = 0, 
+        path: str = 'checkpoint.pt'
+    ) -> None:
         """
         Args:
             patience (int): How long to wait after last time validation loss improved.
@@ -171,7 +195,12 @@ class EarlyStopping:
         self.early_stop = False
         self.val_loss_min = float('inf')
 
-    def __call__(self, train_acc, val_loss, model, verbose=False):
+    def __call__(self, 
+        train_acc: Iterable, 
+        val_loss: Iterable, 
+        model: Transformer, 
+        verbose: bool=False
+    ) -> None:
         logger = logging.getLogger(__name__)
         """
         Args:
@@ -197,7 +226,10 @@ class EarlyStopping:
                 self.save_checkpoint(val_loss, model)
                 self.counter = 0
 
-    def save_checkpoint(self, val_loss, model):
+    def save_checkpoint(self, 
+            val_loss: Iterable, 
+            model: Transformer
+        ) -> None:
         """
         Args:
             val_loss (float): Validation loss

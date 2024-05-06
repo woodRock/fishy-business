@@ -1,9 +1,22 @@
+import logging
 from tqdm import tqdm
 import torch
 from plot import plot_accuracy
-import logging
+from torch.utils.data import DataLoader
+from torch.nn import CrossEntropyLoss
+from torch.optim import AdamW
+from typing import Union, Optional, Iterable
+from transformer import Transformer
+from util import EarlyStopping
 
-def train(model, dataloader, criterion, optimizer, device):
+
+def train(
+        model: Transformer, 
+        dataloader: DataLoader, 
+        criterion: CrossEntropyLoss, 
+        optimizer: AdamW , 
+        device: Optional[Union[str, torch.device]] = None
+    ) -> Union[Iterable, Iterable]:
     logger = logging.getLogger(__name__)
 
     model.train()
@@ -29,7 +42,12 @@ def train(model, dataloader, criterion, optimizer, device):
 
     return epoch_loss, epoch_accuracy
 
-def evaluate(model, dataloader, criterion, device):
+def evaluate(
+        model: Transformer, 
+        dataloader: DataLoader, 
+        criterion: CrossEntropyLoss, 
+        device: Optional[Union[str, torch.device]] = None
+    ) -> Union[Iterable, Iterable]:
     model.eval()
     running_loss = 0.0
     correct_predictions = 0
@@ -52,16 +70,18 @@ def evaluate(model, dataloader, criterion, device):
 
     return epoch_loss, epoch_accuracy
 
-def train_model(model, 
-                num_epochs=100, 
-                train_loader=None, 
-                val_loader=None, 
-                device = None,
-                criterion=None,
-                optimizer=None,
-                is_early_stopping=False,
-                early_stopping = None,
-                file_path="transformer_checkpoint.pth"):
+def train_model(
+        model: Transformer, 
+        num_epochs: int = 100, 
+        train_loader: DataLoader = None, 
+        val_loader: DataLoader = None, 
+        device: Optional[Union[str, torch.device]]= None,
+        criterion: CrossEntropyLoss = None,
+        optimizer: AdamW = None,
+        is_early_stopping: bool = False,
+        early_stopping: EarlyStopping = None,
+        file_path: str = "transformer_checkpoint.pth"
+    ) -> Union[Iterable, Iterable, Iterable, Iterable]:
     
     logger = logging.getLogger(__name__)
 
@@ -93,7 +113,11 @@ def train_model(model,
 
     return train_losses, train_accuracies, val_losses, val_accuracies
 
-def transfer_learning(dataset, model, file_path='transformer_checkpoint.pth'):
+def transfer_learning(
+        dataset: str, 
+        model: Transformer, 
+        file_path: str = 'transformer_checkpoint.pth'
+    ) -> Transformer:
     if dataset == "species" or dataset == "oil":
         # There are 2 classes in the fish species, oil and cross-species dataset.
         output_dim = 2

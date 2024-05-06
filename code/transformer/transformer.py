@@ -1,10 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from util import preprocess_dataset
+
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, input_dim, num_heads):
+    def __init__(self, 
+            input_dim: int, 
+            num_heads: int
+        ) -> None:
         super(MultiHeadAttention, self).__init__()
         assert input_dim % num_heads == 0
         self.input_dim = input_dim
@@ -16,7 +19,12 @@ class MultiHeadAttention(nn.Module):
         self.value = nn.Linear(input_dim, input_dim)
         self.fc_out = nn.Linear(input_dim, input_dim)
 
-    def forward(self, query, key, value, mask=None):
+    def forward(self, 
+            query: torch.Tensor, 
+            key: torch.Tensor, 
+            value: torch.Tensor, 
+            mask: torch.Tensor = None
+        ) -> torch.Tensor:
         """ Attention mechanism (Vaswani 2017)"""
         batch_size = query.shape[0]
 
@@ -40,14 +48,20 @@ class MultiHeadAttention(nn.Module):
         return x
 
 class FeedForward(nn.Module):
-    def __init__(self, input_dim, hidden_dim, dropout=0.1):
+    def __init__(self, 
+            input_dim: int, 
+            hidden_dim: int, 
+            dropout: float = 0.1
+        ) -> None:
         super(FeedForward, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, input_dim)
         # Dropout (Hinton 2012, Srivastava 2014)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x):
+    def forward(self, 
+            x: torch.Tensor
+        ) -> torch.Tensor:
         # GELU (Hendrycks 2016)
         x = F.gelu(self.fc1(x))
         # Dropout (Hinton 2012, Srivastava 2014)
@@ -56,7 +70,12 @@ class FeedForward(nn.Module):
         return x
 
 class EncoderLayer(nn.Module):
-    def __init__(self, input_dim, num_heads, hidden_dim, dropout=0.1):
+    def __init__(self, 
+            input_dim: int, 
+            num_heads: int, 
+            hidden_dim: int, 
+            dropout: float = 0.1
+        ) -> None:
         super(EncoderLayer, self).__init__()
         self.self_attention = MultiHeadAttention(input_dim, num_heads)
         self.feed_forward = FeedForward(input_dim, hidden_dim, dropout)
@@ -65,7 +84,10 @@ class EncoderLayer(nn.Module):
         self.dropout1 = nn.Dropout(dropout)
         self.dropout2 = nn.Dropout(dropout)
 
-    def forward(self, x, mask=None):
+    def forward(self, 
+            x: torch.Tensor, 
+            mask: torch.Tensor = None
+        ) -> torch.Tensor:
         # Layer normalization (Ba 2016)
         # Pre-norm formulation (Xiong 2020, Karpathy 2023)
         x_norm = self.norm1(x)
@@ -79,17 +101,31 @@ class EncoderLayer(nn.Module):
         return x
 
 class Encoder(nn.Module):
-    def __init__(self, input_dim, num_layers, num_heads, hidden_dim, dropout=0.1):
+    def __init__(self, 
+            input_dim: int, 
+            num_layers: int, 
+            num_heads: int, 
+            hidden_dim: int, 
+            dropout: float = 0.1
+        ) -> None:
         super(Encoder, self).__init__()
         self.layers = nn.ModuleList([EncoderLayer(input_dim, num_heads, hidden_dim, dropout) for _ in range(num_layers)])
 
-    def forward(self, x, mask=None):
+    def forward(self, 
+            x: torch.Tensor, 
+            mask: torch.Tensor = None
+        ) -> torch.Tensor:
         for layer in self.layers:
             x = layer(x, mask)
         return x
 
 class DecoderLayer(nn.Module):
-    def __init__(self, input_dim, num_heads, hidden_dim, dropout=0.1):
+    def __init__(self, 
+            input_dim: int, 
+            num_heads: int, 
+            hidden_dim: int, 
+            dropout: float = 0.1
+        ) -> None:
         super(DecoderLayer, self).__init__()
         self.self_attention = MultiHeadAttention(input_dim, num_heads)
         self.cross_attention = MultiHeadAttention(input_dim, num_heads)
@@ -99,7 +135,12 @@ class DecoderLayer(nn.Module):
         self.dropout1 = nn.Dropout(dropout)
         self.dropout2 = nn.Dropout(dropout)
 
-    def forward(self, x, encoder_output, src_mask=None, tgt_mask=None):
+    def forward(self, 
+            x: torch.Tensor, 
+            encoder_output: torch.Tensor, 
+            src_mask: torch.Tensor = None, 
+            tgt_mask: torch.Tensor = None
+        ) -> torch.Tensor:
         """ Attention mechanism (Vasawin 2017)"""
         # Layer normalization (Ba 2016)
         # Pre-norm formulation (Xiong 2020, Karpathy 2023)
@@ -116,11 +157,22 @@ class DecoderLayer(nn.Module):
         return x
 
 class Decoder(nn.Module):
-    def __init__(self, input_dim, num_layers, num_heads, hidden_dim, dropout=0.1):
+    def __init__(self, 
+            input_dim: int, 
+            num_layers: int, 
+            num_heads: int, 
+            hidden_dim: int, 
+            dropout: float = 0.1
+        ) -> None:
         super(Decoder, self).__init__()
         self.layers = nn.ModuleList([DecoderLayer(input_dim, num_heads, hidden_dim, dropout) for _ in range(num_layers)])
 
-    def forward(self, x, encoder_output, src_mask=None, tgt_mask=None):
+    def forward(self, 
+            x: torch.Tensor, 
+            encoder_output: torch.Tensor, 
+            src_mask: torch.Tensor = None, 
+            tgt_mask: torch.Tensor = None
+        ) -> torch.Tensor:
         for layer in self.layers:
             x = layer(x, encoder_output, src_mask, tgt_mask)
         return x
@@ -190,7 +242,14 @@ class Transformer(nn.Module):
         deep linear neural networks. arXiv preprint arXiv:1312.6120.
     """
 
-    def __init__(self, input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout=0.1):
+    def __init__(self, 
+            input_dim: int, 
+            output_dim: int, 
+            num_layers: int, 
+            num_heads: int, 
+            hidden_dim: int, 
+            dropout: float = 0.1
+        ) -> None:
         super(Transformer, self).__init__()
         self.encoder = Encoder(input_dim, num_layers, num_heads, hidden_dim, dropout)
         self.decoder = Decoder(input_dim, num_layers, num_heads, hidden_dim, dropout)
@@ -205,80 +264,13 @@ class Transformer(nn.Module):
                 # Orthogonal weight initialization (Saxe 2013)
                 # nn.init.orthogonal_(param)
 
-    def forward(self, src, tgt, src_mask=None, tgt_mask=None):
+    def forward(self, 
+            src: torch.Tensor, 
+            tgt: torch.Tensor, 
+            src_mask: torch.Tensor = None, 
+            tgt_mask: torch.Tensor = None
+        ) -> torch.Tensor:
         x = self.encoder(src, src_mask)
         x = self.decoder(tgt, x, src_mask, tgt_mask)
         x = self.fc(x[:, 0, :])
         return x
-
-class EarlyStopping:
-    def __init__(self, patience=5, delta=0, path='checkpoint.pt'):
-        """
-        Args:
-            patience (int): How long to wait after last time validation loss improved.
-                            Default: 7
-            delta (float): Minimum change in the monitored quantity to qualify as an improvement.
-                            Default: 0
-            path (str): Path for the checkpoint to be saved to.
-                            Default: 'transformer_checkpoint.pth'
-        """
-        self.patience = patience
-        self.delta = delta
-        self.path = path
-        self.counter = 0
-        self.best_score = None
-        self.early_stop = False
-        self.val_loss_min = float('inf')
-
-    def __call__(self, train_acc, val_loss, model, verbose=False):
-        """
-        Args:
-            val_loss (float): Validation loss
-            model (torch.nn.Module): Transformer model
-        """
-        score = -val_loss
-
-        # Check if the model has fit the training set.
-        if train_acc == 1:
-            # Employ early stopping once the model has fitted training set.
-            if self.best_score is None:
-                self.best_score = score
-                self.save_checkpoint(val_loss, model)
-            elif score < self.best_score + self.delta:
-                self.counter += 1
-                if verbose:
-                    print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
-                if self.counter >= self.patience:
-                    self.early_stop = True
-            else:
-                self.best_score = score
-                self.save_checkpoint(val_loss, model)
-                self.counter = 0
-
-    def save_checkpoint(self, val_loss, model):
-        """
-        Args:
-            val_loss (float): Validation loss
-            model (torch.nn.Module): Transformer model
-        """
-        if val_loss < self.val_loss_min:
-            torch.save(model.state_dict(), self.path)
-            self.val_loss_min = val_loss
-
-if __name__ == "__main__":
-    # Hyperparameters
-    learning_rate = 1E-5 #@param {type:"integer"}
-    batch_size = 64 # @param {type:"integer"}
-    num_epochs = 20 # @param {type:"integer"}
-    dropout = 0.2 # @param {type: "number"}
-    label_smoothing = 0.1 # @param {type: "number"}
-    file_path = 'transformer_checkpoint.pth' # @param {type:"string"}
-
-    # Regularization techniques
-    is_next_spectra = True # @param {type:"boolean"}
-    is_masked_spectra = True # @param {type:"boolean"}
-    is_data_augmentation = True # @param {type:"boolean"}
-    is_early_stopping = True # @param {type:"boolean"}
-
-    train_loader, val_loader, test_loader, train_steps, val_steps = preprocess_dataset()
-
