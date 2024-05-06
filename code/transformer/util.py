@@ -198,8 +198,8 @@ def preprocess_dataset(
     test_dataset = CustomDataset(X_test, y_test)
 
     assert train_dataset.samples.shape[0] == train_dataset.labels.shape[0], "train_dataset samples and labels should have same length."
-    assert val_dataset.samples.shape[0] == val_dataset.labels.shape[0], "train_dataset samples and labels should have same length."
-    assert test_dataset.samples.shape[0] == test_dataset.labels.shape[0], "train_dataset samples and labels should have same length."
+    assert val_dataset.samples.shape[0] == val_dataset.labels.shape[0], "val_dataset samples and labels should have same length."
+    assert test_dataset.samples.shape[0] == test_dataset.labels.shape[0], "test_dataset samples and labels should have same length."
 
     # Step 4: Create PyTorch DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
