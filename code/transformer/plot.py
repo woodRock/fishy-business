@@ -16,7 +16,7 @@ def plot_attention_map(
     Args:
         name (str): the name for the layer
         attention_weights (np-array): the weights for the layer.
-        y_  axis (torch.Tensor): the y-axis 
+        y_axis (torch.Tensor): the y-axis 
         x_axis (torch.Tensor): the x-axis
     """
     logger = logging.getLogger(__name__)
