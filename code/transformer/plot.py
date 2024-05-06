@@ -103,6 +103,7 @@ def plot_confusion_matrix(
     """
     logger = logging.getLogger(__name__)
     cmatrix = confusion_matrix(actual, predicted)
+
     labels = [] 
     if dataset == "species":
         labels = ["Hoki", "Mackerel"]
@@ -115,10 +116,10 @@ def plot_confusion_matrix(
     else:
         raise ValueError(f"Not a valid dataset: {dataset}")
     
-    # Disable the    grid on the confusion matrix 
-    # Source: https://stackoverflow.com/questions/53574918/how-to-get-rid-of-white-lines-in-confusion-matrix
     cm_display = ConfusionMatrixDisplay(confusion_matrix=cmatrix, display_labels=labels)
     cm_display.plot()
+    # Disable the grid on the confusion matrix 
+    # Source: https://stackoverflow.com/questions/53574918/how-to-get-rid-of-white-lines-in-confusion-matrix
     plt.grid(False)
     file_path = f"figures/{name}_confusion_matrix.png"
     logger.info(f"Saving cofusion matrix map to: {file_path}")
