@@ -165,94 +165,102 @@ def pre_train_model_next_spectra(
         model (Transformer): the pre-trained model
     """
     logger = logging.getLogger(__name__)
-    # Assume train_loader is your DataLoader containing spectra data
+    # Generate the training set of contrastive pairs.
+    X_train = []
+    y_train = []
+    # Iterate over batches in the training loader.
+    for (x,_) in train_loader:
+        # Randomly choose pairs of adjacent spectra from the same index or different indexes
+        for i in range(len(x)):
+            if random.random() < 0.5:
+                # Choose two adjacent spectra from the same index
+                if i < len(x) - 1:
+                    # Mask the right side of the spectra
+                    left = mask_left_side(x[i])
+                    right = mask_right_side(x[i])
+                    X_train.append((left, right))
+                    y_train.append([0,1])
+            else:
+                # Choose two spectra from different indexes
+                j = random.randint(0, len(x) - 1)
+                # Exhaustive search for two different indexes.
+                while (j == i):
+                    j = random.randint(0, len(x) - 1)
+                if j != i:
+                    left = mask_left_side(x[i])
+                    right = mask_right_side(x[j])
+                    X_train.append((left, right))
+                    y_train.append([1,0])
+
+        # Generate the validation set of contrastive pairs.
+        X_val = []
+        y_val = []
+        # Iterate over batches in the validation loader.
+        for (x,_) in val_loader:# Randomly choose pairs of adjacent spectra from the same index or different indexes
+            for i in range(len(x)):
+                if random.random() < 0.5:
+                    # Choose two adjacent spectra from the same index
+                    if i < len(x) - 1:
+                        # Mask the right side of the spectra
+                        left = mask_left_side(x[i])
+                        right = mask_right_side(x[i])
+                        X_val.append((left, right))
+                        y_val.append([0,1])
+                else:
+                    # Choose two spectra from different indexes
+                    j = random.randint(0, len(x) - 1)
+                    # Exhaustive search for two different indexes.
+                    while (j == i):
+                        j = random.randint(0, len(x) - 1)
+                    if j != i:
+                        left = mask_left_side(x[i])
+                        right = mask_right_side(x[j])
+                        X_val.append((left, right))
+                        y_val.append([1,0])
+
+
     for epoch in tqdm(range(num_epochs), desc="Pre-training: Next Spectra Prediction"):
         model.train()
         total_loss = 0.0
         num_pairs = 0
 
-        # Iterate over batches in the train_loader
-        for (x,y) in train_loader:
-            # Randomly choose pairs of adjacent spectra from the same index or different indexes
-            pairs = []
-            labels = []
-            for i in range(len(x)):
-                if random.random() < 0.5:
-                    # Choose two adjacent spectra from the same index
-                    if i < len(x) - 1:
-                        # Mask the right side of the spectra
-                        left = mask_left_side(x[i])
-                        right = mask_right_side(x[i])
-                        pairs.append((left, right))
-                        labels.append([0,1])
-                else:
-                    # Choose two spectra from different indexes
-                    j = random.randint(0, len(x) - 1)
-                    if j != i:
-                        left = mask_left_side(x[i])
-                        right = mask_right_side(x[j])
-                        pairs.append((left, right))
-                        labels.append([1,0])
+        for (input_spectra, target_spectra), label in zip(X_train, y_train):
+            # Forward pass
+            input_spectra = input_spectra.to(device)
+            target_spectra = target_spectra.to(device)
+            label = torch.tensor(label).to(device)
 
-            for (input_spectra, target_spectra), label in zip(pairs, labels):
-                # Forward pass
-                input_spectra = input_spectra.to(device)
-                target_spectra = target_spectra.to(device)
-                label = torch.tensor(label).to(device)
+            optimizer.zero_grad()
+            output = model(input_spectra.unsqueeze(0), target_spectra.unsqueeze(0))
+            label = label.float()
 
-                optimizer.zero_grad()
-                output = model(input_spectra.unsqueeze(0), target_spectra.unsqueeze(0))
-                label = label.float()
-
-                loss = criterion(output, label.unsqueeze(0))
-                total_loss += loss.item()
-                # Backpropagation
-                loss.backward()
-                optimizer.step()
-                num_pairs += 1
+            loss = criterion(output, label.unsqueeze(0))
+            total_loss += loss.item()
+            # Backpropagation
+            loss.backward()
+            optimizer.step()
+            num_pairs += 1
 
         # Calculate average loss for the epoch
         avg_loss = total_loss / num_pairs
-
+        
         model.eval()
         val_total_loss = 0.0
         num_pairs = 0
 
-        for (x,y) in val_loader:# Randomly choose pairs of adjacent spectra from the same index or different indexes
-            pairs = []
-            labels = []
+        for (input_spectra, target_spectra), label in zip(X_val, y_val):
+            # Forward pass
+            input_spectra = input_spectra.to(device)
+            target_spectra = target_spectra.to(device)
+            label = torch.tensor(label).to(device)
 
-            for i in range(len(x)):
-                if random.random() < 0.5:
-                    # Choose two adjacent spectra from the same index
-                    if i < len(x) - 1:
-                        # Mask the right side of the spectra
-                        left = mask_left_side(x[i])
-                        right = mask_right_side(x[i])
-                        pairs.append((left, right))
-                        labels.append([0,1])
-                else:
-                    # Choose two spectra from different indexes
-                    j = random.randint(0, len(x) - 1)
-                    if j != i:
-                        left = mask_left_side(x[i])
-                        right = mask_right_side(x[j])
-                        pairs.append((left, right))
-                        labels.append([1,0])
+            optimizer.zero_grad()
+            output = model(input_spectra.unsqueeze(0), target_spectra.unsqueeze(0))
+            label = label.float()
 
-            for (input_spectra, target_spectra), label in zip(pairs, labels):
-                # Forward pass
-                input_spectra = input_spectra.to(device)
-                target_spectra = target_spectra.to(device)
-                label = torch.tensor(label).to(device)
-
-                optimizer.zero_grad()
-                output = model(input_spectra.unsqueeze(0), target_spectra.unsqueeze(0))
-                label = label.float()
-
-                loss = criterion(output, label.unsqueeze(0))
-                val_total_loss += loss.item()
-                num_pairs += 1
+            loss = criterion(output, label.unsqueeze(0))
+            val_total_loss += loss.item()
+            num_pairs += 1
 
         num_pairs = max(1, num_pairs)
         val_avg_loss = total_loss / num_pairs
