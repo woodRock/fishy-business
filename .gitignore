@@ -11,7 +11,7 @@ code/cnn/data
 data
 
 # Transformer checkpoints are too big.
-code/transformer/checkpoints/
+code/transformer/checkpoints/*
 
 # Cache for python
 code/evotorch/__pycache__
