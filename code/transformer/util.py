@@ -25,8 +25,8 @@ class CustomDataset(Dataset):
         self.samples = torch.tensor(samples, dtype=torch.float32)
         # Credit: https://stackoverflow.com/a/70323486
         self.labels = torch.from_numpy(np.vstack(labels).astype(float))
-        # Normalize the features to be between in [0,1]
-        self.samples = F.normalize(self.samples, dim = 0)
+        # Normalize the features to be between [0,1]
+        # self.samples = F.normalize(self.samples, dim = 0)
 
     def __len__(self
     ) -> int:

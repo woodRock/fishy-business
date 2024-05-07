@@ -222,11 +222,11 @@ if __name__ == "__main__":
     if is_early_stopping:
         # Early stopping (Morgan 1989)
         # If the model stopped early.
-        # if early_stopping.early_stop:
-        # Load the checkpoint
-        checkpoint = torch.load(file_path)
-        # Load model parameters with best validation accuracy.
-        model.load_state_dict(checkpoint, strict=False)
+        if early_stopping.early_stop:
+            # Load the checkpoint
+            checkpoint = torch.load(file_path)
+            # Load model parameters with best validation loss.
+            model.load_state_dict(checkpoint, strict=False)
 
     model.eval()
     # switch off autograd

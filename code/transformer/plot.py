@@ -95,7 +95,7 @@ def plot_confusion_matrix(
         name: str, 
         actual: torch.Tensor, 
         predicted: torch.Tensor,
-        color_map: str = "Blue"
+        color_map: str = "Blues"
     ) -> None:
     """ Plots a confusion matrix for a dataset.
     
