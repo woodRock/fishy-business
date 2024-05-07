@@ -98,9 +98,11 @@ def plot_confusion_matrix(
         color_map: str = "Blues"
     ) -> None:
     """ Plots a confusion matrix for a dataset.
+
+    A ValueError is thrown if a valida dataset name is not provided.
     
     Args: 
-        dataset (str: train, validation or test dataset.
+        dataset (str): train, validation or test dataset.
         name (str): the name of the dataset for titles.
         actual (np-array): the expected values for y labels.
         predicted (np-array): the predicted values for y labels.
