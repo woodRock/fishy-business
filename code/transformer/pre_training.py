@@ -189,8 +189,8 @@ def pre_train_model_next_spectra(
                 while (j == i):
                     j = random.randint(0, len(x) - 1)
                 if j != i:
-                    left = mask_right_side(x[j])
-                    right = mask_left_side(x[i])
+                    left = mask_right_side(x[i])
+                    right = mask_left_side(x[j])
                     assert left[-1] == 0, f"{left[-1]} should be masked"
                     assert right[0] == 0, f"{right[0]} should be masked"
                     X_train.append((left, right))
