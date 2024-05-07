@@ -1,2 +1,10 @@
 INFO:__main__:Reading the dataset: fish oil
 INFO:__main__:Pre-training the network: Nex Spectra Prediction
+INFO:pre_training:Epoch 1, Average Loss: 0.5807 Validation: 4.6960
+INFO:pre_training:Epoch 2, Average Loss: 0.5726 Validation: 4.6304
+INFO:pre_training:Epoch 3, Average Loss: 0.5682 Validation: 4.5948
+INFO:pre_training:Epoch 4, Average Loss: 0.5665 Validation: 4.5816
+INFO:pre_training:Epoch 5, Average Loss: 0.5615 Validation: 4.5411
+INFO:pre_training:Epoch 6, Average Loss: 0.5454 Validation: 4.4102
+INFO:pre_training:Epoch 7, Average Loss: 0.5639 Validation: 4.5600
+INFO:pre_training:Epoch 8, Average Loss: 0.5600 Validation: 4.5283

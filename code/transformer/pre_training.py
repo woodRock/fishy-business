@@ -233,8 +233,6 @@ def pre_train_model_next_spectra(
             optimizer.zero_grad()
             output = model(left.unsqueeze(0), right.unsqueeze(0))
             label = label.float()
-
-            print(f"output: {output.squeeze(0)}\n label.unsqueeze(0): {label.unsqueeze(0)}")
             
             loss = criterion(output, label.unsqueeze(0))
             total_loss += loss.item()
@@ -258,7 +256,7 @@ def pre_train_model_next_spectra(
 
             optimizer.zero_grad()
             output = model(left.unsqueeze(0), right.unsqueeze(0))
-            label = label.float()
+            label = label.float()   
 
             loss = criterion(output, label.unsqueeze(0))
             val_total_loss += loss.item()
