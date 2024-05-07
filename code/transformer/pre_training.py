@@ -222,7 +222,6 @@ def pre_train_model_next_spectra(
     for epoch in tqdm(range(num_epochs), desc="Pre-training: Next Spectra Prediction"):
         model.train()
         total_loss = 0.0
-        num_pairs = 0
 
         for (left, right), label in zip(X_train, y_train):
             # Forward pass
@@ -239,14 +238,12 @@ def pre_train_model_next_spectra(
             # Backpropagation
             loss.backward()
             optimizer.step()
-            num_pairs += 1
 
         # Calculate average loss for the epoch
-        avg_loss = total_loss / num_pairs
+        avg_loss = total_loss / len(X_train)
         
         model.eval()
         val_total_loss = 0.0
-        num_pairs = 0
 
         for (left, right), label in zip(X_val, y_val):
             # Forward pass
@@ -260,10 +257,8 @@ def pre_train_model_next_spectra(
 
             loss = criterion(output, label.unsqueeze(0))
             val_total_loss += loss.item()
-            num_pairs += 1
 
-        num_pairs = max(1, num_pairs)
-        val_avg_loss = total_loss / num_pairs
+        val_avg_loss = val_total_loss / len(X_val)
         logger.info(f"Epoch {epoch + 1}, Average Loss: {avg_loss:.4f} Validation: {val_avg_loss:.4f}")
 
         # Early stopping (Morgan 1989)
