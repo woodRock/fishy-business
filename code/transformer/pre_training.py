@@ -217,8 +217,8 @@ def pre_train_model_next_spectra(
                 while (j == i):
                     j = random.randint(0, len(x) - 1)
                 if j != i:
-                    left = mask_right_side(x[j])
-                    right = mask_left_side(x[i])
+                    left = mask_right_side(x[i])
+                    right = mask_left_side(x[j])
                     X_val.append((left, right))
                     y_val.append([1,0])
 
