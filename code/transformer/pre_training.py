@@ -50,7 +50,7 @@ def pre_train_masked_spectra(
         total_loss = 0.0
         model.train()
 
-        for (x,y) in train_loader:
+        for (x,_) in train_loader:
             # Generate batch of data
             tgt_x, x = x.to(device), x.to(device)
 
@@ -68,7 +68,7 @@ def pre_train_masked_spectra(
 
         total_val_loss = 0.0
         model.eval()
-        for (x,y) in val_loader:
+        for (x,_) in val_loader:
             tgt_x, x = x.to(device), x.to(device)
 
             val_batch_size = x.shape[0]
@@ -128,7 +128,7 @@ def mask_right_side(
     """
     # Calculate the index to split the tensor
     split_index = input_spectra.shape[0] // 2
-    # Mask the left half of the input tensor
+    # Mask the right half of the input tensor
     input_spectra[split_index:] = 0
     return input_spectra
 
@@ -176,8 +176,10 @@ def pre_train_model_next_spectra(
                 # Choose two adjacent spectra from the same index
                 if i < len(x) - 1:
                     # Mask the right side of the spectra
-                    left = mask_left_side(x[i])
-                    right = mask_right_side(x[i])
+                    left = mask_right_side(x[i])
+                    right = mask_left_side(x[i])
+                    assert left[-1] == 0, f"{left[-1]} should be masked"
+                    assert right[0] == 0, f"{right[0]} should be masked"
                     X_train.append((left, right))
                     y_train.append([0,1])
             else:
@@ -187,8 +189,10 @@ def pre_train_model_next_spectra(
                 while (j == i):
                     j = random.randint(0, len(x) - 1)
                 if j != i:
-                    left = mask_left_side(x[i])
-                    right = mask_right_side(x[j])
+                    left = mask_right_side(x[i])
+                    right = mask_left_side(x[j])
+                    assert left[-1] == 0, f"{left[-1]} should be masked"
+                    assert right[0] == 0, f"{right[0]} should be masked"
                     X_train.append((left, right))
                     y_train.append([1,0])
 
@@ -202,8 +206,8 @@ def pre_train_model_next_spectra(
                 # Choose two adjacent spectra from the same index
                 if i < len(x) - 1:
                     # Mask the right side of the spectra
-                    left = mask_left_side(x[i])
-                    right = mask_right_side(x[i])
+                    left = mask_right_side(x[i])
+                    right = mask_left_side(x[i])
                     X_val.append((left, right))
                     y_val.append([0,1])
             else:
@@ -213,8 +217,8 @@ def pre_train_model_next_spectra(
                 while (j == i):
                     j = random.randint(0, len(x) - 1)
                 if j != i:
-                    left = mask_left_side(x[i])
-                    right = mask_right_side(x[j])
+                    left = mask_right_side(x[i])
+                    right = mask_left_side(x[j])
                     X_val.append((left, right))
                     y_val.append([1,0])
 
