@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from transformer import Transformer
 from typing import Iterable, Tuple, Union
 
+
 class CustomDataset(Dataset):
     def __init__(self, 
             samples: Iterable, 
