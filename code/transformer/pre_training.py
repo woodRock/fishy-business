@@ -60,7 +60,7 @@ def pre_train_masked_spectra(
             x[mask] = 0
 
             optimizer.zero_grad()
-            outputs = model(x, x)
+            outputs  = model(x, x)
             loss = criterion(outputs, tgt_x)  # Compare predicted spectra with true spectra
             loss.backward()
             optimizer.step()
@@ -98,37 +98,45 @@ def pre_train_masked_spectra(
 
 def mask_left_side(
         input_spectra: torch.Tensor, 
+        quarter: bool = True
     ) -> torch.Tensor:
     """
     Masks the left-hand side of the input spectra tensor.
 
     Args:
         input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
+        quarter (bool): whether to mask a quarter, or half, of the spectra. Defaults to true.
 
     Returns:
         torch.Tensor: Masked input spectra tensor.
     """
     # Calculate the index to split the tensor
     split_index = input_spectra.shape[0] // 2
+    if quarter:
+        split_index = input_spectra.shape[0] - (input_spectra.shape[0] // 4)
     # Mask the left half of the input tensor
     input_spectra[:split_index] = 0
     return input_spectra
 
 def mask_right_side(
         input_spectra: torch.Tensor, 
+        quarter: bool = True
     ) -> torch.Tensor:
     """
     Masks the right-hand side of the input spectra tensor.
 
     Args:
         input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
+        quarter (bool): whether to mask a quarter, or half, of the spectra. Defaults to true.
 
     Returns:
         torch.Tensor: Masked input spectra tensor.
     """
     # Calculate the index to split the tensor
     split_index = input_spectra.shape[0] // 2
-    # Mask the right half of the input tensor
+    if quarter:
+        split_index = input_spectra.shape[0] - (input_spectra.shape[0] // 4)
+    # Mask the left half of the input tensor
     input_spectra[split_index:] = 0
     return input_spectra
 
@@ -178,36 +186,32 @@ def pre_train_model_next_spectra(
                     # Mask the right side of the spectra
                     left = mask_right_side(x[i])
                     right = mask_left_side(x[i])
-                    assert left[-1] == 0, f"{left[-1]} should be masked"
-                    assert right[0] == 0, f"{right[0]} should be masked"
                     X_train.append((left, right))
-                    y_train.append([0,1])
+                    y_train.append([1,0])
             else:
                 # Choose two spectra from different indexes
                 j = random.randint(0, len(x) - 1)
                 # Exhaustive search for two different indexes.
                 while (j == i):
                     j = random.randint(0, len(x) - 1)
-                if j != i:
-                    left = mask_right_side(x[i])
-                    right = mask_left_side(x[j])
-                    assert left[-1] == 0, f"{left[-1]} should be masked"
-                    assert right[0] == 0, f"{right[0]} should be masked"
-                    X_train.append((left, right))
-                    y_train.append([1,0])
+                left = mask_right_side(x[i])
+                right = mask_left_side(x[j])
+                X_train.append((left, right))
+                y_train.append([0,1])
 
     # Generate the validation set of contrastive pairs.
     X_val = []
     y_val = []
     # Iterate over batches in the validation loader.
-    for (x,_) in val_loader:# Randomly choose pairs of adjacent spectra from the same index or different indexes
+    for (x,_) in val_loader: 
+        # Randomly choose pairs of adjacent spectra from the same index or different indexes
         for i in range(len(x)):
             if random.random() < 0.5:
                 # Choose two adjacent spectra from the same index
                 if i < len(x) - 1:
                     # Mask the right side of the spectra
                     left = mask_right_side(x[i])
-                    right = mask_left_side(x[i])
+                    right = mask_right_side(x[i])
                     X_val.append((left, right))
                     y_val.append([0,1])
             else:
@@ -216,11 +220,10 @@ def pre_train_model_next_spectra(
                 # Exhaustive search for two different indexes.
                 while (j == i):
                     j = random.randint(0, len(x) - 1)
-                if j != i:
-                    left = mask_right_side(x[i])
-                    right = mask_left_side(x[j])
-                    X_val.append((left, right))
-                    y_val.append([1,0])
+                left = mask_left_side(x[i])
+                right = mask_right_side(x[j])
+                X_val.append((left, right))
+                y_val.append([1,0])
 
 
     for epoch in tqdm(range(num_epochs), desc="Pre-training: Next Spectra Prediction"):

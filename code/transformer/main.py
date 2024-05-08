@@ -139,7 +139,7 @@ if __name__ == "__main__":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
 
-        logger.info("Pre-training the network: Nex Spectra Prediction")
+        logger.info("Pre-training the network: Next Spectra Prediction")
         startTime = time.time()
 
         # Train the model
