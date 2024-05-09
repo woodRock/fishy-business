@@ -6392,3 +6392,21 @@ Notes:
     * Bring results printed out to my next meeting.
     * Write a report about class-dependent multi-tree GP. 
     * Send Bing a PDF of my slides for my proposal.
+
+2023-05-02 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
+
+Notes: 
+    * Explain the output of the attention map.
+    * Troubleshoot loss curve for CNN. 
+    * GP for oil and cross-species contamination detection.
+
+2024-05-09 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+
+Notes: 
+    * oil detection - need to split train, validation and test set. Can't use the test set. 
+    * Run experiments 30 times for statistical significance. 
+    * Write thesis chapters while I am rnning experiments. 
+    * Plan the next week's work in advance, run new ideas by supervisors first.
