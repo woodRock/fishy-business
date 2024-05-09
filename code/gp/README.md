@@ -18,6 +18,24 @@ Example usage:
 $ python3 main.py -d species -g 50 -b 1
 ```
 
+## Grid computing
+
+The grid can be used to run many experiments at once using the `qsub` command. First, we need to ensure the grid computing environment is setup properly.
+
+Run the following command:
+
+```bash
+$ need sgegrid
+```
+
+To run 30 experiments at once, we run the following command:
+
+```bash
+$ qsub -t 1-30:1 grid.sh 
+```
+
+For more information on the grid, see https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script
+
 ## Task Spooler
 
 Task Spooler was originally developed by Lluis Batlle i Rossell but is no longer maintained. The branch introduced here is a fork of the original program with more features including GPU support.
