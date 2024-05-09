@@ -18,6 +18,21 @@ Example usage:
 $ python3 main.py -d species -g 50 -b 1
 ```
 
+## Task Spooler
+
+Task Spooler was originally developed by Lluis Batlle i Rossell but is no longer maintained. The branch introduced here is a fork of the original program with more features including GPU support.
+
+Say we want to execute the main script on the GPU server, with one GPU `-G` per parallel exeuction of that script.
+
+Example usage:
+
+```bash
+# ts -G <number-of-gpus> <command>
+$ ts -G 1 python3 main.py
+```
+
+For more information on the `ts` command from task spooler see: https://justanhduc.github.io/2021/02/03/Task-Spooler.html
+
 ## Grid computing
 
 The grid can be used to run many experiments at once using the `qsub` command. First, we need to ensure the grid computing environment is setup properly.
@@ -36,20 +51,7 @@ $ qsub -t 1-30:1 grid.sh
 
 For more information on the grid, see https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script
 
-## Task Spooler
 
-Task Spooler was originally developed by Lluis Batlle i Rossell but is no longer maintained. The branch introduced here is a fork of the original program with more features including GPU support.
-
-Say we want to execute the main script on the GPU server, with one GPU `-G` per parallel exeuction of that script.
-
-Example usage:
-
-```bash
-# ts -G <number-of-gpus> <command>
-$ ts -G 1 python3 main.py
-```
-
-For more information on the `ts` command from task spooler see: https://justanhduc.github.io/2021/02/03/Task-Spooler.html
 
 ## DEAP 
 
