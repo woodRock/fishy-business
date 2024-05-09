@@ -15,7 +15,7 @@
 # Change directory to desktop fishy-business
 cd ~/Desktop/fishy-business/code/gp
 
-DATASET="oil"; 
+DATASET="cross-species"; 
 # DATASET="species";
 # Directory to save results to.
 NAME="tmp_3";
