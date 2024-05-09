@@ -7,7 +7,7 @@
 DATASET="oil"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp";
+NAME="tmp_2";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -26,5 +26,5 @@ do
 	    --dataset "${DATASET}" \
 	    --file-path "checkpoints/run_${i}.pth" \
 	    --output "logs/${DATASET}/${NAME}/run" --run $i \
-	    --generations 400 --beta 3;
+	    --generations 400 --beta 1;
 done
