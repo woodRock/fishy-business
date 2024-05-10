@@ -105,37 +105,30 @@ def mask_left_side(
 
     Args:
         input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
-        quarter (bool): whether to mask a quarter, or half, of the spectra. Defaults to true.
 
     Returns:
         torch.Tensor: Masked input spectra tensor.
     """
     # Calculate the index to split the tensor
     split_index = input_spectra.shape[0] // 2
-    if quarter:
-        split_index = input_spectra.shape[0] - (input_spectra.shape[0] // 4)
     # Mask the left half of the input tensor
     input_spectra[:split_index] = 0
     return input_spectra
 
 def mask_right_side(
-        input_spectra: torch.Tensor, 
-        quarter: bool = True
+        input_spectra: torch.Tensor
     ) -> torch.Tensor:
     """
     Masks the right-hand side of the input spectra tensor.
 
     Args:
         input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
-        quarter (bool): whether to mask a quarter, or half, of the spectra. Defaults to true.
 
     Returns:
         torch.Tensor: Masked input spectra tensor.
     """
     # Calculate the index to split the tensor
     split_index = input_spectra.shape[0] // 2
-    if quarter:
-        split_index = input_spectra.shape[0] - (input_spectra.shape[0] // 4)
     # Mask the left half of the input tensor
     input_spectra[split_index:] = 0
     return input_spectra
