@@ -12,10 +12,13 @@
 #
 # Help: https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script
 
+# Ensure the grid commands work.
+need sgegrid
+
 # Change directory to desktop fishy-business
 cd ~/Desktop/fishy-business/code/gp
 
-DATASET="cross-species"; 
+DATASET="oil"; 
 # DATASET="species";
 # Directory to save results to.
 NAME="tmp_3";
