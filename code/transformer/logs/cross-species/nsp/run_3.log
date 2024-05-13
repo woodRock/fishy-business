@@ -188,3 +188,151 @@ INFO:pre_training:Epoch 83, Average Loss: 0.4692 Validation: 0.4056
 INFO:pre_training:Epoch 84, Average Loss: 0.4720 Validation: 0.3473
 INFO:pre_training:Epoch 85, Average Loss: 0.4659 Validation: 0.4708
 INFO:pre_training:Epoch 86, Average Loss: 0.4710 Validation: 0.2804
+INFO:pre_training:Epoch 87, Average Loss: 0.4698 Validation: 0.3795
+INFO:pre_training:Epoch 88, Average Loss: 0.4703 Validation: 0.3820
+INFO:pre_training:Epoch 89, Average Loss: 0.4709 Validation: 0.3513
+INFO:pre_training:Epoch 90, Average Loss: 0.4661 Validation: 0.3331
+INFO:pre_training:Epoch 91, Average Loss: 0.4713 Validation: 0.3177
+INFO:pre_training:Epoch 92, Average Loss: 0.4669 Validation: 0.3239
+INFO:pre_training:Epoch 93, Average Loss: 0.4663 Validation: 0.3434
+INFO:pre_training:Epoch 94, Average Loss: 0.4672 Validation: 0.3906
+INFO:pre_training:Epoch 95, Average Loss: 0.4659 Validation: 0.3402
+INFO:pre_training:Epoch 96, Average Loss: 0.4663 Validation: 0.3447
+INFO:pre_training:Epoch 97, Average Loss: 0.4688 Validation: 0.3552
+INFO:pre_training:Epoch 98, Average Loss: 0.4678 Validation: 0.3708
+INFO:pre_training:Epoch 99, Average Loss: 0.4667 Validation: 0.3393
+INFO:pre_training:Epoch 100, Average Loss: 0.4693 Validation: 0.3378
+INFO:__main__:Total time taken to pre-train the model: 2263.83s
+INFO:__main__:Training the network
+INFO:train:Epoch 1/100, Train Loss: 1.0959, Train Acc: 0.3743, Val Loss: 1.0972, Val Acc: 0.3333
+INFO:train:Epoch 2/100, Train Loss: 1.0822, Train Acc: 0.4235, Val Loss: 1.0902, Val Acc: 0.4000
+INFO:train:Epoch 3/100, Train Loss: 1.0438, Train Acc: 0.4658, Val Loss: 1.0336, Val Acc: 0.4667
+INFO:train:Epoch 4/100, Train Loss: 0.9181, Train Acc: 0.6817, Val Loss: 0.8572, Val Acc: 0.6667
+INFO:train:Epoch 5/100, Train Loss: 0.7415, Train Acc: 0.6913, Val Loss: 0.7884, Val Acc: 0.6667
+INFO:train:Epoch 6/100, Train Loss: 0.6833, Train Acc: 0.7008, Val Loss: 0.7542, Val Acc: 0.6667
+INFO:train:Epoch 7/100, Train Loss: 0.6259, Train Acc: 0.7732, Val Loss: 0.7597, Val Acc: 0.7333
+INFO:train:Epoch 8/100, Train Loss: 0.5873, Train Acc: 0.8415, Val Loss: 0.7367, Val Acc: 0.8000
+INFO:train:Epoch 9/100, Train Loss: 0.5500, Train Acc: 0.8757, Val Loss: 0.6992, Val Acc: 0.8000
+INFO:train:Epoch 10/100, Train Loss: 0.5022, Train Acc: 0.9221, Val Loss: 0.6900, Val Acc: 0.7333
+INFO:train:Epoch 11/100, Train Loss: 0.4452, Train Acc: 0.9549, Val Loss: 0.6545, Val Acc: 0.8000
+INFO:train:Epoch 12/100, Train Loss: 0.3973, Train Acc: 0.9645, Val Loss: 0.7573, Val Acc: 0.7333
+INFO:train:Epoch 13/100, Train Loss: 0.3516, Train Acc: 0.9932, Val Loss: 0.8001, Val Acc: 0.7333
+INFO:train:Epoch 14/100, Train Loss: 0.3203, Train Acc: 1.0000, Val Loss: 0.8229, Val Acc: 0.8000
+INFO:train:Epoch 15/100, Train Loss: 0.3066, Train Acc: 1.0000, Val Loss: 0.8964, Val Acc: 0.7333
+INFO:train:Epoch 16/100, Train Loss: 0.3031, Train Acc: 1.0000, Val Loss: 0.9024, Val Acc: 0.7333
+INFO:train:Epoch 17/100, Train Loss: 0.3005, Train Acc: 1.0000, Val Loss: 0.8903, Val Acc: 0.7333
+INFO:train:Epoch 18/100, Train Loss: 0.2988, Train Acc: 1.0000, Val Loss: 0.8704, Val Acc: 0.7333
+INFO:train:Epoch 19/100, Train Loss: 0.2983, Train Acc: 1.0000, Val Loss: 0.8690, Val Acc: 0.7333
+INFO:train:Epoch 20/100, Train Loss: 0.2972, Train Acc: 1.0000, Val Loss: 0.8763, Val Acc: 0.7333
+INFO:train:Epoch 21/100, Train Loss: 0.2965, Train Acc: 1.0000, Val Loss: 0.8772, Val Acc: 0.7333
+INFO:train:Epoch 22/100, Train Loss: 0.2964, Train Acc: 1.0000, Val Loss: 0.8644, Val Acc: 0.7333
+INFO:train:Epoch 23/100, Train Loss: 0.2956, Train Acc: 1.0000, Val Loss: 0.8821, Val Acc: 0.7333
+INFO:train:Epoch 24/100, Train Loss: 0.2952, Train Acc: 1.0000, Val Loss: 0.8689, Val Acc: 0.7333
+INFO:train:Epoch 25/100, Train Loss: 0.2950, Train Acc: 1.0000, Val Loss: 0.8702, Val Acc: 0.7333
+INFO:train:Epoch 26/100, Train Loss: 0.2948, Train Acc: 1.0000, Val Loss: 0.8732, Val Acc: 0.7333
+INFO:train:Epoch 27/100, Train Loss: 0.2944, Train Acc: 1.0000, Val Loss: 0.8701, Val Acc: 0.7333
+INFO:train:Epoch 28/100, Train Loss: 0.2942, Train Acc: 1.0000, Val Loss: 0.8835, Val Acc: 0.7333
+INFO:train:Epoch 29/100, Train Loss: 0.2941, Train Acc: 1.0000, Val Loss: 0.8804, Val Acc: 0.7333
+INFO:train:Epoch 30/100, Train Loss: 0.2937, Train Acc: 1.0000, Val Loss: 0.8819, Val Acc: 0.7333
+INFO:train:Epoch 31/100, Train Loss: 0.2938, Train Acc: 1.0000, Val Loss: 0.8830, Val Acc: 0.7333
+INFO:train:Epoch 32/100, Train Loss: 0.2935, Train Acc: 1.0000, Val Loss: 0.8801, Val Acc: 0.7333
+INFO:train:Epoch 33/100, Train Loss: 0.2935, Train Acc: 1.0000, Val Loss: 0.8723, Val Acc: 0.7333
+INFO:train:Epoch 34/100, Train Loss: 0.2932, Train Acc: 1.0000, Val Loss: 0.8933, Val Acc: 0.7333
+INFO:train:Epoch 35/100, Train Loss: 0.2931, Train Acc: 1.0000, Val Loss: 0.8801, Val Acc: 0.7333
+INFO:train:Epoch 36/100, Train Loss: 0.2931, Train Acc: 1.0000, Val Loss: 0.8905, Val Acc: 0.7333
+INFO:train:Epoch 37/100, Train Loss: 0.2930, Train Acc: 1.0000, Val Loss: 0.8793, Val Acc: 0.7333
+INFO:train:Epoch 38/100, Train Loss: 0.2929, Train Acc: 1.0000, Val Loss: 0.8743, Val Acc: 0.7333
+INFO:train:Epoch 39/100, Train Loss: 0.2927, Train Acc: 1.0000, Val Loss: 0.8822, Val Acc: 0.7333
+INFO:train:Epoch 40/100, Train Loss: 0.2926, Train Acc: 1.0000, Val Loss: 0.8762, Val Acc: 0.7333
+INFO:train:Epoch 41/100, Train Loss: 0.2926, Train Acc: 1.0000, Val Loss: 0.8830, Val Acc: 0.7333
+INFO:train:Epoch 42/100, Train Loss: 0.2925, Train Acc: 1.0000, Val Loss: 0.8777, Val Acc: 0.7333
+INFO:train:Epoch 43/100, Train Loss: 0.2925, Train Acc: 1.0000, Val Loss: 0.8851, Val Acc: 0.7333
+INFO:train:Epoch 44/100, Train Loss: 0.2925, Train Acc: 1.0000, Val Loss: 0.8695, Val Acc: 0.7333
+INFO:train:Epoch 45/100, Train Loss: 0.2923, Train Acc: 1.0000, Val Loss: 0.8856, Val Acc: 0.7333
+INFO:train:Epoch 46/100, Train Loss: 0.2923, Train Acc: 1.0000, Val Loss: 0.8903, Val Acc: 0.6667
+INFO:train:Epoch 47/100, Train Loss: 0.2923, Train Acc: 1.0000, Val Loss: 0.8735, Val Acc: 0.7333
+INFO:train:Epoch 48/100, Train Loss: 0.2922, Train Acc: 1.0000, Val Loss: 0.8819, Val Acc: 0.7333
+INFO:train:Epoch 49/100, Train Loss: 0.2922, Train Acc: 1.0000, Val Loss: 0.8880, Val Acc: 0.7333
+INFO:train:Epoch 50/100, Train Loss: 0.2922, Train Acc: 1.0000, Val Loss: 0.8895, Val Acc: 0.7333
+INFO:train:Epoch 51/100, Train Loss: 0.2921, Train Acc: 1.0000, Val Loss: 0.8839, Val Acc: 0.7333
+INFO:train:Epoch 52/100, Train Loss: 0.2921, Train Acc: 1.0000, Val Loss: 0.8803, Val Acc: 0.7333
+INFO:train:Epoch 53/100, Train Loss: 0.2920, Train Acc: 1.0000, Val Loss: 0.8916, Val Acc: 0.7333
+INFO:train:Epoch 54/100, Train Loss: 0.2920, Train Acc: 1.0000, Val Loss: 0.8796, Val Acc: 0.7333
+INFO:train:Epoch 55/100, Train Loss: 0.2920, Train Acc: 1.0000, Val Loss: 0.8848, Val Acc: 0.7333
+INFO:train:Epoch 56/100, Train Loss: 0.2920, Train Acc: 1.0000, Val Loss: 0.8928, Val Acc: 0.7333
+INFO:train:Epoch 57/100, Train Loss: 0.2919, Train Acc: 1.0000, Val Loss: 0.8753, Val Acc: 0.7333
+INFO:train:Epoch 58/100, Train Loss: 0.2919, Train Acc: 1.0000, Val Loss: 0.8952, Val Acc: 0.7333
+INFO:train:Epoch 59/100, Train Loss: 0.2919, Train Acc: 1.0000, Val Loss: 0.9006, Val Acc: 0.7333
+INFO:train:Epoch 60/100, Train Loss: 0.2919, Train Acc: 1.0000, Val Loss: 0.8778, Val Acc: 0.7333
+INFO:train:Epoch 61/100, Train Loss: 0.2919, Train Acc: 1.0000, Val Loss: 0.8826, Val Acc: 0.7333
+INFO:train:Epoch 62/100, Train Loss: 0.2918, Train Acc: 1.0000, Val Loss: 0.9056, Val Acc: 0.6667
+INFO:train:Epoch 63/100, Train Loss: 0.2918, Train Acc: 1.0000, Val Loss: 0.8779, Val Acc: 0.7333
+INFO:train:Epoch 64/100, Train Loss: 0.2918, Train Acc: 1.0000, Val Loss: 0.8925, Val Acc: 0.7333
+INFO:train:Epoch 65/100, Train Loss: 0.2918, Train Acc: 1.0000, Val Loss: 0.8825, Val Acc: 0.7333
+INFO:train:Epoch 66/100, Train Loss: 0.2918, Train Acc: 1.0000, Val Loss: 0.9020, Val Acc: 0.6667
+INFO:train:Epoch 67/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8874, Val Acc: 0.7333
+INFO:train:Epoch 68/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8987, Val Acc: 0.7333
+INFO:train:Epoch 69/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8817, Val Acc: 0.7333
+INFO:train:Epoch 70/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8880, Val Acc: 0.7333
+INFO:train:Epoch 71/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8877, Val Acc: 0.7333
+INFO:train:Epoch 72/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8859, Val Acc: 0.7333
+INFO:train:Epoch 73/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8968, Val Acc: 0.7333
+INFO:train:Epoch 74/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8804, Val Acc: 0.7333
+INFO:train:Epoch 75/100, Train Loss: 0.2917, Train Acc: 1.0000, Val Loss: 0.8806, Val Acc: 0.7333
+INFO:train:Epoch 76/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8899, Val Acc: 0.7333
+INFO:train:Epoch 77/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8859, Val Acc: 0.7333
+INFO:train:Epoch 78/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8892, Val Acc: 0.7333
+INFO:train:Epoch 79/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8911, Val Acc: 0.7333
+INFO:train:Epoch 80/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8847, Val Acc: 0.7333
+INFO:train:Epoch 81/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8849, Val Acc: 0.7333
+INFO:train:Epoch 82/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8842, Val Acc: 0.7333
+INFO:train:Epoch 83/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8970, Val Acc: 0.7333
+INFO:train:Epoch 84/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8902, Val Acc: 0.7333
+INFO:train:Epoch 85/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8919, Val Acc: 0.7333
+INFO:train:Epoch 86/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8944, Val Acc: 0.7333
+INFO:train:Epoch 87/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8959, Val Acc: 0.7333
+INFO:train:Epoch 88/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8848, Val Acc: 0.7333
+INFO:train:Epoch 89/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.8873, Val Acc: 0.7333
+INFO:train:Epoch 90/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8988, Val Acc: 0.7333
+INFO:train:Epoch 91/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8931, Val Acc: 0.7333
+INFO:train:Epoch 92/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8955, Val Acc: 0.7333
+INFO:train:Epoch 93/100, Train Loss: 0.2916, Train Acc: 1.0000, Val Loss: 0.9050, Val Acc: 0.7333
+INFO:train:Epoch 94/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8850, Val Acc: 0.7333
+INFO:train:Epoch 95/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.9026, Val Acc: 0.7333
+INFO:train:Epoch 96/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8889, Val Acc: 0.7333
+INFO:train:Epoch 97/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8910, Val Acc: 0.7333
+INFO:train:Epoch 98/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8904, Val Acc: 0.7333
+INFO:train:Epoch 99/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.9040, Val Acc: 0.7333
+INFO:train:Epoch 100/100, Train Loss: 0.2915, Train Acc: 1.0000, Val Loss: 0.8922, Val Acc: 0.7333
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 99.53s
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 28 / 28 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:validation got 11 / 15 correct, accuracy: 0.7333333333333333
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:__main__:test got 13 / 16 correct, accuracy: 0.8125
+INFO:plot:Saving cofusion matrix map to: figures/test_confusion_matrix.png
+INFO:plot:Saving attention map to: figures/encoder_attention_map.png
+INFO:plot:Saving attention map to: figures/decoder_attention_map.png
