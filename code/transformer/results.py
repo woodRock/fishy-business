@@ -21,7 +21,7 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
     
     # Set verbose to true for debugging.
-    verbose = True
+    verbose = False
     
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     train_accs = []
     val_accs = [] 
     test_accs = []
-    runs = 30
+    runs = 10
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
         file_name = f"run_{i}.log"
