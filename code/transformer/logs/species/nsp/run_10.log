@@ -1,0 +1,199 @@
+INFO:__main__:Reading the dataset: fish species
+INFO:__main__:Pre-training the network: Masked Spectra Modelling
+INFO:pre_training:Epoch [1/100], Loss: 0.3937, Val: 0.0212
+INFO:pre_training:Epoch [2/100], Loss: 0.3584, Val: 0.0203
+INFO:pre_training:Epoch [3/100], Loss: 0.3350, Val: 0.0190
+INFO:pre_training:Epoch [4/100], Loss: 0.3222, Val: 0.0183
+INFO:pre_training:Epoch [5/100], Loss: 0.3095, Val: 0.0187
+INFO:pre_training:Epoch [6/100], Loss: 0.2944, Val: 0.0174
+INFO:pre_training:Epoch [7/100], Loss: 0.2862, Val: 0.0172
+INFO:pre_training:Epoch [8/100], Loss: 0.2761, Val: 0.0165
+INFO:pre_training:Epoch [9/100], Loss: 0.2701, Val: 0.0163
+INFO:pre_training:Epoch [10/100], Loss: 0.2621, Val: 0.0158
+INFO:pre_training:Epoch [11/100], Loss: 0.2553, Val: 0.0157
+INFO:pre_training:Epoch [12/100], Loss: 0.2467, Val: 0.0153
+INFO:pre_training:Epoch [13/100], Loss: 0.2430, Val: 0.0150
+INFO:pre_training:Epoch [14/100], Loss: 0.2362, Val: 0.0152
+INFO:pre_training:Epoch [15/100], Loss: 0.2339, Val: 0.0146
+INFO:pre_training:Epoch [16/100], Loss: 0.2285, Val: 0.0143
+INFO:pre_training:Epoch [17/100], Loss: 0.2228, Val: 0.0145
+INFO:pre_training:Epoch [18/100], Loss: 0.2188, Val: 0.0143
+INFO:pre_training:Epoch [19/100], Loss: 0.2135, Val: 0.0140
+INFO:pre_training:Epoch [20/100], Loss: 0.2094, Val: 0.0135
+INFO:pre_training:Epoch [21/100], Loss: 0.2048, Val: 0.0138
+INFO:pre_training:Epoch [22/100], Loss: 0.2054, Val: 0.0136
+INFO:pre_training:Epoch [23/100], Loss: 0.2003, Val: 0.0138
+INFO:pre_training:Epoch [24/100], Loss: 0.1993, Val: 0.0136
+INFO:pre_training:Epoch [25/100], Loss: 0.1944, Val: 0.0135
+INFO:pre_training:Epoch [26/100], Loss: 0.1928, Val: 0.0130
+INFO:pre_training:Epoch [27/100], Loss: 0.1896, Val: 0.0129
+INFO:pre_training:Epoch [28/100], Loss: 0.1871, Val: 0.0131
+INFO:pre_training:Epoch [29/100], Loss: 0.1871, Val: 0.0130
+INFO:pre_training:Epoch [30/100], Loss: 0.1831, Val: 0.0128
+INFO:pre_training:Epoch [31/100], Loss: 0.1785, Val: 0.0128
+INFO:pre_training:Epoch [32/100], Loss: 0.1783, Val: 0.0129
+INFO:pre_training:Epoch [33/100], Loss: 0.1756, Val: 0.0129
+INFO:pre_training:Epoch [34/100], Loss: 0.1740, Val: 0.0128
+INFO:pre_training:Epoch [35/100], Loss: 0.1737, Val: 0.0125
+INFO:pre_training:Epoch [36/100], Loss: 0.1708, Val: 0.0125
+INFO:pre_training:Epoch [37/100], Loss: 0.1677, Val: 0.0125
+INFO:pre_training:Epoch [38/100], Loss: 0.1674, Val: 0.0127
+INFO:pre_training:Epoch [39/100], Loss: 0.1658, Val: 0.0125
+INFO:pre_training:Epoch [40/100], Loss: 0.1631, Val: 0.0124
+INFO:pre_training:Epoch [41/100], Loss: 0.1601, Val: 0.0120
+INFO:pre_training:Epoch [42/100], Loss: 0.1613, Val: 0.0126
+INFO:pre_training:Epoch [43/100], Loss: 0.1615, Val: 0.0123
+INFO:pre_training:Epoch [44/100], Loss: 0.1578, Val: 0.0122
+INFO:pre_training:Epoch [45/100], Loss: 0.1563, Val: 0.0124
+INFO:pre_training:Epoch [46/100], Loss: 0.1543, Val: 0.0119
+INFO:pre_training:Epoch [47/100], Loss: 0.1511, Val: 0.0120
+INFO:pre_training:Epoch [48/100], Loss: 0.1501, Val: 0.0119
+INFO:pre_training:Epoch [49/100], Loss: 0.1498, Val: 0.0117
+INFO:pre_training:Epoch [50/100], Loss: 0.1494, Val: 0.0120
+INFO:pre_training:Epoch [51/100], Loss: 0.1481, Val: 0.0121
+INFO:pre_training:Epoch [52/100], Loss: 0.1455, Val: 0.0123
+INFO:pre_training:Epoch [53/100], Loss: 0.1464, Val: 0.0120
+INFO:pre_training:Epoch [54/100], Loss: 0.1433, Val: 0.0118
+INFO:pre_training:Epoch [55/100], Loss: 0.1419, Val: 0.0114
+INFO:pre_training:Epoch [56/100], Loss: 0.1414, Val: 0.0117
+INFO:pre_training:Epoch [57/100], Loss: 0.1416, Val: 0.0114
+INFO:pre_training:Epoch [58/100], Loss: 0.1388, Val: 0.0114
+INFO:pre_training:Epoch [59/100], Loss: 0.1376, Val: 0.0115
+INFO:pre_training:Epoch [60/100], Loss: 0.1368, Val: 0.0115
+INFO:pre_training:Epoch [61/100], Loss: 0.1363, Val: 0.0113
+INFO:pre_training:Epoch [62/100], Loss: 0.1361, Val: 0.0112
+INFO:pre_training:Epoch [63/100], Loss: 0.1339, Val: 0.0112
+INFO:pre_training:Epoch [64/100], Loss: 0.1328, Val: 0.0112
+INFO:pre_training:Epoch [65/100], Loss: 0.1329, Val: 0.0116
+INFO:pre_training:Epoch [66/100], Loss: 0.1323, Val: 0.0112
+INFO:pre_training:Epoch [67/100], Loss: 0.1286, Val: 0.0113
+INFO:pre_training:Epoch [68/100], Loss: 0.1299, Val: 0.0115
+INFO:pre_training:Epoch [69/100], Loss: 0.1278, Val: 0.0112
+INFO:pre_training:Epoch [70/100], Loss: 0.1274, Val: 0.0111
+INFO:pre_training:Epoch [71/100], Loss: 0.1265, Val: 0.0112
+INFO:pre_training:Epoch [72/100], Loss: 0.1258, Val: 0.0112
+INFO:pre_training:Epoch [73/100], Loss: 0.1245, Val: 0.0111
+INFO:pre_training:Epoch [74/100], Loss: 0.1242, Val: 0.0112
+INFO:pre_training:Epoch [75/100], Loss: 0.1223, Val: 0.0113
+INFO:pre_training:Epoch [76/100], Loss: 0.1226, Val: 0.0109
+INFO:pre_training:Epoch [77/100], Loss: 0.1230, Val: 0.0113
+INFO:pre_training:Epoch [78/100], Loss: 0.1199, Val: 0.0111
+INFO:pre_training:Epoch [79/100], Loss: 0.1206, Val: 0.0112
+INFO:pre_training:Epoch [80/100], Loss: 0.1198, Val: 0.0112
+INFO:pre_training:Epoch [81/100], Loss: 0.1174, Val: 0.0108
+INFO:pre_training:Epoch [82/100], Loss: 0.1165, Val: 0.0109
+INFO:pre_training:Epoch [83/100], Loss: 0.1175, Val: 0.0108
+INFO:pre_training:Epoch [84/100], Loss: 0.1163, Val: 0.0107
+INFO:pre_training:Epoch [85/100], Loss: 0.1152, Val: 0.0112
+INFO:pre_training:Epoch [86/100], Loss: 0.1159, Val: 0.0109
+INFO:pre_training:Epoch [87/100], Loss: 0.1144, Val: 0.0105
+INFO:pre_training:Epoch [88/100], Loss: 0.1125, Val: 0.0105
+INFO:pre_training:Epoch [89/100], Loss: 0.1132, Val: 0.0106
+INFO:pre_training:Epoch [90/100], Loss: 0.1119, Val: 0.0108
+INFO:pre_training:Epoch [91/100], Loss: 0.1114, Val: 0.0110
+INFO:pre_training:Epoch [92/100], Loss: 0.1110, Val: 0.0106
+INFO:pre_training:Epoch [93/100], Loss: 0.1092, Val: 0.0106
+INFO:pre_training:Epoch [94/100], Loss: 0.1106, Val: 0.0107
+INFO:pre_training:Epoch [95/100], Loss: 0.1094, Val: 0.0104
+INFO:pre_training:Epoch [96/100], Loss: 0.1088, Val: 0.0105
+INFO:pre_training:Epoch [97/100], Loss: 0.1078, Val: 0.0104
+INFO:pre_training:Epoch [98/100], Loss: 0.1073, Val: 0.0105
+INFO:pre_training:Epoch [99/100], Loss: 0.1062, Val: 0.0103
+INFO:pre_training:Epoch [100/100], Loss: 0.1066, Val: 0.0100
+INFO:__main__:Total time taken to pre-train the model: 62.46s
+INFO:__main__:Pre-training the network: Next Spectra Prediction
+INFO:pre_training:Epoch 1, Average Loss: 0.5671 Validation: 0.4715
+INFO:pre_training:Epoch 2, Average Loss: 0.5557 Validation: 0.5333
+INFO:pre_training:Epoch 3, Average Loss: 0.5526 Validation: 0.5735
+INFO:pre_training:Epoch 4, Average Loss: 0.5422 Validation: 0.5248
+INFO:pre_training:Epoch 5, Average Loss: 0.5267 Validation: 0.4780
+INFO:pre_training:Epoch 6, Average Loss: 0.5333 Validation: 0.4502
+INFO:pre_training:Epoch 7, Average Loss: 0.5344 Validation: 0.4221
+INFO:pre_training:Epoch 8, Average Loss: 0.5356 Validation: 0.4441
+INFO:pre_training:Epoch 9, Average Loss: 0.5347 Validation: 0.4244
+INFO:pre_training:Epoch 10, Average Loss: 0.5280 Validation: 0.4011
+INFO:pre_training:Epoch 11, Average Loss: 0.5262 Validation: 0.4048
+INFO:pre_training:Epoch 12, Average Loss: 0.5302 Validation: 0.3697
+INFO:pre_training:Epoch 13, Average Loss: 0.5251 Validation: 0.3847
+INFO:pre_training:Epoch 14, Average Loss: 0.5294 Validation: 0.3733
+INFO:pre_training:Epoch 15, Average Loss: 0.5215 Validation: 0.3793
+INFO:pre_training:Epoch 16, Average Loss: 0.5318 Validation: 0.3578
+INFO:pre_training:Epoch 17, Average Loss: 0.5315 Validation: 0.3491
+INFO:pre_training:Epoch 18, Average Loss: 0.5299 Validation: 0.3460
+INFO:pre_training:Epoch 19, Average Loss: 0.5226 Validation: 0.3340
+INFO:pre_training:Epoch 20, Average Loss: 0.5241 Validation: 0.3633
+INFO:pre_training:Epoch 21, Average Loss: 0.5226 Validation: 0.3597
+INFO:pre_training:Epoch 22, Average Loss: 0.5186 Validation: 0.3388
+INFO:pre_training:Epoch 23, Average Loss: 0.5274 Validation: 0.3601
+INFO:pre_training:Epoch 24, Average Loss: 0.5208 Validation: 0.3359
+INFO:pre_training:Epoch 25, Average Loss: 0.5312 Validation: 0.3469
+INFO:pre_training:Epoch 26, Average Loss: 0.5276 Validation: 0.3083
+INFO:pre_training:Epoch 27, Average Loss: 0.5151 Validation: 0.3415
+INFO:pre_training:Epoch 28, Average Loss: 0.5202 Validation: 0.3193
+INFO:pre_training:Epoch 29, Average Loss: 0.5238 Validation: 0.3162
+INFO:pre_training:Epoch 30, Average Loss: 0.5227 Validation: 0.3213
+INFO:pre_training:Epoch 31, Average Loss: 0.5236 Validation: 0.3387
+INFO:pre_training:Epoch 32, Average Loss: 0.5203 Validation: 0.3099
+INFO:pre_training:Epoch 33, Average Loss: 0.5170 Validation: 0.3440
+INFO:pre_training:Epoch 34, Average Loss: 0.5243 Validation: 0.3136
+INFO:pre_training:Epoch 35, Average Loss: 0.5201 Validation: 0.3574
+INFO:pre_training:Epoch 36, Average Loss: 0.5189 Validation: 0.3492
+INFO:pre_training:Epoch 37, Average Loss: 0.5172 Validation: 0.3213
+INFO:pre_training:Epoch 38, Average Loss: 0.5216 Validation: 0.2950
+INFO:pre_training:Epoch 39, Average Loss: 0.5131 Validation: 0.3399
+INFO:pre_training:Epoch 40, Average Loss: 0.5078 Validation: 0.2942
+INFO:pre_training:Epoch 41, Average Loss: 0.5244 Validation: 0.2754
+INFO:pre_training:Epoch 42, Average Loss: 0.5224 Validation: 0.3074
+INFO:pre_training:Epoch 43, Average Loss: 0.5156 Validation: 0.3300
+INFO:pre_training:Epoch 44, Average Loss: 0.5172 Validation: 0.3136
+INFO:pre_training:Epoch 45, Average Loss: 0.5279 Validation: 0.2978
+INFO:pre_training:Epoch 46, Average Loss: 0.5142 Validation: 0.3412
+INFO:pre_training:Epoch 47, Average Loss: 0.5224 Validation: 0.3077
+INFO:pre_training:Epoch 48, Average Loss: 0.5173 Validation: 0.2987
+INFO:pre_training:Epoch 49, Average Loss: 0.5217 Validation: 0.2885
+INFO:pre_training:Epoch 50, Average Loss: 0.5150 Validation: 0.2883
+INFO:pre_training:Epoch 51, Average Loss: 0.5199 Validation: 0.3127
+INFO:pre_training:Epoch 52, Average Loss: 0.5157 Validation: 0.2914
+INFO:pre_training:Epoch 53, Average Loss: 0.5201 Validation: 0.2952
+INFO:pre_training:Epoch 54, Average Loss: 0.5153 Validation: 0.3044
+INFO:pre_training:Epoch 55, Average Loss: 0.5214 Validation: 0.3064
+INFO:pre_training:Epoch 56, Average Loss: 0.5201 Validation: 0.2986
+INFO:pre_training:Epoch 57, Average Loss: 0.5172 Validation: 0.3079
+INFO:pre_training:Epoch 58, Average Loss: 0.5176 Validation: 0.3393
+INFO:pre_training:Epoch 59, Average Loss: 0.5156 Validation: 0.3342
+INFO:pre_training:Epoch 60, Average Loss: 0.5132 Validation: 0.3015
+INFO:pre_training:Epoch 61, Average Loss: 0.5187 Validation: 0.3441
+INFO:pre_training:Epoch 62, Average Loss: 0.5166 Validation: 0.3117
+INFO:pre_training:Epoch 63, Average Loss: 0.5149 Validation: 0.3224
+INFO:pre_training:Epoch 64, Average Loss: 0.5190 Validation: 0.3194
+INFO:pre_training:Epoch 65, Average Loss: 0.5207 Validation: 0.2945
+INFO:pre_training:Epoch 66, Average Loss: 0.5234 Validation: 0.3039
+INFO:pre_training:Epoch 67, Average Loss: 0.5162 Validation: 0.3073
+INFO:pre_training:Epoch 68, Average Loss: 0.5172 Validation: 0.3131
+INFO:pre_training:Epoch 69, Average Loss: 0.5191 Validation: 0.3142
+INFO:pre_training:Epoch 70, Average Loss: 0.5214 Validation: 0.3183
+INFO:pre_training:Epoch 71, Average Loss: 0.5184 Validation: 0.2714
+INFO:pre_training:Epoch 72, Average Loss: 0.5176 Validation: 0.2694
+INFO:pre_training:Epoch 73, Average Loss: 0.5161 Validation: 0.2935
+INFO:pre_training:Epoch 74, Average Loss: 0.5139 Validation: 0.3222
+INFO:pre_training:Epoch 75, Average Loss: 0.5124 Validation: 0.2850
+INFO:pre_training:Epoch 76, Average Loss: 0.5159 Validation: 0.2912
+INFO:pre_training:Epoch 77, Average Loss: 0.5178 Validation: 0.2894
+INFO:pre_training:Epoch 78, Average Loss: 0.5117 Validation: 0.3031
+INFO:pre_training:Epoch 79, Average Loss: 0.5206 Validation: 0.3044
+INFO:pre_training:Epoch 80, Average Loss: 0.5165 Validation: 0.3005
+INFO:pre_training:Epoch 81, Average Loss: 0.5112 Validation: 0.3020
+INFO:pre_training:Epoch 82, Average Loss: 0.5162 Validation: 0.3107
+INFO:pre_training:Epoch 83, Average Loss: 0.5190 Validation: 0.2884
+INFO:pre_training:Epoch 84, Average Loss: 0.5202 Validation: 0.2901
+INFO:pre_training:Epoch 85, Average Loss: 0.5182 Validation: 0.3052
+INFO:pre_training:Epoch 86, Average Loss: 0.5127 Validation: 0.2835
+INFO:pre_training:Epoch 87, Average Loss: 0.5094 Validation: 0.3116
+INFO:pre_training:Epoch 88, Average Loss: 0.5148 Validation: 0.2794
+INFO:pre_training:Epoch 89, Average Loss: 0.5178 Validation: 0.3132
+INFO:pre_training:Epoch 90, Average Loss: 0.5163 Validation: 0.2877
+INFO:pre_training:Epoch 91, Average Loss: 0.5119 Validation: 0.3067
+INFO:pre_training:Epoch 92, Average Loss: 0.5154 Validation: 0.2934
+INFO:pre_training:Epoch 93, Average Loss: 0.5175 Validation: 0.2934
+INFO:pre_training:Epoch 94, Average Loss: 0.5122 Validation: 0.2943
+INFO:pre_training:Epoch 95, Average Loss: 0.5170 Validation: 0.2927

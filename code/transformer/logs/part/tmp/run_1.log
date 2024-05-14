@@ -204,15 +204,15 @@ INFO:train:Epoch 99/100, Train Loss: 0.4538, Train Acc: 1.0000, Val Loss: 0.5643
 INFO:train:Epoch 100/100, Train Loss: 0.4537, Train Acc: 1.0000, Val Loss: 0.5623, Val Acc: 1.0000
 INFO:plot:Saving attention map to: figures/model_accuracy.png
 INFO:__main__:Total time taken to train the model: 17.15s
-INFO:__main__:train accuracy: 64 / 64
+INFO:__main__:train accuracy: 64 / 64 
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
 INFO:__main__:train accuracy: 64 / 64
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:__main__:train accuracy: 16 / 16
+INFO:__main__:train accuracy: 16 / 16 accuracy: 1.0
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:__main__:validation accuracy: 3 / 3
+INFO:__main__:validation accuracy: 3 / 3 accuracy: 1.0
 INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
-INFO:__main__:test accuracy: 1 / 3
+INFO:__main__:test accuracy: 1 / 3 accuracy: 0.3333
 INFO:plot:Saving cofusion matrix map to: figures/test_confusion_matrix.png
 INFO:plot:Saving attention map to: figures/encoder_attention_map.png
 INFO:plot:Saving attention map to: figures/decoder_attention_map.png

@@ -4,23 +4,38 @@
 # 
 # This script reads the results from a file and collects
 # information about the mean and standard deviation.
-
+import argparse
 import os 
 import torch 
 
 if __name__ == "__main__":
+     # Handle the command line arguments for the script.
+    parser = argparse.ArgumentParser(
+                    prog='Transformer: results',
+                    description='A transformer for fish species classification.',
+                    epilog='Implemented in pytorch and written in python.')
+    parser.add_argument('-d', '--dataset', type=str, default="species",
+                        help="The fish species or part dataset. Defaults to species")
+    parser.add_argument('-f', '--folder', type=str, default="tmp",
+                        help="The folder to get the results from. Defaults to tmp")
+    args = vars(parser.parse_args())
+    
     # Set verbose to true for debugging.
-    verbose = False
+    verbose = True
+    
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
-    dataset = datasets[0] # Cross-species
+    dataset = args['dataset'] # Cross-species
+    if dataset not in datasets:
+        raise ValueError(f"Not a valid dataset: {dataset}")
+    
     # Path to the logging folder.
-    folder = os.path.join("logs",dataset,"tmp")
+    folder = os.path.join("logs",dataset,args['folder'])
     # Lists to collect the results with.
     train_accs = []
     val_accs = [] 
     test_accs = []
-    runs = 3
+    runs = 30
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
         file_name = f"run_{i}.log"

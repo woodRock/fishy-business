@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint",
                         help="Filepath to store the model checkpoints to. Defaults to transformer_checkpoint")
     parser.add_argument('-d', '--dataset', type=str, default="species",
-                        help="The fish species or part dataset. Defaults to part")
+                        help="The fish species or part dataset. Defaults to species")
     parser.add_argument('-r', '--run', type=int, default=0)
     parser.add_argument('-o', '--output', type=str, default=f"logs/results")
 

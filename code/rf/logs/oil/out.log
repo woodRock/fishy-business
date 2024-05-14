@@ -1,0 +1,15 @@
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [108 126], Class Ratios: [0.46153846 0.53846154]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 234
+INFO:data:Number of classes 2.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.7976666666666666 +\- 0.07096760729785881
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.797081510476629 +\- 0.02088420127459611
+INFO:__main__:test: 0.6618181818181819 +\- 0.06568058612664317
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.6446969696969698 +\- 0.06530921717159512
