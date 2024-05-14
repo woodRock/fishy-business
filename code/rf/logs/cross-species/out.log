@@ -1,0 +1,15 @@
+INFO:data:Reading dataset fish: cross-species
+INFO:data:Class Counts: [45 60 48], Class Ratios: [0.29411765 0.39215686 0.31372549]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 153
+INFO:data:Number of classes 3.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.8141975308641975 +\- 0.06902603720277524
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.7919022092267707 +\- 0.03072416164416948
+INFO:__main__:test: 0.6419135802469135 +\- 0.07088906196899114
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.6871604938271606 +\- 0.06130708072175667

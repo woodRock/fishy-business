@@ -1,0 +1,15 @@
+INFO:data:Reading dataset fish: part
+INFO:data:Class Counts: [6 6 3 6 6 3], Class Ratios: [0.2 0.2 0.1 0.2 0.2 0.1]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 30
+INFO:data:Number of classes 6.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.4333333333333333 +\- 0.15275252316519466
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.428888888888889 +\- 0.05373689906375
+INFO:__main__:test: 0.3166666666666666 +\- 0.14497764834110988
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.27222222222222225 +\- 0.13252067157640623

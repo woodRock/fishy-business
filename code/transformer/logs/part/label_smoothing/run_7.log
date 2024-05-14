@@ -208,11 +208,11 @@ INFO:__main__:train accuracy: 64 / 64
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
 INFO:__main__:train accuracy: 64 / 64
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:__main__:train accuracy: 16 / 16
+INFO:__main__:train accuracy: 16 / 16 accuracy: 1.0
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:__main__:validation accuracy: 2 / 3
+INFO:__main__:validation accuracy: 2 / 3 accuracy: 0.6666666666666
 INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
-INFO:__main__:test accuracy: 0 / 3
+INFO:__main__:test accuracy: 0 / 3 accuracy: 0.0
 INFO:plot:Saving cofusion matrix map to: figures/test_confusion_matrix.png
 INFO:plot:Saving attention map to: figures/encoder_attention_map.png
 INFO:plot:Saving attention map to: figures/decoder_attention_map.png
