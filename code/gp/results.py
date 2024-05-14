@@ -13,7 +13,7 @@ if __name__ == "__main__":
     verbose = False  
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
-    dataset = datasets[2] # Part
+    dataset = datasets[0] # Part
     print(f"dataset: {dataset}")
     # Path to the logging folder.
     folder = os.path.join("logs",dataset,"tmp_3")

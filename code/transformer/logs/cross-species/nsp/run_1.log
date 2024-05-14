@@ -336,4 +336,3 @@ INFO:__main__:test got 12 / 16 correct, accuracy: 0.75
 INFO:plot:Saving cofusion matrix map to: figures/test_confusion_matrix.png
 INFO:plot:Saving attention map to: figures/encoder_attention_map.png
 INFO:plot:Saving attention map to: figures/decoder_attention_map.png
-tention_map.png

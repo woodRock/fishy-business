@@ -10,12 +10,12 @@ import torch
 
 if __name__ == "__main__":
     # Set verbose to true for debugging.
-    verbose = True
+    verbose = False
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
-    dataset = datasets[3] # Cross-species
+    dataset = datasets[0] # Cross-species
     # Path to the logging folder.
-    folder = os.path.join("logs",dataset,"nsp")
+    folder = os.path.join("logs",dataset,"tmp")
     # Lists to collect the results with.
     train_accs = []
     val_accs = [] 
@@ -30,13 +30,12 @@ if __name__ == "__main__":
         with open(file_path) as f:
             content = f.readlines()
             # Extract the train, validation and test accuracy.
-            print(f"content[240]: {content[332]}")
-            # The training accuracy is on line 211.
-            train_acc: float = float(content[330].split(sep=' ')[-1])
-            # The validation accuracy is on line 213.
-            val_acc: float = float(content[332].split(sep=' ')[-1])
-            # The test accuracy is on line 215.
-            test_acc: float = float(content[334].split(sep=' ')[-1])
+            # The training accuracy is the 8th to last line.
+            train_acc: float = float(content[-8].split(sep=' ')[-1])
+            # The validation accuracy is the 6th to last line.
+            val_acc: float = float(content[-6].split(sep=' ')[-1])
+            # The test accuracy is the 4th to last line.
+            test_acc: float = float(content[-4].split(sep=' ')[-1])
             # Append the accuracy to an array.
             train_accs.append(train_acc)
             val_accs.append(val_acc)

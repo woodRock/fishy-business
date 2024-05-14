@@ -4,7 +4,7 @@
 #
 # The task spooler (ts) command allows for parallel execution of python scripts.
  
-DATASET="cross-species"; 
+DATASET="species"; 
 # DATASET="species";
 # Directory to save results to.
 NAME="nsp";
