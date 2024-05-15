@@ -6,7 +6,7 @@ INFO:data:Number of classes 2.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.9644444444444444 +\- 0.04138422792547486
+INFO:__main__:test: 0.9627777777777776 +\- 0.04154054987540027
 INFO:__main__:Classifier: knn
 INFO:__main__:training: 0.9324926900584796 +\- 0.024361990937911384
 INFO:__main__:test: 0.8369444444444445 +\- 0.06914435159884495
@@ -27,13 +27,13 @@ INFO:data:Number of classes 6.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.42777777777777776 +\- 0.13391078659104388
+INFO:__main__:test: 0.4222222222222223 +\- 0.17069212773041353
 INFO:__main__:Classifier: knn
 INFO:__main__:training: 0.428888888888889 +\- 0.05373689906375
 INFO:__main__:test: 0.3166666666666666 +\- 0.14497764834110988
 INFO:__main__:Classifier: dt
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.29444444444444445 +\- 0.14065543223524626
+INFO:__main__:test: 0.3333333333333333 +\- 0.14907119849998596
 INFO:__main__:Classifier: lr
 INFO:__main__:training: 1.0 +\- 0.0
 INFO:__main__:test: 0.5666666666666665 +\- 0.1527525231651947
@@ -48,13 +48,13 @@ INFO:data:Number of classes 2.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.7828484848484848 +\- 0.06761001985065301
+INFO:__main__:test: 0.7949999999999998 +\- 0.07212659134510213
 INFO:__main__:Classifier: knn
 INFO:__main__:training: 0.797081510476629 +\- 0.02088420127459611
 INFO:__main__:test: 0.6618181818181819 +\- 0.06568058612664317
 INFO:__main__:Classifier: dt
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.6348484848484849 +\- 0.06900765850951635
+INFO:__main__:test: 0.636848484848485 +\- 0.06894990928795529
 INFO:__main__:Classifier: lr
 INFO:__main__:training: 1.0 +\- 0.0
 INFO:__main__:test: 0.8713636363636365 +\- 0.04409590724560128
@@ -69,13 +69,13 @@ INFO:data:Number of classes 3.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.8158024691358025 +\- 0.06771759679517624
+INFO:__main__:test: 0.8130246913580247 +\- 0.061155022258576906
 INFO:__main__:Classifier: knn
 INFO:__main__:training: 0.7919022092267707 +\- 0.03072416164416948
 INFO:__main__:test: 0.6419135802469135 +\- 0.07088906196899114
 INFO:__main__:Classifier: dt
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.6848148148148148 +\- 0.06629077844476548
+INFO:__main__:test: 0.6884567901234567 +\- 0.055614543443806494
 INFO:__main__:Classifier: lr
 INFO:__main__:training: 1.0 +\- 0.0
 INFO:__main__:test: 0.855185185185185 +\- 0.05293489716534647
