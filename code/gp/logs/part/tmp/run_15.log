@@ -416,3 +416,10 @@ INFO:util:Train intra-class: 0.06974093872258157, Train Inter-class: 0.226921765
 INFO:util:Val intra-class: 0.1792521491025519, Val Inter-class: 0.19872403576781503
 INFO:util:Test intra-class: 0.0, Test inter-class: 0.2145300745018533
 INFO:plot:Saving t-SNE to file: figures/tsne.png
+INFO:plot:Saving t-SNE to file: figures/tsne.png
+INFO:plot:Saving tree to file: figures/tree-0.pdf
+INFO:plot:Saving tree to file: figures/tree-1.pdf
+INFO:plot:Saving tree to file: figures/tree-2.pdf
+INFO:plot:Saving tree to file: figures/tree-3.pdf
+INFO:plot:Saving tree to file: figures/tree-4.pdf
+INFO:plot:Saving tree to file: figures/tree-5.pdf
