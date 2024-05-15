@@ -419,10 +419,3 @@ INFO:plot:Saving t-SNE to file: figures/tsne.png
 INFO:plot:Saving t-SNE to file: figures/tsne.png
 INFO:plot:Saving tree to file: figures/tree-0.pdf
 INFO:plot:Saving tree to file: figures/tree-1.pdf
-5660811126008697
-INFO:util:Val intra-class: 0.13314954476657392, Val Inter-class: 0.16630299901872542
-INFO:util:Test intra-class: 0.1305513532635405, Test inter-class: 0.1406648403051212
-INFO:plot:Saving t-SNE to file: figures/tsne.png
-INFO:plot:Saving t-SNE to file: figures/tsne.png
-INFO:plot:Saving tree to file: figures/tree-0.pdf
-INFO:plot:Saving tree to file: figures/tree-1.pdf
