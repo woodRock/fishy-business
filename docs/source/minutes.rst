@@ -6423,4 +6423,12 @@ Notes:
     * Start writing up my experiments in a paper format. 
     * Investigate SVM results, try different kernels. 
     * Add Linear Disciminant Analysis (LDA)
-    * Compare features slected for each of the interpretable methods.
+    * Compare features selected for each of the interpretable methods.
+
+TODO:
+    * [x] Candidate development plan 
+    * [x] Try different SVM kernels. 
+    * [x] Linear Disciminant Analysis (LDA)
+    * Compare features selected for each of the interpretable methods.
+    * [ ] Start writing up my experiments in a paper format. 
+    * [ ] Change "cross-species" :math:`\to` adulterated
