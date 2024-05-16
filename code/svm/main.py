@@ -1,4 +1,3 @@
-import argparse
 import logging
 import numpy as np
 from tqdm import tqdm
@@ -6,27 +5,14 @@ from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.neighbors import KNeighborsClassifier as knn
 from sklearn.tree import DecisionTreeClassifier as dt
 from sklearn.linear_model import LogisticRegression as lr
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as lda
 from sklearn.svm import SVC as svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from data import load_dataset
 
 if __name__ == "__main__":
-    # Handle the command line arguments for the script.
-    parser = argparse.ArgumentParser(
-                    prog='Random Forest',
-                    description='A random forest for fish species classification.',
-                    epilog='Implemented in sklearn and written in python.')
-    parser.add_argument('-d', '--dataset', type=str, default="species",
-                        help="The fish species or part dataset. Defaults to species")
-    args = vars(parser.parse_args())
-
-    
-
     datasets = ["species","part","oil","cross-species"]
-    # dataset = args['dataset']
-    # if dataset not in datasets:
-    #     raise ValueError(f"Invalid dataset specified: {dataset}")
 
     logger = logging.getLogger(__name__)
     # Run argument for numbered log files.
@@ -35,13 +21,13 @@ if __name__ == "__main__":
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     
     for dataset in tqdm(datasets, desc=f"Training"):
-        # print(f"Dataset: {dataset}")
+        print(f"Dataset: {dataset}")
+        
         # Load the dataset.
         X,y = load_dataset(dataset)
             
-        # The different models to try out.
-        models = {'rf': rf(), 'knn': knn(), 'dt': dt(), 'lr': lr(max_iter=2000), 'svm': svm()}
-        
+        # The different SVM models to try out.
+        models = { 'svm linear': svm(kernel='linear'), 'svm poly': svm(kernel='poly'), 'svm rbf': svm(kernel='rbf'), 'svm sigmoid': svm(kernel='sigmoid')}        
         runs = 30
         logger.info(f"Running {runs} experiments")
         # Evaluate for two

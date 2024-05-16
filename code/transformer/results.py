@@ -9,7 +9,7 @@ import os
 import torch 
 
 if __name__ == "__main__":
-     # Handle the command line arguments for the script.
+    # Handle the command line arguments for the script.
     parser = argparse.ArgumentParser(
                     prog='Transformer: results',
                     description='A transformer for fish species classification.',
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     train_accs = []
     val_accs = [] 
     test_accs = []
-    runs = 10
+    runs = len(os.listdir(path=folder))
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
         file_name = f"run_{i}.log"
