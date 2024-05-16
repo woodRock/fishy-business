@@ -6404,9 +6404,23 @@ Notes:
 
 2024-05-09 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
 
 Notes: 
     * oil detection - need to split train, validation and test set. Can't use the test set. 
     * Run experiments 30 times for statistical significance. 
     * Write thesis chapters while I am rnning experiments. 
     * Plan the next week's work in advance, run new ideas by supervisors first.
+
+2024-05-16 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * Candidate development plan is due tomorrow.
+    * Change "cross-species" :math:`\to` adulterated
+    * We have 4 datasets, same data, different labels.
+    * Start writing up my experiments in a paper format. 
+    * Investigate SVM results, try different kernels. 
+    * Add Linear Disciminant Analysis (LDA)
+    * Compare features slected for each of the interpretable methods.

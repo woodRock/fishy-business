@@ -1,0 +1,72 @@
+INFO:data:Reading dataset fish: species
+INFO:data:Class Counts: [48 60], Class Ratios: [0.44444444 0.55555556]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 108
+INFO:data:Number of classes 2.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: svm linear
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.9597222222222223 +\- 0.0506478096000602
+INFO:__main__:Classifier: svm poly
+INFO:__main__:training: 0.5811403508771928 +\- 0.012749510398025113
+INFO:__main__:test: 0.5719444444444445 +\- 0.05237345124260695
+INFO:__main__:Classifier: svm rbf
+INFO:__main__:training: 0.6612024853801169 +\- 0.10198463707186878
+INFO:__main__:test: 0.605 +\- 0.1043187778274238
+INFO:__main__:Classifier: svm sigmoid
+INFO:__main__:training: 0.507986111111111 +\- 0.0269201747117072
+INFO:__main__:test: 0.5016666666666667 +\- 0.008975274678557512
+INFO:data:Reading dataset fish: part
+INFO:data:Class Counts: [6 6 3 6 6 3], Class Ratios: [0.2 0.2 0.1 0.2 0.2 0.1]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 30
+INFO:data:Number of classes 6.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: svm linear
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.5611111111111111 +\- 0.14582671942674097
+INFO:__main__:Classifier: svm poly
+INFO:__main__:training: 0.4099999999999999 +\- 0.0636250591209796
+INFO:__main__:test: 0.26111111111111107 +\- 0.12680791345014805
+INFO:__main__:Classifier: svm rbf
+INFO:__main__:training: 0.45333333333333337 +\- 0.0678232998312527
+INFO:__main__:test: 0.29999999999999993 +\- 0.1319371343004213
+INFO:__main__:Classifier: svm sigmoid
+INFO:__main__:training: 0.23777777777777778 +\- 0.038232556742411675
+INFO:__main__:test: 0.2 +\- 0.13877773329774218
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [108 126], Class Ratios: [0.46153846 0.53846154]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 234
+INFO:data:Number of classes 2.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: svm linear
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.8709090909090911 +\- 0.042843169701629734
+INFO:__main__:Classifier: svm poly
+INFO:__main__:training: 0.5850775193798449 +\- 0.007427817014239048
+INFO:__main__:test: 0.573 +\- 0.030425042244708347
+INFO:__main__:Classifier: svm rbf
+INFO:__main__:training: 0.5876870826617545 +\- 0.025282834397771438
+INFO:__main__:test: 0.5656363636363636 +\- 0.027788457083966333
+INFO:__main__:Classifier: svm sigmoid
+INFO:__main__:training: 0.5041004681863536 +\- 0.01773566385651098
+INFO:__main__:test: 0.5026060606060606 +\- 0.04488168304454421
+INFO:data:Reading dataset fish: cross-species
+INFO:data:Class Counts: [45 60 48], Class Ratios: [0.29411765 0.39215686 0.31372549]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 153
+INFO:data:Number of classes 3.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: svm linear
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.8553703703703703 +\- 0.058444143234135916
+INFO:__main__:Classifier: svm poly
+INFO:__main__:training: 0.4406595191682911 +\- 0.023277377156510872
+INFO:__main__:test: 0.395925925925926 +\- 0.0492685408502482
+INFO:__main__:Classifier: svm rbf
+INFO:__main__:training: 0.5070622157244965 +\- 0.08520565587822512
+INFO:__main__:test: 0.44271604938271597 +\- 0.1126984692793106
+INFO:__main__:Classifier: svm sigmoid
+INFO:__main__:training: 0.34616228070175453 +\- 0.02149617147348475
+INFO:__main__:test: 0.3472222222222223 +\- 0.02703428871538132

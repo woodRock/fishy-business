@@ -41,8 +41,10 @@ if __name__ == "__main__":
     skip = {'species': 2, 'part': 6, 'oil': 2, 'cross-species': 3}
     skip_amount = skip[dataset]
 
+    runs = len(os.listdir(folder))
+
     # For each experiment in a batch of 30 independent runs.
-    for i in range(1,30+1):
+    for i in range(1,runs):
         file_name = f"run_{i}.log"
         if verbose:
             print(f"file_name: {file_name}")
