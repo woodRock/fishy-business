@@ -1,23 +1,11 @@
 import logging
 import numpy as np
-from tqdm import tqdm
-from sklearn.ensemble import RandomForestClassifier as rf
-from sklearn.neighbors import KNeighborsClassifier as knn
-from sklearn.tree import DecisionTreeClassifier as dt
-from sklearn.linear_model import LogisticRegression as lr
-from sklearn.svm import SVC as svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from data import load_dataset
-from outliers import smirnov_grubbs as grubbs
 from typing import Iterable
 
-class GrubbsTest:
-    def __init__(self, 
-                 threshold: float
-    ) -> None:
-        self.threshold = threshold
-
+class DetectFliers:        
     def fit(self, 
             X: Iterable
     ) -> None: 
@@ -58,7 +46,7 @@ if __name__ == "__main__":
     X,y = load_dataset(dataset)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
     
-    model = GrubbsTest(threshold=1)
+    model = DetectFliers()
     
     model.fit(X_train)
     y_preds = model.predict(X_train)
