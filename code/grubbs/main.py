@@ -9,20 +9,17 @@ class DetectFliers:
     def fit(self, 
             X: Iterable
     ) -> None: 
-        outlier_indexes = []
+        self.outlier_indexes = np.array([])
         for i,_ in enumerate(range(X[0].shape[0])):
             feature_slice = X[:,i]
-            # print(f"feature_slice: {feature_slice}")
             q3, q1 = np.percentile(feature_slice, [75 ,25])
             iqr = q3 - q1
-            lower = (q1 - 1.5 * iqr)
-            upper = (q3 + 1.5 * iqr)
+            lower = q1 - (1.5 * iqr)
+            upper = q3 + (1.5 * iqr)
             lower_idxs = np.where(lower >= feature_slice)[0]
-            upper_idxs = np.where(feature_slice <= upper)[0]
+            upper_idxs = np.where(feature_slice >= upper)[0]
             idx = np.concatenate((lower_idxs,upper_idxs))
-            outlier_indexes.append(idx)
-        self.outlier_indexes = outlier_indexes
-
+            self.outlier_indexes = np.concatenate((self.outlier_indexes, idx))
 
     def predict(self,
             X: Iterable
@@ -30,7 +27,7 @@ class DetectFliers:
         predictions = []
         outliers_exist = False
         for i,_ in enumerate(range(len(X))):
-            outliers_exist = np.any(i in out for out in self.outlier_indexes)
+            outliers_exist = i in self.outlier_indexes
             prediction = 1 if outliers_exist else 0
             predictions.append(prediction)
         return predictions
