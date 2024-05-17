@@ -3,4 +3,4 @@ INFO:data:Class Counts: [108 126], Class Ratios: [0.46153846 0.53846154]
 INFO:data:Number of features: 1023
 INFO:data:Number of instances: 234
 INFO:data:Number of classes 2.
-INFO:__main__:Training: 0.5, Test: 0.5
+INFO:__main__:Training: 0.4618983957219251, Test: 0.5125
