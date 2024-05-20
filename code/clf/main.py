@@ -6,6 +6,7 @@ from sklearn.neighbors import KNeighborsClassifier as knn
 from sklearn.tree import DecisionTreeClassifier as dt
 from sklearn.linear_model import LogisticRegression as lr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as lda
+from sklearn.ensemble import VotingClassifier
 from sklearn.naive_bayes import GaussianNB as nb
 from sklearn.svm import SVC as svm
 from sklearn.model_selection import train_test_split
@@ -28,7 +29,18 @@ if __name__ == "__main__":
         X,y = load_dataset(dataset)
             
         # The different models to try out.
-        models = { 'knn': knn(), 'dt': dt(), 'lda': lda(), 'lr': lr(max_iter=2000), 'nb': nb(), 'rf': rf(), 'svm': svm(kernel='linear')}
+        models = { 
+            'knn': knn(), 
+            'dt': dt(), 
+            'lda': lda(), 
+            'lr': lr(max_iter=2000), 
+            'nb': nb(), 
+            'rf': rf(), 
+            'svm': svm(kernel='linear'), 
+            'ensemble': VotingClassifier(
+                estimators=[('nb', nb()), ('dt', dt()), ('rf', rf()), ('svm', svm(kernel='linear')), ('lda', lda())],
+                voting='hard')
+        }
         
         runs = 30
         logger.info(f"Running {runs} experiments")
