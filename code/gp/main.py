@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--run', type=int, default=0,
                         help="The number for the run, this effects the random seed. Defaults to 0")
     parser.add_argument('-o', '--output', type=str, default=f"logs/results",
-                        help="Partial filepath for the output logging.")
+                        help="Partial filepath for the output logging. Defaults to 'logs/results'.")
     parser.add_argument('-p', '--population', type=int, default=1023,
                         help="The number of individuals in the population. Defaults to 1023.")
     parser.add_argument('-b', '--beta', type=int, default=-1,
@@ -70,6 +70,7 @@ if __name__ == "__main__":
     elitism = args['elitism'] # @param {type: "number"}
     crossover_rate = args['crossover_rate'] # @param {type: "number"}
     mutation_rate = args['mutation_rate'] # @param {type: "number"}
+    tree_depth = 6 # Manually set the maximum tree depth.
 
     assert crossover_rate + mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
 
@@ -137,8 +138,8 @@ if __name__ == "__main__":
     toolbox.register("mutate", xmut, expr=toolbox.expr_mut, pset=pset)
 
     # See https://groups.google.com/g/deap-users/c/pWzR_q7mKJ0
-    toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=8))
-    toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=8))
+    toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=tree_depth))
+    toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=tree_depth))
 
     # File path for saved model.
     pop, log, hof = None, None, None
