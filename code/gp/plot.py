@@ -238,7 +238,7 @@ def plot_evolutionary_process(
 
     Args: 
         fitness (Iterable): the set of fitness values that were evolved.
-        file_path (str): The filepath where the figure is saved. Defaults to "figures/pairplot.png".
+        file_path (str): The filepath where the figure is saved. Defaults to "figures/evolutionary_process.png".
     """
     logger = logging.getLogger(__name__)
     plt.plot(fitness)
@@ -277,3 +277,15 @@ def plot_gp_tree(
         file_path = f"figures/tree-{t_idx}.pdf"
         logger.info(f"Saving tree to file: {file_path}")
         g.draw(file_path)
+
+
+if __name__ == "__main__":
+    fitness = []
+    file_name = "logs/results_0.log"
+    with open(file_name) as file:
+        lines = file.readlines()
+        for i in range(9, 409 + 1):
+            f = float(lines[i].split(sep='\t')[4])
+            fitness.append(f)
+    plot_evolutionary_process(fitness=fitness, file_path="figures/evolutionary_process.png")
+    print(f"fitness: {fitness}")
