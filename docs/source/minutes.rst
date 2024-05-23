@@ -6433,3 +6433,24 @@ TODO:
     * [ ] Start writing up my experiments in a paper format. 
     * [ ] Change "cross-species" :math:`\to` adulterated
     * [ ] Selected feature comparison.
+
+2024-05-09 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * Submitted my CDP today, supervisors said my progress was good.
+    * The eye catching part of the paper should be the core of the work. 
+    * Change maximum depth of trees to 6.
+    * Re-run evolutionary process for fish species.
+    * Redraw diagrams myself 
+    * Remove diagrams from other works.
+
+TODO: 
+    * [x] Remove diagrams from other works/ 
+    * [x] Change Tree depth to 6
+    * [x] Re-run evolutionary process for fish species.
+    * [x] Re-draw diagrams myself.
+    * [x] Start writing up my experiments in a paper format. 
+    * [ ] Change "cross-species" :math:`\to` adulterated
+    * [ ] Selected feature comparison.

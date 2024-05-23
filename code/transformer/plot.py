@@ -30,7 +30,7 @@ def plot_attention_map(
 
     # Set axis ticks and labels
     plt.xticks(range(len(x_axis)), x_axis, rotation=45)
-    plt.yticks(range(len(y_axis)), y_axis)
+    plt.yticks(range(len(y_axis)), y_axis, rotation=45)
 
     # Show color bar
     plt.colorbar()
