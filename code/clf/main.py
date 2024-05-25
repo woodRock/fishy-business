@@ -38,9 +38,8 @@ if __name__ == "__main__":
             'rf': rf(), 
             'svm': svm(kernel='linear'), 
             'ensemble': VotingClassifier(
-                estimators=[('nb', nb()), ('dt', dt()), ('rf', rf()), ('svm', svm(kernel='linear')), ('lda', lda()), ('lr', lr(max_iter=2000))],
+                estimators=[('knn', knn()),('nb', nb()), ('dt', dt()), ('rf', rf()), ('svm', svm(kernel='linear')), ('lda', lda()), ('lr', lr(max_iter=2000))],
                 voting='hard'),
-      
         }
         
         runs = 30
