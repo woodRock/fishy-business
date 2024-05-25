@@ -210,8 +210,10 @@ class DecoderLayer(nn.Module):
         self.feed_forward = FeedForward(input_dim, hidden_dim, dropout)
         self.norm1 = nn.LayerNorm(input_dim)
         self.norm2 = nn.LayerNorm(input_dim)
+        self.norm3 = nn.LayerNorm(input_dim)
         self.dropout1 = nn.Dropout(dropout)
         self.dropout2 = nn.Dropout(dropout)
+        self.dropout3 = nn.Dropout(dropout)
 
     def forward(self, 
             x: torch.Tensor, 
@@ -246,6 +248,9 @@ class DecoderLayer(nn.Module):
         # Cross attention (Vaswani 2017)
         cross_attention = self.cross_attention(x_norm, encoder_output, encoder_output, src_mask)
         x = x + self.dropout2(cross_attention)
+        x_norm = self.norm3(x)
+        feed_forward = self.feed_forward(x_norm)
+        x = x + self.dropout3(feed_forward)
         return x
 
 class Decoder(nn.Module):
