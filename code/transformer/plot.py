@@ -41,7 +41,8 @@ def plot_attention_map(
     # Add title
     plt.title(f'{name} Attention Map')
     file_path = f"figures/{name}_attention_map.png"
-    plt.savefig(file_path)
+    # Source: https://stackoverflow.com/questions/1271023/resize-a-figure-automatically-in-matplotlib
+    plt.savefig(file_path,bbox_inches='tight')
     logger.info(f"Saving attention map to: {file_path}")
     # Show the plot (enable for interactive)
     # plt.show()
