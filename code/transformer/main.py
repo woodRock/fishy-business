@@ -248,6 +248,6 @@ if __name__ == "__main__":
     attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
     plot_attention_map("encoder", attention_weights, columns, columns)
     # Last self-attention layer of the decoder.
-    attention_weights = model.decoder.layers[-1].self_attention.fc_out.weight
+    attention_weights = model.decoder.layers[-1].feed_forward.fc2.weight
     attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
     plot_attention_map("decoder", attention_weights, columns, columns)
