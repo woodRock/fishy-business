@@ -18,10 +18,13 @@ if __name__ == "__main__":
                         help="The fish species or part dataset. Defaults to species")
     parser.add_argument('-f', '--folder', type=str, default="tmp",
                         help="The folder to get the results from. Defaults to tmp")
+    parser.add_argument('-v', '--verbose',
+                    action='store_true', default=False,
+                    help="Flag for verbose output in logging. Defaults to False.") 
     args = vars(parser.parse_args())
     
     # Set verbose to true for debugging.
-    verbose = False
+    verbose = args['verbose']
     
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
@@ -37,6 +40,7 @@ if __name__ == "__main__":
     val_accs = [] 
     test_accs = []
     runs = len(os.listdir(path=folder))
+    runs = 10
 
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
@@ -48,21 +52,17 @@ if __name__ == "__main__":
             content = f.readlines()
             # Extract the train, validation and test accuracy.
             # The training accuracy is the 8th to last line.
-            train_acc: float = float(content[-8].split(sep=' ')[-1])
+            train_acc: float = float(content[-5].split(sep=' ')[-1])
             # The validation accuracy is the 6th to last line.
-            val_acc: float = float(content[-6].split(sep=' ')[-1])
-            # The test accuracy is the 4th to last line.
-            test_acc: float = float(content[-4].split(sep=' ')[-1])
+            val_acc: float = float(content[-3].split(sep=' ')[-1])
             # Append the accuracy to an array.
             train_accs.append(train_acc)
             val_accs.append(val_acc)
-            test_accs.append(test_acc)
             
             # Verbose output for debugging purposes
             if verbose: 
                 print(f"Train: {train_acc}")
                 print(f"Validation: {val_acc}")
-                print(f"Test: {test_acc}")
 
     # Convert to tensors.
     train_accs = torch.tensor(train_accs)
@@ -74,5 +74,3 @@ if __name__ == "__main__":
     print(f"Training: mean: {mean} +\- {std}")
     mean, std = torch.mean(val_accs), torch.std(val_accs)
     print(f"Validation: mean: {mean} +\- {std}")
-    mean, std = torch.mean(test_accs), torch.std(test_accs)
-    print(f"Test: mean: {mean} +\- {std}")
