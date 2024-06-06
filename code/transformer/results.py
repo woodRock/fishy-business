@@ -6,7 +6,7 @@
 # information about the mean and standard deviation.
 import argparse
 import os 
-import torch 
+import torch
 
 if __name__ == "__main__":
     # Handle the command line arguments for the script.
@@ -26,6 +26,7 @@ if __name__ == "__main__":
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
     dataset = args['dataset'] # Cross-species
+    
     if dataset not in datasets:
         raise ValueError(f"Not a valid dataset: {dataset}")
     
@@ -36,6 +37,7 @@ if __name__ == "__main__":
     val_accs = [] 
     test_accs = []
     runs = len(os.listdir(path=folder))
+
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
         file_name = f"run_{i}.log"
