@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn 
 import torch.optim as optim
 from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra, pre_train_transfer_learning
-from transformer import Transformer 
+from transformer_decoder_only import Transformer 
 from util import EarlyStopping, preprocess_dataset
 from train import train_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
@@ -82,6 +82,7 @@ if __name__ == "__main__":
     hidden_dim = 128 
     learning_rate = args['learning_rate']
     batch_size = args['batch_size']
+    is_decoder_only = True
 
     logger.info(f"Reading the dataset: fish {dataset}")
     train_loader, val_loader, train_steps, val_steps, data= preprocess_dataset(
@@ -268,7 +269,9 @@ if __name__ == "__main__":
     attention_weights = model.encoder.layers[0].self_attention.fc_out.weight
     attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
     plot_attention_map("encoder", attention_weights, columns, columns)
-    # Last self-attention layer of the decoder.
-    attention_weights = model.decoder.layers[-1].feed_forward.fc2.weight
-    attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
-    plot_attention_map("decoder", attention_weights, columns, columns)
+    
+    if not is_decoder_only:
+        # Last self-attention layer of the decoder.
+        attention_weights = model.decoder.layers[-1].feed_forward.fc2.weight
+        attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
+        plot_attention_map("decoder", attention_weights, columns, columns)
