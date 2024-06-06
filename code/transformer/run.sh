@@ -7,7 +7,7 @@
 DATASET="oil"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp";
+NAME="tmp_03";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -25,7 +25,7 @@ do
     ts -G 1 python3 main.py \
         --dataset "${DATASET}" --output "logs/${DATASET}/${NAME}/run" --run "$i" \
         --data-augmentation \
-	    --masked-spectra-modelling \
-	    --dropout 0.2 --label-smoothing 0.1 --early-stopping 10 \
+	--masked-spectra-modelling \
+	--dropout 0.2 --label-smoothing 0.1 --early-stopping 10 \
         --epochs 100 --learning-rate "1E-5";
 done

@@ -39,9 +39,10 @@ if __name__ == "__main__":
     train_accs = []
     val_accs = [] 
     test_accs = []
+    # A run for each output file in the logs.
     runs = len(os.listdir(path=folder))
-    runs = 10
-
+    # runs = 15
+    
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
         file_name = f"run_{i}.log"
