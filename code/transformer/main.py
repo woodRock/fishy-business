@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra, pre_train_transfer_learning
 from transformer import Transformer 
-from util import EarlyStopping, preprocess_dataset 
+from util import EarlyStopping, preprocess_dataset
 from train import train_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
                     action='store_true', default=False,
                     help="Flag to perform next spectra prediction. Defaults to False.") 
     # Regularization
-    parser.add_argument('-es', '--early-stopping', type=int, default=5,
+    parser.add_argument('-es', '--early-stopping', type=int, default=10,
                         help='Early stopping patience. To disable early stopping set to the number of epochs. Defaults to 5.')
     parser.add_argument('-do', '--dropout', type=float, default=0.2,
                         help="Probability of dropout. Defaults to 0.2")
@@ -47,6 +47,8 @@ if __name__ == "__main__":
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
                         help="The learning rate for the model. Defaults to 1E-5.")
+    parser.add_argument('-bs', '--batch-size', type=int, default=64,
+                        help='Batch size for the DataLoader. Defaults to 64.')
 
     args = vars(parser.parse_args())
 
@@ -73,21 +75,31 @@ if __name__ == "__main__":
     num_epochs = args['epochs']
     input_dim = 1023
     output_dim = 1023  # Same as input_dim for masked spectra prediction
-    num_layers = 3
+    num_layers = 3       
+    # num_layers = 6
     num_heads = 3
-    hidden_dim = 128
+    # hidden_dim = 64
+    hidden_dim = 128 
     learning_rate = args['learning_rate']
+    batch_size = args['batch_size']
 
-    
     logger.info(f"Reading the dataset: fish {dataset}")
-    train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
+    train_loader, val_loader, train_steps, val_steps, data= preprocess_dataset(
+        dataset, 
+        is_data_augmentation, 
+        batch_size=batch_size,
+        is_pre_train=True
+    )
 
     if is_masked_spectra:
         # Load the transformer.
         model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
+        logger.info(f"model: {model}")
+       
         # Specify the device (GPU or CPU)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model.to(device)
+        
         # Initialize your model, loss function, and optimizer
         criterion = nn.MSELoss()
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
@@ -95,7 +107,6 @@ if __name__ == "__main__":
         # Early stopping (Morgan 1989)
         if is_early_stopping:
             early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
-
 
         logger.info("Pre-training the network: Masked Spectra Modelling")
         startTime = time.time()
@@ -125,6 +136,7 @@ if __name__ == "__main__":
 
         # Initialize the model, criterion, and optimizer
         model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
+        logger.info(f"model: {model}")
 
         # Transfer learning
         if is_masked_spectra:
@@ -167,6 +179,15 @@ if __name__ == "__main__":
                 # Load model parameters with best validation accuracy.
                 model.load_state_dict(checkpoint, strict=False)
 
+    # Load the dataset with quality control and other unrelated instances removed.
+    # train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
+    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+        dataset, 
+        is_data_augmentation, 
+        batch_size=batch_size,
+        is_pre_train=False
+    )
+
     # Output dimension is the number of classes in the dataset.
     if dataset == "species" or dataset == "oil":
         output_dim = 2  # ['Hoki', 'Mackerel'] or ['Oil', 'None']
@@ -181,27 +202,28 @@ if __name__ == "__main__":
     if is_early_stopping:
         # early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
         # patience = num_epochs, stores best run, but doesn't stop training early.
-        early_stopping = EarlyStopping(patience=num_epochs, delta=0.001, path=file_path)
+        early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
 
     # Initialize the model, criterion, and optimizer
     model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
+    logger.info(f"model: {model}")
 
     # Transfer learning
     if is_masked_spectra or is_next_spectra:
         model = transfer_learning(dataset, model, file_path=file_path)
-
+    
     # Label smoothing (Szegedy 2016)
     criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+    
     # AdamW (Loshchilov 2017)
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-
+    
     # Specify the device (GPU or CPU)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
-
     logger.info("Training the network")
     startTime = time.time()
-
+    
     # Train the model
     train_losses, train_accuracies, val_losses, val_accuracies = train_model(
         model, 
@@ -214,7 +236,6 @@ if __name__ == "__main__":
         is_early_stopping=True,
         early_stopping=early_stopping
     )
-
     # finish measuring how long training took
     endTime = time.time()
     logger.info("Total time taken to train the model: {:.2f}s".format(endTime - startTime))
@@ -232,7 +253,7 @@ if __name__ == "__main__":
     # switch off autograd
     with torch.no_grad():
         # loop over the test set
-        datasets = [("train", train_loader), ("validation", val_loader), ("test", test_loader)]
+        datasets = [("train", train_loader), ("validation", val_loader)]
         for name, dataset_x_y in datasets:
             for (x,y) in dataset_x_y:
                 (x,y) = (x.to(device), y.to(device))

@@ -189,117 +189,6 @@ class Encoder(nn.Module):
             x = layer(x, mask)
         return x
 
-class DecoderLayer(nn.Module):
-    def __init__(self, 
-            input_dim: int, 
-            num_heads: int, 
-            hidden_dim: int, 
-            dropout: float = 0.1
-        ) -> None:
-        """A decoder layer of the transformer.
-        
-        Args: 
-            input_dim (int): the number of input dimensions.
-            num_heads (int): the number of heads for multi-head attention.
-            hidden_dim (int): the number of hidden dimensions for each decoder layer.
-            dropout (float): the probability of performing dropout.
-        """
-        super(DecoderLayer, self).__init__()
-        self.self_attention = MultiHeadAttention(input_dim, num_heads)
-        self.cross_attention = MultiHeadAttention(input_dim, num_heads)
-        self.feed_forward = FeedForward(input_dim, hidden_dim, dropout)
-        self.norm1 = nn.LayerNorm(input_dim)
-        self.norm2 = nn.LayerNorm(input_dim)
-        self.norm3 = nn.LayerNorm(input_dim)
-        self.dropout1 = nn.Dropout(dropout)
-        self.dropout2 = nn.Dropout(dropout)
-        self.dropout3 = nn.Dropout(dropout)
-
-    def forward(self, 
-            x: torch.Tensor, 
-            encoder_output: torch.Tensor, 
-            src_mask: torch.Tensor = None, 
-            tgt_mask: torch.Tensor = None
-        ) -> torch.Tensor:
-        """ A forward pass through the decoder layer.
-        
-        This code implements the pre-norm formulation for layer normalization.
-        Dropout is performed with a given probability to regularize the network.
-        
-        Args: 
-            x (torch.Tensor): the input tensor
-            encoder_output (torch.Tensor): the output of the encoder
-            src_mask (torch.Tensor): the mask for the source input.
-            tgt_mask (torch.Tensor): the mask for the target input.
-        
-        Returns:
-            x (torch.Tensor): the output of a forward pass through the decoder layer.
-        """
-        # Attention mechanism (Vaswani 2017)
-        # Layer normalization (Ba 2016)
-        # Pre-norm formulation (Xiong 2020, Karpathy 2023)
-        x_norm = self.norm1(x)
-        # Self attention (Vaswani 2017)
-        attention = self.self_attention(x_norm, x_norm, x_norm, tgt_mask)
-        # Residual connections (He 2016)
-        # Dropout (Srivastava 2014, Hinton 2012)
-        x = x + self.dropout1(attention)
-        x_norm = self.norm2(x)
-        # Cross attention (Vaswani 2017)
-        cross_attention = self.cross_attention(x_norm, encoder_output, encoder_output, src_mask)
-        x = x + self.dropout2(cross_attention)
-        # Layer normalization (Ba 2016)
-        # Pre-norm formulation (Xiong 2020, Karpathy 2023)
-        x_norm = self.norm3(x)
-        # Feed forward (Vaswani 2017)
-        feed_forward = self.feed_forward(x_norm)
-        # Residual connections (He 2016)
-        # Dropout (Srivastava 2014, Hinton 2012)
-        x = x + self.dropout3(feed_forward)
-        return x
-
-class Decoder(nn.Module):
-    def __init__(self, 
-            input_dim: int, 
-            num_layers: int, 
-            num_heads: int, 
-            hidden_dim: int, 
-            dropout: float = 0.1
-        ) -> None:
-        """ The decoder module for the transformer.
-        
-        Args: 
-            input_dim (int): the number of dimensions for the input.
-            num_layer (int): the number of decoder layers to stack on top of eachother.
-            num_heads (int): the number of heads for each multi-head attention layer.
-            hidden_dim (int): the number of hidden dimensions for each decoder layer.
-            dropout (float): the probability of dropout. Defaults to 0.1
-        """
-        super(Decoder, self).__init__()
-        self.layers = nn.ModuleList([DecoderLayer(input_dim, num_heads, hidden_dim, dropout) for _ in range(num_layers)])
-
-    def forward(self, 
-            x: torch.Tensor, 
-            encoder_output: torch.Tensor, 
-            src_mask: torch.Tensor = None, 
-            tgt_mask: torch.Tensor = None
-        ) -> torch.Tensor:
-        """ A forward pass through the decoder module.
-
-        The decoder performs cross-attention between the input and the output from the encoder layer.
-
-        Args: 
-            x (torch.Tensor): the input to the decoder layer.
-            encoder_output (torch.Tensor): the output of the encoder layer.
-            src_mask (torch.Tensor): the mask for the input.
-            tgt_msk (torch.Tensor): the mask for the encoder layer output.
-
-        Returns: 
-            x (torch.Tensor): the output of the forward pass through the decoder.
-        """
-        for layer in self.layers:
-            x = layer(x, encoder_output, src_mask, tgt_mask)
-        return x
 
 class Transformer(nn.Module):
     """
@@ -386,7 +275,6 @@ class Transformer(nn.Module):
         """
         super(Transformer, self).__init__()
         self.encoder = Encoder(input_dim, num_layers, num_heads, hidden_dim, dropout)
-        self.decoder = Decoder(input_dim, num_layers, num_heads, hidden_dim, dropout)
         self.fc = nn.Linear(input_dim, output_dim)
 
         # for name, param in self.named_parameters():
@@ -400,22 +288,17 @@ class Transformer(nn.Module):
 
     def forward(self, 
             src: torch.Tensor, 
-            tgt: torch.Tensor, 
             src_mask: torch.Tensor = None, 
-            tgt_mask: torch.Tensor = None
         ) -> torch.Tensor:
         """ A forward pass through the transformer network
         
         Args:
             src (torch.Tensor): the input to the transformer.
-            tgt (torch.Tensor): the target for the transformer (clone of src).
             src_mask (torch.Tensor): the mask for the source.
-            tgt_mask (torch.Tensor): the mask for the target.
 
         Returns: 
             x (torch.Tensor): the output of a forward pass through the transformer network.
         """
         x = self.encoder(src, src_mask)
-        x = self.decoder(tgt, x, src_mask, tgt_mask)
         x = self.fc(x[:, 0, :])
         return x
