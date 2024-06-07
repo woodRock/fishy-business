@@ -82,10 +82,10 @@ if __name__ == "__main__":
     hidden_dim = 128 
     learning_rate = args['learning_rate']
     batch_size = args['batch_size']
-    is_decoder_only = True
+    is_decoder_only = False
 
     logger.info(f"Reading the dataset: fish {dataset}")
-    train_loader, val_loader, train_steps, val_steps, data= preprocess_dataset(
+    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
         dataset, 
         is_data_augmentation, 
         batch_size=batch_size,
