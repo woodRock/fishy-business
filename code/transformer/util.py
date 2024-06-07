@@ -305,7 +305,7 @@ class EarlyStopping:
     def __init__(self,
         patience: int = 5,
         delta: float = 0, 
-        path: str = 'checkpoint.pt'
+        path: str = 'checkpoint.pth'
     ) -> None:
         """
         Early Stopping (Morgan 1989).

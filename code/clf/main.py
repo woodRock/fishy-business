@@ -39,16 +39,7 @@ if __name__ == "__main__":
             'svm': svm(kernel='linear'), 
             'ensemble': VotingClassifier(
                 estimators=[('knn', knn()),('nb', nb()), ('dt', dt()), ('rf', rf()), ('svm', svm(kernel='linear')), ('lda', lda()), ('lr', lr(max_iter=2000))],
-                voting='hard'),
-            'ensemble-LR': VotingClassifier(
-                estimators=[
-                    ('lr_l1', lr(penalty="l1", solver="saga", max_iter=2000)),
-                    ('lr_l2', lr(penalty="l2", max_iter=2000)),
-                    ('lr_none', lr(penalty="none", max_iter=2000)),
-                    ('lr_elasticnet', lr(penalty="elasticnet", solver="saga", l1_ratio=0.5, max_iter=2000))
-                ],
-                voting='hard'
-            )
+                voting='hard')
         }
         
         runs = 30
