@@ -190,10 +190,12 @@ if __name__ == "__main__":
     )
 
     # Output dimension is the number of classes in the dataset.
-    if dataset == "species" or dataset == "oil":
-        output_dim = 2  # ['Hoki', 'Mackerel'] or ['Oil', 'None']
+    if dataset == "species":
+        output_dim = 2  # ['Hoki', 'Mackerel'] 
     elif dataset =="part":
         output_dim = 6 # ['Fillet'  'Heads' 'Livers' 'Skins' 'Guts' 'Frames']
+    elif dataset =="oil":
+        output_dim = 7 # or ['50', '25', '10', '05', '01', '0.1', '0']
     elif dataset =="cross-species":
         output_dim = 3 # ['Hoki, 'Mackerel', 'Hoki-Mackerel']
     else:
@@ -256,6 +258,8 @@ if __name__ == "__main__":
         # loop over the test set
         datasets = [("train", train_loader), ("validation", val_loader)]
         for name, dataset_x_y in datasets:
+            startTime = time.time()
+            # finish measuring how long training too
             for (x,y) in dataset_x_y:
                 (x,y) = (x.to(device), y.to(device))
                 pred = model(x, x, src_mask=None)
@@ -263,6 +267,8 @@ if __name__ == "__main__":
                 accuracy = test_correct / len(x)
                 logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
                 plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
+            endTime = time.time()
+            logger.info("Total time taken evaluate on test set the model: {:.2f}s".format(endTime - startTime))
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
     # First self-attention layer of the encoder.
@@ -272,6 +278,6 @@ if __name__ == "__main__":
     
     if not is_decoder_only:
         # Last self-attention layer of the decoder.
-        attention_weights = model.decoder.layers[-1].feed_forward.fc2.weight
+        attention_weights = model.decoder.layers[-1].self_attention.fc_out.weight
         attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
         plot_attention_map("decoder", attention_weights, columns, columns)
