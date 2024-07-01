@@ -175,7 +175,7 @@ def transfer_learning(
     Returns:
         model (Transformer): the model with the pre-trained weights tranferred to it.
     """
-    if dataset == "species" or dataset == "oil":
+    if dataset == "species":
         # There are 2 classes in the fish species, oil and cross-species dataset.
         output_dim = 2
         checkpoint = torch.load(file_path)
@@ -185,6 +185,13 @@ def transfer_learning(
     elif dataset == "part":
         # There are 6 classes in the fish parts dataset.
         output_dim = 6
+        checkpoint = torch.load(file_path)
+        checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
+        checkpoint['fc.bias'] = torch.zeros(output_dim)
+
+    elif dataset == "oil":
+        # There are 7 classes in the fish oil dataset.
+        output_dim = 7
         checkpoint = torch.load(file_path)
         checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
         checkpoint['fc.bias'] = torch.zeros(output_dim)
