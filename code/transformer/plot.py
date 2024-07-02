@@ -131,6 +131,8 @@ def plot_confusion_matrix(
         labels = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
     elif dataset == "oil":
         labels = ["50", "25", "10", "05", "01", "0.1"," 0"]
+    elif dataset == "oil_simple":
+        labels = ["Oil", "No oil"]
     elif dataset == "cross-species":
         labels = ["Hoki-Mackeral", "Hoki", "Mackerel"]
     else:

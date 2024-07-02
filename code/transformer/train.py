@@ -175,7 +175,7 @@ def transfer_learning(
     Returns:
         model (Transformer): the model with the pre-trained weights tranferred to it.
     """
-    if dataset == "species":
+    if dataset == "species" or dataset == "oil_simple":
         # There are 2 classes in the fish species, oil and cross-species dataset.
         output_dim = 2
         checkpoint = torch.load(file_path)
