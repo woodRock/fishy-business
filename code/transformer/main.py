@@ -190,7 +190,7 @@ if __name__ == "__main__":
     )
 
     # Output dimension is the number of classes in the dataset.
-    if dataset == "species":
+    if dataset == "species" or dataset == "oil_simple":
         output_dim = 2  # ['Hoki', 'Mackerel'] 
     elif dataset =="part":
         output_dim = 6 # ['Fillet'  'Heads' 'Livers' 'Skins' 'Guts' 'Frames']
@@ -268,7 +268,7 @@ if __name__ == "__main__":
                 logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
                 plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
             endTime = time.time()
-            logger.info("Total time taken evaluate on test set the model: {:.2f}s".format(endTime - startTime))
+            logger.info(f"Total time taken evaluate on {name} set the model: {(endTime - startTime):.2f}s")
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
     # First self-attention layer of the encoder.

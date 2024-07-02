@@ -4,10 +4,10 @@
 #
 # The task spooler (ts) command allows for parallel execution of python scripts.
  
-DATASET="oil"; 
+DATASET="oil_simple"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp_04";
+NAME="tmp";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -19,7 +19,7 @@ fi
 # The server has 3 GPUs to use in parallel.
 ts -S 3
 
-for i in {1..10}; 
+for i in {1..30}; 
 do 
     # Run the experiments using the ts command.
     ts -G 1 python3 main.py \

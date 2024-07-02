@@ -169,9 +169,24 @@ def one_hot_encoded_labels(dataset, data):
                     else ([0,0,0,0,1,0] if 'Guts' in x
                     else ([0,0,0,0,0,1] if 'Frames' in x
                     else None ))))))  # Labels (0 for Hoki, 1 for Moki)
-    elif dataset == "oil":
+    elif dataset == "oil_simple":
         # Onehot encodings for class labels (1 for Oil, 0 for No Oil)
         # Oil contaminated samples contain 'MO' in their class label.
+        y = data['m/z'].apply(lambda x: [1,0] if 'MO' in x else [0,1])
+    elif dataset == "oil_regression":
+        # Regression outputs for the amount of oil contamination.
+        y = data['m/z'].apply(lambda x:
+                          0.5 if 'MO 50' in x
+                    else (0.25 if 'MO 25' in x
+                    else (0.1 if 'MO 10' in x
+                    else (0.05 if 'MO 05' in x
+                    else (0.01 if 'MO 01' in x
+                    else (0.001 if 'MO 0.1' in x
+                    else (0.0 if 'MO 0' in x
+                    else 0.0)))))))
+    elif dataset == "oil":
+        # Onehpot encodings for class lables.
+        # Class labels for different concentrations of mineral oil.
         y = data['m/z'].apply(lambda x:
                           [1,0,0,0,0,0,0] if 'MO 50' in x
                     else ([0,1,0,0,0,0,0] if 'MO 25' in x
@@ -308,14 +323,6 @@ def preprocess_dataset(
     )
     return train_loader, val_loader, train_steps, val_steps, data
 
-if __name__ == "__main__":
-    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
-        dataset="oil", 
-        is_data_augmentation=False, 
-        batch_size=64,
-        is_pre_train = False
-    )
-    print(f"train_loader: {train_loader}")
 
 class EarlyStopping:
     def __init__(self,
