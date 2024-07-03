@@ -68,7 +68,7 @@ if __name__ == "__main__":
             train_accs = []
             test_accs = []
             # Perform 30 indepdnent runs of the random forest.
-            loss =  balanced_accuracy_score if is_classification else mean_absolute_error
+            loss =  balanced_accuracy_score if is_classification else mean_squared_error
             for run in tqdm(range(1, runs+1), desc=f"{dataset} - {name}"):
                 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=run)
                 # Training the classifier.

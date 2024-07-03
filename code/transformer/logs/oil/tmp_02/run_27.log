@@ -1,0 +1,280 @@
+INFO:__main__:Reading the dataset: fish oil
+INFO:__main__:model: Transformer(
+  (encoder): Encoder(
+    (layers): ModuleList(
+      (0-2): 3 x EncoderLayer(
+        (self_attention): MultiHeadAttention(
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
+        )
+        (feed_forward): FeedForward(
+          (fc1): Linear(in_features=1023, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=1023, bias=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+        (norm1): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.2, inplace=False)
+        (dropout2): Dropout(p=0.2, inplace=False)
+      )
+    )
+  )
+  (decoder): Decoder(
+    (layers): ModuleList(
+      (0-2): 3 x DecoderLayer(
+        (self_attention): MultiHeadAttention(
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
+        )
+        (cross_attention): MultiHeadAttention(
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
+        )
+        (feed_forward): FeedForward(
+          (fc1): Linear(in_features=1023, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=1023, bias=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+        (norm1): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.2, inplace=False)
+        (dropout2): Dropout(p=0.2, inplace=False)
+        (dropout3): Dropout(p=0.2, inplace=False)
+      )
+    )
+  )
+  (fc): Linear(in_features=1023, out_features=1023, bias=True)
+)
+INFO:__main__:Pre-training the network: Masked Spectra Modelling
+INFO:pre_training:Epoch [1/100], Loss: 0.0949, Val: 0.0080
+INFO:pre_training:Epoch [2/100], Loss: 0.0844, Val: 0.0074
+INFO:pre_training:Epoch [3/100], Loss: 0.0784, Val: 0.0070
+INFO:pre_training:Epoch [4/100], Loss: 0.0741, Val: 0.0064
+INFO:pre_training:Epoch [5/100], Loss: 0.0703, Val: 0.0062
+INFO:pre_training:Epoch [6/100], Loss: 0.0671, Val: 0.0059
+INFO:pre_training:Epoch [7/100], Loss: 0.0641, Val: 0.0056
+INFO:pre_training:Epoch [8/100], Loss: 0.0605, Val: 0.0052
+INFO:pre_training:Epoch [9/100], Loss: 0.0577, Val: 0.0049
+INFO:pre_training:Epoch [10/100], Loss: 0.0552, Val: 0.0047
+INFO:pre_training:Epoch [11/100], Loss: 0.0528, Val: 0.0046
+INFO:pre_training:Epoch [12/100], Loss: 0.0510, Val: 0.0041
+INFO:pre_training:Epoch [13/100], Loss: 0.0490, Val: 0.0040
+INFO:pre_training:Epoch [14/100], Loss: 0.0473, Val: 0.0038
+INFO:pre_training:Epoch [15/100], Loss: 0.0459, Val: 0.0037
+INFO:pre_training:Epoch [16/100], Loss: 0.0451, Val: 0.0036
+INFO:pre_training:Epoch [17/100], Loss: 0.0437, Val: 0.0034
+INFO:pre_training:Epoch [18/100], Loss: 0.0429, Val: 0.0035
+INFO:pre_training:Epoch [19/100], Loss: 0.0417, Val: 0.0034
+INFO:pre_training:Epoch [20/100], Loss: 0.0410, Val: 0.0034
+INFO:pre_training:Epoch [21/100], Loss: 0.0402, Val: 0.0033
+INFO:pre_training:Epoch [22/100], Loss: 0.0393, Val: 0.0033
+INFO:pre_training:Epoch [23/100], Loss: 0.0387, Val: 0.0032
+INFO:pre_training:Epoch [24/100], Loss: 0.0380, Val: 0.0032
+INFO:pre_training:Epoch [25/100], Loss: 0.0374, Val: 0.0031
+INFO:pre_training:Epoch [26/100], Loss: 0.0368, Val: 0.0032
+INFO:pre_training:Epoch [27/100], Loss: 0.0363, Val: 0.0030
+INFO:pre_training:Epoch [28/100], Loss: 0.0357, Val: 0.0030
+INFO:pre_training:Epoch [29/100], Loss: 0.0350, Val: 0.0029
+INFO:pre_training:Epoch [30/100], Loss: 0.0347, Val: 0.0028
+INFO:pre_training:Epoch [31/100], Loss: 0.0343, Val: 0.0029
+INFO:pre_training:Epoch [32/100], Loss: 0.0338, Val: 0.0029
+INFO:pre_training:Epoch [33/100], Loss: 0.0331, Val: 0.0028
+INFO:pre_training:Epoch [34/100], Loss: 0.0329, Val: 0.0028
+INFO:pre_training:Epoch [35/100], Loss: 0.0323, Val: 0.0028
+INFO:pre_training:Epoch [36/100], Loss: 0.0319, Val: 0.0027
+INFO:pre_training:Epoch [37/100], Loss: 0.0313, Val: 0.0027
+INFO:pre_training:Epoch [38/100], Loss: 0.0311, Val: 0.0028
+INFO:pre_training:Epoch [39/100], Loss: 0.0308, Val: 0.0026
+INFO:pre_training:Epoch [40/100], Loss: 0.0304, Val: 0.0027
+INFO:pre_training:Epoch [41/100], Loss: 0.0299, Val: 0.0025
+INFO:pre_training:Epoch [42/100], Loss: 0.0296, Val: 0.0026
+INFO:pre_training:Epoch [43/100], Loss: 0.0292, Val: 0.0026
+INFO:pre_training:Epoch [44/100], Loss: 0.0291, Val: 0.0026
+INFO:pre_training:Epoch [45/100], Loss: 0.0289, Val: 0.0025
+INFO:pre_training:Epoch [46/100], Loss: 0.0284, Val: 0.0025
+INFO:pre_training:Epoch [47/100], Loss: 0.0281, Val: 0.0025
+INFO:pre_training:Epoch [48/100], Loss: 0.0277, Val: 0.0025
+INFO:pre_training:Epoch [49/100], Loss: 0.0273, Val: 0.0025
+INFO:pre_training:Epoch [50/100], Loss: 0.0271, Val: 0.0027
+INFO:pre_training:Epoch [51/100], Loss: 0.0268, Val: 0.0024
+INFO:pre_training:Epoch [52/100], Loss: 0.0267, Val: 0.0025
+INFO:pre_training:Epoch [53/100], Loss: 0.0262, Val: 0.0025
+INFO:pre_training:Epoch [54/100], Loss: 0.0260, Val: 0.0024
+INFO:pre_training:Epoch [55/100], Loss: 0.0258, Val: 0.0024
+INFO:pre_training:Epoch [56/100], Loss: 0.0256, Val: 0.0024
+INFO:pre_training:Epoch [57/100], Loss: 0.0254, Val: 0.0025
+INFO:pre_training:Epoch [58/100], Loss: 0.0249, Val: 0.0024
+INFO:pre_training:Epoch [59/100], Loss: 0.0248, Val: 0.0026
+INFO:pre_training:Epoch [60/100], Loss: 0.0244, Val: 0.0023
+INFO:pre_training:Epoch [61/100], Loss: 0.0242, Val: 0.0024
+INFO:pre_training:Epoch [62/100], Loss: 0.0241, Val: 0.0024
+INFO:pre_training:Epoch [63/100], Loss: 0.0239, Val: 0.0023
+INFO:pre_training:Epoch [64/100], Loss: 0.0236, Val: 0.0023
+INFO:pre_training:Epoch [65/100], Loss: 0.0234, Val: 0.0022
+INFO:pre_training:Epoch [66/100], Loss: 0.0233, Val: 0.0022
+INFO:pre_training:Epoch [67/100], Loss: 0.0230, Val: 0.0022
+INFO:pre_training:Epoch [68/100], Loss: 0.0228, Val: 0.0022
+INFO:pre_training:Epoch [69/100], Loss: 0.0226, Val: 0.0022
+INFO:pre_training:Epoch [70/100], Loss: 0.0225, Val: 0.0024
+INFO:pre_training:Epoch [71/100], Loss: 0.0222, Val: 0.0023
+INFO:pre_training:Epoch [72/100], Loss: 0.0222, Val: 0.0022
+INFO:pre_training:Epoch [73/100], Loss: 0.0219, Val: 0.0021
+INFO:pre_training:Epoch [74/100], Loss: 0.0217, Val: 0.0021
+INFO:pre_training:Epoch [75/100], Loss: 0.0213, Val: 0.0022
+INFO:pre_training:Epoch [76/100], Loss: 0.0213, Val: 0.0021
+INFO:pre_training:Epoch [77/100], Loss: 0.0211, Val: 0.0021
+INFO:pre_training:Epoch [78/100], Loss: 0.0209, Val: 0.0022
+INFO:pre_training:Epoch [79/100], Loss: 0.0206, Val: 0.0021
+INFO:pre_training:Epoch [80/100], Loss: 0.0205, Val: 0.0020
+INFO:pre_training:Epoch [81/100], Loss: 0.0203, Val: 0.0021
+INFO:pre_training:Epoch [82/100], Loss: 0.0202, Val: 0.0020
+INFO:pre_training:Epoch [83/100], Loss: 0.0201, Val: 0.0021
+INFO:pre_training:Epoch [84/100], Loss: 0.0198, Val: 0.0020
+INFO:pre_training:Epoch [85/100], Loss: 0.0197, Val: 0.0020
+INFO:pre_training:Epoch [86/100], Loss: 0.0196, Val: 0.0019
+INFO:pre_training:Epoch [87/100], Loss: 0.0195, Val: 0.0020
+INFO:pre_training:Epoch [88/100], Loss: 0.0192, Val: 0.0020
+INFO:pre_training:Epoch [89/100], Loss: 0.0190, Val: 0.0020
+INFO:pre_training:Epoch [90/100], Loss: 0.0190, Val: 0.0021
+INFO:pre_training:Epoch [91/100], Loss: 0.0189, Val: 0.0020
+INFO:pre_training:Epoch [92/100], Loss: 0.0187, Val: 0.0020
+INFO:pre_training:Epoch [93/100], Loss: 0.0186, Val: 0.0020
+INFO:pre_training:Epoch [94/100], Loss: 0.0185, Val: 0.0020
+INFO:pre_training:Epoch [95/100], Loss: 0.0183, Val: 0.0019
+INFO:pre_training:Epoch [96/100], Loss: 0.0182, Val: 0.0020
+INFO:pre_training:Epoch [97/100], Loss: 0.0180, Val: 0.0020
+INFO:pre_training:Epoch [98/100], Loss: 0.0179, Val: 0.0020
+INFO:pre_training:Epoch [99/100], Loss: 0.0177, Val: 0.0020
+INFO:pre_training:Epoch [100/100], Loss: 0.0177, Val: 0.0019
+INFO:__main__:Total time taken to pre-train the model: 85.85s
+INFO:__main__:model: Transformer(
+  (encoder): Encoder(
+    (layers): ModuleList(
+      (0-2): 3 x EncoderLayer(
+        (self_attention): MultiHeadAttention(
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
+        )
+        (feed_forward): FeedForward(
+          (fc1): Linear(in_features=1023, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=1023, bias=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+        (norm1): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.2, inplace=False)
+        (dropout2): Dropout(p=0.2, inplace=False)
+      )
+    )
+  )
+  (decoder): Decoder(
+    (layers): ModuleList(
+      (0-2): 3 x DecoderLayer(
+        (self_attention): MultiHeadAttention(
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
+        )
+        (cross_attention): MultiHeadAttention(
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
+        )
+        (feed_forward): FeedForward(
+          (fc1): Linear(in_features=1023, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=1023, bias=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+        (norm1): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.2, inplace=False)
+        (dropout2): Dropout(p=0.2, inplace=False)
+        (dropout3): Dropout(p=0.2, inplace=False)
+      )
+    )
+  )
+  (fc): Linear(in_features=1023, out_features=7, bias=True)
+)
+INFO:__main__:Training the network
+INFO:train:Epoch 1/100, Train Loss: 1.9450, Train Acc: 0.1717, Val Loss: 1.9438, Val Acc: 0.1154
+INFO:train:Epoch 2/100, Train Loss: 1.9349, Train Acc: 0.2367, Val Loss: 1.9319, Val Acc: 0.2308
+INFO:train:Epoch 3/100, Train Loss: 1.9037, Train Acc: 0.3533, Val Loss: 1.8913, Val Acc: 0.3462
+INFO:train:Epoch 4/100, Train Loss: 1.8261, Train Acc: 0.4017, Val Loss: 1.7995, Val Acc: 0.3462
+INFO:train:Epoch 5/100, Train Loss: 1.7110, Train Acc: 0.4017, Val Loss: 1.7187, Val Acc: 0.3846
+INFO:train:Epoch 6/100, Train Loss: 1.6347, Train Acc: 0.4000, Val Loss: 1.7034, Val Acc: 0.3462
+INFO:train:Epoch 7/100, Train Loss: 1.5941, Train Acc: 0.4017, Val Loss: 1.6644, Val Acc: 0.4231
+INFO:train:Epoch 8/100, Train Loss: 1.5474, Train Acc: 0.4350, Val Loss: 1.6208, Val Acc: 0.4615
+INFO:train:Epoch 9/100, Train Loss: 1.4949, Train Acc: 0.4650, Val Loss: 1.5995, Val Acc: 0.5000
+INFO:train:Epoch 10/100, Train Loss: 1.4210, Train Acc: 0.5083, Val Loss: 1.5915, Val Acc: 0.5000
+INFO:train:Epoch 11/100, Train Loss: 1.3280, Train Acc: 0.5333, Val Loss: 1.5995, Val Acc: 0.3846
+INFO:train:Epoch 12/100, Train Loss: 1.2300, Train Acc: 0.6017, Val Loss: 1.5980, Val Acc: 0.4615
+INFO:train:Epoch 13/100, Train Loss: 1.1492, Train Acc: 0.6683, Val Loss: 1.6060, Val Acc: 0.4615
+INFO:train:Epoch 14/100, Train Loss: 1.0720, Train Acc: 0.7033, Val Loss: 1.5879, Val Acc: 0.4231
+INFO:train:Epoch 15/100, Train Loss: 1.0025, Train Acc: 0.7933, Val Loss: 1.6024, Val Acc: 0.5000
+INFO:train:Epoch 16/100, Train Loss: 0.9477, Train Acc: 0.8283, Val Loss: 1.5643, Val Acc: 0.5385
+INFO:train:Epoch 17/100, Train Loss: 0.9034, Train Acc: 0.8900, Val Loss: 1.6096, Val Acc: 0.5000
+INFO:train:Epoch 18/100, Train Loss: 0.8668, Train Acc: 0.9250, Val Loss: 1.6535, Val Acc: 0.5385
+INFO:train:Epoch 19/100, Train Loss: 0.8394, Train Acc: 0.9533, Val Loss: 1.7052, Val Acc: 0.5385
+INFO:train:Epoch 20/100, Train Loss: 0.8199, Train Acc: 0.9733, Val Loss: 1.7700, Val Acc: 0.5769
+INFO:train:Epoch 21/100, Train Loss: 0.8030, Train Acc: 0.9800, Val Loss: 1.8142, Val Acc: 0.6154
+INFO:train:Epoch 22/100, Train Loss: 0.7892, Train Acc: 0.9917, Val Loss: 1.8359, Val Acc: 0.5769
+INFO:train:Epoch 23/100, Train Loss: 0.7740, Train Acc: 0.9983, Val Loss: 1.8896, Val Acc: 0.5769
+INFO:train:Epoch 24/100, Train Loss: 0.7679, Train Acc: 0.9983, Val Loss: 1.9400, Val Acc: 0.5000
+INFO:train:Epoch 25/100, Train Loss: 0.7584, Train Acc: 0.9983, Val Loss: 1.9343, Val Acc: 0.5769
+INFO:train:Epoch 26/100, Train Loss: 0.7442, Train Acc: 1.0000, Val Loss: 1.9128, Val Acc: 0.5385
+INFO:train:Epoch 27/100, Train Loss: 0.7369, Train Acc: 1.0000, Val Loss: 1.9589, Val Acc: 0.5385
+INFO:train:Epoch 28/100, Train Loss: 0.7289, Train Acc: 0.9967, Val Loss: 1.9451, Val Acc: 0.5385
+INFO:train:Epoch 29/100, Train Loss: 0.7145, Train Acc: 1.0000, Val Loss: 1.9145, Val Acc: 0.5385
+INFO:train:Epoch 30/100, Train Loss: 0.7002, Train Acc: 1.0000, Val Loss: 1.8683, Val Acc: 0.5000
+INFO:train:Epoch 31/100, Train Loss: 0.6851, Train Acc: 1.0000, Val Loss: 1.8930, Val Acc: 0.5000
+INFO:train:Epoch 32/100, Train Loss: 0.6654, Train Acc: 1.0000, Val Loss: 1.8051, Val Acc: 0.5385
+INFO:train:Epoch 33/100, Train Loss: 0.6454, Train Acc: 1.0000, Val Loss: 1.8989, Val Acc: 0.4615
+INFO:train:Epoch 34/100, Train Loss: 0.6257, Train Acc: 1.0000, Val Loss: 1.8123, Val Acc: 0.4615
+INFO:train:Epoch 35/100, Train Loss: 0.6033, Train Acc: 1.0000, Val Loss: 1.8148, Val Acc: 0.5000
+INFO:train:Epoch 36/100, Train Loss: 0.5837, Train Acc: 1.0000, Val Loss: 1.8510, Val Acc: 0.4615
+INFO:train:Epoch 37/100, Train Loss: 0.5663, Train Acc: 1.0000, Val Loss: 1.8608, Val Acc: 0.4615
+INFO:train:Epoch 38/100, Train Loss: 0.5495, Train Acc: 1.0000, Val Loss: 1.9140, Val Acc: 0.4615
+INFO:train:Epoch 39/100, Train Loss: 0.5368, Train Acc: 1.0000, Val Loss: 1.8949, Val Acc: 0.4615
+INFO:train:Epoch 40/100, Train Loss: 0.5279, Train Acc: 1.0000, Val Loss: 1.8845, Val Acc: 0.5000
+INFO:train:Epoch 41/100, Train Loss: 0.5198, Train Acc: 1.0000, Val Loss: 1.8885, Val Acc: 0.5000
+INFO:train:Early stopping
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 41.23s
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:train got 24 / 24 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:__main__:Total time taken evaluate on train set the model: 1.48s
+INFO:__main__:validation got 14 / 26 correct, accuracy: 0.5384615384615384
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:__main__:Total time taken evaluate on validation set the model: 0.11s
+INFO:plot:Saving attention map to: figures/encoder_attention_map.png
+INFO:plot:Saving attention map to: figures/decoder_attention_map.png
