@@ -46,7 +46,13 @@ if __name__ == "__main__":
                 'rf': rf(), 
                 'svm': svm(kernel='linear'), 
                 'ensemble': VotingClassifier(
-                    estimators=[('knn', knn()), ('dt', dt()), ('lda', lda()), ('nb', nb()), ('rf', rf()),('svm', svm(kernel='linear'))],
+                    estimators=[
+                        ('knn', knn()), 
+                        ('dt', dt()), 
+                        ('lda', lda()), 
+                        ('nb', nb()), 
+                        ('rf', rf()),
+                        ('svm', svm(kernel='linear'))],
                     voting='hard'
                 )
             }
