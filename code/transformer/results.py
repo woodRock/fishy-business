@@ -27,8 +27,8 @@ if __name__ == "__main__":
     verbose = args['verbose']
     
     # Select the dataset to process results for.
-    datasets = ["species", "part", "oil", "cross-species"]
-    dataset = args['dataset'] # Cross-species
+    datasets = ["species", "part", "oil", "oil_simple", "cross-species"]
+    dataset = args['dataset'] # Cross-species, 
     
     if dataset not in datasets:
         raise ValueError(f"Not a valid dataset: {dataset}")
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     test_accs = []
     # A run for each output file in the logs.
     runs = len(os.listdir(path=folder))
-    # runs = 21
+    # runs = 29
     
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
