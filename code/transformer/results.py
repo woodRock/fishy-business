@@ -41,7 +41,7 @@ if __name__ == "__main__":
     test_accs = []
     # A run for each output file in the logs.
     runs = len(os.listdir(path=folder))
-    # runs = 29
+    # runs = 27
     
     # For each experiment in a batch of 30 independent runs.
     for i in range(1,runs + 1):
