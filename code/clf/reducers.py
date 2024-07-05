@@ -35,7 +35,10 @@ if __name__ == "__main__":
     
     n_components = 50
     reducers = {
-        "umap": umap.UMAP(n_components=n_components), 
+        "umap-n2": umap.UMAP(n_neighbors=2, n_components=n_components), 
+        "umap-n5": umap.UMAP(n_neighbors=5, n_components=n_components), 
+        "umap-n10": umap.UMAP(n_neighbors=10, n_components=n_components), 
+        "umap-n20": umap.UMAP(n_neighbors=20, n_components=n_components), 
         "tsne": tsne(method='exact', n_components=n_components), 
         "pca": pca(n_components=n_components)
     }
@@ -61,12 +64,24 @@ if __name__ == "__main__":
             if is_classification:
                 # The different models to try out.
                 models = { 
-                    'knn': knn(), 
-                    'dt': dt(), 
-                    'lda': lda(), 
-                    'nb': nb(), 
-                    'rf': rf(), 
-                    'svm': svm(kernel='linear'), 
+                    # KNN
+                    'knn': knn(),
+                    # DT  
+                    'dt': dt(),
+                    # LDA  
+                    'lda-lsqr': lda(solver='lsqr'),
+                    'lda-svd': lda(solver='svd'),
+                    # 'lda-eigen': lda(solver='eigen'), 
+                    # NB
+                    'nb': nb(),
+                    # RF  
+                    'rf': rf(),
+                    # SVM  
+                    'svm-linear': svm(kernel='linear'), 
+                    'svm-rbf': svm(kernel='rbf'), 
+                    'svm-poly': svm(kernel='poly'),
+                    'svm-sigmoid': svm(kernel='sigmoid'),
+                    # Ensemble
                     'ensemble': VotingClassifier(
                         estimators=[
                             ('knn', knn()), 
@@ -119,4 +134,4 @@ if __name__ == "__main__":
                 logger.info(f"Classifier: {name}")
                 logger.info(f"training: {mean} +\- {std}")
                 mean, std = np.mean(test_accs), np.std(test_accs)
-                logger.info(f"test: {mean} +\- {std}")
+                logger.info(f"test: {mean} +\- {std}")#

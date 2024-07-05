@@ -39,12 +39,27 @@ if __name__ == "__main__":
         if is_classification:
             # The different models to try out.
             models = { 
-                'knn': knn(), 
+                # KNN
+                'knn-n2': knn(n_neighbors=2), 
+                'knn-n3': knn(n_neighbors=3), 
+                'knn-n5': knn(n_neighbors=5), 
+                'knn-n10': knn(n_neighbors=10), 
+                'knn-n20': knn(n_neighbors=20), 
                 'dt': dt(), 
-                'lda': lda(), 
+                # LDA
+                'lda-lsqr': lda(solver='lsqr'),
+                'lda-svd': lda(solver='svd'),
+                # 'lda-eigen': lda(solver='eigen'),
+                # NB
                 'nb': nb(), 
+                # RF
                 'rf': rf(), 
-                'svm': svm(kernel='linear'), 
+                # SVM
+                'svm-linear': svm(kernel='linear'), 
+                'svm-rbf': svm(kernel='rbf'), 
+                'svm-poly': svm(kernel='poly'),
+                'svm-sigmoid': svm(kernel='sigmoid'),
+                # Ensemble
                 'ensemble': VotingClassifier(
                     estimators=[
                         ('knn', knn()), 
