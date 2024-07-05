@@ -1,5 +1,5 @@
 INFO:__main__:Dataset: oil
-INFO:__main__:Reducer: umap
+INFO:__main__:Reducer: umap-n2
 INFO:data:Reading dataset fish: oil
 INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
  0.14285714]
@@ -8,26 +8,176 @@ INFO:data:Number of instances: 126
 INFO:data:Number of classes 7.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: knn
-INFO:__main__:training: 0.48337868480725626 +\- 0.03335909196480452
-INFO:__main__:test: 0.24761904761904757 +\- 0.06882833268499625
+INFO:__main__:training: 0.49299319727891155 +\- 0.030806213394649156
+INFO:__main__:test: 0.2027777777777778 +\- 0.06502247804061068
 INFO:__main__:Classifier: dt
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.27579365079365087 +\- 0.07016631611649235
-INFO:__main__:Classifier: lda
-INFO:__main__:training: 0.8340816326530611 +\- 0.030552398037942158
-INFO:__main__:test: 0.2738095238095238 +\- 0.0775791113542719
+INFO:__main__:test: 0.30039682539682544 +\- 0.08980974964483157
+INFO:__main__:Classifier: lda-lsqr
+INFO:__main__:training: 0.7489795918367346 +\- 0.026108036462494533
+INFO:__main__:test: 0.32222222222222224 +\- 0.08184229191426518
+INFO:__main__:Classifier: lda-svd
+INFO:__main__:training: 0.7489795918367346 +\- 0.026108036462494533
+INFO:__main__:test: 0.32222222222222224 +\- 0.08184229191426518
+INFO:__main__:Classifier: lda-eigen
+INFO:__main__:training: 0.7489795918367346 +\- 0.026108036462494533
+INFO:__main__:test: 0.32222222222222224 +\- 0.08184229191426518
 INFO:__main__:Classifier: nb
-INFO:__main__:training: 0.31054421768707474 +\- 0.021170748579842802
-INFO:__main__:test: 0.17936507936507934 +\- 0.06298907910639515
+INFO:__main__:training: 0.5418367346938774 +\- 0.025559740264653165
+INFO:__main__:test: 0.28214285714285714 +\- 0.06270469126690846
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.29325396825396827 +\- 0.07779093669054087
-INFO:__main__:Classifier: svm
-INFO:__main__:training: 0.346281179138322 +\- 0.035741802738479565
-INFO:__main__:test: 0.19325396825396826 +\- 0.06980180161855616
+INFO:__main__:test: 0.3138888888888889 +\- 0.08537650227280114
+INFO:__main__:Classifier: svm-linear
+INFO:__main__:training: 0.5879138321995465 +\- 0.01930717497505133
+INFO:__main__:test: 0.3253968253968254 +\- 0.0728906794205163
+INFO:__main__:Classifier: svm-rbf
+INFO:__main__:training: 0.5536734693877551 +\- 0.02101174703600763
+INFO:__main__:test: 0.28174603174603174 +\- 0.07993840536346353
+INFO:__main__:Classifier: svm-poly
+INFO:__main__:training: 0.5891609977324263 +\- 0.019399831806443453
+INFO:__main__:test: 0.31587301587301586 +\- 0.06597811466703468
+INFO:__main__:Classifier: svm-sigmoid
+INFO:__main__:training: 0.1612698412698413 +\- 0.015923728512996133
+INFO:__main__:test: 0.1507936507936508 +\- 0.03904245674999632
 INFO:__main__:Classifier: ensemble
-INFO:__main__:training: 0.8257369614512471 +\- 0.046611658254993575
-INFO:__main__:test: 0.27182539682539686 +\- 0.07592235395244289
+INFO:__main__:training: 0.8024263038548755 +\- 0.023527768154943323
+INFO:__main__:test: 0.3119047619047619 +\- 0.08238691601499036
+INFO:__main__:Dataset: oil
+INFO:__main__:Reducer: umap-n5
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
+ 0.14285714]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 126
+INFO:data:Number of classes 7.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.4857596371882087 +\- 0.04102551584019365
+INFO:__main__:test: 0.2476190476190476 +\- 0.07145502155776111
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.29365079365079366 +\- 0.0728906794205163
+INFO:__main__:Classifier: lda-lsqr
+INFO:__main__:training: 0.8296825396825398 +\- 0.024247022496971356
+INFO:__main__:test: 0.27301587301587305 +\- 0.09205664999205727
+INFO:__main__:Classifier: lda-svd
+INFO:__main__:training: 0.8300000000000001 +\- 0.02431047347825069
+INFO:__main__:test: 0.27301587301587305 +\- 0.09205664999205727
+INFO:__main__:Classifier: lda-eigen
+INFO:__main__:training: 0.8296825396825398 +\- 0.024247022496971356
+INFO:__main__:test: 0.27301587301587305 +\- 0.09205664999205727
+INFO:__main__:Classifier: nb
+INFO:__main__:training: 0.33764172335600906 +\- 0.032687214439183286
+INFO:__main__:test: 0.19801587301587303 +\- 0.07935416591631547
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.33333333333333337 +\- 0.06116777418411965
+INFO:__main__:Classifier: svm-linear
+INFO:__main__:training: 0.4188208616780046 +\- 0.030975587887996044
+INFO:__main__:test: 0.265079365079365 +\- 0.08161107676562074
+INFO:__main__:Classifier: svm-rbf
+INFO:__main__:training: 0.3051927437641723 +\- 0.03355311105946067
+INFO:__main__:test: 0.17658730158730157 +\- 0.07390440223825642
+INFO:__main__:Classifier: svm-poly
+INFO:__main__:training: 0.6266666666666666 +\- 0.023749454513579175
+INFO:__main__:test: 0.3476190476190475 +\- 0.07717616368979821
+INFO:__main__:Classifier: svm-sigmoid
+INFO:__main__:training: 0.14285714285714285 +\- 0.0
+INFO:__main__:test: 0.14285714285714285 +\- 0.0
+INFO:__main__:Classifier: ensemble
+INFO:__main__:training: 0.8435600907029477 +\- 0.04367696008730349
+INFO:__main__:test: 0.2801587301587301 +\- 0.08610653926858455
+INFO:__main__:Dataset: oil
+INFO:__main__:Reducer: umap-n10
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
+ 0.14285714]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 126
+INFO:data:Number of classes 7.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.48126984126984135 +\- 0.03392766164004304
+INFO:__main__:test: 0.25476190476190474 +\- 0.06553748934349121
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.23928571428571427 +\- 0.06841182373395842
+INFO:__main__:Classifier: lda-lsqr
+INFO:__main__:training: 0.8642857142857142 +\- 0.01890434453277586
+INFO:__main__:test: 0.28055555555555556 +\- 0.09537110421016716
+INFO:__main__:Classifier: lda-svd
+INFO:__main__:training: 0.8642857142857142 +\- 0.01890434453277586
+INFO:__main__:test: 0.28055555555555556 +\- 0.09537110421016716
+INFO:__main__:Classifier: lda-eigen
+INFO:__main__:training: 0.8642857142857142 +\- 0.01890434453277586
+INFO:__main__:test: 0.28055555555555556 +\- 0.09537110421016716
+INFO:__main__:Classifier: nb
+INFO:__main__:training: 0.3172789115646258 +\- 0.036919247499334736
+INFO:__main__:test: 0.15238095238095237 +\- 0.06730140011953605
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.2753968253968254 +\- 0.07349737716057286
+INFO:__main__:Classifier: svm-linear
+INFO:__main__:training: 0.3594557823129252 +\- 0.027290473174920102
+INFO:__main__:test: 0.20476190476190476 +\- 0.08011943088188714
+INFO:__main__:Classifier: svm-rbf
+INFO:__main__:training: 0.2678458049886621 +\- 0.03020843941788294
+INFO:__main__:test: 0.17222222222222222 +\- 0.06504063888427898
+INFO:__main__:Classifier: svm-poly
+INFO:__main__:training: 0.49190476190476196 +\- 0.038787184462115286
+INFO:__main__:test: 0.2920634920634921 +\- 0.08616138536807677
+INFO:__main__:Classifier: svm-sigmoid
+INFO:__main__:training: 0.14285714285714285 +\- 0.0
+INFO:__main__:test: 0.14285714285714285 +\- 0.0
+INFO:__main__:Classifier: ensemble
+INFO:__main__:training: 0.8547392290249431 +\- 0.04751778456709986
+INFO:__main__:test: 0.278968253968254 +\- 0.08965180678639727
+INFO:__main__:Dataset: oil
+INFO:__main__:Reducer: umap-n20
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
+ 0.14285714]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 126
+INFO:data:Number of classes 7.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.49147392290249436 +\- 0.03281034179648698
+INFO:__main__:test: 0.26626984126984127 +\- 0.07072960481103097
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.23293650793650789 +\- 0.0651821198087049
+INFO:__main__:Classifier: lda-lsqr
+INFO:__main__:training: 0.817936507936508 +\- 0.02793066353744373
+INFO:__main__:test: 0.28253968253968254 +\- 0.08126302054711242
+INFO:__main__:Classifier: lda-svd
+INFO:__main__:training: 0.817936507936508 +\- 0.02793066353744373
+INFO:__main__:test: 0.28253968253968254 +\- 0.08126302054711242
+INFO:__main__:Classifier: lda-eigen
+INFO:__main__:training: 0.817936507936508 +\- 0.02793066353744373
+INFO:__main__:test: 0.28253968253968254 +\- 0.08126302054711242
+INFO:__main__:Classifier: nb
+INFO:__main__:training: 0.3148526077097506 +\- 0.033796168189022154
+INFO:__main__:test: 0.21190476190476193 +\- 0.05827256309771627
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.2904761904761905 +\- 0.08199607313201222
+INFO:__main__:Classifier: svm-linear
+INFO:__main__:training: 0.33215419501133786 +\- 0.025454623250561574
+INFO:__main__:test: 0.2253968253968254 +\- 0.06768868908006476
+INFO:__main__:Classifier: svm-rbf
+INFO:__main__:training: 0.2470068027210884 +\- 0.02905876890947893
+INFO:__main__:test: 0.22777777777777777 +\- 0.05321604639441336
+INFO:__main__:Classifier: svm-poly
+INFO:__main__:training: 0.423061224489796 +\- 0.027263186695995534
+INFO:__main__:test: 0.2674603174603174 +\- 0.0738180571957376
+INFO:__main__:Classifier: svm-sigmoid
+INFO:__main__:training: 0.14476190476190479 +\- 0.009331389496316874
+INFO:__main__:test: 0.14603174603174607 +\- 0.011878277418329973
+INFO:__main__:Classifier: ensemble
+INFO:__main__:training: 0.8186394557823127 +\- 0.03978965782102486
+INFO:__main__:test: 0.2765873015873016 +\- 0.06822743116456677
 INFO:__main__:Dataset: oil
 INFO:__main__:Reducer: tsne
 INFO:data:Reading dataset fish: oil
@@ -38,26 +188,41 @@ INFO:data:Number of instances: 126
 INFO:data:Number of classes 7.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: knn
-INFO:__main__:training: 0.5696825396825397 +\- 0.04302263814921893
-INFO:__main__:test: 0.29047619047619044 +\- 0.09006800152084637
+INFO:__main__:training: 0.4912698412698413 +\- 0.03539903334334927
+INFO:__main__:test: 0.23571428571428568 +\- 0.047160490529351055
 INFO:__main__:Classifier: dt
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.21428571428571427 +\- 0.072152416989314
-INFO:__main__:Classifier: lda
-INFO:__main__:training: 0.9117233560090703 +\- 0.020823945468400402
-INFO:__main__:test: 0.2257936507936508 +\- 0.06325476488713863
+INFO:__main__:test: 0.20912698412698416 +\- 0.0755230772531338
+INFO:__main__:Classifier: lda-lsqr
+INFO:__main__:training: 0.903219954648526 +\- 0.025043460046895873
+INFO:__main__:test: 0.20476190476190478 +\- 0.08181150098318507
+INFO:__main__:Classifier: lda-svd
+INFO:__main__:training: 0.903219954648526 +\- 0.025043460046895873
+INFO:__main__:test: 0.2035714285714286 +\- 0.08140338884713233
+INFO:__main__:Classifier: lda-eigen
+INFO:__main__:training: 0.903219954648526 +\- 0.025043460046895873
+INFO:__main__:test: 0.20476190476190478 +\- 0.08181150098318507
 INFO:__main__:Classifier: nb
-INFO:__main__:training: 0.7259183673469388 +\- 0.03048922117762708
-INFO:__main__:test: 0.2797619047619047 +\- 0.08382789751697464
+INFO:__main__:training: 0.6980952380952379 +\- 0.021941209940693592
+INFO:__main__:test: 0.2702380952380952 +\- 0.06434080531843646
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.2587301587301587 +\- 0.0620064285226178
-INFO:__main__:Classifier: svm
+INFO:__main__:test: 0.296031746031746 +\- 0.090389125471637
+INFO:__main__:Classifier: svm-linear
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.23174603174603176 +\- 0.06739492629044962
+INFO:__main__:test: 0.22857142857142856 +\- 0.08979484469914019
+INFO:__main__:Classifier: svm-rbf
+INFO:__main__:training: 0.8244444444444446 +\- 0.03391911288811251
+INFO:__main__:test: 0.2742063492063492 +\- 0.07424877829538525
+INFO:__main__:Classifier: svm-poly
+INFO:__main__:training: 0.828888888888889 +\- 0.05572302953803432
+INFO:__main__:test: 0.19563492063492063 +\- 0.07762071118417241
+INFO:__main__:Classifier: svm-sigmoid
+INFO:__main__:training: 0.43575963718820865 +\- 0.0392687267149727
+INFO:__main__:test: 0.21468253968253967 +\- 0.062352117815836286
 INFO:__main__:Classifier: ensemble
-INFO:__main__:training: 0.991655328798186 +\- 0.0074290642426494925
-INFO:__main__:test: 0.29325396825396827 +\- 0.08094557238719392
+INFO:__main__:training: 0.9970068027210884 +\- 0.005279893309369309
+INFO:__main__:test: 0.2916666666666667 +\- 0.07489915114355902
 INFO:__main__:Dataset: oil
 INFO:__main__:Reducer: pca
 INFO:data:Reading dataset fish: oil
@@ -68,23 +233,38 @@ INFO:data:Number of instances: 126
 INFO:data:Number of classes 7.
 INFO:__main__:Running 30 experiments
 INFO:__main__:Classifier: knn
-INFO:__main__:training: 0.4771201814058957 +\- 0.0279279019786282
-INFO:__main__:test: 0.25396825396825395 +\- 0.0811699534955276
+INFO:__main__:training: 0.474172335600907 +\- 0.027306794314401747
+INFO:__main__:test: 0.25873015873015875 +\- 0.0799147631077002
 INFO:__main__:Classifier: dt
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.17261904761904762 +\- 0.0667622613943331
-INFO:__main__:Classifier: lda
-INFO:__main__:training: 0.8792063492063491 +\- 0.03132340156537673
-INFO:__main__:test: 0.26865079365079364 +\- 0.08354187813225442
+INFO:__main__:test: 0.17579365079365075 +\- 0.07438862258821528
+INFO:__main__:Classifier: lda-lsqr
+INFO:__main__:training: 0.8836507936507937 +\- 0.030644721162289675
+INFO:__main__:test: 0.2753968253968254 +\- 0.07167505971349611
+INFO:__main__:Classifier: lda-svd
+INFO:__main__:training: 0.8836507936507937 +\- 0.030644721162289675
+INFO:__main__:test: 0.2753968253968254 +\- 0.07167505971349611
+INFO:__main__:Classifier: lda-eigen
+INFO:__main__:training: 0.8836507936507937 +\- 0.030644721162289675
+INFO:__main__:test: 0.2753968253968254 +\- 0.07167505971349611
 INFO:__main__:Classifier: nb
-INFO:__main__:training: 0.8526077097505669 +\- 0.017144416778685435
-INFO:__main__:test: 0.2035714285714286 +\- 0.07581442414568083
+INFO:__main__:training: 0.862018140589569 +\- 0.01822408505900315
+INFO:__main__:test: 0.23849206349206348 +\- 0.08307689189688162
 INFO:__main__:Classifier: rf
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.2329365079365079 +\- 0.07186923155946742
-INFO:__main__:Classifier: svm
+INFO:__main__:test: 0.24484126984126983 +\- 0.09352038943519674
+INFO:__main__:Classifier: svm-linear
 INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.27738095238095234 +\- 0.07598869610011887
+INFO:__main__:test: 0.2801587301587301 +\- 0.06676108204702569
+INFO:__main__:Classifier: svm-rbf
+INFO:__main__:training: 0.7097505668934242 +\- 0.028223414103459733
+INFO:__main__:test: 0.25079365079365074 +\- 0.07227888933350775
+INFO:__main__:Classifier: svm-poly
+INFO:__main__:training: 0.527891156462585 +\- 0.024792162122290778
+INFO:__main__:test: 0.24166666666666667 +\- 0.04056363104143053
+INFO:__main__:Classifier: svm-sigmoid
+INFO:__main__:training: 0.31632653061224486 +\- 0.03656423034116106
+INFO:__main__:test: 0.17222222222222222 +\- 0.06504063888427898
 INFO:__main__:Classifier: ensemble
-INFO:__main__:training: 0.9886848072562358 +\- 0.008048097913756495
-INFO:__main__:test: 0.2742063492063492 +\- 0.07875659598366822
+INFO:__main__:training: 0.9890249433106575 +\- 0.007533806722759209
+INFO:__main__:test: 0.275 +\- 0.06530280072334513
