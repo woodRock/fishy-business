@@ -18,11 +18,13 @@ if __name__ == "__main__":
                         help="The fish species or part dataset. Defaults to species")
     parser.add_argument('-f', '--folder', type=str, default="tmp",
                         help="The folder to get the results from. Defaults to tmp")
+    parser.add_argument('-v', '--verbose',
+                    action='store_true', default=False,
+                    help="Flag for verbose output in logging. Defaults to False.") 
     args = vars(parser.parse_args())
 
     # Set verbose to true for debugging.
-    verbose = False 
-
+    verbose = args['verbose']
     # Select the dataset to process results for.
     datasets = ["species", "part", "oil", "cross-species"]
     dataset = args['dataset'] # Part
@@ -38,8 +40,9 @@ if __name__ == "__main__":
     test_accs = []
 
     # Skip the print tree statements.
-    skip = {'species': 2, 'part': 6, 'oil': 2, 'cross-species': 3}
+    skip = {'species': 2, 'part': 6, 'oil': 7, 'oil_simple': 2, 'cross-species': 3}
     skip_amount = skip[dataset]
+    # skip_amount = 0
 
     runs = len(os.listdir(folder))
 

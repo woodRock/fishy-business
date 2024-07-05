@@ -42,10 +42,12 @@ def plot_tsne(
         # Labels for the graph legend are provided for each task.
         labels = []
         if dataset == "species":
-            labels = ['Hoki', 'Mackerl']
+            labels = ['Hoki', 'Mackerel']
         elif dataset == "part":
             labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
-        elif dataset == "oil":
+        elif dataset == "oil": 
+            labels =  ['MO 50', 'MO 25','MO 10','MO 05','MO 01','MO 0.1','MO 0']
+        elif dataset == "oil_simple":
             labels = ["Oil", "None"]
         elif dataset == "cross-species": 
             labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']

@@ -53,6 +53,16 @@ def load_dataset(
                     else (5 if 'Frames' in x
                     else None )))))  # For fish parts
     elif dataset == "oil":
+        y = data['m/z'].apply(lambda x:
+                          0 if 'MO 50' in x
+                    else (1 if 'MO 25' in x
+                    else (2 if 'MO 10' in x
+                    else (3 if 'MO 05' in x
+                    else (4 if 'MO 01' in x
+                    else (5 if 'MO 0.1' in x
+                    else (6 if 'MO 0' in x
+                    else None )))))))
+    elif dataset == "oil_simple":
         # Binary encodings for class labels (1 for Oil, 0 for No Oil)
         # Oil contaminated samples contain 'MO' in their class label.
         y = data['m/z'].apply(lambda x: 1 if 'MO' in x else 0)

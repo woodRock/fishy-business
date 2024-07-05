@@ -18,10 +18,10 @@ need sgegrid
 # Change directory to desktop fishy-business
 cd ~/Desktop/fishy-business/code/gp
 
-DATASET="part"; 
+DATASET="oil"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp_3";
+NAME="tmp";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -37,5 +37,5 @@ i=$SGE_TASK_ID
 python3 main.py \
     --dataset "${DATASET}" \
     --file-path "checkpoints/run_${i}.pth" \
-    --output "logs/${DATASET}/${NAME}/run" --run $i \
+    --output "logs/${DATASET}/${NAME}/run" --run "${i}" \
     --generations 400 --beta 1;
