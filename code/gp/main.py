@@ -78,10 +78,12 @@ if __name__ == "__main__":
     
     n_features = 1023
     n_classes = 2
-    if dataset == "species" or dataset == "oil":
+    if dataset == "species" or dataset == "oil_simple":
         n_classes = 2 
     elif dataset == "part":
         n_classes = 6
+    elif dataset == "oil":
+        n_classes = 7
     elif dataset == "cross-species":
         n_classes = 3
         
