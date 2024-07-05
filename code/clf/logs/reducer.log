@@ -1,0 +1,90 @@
+INFO:__main__:Dataset: oil
+INFO:__main__:Reducer: umap
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
+ 0.14285714]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 126
+INFO:data:Number of classes 7.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.48337868480725626 +\- 0.03335909196480452
+INFO:__main__:test: 0.24761904761904757 +\- 0.06882833268499625
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.27579365079365087 +\- 0.07016631611649235
+INFO:__main__:Classifier: lda
+INFO:__main__:training: 0.8340816326530611 +\- 0.030552398037942158
+INFO:__main__:test: 0.2738095238095238 +\- 0.0775791113542719
+INFO:__main__:Classifier: nb
+INFO:__main__:training: 0.31054421768707474 +\- 0.021170748579842802
+INFO:__main__:test: 0.17936507936507934 +\- 0.06298907910639515
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.29325396825396827 +\- 0.07779093669054087
+INFO:__main__:Classifier: svm
+INFO:__main__:training: 0.346281179138322 +\- 0.035741802738479565
+INFO:__main__:test: 0.19325396825396826 +\- 0.06980180161855616
+INFO:__main__:Classifier: ensemble
+INFO:__main__:training: 0.8257369614512471 +\- 0.046611658254993575
+INFO:__main__:test: 0.27182539682539686 +\- 0.07592235395244289
+INFO:__main__:Dataset: oil
+INFO:__main__:Reducer: tsne
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
+ 0.14285714]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 126
+INFO:data:Number of classes 7.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.5696825396825397 +\- 0.04302263814921893
+INFO:__main__:test: 0.29047619047619044 +\- 0.09006800152084637
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.21428571428571427 +\- 0.072152416989314
+INFO:__main__:Classifier: lda
+INFO:__main__:training: 0.9117233560090703 +\- 0.020823945468400402
+INFO:__main__:test: 0.2257936507936508 +\- 0.06325476488713863
+INFO:__main__:Classifier: nb
+INFO:__main__:training: 0.7259183673469388 +\- 0.03048922117762708
+INFO:__main__:test: 0.2797619047619047 +\- 0.08382789751697464
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.2587301587301587 +\- 0.0620064285226178
+INFO:__main__:Classifier: svm
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.23174603174603176 +\- 0.06739492629044962
+INFO:__main__:Classifier: ensemble
+INFO:__main__:training: 0.991655328798186 +\- 0.0074290642426494925
+INFO:__main__:test: 0.29325396825396827 +\- 0.08094557238719392
+INFO:__main__:Dataset: oil
+INFO:__main__:Reducer: pca
+INFO:data:Reading dataset fish: oil
+INFO:data:Class Counts: [18 18 18 18 18 18 18], Class Ratios: [0.14285714 0.14285714 0.14285714 0.14285714 0.14285714 0.14285714
+ 0.14285714]
+INFO:data:Number of features: 1023
+INFO:data:Number of instances: 126
+INFO:data:Number of classes 7.
+INFO:__main__:Running 30 experiments
+INFO:__main__:Classifier: knn
+INFO:__main__:training: 0.4771201814058957 +\- 0.0279279019786282
+INFO:__main__:test: 0.25396825396825395 +\- 0.0811699534955276
+INFO:__main__:Classifier: dt
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.17261904761904762 +\- 0.0667622613943331
+INFO:__main__:Classifier: lda
+INFO:__main__:training: 0.8792063492063491 +\- 0.03132340156537673
+INFO:__main__:test: 0.26865079365079364 +\- 0.08354187813225442
+INFO:__main__:Classifier: nb
+INFO:__main__:training: 0.8526077097505669 +\- 0.017144416778685435
+INFO:__main__:test: 0.2035714285714286 +\- 0.07581442414568083
+INFO:__main__:Classifier: rf
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.2329365079365079 +\- 0.07186923155946742
+INFO:__main__:Classifier: svm
+INFO:__main__:training: 1.0 +\- 0.0
+INFO:__main__:test: 0.27738095238095234 +\- 0.07598869610011887
+INFO:__main__:Classifier: ensemble
+INFO:__main__:training: 0.9886848072562358 +\- 0.008048097913756495
+INFO:__main__:test: 0.2742063492063492 +\- 0.07875659598366822
