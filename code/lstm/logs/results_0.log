@@ -1,0 +1,4 @@
+INFO:__main__:Epoch [1/1000], Training Loss: 0.6977, Training Accuracy: 0.4651
+INFO:__main__:Epoch [1/1000], Validation Loss: 0.6931, Validation Accuracy: 0.5455
+INFO:__main__:Epoch [101/1000], Training Loss: 0.6944, Training Accuracy: 0.5581
+INFO:__main__:Epoch [101/1000], Validation Loss: 0.6895, Validation Accuracy: 0.5455

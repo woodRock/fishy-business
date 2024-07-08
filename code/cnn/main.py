@@ -85,7 +85,10 @@ if __name__ == "__main__":
     batch_size = args['batch_size']
     input_size = 1023
     num_classes_per_dataset = {'species': 2, 'part': 6, 'oil_simple': 2, 'oil': 7, 'cross-species': 3}
+    if dataset not in num_classes_per_dataset.keys():
+        raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
     num_classes = num_classes_per_dataset[dataset]
+
 
     # Load the dataset.
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
