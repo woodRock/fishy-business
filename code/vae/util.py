@@ -3,9 +3,7 @@ import os
 from tqdm import tqdm
 import torch
 import numpy as np
-import pandas as pd
-from scipy import stats, signal
-from sklearn.decomposition import PCA
+import pandas as pd 
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
@@ -273,89 +271,22 @@ def train_test_split_to_data_loader(
     # Step 4: Create PyTorch DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-    return train_loader, val_loader
 
-def fft_transform(
-            spectrum: Iterable
-    ) -> Iterable:
-        """Fast fourier transformm
-        
-        Transform the data into the frequency domain.
+    # calculate steps per epoch for training and validation set
+    train_steps = len(train_loader.dataset) // batch_size
+    val_steps = len(val_loader.dataset) // batch_size
+    # when batch_size greater than dataset size, avoid division by zero.
+    train_steps = max(1, train_steps)
+    val_steps = max(1, val_steps)
+    return train_loader, val_loader, train_steps, val_steps
 
-        Args: 
-            spectrum (Iterable): the features to be transformerd.
-
-        Returns:
-            spectrum (Iterable): the transformed features.
-        """
-        return np.abs(np.fft.fft(spectrum))[:len(spectrum)//2]
-    
-
-def extract_features(
-        spectrum: Iterable
-    ) -> Iterable:
-        """Feature Extraction: 
-        
-        Instead of using raw spectra, you could extract relevant features:
-
-        Args: 
-            spectrum (Iterable): the input features.
-
-        Returns:
-            spectrum (Iterable): the extracted features.
-        """
-        return [
-            np.mean(spectrum),
-            np.std(spectrum),
-            np.max(spectrum),
-            np.min(spectrum),
-            np.median(spectrum),
-            stats.skew(spectrum),
-            stats.kurtosis(spectrum),
-            np.sum(spectrum),
-            np.argmax(spectrum),
-            np.argmin(spectrum),
-            # Add more relevant features...
-        ]    
-    
-def append_extracted_features(
-            spectra: Iterable
-    ) -> Iterable:
-        """Appends the extracted features to the orginal dataset.
-
-        Args: 
-            spectrum (Iterable): the feature set to extract features from.
-
-        Returns: 
-            spectrum (Iterable): the original features combined with the extracted features.
-        """
-        processed_spectra = []
-        additional_features = [extract_features(spectrum) for spectrum in spectra]
-        processed_spectra = np.concatenate((spectra, additional_features), axis=1)
-        return np.array(processed_spectra)
-
-
-def resample_spectrum(
-        spectrum: Iterable, 
-        new_size: int = 512
-    ) -> Iterable:
-    """Downsampling or Upsampling:
-    
-    If your input spectra have 1023 points, you might try reducing or increasing this number. For example: 
-    
-    Args: 
-        spectrum (Iterable): the original input features.
-        new_size (int): the new size to downsample the features to.
-    """
-    return signal.resample(spectrum, new_size)
     
 def preprocess_dataset(
         dataset: str ="species", 
-        is_data_augmentation: bool = True,
-        is_pca: bool = False, 
+        is_data_augmentation: bool = True, 
         batch_size: int = 64,
         is_pre_train = False
-    ) -> Union[DataLoader, DataLoader, DataLoader, int, int, pd.DataFrame]:
+    ) -> Union[DataLoader, DataLoader]:
     """Preprocess the dataset for the downstream task of pre-training.
     
     If pre-training, include quality control, mixed species, and oil contaminated instances.
@@ -383,27 +314,10 @@ def preprocess_dataset(
     y = one_hot_encoded_labels(dataset=dataset, data=data)
     X = data.drop('m/z', axis=1)
     X,y = remove_instances_with_none_labels(X,y)
-
-    # Dimensionality reduction using PCA
-    if is_pca: 
-        pca = PCA(n_components=100)  # Adjust the number of components
-        X = pca.fit_transform(X)
-
-    # Downsample features
-    new_size = 800
-    X = [resample_spectrum(spectrum, new_size) for spectrum in X]
-
-    # Fourier transform.
-    X = [fft_transform(spectra) for spectra in X]
-
-    # Extract and append global features.
-    X = append_extracted_features(X)
-
-    train_loader, val_loader = train_test_split_to_data_loader(
+    train_loader, val_loader, train_steps, val_steps = train_test_split_to_data_loader(
         X,
         y,
         is_data_augmentation=is_data_augmentation,
         batch_size=batch_size
     )
-
     return train_loader, val_loader
