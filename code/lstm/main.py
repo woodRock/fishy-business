@@ -198,8 +198,8 @@ class FocalLoss(nn.Module):
 if __name__ == "__main__":
     # Handle the command line arguments for the script.
     parser = argparse.ArgumentParser(
-                    prog='Transformer',
-                    description='A transformer for fish species classification.',
+                    prog='Long-short Term Memory (LSTM) Recurrent neural network',
+                    description='An LSTM for fish species classification.',
                     epilog='Implemented in pytorch and written in python.')
     parser.add_argument('-f', '--file-path', type=str, default="transformer_checkpoint",
                         help="Filepath to store the model checkpoints to. Defaults to transformer_checkpoint")
