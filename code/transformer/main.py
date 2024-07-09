@@ -82,7 +82,6 @@ if __name__ == "__main__":
     hidden_dim = 128 
     learning_rate = args['learning_rate']
     batch_size = args['batch_size']
-    is_decoder_only = False
 
     logger.info(f"Reading the dataset: fish {dataset}")
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
@@ -276,8 +275,7 @@ if __name__ == "__main__":
     attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
     plot_attention_map("encoder", attention_weights, columns, columns)
     
-    if not is_decoder_only:
-        # Last self-attention layer of the decoder.
-        attention_weights = model.decoder.layers[-1].self_attention.fc_out.weight
-        attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
-        plot_attention_map("decoder", attention_weights, columns, columns)
+    # Last self-attention layer of the decoder.
+    attention_weights = model.decoder.layers[-1].self_attention.fc_out.weight
+    attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
+    plot_attention_map("decoder", attention_weights, columns, columns)
