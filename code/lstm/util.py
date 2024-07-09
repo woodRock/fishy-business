@@ -383,27 +383,10 @@ def preprocess_dataset(
     y = one_hot_encoded_labels(dataset=dataset, data=data)
     X = data.drop('m/z', axis=1)
     X,y = remove_instances_with_none_labels(X,y)
-
-    # Dimensionality reduction using PCA
-    if is_pca: 
-        pca = PCA(n_components=100)  # Adjust the number of components
-        X = pca.fit_transform(X)
-
-    # Downsample features
-    new_size = 800
-    X = [resample_spectrum(spectrum, new_size) for spectrum in X]
-
-    # Fourier transform.
-    X = [fft_transform(spectra) for spectra in X]
-
-    # Extract and append global features.
-    X = append_extracted_features(X)
-
     train_loader, val_loader = train_test_split_to_data_loader(
         X,
         y,
         is_data_augmentation=is_data_augmentation,
         batch_size=batch_size
     )
-
     return train_loader, val_loader
