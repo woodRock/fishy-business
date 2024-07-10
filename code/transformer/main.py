@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra, pre_train_transfer_learning
 from transformer import Transformer 
-from util import EarlyStopping, preprocess_dataset
+from util import preprocess_dataset
 from train import train_model, evaluate_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
 
@@ -104,36 +104,28 @@ if __name__ == "__main__":
         criterion = nn.MSELoss()
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 
-        # Early stopping (Morgan 1989)
-        if is_early_stopping:
-            early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
-
         logger.info("Pre-training the network: Masked Spectra Modelling")
         startTime = time.time()
 
         # Pre-training (Devlin 2018)
-        model = pre_train_masked_spectra(model, num_epochs=num_epochs,  train_loader=train_loader, val_loader=val_loader,device=device,criterion=criterion,optimizer=optimizer,file_path=file_path)
+        model = pre_train_masked_spectra(
+            model, 
+            num_epochs=num_epochs,  
+            train_loader=train_loader, 
+            val_loader=val_loader,
+            device=device,
+            criterion=criterion,
+            optimizer=optimizer,
+            file_path=file_path
+        )
 
         # finish measuring how long training took
         endTime = time.time()
         logger.info("Total time taken to pre-train the model: {:.2f}s".format(endTime - startTime))
-        
-        if is_early_stopping:
-            # Early stopping (Morgan 1989)
-            # If the model stopped early.
-            if early_stopping.early_stop:
-                # Load the checkpoint
-                checkpoint = torch.load(file_path)
-                # Load model parameters with best validation accuracy.
-                model.load_state_dict(checkpoint, strict=False)
 
     output_dim = 2 # Onehot encoded, same or not.
 
     if is_next_spectra:
-        # Early stopping (Morgan 1989)
-        if is_early_stopping:
-            early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
-
         # Initialize the model, criterion, and optimizer
         model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
         logger.info(f"model: {model}")
@@ -170,15 +162,6 @@ if __name__ == "__main__":
         endTime = time.time()
         logger.info("Total time taken to pre-train the model: {:.2f}s".format(endTime - startTime))
 
-        # Early stopping (Morgan 1989)
-        if is_early_stopping:
-            # If the model stopped early.
-            if early_stopping.early_stop:
-                # Load the checkpoint
-                checkpoint = torch.load(file_path)
-                # Load model parameters with best validation accuracy.
-                model.load_state_dict(checkpoint, strict=False)
-
     # Load the dataset with quality control and other unrelated instances removed.
     # train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
@@ -199,12 +182,6 @@ if __name__ == "__main__":
         output_dim = 3 # ['Hoki, 'Mackerel', 'Hoki-Mackerel']
     else:
         raise ValueError(f"Not a valid dataset: {dataset}")
-
-    # Early stopping (Morgan 1989)
-    if is_early_stopping:
-        # early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
-        # patience = num_epochs, stores best run, but doesn't stop training early.
-        early_stopping = EarlyStopping(patience=patience, delta=0.001, path=file_path)
 
     # Initialize the model, criterion, and optimizer
     model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
@@ -236,7 +213,7 @@ if __name__ == "__main__":
         num_epochs=100, 
         patience=10
     )
-
+    
     # finish measuring how long training took
     endTime = time.time()
     logger.info("Total time taken to train the model: {:.2f}s".format(endTime - startTime))
