@@ -4,43 +4,10 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from util import preprocess_dataset
-
-
-class LSTM(nn.Module):
-    def __init__(self, input_size=1023, hidden_size=128, num_layers=2, output_size=2):
-        super(LSTM, self).__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        
-        # LSTM layer
-        self.lstm = nn.LSTM(input_size=input_size, 
-                            hidden_size=hidden_size,
-                            num_layers=num_layers, 
-                            batch_first=True)
-        
-        # Fully connected layer
-        self.fc = nn.Linear(hidden_size, output_size)
-        
-    def forward(self, x):
-        # x shape: (batch_size, sequence_length, input_size)
-        # Initialize hidden state with zeros
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
-        
-        # Initialize cell state
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
-        
-        # We need to unsqueeze the input to add a sequence dimension
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
-        
-        # Forward propagate LSTM
-        out, _ = self.lstm(x, (h0, c0))  # out: tensor of shape (batch_size, seq_length, hidden_size)
-        
-        # Decode the hidden state of the last time step
-        out = self.fc(out[:, -1, :])
-        return out
-
+from lstm_with_attention import LSTM
+from train import train_model
 
 # Handle the command line arguments for the script.
 parser = argparse.ArgumentParser(
@@ -114,88 +81,12 @@ if dataset not in num_classes_per_dataset.keys():
     raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
 output_size = num_classes_per_dataset[dataset]
 
-
-def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=100, patience=10):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-
-    best_val_acc = float('-inf')
-    epochs_without_improvement = 0
-    best_model = None
-
-    for epoch in (pbar := tqdm(range(num_epochs), desc="Training")):
-        model.train()
-        train_loss = 0.0
-        train_correct = 0
-        train_total = 0
-
-        for inputs, labels in train_loader:
-            inputs, labels = inputs.to(device), labels.to(device)
-            
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-
-            train_loss += loss.item() * inputs.size(0)
-            _, predicted = outputs.max(1)
-            _, actual = labels.max(1)
-            train_correct += predicted.eq(actual).sum().item()
-            train_total += labels.size(0)
-
-        train_loss /= len(train_loader.dataset)
-        train_acc = train_correct / train_total
-
-        # Validation
-        model.eval()
-        val_loss = 0.0
-        val_correct = 0
-        val_total = 0
-
-        with torch.no_grad():
-            for inputs, labels in val_loader:
-                inputs, labels = inputs.to(device), labels.to(device)
-                outputs = model(inputs)
-                loss = criterion(outputs, labels)
-
-                val_loss += loss.item() * inputs.size(0)
-                _, predicted = outputs.max(1)
-                _, actual = labels.max(1)
-                val_correct += predicted.eq(actual).sum().item()
-                val_total += labels.size(0)
-
-        val_loss /= len(val_loader.dataset)
-        val_acc = val_correct / val_total
-
-        message = f'Epoch {epoch+1}/{num_epochs} \tTrain Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}\t Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}'
-        pbar.set_description(message)
-        logger.info(message)
-
-        # Early stopping
-        if train_acc == 1:
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                epochs_without_improvement = 0
-                best_model = model.state_dict()
-            else:
-                epochs_without_improvement += 1
-                if epochs_without_improvement >= patience:
-                    message = f'Early stopping triggered after {epoch + 1} epochs'
-                    logger.info(message)
-                    print(message)
-                    print(f"Validation accuracy: {best_val_acc}")
-                    break
-
-    if best_model is not None:
-        model.load_state_dict(best_model)
-    return model
-
 model = LSTM(
     input_size=1023,
-    hidden_size=128,
-    num_layers=2,
-    output_size=output_size
+    hidden_size=args['hidden_dimension'],
+    num_layers=args['num_layers'],
+    output_size=output_size,
+    dropout=args['dropout']
 )
 
 # Specify the device (GPU or CPU)
