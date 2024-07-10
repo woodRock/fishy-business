@@ -353,6 +353,7 @@ def preprocess_dataset(
         dataset: str ="species", 
         is_data_augmentation: bool = True,
         is_pca: bool = False, 
+        is_fft: bool = False,
         batch_size: int = 64,
         is_pre_train = False
     ) -> Union[DataLoader, DataLoader, DataLoader, int, int, pd.DataFrame]:
@@ -383,6 +384,11 @@ def preprocess_dataset(
     y = one_hot_encoded_labels(dataset=dataset, data=data)
     X = data.drop('m/z', axis=1)
     X,y = remove_instances_with_none_labels(X,y)
+    if is_pca:
+        pca = PCA(n_components=50)
+        X = pca.fit_transform(X)
+    if is_fft:
+        X = [fft_transform(x) for x in X]
     train_loader, val_loader = train_test_split_to_data_loader(
         X,
         y,
