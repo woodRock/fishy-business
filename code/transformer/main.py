@@ -7,7 +7,7 @@ import torch.optim as optim
 from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra, pre_train_transfer_learning
 from transformer import Transformer 
 from util import EarlyStopping, preprocess_dataset
-from train import train_model, transfer_learning
+from train import train_model, evaluate_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
 
 
@@ -227,47 +227,28 @@ if __name__ == "__main__":
     startTime = time.time()
     
     # Train the model
-    train_losses, train_accuracies, val_losses, val_accuracies = train_model(
+    model = train_model(
         model, 
-        num_epochs=num_epochs, 
-        train_loader=train_loader, 
-        val_loader=val_loader, 
-        criterion=criterion, 
-        optimizer=optimizer, 
-        device=device,
-        is_early_stopping=True,
-        early_stopping=early_stopping
+        train_loader, 
+        val_loader, 
+        criterion,
+        optimizer, 
+        num_epochs=100, 
+        patience=10
     )
+
     # finish measuring how long training took
     endTime = time.time()
     logger.info("Total time taken to train the model: {:.2f}s".format(endTime - startTime))
 
-    if is_early_stopping:
-        # Early stopping (Morgan 1989)
-        # If the model stopped early.
-        if early_stopping.early_stop:
-            # Load the checkpoint
-            checkpoint = torch.load(file_path)
-            # Load model parameters with best validation loss.
-            model.load_state_dict(checkpoint, strict=False)
-
-    model.eval()
-    # switch off autograd
-    with torch.no_grad():
-        # loop over the test set
-        datasets = [("train", train_loader), ("validation", val_loader)]
-        for name, dataset_x_y in datasets:
-            startTime = time.time()
-            # finish measuring how long training too
-            for (x,y) in dataset_x_y:
-                (x,y) = (x.to(device), y.to(device))
-                pred = model(x, x, src_mask=None)
-                test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
-                accuracy = test_correct / len(x)
-                logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
-                plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
-            endTime = time.time()
-            logger.info(f"Total time taken evaluate on {name} set the model: {(endTime - startTime):.2f}s")
+    evaluate_model(
+        model=model, 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        dataset=dataset, 
+        device=device
+    )
+    
     i = 10
     columns = data.axes[1][1:(i+1)].tolist()
     # First self-attention layer of the encoder.
