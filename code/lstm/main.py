@@ -80,7 +80,7 @@ if dataset not in num_classes_per_dataset.keys():
 output_size = num_classes_per_dataset[dataset]
 
 model = LSTM(
-    input_size=1023,
+    input_size=input_size,
     hidden_size=args['hidden_dimension'],
     num_layers=args['num_layers'],
     output_size=output_size,
@@ -101,6 +101,7 @@ train_loader, val_loader = preprocess_dataset(
     is_data_augmentation=False,
     batch_size=64,
     is_pca=False,
+    is_fft=False,
     is_pre_train=False)
 
 # Modify the train_model call to include the early stopping patience

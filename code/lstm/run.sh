@@ -7,7 +7,7 @@
 DATASET="species"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp";
+NAME="pca";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
