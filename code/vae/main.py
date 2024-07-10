@@ -8,6 +8,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from util import preprocess_dataset
 from train import train, encode_and_classify, evaluate_classification, generate
+from vae import VAE
 
 
 if __name__ == "__main__":
@@ -75,11 +76,13 @@ if __name__ == "__main__":
     # Pretraining
     # is_next_spectra = args['next_spectra_prediction'] # @param {type:"boolean"}
     # is_masked_spectra = args['masked_spectra_modelling'] # @param {type:"boolean"}
+    
     # Regularization
     is_early_stopping = args['early_stopping'] is not None # @param {type:"boolean"}
     patience = args['early_stopping']
     dropout = args['dropout']
     label_smoothing = args['label_smoothing']
+
     # Hyperparameters
     num_epochs = args['epochs']
     input_dim = 1023
@@ -92,7 +95,12 @@ if __name__ == "__main__":
     num_classes = num_classes_per_dataset[dataset]
 
     # Instantiate the model and move it to GPU
-    model = MassSpecVAEClassifier(input_size=1023, latent_dim=64, num_classes=num_classes)
+    model = VAE(
+        input_size=1023, 
+        latent_dim=64, 
+        num_classes=num_classes
+    )
+
     # Check if CUDA is available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -110,10 +118,25 @@ if __name__ == "__main__":
 
     # Example usage:
     # Assuming you have a DataLoader called 'train_loader'
-    train(model, train_loader, num_epochs=num_epochs)
+    model = train(
+        model, 
+        train_loader=train_loader,
+        val_loader=val_loader,
+        num_epochs=num_epochs,
+        device=device, 
+        optimizer=optimizer,
+        alpha=0.1,
+        beta=0.9
+    )
 
     # To generate new samples:
-    new_samples = generate(model, num_samples=10, target_class=0)
+    new_samples = generate(
+        model=model, 
+        num_samples=10, 
+        target_class=0,
+        device=device
+    )
+
     first = new_samples[0]
     plt.plot(first)
     plt.title("Generated Mass Spectrum")
@@ -131,9 +154,26 @@ if __name__ == "__main__":
 
     # To get encoded representation of a single spectrum:
     your_spectra_here = first.unsqueeze(0).to(device)
-    encoded_spectrum, class_probs = encode_and_classify(model, your_spectra_here)
+    encoded_spectrum, class_probs = encode_and_classify(
+        model=model, 
+        data=your_spectra_here, 
+        device=device
+    )
+
     print(f"encoded_spectrum: {encoded_spectrum} \n class_probs: {class_probs}")
 
     # Assuming you have a DataLoader called 'train_loader'
-    evaluate_classification(model, train_loader, dataset="training")
-    evaluate_classification(model, val_loader, dataset="validation")
+    evaluate_classification(
+        model, 
+        train_loader, 
+        dataset=dataset,
+        train_val_test="train", 
+        device=device
+    )
+    evaluate_classification(
+        model, 
+        val_loader, 
+        dataset=dataset,
+        train_val_test="val", 
+        device=device
+    )
