@@ -1,13 +1,11 @@
 import argparse
 import logging
-from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
 from util import preprocess_dataset
 from lstm_with_attention import LSTM
-from train import train_model
+from train import train_model, evaluate_model
 
 # Handle the command line arguments for the script.
 parser = argparse.ArgumentParser(
@@ -119,3 +117,11 @@ trained_model = train_model(
 # Save the best model
 torch.save(trained_model.state_dict(), file_path)
 logger.info(f"Best model saved to {file_path}")
+
+evaluate_model(
+        model=model, 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        dataset=dataset, 
+        device=device
+)

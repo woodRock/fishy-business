@@ -1,27 +1,29 @@
+
 import logging
-from tqdm import tqdm
 import time
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from transformer import Transformer
+from cnn import CNN
 from plot import plot_confusion_matrix, plot_accuracy
 from typing import Union
 
+
 def train_model(
-        model: Transformer, 
+        model: CNN, 
         train_loader: DataLoader, 
         val_loader: DataLoader, 
         criterion: nn.CrossEntropyLoss,
         optimizer: optim.AdamW, 
         num_epochs: int = 100, 
         patience: int  = 10
-    ) -> Transformer:
+    ) -> CNN:
     """ Train the model
     
     Args: 
-        model (Transformer): the model to train.
+        model (CNN): the model to train.
         train_loader (DataLoader): the training set.
         val_loader (DataLoader): the validation set.
         criterion (nn.CrossEntropyLoss): the loss function. Defaults to CrossEntropyLoss.
@@ -30,9 +32,9 @@ def train_model(
         patience (int): the patience for the early stopping mechanism.
 
     Returns:
-        model (Transformer): the trained model - with early stopping - that has best validation performance.
+        model (CNN): the trained model - with early stopping - that has best validation performance.
     """
-    # Logging output to a file.
+   # Logging output to a file.
     logger = logging.getLogger(__name__)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -57,7 +59,7 @@ def train_model(
             x, y = x.to(device), y.to(device)
             
             optimizer.zero_grad()
-            outputs = model(x,x)
+            outputs = model(x)
             loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
@@ -84,7 +86,7 @@ def train_model(
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
-                outputs = model(x,x)
+                outputs = model(x)
                 loss = criterion(outputs, y)
 
                 val_loss += loss.item() * x.size(0)
@@ -136,7 +138,7 @@ def train_model(
 
 
 def evaluate_model(
-        model : Transformer, 
+        model : CNN, 
         train_loader: DataLoader, 
         val_loader: DataLoader, 
         dataset: str, 
@@ -159,69 +161,15 @@ def evaluate_model(
     with torch.no_grad():
         # loop over the test set
         datasets = [("train", train_loader), ("validation", val_loader)]
-        for name, data_loader in datasets:
+        for name, dataset_x_y in datasets:
             startTime = time.time()
             # finish measuring how long training too
-            for x,y in data_loader:
-                x,y = x.to(device), y.to(device)
-                pred = model(x, x, src_mask=None)
+            for (x,y) in dataset_x_y:
+                (x,y) = (x.to(device), y.to(device))
+                pred = model(x)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
                 accuracy = test_correct / len(x)
                 logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
                 plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
             endTime = time.time()
             logger.info(f"Total time taken evaluate on {name} set the model: {(endTime - startTime):.2f}s")
-
-
-def transfer_learning(
-        dataset: str, 
-        model: Transformer, 
-        file_path: str = 'transformer_checkpoint.pth'
-    ) -> Transformer:
-    """
-    Transfer learning loads weights from a pre-training task.
-
-    This method edits the final layer of the transformer to be ammenable to downstream tasks.
-
-    Args":
-        dataset (str): the dataset is either species, part, oil or cross-species.
-        model (Transformer): the tranformer model to transfer the weights to.
-        file_path (str): the file path to store the transformer checkpoint at.
-
-    Returns:
-        model (Transformer): the model with the pre-trained weights tranferred to it.
-    """
-    if dataset == "species" or dataset == "oil_simple":
-        # There are 2 classes in the fish species, oil and cross-species dataset.
-        output_dim = 2
-        checkpoint = torch.load(file_path)
-        checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]  # Keep only the first 2 rows
-        checkpoint['fc.bias'] = checkpoint['fc.bias'][:output_dim] # Keep only the first 2 elements
-        
-    elif dataset == "part":
-        # There are 6 classes in the fish parts dataset.
-        output_dim = 6
-        checkpoint = torch.load(file_path)
-        checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
-        checkpoint['fc.bias'] = torch.zeros(output_dim)
-
-    elif dataset == "oil":
-        # There are 7 classes in the fish oil dataset.
-        output_dim = 7
-        checkpoint = torch.load(file_path)
-        checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
-        checkpoint['fc.bias'] = torch.zeros(output_dim)
-    
-    elif dataset == "cross-species":
-        output_dim = 3
-        checkpoint = torch.load(file_path)
-        checkpoint['fc.weight'] = torch.zeros(output_dim, checkpoint['fc.weight'].shape[1])
-        checkpoint['fc.bias'] = torch.zeros(output_dim)
-
-    else: 
-        raise ValueError(f"Invalid dataset specified: {dataset}")
-
-    # Load the modified state dictionary into the model.
-    model.load_state_dict(checkpoint, strict=False)
-
-    return model

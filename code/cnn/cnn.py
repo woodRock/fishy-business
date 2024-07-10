@@ -2,33 +2,43 @@ import torch
 import torch.nn as nn
 
 class CNN(nn.Module):
-    def __init__(self, input_size=1023, num_classes=7):
+    def __init__(self, input_size=1023, num_classes=7, dropout=0.5):
         super(CNN, self).__init__()
         
         self.conv_layers = nn.Sequential(
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
             nn.GELU(),
             nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
             
             nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.GELU(),
             nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
             
             nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.GELU(),
-            nn.MaxPool1d(kernel_size=2, stride=2)
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
+
+            # nn.Conv1d(128, 256, kernel_size=3, stride=1, padding=1),
+            # nn.GELU(),
+            # nn.MaxPool1d(kernel_size=2, stride=2),
+            # nn.Dropout(p=dropout),
         )
         
         self.flatten = nn.Flatten()
 
         # Calculate the size of the flattened features after convolutions
+        # self.flat_features = 256 * (input_size // 2 // 2 // 2 // 2)
         self.flat_features = 128 * (input_size // 2 // 2 // 2)
         
         self.fc_layers = nn.Sequential(
-            nn.Linear(self.flat_features, 256),
+            nn.Linear(self.flat_features, 512),
             nn.GELU(),
-            nn.Dropout(0.2),
-            nn.Linear(256, num_classes)
+            nn.Dropout(dropout),
+            nn.Linear(512, num_classes),
+            nn.Dropout(p=dropout)
         )
 
     def forward(self, x):
