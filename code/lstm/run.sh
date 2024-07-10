@@ -19,13 +19,11 @@ fi
 # The server has 3 GPUs to use in parallel.
 ts -S 3
 
-for i in {1..30}; 
+for i in {1..10}; 
 do 
     # Run the experiments using the ts command.
     ts -G 1 python3 main.py \
         --dataset "${DATASET}" --output "logs/${DATASET}/${NAME}/run" --run "$i" \
-	    --data-augmentation \
-        --masked-spectra-modelling \
 	    --dropout 0.2 --label-smoothing 0.1 --early-stopping 10 \
-        --epochs 1000 --learning-rate "1E-4";
+        --epochs 1000 --learning-rate "1E-5";
 done
