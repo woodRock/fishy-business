@@ -6,7 +6,6 @@ from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
 from transformer import Transformer
-from util import EarlyStopping
 from typing import Union, Optional
 
 def pre_train_masked_spectra(
@@ -18,8 +17,6 @@ def pre_train_masked_spectra(
         device: Optional[Union[str, torch.device]] = None,
         criterion: CrossEntropyLoss = None,
         optimizer: AdamW = None,
-        is_early_stopping: bool = False,
-        early_stopping: EarlyStopping = None,
         mask_prob: float = 0.2
     ) -> Transformer:
     """ Masked spectra modelling.
@@ -35,8 +32,6 @@ def pre_train_masked_spectra(
         device (str, torch,device): the device to perform the operations on. Defaults to None.
         criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
         optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
-        is_early_stopping (bool): whether or not to perform early stopping.
-        early_stopping (EarlyStopping): a class to manage early stopping by checkpointing weights with best validation losses.
         mask_prob (float): the probability of masking a spectra. Defaults to 0.2
 
     Returns:
@@ -79,14 +74,6 @@ def pre_train_masked_spectra(
             outputs = model(x, x)
             val_loss = criterion(outputs, tgt_x)
             total_val_loss += val_loss.item()
-
-        # Early stopping (Morgan 1989)
-        if is_early_stopping:
-            # Check if early stopping criteria met
-            early_stopping(1, val_loss, model)
-            if early_stopping.early_stop:
-                logger.info("Early stopping")
-                break
 
         # Print average loss for the epoch
         logger.info(f'Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/batch_size:.4f}, Val: {val_loss/val_batch_size:.4f}')
@@ -142,9 +129,7 @@ def pre_train_model_next_spectra(
         file_path: str = "transformer_checkpoint.pth", 
         device: Optional[Union[str, torch.device]] = None,
         criterion: CrossEntropyLoss = None,
-        optimizer: AdamW = None,
-        is_early_stopping: bool = False,
-        early_stopping = None
+        optimizer: AdamW = None
     ) -> Transformer:
     """
     Pre-trains the model with Next Spectra Prediction (NSP).
@@ -159,8 +144,6 @@ def pre_train_model_next_spectra(
         device (str, torch,device): the device to perform the operations on. Defaults to None.
         criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
         optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
-        is_early_stopping (bool): whether or not to perform early stopping.
-        early_stopping (EarlyStopping): a class to manage early stopping by checkpointing weights with best validation losses.
 
     Returns: 
         model (Transformer): the pre-trained model
@@ -260,14 +243,6 @@ def pre_train_model_next_spectra(
 
         val_avg_loss = val_total_loss / len(X_val)
         logger.info(f"Epoch {epoch + 1}, Average Loss: {avg_loss:.4f} Validation: {val_avg_loss:.4f}")
-
-        # Early stopping (Morgan 1989)
-        if is_early_stopping:
-            # Check if early stopping criteria met
-            early_stopping(1, val_avg_loss, model)
-            if early_stopping.early_stop:
-                logger.info("Early stopping")
-                break
 
     next_spectra_model = model
     torch.save(next_spectra_model.state_dict(), file_path)
