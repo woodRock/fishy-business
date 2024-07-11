@@ -6,7 +6,9 @@ import torch.nn as nn
 import torch.optim as optim
 from util import preprocess_dataset
 from cnn import CNN
+from pre_training import pre_train_masked_spectra, pre_train_transfer_learning
 from train import train_model, evaluate_model
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -25,12 +27,12 @@ if __name__ == "__main__":
                     action='store_true', default=False,
                     help="Flag to perform data augmentation. Defaults to False.")  
     # Pre-training
-    # parser.add_argument('-msm', '--masked-spectra-modelling',
-    #                 action='store_true', default=False,
-    #                 help="Flag to perform masked spectra modelling. Defaults to False.")  
-    # parser.add_argument('-nsp', '--next-spectra-prediction',
-    #                 action='store_true', default=False,
-    #                 help="Flag to perform next spectra prediction. Defaults to False.") 
+    parser.add_argument('-msm', '--masked-spectra-modelling',
+                    action='store_true', default=False,
+                    help="Flag to perform masked spectra modelling. Defaults to False.")  
+    parser.add_argument('-nsp', '--next-spectra-prediction',
+                    action='store_true', default=False,
+                    help="Flag to perform next spectra prediction. Defaults to False.") 
     # Regularization
     parser.add_argument('-es', '--early-stopping', type=int, default=10,
                         help='Early stopping patience. To disable early stopping set to the number of epochs. Defaults to 5.')
@@ -55,10 +57,11 @@ if __name__ == "__main__":
     # Filemode is write, so it clears the file, then appends output.
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
-    dataset = args['dataset']
 
     dataset = args['dataset']
     is_data_augmentation = args['data_augmentation']
+    is_next_masked_spectra_modelling = args['masked_spectra_modelling']
+    is_next_spectra_prediction = args['next_spectra_prediction']
     num_epochs = args['epochs']
     learning_rate = args['learning_rate']
     batch_size = args['batch_size']
@@ -69,6 +72,39 @@ if __name__ == "__main__":
         raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
     num_classes = num_classes_per_dataset[dataset]
 
+
+    if is_next_masked_spectra_modelling:
+        # Load the dataset.
+        train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+            dataset, 
+            is_data_augmentation, 
+            batch_size=batch_size,
+            is_pre_train=True
+        )    
+
+        # Instantiate model, loss function, and optimizer
+        model = CNN(
+            input_size=input_size, 
+            num_classes=1023,
+            dropout=args['dropout']
+        )
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model = model.to(device)
+        criterion = nn.MSELoss()
+        optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+
+        model = pre_train_masked_spectra(
+            model=model,
+            num_epochs=num_epochs,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            file_path='checkpoints/cnn_checkpoint.pth',
+            device = device,
+            criterion=criterion,
+            optimizer=optimizer,
+            mask_prob=0.2
+        )
 
     # Load the dataset.
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
@@ -83,6 +119,12 @@ if __name__ == "__main__":
         input_size=input_size, 
         num_classes=num_classes,
         dropout=args['dropout']
+    )
+
+    model = pre_train_transfer_learning(
+        model=model, 
+        file_path='checkpoints/cnn_checkpoint.pth', 
+        output_dim=num_classes
     )
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
