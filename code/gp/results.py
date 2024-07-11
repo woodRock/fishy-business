@@ -26,11 +26,7 @@ if __name__ == "__main__":
     # Set verbose to true for debugging.
     verbose = args['verbose']
     # Select the dataset to process results for.
-    datasets = ["species", "part", "oil", "cross-species"]
     dataset = args['dataset'] # Part
-    if dataset not in datasets:
-        raise ValueError(f"Invalid dataset specified: {dataset}")
-    
     print(f"dataset: {dataset}")
     # Path to the logging folder.
     folder = os.path.join("logs",dataset,args['folder'])
@@ -41,6 +37,8 @@ if __name__ == "__main__":
 
     # Skip the print tree statements.
     skip = {'species': 2, 'part': 6, 'oil': 7, 'oil_simple': 2, 'cross-species': 3}
+    if dataset not in skip.keys():
+        raise ValueError(f"Invalid dataset specified: {dataset} not in {skip.keys()}")
     skip_amount = skip[dataset]
     # skip_amount = 0
 
