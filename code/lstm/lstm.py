@@ -19,7 +19,7 @@ class LSTM(nn.Module):
             num_layers (int): the number of hidden layers. Defaults to 2.
 
         References: 
-        1. Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.
+            1. Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.
         
         """
         super(LSTM, self).__init__()
