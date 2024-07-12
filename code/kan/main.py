@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn 
 import torch.optim as optim
 from util import preprocess_dataset
-from kan import KAN
+from kan import KAN, StackedKAN
 from train import train_model, evaluate_model
 
 
@@ -91,6 +91,14 @@ if __name__ == "__main__":
         num_inner_functions=20, 
         dropout_rate=0.2, 
     )
+
+    # model = StackedKAN(input_dim=input_size, 
+    #     output_dim=num_classes, 
+    #     hidden_dim=128, 
+    #     num_inner_functions=20, 
+    #     dropout_rate=0.2, 
+    #     num_layers=1
+    # )
 
     model = model.to(device)
     criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
