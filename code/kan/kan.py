@@ -10,6 +10,19 @@ class KAN(nn.Module):
                 num_inner_functions: int = 10, 
                 dropout_rate: float = 0.1
     ) -> None:
+        """ Kalomogorov-Arnold Neural Network (KAN) module.
+
+        Args: 
+            input_dim (int): the number of dimensions in the input.
+            output_dim (int): the number of dimensions in the output.
+            hidden_dim (int): the number of dimensions in the hidden layer. Defaults to 64.
+            num_inner_functions (int): the number of inner functions. Defaults to 10.
+            dropout_rate (float): the dropout rate. Defaults to 0.1.
+
+        References: 
+            1. Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., ... & Tegmark, M. (2024). 
+            Kan: Kolmogorov-arnold networks. arXiv preprint arXiv:2404.19756.        
+        """
         super(KAN, self).__init__()
         
         self.input_dim = input_dim

@@ -17,6 +17,9 @@ class LSTM(nn.Module):
             input_size (int): the size of the input. Defaults to 1023.
             hidden_size (int): the dimensions of the hidden layer. Defaults to 128.
             num_layers (int): the number of hidden layers. Defaults to 2.
+
+        References: 
+        1. Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. Neural computation, 9(8), 1735-1780.
         
         """
         super(LSTM, self).__init__()

@@ -18,7 +18,9 @@ def train_model(
         criterion: nn.CrossEntropyLoss,
         optimizer: optim.AdamW, 
         num_epochs: int = 100, 
-        patience: int  = 10
+        patience: int  = 10,
+        steps : int = 100,
+        scheduler = None,
     ) -> DiffusionModel:
     """ Train the model
     
@@ -30,11 +32,12 @@ def train_model(
         optimizer (optim.AdamW): the optimizer. Defaults to AdamW.
         num_epochs (int): the number of epochs to train for.
         patience (int): the patience for the early stopping mechanism.
+        steps (int): the number of steps for the diffusion process. Defaults to 100.
 
     Returns:
-        model (KAN): the trained model - with early stopping - that has best validation performance.
+        model (CNN): the trained model - with early stopping - that has best validation performance.
     """
-   # Logging output to a file.
+    # Logging output to a file.
     logger = logging.getLogger(__name__)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -59,15 +62,22 @@ def train_model(
             x, y = x.to(device), y.to(device)
             
             optimizer.zero_grad()
-            t = model.sample_timesteps(x.shape[0]).to(model.device)
-            x_t, noise = model.noise_images(x, t)
-            predicted_noise = model(x_t, t.float() / model.noise_steps)
-            loss = mse(noise, predicted_noise)
+            # Sample random timesteps
+            t = torch.randint(0, steps, (x.size(0),))
+            t = t.to(device)
+            # Add noise to input
+            noise = torch.randn_like(x) * torch.sqrt(t.float() / steps).view(-1, 1)
+            x_t = x + noise
+            outputs = model(x_t, t)
+            loss = criterion(outputs, y)
             loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
             train_loss += loss.item() * x.size(0)
-            train_correct += 0
+            _, predicted = outputs.max(1)
+            _, actual = y.max(1)
+            train_correct += predicted.eq(actual).sum().item()
             train_total += y.size(0)
 
         train_loss /= len(train_loader.dataset)
@@ -77,24 +87,31 @@ def train_model(
         training_accuracies.append(train_acc)
         training_losses.append(train_loss)
 
+        if scheduler is not None:
+            scheduler.step()
+
         # Validation
         model.eval()
         val_loss = 0.0
         val_correct = 0
         val_total = 0
 
-        mse = nn.MSELoss()
-
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
-                t = model.sample_timesteps(x.shape[0]).to(model.device)
-                x_t, noise = model.noise_images(x, t)
-                predicted_noise = model(x_t, t.float() / model.noise_steps)
-                loss = mse(noise, predicted_noise)
+                # Sample random timesteps
+                t = torch.randint(0, steps, (x.size(0),))
+                t = t.to(device)
+                # Add noise to input
+                noise = torch.randn_like(x) * torch.sqrt(t.float() / steps).view(-1, 1)
+                x_t = x + noise
+                outputs = model(x_t, t)
+                loss = criterion(outputs, y)
 
                 val_loss += loss.item() * x.size(0)
-                val_correct += 0
+                _, predicted = outputs.max(1)
+                _, actual = y.max(1)
+                val_correct += predicted.eq(actual).sum().item()
                 val_total += y.size(0)
 
         val_loss /= len(val_loader.dataset)
@@ -144,7 +161,8 @@ def evaluate_model(
         train_loader: DataLoader, 
         val_loader: DataLoader, 
         dataset: str, 
-        device: Union[torch.device,str]
+        device: Union[torch.device,str],
+        steps: int = 100
     ) -> None:
     """Evaluate the model on the training and evaluation datasets.
 
@@ -154,6 +172,7 @@ def evaluate_model(
         val_loader (DataLoader): the validation set.
         dataset (str): the name of the dataset to be evaluated.
         device: (torch.device, str): the device to evaluate the model/dataset on.
+        steps (int): the number of steps for the diffusion process. Defaults to 100.
     """
     # Logging output to a file.
     logger = logging.getLogger(__name__)
@@ -163,12 +182,17 @@ def evaluate_model(
     with torch.no_grad():
         # loop over the test set
         datasets = [("train", train_loader), ("validation", val_loader)]
-        for name, dataset_x_y in datasets:
+        for name, data_loader in datasets:
             startTime = time.time()
             # finish measuring how long training too
-            for (x,y) in dataset_x_y:
-                (x,y) = (x.to(device), y.to(device))
-                pred = model(x)
+            for x,y in data_loader:
+                x,y = (x.to(device), y.to(device))
+                t = torch.randint(0, steps, (x.size(0),))
+                t = t.to(device)
+                # Add noise to input
+                noise = torch.randn_like(x) * torch.sqrt(t.float() / steps).view(-1, 1)
+                x_t = x + noise
+                pred = model(x_t, t)
                 test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
                 accuracy = test_correct / len(x)
                 logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
