@@ -59,6 +59,9 @@ class DiffusionModel(nn.Module):
         Args: 
             x (torch.Tensor): the input tensor.
             t (torch.Tensor): the time tensor.
+
+        Returns:
+            logits (torch.Tensor): the output tensor.
         """
         t = t.float() / self.num_steps
         t = t.view(-1, 1)
