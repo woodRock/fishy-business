@@ -45,7 +45,11 @@ if __name__ == "__main__":
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
                         help="The learning rate for the model. Defaults to 1E-3.")
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
-                        help='Batch size for the DataLoader. Defaults to 64.')
+                        help='Batch size for the DataLoader. Defaults to 256.')
+    parser.add_argument('-hd', '--hidden-dimensions', type=int, default=256,
+                        help='The number of hidden dimensions. Defaults to 256.')
+    parser.add_argument('-s', '--steps', type=int, default=1_000,
+                        help='The number of steps for the diffusion process. Defaults to 64.')
 
     args = vars(parser.parse_args())
 
@@ -58,14 +62,18 @@ if __name__ == "__main__":
     file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
 
     dataset = args['dataset']
+    # Pretraining
     is_data_augmentation = args['data_augmentation']
     is_next_masked_spectra_modelling = args['masked_spectra_modelling']
     is_next_spectra_prediction = args['next_spectra_prediction']
+    # Hyperparameters
     num_epochs = args['epochs']
     learning_rate = args['learning_rate']
     batch_size = args['batch_size']
     label_smoothing = args['label_smoothing']
     input_size = 1023
+    hidden_dim = args['hidden_dimensions']
+    steps = args['steps']
     num_classes_per_dataset = {'species': 2, 'part': 6, 'oil_simple': 2, 'oil': 7, 'cross-species': 3}
     if dataset not in num_classes_per_dataset.keys():
         raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
@@ -84,19 +92,22 @@ if __name__ == "__main__":
     print(f"Device: {device}")
 
     # Instantiate model, loss function, and optimizer
-    model = DiffusionModel(feature_size=1023, device=device)
-
+    model = DiffusionModel(input_size, hidden_dim, num_classes, steps)
     model = model.to(device)
-    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+    criterion = nn.CrossEntropyLoss()
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-    from diffusion import train_diffusion_model
-
-    model = train_diffusion_model(
-        model, 
-        train_loader, 
-        val_loader, 
-        num_epochs=100
+    model = train_model(
+        model=model, 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        criterion=criterion,
+        optimizer=optimizer, 
+        num_epochs=num_epochs, 
+        patience=args['early_stopping'],
+        steps=steps,
+        scheduler=scheduler
     )
 
     evaluate_model(
@@ -104,5 +115,6 @@ if __name__ == "__main__":
         train_loader=train_loader, 
         val_loader=val_loader, 
         dataset=dataset, 
-        device=device
+        device=device,
+        steps=steps
     )

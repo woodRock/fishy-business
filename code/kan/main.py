@@ -83,22 +83,22 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Device: {device}")
 
-    # Instantiate model, loss function, and optimizer
-    model = KAN(
-        input_dim=input_size, 
-        output_dim=num_classes, 
-        hidden_dim=128, 
-        num_inner_functions=20, 
-        dropout_rate=0.2, 
-    )
-
-    # model = StackedKAN(input_dim=input_size, 
+    # # Instantiate model, loss function, and optimizer
+    # model = KAN(
+    #     input_dim=input_size, 
     #     output_dim=num_classes, 
     #     hidden_dim=128, 
     #     num_inner_functions=20, 
     #     dropout_rate=0.2, 
-    #     num_layers=1
     # )
+
+    model = StackedKAN(input_dim=input_size, 
+        output_dim=num_classes, 
+        hidden_dim=128, 
+        num_inner_functions=20, 
+        dropout_rate=0.2, 
+        num_layers=1
+    )
 
     model = model.to(device)
     criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)

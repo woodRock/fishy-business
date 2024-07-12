@@ -20,6 +20,10 @@ class VAE(nn.Module):
             num_classes (int): The number of classes in the dataset.
             device (Union[str, torch.device]): The device to run the model on.
 
+            
+        References: 
+        1. Kingma, D. P., & Welling, M. (2013). Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114.
+
         """
         super(VAE, self).__init__()
         
