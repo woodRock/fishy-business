@@ -2,7 +2,34 @@ import torch
 import torch.nn as nn
 
 class CNN(nn.Module):
-    def __init__(self, input_size=1023, num_classes=7, dropout=0.5):
+    def __init__(self, 
+        input_size: int = 1023, 
+        num_classes: int = 7, 
+        dropout: int = 0.5
+    ) -> None:
+        """ Convolutional Neural Network for classification.
+
+        Args:
+            input_size (int): the input size.
+            num_classes (int): the number of classes.
+            dropout (float): the dropout rate. Defaults to 0.5.
+
+        References: 
+            1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). 
+            Gradient-based learning applied to document recognition. 
+            Proceedings of the IEEE, 86(11), 2278-2324.
+            2. LeCun, Y. (1989). Generalization and network design strategies. 
+            Connectionism in perspective, 19(143-155), 18.
+            3. LeCun, Y., Boser, B., Denker, J. S., Henderson, D., 
+            Howard, R. E., Hubbard, W., & Jackel, L. D. (1989). 
+            Backpropagation applied to handwritten zip code recognition. 
+            Neural computation, 1(4), 541-551.
+            4. LeCun, Y., Boser, B., Denker, J., Henderson, D.,
+            Howard, R., Hubbard, W., & Jackel, L. (1989). 
+            Handwritten digit recognition with a back-propagation network. 
+            Advances in neural information processing systems, 2.
+        
+        """
         super(CNN, self).__init__()
         
         self.conv_layers = nn.Sequential(
@@ -42,6 +69,14 @@ class CNN(nn.Module):
         )
 
     def forward(self, x):
+        """ Forward pass for the CNN.
+        
+        Args:
+            x (torch.Tensor): the input tensor.
+
+        Returns: 
+            x (torch.Tensor): the output tensor.
+        """
         # Add channel dimension
         x = x.unsqueeze(1)
         
