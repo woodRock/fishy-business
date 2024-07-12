@@ -19,8 +19,8 @@ class VAE(nn.Module):
             latent_dim (int): The size of the latent space.
             num_classes (int): The number of classes in the dataset.
             device (Union[str, torch.device]): The device to run the model on.
+            dropout (float): The dropout rate. Defaults to 0.2.
 
-            
         References: 
         1. Kingma, D. P., & Welling, M. (2013). Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114.
 
