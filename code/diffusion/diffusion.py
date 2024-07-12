@@ -46,8 +46,7 @@ class UNet1D(nn.Module):
         self.maxpool = nn.MaxPool1d(2)
 
     def forward(self, x, t):
-        # t = t.unsqueeze(-1).repeat(1, x.shape[-1]).unsqueeze(1)
-        t = t.unsqueeze(-1).repeat(1, 1, x.shape[-1])
+        t = t.unsqueeze(-1).repeat(1, x.shape[-1]).unsqueeze(1)
         x = torch.cat([x, t], dim=1)
         
         x1 = self.down1(x)
@@ -130,12 +129,10 @@ def train_diffusion_model(model, train_loader, val_loader, num_epochs=100, lr=1e
         model.train()
         train_loss = 0
         for x, y in train_loader:
-            if len(x) != batch_size: 
-                continue
             x, y = x.to(model.device), y.to(model.device)
             t = model.sample_timesteps(x.shape[0]).to(model.device)
             x_t, noise = model.noise_images(x, t)
-            predicted_noise = model.model(x_t, t.float() / model.noise_steps)
+            predicted_noise = model(x_t, t.float() / model.noise_steps)
             loss = mse(noise, predicted_noise)
 
             optimizer.zero_grad()
@@ -150,12 +147,10 @@ def train_diffusion_model(model, train_loader, val_loader, num_epochs=100, lr=1e
         val_loss = 0
         with torch.no_grad():
             for x, y in val_loader:
-                if len(x) != batch_size: 
-                    continue
                 x, y = x.to(model.device), y.to(model.device)
                 t = model.sample_timesteps(x.shape[0]).to(model.device)
                 x_t, noise = model.noise_images(x, t)
-                predicted_noise = model.model(x_t, t.float() / model.noise_steps)
+                predicted_noise = model(x_t, t.float() / model.noise_steps)
                 loss = mse(noise, predicted_noise)
                 val_loss += loss.item()
         

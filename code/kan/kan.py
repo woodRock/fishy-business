@@ -58,3 +58,31 @@ class KAN(nn.Module):
         output = self.outer_linear3(outer)
 
         return output
+    
+class StackedKAN(nn.Module):
+    def __init__(self, 
+                input_dim: int, 
+                output_dim: int,
+                hidden_dim: int = 64, 
+                num_inner_functions: int = 10, 
+                dropout_rate: float = 0.1,
+                num_layers: int = 5,
+    ) -> None:
+        super(StackedKAN, self).__init__()
+        self.layers = nn.ModuleList([KAN(input_dim, output_dim if i == (num_layers - 1) else input_dim, hidden_dim, num_inner_functions, dropout_rate) for i in range(num_layers)])
+
+    def forward(self, 
+            x: torch.Tensor, 
+        ) -> torch.Tensor:
+        """A forward pass through the encoder module.
+
+        Args: 
+            x (torch.Tensor): the input tensor for the encoder.
+            mask (torch.Tensor): the mask for the encoder.
+        
+        Returns:
+            x (torch.Tensor): output tensorfrom a forward pass of the encoder.
+        """
+        for layer in self.layers:
+            x = layer(x)
+        return x
