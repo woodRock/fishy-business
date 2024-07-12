@@ -7,7 +7,7 @@ import torch.optim as optim
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from util import preprocess_dataset
-from train import train, encode_and_classify, evaluate_classification, generate
+from train import train_model, evaluate_model
 from vae import VAE
 
 
@@ -87,6 +87,7 @@ if __name__ == "__main__":
     num_epochs = args['epochs']
     input_dim = 1023
     num_heads = args['num_heads']
+    hidden_dimension = args['hidden_dimension']
     learning_rate = args['learning_rate']
 
     num_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "oil_simple": 2, "cross-species": 3}
@@ -94,15 +95,17 @@ if __name__ == "__main__":
         raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
     num_classes = num_classes_per_dataset[dataset]
 
-    # Instantiate the model and move it to GPU
-    model = VAE(
-        input_size=1023, 
-        latent_dim=64, 
-        num_classes=num_classes
-    )
-
+    # Instantiate the model 
     # Check if CUDA is available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = VAE(
+        input_size=1023, 
+        latent_dim=256, 
+        num_classes=num_classes,
+        device=device
+    )
+    # Move it to GPU
     print(f"Using device: {device}")
     model = model.to(device)
 
@@ -110,70 +113,39 @@ if __name__ == "__main__":
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 
     train_loader, val_loader = preprocess_dataset(
-        dataset="species",
+        dataset=dataset,
         is_data_augmentation=False,
         batch_size=64,
         is_pre_train=False
     )
 
-    # Example usage:
-    # Assuming you have a DataLoader called 'train_loader'
-    model = train(
-        model, 
-        train_loader=train_loader,
-        val_loader=val_loader,
-        num_epochs=num_epochs,
-        device=device, 
-        optimizer=optimizer,
-        alpha=0.1,
-        beta=0.9
+    model = VAE(
+        input_size=input_dim,
+        latent_dim=hidden_dimension,
+        num_classes=num_classes,
+        device=device,
+        dropout=dropout
     )
 
-    # To generate new samples:
-    new_samples = generate(
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+
+    model = train_model(
         model=model, 
-        num_samples=10, 
-        target_class=0,
-        device=device
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        criterion=criterion,
+        optimizer=optimizer, 
+        num_epochs=num_epochs, 
+        patience=args['early_stopping']
     )
 
-    first = new_samples[0]
-    plt.plot(first)
-    plt.title("Generated Mass Spectrum")
-    plt.xlabel("m/z")
-    plt.ylabel("intensity")
-    plt.savefig("figures/generated_spectra.png")
-
-    first = next(iter(train_loader))[0][0]
-    print(f"first: {first}")
-    plt.plot(first)
-    plt.title("Real Mass Spectrum")
-    plt.xlabel("m/z")
-    plt.ylabel("intensity")
-    plt.savefig("figures/real_spectra.png")
-
-    # To get encoded representation of a single spectrum:
-    your_spectra_here = first.unsqueeze(0).to(device)
-    encoded_spectrum, class_probs = encode_and_classify(
+    evaluate_model(
         model=model, 
-        data=your_spectra_here, 
-        device=device
-    )
-
-    print(f"encoded_spectrum: {encoded_spectrum} \n class_probs: {class_probs}")
-
-    # Assuming you have a DataLoader called 'train_loader'
-    evaluate_classification(
-        model, 
-        train_loader, 
-        dataset=dataset,
-        train_val_test="train", 
-        device=device
-    )
-    evaluate_classification(
-        model, 
-        val_loader, 
-        dataset=dataset,
-        train_val_test="val", 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        dataset=dataset, 
         device=device
     )

@@ -1,42 +1,44 @@
+
 import logging
-from tqdm import tqdm 
-import torch 
+import time
+from tqdm import tqdm
+import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from vae import vae_classifier_loss
-from vae import VAE 
+from vae import VAE
 from plot import plot_confusion_matrix, plot_accuracy
 from typing import Union
 
 
-def train(
+def train_model(
         model: VAE, 
         train_loader: DataLoader, 
         val_loader: DataLoader, 
-        num_epochs: int, 
-        alpha: float = 0.1, 
-        beta: float = 0.9, 
-        device: Union[torch.device, str] = 'cpu',
-        optimizer=optim.AdamW
+        criterion: nn.CrossEntropyLoss,
+        optimizer: optim.AdamW, 
+        num_epochs: int = 100, 
+        patience: int  = 10
     ) -> VAE:
-    """ Train the VAE model.
-
+    """ Train the model
+    
     Args: 
-        model (VAE): The VAE model to train.
-        data_loader (DataLoader): The data loader.
-        num_epochs (int): The number of epochs to train.
-        alpha (float): The weight for the reconstruction loss.
-        beta (float): The weight for the KLD loss.
-        device (torch.device, str): The device to train on.
-        optimizer (torch.optim): The optimizer to use.
+        model (VAE): the model to train.
+        train_loader (DataLoader): the training set.
+        val_loader (DataLoader): the validation set.
+        criterion (nn.CrossEntropyLoss): the loss function. Defaults to CrossEntropyLoss.
+        optimizer (optim.AdamW): the optimizer. Defaults to AdamW.
+        num_epochs (int): the number of epochs to train for.
+        patience (int): the patience for the early stopping mechanism.
 
-    Returns: 
-        model (VAE): The trained VAE model.
+    Returns:
+        model (VAE): the trained model - with early stopping - that has best validation performance.
     """
+   # Logging output to a file.
     logger = logging.getLogger(__name__)
-    model.train()
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.to(device)
 
     training_accuracies = []
     training_losses = []
@@ -49,171 +51,125 @@ def train(
 
     for epoch in (pbar := tqdm(range(num_epochs), desc="Training")):
         model.train()
-        train_acc = 0
-        train_loss = 0
+        train_loss = 0.0
+        train_correct = 0
+        train_total = 0
+
         for x, y in train_loader:
-            # Move data to GPU
-            x = x.float().to(device)
-            y = y.long().to(device)
+            x, y = x.to(device), y.to(device)
             
-            # Forward pasbatchs
-            recon_batch, mu, logvar, class_probs = model(x)
-            loss = vae_classifier_loss(recon_batch, x, mu, logvar, class_probs, y, alpha, beta)
-            
-            # Backward pass and optimize
             optimizer.zero_grad()
+            _, _, _ , outputs = model(x)
+            loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
 
-            train_loss += loss.item()
+            train_loss += loss.item() * x.size(0)
+            _, predicted = outputs.max(1)
+            _, actual = y.max(1)
+            train_correct += predicted.eq(actual).sum().item()
+            train_total += y.size(0)
 
-            # Classification accuracy.
-            _, predicted = torch.max(class_probs, 1)
-            _, actual = torch.max(y, 1)
-            correct = (predicted == actual).sum().item()
-            total = y.size(0)
-            train_acc += correct / total
-        
-        train_acc = train_acc / len(train_loader)
-        training_accuracies.append(train_acc)  
-        train_loss = train_loss / len(train_loader)      
+        train_loss /= len(train_loader.dataset)
+        train_acc = train_correct / train_total
+
+        # Telemetry for loss curve.
+        training_accuracies.append(train_acc)
         training_losses.append(train_loss)
-            
-        model.eval()
-        with torch.no_grad():
-            correct = 0
-            val_acc = 0
-            val_loss = 0
-            for x, y in val_loader:
-                x = x.float().to(device)
-                y = y.long().to(device)
-                recon_batch, mu, logvar, class_probs = model(x)
-                loss = vae_classifier_loss(recon_batch, x, mu, logvar, class_probs, y, alpha, beta)
-                val_loss += loss.item()
-                _, predicted = torch.max(class_probs, 1)
-                _, actual = torch.max(y, 1)
 
-                total += y.size(0)
-                correct += (predicted == actual).sum().item()
-                val_acc += correct / total
-            
-            val_acc = val_acc / len(val_loader)
-            validation_accuracies.append(val_acc)
-            val_loss = val_loss / len(val_loader)
-            validation_losses.append(val_loss)
-        
-        # Print average loss for the epoch(val_loader
-        message = f'Epoch [{epoch+1}/{num_epochs}], Train Loss: {train_loss:.4f} \t Train Accuracy: {train_acc:.4f} \t Val Loss: {val_loss:.4f} \t Val Accuracy: {val_acc:.4f}'
+        # Validation
+        model.eval()
+        val_loss = 0.0
+        val_correct = 0
+        val_total = 0
+
+        with torch.no_grad():
+            for x, y in val_loader:
+                x, y = x.to(device), y.to(device)
+                _, _, _, outputs = model(x)
+                loss = criterion(outputs, y)
+
+                val_loss += loss.item() * x.size(0)
+                _, predicted = outputs.max(1)
+                _, actual = y.max(1)
+                val_correct += predicted.eq(actual).sum().item()
+                val_total += y.size(0)
+
+        val_loss /= len(val_loader.dataset)
+        val_acc = val_correct / val_total
+
+        # Telemetry for loss curve.
+        validation_accuracies.append(val_acc)
+        validation_losses.append(val_loss)
+
+        message = f'Epoch {epoch+1}/{num_epochs} \tTrain Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}\t Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}'
         pbar.set_description(message)
         logger.info(message)
 
-    plot_accuracy(
-        training_losses, 
-        validation_losses, 
-        training_accuracies, 
-        validation_accuracies
-    )
+        # Early stopping
+        if train_acc == 1:
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                epochs_without_improvement = 0
+                best_model = model.state_dict()
+            else:
+                epochs_without_improvement += 1
+                if epochs_without_improvement >= patience:
+                    message = f'Early stopping triggered after {epoch + 1} epochs'
+                    logger.info(message)
+                    print(message)
+                    print(f"Validation accuracy: {best_val_acc}")
+                    break
+        else: 
+            epochs_without_improvement = 0
 
+    # Plot the loss curve.
+    plot_accuracy(
+        train_losses=training_losses, 
+        val_losses=validation_losses, 
+        train_accuracies=training_accuracies, 
+        val_accuracies=validation_accuracies
+    ) 
+
+    # Retrieve weights for the model that performs best on the validation set.
+    if best_model is not None:
+        model.load_state_dict(best_model)
     return model
 
-# Function to get encoded representation and class prediction
-def encode_and_classify(
-        model: VAE, 
-        data: torch.Tensor, 
-        device: Union[torch.device, str]
-    ) -> [torch.Tensor, torch.Tensor]:
-    """ Encode the input data and predict the class.
 
-    Args:
-        model (VAE): The trained VAE model.
-        data (torch.Tensor): The input data.
-        device (torch.device, str): The device to run the inference on.
-    
-    Returns: 
-        z (torch.Tensor): The encoded representation.
-        class_probs (torch.Tensor): The class probabilities.
-
-    """
-    model.eval()
-    with torch.no_grad():
-        data = data.to(device)
-        mu, logvar = model.encode(data)
-        z = model.reparameterize(mu, logvar)
-        class_probs = F.softmax(model.classifier(z), dim=1)
-    return z.cpu(), class_probs.cpu()
-
-# Function to generate new samples of a specific class
-def generate(
-        model: VAE, 
-        num_samples: int, 
-        target_class: int, 
-        device: Union[torch.device, str]
-    ) -> torch.Tensor:
-    """ Generate new samples of a specific class.
-
-    Args:
-        model (VAE): The trained VAE model.
-        num_samples (int): The number of samples to generate.
-        target_class (int): The target class to generate samples for.
-        device (torch.device, str): The device to run the generation on.
-
-    Returns:
-        samples (torch.Tensor): The generated samples.
-    """
-    model.eval()
-    with torch.no_grad():
-        z = torch.randn(num_samples, model.latent_dim).to(device)
-        c = F.one_hot(torch.tensor([target_class] * num_samples), num_classes=model.num_classes).float().to(device)
-        samples = model.decode(z, c)
-    return samples.cpu()
-
-def evaluate_classification(
-        model: VAE, 
-        data_loader: DataLoader, 
-        train_val_test: str, 
-        dataset: str = "species",
-        device: Union[torch.device, str] = "cpu"   
+def evaluate_model(
+        model : VAE, 
+        train_loader: DataLoader, 
+        val_loader: DataLoader, 
+        dataset: str, 
+        device: Union[torch.device,str]
     ) -> None:
-    """ Evaluate the classification accuracy of the VAE on a dataset.
+    """Evaluate the model on the training and evaluation datasets.
 
     Args: 
-        model (VAE): The trained VAE model.
-        data_loader (DataLoader): The data loader for the dataset.
-        train_val_test (str):  Specify if training, validation or test set.
-        dataset (str): The dataset to evaluate on. Default is "species".
-        device (torch.device, str): The device to run the evaluation on.
+        model (VAE): the model to evaluate.
+        train_loader (DataLoader): the training set. 
+        val_loader (DataLoader): the validation set.
+        dataset (str): the name of the dataset to be evaluated.
+        device: (torch.device, str): the device to evaluate the model/dataset on.
     """
+    # Logging output to a file.
     logger = logging.getLogger(__name__)
-    model.eval()
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for x, y in data_loader:
-            # Move data to GPU
-            x = x.float().to(device)
-            y = y.long().to(device)
-            
-            # Forward pass to get class probabilities
-            _, _, _, class_probs = model(x)
-            
-            # Get the predicted class
-            _, predicted = torch.max(class_probs, 1)
-            _, actual = torch.max(y, 1)
-            
-            # Update total and correct counts
-            total += y.size(0)
-            correct += (predicted == actual).sum().item()
-
-            plot_confusion_matrix(
-                dataset=dataset, 
-                name=train_val_test, 
-                actual=actual, 
-                predicted=predicted,
-                color_map = "Blues"
-            )
     
-    # Calculate accuracy
-    accuracy = 100 * correct / total
-    message = f'{dataset} classification Accuracy: {accuracy:.2f}%'
-    print(message)
-    logger.info(message)
+    model.eval()
+    # switch off autograd
+    with torch.no_grad():
+        # loop over the test set
+        datasets = [("train", train_loader), ("validation", val_loader)]
+        for name, dataset_x_y in datasets:
+            startTime = time.time()
+            # finish measuring how long training too
+            for (x,y) in dataset_x_y:
+                (x,y) = (x.to(device), y.to(device))
+                _, _, _, pred = model(x)
+                test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
+                accuracy = test_correct / len(x)
+                logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
+                plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
+            endTime = time.time()
+            logger.info(f"Total time taken evaluate on {name} set the model: {(endTime - startTime):.2f}s")
