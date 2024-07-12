@@ -69,7 +69,7 @@ class VAE(nn.Module):
 
     def encode(self, 
                 x: torch.Tensor
-    ) -> [torch.Tensor, torch.Tensor]:
+    ) -> Union[torch.Tensor, torch.Tensor]:
         """ Encode the input data.
 
         Args: 
@@ -95,7 +95,7 @@ class VAE(nn.Module):
             z (torch.Tensor): The sampled latent representation.
         """
         std = torch.exp(0.5 * logvar)
-        eps = torch.randn_like(std).to(self.device)
+        eps = torch.randn_like(std)
         return mu + eps * std
 
     def decode(self, 
@@ -116,7 +116,7 @@ class VAE(nn.Module):
 
     def forward(self, 
             x: torch.Tensor
-        ) -> [torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        ) -> Union[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """ Forward pass of the VAE.
 
         Args:
@@ -129,8 +129,8 @@ class VAE(nn.Module):
             class_probs (torch.Tensor): The class probabilities.
         """
         mu, logvar = self.encode(x)
-        z = self.reparameterize(mu, logvar)
-        class_probs = F.softmax(self.classifier(z), dim=1)
+        z = self.reparameterize(mu, logvar).to(self.device)
+        class_probs = F.softmax(self.classifier(z), dim=1).to(self.device)
         recon_x = self.decode(z, class_probs)
         return recon_x, mu, logvar, class_probs
 
@@ -143,7 +143,8 @@ def vae_classifier_loss(
         class_probs: torch.Tensor, 
         labels: torch.Tensor, 
         alpha: int = 0.2, 
-        beta: int = 0.8
+        beta: int = 0.7,
+        gamma: int = 0.1,
     ) -> float:
     """Classification loss for the VAE.
 
@@ -162,7 +163,8 @@ def vae_classifier_loss(
     """
     BCE = F.binary_cross_entropy(recon_x, x, reduction='sum')
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    class_probs = class_probs.float()
-    labels = labels.float()
-    CE = F.cross_entropy(class_probs, labels, reduction='sum')
-    return BCE + alpha * KLD + beta * CE
+    class_probs = class_probs.argmax(1).float()
+    labels = labels.argmax(1).float()
+    cce = nn.CrossEntropyLoss()
+    CCE = cce(class_probs,labels)
+    return (alpha * BCE) + (beta * KLD) + (gamma * CCE)

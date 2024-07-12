@@ -21,7 +21,7 @@ from data import load_dataset
 
 if __name__ == "__main__":
     datasets = ["species", "part", "oil_simple", "oil", "oil_regression", "cross-species"]
-    
+    datasets = ["oil", "cross-species"]
     logger = logging.getLogger(__name__)
     # Run argument for numbered log files.
     output = f"logs/out.log"
@@ -59,11 +59,13 @@ if __name__ == "__main__":
                 'svm-rbf': svm(kernel='rbf'), 
                 'svm-poly': svm(kernel='poly'),
                 'svm-sigmoid': svm(kernel='sigmoid'),
+                'lor': lor(),
                 # Ensemble
                 'ensemble': VotingClassifier(
                     estimators=[
                         ('knn', knn()), 
                         ('dt', dt()), 
+                        ('lor', lor()), 
                         ('lda', lda()), 
                         ('nb', nb()), 
                         ('rf', rf()),
