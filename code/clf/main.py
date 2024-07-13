@@ -12,7 +12,6 @@ from sklearn.ensemble import VotingClassifier
 from sklearn.ensemble import VotingRegressor
 from sklearn.naive_bayes import GaussianNB as nb
 from sklearn.svm import SVC as svm
-import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import mean_squared_error
@@ -20,8 +19,7 @@ from sklearn.metrics import mean_absolute_error
 from data import load_dataset
 
 if __name__ == "__main__":
-    datasets = ["species", "part", "oil_simple", "oil", "oil_regression", "cross-species"]
-    datasets = ["oil", "cross-species"]
+    datasets = ["species", "part", "oil", "cross-species"]
     logger = logging.getLogger(__name__)
     # Run argument for numbered log files.
     output = f"logs/out.log"
@@ -36,53 +34,41 @@ if __name__ == "__main__":
         # Load the dataset.
         X,y = load_dataset(dataset)
 
-        if is_classification:
-            # The different models to try out.
-            models = { 
-                # KNN
-                'knn-n2': knn(n_neighbors=2), 
-                'knn-n3': knn(n_neighbors=3), 
-                'knn-n5': knn(n_neighbors=5), 
-                'knn-n10': knn(n_neighbors=10), 
-                'knn-n20': knn(n_neighbors=20), 
-                'dt': dt(), 
-                # LDA
-                'lda-lsqr': lda(solver='lsqr'),
-                'lda-svd': lda(solver='svd'),
-                # 'lda-eigen': lda(solver='eigen'),
-                # NB
-                'nb': nb(), 
-                # RF
-                'rf': rf(), 
-                # SVM
-                'svm-linear': svm(kernel='linear'), 
-                'svm-rbf': svm(kernel='rbf'), 
-                'svm-poly': svm(kernel='poly'),
-                'svm-sigmoid': svm(kernel='sigmoid'),
-                'lor': lor(),
-                # Ensemble
-                'ensemble': VotingClassifier(
-                    estimators=[
-                        ('knn', knn()), 
-                        ('dt', dt()), 
-                        ('lor', lor()), 
-                        ('lda', lda()), 
-                        ('nb', nb()), 
-                        ('rf', rf()),
-                        ('svm', svm(kernel='linear'))],
-                    voting='hard'
-                )
-            }
-        else:   
-            # The different models to try out.
-            models = { 
-                'lr': lr(), 
-                'svr': svr(),
-                'xgb': xgb.XGBRegressor(),
-                'ensemble': VotingRegressor(
-                    estimators=[('lr', lr()), ('svr', svr()), ('xgb', xgb.XGBRegressor())],
-                ) # voting='hard')
-            }
+        models = { 
+            # KNN
+            'knn-n2': knn(n_neighbors=2), 
+            'knn-n3': knn(n_neighbors=3), 
+            'knn-n5': knn(n_neighbors=5), 
+            'knn-n10': knn(n_neighbors=10), 
+            'knn-n20': knn(n_neighbors=20), 
+            'dt': dt(), 
+            # LDA
+            'lda-lsqr': lda(solver='lsqr'),
+            'lda-svd': lda(solver='svd'),
+            # 'lda-eigen': lda(solver='eigen'),
+            # NB
+            'nb': nb(), 
+            # RF
+            'rf': rf(), 
+            # SVM
+            'svm-linear': svm(kernel='linear'), 
+            'svm-rbf': svm(kernel='rbf'), 
+            'svm-poly': svm(kernel='poly'),
+            'svm-sigmoid': svm(kernel='sigmoid'),
+            'lor': lor(),
+            # Ensemble
+            'ensemble': VotingClassifier(
+                estimators=[
+                    ('knn', knn()), 
+                    ('dt', dt()), 
+                    ('lor', lor()), 
+                    ('lda', lda()), 
+                    ('nb', nb()), 
+                    ('rf', rf()),
+                    ('svm', svm(kernel='linear'))],
+                voting='hard'
+            )
+        }
         
         runs = 30
         logger.info(f"Running {runs} experiments")
