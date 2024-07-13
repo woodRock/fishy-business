@@ -210,8 +210,8 @@ if __name__ == "__main__":
         val_loader, 
         criterion,
         optimizer, 
-        num_epochs=100, 
-        patience=10
+        num_epochs=num_epochs, 
+        patience=patience
     )
     
     # finish measuring how long training took
