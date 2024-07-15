@@ -1,7 +1,7 @@
-import time
 import argparse
+import logging
+import time
 import torch
-from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
 from util import preprocess_dataset
 from pso import PSO
@@ -38,6 +38,14 @@ if __name__ == "__main__":
     
     args = vars(parser.parse_args())
 
+    # Logging output to a file.
+    logger = logging.getLogger(__name__)
+    # Run argument for numbered log files.
+    output = f"{args['output']}_{args['run']}.log"
+    # Filemode is write, so it clears the file, then appends output.
+    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
+    file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
+
     dataset = args['dataset']
     is_data_augmentation = args['data_augmentation']
     num_epochs = args['epochs']
@@ -68,7 +76,7 @@ if __name__ == "__main__":
     start_time = time.time()
     pso_clf.fit(train_loader, val_loader)
     end_time = time.time()
-    print(f"Training time: {end_time - start_time:.4f} seconds")
+    logger.info(f"Training time: {end_time - start_time:.4f} seconds")
     
     # Make predictions and evaluate
     y_pred = pso_clf.predict(train_loader)
@@ -79,6 +87,6 @@ if __name__ == "__main__":
     y_true = torch.cat([torch.argmax(y, dim=1) for _, y in val_loader]).numpy()
     val_acc = accuracy_score(y_true, y_pred)
     
-    print(f"Final - Train Accuracy: {val_acc:.4f} Validation Accuracy: {val_acc:.4f}")
+    logger.info(f"Final - Train Accuracy: {val_acc:.4f} Validation Accuracy: {val_acc:.4f}")
     
    

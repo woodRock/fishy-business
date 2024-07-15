@@ -1,3 +1,4 @@
+import logging
 import torch
 
 class PSO:
@@ -9,7 +10,7 @@ class PSO:
         self.w = w
         self.n_classes = n_classes
         self.n_features = n_features
-        
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         # Initialize particles and velocities
@@ -21,6 +22,9 @@ class PSO:
         self.pbest_fitness = torch.full((n_particles,), float('-inf'), device=self.device)
         self.gbest = self.particles[0].clone()
         self.gbest_fitness = torch.tensor(float('-inf'), device=self.device)
+
+        logger = logging.getLogger(__name__)
+        logger.info(f"Using device: {self.device}")
 
     def fitness(self, particle, data_loader):
         total_correct = 0
@@ -46,6 +50,7 @@ class PSO:
         return new_velocity
 
     def fit(self, train_loader, val_loader):
+        logger = logging.getLogger(__name__)
         for iteration in range(self.n_iterations):
             for i in range(self.n_particles):
                 fitness = self.fitness(self.particles[i], train_loader)
@@ -67,7 +72,7 @@ class PSO:
             
             # Evaluate on validation set
             val_accuracy = self.fitness(self.gbest, val_loader)
-            print(f"Iteration {iteration+1}/{self.n_iterations}, Training Accuracy {self.gbest_fitness:.4f} Validation Accuracy: {val_accuracy:.4f}")
+            logger.info(f"Iteration {iteration+1}/{self.n_iterations}, Training Accuracy {self.gbest_fitness:.4f} Validation Accuracy: {val_accuracy:.4f}")
 
     def predict(self, data_loader):
         all_predictions = []

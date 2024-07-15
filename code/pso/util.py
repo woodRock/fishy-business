@@ -307,6 +307,8 @@ def preprocess_dataset(
         val_steps (int), : the number of validation steps.
         data (pd.DataFrame): the dataframe storing the entire dataset.
     """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Preprocessing dataset: {dataset}")
     data = load_from_file()
     # For pre-training, keep all instances.
     if not is_pre_train:
@@ -320,4 +322,5 @@ def preprocess_dataset(
         is_data_augmentation=is_data_augmentation,
         batch_size=batch_size
     )
+
     return train_loader, val_loader
