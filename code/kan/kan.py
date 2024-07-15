@@ -99,3 +99,46 @@ class StackedKAN(nn.Module):
         for layer in self.layers:
             x = layer(x)
         return x
+    
+import numpy as np
+import matplotlib.pyplot as plt
+
+if __name__ == "__main__":
+    num_epochs = 100_000
+
+    # Set the device to cuda if available.
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+
+    # Make a dataset of sine waves.
+    x = np.linspace(0, 10, 1000)
+    y = np.sin(x)
+    x = torch.tensor(x, dtype=torch.float32).unsqueeze(-1)
+    y = torch.tensor(y, dtype=torch.float32).unsqueeze(-1)
+    x, y = x.to(device), y.to(device)
+    
+    model = StackedKAN(
+        input_dim = 1, 
+        output_dim = 1,
+        hidden_dim = 64,
+        num_inner_functions = 10,
+        dropout_rate = 0.2,
+        num_layers = 1
+    )
+    model = model.to(device)
+
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
+    criterion = nn.MSELoss()
+
+    for epoch in range(num_epochs):
+        optimizer.zero_grad()
+        y_pred = model(x)
+        loss = criterion(y_pred, y)
+        loss.backward()
+        optimizer.step()
+        print(f"Epoch {epoch} Loss: {loss.item()}")
+
+    y_pred = model(x)
+    plt.plot(x.cpu().detach().numpy(), y_pred.cpu().detach().numpy())
+    plt.plot(x.cpu().detach().numpy(), y.cpu().detach().numpy())
+    plt.savefig("figures/sine_wave.png")

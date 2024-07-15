@@ -11,8 +11,8 @@ from train import train_model, evaluate_model
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-                    prog='Transformer',
-                    description='A transformer for fish species classification.',
+                    prog='Kolmogorov-Arnold Networks (KAN)',
+                    description='A KAN for fish species classification.',
                     epilog='Implemented in pytorch and written in python.')
     parser.add_argument('-d', '--dataset', type=str, default="species",
                          help="The fish species or part dataset. Defaults to species")
