@@ -65,28 +65,24 @@ if __name__ == "__main__":
     n_features = X_sample.shape[1]
     n_classes = y_sample.shape[1]  # Assuming one-hot encoded labels
     
+    from pso_rf import PSORandomForestClassifier
     # Initialize and train PSO classifier
-    pso_clf = PSO(
+    model = PSORandomForestClassifier(
         n_particles=500, 
-        n_iterations=50, 
+        n_iterations=num_epochs, 
         c1=0.4, c2=0.4, w=0.2,
-        n_classes=n_classes, n_features=n_features
+        n_classes=n_classes,
+        n_features=n_features
     )
     
     start_time = time.time()
-    pso_clf.fit(train_loader, val_loader)
+    model.fit(train_loader, val_loader)
     end_time = time.time()
     logger.info(f"Training time: {end_time - start_time:.4f} seconds")
     
-    # Make predictions and evaluate
-    y_pred = pso_clf.predict(train_loader)
-    y_true = torch.cat([torch.argmax(y, dim=1) for _, y in train_loader]).numpy()
-    train_acc = accuracy_score(y_true, y_pred)
-    
-    y_pred = pso_clf.predict(val_loader)
-    y_true = torch.cat([torch.argmax(y, dim=1) for _, y in val_loader]).numpy()
-    val_acc = accuracy_score(y_true, y_pred)
-    
-    logger.info(f"Final - Train Accuracy: {val_acc:.4f} Validation Accuracy: {val_acc:.4f}")
-    
-   
+    # Evaluate the model on the training and validation DataLoaders.
+    train_accuracy = model.evaluate(train_loader)
+    val_accuracy = model.evaluate(val_loader)
+    score_str = f"Training Accuracy: {train_accuracy:.4f} Validation Accuracy: {val_accuracy:.4f}"
+    logger.info(score_str)
+    print(f"{score_str}")
