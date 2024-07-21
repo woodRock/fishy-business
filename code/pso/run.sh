@@ -7,7 +7,7 @@
 DATASET="cross-species"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp_02";
+NAME="tmp";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];

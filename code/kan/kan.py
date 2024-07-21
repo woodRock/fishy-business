@@ -49,9 +49,9 @@ class KAN(nn.Module):
         batch_size = x.size(0)
 
         # Inner functions (vectorized)
-        inner = F.leaky_relu(self.inner_bn1(self.inner_linear1(x)))
+        inner = F.gelu(self.inner_bn1(self.inner_linear1(x)))
         inner = self.dropout(inner)
-        inner = F.leaky_relu(self.inner_bn2(self.inner_linear2(inner)))
+        inner = F.gelu(self.inner_bn2(self.inner_linear2(inner)))
         inner = self.dropout(inner)
         inner = self.inner_linear3(inner)
         inner = inner.view(batch_size, 2 * self.input_dim + 1, self.num_inner_functions)
@@ -64,9 +64,9 @@ class KAN(nn.Module):
         summed = torch.sum(inner, dim=1)
 
         # Outer functions (vectorized)
-        outer = F.leaky_relu(self.outer_bn1(self.outer_linear1(summed)))
+        outer = F.gelu(self.outer_bn1(self.outer_linear1(summed)))
         outer = self.dropout(outer)
-        outer = F.leaky_relu(self.outer_bn2(self.outer_linear2(outer)))
+        outer = F.gelu(self.outer_bn2(self.outer_linear2(outer)))
         outer = self.dropout(outer)
         output = self.outer_linear3(outer)
 
