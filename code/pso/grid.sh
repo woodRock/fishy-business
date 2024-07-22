@@ -38,4 +38,4 @@ python3 main.py \
     --dataset "${DATASET}" \
     --file-path "checkpoints/run_${i}.pth" \
     --output "logs/${DATASET}/${NAME}/run" --run "${i}" \
-    --generations 400;
+    --generations 100;

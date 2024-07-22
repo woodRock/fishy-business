@@ -35,6 +35,7 @@ if __name__ == "__main__":
     val_accs = [] 
     test_accs = []
 
+    # For each result file in the results log.
     runs = len(os.listdir(folder))
 
     # For each experiment in a batch of 30 independent runs.

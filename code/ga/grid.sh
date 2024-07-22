@@ -18,7 +18,7 @@ need sgegrid
 # Change directory to desktop fishy-business
 cd ~/Desktop/fishy-business/code/ga
 
-DATASET="part"; 
+DATASET="cross-species"; 
 # DATASET="species";
 # Directory to save results to.
 NAME="tmp";
