@@ -1,101 +1,92 @@
+import argparse
+import logging
 import numpy as np
-import torch
-from deap import base, creator, tools, algorithms
 from util import preprocess_dataset
+from ga import train
 
-train_loader, val_loader, _, _ , _ = preprocess_dataset(
-    dataset="species",
-    batch_size=64,
-    is_data_augmentation=True,
-    is_pre_train=False
-)
+if __name__ == "__main__":
 
-# Define the genetic algorithm components
-def create_individual(n_features, n_classes):
-    return np.random.rand(n_features, n_classes)
+    # Handle the command line arguments for the script.
+    parser = argparse.ArgumentParser(
+                    prog='Genetic Algorithm',
+                    description='An genetic algorithm (GP) for fish species classification.',
+                    epilog='Implemented in deap and written in python.')
+    parser.add_argument('-f', '--file-path', type=str, default="checkpoints/embedded-gp.pth", 
+                        help="The filepath to store the checkpoints. Defaults to checkpoints/embedded-gp.pth")
+    parser.add_argument('-d', '--dataset', type=str, default="species", 
+                        help="The fish species or part dataset. Defaults to species.")
+    parser.add_argument('-l', '--load', type=bool, action=argparse.BooleanOptionalAction, default=False,
+                        help="To load a checkpoint from a file. Defaults to false")
+    parser.add_argument('-r', '--run', type=int, default=0,
+                        help="The number for the run, this effects the random seed. Defaults to 0")
+    parser.add_argument('-o', '--output', type=str, default=f"logs/results",
+                        help="Partial filepath for the output logging. Defaults to 'logs/results'.")
+    parser.add_argument('-p', '--population', type=int, default=1023,
+                        help="The number of individuals in the population. Defaults to 1023.")
+    parser.add_argument('-b', '--beta', type=int, default=-1,
+                        help="Specify beta * num_features as population size. Defaults to -1.")
+    parser.add_argument('-g', '--generations', type=int, default=10,
+                        help="The number of generations, or epochs, to train for. Defaults to 10.")
+    parser.add_argument('-mx', '--mutation-rate', type=float, default=0.2,
+                        help="The probability of a mutation operations occuring. Defaults to 0.2")
+    parser.add_argument('-cx', '--crossover-rate', type=int, default=0.8,
+                        help="The probability of a mutation operations occuring. Defaults to 0.2")
+    parser.add_argument('-e', '--elitism', type=int, default=0.1,
+                        help="The ratio of elitists to be kept each generation.")
 
-def evaluate(individual, data_loader):
-    individual_tensor = torch.FloatTensor(individual)
-    correct = 0
-    total = 0
-    for X_batch, y_batch in data_loader:
-        predictions = torch.argmax(X_batch @ individual_tensor, dim=1)
-        correct += (predictions == y_batch.argmax(1)).sum().item()
-        total += len(y_batch)
-    return correct / total,
+    args = vars(parser.parse_args())
 
-def mutate(individual, mu, sigma, indpb):
-    for i in range(individual.shape[0]):
-        for j in range(individual.shape[1]):
-            if np.random.random() < indpb:
-                individual[i, j] += np.random.normal(mu, sigma)
-    return individual,
+    # Freeze the seed for reproduceability.
+    run = args['run'] # @param {type: "integer"}
+    dataset = args['dataset']
+    file_path = args['file_path']
 
-# Set up the DEAP toolbox
-creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-creator.create("Individual", np.ndarray, fitness=creator.FitnessMax)
+    # Logging output to a file.
+    logger = logging.getLogger(__name__)
+    # Run argument for numbered log files.
+    output = f"{args['output']}_{args['run']}.log"
+    # Filemode is write, so it clears the file, then appends output.
+    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
 
-toolbox = base.Toolbox()
-toolbox.register("individual", tools.initIterate, creator.Individual, 
-                 lambda: create_individual(1023, 2))
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-toolbox.register("evaluate", evaluate, data_loader=train_loader)
-toolbox.register("mate", tools.cxTwoPoint)
-toolbox.register("mutate", mutate, mu=0, sigma=0.2, indpb=0.1)
-toolbox.register("select", tools.selTournament, tournsize=3)
+    # Freeze the seed for reproduceability.
+    run = args['run'] # @param {type: "integer"}
+    dataset = args['dataset']
+    file_path = args['file_path']
 
-# Set up the genetic algorithm parameters
-population_size = 100
-n_generations = 100
-crossover_prob = 0.7
-mutation_prob = 0.2
+    # Logging output to a file.
+    logger = logging.getLogger(__name__)
+    # Run argument for numbered log files.
+    output = f"{args['output']}_{args['run']}.log"
+    # Filemode is write, so it clears the file, then appends output.
+    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
 
-def array_equal(arr1, arr2):
-    return np.array_equal(arr1, arr2)
+    train_loader, val_loader, _, _ , _ = preprocess_dataset(
+        dataset=dataset,
+        batch_size=64,
+        is_data_augmentation=True,
+        is_pre_train=False
+    )
 
-# Create the Hall of Fame with the custom similarity function
-hof = tools.HallOfFame(5, similar=array_equal)
+    # The number of features in the dataset.
+    n_features = 1023
 
-# Statistics to track
-stats = tools.Statistics(lambda ind: ind.fitness.values)
-stats.register("avg", np.mean)
-stats.register("std", np.std)
-stats.register("min", np.min)
-stats.register("max", np.max)
+    # Hyperparameters
+    beta = args['beta'] # @param {type: "integer"}
+    population = beta * n_features
+    if beta == -1:
+        population = args['population']
+    generations = args['generations'] # @param {type: "integer"}
+    elitism = args['elitism'] # @param {type: "number"}
+    crossover_rate = args['crossover_rate'] # @param {type: "number"}
+    mutation_rate = args['mutation_rate'] # @param {type: "number"}
+    tree_depth = 6 # Manually set the maximum tree depth.
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+    if dataset not in n_classes_per_dataset.keys():
+        raise ValueError(f"Invalid dataset: {dataset} not in {n_classes_per_dataset.keys()}")
+    n_classes = n_classes_per_dataset[dataset]
 
-# Run the genetic algorithm with elitism
-population = toolbox.population(n=population_size)
+    assert crossover_rate + mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
 
-for gen in range(n_generations):
-    # Select and clone the next generation individuals
-    offspring = algorithms.varAnd(population, toolbox, cxpb=crossover_prob, mutpb=mutation_prob)
-    
-    # Evaluate the individuals with an invalid fitness
-    invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-    for ind, fit in zip(invalid_ind, fitnesses):
-        ind.fitness.values = fit
-    
-    # Update the hall of fame with the generated individuals
-    hof.update(offspring)
-    
-    # Select the next generation population
-    population[:] = toolbox.select(offspring, k=len(population) - len(hof))
-    population.extend(hof)  # Add the best back to the population
-    
-    # Compile statistics about the new population
-    record = stats.compile(population)
-    print(f"Generation {gen+1}: Best={record['max']:.4f}, Avg={record['avg']:.4f}")
-
-# Get the best individual from the Hall of Fame
-best_individual = hof[0]
-
-# Evaluate the best individual on the test set
-test_accuracy = evaluate(best_individual, val_loader)[0]
-
-print(f"Best individual's test accuracy: {test_accuracy:.4f}")
-
-# Print the top 5 individuals from the Hall of Fame
-print("\nTop 5 individuals:")
-for i, ind in enumerate(hof):
-    print(f"{i+1}. Fitness: {ind.fitness.values[0]:.4f}")
+    train(
+        train_loader, val_loader, n_classes, population, crossover_rate, mutation_rate, generations
+    )
