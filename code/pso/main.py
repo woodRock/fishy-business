@@ -1,8 +1,6 @@
 import argparse
 import logging
 import time
-import torch
-from sklearn.metrics import accuracy_score
 from util import preprocess_dataset
 from pso import PSO
 
@@ -29,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('-ls', '--label-smoothing', type=float, default=0.1,
                         help="The alpha value for label smoothing. 1 is a uniform distribution, 0 is no label smoothing. Defaults to 0.1")
     # Hyperparameters
-    parser.add_argument('-e', '--epochs', type=int, default=100,
+    parser.add_argument('-g', '--generations', type=int, default=100,
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
                         help="The learning rate for the model. Defaults to 1E-3.")
@@ -48,7 +46,7 @@ if __name__ == "__main__":
 
     dataset = args['dataset']
     is_data_augmentation = args['data_augmentation']
-    num_epochs = args['epochs']
+    generations = args['generations']
     learning_rate = args['learning_rate']
     batch_size = args['batch_size']
     label_smoothing = args['label_smoothing']
@@ -65,11 +63,10 @@ if __name__ == "__main__":
     n_features = X_sample.shape[1]
     n_classes = y_sample.shape[1]  # Assuming one-hot encoded labels
     
-    from pso_rf import PSORandomForestClassifier
     # Initialize and train PSO classifier
-    model = PSORandomForestClassifier(
+    model = PSO(
         n_particles=500, 
-        n_iterations=num_epochs, 
+        n_iterations=generations, 
         c1=0.4, c2=0.4, w=0.2,
         n_classes=n_classes,
         n_features=n_features

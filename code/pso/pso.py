@@ -1,7 +1,8 @@
 import logging
 import torch
 import torch.nn as nn
-from tqdm import tqdm 
+from tqdm import tqdm
+from sklearn.metrics import balanced_accuracy_score
 
 
 class PSO(nn.Module):
@@ -117,3 +118,24 @@ class PSO(nn.Module):
                 y_pred = torch.argmax(X_batch @ self.gbest.T, dim=1)
                 all_predictions.append(y_pred.cpu())
         return torch.cat(all_predictions).numpy()
+    
+    def evaluate(self, data_loader):
+        # Initialize variables to keep track of predictions and true labels
+        all_predictions = []
+        all_true_labels = []
+
+        # Iterate through the data loader
+        for x,y in data_loader:            
+            # Get predictions from the model
+            y_pred = torch.argmax(x @ self.gbest.T, dim=1)
+            # Convert y labels to scalar.
+            y = torch.argmax(y, dim=1)
+            # Append predictions and true labels
+            all_predictions.extend(y_pred)
+            all_true_labels.extend(y)
+
+        # Calculate balanced accuracy score
+        balanced_accuracy = balanced_accuracy_score(all_true_labels, all_predictions)
+
+        return balanced_accuracy
+    
