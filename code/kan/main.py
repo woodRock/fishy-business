@@ -1,15 +1,14 @@
 import argparse
 import logging
-from tqdm import tqdm
 import torch
 import torch.nn as nn 
 import torch.optim as optim
 from util import preprocess_dataset
-from kan import KAN, StackedKAN
+from kan import StackedKAN
 from train import train_model, evaluate_model
 
 
-if __name__ == "__main__":
+def parse_arguments():
     parser = argparse.ArgumentParser(
                     prog='Kolmogorov-Arnold Networks (KAN)',
                     description='A KAN for fish species classification.',
@@ -47,53 +46,40 @@ if __name__ == "__main__":
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
 
-    args = vars(parser.parse_args())
+    return parser.parse_args()
 
-    # Logging output to a file.
+def setup_logging(args):
     logger = logging.getLogger(__name__)
-    # Run argument for numbered log files.
-    output = f"{args['output']}_{args['run']}.log"
-    # Filemode is write, so it clears the file, then appends output.
+    output = f"{args.output}_{args.run}.log"
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
-    file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
+    return logger
 
-    dataset = args['dataset']
-    is_data_augmentation = args['data_augmentation']
-    is_next_masked_spectra_modelling = args['masked_spectra_modelling']
-    is_next_spectra_prediction = args['next_spectra_prediction']
-    num_epochs = args['epochs']
-    learning_rate = args['learning_rate']
-    batch_size = args['batch_size']
-    label_smoothing = args['label_smoothing']
-    input_size = 1023
-    num_classes_per_dataset = {'species': 2, 'part': 6, 'oil_simple': 2, 'oil': 7, 'cross-species': 3}
-    if dataset not in num_classes_per_dataset.keys():
-        raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
-    num_classes = num_classes_per_dataset[dataset]
 
+def main():
+    args = parse_arguments()
+    logger = setup_logging(args)
+
+    n_features = 1023
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+
+    if args.dataset not in n_classes_per_dataset:
+        raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
+    
+    n_classes = n_classes_per_dataset[args.dataset]
 
     # Load the dataset.
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
-        dataset, 
-        is_data_augmentation, 
-        batch_size=batch_size,
+        args.dataset, 
+        args.data_augmentation, 
+        batch_size=args.batch_size,
         is_pre_train=False
     )    
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Device: {device}")
 
-    # # Instantiate model, loss function, and optimizer
-    # model = KAN(
-    #     input_dim=input_size, 
-    #     output_dim=num_classes, 
-    #     hidden_dim=128, 
-    #     num_inner_functions=20, 
-    #     dropout_rate=0.2, 
-    # )
-
-    model = StackedKAN(input_dim=input_size, 
-        output_dim=num_classes, 
+    model = StackedKAN(input_dim=n_features, 
+        output_dim=n_classes, 
         hidden_dim=128, 
         num_inner_functions=20, 
         dropout_rate=0.2, 
@@ -101,8 +87,8 @@ if __name__ == "__main__":
     )
 
     model = model.to(device)
-    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     model = train_model(
         model=model, 
@@ -110,14 +96,17 @@ if __name__ == "__main__":
         val_loader=val_loader, 
         criterion=criterion,
         optimizer=optimizer, 
-        num_epochs=num_epochs, 
-        patience=args['early_stopping']
+        num_epochs=args.epochs, 
+        patience=args.early_stopping
     )
 
     evaluate_model(
         model=model, 
         train_loader=train_loader, 
         val_loader=val_loader, 
-        dataset=dataset, 
+        dataset=args.dataset, 
         device=device
     )
+
+if __name__ == "__main__":
+    main()

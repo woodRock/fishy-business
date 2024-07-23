@@ -2,10 +2,7 @@ import argparse
 import logging
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
-from tqdm import tqdm
-import matplotlib.pyplot as plt
 from util import preprocess_dataset
 from train import train_model, evaluate_model
 from vae import VAE
@@ -81,15 +78,15 @@ def main():
     
     num_classes = num_classes_per_dataset[args.dataset]
 
-    # Define optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
-
     train_loader, val_loader = preprocess_dataset(
         dataset=args.dataset,
         is_data_augmentation=False,
         batch_size=64,
         is_pre_train=False
     )
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
 
     model = VAE(
         input_size=n_features,
@@ -98,11 +95,8 @@ def main():
         device=device,
         dropout=args.dropout
     )
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
-    
     model = model.to(device)
+
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
