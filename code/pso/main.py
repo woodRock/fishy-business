@@ -67,7 +67,8 @@ if __name__ == "__main__":
     model = PSO(
         n_particles=500, 
         n_iterations=generations, 
-        c1=0.4, c2=0.4, w=0.2,
+        c1=0.4, c2=0.4, 
+        w_start=0.9, w_end=0.4,
         n_classes=n_classes,
         n_features=n_features
     )
