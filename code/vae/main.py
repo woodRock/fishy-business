@@ -36,6 +36,7 @@ def parse_arguments():
     #                 action='store_true', default=False,
     #                 help="Flag to perform next spectra prediction. Defaults to False.") 
     # 
+
     # Regularization
     parser.add_argument('-es', '--early-stopping', type=int, default=10,
                         help='Early stopping patience. To disable early stopping set to the number of epochs. Defaults to 5.')
@@ -80,20 +81,6 @@ def main():
     
     num_classes = num_classes_per_dataset[args.dataset]
 
-    # Instantiate the model 
-    # Check if CUDA is available
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    model = VAE(
-        input_size=1023, 
-        latent_dim=256, 
-        num_classes=num_classes,
-        device=device
-    )
-    # Move it to GPU
-    print(f"Using device: {device}")
-    model = model.to(device)
-
     # Define optimizer
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
@@ -113,6 +100,8 @@ def main():
     )
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    
     model = model.to(device)
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
