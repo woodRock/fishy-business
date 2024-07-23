@@ -11,7 +11,7 @@ from train import train_model, evaluate_model
 from vae import VAE
 
 
-if __name__ == "__main__":
+def parse_arguments():
     # Handle the command line arguments for the script.
     parser = argparse.ArgumentParser(
                     prog='Variational Autoencoder (VAE) neural network',
@@ -59,41 +59,26 @@ if __name__ == "__main__":
     parser.add_argument('-nh', '--num-heads', type=int, default=4,
                         help='The number of heads for multi-head attention. Defaults to 4.')
 
-    args = vars(parser.parse_args())
+    return parser.parse_args()
 
-    # Logging output to a file.
+
+def setup_logging(args):    # Logging output to a file.
     logger = logging.getLogger(__name__)
-    # Run argument for numbered log files.
-    output = f"{args['output']}_{args['run']}.log"
-    # Filemode is write, so it clears the file, then appends output.
+    output = f"{args.output}_{args.run}.log"
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
-    file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
-    dataset = args['dataset']
-    logger.info(f"Dataset: {dataset}")
+    return logger
 
-    # Preprocessing
-    is_data_augmentation = args['data_augmentation'] # @param {type:"boolean"}
-    # Pretraining
-    # is_next_spectra = args['next_spectra_prediction'] # @param {type:"boolean"}
-    # is_masked_spectra = args['masked_spectra_modelling'] # @param {type:"boolean"}
-    
-    # Regularization
-    is_early_stopping = args['early_stopping'] is not None # @param {type:"boolean"}
-    patience = args['early_stopping']
-    dropout = args['dropout']
-    label_smoothing = args['label_smoothing']
+def main():
+    args = parse_arguments()
+    logger = setup_logging(args)
 
-    # Hyperparameters
-    num_epochs = args['epochs']
-    input_dim = 1023
-    num_heads = args['num_heads']
-    hidden_dimension = args['hidden_dimension']
-    learning_rate = args['learning_rate']
-
+    n_features = 1023
     num_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "oil_simple": 2, "cross-species": 3}
-    if dataset not in num_classes_per_dataset.keys():
-        raise ValueError(f"Invalid dataset: {dataset} not in {num_classes_per_dataset.keys()}")
-    num_classes = num_classes_per_dataset[dataset]
+    
+    if args.dataset not in num_classes_per_dataset.keys():
+        raise ValueError(f"Invalid dataset: {args.dataset} not in {num_classes_per_dataset.keys()}")
+    
+    num_classes = num_classes_per_dataset[args.dataset]
 
     # Instantiate the model 
     # Check if CUDA is available
@@ -110,27 +95,27 @@ if __name__ == "__main__":
     model = model.to(device)
 
     # Define optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     train_loader, val_loader = preprocess_dataset(
-        dataset=dataset,
+        dataset=args.dataset,
         is_data_augmentation=False,
         batch_size=64,
         is_pre_train=False
     )
 
     model = VAE(
-        input_size=input_dim,
-        latent_dim=hidden_dimension,
+        input_size=n_features,
+        latent_dim=args.hidden_dimension,
         num_classes=num_classes,
         device=device,
-        dropout=dropout
+        dropout=args.dropout
     )
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
-    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     model = train_model(
         model=model, 
@@ -138,14 +123,17 @@ if __name__ == "__main__":
         val_loader=val_loader, 
         criterion=criterion,
         optimizer=optimizer, 
-        num_epochs=num_epochs, 
-        patience=args['early_stopping']
+        num_epochs=args.epochs, 
+        patience=args.early_stopping,
     )
 
     evaluate_model(
         model=model, 
         train_loader=train_loader, 
         val_loader=val_loader, 
-        dataset=dataset, 
+        dataset=args.dataset, 
         device=device
     )
+
+if __name__ == "__main__":
+    main()
