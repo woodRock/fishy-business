@@ -15,7 +15,8 @@ from plot import plot_tsne, plot_gp_tree
 import warnings
 warnings.filterwarnings("ignore")
 
-if __name__ == "__main__":
+
+def parse_arguments():
     # Handle the command line arguments for the script.
     parser = argparse.ArgumentParser(
                     prog='Embedded Genetic Programming',
@@ -43,49 +44,34 @@ if __name__ == "__main__":
                         help="The probability of a mutation operations occuring. Defaults to 0.2")
     parser.add_argument('-e', '--elitism', type=int, default=0.1,
                         help="The ratio of elitists to be kept each generation.")
+    parser.add_argument('-td', '--tree-depth', type=int, default=6,
+                        help="The maximum tree depth for GP trees. Defaults to 6.")
 
-    args = vars(parser.parse_args())
+    return parser.parse_args()
 
-    # Freeze the seed for reproduceability.
-    run = args['run'] # @param {type: "integer"}
-    dataset = args['dataset']
-    file_path = args['file_path']
 
-    # Logging output to a file.
+def setup_logging(args):
     logger = logging.getLogger(__name__)
-    # Run argument for numbered log files.
-    output = f"{args['output']}_{args['run']}.log"
-    # Filemode is write, so it clears the file, then appends output.
+    output = f"{args.output}_{args.run}.log"
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
+    return logger
 
-    # The number of features in the dataset.
+
+def main():
+    args = parse_arguments()
+    logger = setup_logging(args)
+
     n_features = 1023
-    
-    # Hyperparameters
-    beta = args['beta'] # @param {type: "integer"}
-    population = beta * n_features
-    if beta == -1:
-        population = args['population']
-    generations = args['generations'] # @param {type: "integer"}
-    elitism = args['elitism'] # @param {type: "number"}
-    crossover_rate = args['crossover_rate'] # @param {type: "number"}
-    mutation_rate = args['mutation_rate'] # @param {type: "number"}
-    tree_depth = 6 # Manually set the maximum tree depth.
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
 
-    assert crossover_rate + mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
-
-    X,y = load_dataset(dataset=dataset)
+    if args.dataset not in n_classes_per_dataset:
+        raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
     
-    n_features = 1023
-    n_classes = 2
-    if dataset == "species" or dataset == "oil_simple":
-        n_classes = 2 
-    elif dataset == "part":
-        n_classes = 6
-    elif dataset == "oil":
-        n_classes = 7
-    elif dataset == "cross-species":
-        n_classes = 3
+    n_classes = n_classes_per_dataset[args.dataset]
+
+    assert args.crossover_rate + args.mutation_rate == 1, "Crossover and mutation sums to 1 (to please the Gods!)"
+
+    X,y = load_dataset(dataset=args.dataset)
         
     # Terminal set.
     # pset = gp.PrimitiveSet("MAIN", n_features)
@@ -140,30 +126,40 @@ if __name__ == "__main__":
     toolbox.register("mutate", xmut, expr=toolbox.expr_mut, pset=pset)
 
     # See https://groups.google.com/g/deap-users/c/pWzR_q7mKJ0
-    toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=tree_depth))
-    toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=tree_depth))
+    toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=args.tree_depth))
+    toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=args.tree_depth))
 
     # File path for saved model.
     pop, log, hof = None, None, None
 
     # If a saved model exists?
-    if args['load'] and os.path.isfile(file_path):
-        s = f"Loading model from file: {file_path}"
+    if args.load and os.path.isfile(args.file_path):
+        s = f"Loading model from file: {args.file_path}"
         logger.info(s)
         print(s)
-        pop, log, hof = load_model(file_path=file_path, toolbox=toolbox, generations=10)
+        pop, log, hof = load_model(file_path=args.file_path, toolbox=toolbox, generations=10)
     else:
         s = f"No model found. Train from scratch."
         logger.info(s)
         print(s)
-        pop, log, hof = train(generations=generations, population=population, elitism=elitism, 
-                                crossover_rate=crossover_rate, mutation_rate=mutation_rate, run=run, toolbox=toolbox)
+        pop, log, hof = train(
+            generations=args.generations, 
+            population=args.population, 
+            elitism=args.elitism, 
+            crossover_rate=args.crossover_rate, 
+            mutation_rate=args.mutation_rate, 
+            run=args.run, 
+            toolbox=toolbox
+        )
 
-    logger.info(f"Saving model to file: {file_path}")
-    save_model(file_path=file_path, population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run) # Best accuracy: 0.911423
+    logger.info(f"Saving model to file: {args.file_path}")
+    save_model(file_path=args.file_path, population=pop, generations=args.generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=args.run) # Best accuracy: 0.911423
      
     best = hof[0]
     features = toolbox.compile(expr=best, pset=pset)
     evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, y=y)
-    plot_tsne(dataset=dataset, X=X, y=y, features=features, toolbox=toolbox)
+    plot_tsne(dataset=args.dataset, X=X, y=y, features=features, toolbox=toolbox)
     plot_gp_tree(best)
+
+if __name__ == "__main__":
+    main()
