@@ -4,6 +4,7 @@ import time
 from util import preprocess_dataset
 from pso import PSO
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(
         prog='Genetic Algorithm',
