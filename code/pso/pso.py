@@ -79,10 +79,10 @@ class PSO(nn.Module):
                     self.gbest = self.particles[best_particle].clone()
                 
                 # Training accuracy
-                train_accuracy = self.fitness(self.gbest.unsqueeze(0), train_loader)[0]
+                train_accuracy = self.evaluate(train_loader)
                 
                 # Evaluate on validation set
-                val_accuracy = self.fitness(self.gbest.unsqueeze(0), val_loader)[0]
+                val_accuracy = self.evaluate(val_loader)
                 
                 if train_accuracy == 1:
                     # Early stopping check
