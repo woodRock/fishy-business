@@ -11,7 +11,7 @@ from train import train_model, evaluate_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
 
 
-if __name__ == "__main__":
+def parse_arguments():
     # Handle the command line arguments for the script.
     parser = argparse.ArgumentParser(
                     prog='Transformer',
@@ -49,51 +49,46 @@ if __name__ == "__main__":
                         help="The learning rate for the model. Defaults to 1E-5.")
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
+    parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
+                        help="The dimensionality of the hidden dimension. Defaults to 128")
+    parser.add_argument('-l', '--num-layers', type=float, default=4,
+                        help="Number of layers. Defaults to 3.")
+    parser.add_argument('-nh', '--num-heads', type=int, default=3,
+                        help='Number of heads. Defaults to 3.')
 
-    args = vars(parser.parse_args())
+    return parser.parse_args()
 
-    # Logging output to a file.
+def setup_logging(args):
     logger = logging.getLogger(__name__)
-    # Run argument for numbered log files.
-    output = f"{args['output']}_{args['run']}.log"
-    # Filemode is write, so it clears the file, then appends output.
+    output = f"{args.output}_{args.run}.log"
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
-    file_path = f"checkpoints/{args['file_path']}_{args['run']}.pth"
-    dataset = args['dataset']
+    return logger
 
-    # Preprocessing
-    is_data_augmentation = args['data_augmentation'] # @param {type:"boolean"}
-    # Pretraining
-    is_next_spectra = args['next_spectra_prediction'] # @param {type:"boolean"}
-    is_masked_spectra = args['masked_spectra_modelling'] # @param {type:"boolean"}
-    # Regularization
-    is_early_stopping = args['early_stopping'] is not None # @param {type:"boolean"}
-    patience = args['early_stopping']
-    dropout = args['dropout']
-    label_smoothing = args['label_smoothing']
-    # Hyperparameters
-    num_epochs = args['epochs']
+def main():
+    args = parse_arguments()
+    logger = setup_logging(args)
+
     input_dim = 1023
-    output_dim = 1023  # Same as input_dim for masked spectra prediction
-    num_layers = 3       
-    # num_layers = 6
-    num_heads = 3
-    # hidden_dim = 64
-    hidden_dim = 128 
-    learning_rate = args['learning_rate']
-    batch_size = args['batch_size']
 
-    logger.info(f"Reading the dataset: fish {dataset}")
+    logger.info(f"Reading the dataset: fish {args.dataset}")
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
-        dataset, 
-        is_data_augmentation, 
-        batch_size=batch_size,
+        args.dataset, 
+        args.data_augmentation, 
+        batch_size=args.batch_size,
         is_pre_train=True
     )
 
-    if is_masked_spectra:
+    if args.masked_spectra_modelling:
         # Load the transformer.
-        model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
+        model = Transformer(
+            input_dim, 
+            output_dim, 
+            args.num_layers, 
+            args.num_heads, 
+            args.hidden_dimension, 
+            args.dropout
+        )
+
         logger.info(f"model: {model}")
        
         # Specify the device (GPU or CPU)
@@ -102,7 +97,7 @@ if __name__ == "__main__":
         
         # Initialize your model, loss function, and optimizer
         criterion = nn.MSELoss()
-        optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+        optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
         logger.info("Pre-training the network: Masked Spectra Modelling")
         startTime = time.time()
@@ -110,13 +105,13 @@ if __name__ == "__main__":
         # Pre-training (Devlin 2018)
         model = pre_train_masked_spectra(
             model, 
-            num_epochs=num_epochs,  
+            num_epochs=args.epochs,  
             train_loader=train_loader, 
             val_loader=val_loader,
             device=device,
             criterion=criterion,
             optimizer=optimizer,
-            file_path=file_path
+            file_path=args.file_path
         )
 
         # finish measuring how long training took
@@ -125,19 +120,30 @@ if __name__ == "__main__":
 
     output_dim = 2 # Onehot encoded, same or not.
 
-    if is_next_spectra:
+    if args.next_spectra_prediction:
         # Initialize the model, criterion, and optimizer
-        model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
+        model = Transformer(
+            input_dim, 
+            output_dim,
+            args.num_layers, 
+            args.num_heads, 
+            args.hidden_dimension, 
+            args.dropout
+        )
+        
         logger.info(f"model: {model}")
 
         # Transfer learning
-        if is_masked_spectra:
-            model = pre_train_transfer_learning(model, file_path=file_path)
+        if args.masked_spectra_modelling:
+            model = pre_train_transfer_learning(
+                model, 
+                file_path=args.file_path
+            )
 
         # Label smoothing (Szegedy 2016)
-        criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+        criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
         # AdamW (Loshchilov 2017)
-        optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+        optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
        
         # Specify the device (GPU or CPU)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -149,53 +155,58 @@ if __name__ == "__main__":
         # Train the model
         model = pre_train_model_next_spectra(
             model, 
-            num_epochs=num_epochs,  
+            num_epochs=args.epochs,  
             train_loader=train_loader, 
             val_loader=val_loader,
             device=device,
             criterion=criterion,
             optimizer=optimizer,
-            file_path=file_path
+            file_path=args.file_path
         )
 
         # finish measuring how long training took
         endTime = time.time()
         logger.info("Total time taken to pre-train the model: {:.2f}s".format(endTime - startTime))
 
+
+    n_features = 1023
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+
+    if args.dataset not in n_classes_per_dataset:
+        raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
+    
+    n_classes = n_classes_per_dataset[args.dataset]
+
     # Load the dataset with quality control and other unrelated instances removed.
     # train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
-        dataset, 
-        is_data_augmentation, 
-        batch_size=batch_size,
+        args.dataset, 
+        args.data_augmentation, 
+        batch_size=args.batch_size,
         is_pre_train=False
     )
 
-    # Output dimension is the number of classes in the dataset.
-    if dataset == "species" or dataset == "oil_simple":
-        output_dim = 2  # ['Hoki', 'Mackerel'] 
-    elif dataset =="part":
-        output_dim = 6 # ['Fillet'  'Heads' 'Livers' 'Skins' 'Guts' 'Frames']
-    elif dataset =="oil":
-        output_dim = 7 # or ['50', '25', '10', '05', '01', '0.1', '0']
-    elif dataset =="cross-species":
-        output_dim = 3 # ['Hoki, 'Mackerel', 'Hoki-Mackerel']
-    else:
-        raise ValueError(f"Not a valid dataset: {dataset}")
-
     # Initialize the model, criterion, and optimizer
-    model = Transformer(input_dim, output_dim, num_layers, num_heads, hidden_dim, dropout)
+    model = Transformer(
+        n_features,
+        n_classes, 
+        args.num_layers, 
+        args.num_heads, 
+        args.hidden_dimension, 
+        args.dropout
+    )
+
     logger.info(f"model: {model}")
 
     # Transfer learning
-    if is_masked_spectra or is_next_spectra:
-        model = transfer_learning(dataset, model, file_path=file_path)
+    if args.masked_spectra_modelling or args.next_spectra_prediction:
+        model = transfer_learning(args.dataset, model, file_path=args.file_path)
     
     # Label smoothing (Szegedy 2016)
-    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
     
     # AdamW (Loshchilov 2017)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
     
     # Specify the device (GPU or CPU)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -210,8 +221,8 @@ if __name__ == "__main__":
         val_loader, 
         criterion,
         optimizer, 
-        num_epochs=num_epochs, 
-        patience=patience
+        num_epochs=args.epochs, 
+        patience=args.early_stopping
     )
     
     # finish measuring how long training took
@@ -222,7 +233,7 @@ if __name__ == "__main__":
         model=model, 
         train_loader=train_loader, 
         val_loader=val_loader, 
-        dataset=dataset, 
+        dataset=args.dataset, 
         device=device
     )
     
@@ -237,3 +248,6 @@ if __name__ == "__main__":
     attention_weights = model.decoder.layers[-1].self_attention.fc_out.weight
     attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
     plot_attention_map("decoder", attention_weights, columns, columns)
+
+if __name__ == "__main__":
+    main()
