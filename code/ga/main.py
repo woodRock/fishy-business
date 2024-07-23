@@ -1,5 +1,6 @@
 import argparse
 import logging
+import time
 import numpy as np
 from util import preprocess_dataset
 from ga import GeneticAlgorithm
@@ -72,8 +73,11 @@ def main():
         mutation_rate=args.mutation_rate, 
         generations=args.generations
     )
-    
+
+    start_time = time.time()
     best_individual = ga.train(train_loader, val_loader)
+    end_time = time.time()
+    logger.info(f"Training time: {end_time - start_time:.4f} seconds")
     
     train_accuracy = ga.evaluate_model(best_individual, train_loader)
     test_accuracy = ga.evaluate_model(best_individual, val_loader)
