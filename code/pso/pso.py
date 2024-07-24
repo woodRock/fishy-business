@@ -5,7 +5,35 @@ from tqdm import tqdm
 from sklearn.metrics import balanced_accuracy_score
 
 class PSO(nn.Module):
-    def __init__(self, n_particles, n_iterations, c1, c2, n_classes, n_features, w_start=0.9, w_end=0.4):
+    def __init__(self, 
+        n_particles: int, 
+        n_iterations: int, 
+        c1: float, 
+        c2: float, 
+        n_classes: int, 
+        n_features: int, 
+        w_start=0.9, 
+        w_end=0.4
+    ) -> None:
+        """ Particle Swarm Optimization (PSO) for a classifier.
+
+        Args: 
+            n_particles (int): Number of particles in the swarm
+            n_iterations (int): Number of iterations
+            c1 (float): Cognitive component
+            c2 (float): Social component
+            n_classes (int): Number of classes
+            n_features (int): Number of features
+            w_start (float): Initial inertia weight
+            w_end (float): Final inertia weight
+
+        References: 
+            1. RC, K. J. E. (1995, November). 
+            Particle swarm optimization. 
+            In Proc IEEE Int Conf Neural Networks 
+            (Vol. 4, pp. 1942-1948).
+        
+        """
         super(PSO, self).__init__()
         self.n_particles = n_particles
         self.n_iterations = n_iterations
@@ -31,7 +59,21 @@ class PSO(nn.Module):
         self.logger = logging.getLogger(__name__)
         self.logger.info(f"Using device: {self.device}")
 
-    def fitness(self, particles, data_loader, lambda_reg=0.01):
+    def fitness(self, 
+                particles: torch.Tensor, 
+                data_loader: torch.utils.data.DataLoader, 
+                lambda_reg: float = 0.01
+        ) -> torch.Tensor:
+        """ Fitness function for PSO.
+
+        Args: 
+            particles (torch.Tensor): Particles to evaluate
+            data_loader (torch.utils.data.DataLoader): Data loader
+            lambda_reg (float): Regularization parameter
+
+        Returns: 
+            torch.Tensor: Fitness values for each particle
+        """
         total_correct = torch.zeros(self.n_particles, device=self.device)
         total_samples = 0
         
@@ -48,14 +90,32 @@ class PSO(nn.Module):
         regularization = lambda_reg * torch.norm(particles, p=2, dim=(1,2))
         return accuracy - regularization
 
-    def update_velocity(self, iteration):
+    def update_velocity(self, 
+            iteration: int
+    ) -> None:
+        """ Update velocities of particles.
+        
+        Args: 
+            iteration (int): Current iteration
+        """
         w = self.w_start - (self.w_start - self.w_end) * iteration / self.n_iterations
         r1, r2 = torch.rand(2, self.n_particles, 1, 1, device=self.device)
         self.velocities = (w * self.velocities +
                            self.c1 * r1 * (self.pbest - self.particles) +
                            self.c2 * r2 * (self.gbest.unsqueeze(0) - self.particles))
 
-    def fit(self, train_loader, val_loader, patience=10):
+    def fit(self, 
+        train_loader: torch.utils.data.DataLoader, 
+        val_loader: torch.utils.data.DataLoader, 
+        patience: int = 10
+    ) -> None:
+        """ Fit the PSO classifier.
+        
+        Args: 
+            train_loader (torch.utils.data.DataLoader): Training data loader
+            val_loader (torch.utils.data.DataLoader): Validation data loader
+            patience (int): Patience for early stopping
+        """
         best_val_accuracy = float('-inf')
         patience_counter = 0
         
@@ -101,7 +161,17 @@ class PSO(nn.Module):
                 self.logger.info(message)
                 pbar.set_description(message)
 
-    def predict(self, data_loader):
+    def predict(self, 
+        data_loader: torch.utils.data.DataLoader
+    ) -> torch.Tensor:
+        """ Predict labels for the given data loader.
+
+        Args:
+            data_loader (torch.utils.data.DataLoader): Data loader
+
+        Returns: 
+            torch.Tensor: Predicted labels
+        """
         all_predictions = []
         self.gbest = self.gbest.to(self.device)
         
@@ -114,7 +184,17 @@ class PSO(nn.Module):
         
         return torch.cat(all_predictions).numpy()
     
-    def evaluate(self, data_loader):
+    def evaluate(self, 
+        data_loader: torch.utils.data.DataLoader
+    ) -> float:
+        """ Evaluate the PSO classifier on the given data loader.
+        
+        Args:
+            data_loader (torch.utils.data.DataLoader): Data loader
+
+        Returns:    
+            float: Balanced accuracy
+        """
         all_predictions = []
         all_true_labels = []
         self.gbest = self.gbest.to(self.device)
