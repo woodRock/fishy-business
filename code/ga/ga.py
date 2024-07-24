@@ -4,9 +4,27 @@ import numpy as np
 from deap import base, creator, tools, algorithms
 from tqdm import tqdm
 from sklearn.metrics import balanced_accuracy_score
+from typing import Union
 
 class GeneticAlgorithm:
-    def __init__(self, n_features, n_classes, population_size, crossover_rate, mutation_rate, generations):
+    def __init__(self, 
+        n_features: int, 
+        n_classes: int, 
+        population_size: int, 
+        crossover_rate: float, 
+        mutation_rate: float,
+        generations: int
+    ) -> None:
+        """ Genetic Algorithm (GA) for a classifier.
+        
+        Args: 
+            n_features (int): Number of features
+            n_classes (int): Number of classes
+            population_size (int): Number of individuals in the population
+            crossover_rate (float): Probability of crossover
+            mutation_rate (float): Probability of mutation
+            generations (int): Number of generations
+        """
         self.n_features = n_features
         self.n_classes = n_classes
         self.population_size = population_size
@@ -37,9 +55,19 @@ class GeneticAlgorithm:
         self.stats.register("max", np.max)
 
     def create_individual(self):
+        """ Create a random individual. """
         return np.random.rand(self.n_features, self.n_classes)
 
-    def evaluate(self, individual, data_loader):
+    def evaluate(self, 
+        individual: np.ndarray, 
+        data_loader: torch.utils.data.DataLoader
+    ) -> float:
+        """ Evaluate the individual on the data_loader. 
+        
+        Args: 
+            individual (np.ndarray): Individual to evaluate
+            data_loader (torch.utils.data.DataLoader): Data loader
+        """
         individual_tensor = torch.FloatTensor(individual).to(self.device)
         correct = 0
         total = 0
@@ -51,14 +79,43 @@ class GeneticAlgorithm:
                 total += len(y)
         return correct / total,
 
-    def mutate(self, individual, mu, sigma, indpb):
+    def mutate(self, 
+        individual: np.ndarray, 
+        mu: float, 
+        sigma: float, 
+        indpb: float
+    ) -> np.ndarray:
+        """
+        Mutate an individual by adding a normal distribution with mean mu and standard deviation sigma.
+        
+        Args:
+            individual (np.ndarray): Individual to mutate
+            mu (float): Mean of the normal distribution
+            sigma (float): Standard deviation of the normal distribution
+            indpb (float): Probability of mutating each gene
+
+        Returns: 
+            np.ndarray: Mutated individual
+        """
         for i in range(individual.shape[0]):
             for j in range(individual.shape[1]):
                 if np.random.random() < indpb:
                     individual[i, j] += np.random.normal(mu, sigma)
         return individual,
 
-    def train(self, train_loader, val_loader):
+    def train(self, 
+        train_loader: torch.utils.data.DataLoader, 
+        val_loader: torch.utils.data.DataLoader
+    ) -> np.ndarray:
+        """ Train the genetic algorithm.
+        
+        Args: 
+            train_loader (torch.utils.data.DataLoader): Training data
+            val_loader (torch.utils.data.DataLoader): Validation data
+
+        Returns: 
+            np.ndarray: Best individual
+        """
         population = self.toolbox.population(n=self.population_size)
 
         for gen in (pbar := tqdm(range(self.generations), desc="Training: ")):
@@ -96,7 +153,19 @@ class GeneticAlgorithm:
 
         return best_individual
 
-    def predict(self, best_individual, data_loader):
+    def predict(self, 
+        best_individual, 
+        data_loader
+    ) -> Union[np.ndarray, np.ndarray]:
+        """ Predict using the best individual.
+        
+        Args:
+            best_individual (np.ndarray): Best individual
+            data_loader (torch.utils.data.DataLoader): Data
+
+        Returns: 
+            np.ndarray, np.ndarray: Predictions, True labels
+        """
         individual_tensor = torch.FloatTensor(best_individual).to(self.device)
         all_predictions = []
         all_true_labels = []
@@ -110,7 +179,19 @@ class GeneticAlgorithm:
 
         return np.array(all_predictions), np.array(all_true_labels)
 
-    def evaluate_model(self, best_individual, data_loader):
+    def evaluate_model(self, 
+        best_individual: np.ndarray, 
+        data_loader: torch.utils.data.DataLoader
+    ) -> float:
+        """ Evaluate the best individual on the data_loader.
+        
+        Args: 
+            best_individual (np.ndarray): Best individual
+            data_loader (torch.utils.data.DataLoader): Data loader
+
+        Returns:
+            float: Balanced accuracy
+        """
         predictions, true_labels = self.predict(best_individual, data_loader)
         balanced_acc = balanced_accuracy_score(true_labels, predictions)
         return balanced_acc
