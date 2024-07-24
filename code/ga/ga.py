@@ -24,6 +24,11 @@ class GeneticAlgorithm:
             crossover_rate (float): Probability of crossover
             mutation_rate (float): Probability of mutation
             generations (int): Number of generations
+
+        References: 
+            1. Holland, J. H. (1992). 
+            Genetic algorithms. 
+            Scientific american, 267(1), 66-73.
         """
         self.n_features = n_features
         self.n_classes = n_classes
