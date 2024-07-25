@@ -6628,6 +6628,7 @@ Notes:
     * Hype - Marketing and propaganda, Gartner Hype Cycle. https://en.wikipedia.org/wiki/Gartner_hype_cycle
     * Interface (relatable) - models have an excellent human-computer interface, allowing every single human to have access to universal compute, universal computational intelligence.
     * GitHub Copilot - results in a 15% increase in producticity, leading to big tech layoffs, and the third industrial revolution.
+    * Jevons paradox - The Jevons Paradox states that, in the long term, an increase in efficiency in resource use will generate an increase in resource consumption rather than a decrease.
 
 2024-07-12 - ECRG 
 -----------------
