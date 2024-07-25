@@ -841,6 +841,15 @@ Related:
     * :ref:`(Brown 2020) <brown2020language>` LLMs are few shot learners papers 
 
 
+dorigo1997ant
+-------------
+Ant colony system: a cooperative learning approach to the traveling salesman problem
+
+Available: https://ieeexplore.ieee.org/abstract/document/585892 
+
+Related: 
+    * Mentioned in :ref:`2024-06-21 - ECRG<2024-06-21 - ECRG>`
+
 ecoffet2021first
 ----------------
 First return, then explore
@@ -1376,6 +1385,20 @@ Def. adulteration:
 
 Related:    
     * :ref:`(Black 2019)` uses REIMS to detect beef adulteration. 
+
+ji2024cap
+---------
+CAP: A Context-Aware Neural Predictor for NAS 
+
+(Ji 2024) propose context-aware neural predictor (CAP) for neural architecture search (NAS). 
+
+Available: https://arxiv.org/abs/2406.02056
+
+Related: 
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in E2EPP :ref:`(Sun 2022) <sun2022end>`
+    * Similar work in CDP :ref:`(Liu 2022) <liu2022bridge>`
+    * Similar work in HAAP :ref:`(Liu 2021) <liu2021homogeneous>`
 
 jiang2019degenerate
 -------------------
@@ -2112,6 +2135,34 @@ Available: https://arxiv.org/abs/1806.09055
 
 Related: 
     * Discussed in :ref:`2024-02-22 - FASLIP <2024-02-22 - FASLIP>`
+
+liu2021homogeneous
+------------------
+Homogeneous architecture augmentation for neural predictor
+
+(Liu 2021) proposed homogenous architecture augmentation for neural predictor (HAAP).
+
+Available: https://link.springer.com/chapter/10.1007/978-3-031-16868-0_14
+
+Related:    
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in E2EPP :ref:`(Sun 2022) <sun2022end>`
+    * Similar work in CDP :ref:`(Liu 2022) <liu2022bridge>`
+    * Similar work in CAP :ref:`(Ji 2024) <ji2024cap>`
+
+liu2022bridge
+-------------
+Bridge the gap between architecture spaces via a cross-domain predictor
+
+(Liu 2022) propose cross-domain predictor (CDP) for neural architecture search (NAS).
+
+Available: https://proceedings.neurips.cc/paper_files/paper/2022/hash/572aaddf9ff774f7c1cf3d0c81c7185b-Abstract-Conference.html
+
+Related: 
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in E2EPP :ref:`(Sun 2022) <sun2022end>`
+    * Similar work in HAAP :ref:`(Liu 2021) <liu2021homogeneous>`
+    * Similar work in CAP :ref:`(Ji 2024) <ji2024cap>`
 
 liu2023instaflow
 ----------------
@@ -3017,6 +3068,20 @@ Available: https://www.jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf
 Related: 
     * Also about regularization :ref:`(Hinton 2012) <hinton2012improving>`
 
+
+sun2022end
+----------
+End-to-End Performance Predictors
+
+(Sun 2022) propose end-to-end (E2E) performance predictors (E2EPP) for neural architecture search (NAS)
+
+Available: https://link.springer.com/chapter/10.1007/978-3-031-16868-0_14
+
+Related: 
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in HAAP :ref:`(Liu 2021) <liu2021homogeneous>`
+    * Similar work in CDP :ref:`(Liu 2022) <liu2022bridge>`
+    * Similar work in CAP :ref:`(Ji 2024) <ji2024cap>`
 
 sun2022soknl
 ------------

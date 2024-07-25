@@ -2842,7 +2842,7 @@ Notes:
 
 2022-08-06 - ECRG 
 ~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** Friday 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgan Benzhaf, Bing Xue, Yi Mei. 
+**Location:** CO350, **Time:** Friday 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgang Benzhaf, Bing Xue, Yi Mei. 
 
 General notes: 
     * Meng is attending an Agriculture + Seafood Conference in nelson, he iw working on organizing some industry collaborations.
@@ -6430,7 +6430,7 @@ TODO:
     * [x] Try different SVM kernels. 
     * [x] Linear Disciminant Analysis (LDA)
     * Compare features selected for each of the interpretable methods.
-    * [ ] Start writing up my experiments in a paper format. 
+    * [x] Start writing up my experiments in a paper format. 
     * [ ] Change "cross-species" :math:`\to` adulterated
     * [ ] Selected feature comparison.
 
@@ -6454,3 +6454,205 @@ TODO:
     * [x] Start writing up my experiments in a paper format. 
     * [ ] Change "cross-species" :math:`\to` adulterated
     * [ ] Selected feature comparison.
+
+2024-06-06 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse Wood
+
+Notes: 
+    * Choose a conference to publish this work at.
+    * Apply for a travel grant. 
+    * Daniel has been sent an overleaft with editing permissions, he has some changes to make to the paper's sections on fish.
+
+TODO:
+    * [x] Choose a conference (AJCAI 2024) 
+    * [x] Apply for a travel grant.
+    * [x] Revise Daniel's changes 
+
+2025-06-20 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Bach Nguyen, Mengjie Zhang, Jesse Wood
+
+Notes:  
+    * Parallel Ice Sheet Model (PISM)
+    * Goal:  to reduce the computation without losing quality of prediction. 
+    * Spatio-temporal forceasting models. 
+        * Time series data - points change over time.
+        * Spatial data - coordinates associated with measurements
+
+2024-06-20 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse Wood
+
+Notes: 
+    * Motviation - highlight the problem and explain it in detail 
+        * Challenges 
+        * Motivations 
+        * Limitations 
+    * Leave some space for analysing the results.
+    * Include a description of the dataset. 
+
+2024-06-21 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Bocheng Lin, Wolfgang Banzhaf, Bing Xue, Mengjie Zhang, Jesse Wood
+
+General notes: 
+    * AJCAI submissions deadline is the 30th of June. 
+    * PRECAI deadline is the 26th of June. 
+    * Wolfgang is a visting guest progession, foundational work in Genetic Programming. 
+
+Bochen Lin gave a talk on "Automated design of state transition rules in Ant Colony Optimization by Genetic Programming".
+    * Travelling salemen problem - find the shortest path to visit all nodes and return to the orginal node. 
+    * Graph-neural networks as a behcmark for comparison in results. 
+    * Ant colony optimizationUpdate - phermones matrix after all ants have completed their routes. 
+    * Limitations: 
+        * Domain expertise required. 
+        * Manually designed rules do not capture all of the features.
+        * Combinatorial optimization problems - NP-Hard
+    * Optimization - CPU multi-thread processing, numba, numpy, and pytorch
+
+Related: 
+    * Ant Colony Optimization :ref:`(Dorigo 1997) <dorigo1997ant>`
+
+2024-06-27 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood
+
+Notes:
+    * Abtract - introduce the novelty of the problem, explain the interpretability section.
+    * Existing work - explain the limitations :ref:`(Wood 2022) <wood2022automated>`, and how this work addresses them. 
+    * Connecting sentences - previous sections should be conncted with connecting sentences for coherence.
+    * Figures - the transformer figures are very eye catching. Remove these figures to save room and focus on the contributions.
+    * Text editor - Examine the paper paragraph by paragraph. Don't put the whole paper into a text editor. 
+    * Evolutionary computation - explain the representatio, psuedo-code for Genetic Programming (GP).
+    * Dataset - the dataset is the focus of the paper. Move the dataset section to before the theory section.
+    * Rename Dataset section - REIMS dataset 
+    * Paper deadline - target to finish the paper before the 30th of June 2024.
+    * Keywords - put very general words, remove "deep learning", "transformers", and "genetic programming"
+
+2024-07-11 - CDSAI Workshop Day 1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** AM103, **Time:** 12:00 - 13:00, **Attendees:** Jordan MacLachlan, Jesse Wood 
+
+Prof Gill Dobbie gave a talk on AI in health
+https://www.plantandfood.com/en-nz/staff/gillian-dobbie
+
+Notes:
+    * Areas of healthcare:
+        * Diagnostics 
+        * Clinical decision support 
+        * Care delivery 
+        * Self-care prevention wellness 
+        * Chronic care management 
+        * Triage diagnosis 
+    * Goals: 
+        * Improve population health management. 
+        * Improving operations.
+        * Stengthening innovation. 
+    * Motivation - better healthcare for older patients 
+    * Method - buld an ML model to identify dementia trained on interRAI 
+    * InterRAI - pharmacy and hospitalization data from around 137,000 patients. 
+    * Collaborators: - Te Whata Ora Counties Manaku, Pyschological medicine, Statistics, Computer Science/
+    * Qualitative/quantitative suveys of patients to see if people are happy having their data be used. 
+        * 85% of pateints were happy to have their data used. 
+    * Severe Acute Respitory Infection (SARI) dataset from 2012-2024 in Auckland.
+    * Privacy can be ensured with federated learning and differential privacy.
+        * differential privacy is a mathematical way to protect individuals when their data is used in data sets
+    * Forcasting hospitalizations by influenza-like illness. 
+
+Prof. Huanhuan Chen gave a talk on "Causal learning and its applications"
+http://staff.ustc.edu.cn/~hchen/
+
+Notes: 
+    * Causal learning - is one of the key areas for explainable and reliable AI. 
+    * Challenges: 
+        * Causual discovery 
+        * Causual inference 
+        * Causual decision 
+    * Domain knowledge - in medical scenarios, abundant domain-specific knowledge compared to traditional causal approaches.
+    * Causal inference - in medical scenarios, continioous interventions are common, i.e. a treatment of some medication for 8 weeks. 
+    * Definition - Causal inference is the process of determining whetyher a cause and effect relationship exists between variables. It goes beyong mere correlation to establish that changes in one variable (the cause) directly lead to changes in another variation (the effect).
+
+
+Dr. Alvaro Orisi gave a talk on "AI powered digital twins: opportunites for EML"
+https://www.esr.cri.nz/staff-profiles/alvaro-orsi/
+
+Notes:
+    * Digital twin - anything that attempts to virtually replicate something that exists in the real-world.
+    * A gitual twin of the universe, from his background as an astrophysicist. 
+    * Synthetic dataset - synthetic population mirroring the society of New Zealand, with 5 million individuals.
+    * Transformers with attnetion, causal discovery, genetic programming, symbolic regression.
+
+
+Explainable AI dicussion
+
+Notes: 
+    * ChatGPT/Claude Sonet are black-box models that can pass the Turing Test. 
+    * Explainable AI: context dependent, difficult to quantify, needs a metric, depends on expertise. 
+    * Hallucinations:  completely and believably wrong. 
+    * SHapley Additive exPlanations (SHAP), Local Interpretable Model Agnostic Explanations (LIME)
+
+Yanan Sun gave a talk on "Recent Advanced in Neural Architecture Search"
+
+https://yn-sun.github.io/
+
+Notes: 
+    * In many scenarios large models are not available. 
+    * Stages: Initial  :math:`\to` Rapid development :math:`\to` Application :math:`\to` Refelection 
+    * RL-based NAS, gradient-based NAS, EC-NAS.
+    * E2EPP, HAAP, CDP, CAP
+
+Related:    
+    * End-to-end perfromance predictor (E2PP) :ref:`(Sun 2022) <sun2022end>`
+    * Homogenous architecture agumentation for neural predictor (HAAP) :ref:`(Liu 2021) <liu2021homogeneous>`
+    * Cross-domain predictor (CDP) :ref:`(Liu 2022) <liu2022bridge>`
+    * Context-Aware Neural Predictor (CAP) :ref:`(Ji 2024) <ji2024cap>`
+
+2024-07-11 - CDSAI Workshop Day 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** AM103, **Time:** 12:00 - 13:00, **Attendees:** Jordan MacLachlan, Jesse Wood 
+
+There was a general dicussion panel with all the guest speakers.
+
+Notes: 
+    * Government may ban the use of GEnAI to censor information that the state does not support. 
+    * Wolfgang  - GP is a generative AI method, population based approaches to GP provide a diverse set of solutions. 
+    * Internet - don't just regurgitate the internet, LLMs have 1-2 more models before they reach a plateau. 
+    * Ethics - Ethical use of products, scalability, adversarial attacks, deep fakes, plagerism, writing code.
+    * The post-truth era. 
+    * Future work - Mamba state space models, diffusion models, Kolmogorov-Arnold Networks (KAN).
+    * Google Gemini - hard coded diversity in generated output, so models could not reflect historic accuracies. 
+        * e.g. "give me an image of the first atronaut to land on the moon." 
+        * e.g. "give me an image of the founding fathers."
+    * LLM - everything is a large-language model, when in reality they belong to more complicated pipelines. 
+    * Hype - Marketing and propaganda, Gartner Hype Cycle. https://en.wikipedia.org/wiki/Gartner_hype_cycle
+    * Interface (relatable) - models have an excellent human-computer interface, allowing every single human to have access to universal compute, universal computational intelligence.
+    * GitHub Copilot - results in a 15% increase in producticity, leading to big tech layoffs, and the third industrial revolution.
+
+2024-07-12 - ECRG 
+-----------------
+
+Yanan Sun gave a talk entitled "My notes on submitting papers to top tier conferences"
+
+https://yn-sun.github.io/
+
+Notes: 
+    Stages: 
+        1. Idea conceptualization stage 
+        2. Experiments running stage 
+        3. Paper writing stage 
+        4. Rebuttal stage
+    * Entry point - the entry point is as small as possible, such as a small issue within a hot topic. 
+    * The experimental results should be as good as possible for CVPR, ICCV, ECCV, AAAI, IKJCAI. 
+        * Analysing the reason for performance improvement. 
+        * Please give mean :math:`\pm` standard deviation. 
+    * You can tell if a paper has been written with ChatGPT by the choice of vocabulary.
+
+2024-07-25 - Weekly 
+-------------------
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+Notes: 
+    * Seafood New Zealand, a conference from August 7th - 8th in Auckland. https://www.seafood.co.nz/news-and-events/conference
+    * Bing will register and arrange flights for this conference. 
+    * Figures - for my new paper, I need more pictures, visualizations, and explanations. More eyecatching results, not just a wall of text. 
