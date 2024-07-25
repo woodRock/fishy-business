@@ -42,6 +42,8 @@ def parse_arguments():
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
                         help="The learning rate for the model. Defaults to 1E-3.")
+    parser.add_argument('-wd', '--weight-decay', type=float, default=1E-3,
+                        help="The weight decay for the optimizer. Defaults to 1E-3.")
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-hd', '--hidden-dimension', type=int, default=1023,
@@ -98,7 +100,7 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
-    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
     train_model(
         model = model, 
