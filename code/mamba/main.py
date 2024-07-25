@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from mamba import Mamba
 from util import preprocess_dataset
-from train import train_model
+from train import train_model, evaluate_model
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -110,6 +110,13 @@ def main():
         patience = args.early_stopping
     )
     
+    evaluate_model(
+        model=model, 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        dataset=args.dataset, 
+        device=device
+    )
 
 if __name__ == "__main__":
     main()
