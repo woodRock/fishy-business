@@ -4,7 +4,7 @@
 #
 # The task spooler (ts) command allows for parallel execution of python scripts.
  
-DATASET="part"; 
+DATASET="oil"; 
 # Directory to save results to.
 NAME="tmp";
 
