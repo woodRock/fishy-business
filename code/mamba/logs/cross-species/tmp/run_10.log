@@ -1,0 +1,47 @@
+INFO:train:Epoch 1/100 	Train Loss: 6.5587, Train Acc: 0.3443	 Val Loss: 11.1750, Val Acc: 0.3871
+INFO:train:Epoch 2/100 	Train Loss: 8.7386, Train Acc: 0.3361	 Val Loss: 6.7099, Val Acc: 0.5484
+INFO:train:Epoch 3/100 	Train Loss: 5.0321, Train Acc: 0.4672	 Val Loss: 3.2534, Val Acc: 0.5484
+INFO:train:Epoch 4/100 	Train Loss: 3.2317, Train Acc: 0.5902	 Val Loss: 2.7560, Val Acc: 0.6129
+INFO:train:Epoch 5/100 	Train Loss: 2.6363, Train Acc: 0.5984	 Val Loss: 2.6947, Val Acc: 0.6129
+INFO:train:Epoch 6/100 	Train Loss: 2.5548, Train Acc: 0.5984	 Val Loss: 2.5356, Val Acc: 0.5806
+INFO:train:Epoch 7/100 	Train Loss: 2.4782, Train Acc: 0.5984	 Val Loss: 2.4873, Val Acc: 0.6774
+INFO:train:Epoch 8/100 	Train Loss: 2.4404, Train Acc: 0.6967	 Val Loss: 2.4235, Val Acc: 0.6774
+INFO:train:Epoch 9/100 	Train Loss: 2.3323, Train Acc: 0.7705	 Val Loss: 2.2692, Val Acc: 0.7097
+INFO:train:Epoch 10/100 	Train Loss: 2.2790, Train Acc: 0.7951	 Val Loss: 2.2151, Val Acc: 0.8710
+INFO:train:Epoch 11/100 	Train Loss: 2.2317, Train Acc: 0.8361	 Val Loss: 2.2195, Val Acc: 0.7742
+INFO:train:Epoch 12/100 	Train Loss: 2.1990, Train Acc: 0.7951	 Val Loss: 2.1903, Val Acc: 0.8065
+INFO:train:Epoch 13/100 	Train Loss: 2.1526, Train Acc: 0.8033	 Val Loss: 2.1607, Val Acc: 0.8387
+INFO:train:Epoch 14/100 	Train Loss: 2.1256, Train Acc: 0.8852	 Val Loss: 2.1566, Val Acc: 0.8710
+INFO:train:Epoch 15/100 	Train Loss: 2.1321, Train Acc: 0.9016	 Val Loss: 2.1610, Val Acc: 0.8710
+INFO:train:Epoch 16/100 	Train Loss: 2.0831, Train Acc: 0.9098	 Val Loss: 2.2087, Val Acc: 0.8710
+INFO:train:Epoch 17/100 	Train Loss: 2.0520, Train Acc: 0.9262	 Val Loss: 2.2270, Val Acc: 0.8387
+INFO:train:Epoch 18/100 	Train Loss: 2.0484, Train Acc: 0.9344	 Val Loss: 2.1883, Val Acc: 0.8387
+INFO:train:Epoch 19/100 	Train Loss: 2.0354, Train Acc: 0.9508	 Val Loss: 2.1903, Val Acc: 0.8387
+INFO:train:Epoch 20/100 	Train Loss: 2.0067, Train Acc: 0.9836	 Val Loss: 2.2333, Val Acc: 0.8387
+INFO:train:Epoch 21/100 	Train Loss: 1.9836, Train Acc: 0.9508	 Val Loss: 2.2328, Val Acc: 0.8387
+INFO:train:Epoch 22/100 	Train Loss: 1.9728, Train Acc: 0.9918	 Val Loss: 2.2103, Val Acc: 0.8710
+INFO:train:Epoch 23/100 	Train Loss: 1.9649, Train Acc: 0.9672	 Val Loss: 2.1797, Val Acc: 0.8710
+INFO:train:Epoch 24/100 	Train Loss: 1.9522, Train Acc: 1.0000	 Val Loss: 2.2166, Val Acc: 0.8710
+INFO:train:Epoch 25/100 	Train Loss: 1.9332, Train Acc: 0.9836	 Val Loss: 2.2564, Val Acc: 0.8710
+INFO:train:Epoch 26/100 	Train Loss: 1.9261, Train Acc: 0.9918	 Val Loss: 2.2629, Val Acc: 0.8387
+INFO:train:Epoch 27/100 	Train Loss: 1.9192, Train Acc: 0.9918	 Val Loss: 2.2348, Val Acc: 0.8387
+INFO:train:Epoch 28/100 	Train Loss: 1.9154, Train Acc: 1.0000	 Val Loss: 2.2344, Val Acc: 0.8387
+INFO:train:Epoch 29/100 	Train Loss: 1.9107, Train Acc: 1.0000	 Val Loss: 2.2271, Val Acc: 0.8710
+INFO:train:Epoch 30/100 	Train Loss: 1.9004, Train Acc: 1.0000	 Val Loss: 2.2140, Val Acc: 0.8710
+INFO:train:Epoch 31/100 	Train Loss: 1.8952, Train Acc: 1.0000	 Val Loss: 2.1916, Val Acc: 0.8710
+INFO:train:Epoch 32/100 	Train Loss: 1.8879, Train Acc: 1.0000	 Val Loss: 2.1789, Val Acc: 0.8710
+INFO:train:Epoch 33/100 	Train Loss: 1.8904, Train Acc: 1.0000	 Val Loss: 2.1789, Val Acc: 0.8710
+INFO:train:Epoch 34/100 	Train Loss: 1.8790, Train Acc: 1.0000	 Val Loss: 2.1873, Val Acc: 0.8710
+INFO:train:Epoch 35/100 	Train Loss: 1.8750, Train Acc: 1.0000	 Val Loss: 2.1917, Val Acc: 0.8710
+INFO:train:Epoch 36/100 	Train Loss: 1.8719, Train Acc: 1.0000	 Val Loss: 2.1760, Val Acc: 0.8710
+INFO:train:Epoch 37/100 	Train Loss: 1.8664, Train Acc: 1.0000	 Val Loss: 2.1445, Val Acc: 0.8710
+INFO:train:Early stopping triggered after 37 epochs
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 58 / 58 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:Total time taken evaluate on train set the model: 0.32s
+INFO:train:validation got 27 / 31 correct, accuracy: 0.8709677419354839
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:Total time taken evaluate on validation set the model: 0.11s
