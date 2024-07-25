@@ -7,9 +7,9 @@ from pso import PSO
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        prog='Genetic Algorithm',
-        description='A genetic algorithm (GA) for fish species classification.',
-        epilog='Implemented in deap and written in Python.')
+        prog='PSO',
+        description='Particle Swarm Optimization for Feature Selection',
+        epilog='Implemented in PyTorch and written in Python.')
     
     parser.add_argument('-f', '--file-path', type=str, default="checkpoints/embedded-gp.pth", 
                         help="The filepath to store the checkpoints. Defaults to checkpoints/embedded-gp.pth")

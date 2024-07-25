@@ -9,8 +9,8 @@ from train import train_model, evaluate_model
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-                    prog='Convolutional Neural Network (CNN)',
-                    description='A CNN for fish species classification.',
+                    prog='Mamba',
+                    description='Mamba: Linear-Time Sequence Modeling with Selective State Spaces',
                     epilog='Implemented in pytorch and written in python.')
     parser.add_argument('-d', '--dataset', type=str, default="species",
                          help="The fish species or part dataset. Defaults to species")
