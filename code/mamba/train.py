@@ -62,8 +62,7 @@ def train_model(
             
             optimizer.zero_grad()
             outputs = model(x)
-            # loss = criterion(outputs, y)
-            loss = criterion(model(x), y) + model.get_l2_regularization()
+            loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
 
@@ -90,8 +89,7 @@ def train_model(
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
                 outputs = model(x)
-                # loss = criterion(outputs, y)
-                loss = criterion(model(x), y) + model.get_l2_regularization()
+                loss = criterion(outputs, y)
 
                 val_loss += loss.item() * x.size(0)
                 _, predicted = outputs.max(1)
