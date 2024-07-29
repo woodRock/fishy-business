@@ -142,11 +142,11 @@ class EncoderLayer(nn.Module):
         """
         # Layer normalization (Ba 2016)
         # Pre-norm formulation (Xiong 2020, Karpathy 2023)
-        x_norm = self.norm1(x)
-        atttention = self.self_attention(x_norm, x_norm, x_norm, mask)
-        # Residual connections (He 2016)
+        x_norm = self.norm1(x)  
+        attention = self.self_attention(x_norm, x_norm, x_norm, mask)
+        # Residual connections (He 2015)
         # Dropout (Srivastava 2014, Hinton 2012)
-        x = x + self.dropout1(atttention)
+        x = x + self.dropout1(attention)
         x_norm = self.norm2(x)
         feed_forward_out = self.feed_forward(x_norm)
         x = x + self.dropout2(feed_forward_out)
@@ -241,7 +241,7 @@ class DecoderLayer(nn.Module):
         x_norm = self.norm1(x)
         # Self attention (Vaswani 2017)
         attention = self.self_attention(x_norm, x_norm, x_norm, tgt_mask)
-        # Residual connections (He 2016)
+        # Residual connections (He 2015)
         # Dropout (Srivastava 2014, Hinton 2012)
         x = x + self.dropout1(attention)
         x_norm = self.norm2(x)
@@ -253,7 +253,7 @@ class DecoderLayer(nn.Module):
         x_norm = self.norm3(x)
         # Feed forward (Vaswani 2017)
         feed_forward = self.feed_forward(x_norm)
-        # Residual connections (He 2016)
+        # Residual connections (He 2015)
         # Dropout (Srivastava 2014, Hinton 2012)
         x = x + self.dropout3(feed_forward)
         return x
@@ -364,6 +364,10 @@ class Transformer(nn.Module):
     17. Saxe, A. M., McClelland, J. L., & Ganguli, S. (2013).
         Exact solutions to the nonlinear dynamics of learning in
         deep linear neural networks. arXiv preprint arXiv:1312.6120.
+    18. 8. He, K., Zhang, X., Ren, S., & Sun, J. (2016). 
+        Deep residual learning for image recognition. 
+        In Proceedings of the IEEE conference on 
+        computer vision and pattern recognition (pp. 770-778).
     """
 
     def __init__(self, 
@@ -398,6 +402,7 @@ class Transformer(nn.Module):
                 # Orthogonal weight initialization (Saxe 2013)
                 # nn.init.orthogonal_(param)
 
+
     def forward(self, 
             src: torch.Tensor, 
             tgt: torch.Tensor, 
@@ -419,3 +424,5 @@ class Transformer(nn.Module):
         x = self.decoder(tgt, x, src_mask, tgt_mask)
         x = self.fc(x[:, 0, :])
         return x
+    
+
