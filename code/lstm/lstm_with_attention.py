@@ -72,12 +72,16 @@ class LSTM(nn.Module):
             7. Ba, J. L., Kiros, J. R., & Hinton, G. E. (2016).
                 Layer normalization. 
                 arXiv preprint arXiv:1607.06450.
+            8. He, K., Zhang, X., Ren, S., & Sun, J. (2016). 
+                Deep residual learning for image recognition. 
+                In Proceedings of the IEEE conference on 
+                computer vision and pattern recognition (pp. 770-778).
         """
         super(LSTM, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         
-        # LSTM layers with residual connections
+        # LSTM layers (Hochreiter 1997) with residual connections (He 2016)
         self.lstm_layers = nn.ModuleList([
             nn.LSTM(input_size if i == 0 else hidden_size, 
                     hidden_size, 
