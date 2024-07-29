@@ -28,10 +28,13 @@ class MambaBlock(nn.Module):
         self.expand = expand
         
         self.in_proj = nn.Linear(d_model, expand * d_model)
+        # Convolutional layer (LeCun 1989, 1989, 1989)
         self.conv = nn.Conv1d(expand * d_model, expand * d_model, kernel_size=d_conv, padding=d_conv-1, groups=expand * d_model)
+        # SiLU activation (Hendrycks 2016)
         self.activation = nn.SiLU()
-
+        # Dropout (Srivastava 2014, Hinton 2012)
         self.dropout = nn.Dropout(dropout)
+        # Layer normalization (Ba 2016)
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
         
         self.x_proj = nn.Linear(expand * d_model, d_state + d_model)
@@ -109,17 +112,48 @@ class Mamba(nn.Module):
 
         References: 
             1. Gu, A., & Dao, T. (2023). 
-            Mamba: Linear-time sequence modeling with selective state spaces. 
-            arXiv preprint arXiv:2312.00752.
+                Mamba: Linear-time sequence modeling with selective state spaces. 
+                arXiv preprint arXiv:2312.00752.
+            2. Srivastava, N., Hinton, G., Krizhevsky, A.,
+                Sutskever, I., & Salakhutdinov, R. (2014).
+                Dropout: a simple way to prevent neural networks from overfitting.
+                The journal of machine learning research, 15(1), 1929-1958.
+            3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
+                I., & Salakhutdinov, R. R. (2012).
+                Improving neural networks by preventing co-adaptation of feature detectors.
+                arXiv preprint arXiv:1207.0580.
+            4. He, K., Zhang, X., Ren, S., & Sun, J. (2016). 
+                Deep residual learning for image recognition. 
+                In Proceedings of the IEEE conference on computer 
+                vision and pattern recognition (pp. 770-778).
+            5. Ba, J. L., Kiros, J. R., & Hinton, G. E. (2016). 
+                Layer normalization. 
+                arXiv preprint arXiv:1607.06450.
+            6. LeCun, Y. (1989). 
+                Generalization and network design strategies.
+                Connectionism in perspective, 19(143-155), 18.
+            7. LeCun, Y., Boser, B., Denker, J., Henderson, D., Howard,
+                R., Hubbard, W., & Jackel, L. (1989).
+                Handwritten digit recognition with a back-propagation network.
+                Advances in neural information processing systems, 2.
+            8. LeCun, Y., Boser, B., Denker, J. S., Henderson, D., Howard, R. E.,
+                Hubbard, W., & Jackel, L. D. (1989).
+                Backpropagation applied to handwritten zip code recognition.
+                Neural computation, 1(4), 541-551.
+            9. Hendrycks, D., & Gimpel, K. (2016). 
+                Gaussian error linear units (gelus). 
+                arXiv preprint arXiv:1606.08415.
         """
         super().__init__()
-        self.layers = nn.ModuleList([MambaBlock(d_model, d_state, d_conv, expand, dropout, layer_norm_eps, weight_decay) for _ in range(depth)])
+        self.layers = nn.ModuleList([MambaBlock(d_model, d_state, d_conv, expand, dropout, layer_norm_eps) for _ in range(depth)])
+        # Dropout (Srivastava 2014, Hinton 2012)
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(d_model, n_classes)
         
         if spectral_norm:
             self.fc = nn.utils.spectral_norm(self.fc)
         
+        # Layer normalization (Ba 2016)
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
         
     def forward(self, x):
@@ -136,9 +170,9 @@ class Mamba(nn.Module):
         for layer in self.layers:
             residual = x
             x = layer(x)
-            x = x + residual  # Residual connection
-            x = self.dropout(x)
+            x = x + residual  # Residual connection (He 2016)
+            x = self.dropout(x) # Dropout (Srivastava 2014, Hinton 2012)
         
-        x = self.layer_norm(x)  # Final layer normalization
+        x = self.layer_norm(x)  # Final layer normalization (Ba 2016)
         x = self.fc(x[:, 0, :])
         return x
