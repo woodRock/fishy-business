@@ -4,6 +4,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from sklearn.metrics import balanced_accuracy_score
 
+
 class PSO(nn.Module):
     def __init__(self, 
         n_particles: int, 
@@ -59,6 +60,7 @@ class PSO(nn.Module):
         self.logger = logging.getLogger(__name__)
         self.logger.info(f"Using device: {self.device}")
 
+
     def fitness(self, 
                 particles: torch.Tensor, 
                 data_loader: torch.utils.data.DataLoader, 
@@ -103,6 +105,7 @@ class PSO(nn.Module):
         self.velocities = (w * self.velocities +
                            self.c1 * r1 * (self.pbest - self.particles) +
                            self.c2 * r2 * (self.gbest.unsqueeze(0) - self.particles))
+
 
     def fit(self, 
         train_loader: torch.utils.data.DataLoader, 
@@ -161,6 +164,7 @@ class PSO(nn.Module):
                 self.logger.info(message)
                 pbar.set_description(message)
 
+
     def predict(self, 
         data_loader: torch.utils.data.DataLoader
     ) -> torch.Tensor:
@@ -183,6 +187,7 @@ class PSO(nn.Module):
                 all_predictions.append(y_pred.cpu())
         
         return torch.cat(all_predictions).numpy()
+    
     
     def evaluate(self, 
         data_loader: torch.utils.data.DataLoader
