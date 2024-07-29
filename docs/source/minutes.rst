@@ -6631,7 +6631,7 @@ Notes:
     * Jevons paradox - The Jevons Paradox states that, in the long term, an increase in efficiency in resource use will generate an increase in resource consumption rather than a decrease.
 
 2024-07-12 - ECRG 
------------------
+~~~~~~~~~~~~~~~~~
 
 Yanan Sun gave a talk entitled "My notes on submitting papers to top tier conferences"
 
@@ -6650,7 +6650,7 @@ Notes:
     * You can tell if a paper has been written with ChatGPT by the choice of vocabulary.
 
 2024-07-25 - Weekly 
--------------------
+~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
 
 Notes: 
