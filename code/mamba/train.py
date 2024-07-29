@@ -55,8 +55,6 @@ def train_model(
         train_correct = 0
         train_total = 0
 
-        torch.autograd.set_detect_anomaly(True)
-
         for x, y in train_loader:
             x, y = x.to(device), y.to(device)
             
