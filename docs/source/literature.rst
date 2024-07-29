@@ -2780,6 +2780,14 @@ riad2022learning
 ----------------
     * Learning strides in convolutional neural networks 
 
+ribeiro2016should
+-----------------
+"Why should i trust you?" Explaining the predictions of any classifier
+
+(Ribeiro 2016) propose Local Interpretable Model-Agnostic Explanation (LIME) for explaining black-box models.
+
+Available: https://arxiv.org/abs/1602.04938
+
 riccardo2009field
 -----------------
     * A Field Guide to Genetic Programming
