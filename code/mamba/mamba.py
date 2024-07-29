@@ -143,6 +143,10 @@ class Mamba(nn.Module):
             9. Hendrycks, D., & Gimpel, K. (2016). 
                 Gaussian error linear units (gelus). 
                 arXiv preprint arXiv:1606.08415.
+            10. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
+                Rethinking the inception architecture for computer vision.
+                In Proceedings of the IEEE conference on computer vision
+                and pattern recognition (pp. 2818-2826).
         """
         super().__init__()
         self.layers = nn.ModuleList([MambaBlock(d_model, d_state, d_conv, expand, dropout, layer_norm_eps) for _ in range(depth)])

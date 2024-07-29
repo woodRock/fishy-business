@@ -16,26 +16,44 @@ class CNN(nn.Module):
 
         References: 
             1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). 
-            Gradient-based learning applied to document recognition. 
-            Proceedings of the IEEE, 86(11), 2278-2324.
-            2. LeCun, Y. (1989). Generalization and network design strategies. 
-            Connectionism in perspective, 19(143-155), 18.
+                Gradient-based learning applied to document recognition. 
+                Proceedings of the IEEE, 86(11), 2278-2324.
+            2. LeCun, Y. (1989). 
+                Generalization and network design strategies. 
+                Connectionism in perspective, 19(143-155), 18.
             3. LeCun, Y., Boser, B., Denker, J. S., Henderson, D., 
-            Howard, R. E., Hubbard, W., & Jackel, L. D. (1989). 
-            Backpropagation applied to handwritten zip code recognition. 
-            Neural computation, 1(4), 541-551.
+                Howard, R. E., Hubbard, W., & Jackel, L. D. (1989). 
+                Backpropagation applied to handwritten zip code recognition. 
+                Neural computation, 1(4), 541-551.
             4. LeCun, Y., Boser, B., Denker, J., Henderson, D.,
-            Howard, R., Hubbard, W., & Jackel, L. (1989). 
-            Handwritten digit recognition with a back-propagation network. 
-            Advances in neural information processing systems, 2.
-        
+                Howard, R., Hubbard, W., & Jackel, L. (1989). 
+                Handwritten digit recognition with a back-propagation network. 
+                Advances in neural information processing systems, 2.
+            5. Srivastava, N., Hinton, G., Krizhevsky, A.,
+                Sutskever, I., & Salakhutdinov, R. (2014).
+                Dropout: a simple way to prevent neural networks from overfitting.
+                The journal of machine learning research, 15(1), 1929-1958.
+            6. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
+                I., & Salakhutdinov, R. R. (2012).
+                Improving neural networks by preventing co-adaptation of feature detectors.
+                arXiv preprint arXiv:1207.0580.
+            7. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
+                Rethinking the inception architecture for computer vision.
+                In Proceedings of the IEEE conference on computer vision
+                and pattern recognition (pp. 2818-2826).
+            8. Hendrycks, D., & Gimpel, K. (2016). 
+                Gaussian error linear units (gelus). 
+                arXiv preprint arXiv:1606.08415.
         """
         super(CNN, self).__init__()
         
+        # Convolutional neural network (LeCun 1989,1989,1998)
         self.conv_layers = nn.Sequential(
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
+            # GELU activation (Hendrycks 2016)
             nn.GELU(),
             nn.MaxPool1d(kernel_size=2, stride=2),
+            # Dropout layer (Srivastava 2014, Hinton 2012)
             nn.Dropout(p=dropout),
             
             nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
@@ -90,36 +108,3 @@ class CNN(nn.Module):
         x = self.fc_layers(x)
         
         return x
-
-# class CNN(nn.Module):
-#     def __init__(self, input_size=1023, num_classes=10, dropout=0.2):
-#         super(CNN, self).__init__()
-
-#         # Convolutional Layer 1
-#         self.conv1 = nn.Conv1d(in_channels=1, out_channels=32, kernel_size=3, stride=1, padding=1)
-#         self.pool1 = nn.MaxPool1d(kernel_size=2, stride=2, padding=0)
-#         self.dropout1 = nn.Dropout(p=dropout)
-        
-#         # Convolutional Layer 2
-#         self.conv2 = nn.Conv1d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=1)
-#         self.pool2 = nn.MaxPool1d(kernel_size=2, stride=2, padding=0)
-#         self.dropout2 = nn.Dropout(p=dropout)
-
-
-#         # Fully connected layer
-#         self.fc1 = nn.Linear(64  * (input_size // 2 // 2), num_classes)  # Adjust input size after pooling layers
-
-#     def forward(self, x):
-#         # Input shape: (batch_size, input_size)
-#         # Reshape input to (batch_size, 1, input_size) for conv1d
-#         x = x.unsqueeze(1)
-        
-#         x = self.pool1(F.gelu(self.conv1(x)))  # Apply conv1, ReLU, and pool
-#         x = self.dropout1(x) # Dropout 1
-#         x = self.pool2(F.gelu(self.conv2(x)))  # Apply conv2, ReLU, and pool
-#         x = self.dropout2(x) # Dropout 2
-
-#         # Flatten the output for the fully connected layer
-#         x = x.view(-1, 64 * (1023 // 2 // 2))  # Adjust based on input size and pooling layers
-#         x = self.fc1(x)  # Fully connected layer
-#         return x
