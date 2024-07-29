@@ -22,8 +22,20 @@ class VAE(nn.Module):
             dropout (float): The dropout rate. Defaults to 0.2.
 
         References: 
-        1. Kingma, D. P., & Welling, M. (2013). Auto-encoding variational bayes. arXiv preprint arXiv:1312.6114.
-
+        1. Kingma, D. P., & Welling, M. (2013). 
+            Auto-encoding variational bayes. 
+            arXiv preprint arXiv:1312.6114.
+        2. Srivastava, N., Hinton, G., Krizhevsky, A.,
+            Sutskever, I., & Salakhutdinov, R. (2014).
+            Dropout: a simple way to prevent neural networks from overfitting.
+            The journal of machine learning research, 15(1), 1929-1958.
+        3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
+            I., & Salakhutdinov, R. R. (2012).
+            Improving neural networks by preventing co-adaptation of feature detectors.
+            arXiv preprint arXiv:1207.0580.
+        4. Fukushima, K. (1969). 
+            Visual feature extraction by a multilayered network of analog threshold elements. 
+            IEEE Transactions on Systems Science and Cybernetics, 5(4), 322-333.
         """
         super(VAE, self).__init__()
         
@@ -34,7 +46,9 @@ class VAE(nn.Module):
         # Encoder
         self.encoder = nn.Sequential(
             nn.Linear(input_size, 512),
+            # ReLU activation (Fukushima 1969)
             nn.ReLU(),
+            # Dropout layer (Srivastava 2014, Hinton 2012)
             nn.Dropout(p=dropout),
             nn.Linear(512, 256),
             nn.ReLU(),

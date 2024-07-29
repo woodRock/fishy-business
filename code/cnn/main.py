@@ -127,7 +127,9 @@ def main():
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
+    # Label smoothing (Szegedy 2016)
     criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+    # AdamW optimizer (Loshchilov 2017)
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     model = train_model(
