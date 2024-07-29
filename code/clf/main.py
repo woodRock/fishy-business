@@ -4,18 +4,13 @@ from tqdm import tqdm
 from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.neighbors import KNeighborsClassifier as knn
 from sklearn.tree import DecisionTreeClassifier as dt
-from sklearn.linear_model import LinearRegression as lr
 from sklearn.linear_model import LogisticRegression as lor
-from sklearn.svm import SVR as svr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as lda
 from sklearn.ensemble import VotingClassifier
-from sklearn.ensemble import VotingRegressor
 from sklearn.naive_bayes import GaussianNB as nb
 from sklearn.svm import SVC as svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import mean_absolute_error
 from data import load_dataset
 
 if __name__ == "__main__":
@@ -29,8 +24,6 @@ if __name__ == "__main__":
     for dataset in tqdm(datasets, desc=f"Training"):
         print(f"Dataset: {dataset}")
 
-        is_classification = dataset != "oil_regression"
-        
         # Load the dataset.
         X,y = load_dataset(dataset)
 
@@ -77,7 +70,7 @@ if __name__ == "__main__":
             train_accs = []
             test_accs = []
             # Perform 30 indepdnent runs of the random forest.
-            loss =  balanced_accuracy_score if is_classification else mean_squared_error
+            loss =  balanced_accuracy_score
             for run in tqdm(range(1, runs+1), desc=f"{dataset} - {name}"):
                 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=run)
                 # Training the classifier.
