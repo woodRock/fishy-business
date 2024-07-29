@@ -10,8 +10,17 @@ class MambaBlock(nn.Module):
         expand: int,
         dropout: float = 0.2,
         layer_norm_eps: float = 1e-5,
-        weight_decay: float = 0.01
     ) -> None:
+        """ Mamba block
+        
+        Args:   
+            d_model (int): the dimensions of the model.
+            d_state (int): the dimensions of the state.
+            d_conv (int): the dimensions of the convolution.
+            expand (int): the expansion factor.
+            dropout (float): the dropout rate.
+            layer_norm_eps (float): the layer normalization epsilon.
+        """
         super().__init__()
         self.d_model = d_model
         self.d_state = d_state
@@ -30,11 +39,17 @@ class MambaBlock(nn.Module):
         
         self.out_proj = nn.Linear(expand * d_model, d_model)
         self.us_proj = nn.Linear(d_state, d_model)
-        
-        # L2 regularization
-        self.weight_decay = weight_decay
+    
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """ Forward pass
+        
+        Args:  
+            x (torch.Tensor): the input tensor.
+
+        Returns: 
+            torch.Tensor: the output tensor.
+        """
         B, L, D = x.shape
         
         x = self.layer_norm(x)  # Layer normalization
@@ -76,9 +91,26 @@ class Mamba(nn.Module):
         n_classes=2,
         dropout: float = 0.2,
         layer_norm_eps: float = 1e-5,
-        weight_decay: float = 0.01,
         spectral_norm: bool = True
     ):
+        """ Mamba model
+        
+        Args: 
+            d_model (int): the dimensions of the model.
+            d_state (int): the dimensions of the state.
+            d_conv (int): the dimensions of the convolution.
+            expand (int): the expansion factor.
+            depth (int): the depth of the model.
+            n_classes (int): the number of classes.
+            dropout (float): the dropout rate.
+            layer_norm_eps (float): the layer normalization epsilon.
+            spectral_norm (bool): whether to apply spectral normalization.
+
+        References: 
+            1. Gu, A., & Dao, T. (2023). 
+            Mamba: Linear-time sequence modeling with selective state spaces. 
+            arXiv preprint arXiv:2312.00752.
+        """
         super().__init__()
         self.layers = nn.ModuleList([MambaBlock(d_model, d_state, d_conv, expand, dropout, layer_norm_eps, weight_decay) for _ in range(depth)])
         self.dropout = nn.Dropout(dropout)
@@ -90,6 +122,14 @@ class Mamba(nn.Module):
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
         
     def forward(self, x):
+        """ Forward pass
+        
+        Args: 
+            x (torch.Tensor): the input tensor.
+        
+        Returns: 
+            torch.Tensor: the output tensor.
+        """
         x = x.unsqueeze(1).repeat(1, 100, 1)
         
         for layer in self.layers:
@@ -101,13 +141,6 @@ class Mamba(nn.Module):
         x = self.layer_norm(x)  # Final layer normalization
         x = self.fc(x[:, 0, :])
         return x
-    
-    def get_l2_regularization(self):
-        l2_reg = 0.0
-        for layer in self.layers:
-            for param in layer.parameters():
-                l2_reg += torch.norm(param, p=2)
-        return layer.weight_decay * l2_reg
 
 # Usage example:
 # model = Mamba(d_model=16, d_state=16, d_conv=4, expand=2, depth=4)
