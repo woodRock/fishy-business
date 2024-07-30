@@ -2204,6 +2204,14 @@ Available: https://arxiv.org/abs/1711.05101
 Notes:
     * "decoupling weight decay from the learning rate." - Christian Raymond 
 
+lundberg2017unified
+-------------------
+A unified approach to interpreting model predictions
+
+(Lundberg 2017) propose SHapley Additive exPlanations (SHAP).
+
+Available: https://arxiv.org/abs/1705.07874
+
 mantyla1998cuelensen2017new
 --------------
     * Cue distinctiveness and forgetting: Effectiveness of self-generated retrieval cues in delayed recall. 
