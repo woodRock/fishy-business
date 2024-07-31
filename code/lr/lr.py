@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+import torch.nn.functional as F
+
 
 # Define logistic regression model
 class LogisticRegression(nn.Module):
@@ -16,4 +18,6 @@ class LogisticRegression(nn.Module):
         x = torch.FloatTensor(x)
         x = x.to(self.device)
         with torch.no_grad():
-            return self.forward(x).cpu().numpy()
+            x = self.forward(x)
+            probs = F.softmax(x, dim=-1).cpu().numpy()
+            return probs
