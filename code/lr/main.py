@@ -18,8 +18,8 @@ train_loader, val_loader, _, _, data = preprocess_dataset(
 )
 
 # Initialize model, loss function, and optimizer
-model = LogisticRegression(input_dim=1023, output_dim=3)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = LogisticRegression(input_dim=1023, output_dim=3, device=device)
 model = model.to(device)
 
 # Label smoothing (Szegedy 2016)
