@@ -6666,7 +6666,7 @@ Notes:
     * Feature importance comparison 
         * plot the important features for each model on a linegraph.
         * with one line for each of the top 5 performing models. 
-    * Evolutionary computations - remove the evolutionary compuation results, because they don't perform well.
+    * Evolutionary computation - remove the evolutionary compuation results, because they don't perform well.
     * Seafood conference - the seafood conference is next week from Wednesday 7th August to 8th of August.
     * IEEE Symposium - put name down on the spreadsheet for rehearsals of for the IEEE post-graduate symposium.
         * 8 minute presentation 
@@ -6676,5 +6676,5 @@ Notes:
 TODO: 
     * [ ] Feature importance comparison for top 5 models.
     * [ ] Remove evolutionary computation methods.
-    * [ ] Prepare for conference next week. 
+    * [ ] Prepare for conference next week.
 
