@@ -6657,3 +6657,24 @@ Notes:
     * Seafood New Zealand, a conference from August 7th - 8th in Auckland. https://www.seafood.co.nz/news-and-events/conference
     * Bing will register and arrange flights for this conference. 
     * Figures - for my new paper, I need more pictures, visualizations, and explanations. More eyecatching results, not just a wall of text. 
+
+2024-08-01 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Notes: 
+    * Feature importance comparison 
+        * plot the important features for each model on a linegraph.
+        * with one line for each of the top 5 performing models. 
+    * Evolutionary computations - remove the evolutionary compuation results, because they don't perform well.
+    * Seafood conference - the seafood conference is next week from Wednesday 7th August to 8th of August.
+    * IEEE Symposium - put name down on the spreadsheet for rehearsals of for the IEEE post-graduate symposium.
+        * 8 minute presentation 
+        * Take home message 
+        * Big picture / high-level 
+
+TODO: 
+    * [ ] Feature importance comparison for top 5 models.
+    * [ ] Remove evolutionary computation methods.
+    * [ ] Prepare for conference next week. 
+
