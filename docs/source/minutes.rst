@@ -6923,8 +6923,8 @@ Jeremy Prince
 - standard assessment models don't work for New Zealand fisheries. 
 - length based assessment of spawning potential ratio (LB-SPR)
 - Human reproductive index - measures average number of children that survive to adulthood. 
-  - more than 2.1 children -> population growth 
-  - 2.1 children -> replacement rate
+  - more than 2.1 children :math:`\to` population growth 
+  - 2.1 children :math:`\to` replacement rate
   - less than 2.1 children population decline
 - recognized SPR reference points. 
 - Sri Lanka blue swimmer crab fishery had a stock assessment for $400 per year.
@@ -6959,7 +6959,7 @@ ACC panel
 
 - training on how to use equipment.
 - personal responsibility
-- FishSafe -> MarineSafe
+- FishSafe :math:`\to` MarineSafe
 - best ideas for safety come from the sector. 
 - workplace injuries on average take 60 days off work.
 - health and safety forum, first mate, MarineSafe
@@ -6981,3 +6981,8 @@ Amy Jones
 - culture continuum: generative, proactive, calculative, reactive, pathological
 
 https://humanimpact.co.nz
+
+
+2024-08-16 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
