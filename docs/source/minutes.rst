@@ -6675,8 +6675,8 @@ TODO:
 **Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
 
 
-Vangelis Vitalis
-^^^^^^^^^^^^^^^^
+Vangelis Vitalis - MFAT 
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Tick box to be included in free trade agreements.
 
@@ -6687,8 +6687,8 @@ MFAT market reports:
  https://www.mfat.govt.nz/en/trade/mfat-market-reports
 
 
-Lisette Reymer
-^^^^^^^^^^^^^^
+Lisette Reymer - Three News, Stuff
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - 2 years into the Ukraine-Russia war. 
 - Security 
@@ -6709,16 +6709,16 @@ Simon Marks
 - Elon Musk is interviewing Trump on X. 
 
 
-Grahame Morton
-^^^^^^^^^^^^^^
+Grahame Morton - Sanford
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 - NZ seafood industry has been really successful in China. 
 - $30 billion dollars of exports consumed by China per year. 
 - China, China, China
 
 
-Sharon Zollner
-^^^^^^^^^^^^^^
+Sharon Zollner - ANZ
+^^^^^^^^^^^^^^^^^^^^
 
 Twitter:
 https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
@@ -6738,8 +6738,8 @@ Veronica Papacosta, Angela Williamson
 The Atlas - Seafood (~1000 maps) CSIRO
 
 
-AirNZ Cargo
-^^^^^^^^^^^
+Bex O'Malley - AirNZ Cargo
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - purchase carbon credits. 
 - projects that reduce carbon
@@ -6753,8 +6753,8 @@ https://www.rnz.co.nz/news/national/514470/air-nz-to-fly-electric-planes-from-we
 - sustainability agreements 
 
 
-Rui Peng
-^^^^^^^^
+Rui Peng - Critical
+^^^^^^^^^^^^^^^^^^^
 
 - cleanstone - recycled plastic 
 - transformimg trawl waste into resources. 
@@ -6767,8 +6767,8 @@ QR code:
 https://criticaldesign.nz/
 
 
-Karen Olver
-^^^^^^^^^^^
+Karen Olver - WISA
+^^^^^^^^^^^^^^^^^^
 
 - women in seafood Australasia (WISA) 
 - 28 years ago, formed an associatation.
@@ -6814,8 +6814,8 @@ Q2. More stories than not are opinion pieces disguised as news.
 - cameras on boats are an additional cost for fishermen. 
 
 
-Tim Li
-^^^^^^
+Tim Li - Tim Li Art
+^^^^^^^^^^^^^^^^^^^
 
 "My name is Tim and I draw pictures". 
 
@@ -6839,7 +6839,7 @@ Fisheries New Zealand Panel
 - low information / low knowledge of some fish stocks. 
 
 
-Fishserve - Caroline Read
+Caroline Read - Fishserve
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - fishserve has been the manager of the quota management system. 
@@ -6852,7 +6852,7 @@ Fishserve - Caroline Read
 - 125,000 crayfish measurement.
 
 
-Seafood New Zealand - Lisa Futachek
+Lisa Futachek - Seafood New Zealand
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - surface longline mitigation.
@@ -6861,8 +6861,8 @@ Seafood New Zealand - Lisa Futachek
 -  deepsea portal.
 
 
-Dragonfly Data Science  - Philipp Neubauer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Philipp Neubauer - Dragonfly Data Science
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Kingfish monitoring is a dynamic problem.
 - features: sea surface temperature, flux of ocean currents. 
@@ -6872,8 +6872,8 @@ Dragonfly Data Science  - Philipp Neubauer
 - Dashboards, data science, visualization 
 
 
-Niwa  - Rob Christie
-^^^^^^^^^^^^^^^^^^^^
+Rob Christie - NIWA
+^^^^^^^^^^^^^^^^^^^
 
 Niwa RV Kaharoa
 
@@ -6888,7 +6888,7 @@ https://niwa.co.nz/vessels/rv-kaharoa
 - detailed vessal designed for fisheries science. 
 
 
-Plant and Food - Louis Kregting
+Louis Kregting - Plant and Food
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Flume tank
@@ -6903,7 +6903,7 @@ https://www.plantandfood.com/en-nz/flume-tank/
 - CFD modelling predicts fluid flow around an object. 
 
 
-Biofericw P/L - Jeremy Prince
+Jeremy Prince - Biofericw P/L
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - statistical assessment model
@@ -6918,7 +6918,7 @@ Biofericw P/L - Jeremy Prince
 - dragonfly fly's MSR testing of SPR based Harvest Control Rules for Setting Catches. 
 
 
-ACC - Darren Guard
+Darren Guard - ACC
 ^^^^^^^^^^^^^^^^^^
 
 - prevent injury.
@@ -6951,7 +6951,7 @@ ACC panel
 - there are ships with every health and safety feature on board. And people are hurting themselves still. It's a human factor not an environmental one. 
 
 
-Human Impact Leadership - Amy Jones
+Amy Jones - Human Impact Leadership
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - setting the vision
