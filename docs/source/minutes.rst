@@ -5085,7 +5085,7 @@ Related:
 TODO: 
     1. [x] First contribution 
     2. [x] Proposal seminar 
-    3. [ ] Reverse suspension
+    3. [x] Reverse suspension
     4. [ ] Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
 
 2023-11-23 - FASLIP
@@ -5178,9 +5178,9 @@ TODO:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** GNS Science, **Time:** Monday, 10:00 - 11:00, **Attendees:** Jesse Wood, Colin <last-name>
 
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Green Hydrogen - By Colin <last-name>
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Hydrogen 
     * Hydrogen, odourless colourless gas.
@@ -5243,9 +5243,9 @@ Ngahina Marae
 "computer scientist so not a real scientist" 😭🥼 -* Jesse Wood
 
 
-----------------------------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Composite magnetic materials development for applications in inroads charging systems - By <unknown>
-----------------------------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Charge onroad
     * charge cars parked or at traffic lights.
@@ -5307,9 +5307,9 @@ Electric recharging
 "The slow lane, would turn into, a fast lane"
 #IAmSpeed  
 
---------------------------------------------------------------------
-Energy efficiency Research - Murray, Energy Material Scientist, SSIF 
---------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Energy efficiency Research - Murray, Energy Material Scientist, SSI 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Efficiency 
     * using less energy to perform the same task.
@@ -5357,9 +5357,9 @@ Allen-Feldman
         2. diffuson * <unseen>
         3. locom * atom chilling 
 
-------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Energy Harvesting - Martin Markwitz
-------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     * 66% of energy is wasted into heat transfer.
     * Voyager, rocket ship, space probes.
@@ -5383,9 +5383,9 @@ The rock does float, but not for the right reason #LK-99
     * repulsion, not superconduction
 
 
-------
+^^^^^
 Gupta
-------
+^^^^^
 
 By Gupta
     * arrange carbon in different configurations to create diamond 💎
@@ -5413,9 +5413,9 @@ Ammonia
     * A surface where the field passes electricity, a catalyst speeds up a reaction, electrocatalyst uses electrons to do this.
     * 500 bar pressure and 299 degree temperature, WWI Germany was trying to synthesize ammonia, Heber & Bosch, allies tried to cut off ammonia supply. 
 
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Career pathway talks - et al.
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Study
     * masters the PhD
@@ -5481,9 +5481,9 @@ Advice for young scientists:
         4. Be yourself
         5. Writing is important 
 
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Lab and facilities tour - et al.
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Notes:
     * see photos
@@ -6676,9 +6676,9 @@ TODO:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
 
-----------------
+^^^^^^^^^^^^^^^^
 Vangelis Vitalis
-----------------
+^^^^^^^^^^^^^^^^
 
 Tick box to be included in free trade agreements.
 
@@ -6688,9 +6688,9 @@ QR code:
 MFAT market reports:
  https://www.mfat.govt.nz/en/trade/mfat-market-reports
 
---------------
+^^^^^^^^^^^^^^
 Lisette Reymer
---------------
+^^^^^^^^^^^^^^
 
 - 2 years into the Ukraine-Russia war. 
 - Security 
@@ -6699,9 +6699,9 @@ Should Ukraine be refused membership to NATO?
 
 The West wants it to happen, but they will aggravate Putin in doing so. 
 
------------
+^^^^^^^^^^^
 Simon Marks
------------
+^^^^^^^^^^^
 
 - Trump assassination attempt 
 - Harris is now ahead in polls on independents.
@@ -6710,17 +6710,17 @@ Simon Marks
 - typical rose tinted glasses about Tim Walz, he was a former veteran. No mention of JD Vance as a marine.
 - Elon Musk is interviewing Trump on X. 
 
---------------
+^^^^^^^^^^^^^^
 Grahame Morton
---------------
+^^^^^^^^^^^^^^
 
 - NZ seafood industry has been really successful in China. 
 - $30 billion dollars of exports consumed by China per year. 
 - China, China, China
 
---------------
+^^^^^^^^^^^^^^
 Sharon Zollner
---------------
+^^^^^^^^^^^^^^
 
 Twitter:
 https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
@@ -6732,9 +6732,9 @@ https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
 ANZ business outlook survey 
 https://www.anz.co.nz/about-us/economic-markets-research/business-outlook/
 
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Veronica Papacosta, Angela Williamson
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Atlas - Seafood (~1000 maps) CSIRO
 
@@ -6743,9 +6743,9 @@ The Atlas - Seafood (~1000 maps) CSIRO
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
 
------------
+^^^^^^^^^^^
 AirNZ Cargo
------------
+^^^^^^^^^^^
 
 - purchase carbon credits. 
 - projects that reduce carbon
@@ -6758,9 +6758,9 @@ https://www.rnz.co.nz/news/national/514470/air-nz-to-fly-electric-planes-from-we
 - modern slavery reporting 
 - sustainability agreements 
 
---------
+^^^^^^^^
 Rui Peng
---------
+^^^^^^^^
 
 - cleanstone - recycled plastic 
 - transformimg trawl waste into resources. 
@@ -6772,18 +6772,18 @@ QR code:
 
 https://criticaldesign.nz/
 
------------
+^^^^^^^^^^^
 Karen Olver
------------
+^^^^^^^^^^^
 
 - women in seafood Australasia (WISA) 
 - 28 years ago, formed an associatation.
 - our purpose is to champion an inclusive industry. 
 - WISA sponsored the happy hour
 
-------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Michael Morrah, Tim Murphy, Sally Murphy, Nathan Hines
-------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Q&A panel:
 
@@ -6814,9 +6814,9 @@ Q2. More stories than not are opinion pieces disguised as news.
 - important for journalists to meet people in the industry. The poor public perception is a misunderstanding of how journalism operates. 
 - cameras on boats are an additional cost for fishermen. 
 
-------
+^^^^^^
 Tim Li
-------
+^^^^^^
 
 "My name is Tim and I draw pictures". 
 
@@ -6829,9 +6829,9 @@ QR code:
 
 https://www.timliart.com/fineartprints
 
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Fisheries New Zealand Panel
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - data is important for monitoring fisheries.
 - artisinal scale: 
@@ -6839,10 +6839,10 @@ Fisheries New Zealand Panel
 - commercial nature of fishes data. 
 - low information / low knowledge of some fish stocks. 
 
--------------
+^^^^^^^^^^^^^
 Fishserve
 Caroline Read
--------------
+^^^^^^^^^^^^^
 
 - fishserve has been the manager of the quota management system. 
 - the whole commercial fishing industry are electronically reporting. 
@@ -6853,18 +6853,18 @@ Caroline Read
 - 17,278 kgs of ACE shelved. 
 - 125,000 crayfish measurement.
 
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Seafood New Zealand - Lisa Futachek
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - surface longline mitigation.
   - dying bait blue so it's less visible to birds.
   - weighted hooks 
 -  deepsea portal.
 
--------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Dragonfly Data Science  - Philipp Neubauer
--------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Kingfish monitoring is a dynamic problem.
 - features: sea surface temperature, flux of ocean currents. 
@@ -6873,9 +6873,9 @@ Dragonfly Data Science  - Philipp Neubauer
 - Comparison of fish abundance to catch Jack Mackerel and avoid bycatch of Kingfish - avoidance areas. 
 - Dashboards, data science, visualization 
 
---------------------
+^^^^^^^^^^^^^^^^^^^^
 Niwa  - Rob Christie
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Niwa RV Kaharoa
 
@@ -6889,9 +6889,9 @@ https://niwa.co.nz/vessels/rv-kaharoa
 - Arrival Wellington 12th August 2024
 - detailed vessal designed for fisheries science. 
 
--------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Plant and Food - Louis Kregting
--------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Flume tank
 
@@ -6904,9 +6904,9 @@ https://www.plantandfood.com/en-nz/flume-tank/
 - computational fluid dynamics (CFD)
 - CFD modelling predicts fluid flow around an object. 
 
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Biofericw P/L - Jeremy Prince
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - statistical assessment model
 - standard assessment models don't work for New Zealand fisheries. 
@@ -6919,9 +6919,9 @@ Biofericw P/L - Jeremy Prince
 - Sri Lanka blue swimmer crab fishery had a stock assessment for $400 per year.
 - dragonfly fly's MSR testing of SPR based Harvest Control Rules for Setting Catches. 
 
-------------------
+^^^^^^^^^^^^^^^^^^
 ACC - Darren Guard
-------------------
+^^^^^^^^^^^^^^^^^^
 
 - prevent injury.
 - help people regain independence.
@@ -6931,18 +6931,18 @@ ACC - Darren Guard
 - males aged 20-24 are being injured the most.
 - for every one person injured in the workplace there are two people injured outside the workplace.
 
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Sharon Forsyth - Maritime NZ
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - 65 serious harm injuries in fisheries each year. 
 - 30% of injuries come from the fishing industry.
 - 7 people died in the fishing industry. 
 - environment: oil spills, chemicals, rubbish and fishing gear
 
----------
+^^^^^^^^^
 ACC panel
----------
+^^^^^^^^^
 
 - training on how to use equipment.
 - personal responsibility
@@ -6952,9 +6952,9 @@ ACC panel
 - health and safety forum, first mate, MarineSafe
 - there are ships with every health and safety feature on board. And people are hurting themselves still. It's a human factor not an environmental one. 
 
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Human Impact Leadership - Amy Jones
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - setting the vision
 - strategic planning 
