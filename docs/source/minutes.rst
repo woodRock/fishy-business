@@ -6740,10 +6740,9 @@ https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
 ANZ business outlook survey 
 https://www.anz.co.nz/about-us/economic-markets-research/business-outlook/
 
-------------------
-Veronica Papacosta
-Angela Williamson
-------------------
+-------------------------------------
+Veronica Papacosta, Angela Williamson
+-------------------------------------
 
 The Atlas - Seafood (~1000 maps) CSIRO
 
@@ -6790,12 +6789,9 @@ Karen Olver
 - our purpose is to champion an inclusive industry. 
 - WISA sponsored the happy hour
 
----------------
-Michael Morrah
-Tim Murphy
-Sally Murphy
-Nathan Hines
----------------
+------------------------------------------------------
+Michael Morrah, Tim Murphy, Sally Murphy, Nathan Hines
+------------------------------------------------------
 
 Q&A panel:
 
@@ -6865,20 +6861,18 @@ Caroline Read
 - 17,278 kgs of ACE shelved. 
 - 125,000 crayfish measurement.
 
--------------------
-Seafood New Zealand 
-Lisa Futachek
--------------------
+-----------------------------------
+Seafood New Zealand - Lisa Futachek
+-----------------------------------
 
 - surface longline mitigation.
   - dying bait blue so it's less visible to birds.
   - weighted hooks 
 -  deepsea portal.
 
-----------------------
-Dragonfly Data Science 
-Philipp Neubauer
-----------------------
+-------------------------------------------
+Dragonfly Data Science  - Philipp Neubauer
+-------------------------------------------
 
 - Kingfish monitoring is a dynamic problem.
 - features: sea surface temperature, flux of ocean currents. 
@@ -6887,10 +6881,9 @@ Philipp Neubauer
 - Comparison of fish abundance to catch Jack Mackerel and avoid bycatch of Kingfish - avoidance areas. 
 - Dashboards, data science, visualization 
 
-------------
-Niwa 
-Rob Christie
-------------
+--------------------
+Niwa  - Rob Christie
+--------------------
 
 Niwa RV Kaharoa
 
@@ -6904,10 +6897,9 @@ https://niwa.co.nz/vessels/rv-kaharoa
 - Arrival Wellington 12th August 2024
 - detailed vessal designed for fisheries science. 
 
---------------
-Plant and Food
-Louis Kregting
---------------
+-------------------------------
+Plant and Food - Louis Kregting
+-------------------------------
 
 - Flume tank
 
@@ -6920,10 +6912,9 @@ https://www.plantandfood.com/en-nz/flume-tank/
 - computational fluid dynamics (CFD)
 - CFD modelling predicts fluid flow around an object. 
 
--------------
-Biofericw P/L
-Jeremy Prince
--------------
+-----------------------------
+Biofericw P/L - Jeremy Prince
+-----------------------------
 
 - statistical assessment model
 - standard assessment models don't work for New Zealand fisheries. 
@@ -6936,10 +6927,9 @@ Jeremy Prince
 - Sri Lanka blue swimmer crab fishery had a stock assessment for $400 per year.
 - dragonfly fly's MSR testing of SPR based Harvest Control Rules for Setting Catches. 
 
-------------
-ACC
-Darren Guard
-------------
+------------------
+ACC - Darren Guard
+------------------
 
 - prevent injury.
 - help people regain independence.
@@ -6949,10 +6939,9 @@ Darren Guard
 - males aged 20-24 are being injured the most.
 - for every one person injured in the workplace there are two people injured outside the workplace.
 
---------------
-Sharon Forsyth
-Maritime NZ
---------------
+----------------------------
+Sharon Forsyth - Maritime NZ
+----------------------------
 
 - 65 serious harm injuries in fisheries each year. 
 - 30% of injuries come from the fishing industry.
@@ -6971,10 +6960,9 @@ ACC panel
 - health and safety forum, first mate, MarineSafe
 - there are ships with every health and safety feature on board. And people are hurting themselves still. It's a human factor not an environmental one. 
 
------------------------
-Human Impact Leadership 
-Amy Jones
------------------------
+-----------------------------------
+Human Impact Leadership - Amy Jones
+-----------------------------------
 
 - setting the vision
 - strategic planning 
