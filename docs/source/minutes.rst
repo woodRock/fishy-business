@@ -6738,11 +6738,6 @@ Veronica Papacosta, Angela Williamson
 The Atlas - Seafood (~1000 maps) CSIRO
 
 
-2024-08-08 - Seafood Conference - Day 2
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-**Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
-
-
 AirNZ Cargo
 ^^^^^^^^^^^
 
@@ -6780,9 +6775,14 @@ Karen Olver
 - our purpose is to champion an inclusive industry. 
 - WISA sponsored the happy hour
 
+2024-08-08 - Seafood Conference - Day 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
 
-Michael Morrah, Tim Murphy, Sally Murphy, Nathan Hines
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Media Panel - Michael Morrah, Tim Murphy, Sally Murphy, Nathan Hines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Q&A panel:
 
