@@ -6698,8 +6698,8 @@ Should Ukraine be refused membership to NATO?
 The West wants it to happen, but they will aggravate Putin in doing so. 
 
 
-Simon Marks
-^^^^^^^^^^^
+Simon Marks - Feature Story News
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Trump assassination attempt 
 - Harris is now ahead in polls on independents.
