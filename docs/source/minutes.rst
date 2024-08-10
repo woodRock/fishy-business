@@ -6678,3 +6678,306 @@ TODO:
     * [ ] Remove evolutionary computation methods.
     * [ ] Prepare for conference next week.
 
+
+2024-08-07 - Seafood Conference
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
+
+----------------
+Vangelis Vitalis
+----------------
+
+Tick box to be included in free trade agreements.
+
+QR code:
+ https://www.mfat.govt.nz/en/trade/how-we-help-exporters
+
+MFAT market reports:
+ https://www.mfat.govt.nz/en/trade/mfat-market-reports
+
+---------------
+Lisette Reymer
+---------------
+
+- 2 years into the Ukraine-Russia war. 
+- Security 
+
+Should Ukraine be refused membership to NATO?
+
+The West wants it to happen, but they will aggravate Putin in doing so. 
+
+-------------
+Simon Marks
+-------------
+
+- Trump assassination attempt 
+- Harris is now ahead in polls on independents.
+- 90 days until the election.
+- Harris against TPPA and other free trade agreements. 
+- typical rose tinted glasses about Tim Walz, he was a former veteran. No mention of JD Vance as a marine.
+- Elon Musk is interviewing Trump on X. 
+
+-----------------
+Grahame Morton
+-----------------
+
+- NZ seafood industry has been really successful in China. 
+- $30 billion dollars of exports consumed by China per year. 
+- China, China, China
+
+---------------
+Sharon Zollner
+---------------
+
+Twitter:
+https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
+
+- OCR The official cash rate (OCR)
+- Inflammation, interest rates, cash flow. 
+- the OCR is not high
+
+ANZ business outlook survey 
+https://www.anz.co.nz/about-us/economic-markets-research/business-outlook/
+
+--------------------
+Veronica Papacosta
+Angela Williamson
+--------------------
+
+The Atlas - Seafood (~1000 maps) CSIRO
+
+------------
+AirNZ Cargo
+------------
+
+- purchase carbon credits. 
+- projects that reduce carbon
+- analytics dashboards for carbon emissions 
+
+Electric short haul flights exclusively for cargo.
+
+https://www.rnz.co.nz/news/national/514470/air-nz-to-fly-electric-planes-from-wellington-to-marlborough
+
+- modern slavery reporting 
+- sustainability agreements 
+
+---------
+Rui Peng
+---------
+
+- cleanstone - recycled plastic 
+- transformimg trawl waste into resources. 
+- cleanatone made from fishing nets. 
+- highschool all cleanstone desks. 
+- Maori carvings. 
+
+QR code:
+
+https://criticaldesign.nz/
+
+------------
+Karen Olver
+------------
+
+- women in seafood Australasia (WISA) 
+- 28 years ago, formed an associatation.
+- our purpose is to champion an inclusive industry. 
+- WISA sponsored the happy hour
+
+----------------
+Michael Morrah
+Tim Murphy
+Sally Murphy
+Nathan Hines
+----------------
+
+Q&A panel:
+
+- cameras on boats
+- "nothing to hide"
+- vast number of species are being caught. 
+- fisherman are weary of journalists.
+- industry not saving money from free trade agreements. 
+- media have a negative vibe associated with them, they appear to focus on controversy, and fail to reach out to many fisherman. 
+- radio: an hour to fill, 2 mins per story. 
+- Warner Brothers, Newshub, cutting of shows.
+- people are consuming news through various social media platforms.
+- Newsroom is an independent news organizations, that try to cover issues, foreign affairs, trade. They don't cover breaking stories or the whether. 
+- having media come on the boat helped build trust in the media. 
+- the story was about Hector's dolphins. And reducing dolphins getting killed by the fishing industry. 
+
+Q1. How will AI effect the ability of news to show the truth? 
+
+- trust in media used to be 40%, now it is 30%. 
+- AI is going to through more doubt into what can be known as true. 
+
+Q2. More stories than not are opinion pieces disguised as news. 
+
+- the quota management system is outdated and not fit for purpose. 
+- fisherman are trying to do there best, they are fishing for big companies, they put the net down, and pull up a variety of species -  Heterogeneous incoming catch.
+- quota system forces fisherman to discard bycatch. 
+- more rapid reaction in the quota management system to match fisheries.
+- important for journalists to meet people in the industry. The poor public perception is a misunderstanding of how journalism operates. 
+- cameras on boats are an additional cost for fishermen. 
+
+------
+Tim Li
+------
+
+"My name is Tim and I draw pictures". 
+
+- Teachers: if you can't do it, teach. 
+- drawing crayfish. 
+- capturing the imperfections: honesty 
+- japanese Gyotaku: ink on fish, rub it, make a print
+
+QR code:
+
+https://www.timliart.com/fineartprints
+
+----------------------------
+Fisheries New Zealand Panel
+----------------------------
+
+- data is important for monitoring fisheries.
+- artisinal scale: 
+- when you are catching snapper, you are going to catch more gurnard.
+- commercial nature of fishes data. 
+- low information / low knowledge of some fish stocks. 
+
+--------------
+Fishserve
+Caroline Read
+--------------
+
+- fishserve has been the manager of the quota management system. 
+- the whole commercial fishing industry are electronically reporting. 
+- 588,000 tonnes of ACE. 
+- 11,000 quota transfers 
+- 138,044 catch reports
+- $40,500,000 crown revenue collections.
+- 17,278 kgs of ACE shelved. 
+- 125,000 crayfish measurement.
+
+----------------------
+Seafood New Zealand 
+Lisa Futachek
+-----------------------
+
+- surface longline mitigation.
+  - dying bait blue so it's less visible to birds.
+  - weighted hooks 
+-  deepsea portal.
+
+------------------------
+Dragonfly Data Science 
+Philipp Neubauer
+-------------------------
+
+- Kingfish monitoring is a dynamic problem.
+- features: sea surface temperature, flux of ocean currents. 
+- daily oceanography relates to daily catches. 
+- Continious model updates based of daily updated data. 
+- Comparison of fish abundance to catch Jack Mackerel and avoid bycatch of Kingfish - avoidance areas. 
+- Dashboards, data science, visualization 
+
+------------
+Niwa 
+Rob Christie
+------------
+
+Niwa RV Kaharoa
+
+Although designed primarily for coastal surveys, RV Kaharoa is capable of working throughout New Zealand's Exclusive Economic Zone (EEZ) and further afield. In the last decade, the deployment of over 3000 ocean-profiling Argo floats has taken the vessel over 75,000 nautical miles, as far east as Chile and west as far as Mauritius.
+
+https://niwa.co.nz/vessels/rv-kaharoa
+
+- Deck area 88 square meters. 
+- CTD winch, oceanographic winch, 2 trawl winches
+- advanced data acquisition platform. AI driven systems. 
+- Arrival Wellington 12th August 2024
+- detailed vessal designed for fisheries science. 
+
+---------------
+Plant and Food
+Louis Kregting
+---------------
+
+- Flume tank
+
+https://www.plantandfood.com/en-nz/flume-tank/
+
+- reduce bycatch
+- target specific species 
+- goal: "target size quality fish with little to no bycatch"
+- precision in seafood harvesting.
+- computational fluid dynamics (CFD)
+- CFD modelling predicts fluid flow around an object. 
+
+--------------
+Biofericw P/L
+Jeremy Prince
+--------------
+
+- statistical assessment model
+- standard assessment models don't work for New Zealand fisheries. 
+- length based assessment of spawning potential ratio (LB-SPR)
+- Human reproductive index - measures average number of children that survive to adulthood. 
+  - more than 2.1 children -> population growth 
+  - 2.1 children -> replacement rate
+  - less than 2.1 children population decline
+- recognized SPR reference points. 
+- Sri Lanka blue swimmer crab fishery had a stock assessment for $400 per year.
+- dragonfly fly's MSR testing of SPR based Harvest Control Rules for Setting Catches. 
+
+--------------
+ACC
+Darren Guard
+--------------
+
+- prevent injury.
+- help people regain independence.
+- compensate people for injury.
+- 40,000 days of worker productivity are lost per year due to workplace injuries. 
+- 1% of the workforce is taking time off for an injury.
+- males aged 20-24 are being injured the most.
+- for every one person injured in the workplace there are two people injured outside the workplace.
+
+---------------
+Sharon Forsyth
+Maritime NZ
+---------------
+
+- 65 serious harm injuries in fisheries each year. 
+- 30% of injuries come from the fishing industry.
+- 7 people died in the fishing industry. 
+- environment: oil spills, chemicals, rubbish and fishing gear
+
+----------
+ACC panel
+----------
+
+- training on how to use equipment.
+- personal responsibility
+- FishSafe -> MarineSafe
+- best ideas for safety come from the sector. 
+- workplace injuries on average take 60 days off work.
+- health and safety forum, first mate, MarineSafe
+- there are ships with every health and safety feature on board. And people are hurting themselves still. It's a human factor not an environmental one. 
+
+--------------------------
+Human Impact Leadership 
+Amy Jones
+--------------------------
+
+- setting the vision
+- strategic planning 
+- team effort
+- resilience 
+- celebrate milestones
+- Everest base camp
+- Food & Fibre Seafood Representative
+- spend time to understand what technology changes and AI will have on your business. 
+- culture continuum: generative, proactive, calculative, reactive, pathological
+
+https://humanimpact.co.nz
