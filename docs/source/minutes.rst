@@ -6674,7 +6674,7 @@ TODO:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
 
-^^^^^^^^^^^^^^^^
+
 Vangelis Vitalis
 ^^^^^^^^^^^^^^^^
 
@@ -6686,7 +6686,7 @@ QR code:
 MFAT market reports:
  https://www.mfat.govt.nz/en/trade/mfat-market-reports
 
-^^^^^^^^^^^^^^
+
 Lisette Reymer
 ^^^^^^^^^^^^^^
 
@@ -6697,7 +6697,7 @@ Should Ukraine be refused membership to NATO?
 
 The West wants it to happen, but they will aggravate Putin in doing so. 
 
-^^^^^^^^^^^
+
 Simon Marks
 ^^^^^^^^^^^
 
@@ -6708,7 +6708,7 @@ Simon Marks
 - typical rose tinted glasses about Tim Walz, he was a former veteran. No mention of JD Vance as a marine.
 - Elon Musk is interviewing Trump on X. 
 
-^^^^^^^^^^^^^^
+
 Grahame Morton
 ^^^^^^^^^^^^^^
 
@@ -6716,7 +6716,7 @@ Grahame Morton
 - $30 billion dollars of exports consumed by China per year. 
 - China, China, China
 
-^^^^^^^^^^^^^^
+
 Sharon Zollner
 ^^^^^^^^^^^^^^
 
@@ -6730,7 +6730,8 @@ https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
 ANZ business outlook survey 
 https://www.anz.co.nz/about-us/economic-markets-research/business-outlook/
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 Veronica Papacosta, Angela Williamson
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6741,7 +6742,7 @@ The Atlas - Seafood (~1000 maps) CSIRO
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
 
-^^^^^^^^^^^
+
 AirNZ Cargo
 ^^^^^^^^^^^
 
@@ -6756,7 +6757,7 @@ https://www.rnz.co.nz/news/national/514470/air-nz-to-fly-electric-planes-from-we
 - modern slavery reporting 
 - sustainability agreements 
 
-^^^^^^^^
+
 Rui Peng
 ^^^^^^^^
 
@@ -6770,7 +6771,7 @@ QR code:
 
 https://criticaldesign.nz/
 
-^^^^^^^^^^^
+
 Karen Olver
 ^^^^^^^^^^^
 
@@ -6779,7 +6780,7 @@ Karen Olver
 - our purpose is to champion an inclusive industry. 
 - WISA sponsored the happy hour
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Michael Morrah, Tim Murphy, Sally Murphy, Nathan Hines
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6812,7 +6813,7 @@ Q2. More stories than not are opinion pieces disguised as news.
 - important for journalists to meet people in the industry. The poor public perception is a misunderstanding of how journalism operates. 
 - cameras on boats are an additional cost for fishermen. 
 
-^^^^^^
+
 Tim Li
 ^^^^^^
 
@@ -6827,7 +6828,7 @@ QR code:
 
 https://www.timliart.com/fineartprints
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Fisheries New Zealand Panel
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6837,10 +6838,9 @@ Fisheries New Zealand Panel
 - commercial nature of fishes data. 
 - low information / low knowledge of some fish stocks. 
 
-^^^^^^^^^^^^^
-Fishserve
-Caroline Read
-^^^^^^^^^^^^^
+
+Fishserve - Caroline Read
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - fishserve has been the manager of the quota management system. 
 - the whole commercial fishing industry are electronically reporting. 
@@ -6851,7 +6851,7 @@ Caroline Read
 - 17,278 kgs of ACE shelved. 
 - 125,000 crayfish measurement.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Seafood New Zealand - Lisa Futachek
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6860,7 +6860,7 @@ Seafood New Zealand - Lisa Futachek
   - weighted hooks 
 -  deepsea portal.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Dragonfly Data Science  - Philipp Neubauer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6871,7 +6871,7 @@ Dragonfly Data Science  - Philipp Neubauer
 - Comparison of fish abundance to catch Jack Mackerel and avoid bycatch of Kingfish - avoidance areas. 
 - Dashboards, data science, visualization 
 
-^^^^^^^^^^^^^^^^^^^^
+
 Niwa  - Rob Christie
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -6887,7 +6887,7 @@ https://niwa.co.nz/vessels/rv-kaharoa
 - Arrival Wellington 12th August 2024
 - detailed vessal designed for fisheries science. 
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Plant and Food - Louis Kregting
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6902,7 +6902,7 @@ https://www.plantandfood.com/en-nz/flume-tank/
 - computational fluid dynamics (CFD)
 - CFD modelling predicts fluid flow around an object. 
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Biofericw P/L - Jeremy Prince
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6917,7 +6917,7 @@ Biofericw P/L - Jeremy Prince
 - Sri Lanka blue swimmer crab fishery had a stock assessment for $400 per year.
 - dragonfly fly's MSR testing of SPR based Harvest Control Rules for Setting Catches. 
 
-^^^^^^^^^^^^^^^^^^
+
 ACC - Darren Guard
 ^^^^^^^^^^^^^^^^^^
 
@@ -6929,7 +6929,7 @@ ACC - Darren Guard
 - males aged 20-24 are being injured the most.
 - for every one person injured in the workplace there are two people injured outside the workplace.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Sharon Forsyth - Maritime NZ
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -6938,7 +6938,7 @@ Sharon Forsyth - Maritime NZ
 - 7 people died in the fishing industry. 
 - environment: oil spills, chemicals, rubbish and fishing gear
 
-^^^^^^^^^
+
 ACC panel
 ^^^^^^^^^
 
@@ -6950,7 +6950,7 @@ ACC panel
 - health and safety forum, first mate, MarineSafe
 - there are ships with every health and safety feature on board. And people are hurting themselves still. It's a human factor not an environmental one. 
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Human Impact Leadership - Amy Jones
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
