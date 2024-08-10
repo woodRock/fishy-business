@@ -11,9 +11,10 @@ from sklearn.naive_bayes import GaussianNB
 from lime.lime_tabular import LimeTabularExplainer
 from util import preprocess_dataset
 
+dataset = "oil"
 
 train_loader, val_loader, _ , _, data = preprocess_dataset(
-    dataset="species",
+    dataset=dataset,
     is_data_augmentation=False,
     batch_size=64,
     is_pre_train=False
@@ -22,7 +23,7 @@ train_loader, val_loader, _ , _, data = preprocess_dataset(
 data_iter = iter(train_loader)
 features, labels = next(data_iter)
 labels = labels.argmax(1)
-class_names = ['Mackerel', 'Hoki']
+class_names = ['50', '25', '10', '5', '1', '0.1', '0']
 # Create feature names
 feature_names = data.axes[1].tolist()
 
@@ -95,5 +96,5 @@ for i in range(len(df.index)):
 
 # Adjust layout and display the plot
 plt.tight_layout()
-plt.savefig("figures/lime_feature_comparison_line.png")
+plt.savefig(f"figures/{dataset}/lime_feature_comparison_line.png")
 plt.show()
