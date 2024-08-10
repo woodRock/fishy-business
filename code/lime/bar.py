@@ -103,7 +103,7 @@ ax.yaxis.grid(True, linestyle='--', alpha=0.3, zorder=0)
 # Customize the plot
 ax.set_xlabel('Features', fontsize=12)
 ax.set_ylabel('Importance', fontsize=12)
-ax.set_title('Top Features Comparison (LIME)', fontsize=14)
+ax.set_title(f'Feature Importance Comparison Across Models (LIME) on {dataset} for {class_names[label]}', fontsize=14)
 ax.set_xticks(x)
 ax.set_xticklabels(df.index, rotation=45, ha='right')
 ax.legend(loc='upper right', fontsize=10)

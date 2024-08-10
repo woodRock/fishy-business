@@ -85,7 +85,7 @@ for model_name in df.columns:
 
 plt.xlabel('Features', fontsize=12)
 plt.ylabel('Importance', fontsize=12)
-plt.title('Feature Importance Comparison Across Models (LIME)', fontsize=14)
+plt.title(f'Feature Importance Comparison Across Models (LIME) on {dataset} for {class_names[label]}', fontsize=14)
 plt.xticks(rotation=45, ha='right')
 plt.legend(loc='best', fontsize=10)
 plt.grid(True, linestyle='--', alpha=0.7)
