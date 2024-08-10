@@ -5178,9 +5178,10 @@ TODO:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** GNS Science, **Time:** Monday, 10:00 - 11:00, **Attendees:** Jesse Wood, Colin <last-name>
 
+--------------------
 Green Hydrogen
 By Colin <last-name>
-====================
+--------------------
 
 Hydrogen 
     * Hydrogen, odourless colourless gas.
@@ -5242,11 +5243,11 @@ Ngahina Marae
 
 "computer scientist so not a real scientist" 😭🥼 -* Jesse Wood
 
---
 
+-------------------------------------------------------------------------------------
 Composite magnetic materials development for applications in inroads charging systems
 By <unknown>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------------------------------------------------------------
 
 Charge onroad
     * charge cars parked or at traffic lights.
@@ -5308,10 +5309,11 @@ Electric recharging
 "The slow lane, would turn into, a fast lane"
 #IAmSpeed  
 
+--------------------------------
 Energy efficiency Research
 By Murray 
 Energy Material Scientist, SSIF 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------
 
 
 Efficiency 
@@ -5360,11 +5362,10 @@ Allen-Feldman
         2. diffuson * <unseen>
         3. locom * atom chilling 
 
---
-
+------------------
 Energy Harvesting
 By Martin Markwitz
-^^^^^^^^^^^^^^^^^^
+------------------
 
     * 66% of energy is wasted into heat transfer.
     * Voyager, rocket ship, space probes.
@@ -5387,9 +5388,11 @@ The rock does float, but not for the right reason #LK-99
     * diamagnetism, not Meissner effect
     * repulsion, not superconduction
 
---
 
+------
 Gupta
+------
+
 By Gupta
     * arrange carbon in different configurations to create diamond 💎
     * doping a material, implant nitrogen/phosphorus, make it conductive.
@@ -5416,11 +5419,10 @@ Ammonia
     * A surface where the field passes electricity, a catalyst speeds up a reaction, electrocatalyst uses electrons to do this.
     * 500 bar pressure and 299 degree temperature, WWI Germany was trying to synthesize ammonia, Heber & Bosch, allies tried to cut off ammonia supply. 
 
---
-
+--------------------
 Career pathway talks
 By et al.
-^^^^^^^^^^^^^^^^^^^^
+--------------------
 
 Study
     * masters the PhD
@@ -5486,8 +5488,6 @@ Advice for young scientists:
         4. Be yourself
         5. Writing is important 
 
---
-
 Lab and facilities tour
 By et al.
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -5540,7 +5540,7 @@ Related:
     * MoNuSeg dataset :ref::`(Kumar 2019) <kumar2019multi>`
 
 2023-12-01 - Weekly
--------------------
+~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Friday, 14:00 - 15:00, **Attendees:** Bing Xue, Bach Hoai Nguyen, Jesse Wood
 
 Motivations and goals - they key focus of the proposal is coeherence between these two parts 
@@ -5553,7 +5553,7 @@ Exemplar - look at Jordan's proposal as an example of how to structure these sec
 Goals != contributions 
 
 2023-12-02 - Proposal Seminar
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** CO431, **Time:** Friday, 10:00 - 11:00, **Attendees:** Jesse Wood, Mengjie Zhang, Bing Xue, Bach Hoai Nguyen, Daniel Killeen, Andrew Lensen 
 
 I gave my proposal seminar today. 
