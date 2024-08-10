@@ -284,7 +284,7 @@ Notes:
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
 
 2022-03-24 - Faculty Induction
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 10am-11am , **Attendees:** Georgia Dix, Jesse Wood, Bach Hoai Nguyen.
 
 Induction to my PhD studies with supervisor and faculty. 
