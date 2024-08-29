@@ -62,7 +62,7 @@ def main():
     logger = setup_logging(args)
 
     n_features = 1023
-    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:
         raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")

@@ -6967,6 +6967,42 @@ Amy Jones - Human Impact Leadership
 https://humanimpact.co.nz
 
 
-2024-08-16 - Weekly 
+2024-08-29 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Jiahong, Bing Xue, Mengjie Zhang
+
+Jiahong Wei  had a proposal seminar rehearsal https://ecs.wgtn.ac.nz/Main/GradJiahongWei
+
+Notes:     
+    * Device a variable length encoding for GA. 
+    * Multi-objective zero-shot NAS for medical image segmentation.
+
+Limitations: 
+1. spatial inconsistency
+2. lack of interpretability 
+3. lack of transferability 
+4. lack of multi-task optimization 
+
+Models to explore:
+1. CNNs 
+2. Vision mamba 
+3. Vision transformer 
+
+
+
+Related: 
+    * Patch-based output space adversarial learning :ref:`(Wang 2019) <https://ieeexplore.ieee.org/abstract/document/8643416>`
+    * Zero-shot NAS :ref:`(Li 2024) <li2024zero>`
+    * Loss functions for medical image segmentations :ref:`(Ma 2019) <ma2021loss>`
+    * Domain-oriented feature embedding :ref:`(Wang 2020) <wang2020dofe>`
+
+2024-08-29 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Notes:
+    * Paper - polist the second paper to be a journal paper, look to submit to a journal.
+    * Send Bing a copy of my slides. 
+    * Create a dataset 
+        * Easy :math:`\to` fish stratification doesn't matter 
+        * Hard :math:`\to` seperate individual fish, to ommit them from training, and only include them in the test.
