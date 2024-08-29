@@ -69,6 +69,7 @@ def main():
     logger = setup_logging(args)
 
     input_dim = 1023
+    output_dim = 1023
 
     logger.info(f"Reading the dataset: fish {args.dataset}")
     train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(

@@ -1789,6 +1789,17 @@ Available: https://www.class-specific.com/csf/papers/hidim.pdf
 Related:
     * Discussed by Ruwang in :ref:`2023-12-08 - ECRG <2023-12-08 - ECRG>`
 
+koza1994genetic
+----------------
+Genetic programming as a means for programming computers by natural selection
+
+(Koza 1994) propose genetric programming techniques.
+
+Available: https://link.springer.com/article/10.1007/BF00175355
+
+Related: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
 kulasekara2014transposon
 ------------------------
 Transposon mutagenesis
@@ -2076,6 +2087,17 @@ Available: https://arxiv.org/abs/2301.12597
 Related: 
     * Discussed in :ref:`2024-02-29 - FASLIP <2024-02-29 - FASLIP>`
 
+li2024zero
+----------
+Zero-Shot Neural Architecture Search: Challenges, Solutions, and Opportunities
+
+(Li 2024) propose zero shot NAS.
+
+Related: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
+Available: https://ieeexplore.ieee.org/abstract/document/10516268
+
 lin2017feature
 --------------
     * Feature pyramid networks for object detection. 
@@ -2211,6 +2233,17 @@ A unified approach to interpreting model predictions
 (Lundberg 2017) propose SHapley Additive exPlanations (SHAP).
 
 Available: https://arxiv.org/abs/1705.07874
+
+ma2021loss
+----------
+Loss odyssey in medical image segmentation
+
+(Ma 2021) explore plug-and-play segmentation loss functions in an organized manner
+
+Available: https://www.sciencedirect.com/science/article/pii/S1361841521000815
+
+Related: 
+    * Discussed in :ref:`2024-02-29 - FASLIP <2024-02-29 - FASLIP>`
 
 mantyla1998cuelensen2017new
 --------------
@@ -2780,6 +2813,17 @@ rasmussen2003gaussian
 ---------------------
     * Gaussian Processes in machine learning. 
 
+raymond2023learning
+-------------------
+Learning symbolic model-agnostic loss functions via meta-learning
+
+(Raymond 2023) propose model-agnostic loss functions for meta-learning.
+
+Available: https://ieeexplore.ieee.org/abstract/document/10177983
+
+Related:
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
 restek2018high
 --------------
     * Explanation of gas-chromatraphy in food science for FAMEs. 
@@ -3298,6 +3342,27 @@ Evolving deep convolutional neural networks by variable-length particle swarm op
 
 Related:
     * See :ref:`2022-10-27 - FASLIP<2022-10-27 - FASLIP>`
+
+wang2019patch
+-------------
+Patch-based output space adversarial learning for joint optic disc and cup segmentation
+
+(Wang 2019) propose patch-based output space adversarial learning for joint optic disc and cup segmentation.
+
+Available: https://ieeexplore.ieee.org/abstract/document/9163289
+
+References: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
+wang2020dofe
+------------
+Dofe: Domain-oriented feature embedding for generalizable fundus image segmentation on unseen datasets
+
+Available: https://ieeexplore.ieee.org/abstract/document/9163289
+
+References: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
 
 wang2020linformer
 -----------------

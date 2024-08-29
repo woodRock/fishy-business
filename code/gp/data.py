@@ -74,6 +74,23 @@ def load_dataset(
                         else (1 if 'H' in x 
                         else (2 if 'M' in x
                         else None)))
+    elif dataset == "instance-recognition":
+        X = data.iloc[:, 1:].to_numpy() 
+        # Take only the class label column.
+        y = data.iloc[:, 0].to_numpy()
+        features = list() 
+        labels = list() 
+
+        for i, (x_1, x_2) in enumerate(zip(X, X[1:])):
+            concatenated = np.concatenate((x_1, x_2))
+            features.append(concatenated)
+            label = int(y[i] == y[i+1])
+            labels.append(label)
+
+        X,y = np.array(features), np.array(labels)
+        # y = np.eye(2)[y]
+        # print("I get here twice")
+        return X,y
     else: 
         # Return an excpetion if the dataset is not valid.
         raise ValueError(f"No valid dataset was specified: {dataset}")

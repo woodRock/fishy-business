@@ -18,7 +18,7 @@ need sgegrid
 # Change directory to desktop fishy-business
 cd ~/Desktop/fishy-business/code/gp
 
-DATASET="species"; 
+DATASET="instance-recognition"; 
 # DATASET="species";
 # Directory to save results to.
 NAME="tmp";
