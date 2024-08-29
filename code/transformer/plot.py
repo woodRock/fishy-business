@@ -135,6 +135,8 @@ def plot_confusion_matrix(
         labels = ["Oil", "No oil"]
     elif dataset == "cross-species":
         labels = ["Hoki-Mackeral", "Hoki", "Mackerel"]
+    elif dataset == "instance-recognition":
+        labels = ["same", "different"]
     else:
         raise ValueError(f"Not a valid dataset: {dataset}")
     
