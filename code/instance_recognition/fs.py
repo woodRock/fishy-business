@@ -15,6 +15,9 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as lda
 from sklearn.ensemble import VotingClassifier
 from sklearn.naive_bayes import GaussianNB as nb
 from sklearn.svm import SVC as svm
+from skfeature.function.information_theoretical_based import MRMR
+from sklearn.feature_selection import SelectKBest
+
 
 def train_test_split(X, y, test_size=0.2, random_state=None):
     """
@@ -68,12 +71,6 @@ data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|go
 X = data.iloc[:, 1:].to_numpy() 
 # Take only the class label column.
 y = data.iloc[:, 0].to_numpy()
-
-# Preprocessing
-# Center the data
-X = X - X.mean()
-# Normalize between 0 and 1
-X = (X - X.min()) / (X.max() - X.min())
 
 features = list() 
 labels = list() 
@@ -161,6 +158,14 @@ for name, model in (pbar := tqdm(models.items())):
     for i in range (30):
         # Resample the train and test each epoch.
         (X_train, y_train) , (X_test, y_test) = train_test_split(X,y)
+        
+        # Perform mRMR feature selection for classification
+        # Perform mRMR feature selection
+        num_features_to_select = 20
+        selected_features_idx = MRMR.mrmr(X_train, y_train, n_selected_features=num_features_to_select)
+        X_train = X_train[:,selected_features_idx]
+        X_test = X_test[:,selected_features_idx]
+        
         model.fit(X_train, y_train)
         pred = model.predict(X_train)
         train_accuracy = balanced_accuracy_score(y_train, pred)

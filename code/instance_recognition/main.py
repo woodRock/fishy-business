@@ -47,7 +47,7 @@ def train_test_split(X, y, test_size=0.2, random_state=None):
     return (X_train, y_train) , (X_test, y_test)
 
 # Import the dataset.
-path = os.path.join("~","Desktop", "python", "REIMS_data.xlsx")
+path = os.path.join("~","Desktop", "fishy-business", "data", "REIMS_data.xlsx")
 data = pd.read_excel(path, header=1)
 # Filter out the quality control and hoki-mackerel mix samples.
 data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
@@ -94,7 +94,7 @@ for i in range(10_000):
     loss.backward()
     optim.step()
 
-    if (i % 100 == 0 or i == 10_000 -1):
+    if (i % 100 == 0 or i == 10_000 - 1):
         correct_cnt += (np.argmax(pred.data, axis=1) == np.argmax(y_train.data, axis=1)).sum()
         accuracy = correct_cnt / float(len(y_train))
 
