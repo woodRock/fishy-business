@@ -211,10 +211,15 @@ def one_hot_encoded_labels(dataset, data):
         features = list() 
         labels = list() 
 
-        for i, (x_1, x_2) in enumerate(zip(X, X[1:])):
-            concatenated = np.concatenate((x_1, x_2))
-            features.append(concatenated)
+        for i, (current, next) in enumerate(zip(X, X[1:])):
+            concatenated = np.concatenate((current, next))
             label = int(y[i] == y[i+1])
+            if np.random.rand(1) > 0.5:
+                idx = int(np.random.rand(1) * len(X))
+                random = X[idx]
+                concatenated = np.concatenate((current, random))
+                label = int(y[i] == y[idx])
+            features.append(concatenated)
             labels.append(label)
 
         X,y = np.array(features), np.array(labels)

@@ -72,6 +72,12 @@ X = data.iloc[:, 1:].to_numpy()
 # Take only the class label column.
 y = data.iloc[:, 0].to_numpy()
 
+# Preprocessing
+# Center the data
+X = X - X.mean()
+# Normalize between 0 and 1
+X = (X - X.min()) / (X.max() - X.min())
+
 features = list() 
 labels = list() 
 
