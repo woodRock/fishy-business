@@ -1,0 +1,111 @@
+INFO:__main__:Reading the dataset: fish instance-recognition
+INFO:__main__:model: Transformer(
+  (encoder): Encoder(
+    (layers): ModuleList(
+      (0-3): 4 x EncoderLayer(
+        (self_attention): MultiHeadAttention(
+          (query): Linear(in_features=2046, out_features=2046, bias=True)
+          (key): Linear(in_features=2046, out_features=2046, bias=True)
+          (value): Linear(in_features=2046, out_features=2046, bias=True)
+          (fc_out): Linear(in_features=2046, out_features=2046, bias=True)
+        )
+        (feed_forward): FeedForward(
+          (fc1): Linear(in_features=2046, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=2046, bias=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+        (norm1): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.2, inplace=False)
+        (dropout2): Dropout(p=0.2, inplace=False)
+      )
+    )
+  )
+  (decoder): Decoder(
+    (layers): ModuleList(
+      (0-3): 4 x DecoderLayer(
+        (self_attention): MultiHeadAttention(
+          (query): Linear(in_features=2046, out_features=2046, bias=True)
+          (key): Linear(in_features=2046, out_features=2046, bias=True)
+          (value): Linear(in_features=2046, out_features=2046, bias=True)
+          (fc_out): Linear(in_features=2046, out_features=2046, bias=True)
+        )
+        (cross_attention): MultiHeadAttention(
+          (query): Linear(in_features=2046, out_features=2046, bias=True)
+          (key): Linear(in_features=2046, out_features=2046, bias=True)
+          (value): Linear(in_features=2046, out_features=2046, bias=True)
+          (fc_out): Linear(in_features=2046, out_features=2046, bias=True)
+        )
+        (feed_forward): FeedForward(
+          (fc1): Linear(in_features=2046, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=2046, bias=True)
+          (dropout): Dropout(p=0.2, inplace=False)
+        )
+        (norm1): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.2, inplace=False)
+        (dropout2): Dropout(p=0.2, inplace=False)
+        (dropout3): Dropout(p=0.2, inplace=False)
+      )
+    )
+  )
+  (fc): Linear(in_features=2046, out_features=2, bias=True)
+)
+INFO:__main__:Training the network
+INFO:train:Epoch 1/1000 	Train Loss: 3.5938, Train Acc: 0.4775	 Val Loss: 3.9962, Val Acc: 0.3393
+INFO:train:Epoch 2/1000 	Train Loss: 2.0921, Train Acc: 0.5586	 Val Loss: 1.3538, Val Acc: 0.5357
+INFO:train:Epoch 3/1000 	Train Loss: 1.2949, Train Acc: 0.5721	 Val Loss: 1.5135, Val Acc: 0.5357
+INFO:train:Epoch 4/1000 	Train Loss: 1.0382, Train Acc: 0.6216	 Val Loss: 1.1668, Val Acc: 0.5714
+INFO:train:Epoch 5/1000 	Train Loss: 0.7086, Train Acc: 0.6667	 Val Loss: 1.0265, Val Acc: 0.5714
+INFO:train:Epoch 6/1000 	Train Loss: 0.5392, Train Acc: 0.7748	 Val Loss: 1.1190, Val Acc: 0.4821
+INFO:train:Epoch 7/1000 	Train Loss: 0.5285, Train Acc: 0.7658	 Val Loss: 1.2002, Val Acc: 0.5893
+INFO:train:Epoch 8/1000 	Train Loss: 0.4587, Train Acc: 0.8559	 Val Loss: 1.0228, Val Acc: 0.6429
+INFO:train:Epoch 9/1000 	Train Loss: 0.4160, Train Acc: 0.8649	 Val Loss: 1.1639, Val Acc: 0.6250
+INFO:train:Epoch 10/1000 	Train Loss: 0.5098, Train Acc: 0.8288	 Val Loss: 1.3620, Val Acc: 0.5536
+INFO:train:Epoch 11/1000 	Train Loss: 0.4669, Train Acc: 0.8649	 Val Loss: 1.0860, Val Acc: 0.6071
+INFO:train:Epoch 12/1000 	Train Loss: 0.3503, Train Acc: 0.9189	 Val Loss: 0.8873, Val Acc: 0.6071
+INFO:train:Epoch 13/1000 	Train Loss: 0.3295, Train Acc: 0.9414	 Val Loss: 1.3015, Val Acc: 0.6071
+INFO:train:Epoch 14/1000 	Train Loss: 0.2923, Train Acc: 0.9595	 Val Loss: 1.0513, Val Acc: 0.6071
+INFO:train:Epoch 15/1000 	Train Loss: 0.2623, Train Acc: 0.9865	 Val Loss: 1.0793, Val Acc: 0.5714
+INFO:train:Epoch 16/1000 	Train Loss: 0.2699, Train Acc: 0.9820	 Val Loss: 0.9735, Val Acc: 0.6250
+INFO:train:Epoch 17/1000 	Train Loss: 0.2461, Train Acc: 0.9955	 Val Loss: 1.1003, Val Acc: 0.6071
+INFO:train:Epoch 18/1000 	Train Loss: 0.2488, Train Acc: 0.9910	 Val Loss: 0.9868, Val Acc: 0.5893
+INFO:train:Epoch 19/1000 	Train Loss: 0.2310, Train Acc: 1.0000	 Val Loss: 0.8847, Val Acc: 0.5893
+INFO:train:Epoch 20/1000 	Train Loss: 0.2320, Train Acc: 1.0000	 Val Loss: 1.0584, Val Acc: 0.6250
+INFO:train:Epoch 21/1000 	Train Loss: 0.2320, Train Acc: 0.9955	 Val Loss: 0.8818, Val Acc: 0.5714
+INFO:train:Epoch 22/1000 	Train Loss: 0.2327, Train Acc: 0.9910	 Val Loss: 1.0198, Val Acc: 0.6071
+INFO:train:Epoch 23/1000 	Train Loss: 0.2233, Train Acc: 1.0000	 Val Loss: 0.8405, Val Acc: 0.6071
+INFO:train:Epoch 24/1000 	Train Loss: 0.2194, Train Acc: 1.0000	 Val Loss: 0.8346, Val Acc: 0.6250
+INFO:train:Epoch 25/1000 	Train Loss: 0.2203, Train Acc: 1.0000	 Val Loss: 0.8756, Val Acc: 0.6429
+INFO:train:Epoch 26/1000 	Train Loss: 0.2171, Train Acc: 1.0000	 Val Loss: 0.8176, Val Acc: 0.6250
+INFO:train:Epoch 27/1000 	Train Loss: 0.2145, Train Acc: 1.0000	 Val Loss: 0.8090, Val Acc: 0.6250
+INFO:train:Epoch 28/1000 	Train Loss: 0.2164, Train Acc: 1.0000	 Val Loss: 0.8217, Val Acc: 0.6250
+INFO:train:Epoch 29/1000 	Train Loss: 0.2119, Train Acc: 1.0000	 Val Loss: 0.8404, Val Acc: 0.6786
+INFO:train:Epoch 30/1000 	Train Loss: 0.2150, Train Acc: 1.0000	 Val Loss: 0.8618, Val Acc: 0.5714
+INFO:train:Epoch 31/1000 	Train Loss: 0.2135, Train Acc: 1.0000	 Val Loss: 0.8133, Val Acc: 0.6250
+INFO:train:Epoch 32/1000 	Train Loss: 0.2149, Train Acc: 1.0000	 Val Loss: 0.8866, Val Acc: 0.6250
+INFO:train:Epoch 33/1000 	Train Loss: 0.2103, Train Acc: 1.0000	 Val Loss: 0.7927, Val Acc: 0.6607
+INFO:train:Epoch 34/1000 	Train Loss: 0.2116, Train Acc: 1.0000	 Val Loss: 0.8277, Val Acc: 0.6429
+INFO:train:Epoch 35/1000 	Train Loss: 0.2111, Train Acc: 1.0000	 Val Loss: 0.7893, Val Acc: 0.6250
+INFO:train:Epoch 36/1000 	Train Loss: 0.2088, Train Acc: 1.0000	 Val Loss: 0.7506, Val Acc: 0.6250
+INFO:train:Epoch 37/1000 	Train Loss: 0.2080, Train Acc: 1.0000	 Val Loss: 0.7918, Val Acc: 0.6071
+INFO:train:Epoch 38/1000 	Train Loss: 0.2091, Train Acc: 1.0000	 Val Loss: 0.8053, Val Acc: 0.6250
+INFO:train:Epoch 39/1000 	Train Loss: 0.2082, Train Acc: 1.0000	 Val Loss: 0.9125, Val Acc: 0.6071
+INFO:train:Early stopping triggered after 39 epochs
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 59.47s
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 30 / 30 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:Total time taken evaluate on train set the model: 0.84s
+INFO:train:validation got 34 / 56 correct, accuracy: 0.6071428571428571
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:Total time taken evaluate on validation set the model: 0.20s
+INFO:plot:Saving attention map to: figures/encoder_attention_map.png
+INFO:plot:Saving attention map to: figures/decoder_attention_map.png
