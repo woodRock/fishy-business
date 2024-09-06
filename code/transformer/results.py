@@ -27,7 +27,7 @@ if __name__ == "__main__":
     verbose = args['verbose']
     
     # Select the dataset to process results for.
-    datasets = ["species", "part", "oil", "oil_simple", "cross-species"]
+    datasets = ["species", "part", "oil", "oil_simple", "cross-species", "instance-recognition"]
     dataset = args['dataset'] # Cross-species, 
     
     if dataset not in datasets:
