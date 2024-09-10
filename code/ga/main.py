@@ -47,14 +47,16 @@ def main():
     logger = setup_logging(args)
 
     n_features = 1023
-    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+    if args.dataset == "instance-recognition":
+        n_features = 2046
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
     
     if args.dataset not in n_classes_per_dataset:
         raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
     
     n_classes = n_classes_per_dataset[args.dataset]
 
-    train_loader, val_loader, _, _, _ = preprocess_dataset(
+    train_loader, val_loader = preprocess_dataset(
         dataset=args.dataset,
         batch_size=64,
         is_data_augmentation=True,
@@ -82,7 +84,7 @@ def main():
     train_accuracy = ga.evaluate_model(best_individual, train_loader)
     test_accuracy = ga.evaluate_model(best_individual, val_loader)
     
-    final_message = f"Training accuracy: {train_accuracy:.4f}, Test accuracy: {test_accuracy:.4f}"
+    final_message = f"Training accuracy: {train_accuracy:.4f} Test accuracy: {test_accuracy:.4f}"
     logger.info(final_message)
     print(final_message)
 

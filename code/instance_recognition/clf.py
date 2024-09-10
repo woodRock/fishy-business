@@ -164,8 +164,6 @@ results = {
 for name, model in (pbar := tqdm(models.items())):
     pbar.set_description(f"Traininig {model}")
     for i in range (30):
-        # Resample the train and test each epoch.
-        (X_train, y_train) , (X_test, y_test) = train_test_split(X,y)
         model.fit(X_train, y_train)
         pred = model.predict(X_train)
         train_accuracy = balanced_accuracy_score(y_train, pred)

@@ -43,7 +43,7 @@ def parse_arguments():
     # Hyperparameters
     parser.add_argument('-e', '--epochs', type=int, default=100,
                         help="The number of epochs to train the model for.")
-    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
+    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-7,
                         help="The learning rate for the model. Defaults to 1E-3.")
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
@@ -63,17 +63,18 @@ def main():
     logger = setup_logging(args)
 
     n_features = 1023
-    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+    if args.dataset == "instance-recogntion":
+        n_features = 2046
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:
         raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
     
     n_classes = n_classes_per_dataset[args.dataset]
 
-
     if args.masked_spectra_modelling:
         # Load the dataset.
-        train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+        train_loader, val_loader = preprocess_dataset(
             args.dataset, 
             args.data_augmentation, 
             batch_size=args.batch_size,
@@ -83,7 +84,7 @@ def main():
         # Instantiate model, loss function, and optimizer
         model = CNN(
             input_size=n_features, 
-            num_classes=1023,
+            num_classes=n_features,
             dropout=args.dropout
         )
 
@@ -105,7 +106,7 @@ def main():
         )
 
     # Load the dataset.
-    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+    train_loader, val_loader = preprocess_dataset(
         args.dataset, 
         args.data_augmentation, 
         batch_size=args.batch_size,
@@ -119,11 +120,13 @@ def main():
         dropout = args.dropout
     )
 
-    model = pre_train_transfer_learning(
-        model = model, 
-        file_path ='checkpoints/cnn_checkpoint.pth', 
-        output_dim = n_classes
-    )
+    # If pre-trained, load the pre-trained model weights.
+    if args.masked_spectra_modelling:
+        model = pre_train_transfer_learning(
+            model = model, 
+            file_path ='checkpoints/cnn_checkpoint.pth', 
+            output_dim = n_classes
+        )
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)

@@ -70,7 +70,9 @@ def main():
     logger = setup_logging(args)
 
     n_features = 1023
-    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+    if args.dataset == "instance-recognition":
+        n_features = 2046
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:
         raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
@@ -101,14 +103,6 @@ def main():
     # AdamW (Loshchilov 2017)
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
-    train_loader, val_loader = preprocess_dataset(
-        dataset=args.dataset,
-        is_data_augmentation=False,
-        batch_size=64,
-        is_pca=False,
-        is_fft=False,
-        is_pre_train=False)
-
     # Modify the train_model call to include the early stopping patience
     trained_model = train_model(
         model, 
@@ -125,11 +119,11 @@ def main():
     logger.info(f"Best model saved to {args.file_path}")
 
     evaluate_model(
-            model=model, 
-            train_loader=train_loader, 
-            val_loader=val_loader, 
-            dataset=args.dataset, 
-            device=device
+        model=model, 
+        train_loader=train_loader, 
+        val_loader=val_loader, 
+        dataset=args.dataset, 
+        device=device
     )
 
 if __name__ == "__main__":
