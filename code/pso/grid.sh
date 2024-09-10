@@ -18,7 +18,7 @@ need sgegrid
 # Change directory to desktop fishy-business
 cd ~/Desktop/fishy-business/code/pso
 
-DATASET="cross-species"; 
+DATASET="instance-recognition"; 
 # DATASET="species";
 # Directory to save results to.
 NAME="tmp";

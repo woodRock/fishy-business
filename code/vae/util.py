@@ -203,6 +203,27 @@ def one_hot_encoded_labels(dataset, data):
                         else ([0,1,0] if 'H' in x
                         else ([0,0,1] if 'M' 
                         else None)))
+    elif dataset == "instance-recognition":
+        X = data.iloc[:, 1:].to_numpy() 
+        # Take only the class label column.
+        y = data.iloc[:, 0].to_numpy()
+        features = list() 
+        labels = list() 
+
+        for i, (current, next) in enumerate(zip(X, X[1:])):
+            concatenated = np.concatenate((current, next))
+            label = int(y[i] == y[i+1])
+            if np.random.rand(1) > 0.5:
+                idx = int(np.random.rand(1) * len(X))
+                random = X[idx]
+                concatenated = np.concatenate((current, random))
+                label = int(y[i] == y[idx])
+            features.append(concatenated)
+            labels.append(label)
+
+        X,y = np.array(features), np.array(labels)
+        y = np.eye(2)[y]
+        return X,y
     else: 
         # Return an excpetion if the dataset is not valid.
         raise ValueError(f"No valid dataset was specified: {dataset}")
@@ -286,7 +307,7 @@ def preprocess_dataset(
         is_data_augmentation: bool = True, 
         batch_size: int = 64,
         is_pre_train = False
-    ) -> Union[DataLoader, DataLoader]:
+    ) -> Union[DataLoader, DataLoader, DataLoader, int, int, pd.DataFrame]:
     """Preprocess the dataset for the downstream task of pre-training.
     
     If pre-training, include quality control, mixed species, and oil contaminated instances.
@@ -311,9 +332,12 @@ def preprocess_dataset(
     # For pre-training, keep all instances.
     if not is_pre_train:
         data = filter_dataset(dataset=dataset, data=data)
-    y = one_hot_encoded_labels(dataset=dataset, data=data)
-    X = data.drop('m/z', axis=1)
-    X,y = remove_instances_with_none_labels(X,y)
+    if (dataset == "instance-recognition"):
+        X, y = one_hot_encoded_labels(dataset=dataset, data=data)
+    else: 
+        y = one_hot_encoded_labels(dataset=dataset, data=data)
+        X = data.drop('m/z', axis=1)
+        X,y = remove_instances_with_none_labels(X,y)
     train_loader, val_loader, train_steps, val_steps = train_test_split_to_data_loader(
         X,
         y,

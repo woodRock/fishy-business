@@ -48,6 +48,7 @@ if __name__ == "__main__":
             content = f.readlines()
             # Extract the train, validation and test accuracy.
             # The training accuracy is on the 10th to last line.
+            print(f"content[-1]: {content[-1]}")
             train_acc: float = float(content[-1].split(sep=' ')[-4])
             # The validation accuracy is on the 9th to last line.
             val_acc: float = float(content[-1].split(sep=' ')[-1])

@@ -72,7 +72,9 @@ def main():
     logger = setup_logging(args)
 
     n_features = 1023
-    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
+    if args.dataset == "instance-recognition":
+        n_features = 2046
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:
         raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
@@ -80,7 +82,7 @@ def main():
     n_classes = n_classes_per_dataset[args.dataset]
 
     # Load the dataset.
-    train_loader, val_loader, _, _, _ = preprocess_dataset(
+    train_loader, val_loader = preprocess_dataset(
         args.dataset, 
         args.data_augmentation, 
         batch_size=args.batch_size,
@@ -89,7 +91,8 @@ def main():
 
     # Example usage
     model = Mamba(
-        d_model=args.hidden_dimension,
+        # d_model=args.hidden_dimension,
+        d_model=n_features,
         d_state=args.state_dimension,
         d_conv=args.conv_dimension,
         expand=args.expand,
