@@ -75,6 +75,7 @@ def load_dataset(
                         else (2 if 'M' in x
                         else None)))
     elif dataset == "instance-recognition":
+        data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]    
         X = data.iloc[:, 1:].to_numpy() 
         # Take only the class label column.
         y = data.iloc[:, 0].to_numpy()
@@ -88,8 +89,6 @@ def load_dataset(
             labels.append(label)
 
         X,y = np.array(features), np.array(labels)
-        # y = np.eye(2)[y]
-        # print("I get here twice")
         return X,y
     else: 
         # Return an excpetion if the dataset is not valid.

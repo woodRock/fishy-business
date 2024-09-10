@@ -117,7 +117,9 @@ def train_model(
                     message = f'Early stopping triggered after {epoch + 1} epochs'
                     logger.info(message)
                     print(message)
-                    print(f"Validation accuracy: {best_val_acc}")
+                    message = f"Validation accuracy: {best_val_acc}"
+                    logger.info(message)
+                    print(message)
                     break
         else: 
             epochs_without_improvement = 0

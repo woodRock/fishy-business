@@ -36,7 +36,7 @@ if __name__ == "__main__":
     test_accs = []
 
     # Skip the print tree statements.
-    skip = {'species': 2, 'part': 6, 'oil': 7, 'oil_simple': 2, 'cross-species': 3, 'instance-recognition': 0}
+    skip = {'species': 2, 'part': 6, 'oil': 7, 'oil_simple': 2, 'cross-species': 3, 'instance-recognition': 2}
     if dataset not in skip.keys():
         raise ValueError(f"Invalid dataset specified: {dataset} not in {skip.keys()}")
     skip_amount = skip[dataset]
@@ -54,11 +54,12 @@ if __name__ == "__main__":
             content = f.readlines()
             # Extract the train, validation and test accuracy.
             # The training accuracy is on the 10th to last line.
-            train_acc: float = float(content[-6 - skip_amount].split(sep=' ')[2])
+            train_acc: float = float(content[-8 - skip_amount].split(sep=' ')[2])
             # The validation accuracy is on the 9th to last line.
-            val_acc: float = float(content[-5 - skip_amount].split(sep=' ')[2])
+            print(f"content[-5 - skip_amount]: {content[-5 - skip_amount]}")
+            val_acc: float = float(content[-7 - skip_amount].split(sep=' ')[2])
             # The test accuracy is on the 8th to last line.
-            test_acc: float = float(content[-4 - skip_amount].split(sep=' ')[2])
+            test_acc: float = float(content[-6 - skip_amount].split(sep=' ')[2])
             # Append the accuracy to an array.
             train_accs.append(train_acc)
             val_accs.append(val_acc)
