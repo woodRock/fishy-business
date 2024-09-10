@@ -51,6 +51,8 @@ def plot_tsne(
             labels = ["Oil", "None"]
         elif dataset == "cross-species": 
             labels = ['Hoki-Mackerel', 'Hoki', 'Mackerel']
+        elif dataset == "instance-recognition":
+            labels = ["different", "same"]
         else: 
             raise ValueError(f"Invalid dataset: {dataset}")
 
@@ -105,7 +107,7 @@ def plot_pca_3D(
         # Labels for the graph legend are provided for each task.
         labels = []
         if dataset == "species":
-            labels = ['Hoki', 'Mackerl']
+            labels = ['Hoki', 'Mackerel']
         elif dataset == "part":
             labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
         elif dataset == "oil":
@@ -162,7 +164,7 @@ def plot_tsne_3D(
         # Labels for the graph legend are provided for each task.
         labels = []
         if dataset == "species":
-            labels = ['Hoki', 'Mackerl']
+            labels = ['Hoki', 'Mackerel']
         elif dataset == "part":
             labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
         elif dataset == "oil":
@@ -208,7 +210,7 @@ def plot_pair_plot(
     # Labels for the graph legend are provided for each task.
     labels = []
     if dataset == "species":
-        labels = ['Hoki', 'Mackerl']
+        labels = ['Hoki', 'Mackerel']
     elif dataset == "part":
         labels = ['Fillet','Heads','Livers','Skins','Guts','Frames']
     elif dataset == "oil":

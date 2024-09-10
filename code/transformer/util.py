@@ -135,12 +135,16 @@ def filter_dataset(
     data = data[~data['m/z'].str.contains('QC')]
     
     # Exclude cross-species samples from the dataset.
-    if dataset == "species" or dataset == "part" or dataset == "oil":
+    if dataset == "species" or dataset == "part" or dataset == "oil" or dataset == "instance-recognition":
         data = data[~data['m/z'].str.contains('HM')]
     
     # Exclude mineral oil samples from the dataset.
     if dataset == "species" or dataset == "part" or dataset == "cross-species":
         data = data[~data['m/z'].str.contains('MO')]
+
+    if dataset == "instance-recognition":
+        data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
+    print(f"len(data): {len(data)}")
     return data
 
 def one_hot_encoded_labels(dataset, data):

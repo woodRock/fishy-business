@@ -53,52 +53,50 @@ INFO:__main__:model: Transformer(
   (fc): Linear(in_features=2046, out_features=2, bias=True)
 )
 INFO:__main__:Training the network
-INFO:train:Epoch 1/1000 	Train Loss: 3.7860, Train Acc: 0.5225	 Val Loss: 2.5986, Val Acc: 0.4643
-INFO:train:Epoch 2/1000 	Train Loss: 1.7769, Train Acc: 0.4685	 Val Loss: 2.2532, Val Acc: 0.5536
-INFO:train:Epoch 3/1000 	Train Loss: 1.2538, Train Acc: 0.5721	 Val Loss: 1.6287, Val Acc: 0.5536
-INFO:train:Epoch 4/1000 	Train Loss: 1.2961, Train Acc: 0.6532	 Val Loss: 0.9574, Val Acc: 0.6071
-INFO:train:Epoch 5/1000 	Train Loss: 0.8031, Train Acc: 0.6622	 Val Loss: 1.2795, Val Acc: 0.5000
-INFO:train:Epoch 6/1000 	Train Loss: 0.6918, Train Acc: 0.7072	 Val Loss: 1.0715, Val Acc: 0.6607
-INFO:train:Epoch 7/1000 	Train Loss: 0.5352, Train Acc: 0.8063	 Val Loss: 1.0086, Val Acc: 0.5893
-INFO:train:Epoch 8/1000 	Train Loss: 0.4587, Train Acc: 0.8108	 Val Loss: 1.1891, Val Acc: 0.5714
-INFO:train:Epoch 9/1000 	Train Loss: 0.4306, Train Acc: 0.8739	 Val Loss: 1.0465, Val Acc: 0.6429
-INFO:train:Epoch 10/1000 	Train Loss: 0.3759, Train Acc: 0.9099	 Val Loss: 1.0401, Val Acc: 0.6607
-INFO:train:Epoch 11/1000 	Train Loss: 0.3478, Train Acc: 0.9234	 Val Loss: 0.9567, Val Acc: 0.6429
-INFO:train:Epoch 12/1000 	Train Loss: 0.3076, Train Acc: 0.9550	 Val Loss: 1.1958, Val Acc: 0.6607
-INFO:train:Epoch 13/1000 	Train Loss: 0.2633, Train Acc: 0.9775	 Val Loss: 0.8968, Val Acc: 0.6607
-INFO:train:Epoch 14/1000 	Train Loss: 0.2556, Train Acc: 0.9910	 Val Loss: 0.9425, Val Acc: 0.6786
-INFO:train:Epoch 15/1000 	Train Loss: 0.2349, Train Acc: 1.0000	 Val Loss: 0.8360, Val Acc: 0.6964
-INFO:train:Epoch 16/1000 	Train Loss: 0.2523, Train Acc: 0.9910	 Val Loss: 0.9416, Val Acc: 0.6607
-INFO:train:Epoch 17/1000 	Train Loss: 0.2294, Train Acc: 1.0000	 Val Loss: 0.8508, Val Acc: 0.6786
-INFO:train:Epoch 18/1000 	Train Loss: 0.2257, Train Acc: 1.0000	 Val Loss: 0.9668, Val Acc: 0.6786
-INFO:train:Epoch 19/1000 	Train Loss: 0.2229, Train Acc: 1.0000	 Val Loss: 0.8949, Val Acc: 0.6786
-INFO:train:Epoch 20/1000 	Train Loss: 0.2172, Train Acc: 1.0000	 Val Loss: 0.8490, Val Acc: 0.6964
-INFO:train:Epoch 21/1000 	Train Loss: 0.2183, Train Acc: 1.0000	 Val Loss: 0.7859, Val Acc: 0.6607
-INFO:train:Epoch 22/1000 	Train Loss: 0.2189, Train Acc: 0.9955	 Val Loss: 0.7899, Val Acc: 0.7143
-INFO:train:Epoch 23/1000 	Train Loss: 0.2141, Train Acc: 1.0000	 Val Loss: 0.7754, Val Acc: 0.6786
-INFO:train:Epoch 24/1000 	Train Loss: 0.2199, Train Acc: 1.0000	 Val Loss: 0.8683, Val Acc: 0.6786
-INFO:train:Epoch 25/1000 	Train Loss: 0.2147, Train Acc: 1.0000	 Val Loss: 0.8507, Val Acc: 0.6607
-INFO:train:Epoch 26/1000 	Train Loss: 0.2141, Train Acc: 1.0000	 Val Loss: 0.8822, Val Acc: 0.6429
-INFO:train:Epoch 27/1000 	Train Loss: 0.2116, Train Acc: 1.0000	 Val Loss: 0.7565, Val Acc: 0.6786
-INFO:train:Epoch 28/1000 	Train Loss: 0.2135, Train Acc: 1.0000	 Val Loss: 0.8277, Val Acc: 0.6786
-INFO:train:Epoch 29/1000 	Train Loss: 0.2117, Train Acc: 1.0000	 Val Loss: 0.9418, Val Acc: 0.6429
-INFO:train:Epoch 30/1000 	Train Loss: 0.2129, Train Acc: 1.0000	 Val Loss: 0.8358, Val Acc: 0.6786
-INFO:train:Epoch 31/1000 	Train Loss: 0.2133, Train Acc: 1.0000	 Val Loss: 0.8088, Val Acc: 0.6786
-INFO:train:Epoch 32/1000 	Train Loss: 0.2086, Train Acc: 1.0000	 Val Loss: 0.8637, Val Acc: 0.6250
-INFO:train:Early stopping triggered after 32 epochs
+INFO:train:Epoch 1/1000 	Train Loss: 0.8100, Train Acc: 0.3929	 Val Loss: 2.3086, Val Acc: 0.7333
+INFO:train:Epoch 2/1000 	Train Loss: 1.0364, Train Acc: 0.8036	 Val Loss: 8.6631, Val Acc: 0.3333
+INFO:train:Epoch 3/1000 	Train Loss: 3.3382, Train Acc: 0.6250	 Val Loss: 2.1482, Val Acc: 0.6000
+INFO:train:Epoch 4/1000 	Train Loss: 0.5010, Train Acc: 0.9107	 Val Loss: 2.0038, Val Acc: 0.7333
+INFO:train:Epoch 5/1000 	Train Loss: 0.7682, Train Acc: 0.7679	 Val Loss: 1.6549, Val Acc: 0.6000
+INFO:train:Epoch 6/1000 	Train Loss: 0.4976, Train Acc: 0.9107	 Val Loss: 2.0500, Val Acc: 0.6000
+INFO:train:Epoch 7/1000 	Train Loss: 0.3950, Train Acc: 0.9464	 Val Loss: 2.0241, Val Acc: 0.6000
+INFO:train:Epoch 8/1000 	Train Loss: 0.3413, Train Acc: 1.0000	 Val Loss: 1.8118, Val Acc: 0.5333
+INFO:train:Epoch 9/1000 	Train Loss: 0.3562, Train Acc: 0.9643	 Val Loss: 1.6285, Val Acc: 0.4000
+INFO:train:Epoch 10/1000 	Train Loss: 0.2982, Train Acc: 0.9821	 Val Loss: 1.7826, Val Acc: 0.0667
+INFO:train:Epoch 11/1000 	Train Loss: 0.2959, Train Acc: 0.9643	 Val Loss: 1.6280, Val Acc: 0.4000
+INFO:train:Epoch 12/1000 	Train Loss: 0.2550, Train Acc: 1.0000	 Val Loss: 1.8370, Val Acc: 0.4000
+INFO:train:Epoch 13/1000 	Train Loss: 0.2576, Train Acc: 1.0000	 Val Loss: 2.0071, Val Acc: 0.4667
+INFO:train:Epoch 14/1000 	Train Loss: 0.2999, Train Acc: 0.9821	 Val Loss: 2.0173, Val Acc: 0.4667
+INFO:train:Epoch 15/1000 	Train Loss: 0.2791, Train Acc: 1.0000	 Val Loss: 1.8983, Val Acc: 0.4000
+INFO:train:Epoch 16/1000 	Train Loss: 0.2547, Train Acc: 1.0000	 Val Loss: 1.8425, Val Acc: 0.4000
+INFO:train:Epoch 17/1000 	Train Loss: 0.2619, Train Acc: 0.9821	 Val Loss: 1.8589, Val Acc: 0.2667
+INFO:train:Epoch 18/1000 	Train Loss: 0.2490, Train Acc: 1.0000	 Val Loss: 1.7848, Val Acc: 0.2667
+INFO:train:Epoch 19/1000 	Train Loss: 0.2392, Train Acc: 1.0000	 Val Loss: 1.6997, Val Acc: 0.3333
+INFO:train:Epoch 20/1000 	Train Loss: 0.2421, Train Acc: 1.0000	 Val Loss: 1.6184, Val Acc: 0.3333
+INFO:train:Epoch 21/1000 	Train Loss: 0.2406, Train Acc: 1.0000	 Val Loss: 1.5528, Val Acc: 0.4667
+INFO:train:Epoch 22/1000 	Train Loss: 0.2371, Train Acc: 1.0000	 Val Loss: 1.5222, Val Acc: 0.4000
+INFO:train:Epoch 23/1000 	Train Loss: 0.2343, Train Acc: 1.0000	 Val Loss: 1.4468, Val Acc: 0.3333
+INFO:train:Epoch 24/1000 	Train Loss: 0.2317, Train Acc: 1.0000	 Val Loss: 1.3509, Val Acc: 0.4667
+INFO:train:Epoch 25/1000 	Train Loss: 0.2342, Train Acc: 1.0000	 Val Loss: 1.2563, Val Acc: 0.4000
+INFO:train:Epoch 26/1000 	Train Loss: 0.2390, Train Acc: 0.9821	 Val Loss: 1.3032, Val Acc: 0.3333
+INFO:train:Epoch 27/1000 	Train Loss: 0.2299, Train Acc: 1.0000	 Val Loss: 1.3768, Val Acc: 0.4667
+INFO:train:Epoch 28/1000 	Train Loss: 0.2257, Train Acc: 1.0000	 Val Loss: 1.5591, Val Acc: 0.4667
+INFO:train:Epoch 29/1000 	Train Loss: 0.2437, Train Acc: 1.0000	 Val Loss: 1.5989, Val Acc: 0.4000
+INFO:train:Epoch 30/1000 	Train Loss: 0.2233, Train Acc: 1.0000	 Val Loss: 1.7427, Val Acc: 0.2667
+INFO:train:Epoch 31/1000 	Train Loss: 0.2389, Train Acc: 1.0000	 Val Loss: 1.6208, Val Acc: 0.5333
+INFO:train:Epoch 32/1000 	Train Loss: 0.2318, Train Acc: 1.0000	 Val Loss: 1.6596, Val Acc: 0.5333
+INFO:train:Epoch 33/1000 	Train Loss: 0.2360, Train Acc: 1.0000	 Val Loss: 1.5898, Val Acc: 0.3333
+INFO:train:Epoch 34/1000 	Train Loss: 0.2330, Train Acc: 1.0000	 Val Loss: 1.5566, Val Acc: 0.3333
+INFO:train:Epoch 35/1000 	Train Loss: 0.2258, Train Acc: 1.0000	 Val Loss: 1.5029, Val Acc: 0.5333
+INFO:train:Epoch 36/1000 	Train Loss: 0.2266, Train Acc: 1.0000	 Val Loss: 1.5168, Val Acc: 0.5333
+INFO:train:Early stopping triggered after 36 epochs
 INFO:plot:Saving attention map to: figures/model_accuracy.png
-INFO:__main__:Total time taken to train the model: 47.20s
-INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:__main__:Total time taken to train the model: 15.25s
+INFO:train:train got 56 / 56 correct, accuracy: 1.0
 INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:train:train got 64 / 64 correct, accuracy: 1.0
-INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:train:train got 64 / 64 correct, accuracy: 1.0
-INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:train:train got 30 / 30 correct, accuracy: 1.0
-INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
-INFO:train:Total time taken evaluate on train set the model: 0.82s
-INFO:train:validation got 37 / 56 correct, accuracy: 0.6607142857142857
+INFO:train:Total time taken evaluate on train set the model: 0.20s
+INFO:train:validation got 8 / 15 correct, accuracy: 0.5333333333333333
 INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
-INFO:train:Total time taken evaluate on validation set the model: 0.20s
+INFO:train:Total time taken evaluate on validation set the model: 0.09s
 INFO:plot:Saving attention map to: figures/encoder_attention_map.png
 INFO:plot:Saving attention map to: figures/decoder_attention_map.png

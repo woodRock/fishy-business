@@ -55,6 +55,7 @@ if __name__ == "__main__":
             # The training accuracy is the 8th to last line.
             train_acc: float = float(content[-8].split(sep=' ')[-1])
             # The validation accuracy is the 6th to last line.
+            print(f"content[-5]: {content[-5]}")
             val_acc: float = float(content[-5].split(sep=' ')[-1])
             # Append the accuracy to an array.
             train_accs.append(train_acc)
