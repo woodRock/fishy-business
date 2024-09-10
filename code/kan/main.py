@@ -70,7 +70,7 @@ def main():
     n_classes = n_classes_per_dataset[args.dataset]
 
     # Load the dataset.
-    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+    train_loader, val_loader = preprocess_dataset(
         args.dataset, 
         args.data_augmentation, 
         batch_size=args.batch_size,

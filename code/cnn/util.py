@@ -134,12 +134,16 @@ def filter_dataset(
     data = data[~data['m/z'].str.contains('QC')]
     
     # Exclude cross-species samples from the dataset.
-    if dataset == "species" or dataset == "part" or dataset == "oil":
+    if dataset == "species" or dataset == "part" or dataset == "oil" or dataset == "instance-recognition":
         data = data[~data['m/z'].str.contains('HM')]
     
     # Exclude mineral oil samples from the dataset.
     if dataset == "species" or dataset == "part" or dataset == "cross-species":
         data = data[~data['m/z'].str.contains('MO')]
+
+    if dataset == "instance-recognition":
+        data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
+    print(f"len(data): {len(data)}")
     return data
 
 def one_hot_encoded_labels(dataset, data):
@@ -223,6 +227,7 @@ def one_hot_encoded_labels(dataset, data):
 
         X,y = np.array(features), np.array(labels)
         y = np.eye(2)[y]
+        print("I get here twice")
         return X,y
     else: 
         # Return an excpetion if the dataset is not valid.
@@ -334,7 +339,7 @@ def preprocess_dataset(
         data = filter_dataset(dataset=dataset, data=data)
     if (dataset == "instance-recognition"):
         X, y = one_hot_encoded_labels(dataset=dataset, data=data)
-    else: 
+    else:
         y = one_hot_encoded_labels(dataset=dataset, data=data)
         X = data.drop('m/z', axis=1)
         X,y = remove_instances_with_none_labels(X,y)
