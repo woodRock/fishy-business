@@ -61,7 +61,12 @@ def main():
     args = parse_arguments()
     logger = setup_logging(args)
 
+    # Freeze the random seed for reproducability.
+    np.random.seed(args.run)
+
     n_features = 1023
+    if args.dataset == "instance-recognition":
+        n_features = 2046
     n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:

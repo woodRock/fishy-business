@@ -40,7 +40,8 @@ def main():
         "species": ['Hoki', 'Mackerel'],
         "part": ['fillets', 'heads', 'livers', 'skins', 'guts', 'frames'],
         "oil": ['50', '25', '10', '5', '1', '0.1', '0'],
-        "cross-species": ['Hoki-Mackerel', 'Hoki', 'Mackerel']
+        "cross-species": ['Hoki-Mackerel', 'Hoki', 'Mackerel'],
+        "instance-recognition": ["different", "same"]
     }
     
     if args.dataset not in class_names_per_dataset.keys():
@@ -60,7 +61,7 @@ def main():
     labels = labels.argmax(1)
 
     # Create feature names
-    feature_names = data.axes[1].tolist()
+    feature_names = list(data.axes[1].tolist()) * 2
 
     # Define and train multiple models
     models = {

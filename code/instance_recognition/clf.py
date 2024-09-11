@@ -59,8 +59,11 @@ def train_test_split(X, y, test_size=0.2, random_state=None):
     
     return (X_train, y_train) , (X_test, y_test)
 
+# Freeze the seed for reproducability.
+np.random.seed(42)
+
 # Import the dataset.
-path = os.path.join("~","Desktop", "fishy-business", "data", "REIMS_data.xlsx")
+path = os.path.join("/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx")
 data = pd.read_excel(path, header=1)
 # Filter out the quality control, hoki-mackerel mix, and body parts samples.
 data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]

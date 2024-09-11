@@ -22,7 +22,8 @@ def load_dataset(
     """
     logger = logging.getLogger(__name__)
 
-    path = ['~/Desktop', 'fishy-business', 'data','REIMS_data.xlsx']
+    path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+
     path = os.path.join(*path)
 
     # Load the dataset
