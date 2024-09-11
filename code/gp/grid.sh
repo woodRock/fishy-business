@@ -16,7 +16,7 @@
 need sgegrid
 
 # Change directory to desktop fishy-business
-cd ~/Desktop/fishy-business/code/gp
+cd /vol/ecrg-solar/woodj4/fishy-business/code/gp
 
 DATASET="instance-recognition"; 
 # DATASET="species";
