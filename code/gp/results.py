@@ -56,7 +56,6 @@ if __name__ == "__main__":
             # The training accuracy is on the 10th to last line.
             train_acc: float = float(content[-8 - skip_amount].split(sep=' ')[2])
             # The validation accuracy is on the 9th to last line.
-            print(f"content[-5 - skip_amount]: {content[-5 - skip_amount]}")
             val_acc: float = float(content[-7 - skip_amount].split(sep=' ')[2])
             # The test accuracy is on the 8th to last line.
             test_acc: float = float(content[-6 - skip_amount].split(sep=' ')[2])
