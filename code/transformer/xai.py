@@ -25,7 +25,8 @@ class TransformerWrapper:
         return probs
 
 # Instantiate your transformer model
-input_dim = 1023
+dataset = "instance-recognition"
+input_dim = 2046
 output_dim = 2
 num_layers = 3
 num_heads = 3
@@ -45,7 +46,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
 train_loader, val_loader, _ ,_, data = preprocess_dataset(
-    dataset='species',
+    dataset=dataset,
     batch_size=64,
     is_data_augmentation=False,
     is_pre_train=False
@@ -81,8 +82,20 @@ wrapped_model = TransformerWrapper(model)
 data_iter = iter(train_loader)
 features, labels = next(data_iter)
 
-class_names = ['Mackerel', 'Hoki']
-feature_names = data.axes[1].tolist()
+labels_per_dataset = {
+    "species": ["Hoki", "Mackerel"],
+    "part": ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"],
+    "oil": ["50", "25", "10", "05", "01", "0.1"," 0"],
+    "oil_simple": ["Oil", "No oil"],
+    "cross-species":["Hoki-Mackeral", "Hoki", "Mackerel"],
+    "instance-recognition": ["different", "same"]
+}
+
+if dataset not in labels_per_dataset.keys():
+    raise ValueError(f"Not a valid dataset: {dataset}")
+
+class_names = labels_per_dataset[dataset]
+feature_names = list(data.axes[1].tolist()) * 2
 
 # Standardize the data
 scaler = StandardScaler()

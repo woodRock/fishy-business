@@ -75,6 +75,15 @@ class Tensor (object):
                     new = self.grad * self.creators[0]
                     self.creators[1].backward(new, self)
 
+                if (self.creation_op == "lt"):
+                    self.creators[0].backward(Tensor(self.grad.data * (self.data > self.creators[1].data)), self)
+
+                if (self.creation_op == "gt"):
+                    self.creators[0].backward(Tensor(self.grad.data * (self.data < self.creators[1].data)), self)
+
+                if (self.creation_op == "equal"):
+                    self.creators[0].backward(Tensor(np.equal(self.data, self.creators[1].data)), self)
+
                 if (self.creation_op == "mm"):
                     c0 = self.creators[0]
                     c1 = self.creators[1]
@@ -103,7 +112,10 @@ class Tensor (object):
 
                 if (self.creation_op == "tanh"):
                     ones = Tensor(np.ones_like(self.grad.data))
-                    self.creators[0].backward(self.grad* (ones - (self * self)))
+                    self.creators[0].backward(self.grad * (ones - (self * self)))
+
+                if (self.creation_op == "relu"):
+                    self.creators[0].backward(self.grad * (self > 0))
 
                 if (self.creation_op == "index_select"):
                     new_grad = np.zeros_like(self.creators[0].data)
@@ -117,6 +129,10 @@ class Tensor (object):
                     dx = self.softmax_output - self.target_dist
                     self.creators[0].backward(Tensor(dx))
 
+    @property
+    def shape(self):
+        return self.data.shape
+    
     def __len__(self):
         return len(self.data)
 
@@ -151,6 +167,32 @@ class Tensor (object):
                           creators=[self,other],
                           creation_op="mul")
         return Tensor(self.data * other.data)
+
+    def __gt__(self, other):
+        if isinstance(other, int):
+            other = Tensor(other, autograd=self.autograd)
+        if (self.autograd and other.autograd):
+            return Tensor(self.data > other.data,
+                          autograd=True,
+                          creators=[self,other],
+                          creation_op="gt")
+        return Tensor(self.data > other.data)
+
+    def __lt__(self, other):
+        if (self.autograd and other.autograd):
+            return Tensor(self.data < other.data,
+                          autograd=True,
+                          creators=[self,other],
+                          creation_op="lt")
+        return Tensor(self.data < other.data)
+
+    def __eq__(self, other):
+        if (self.autograd and other.autograd):
+            return Tensor(self.data == other.data,
+                          autograd=True,
+                          creators=[self,other],
+                          creation_op="equal")
+        return Tensor(self.data == other.data)
 
     def sum(self, dim):
         if (self.autograd):
@@ -206,6 +248,11 @@ class Tensor (object):
             return Tensor(np.tanh(self.data), autograd=True, creators=[self], creation_op = "tanh")
         return Tensor(np.tanh(self.data))
 
+    def relu(self):
+        if (self.autograd):
+            return Tensor(self.data * (self.data > 0), autograd=True, creators=[self], creation_op = "relu")
+        return Tensor(self.data * (self.data > 0))
+
     def index_select(self, indices):
         if (self.autograd):
             new = Tensor(self.data[indices.data], autograd=True, creators=[self], creation_op = "index_select")
@@ -213,13 +260,11 @@ class Tensor (object):
             return new
         return Tensor(self.data[indices.data])
 
-    def cross_entropy(self, target_indices):
+    def cross_entropy(self, target):
         temp = np.exp(self.data)
-        softmax_output = temp / np.sum(temp, axis=len(self.data.shape)-1,keepdims=True)
-        t = target_indices.data.flatten()
-        p = softmax_output.reshape(len(t), -1)
-        target_dist = np.eye(p.shape[1])[t]
-        loss = -(np.log(p) * (target_dist)).sum(1).mean()
+        softmax_output = temp / np.sum(temp, axis=len(self.data.shape)-1, keepdims=True)
+        target_dist = target.data
+        loss = -(np.log(softmax_output) * target_dist).sum(axis=1).mean()
 
         if (self.autograd):
             out = Tensor(loss, autograd=True, creators=[self], creation_op="cross_entropy")
@@ -266,23 +311,50 @@ class Linear(Layer):
         return input.mm(self.weight) + self.bias.expand(0, len(input.data))
 
 class Sequential(Layer):
-    def __init__(self, layers=list()):
+    def __init__(self, layers=list(), training=True):
         super().__init__()
         self.layers = layers
+        self.training = training
 
     def add(self, layer):
         self.layers.append(layer)
 
     def forward(self, input):
         for layer in self.layers:
+            if isinstance(layer, Dropout):
+                layer.training = self.training
             input = layer.forward(input)
         return input
+
+    def train(self):
+        self.training = True
+
+    def eval(self):
+        self.training = False
 
     def get_parameters(self):
         params = list()
         for l in self.layers:
             params += l.get_parameters()
         return params
+
+class Dropout(Layer):
+    def __init__(self, p=0.5):
+        super().__init__()
+        self.p = p
+        self.mask = None
+
+    def forward(self, input):
+        # Only apply dropout when training.
+        if self.training:
+            # Multiply by 1 / (1 - p) to balance out the extra sensitivity.
+            self.mask = np.random.binomial(1, 1-self.p, input.shape) / (1-self.p)
+            return input * Tensor(self.mask, autograd=input.autograd)
+        return input
+
+    def backward(self, grad):
+        return grad * self.mask
+
 
 class MSELoss(Layer):
 
@@ -291,6 +363,14 @@ class MSELoss(Layer):
 
     def forward(self, pred, target):
         return ((pred - target) * (pred - target)).sum(0)
+
+
+class CrossEntropyLoss(object):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, input, target):
+        return input.cross_entropy(target)
 
 class Tanh(Layer):
     def __init__(self):

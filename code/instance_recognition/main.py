@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os 
-from autograd import Sequential, Linear, Tanh, Sigmoid, SGD, MSELoss, Tensor
+from autograd import Sequential, Linear, Tanh, Sigmoid, SGD, CrossEntropyLoss, Tensor
 
 def train_test_split(X, y, test_size=0.2, random_state=None):
     """
@@ -47,7 +47,7 @@ def train_test_split(X, y, test_size=0.2, random_state=None):
     return (X_train, y_train) , (X_test, y_test)
 
 # Import the dataset.
-path = os.path.join("~","Desktop", "fishy-business", "data", "REIMS_data.xlsx")
+path = os.path.join("/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx")
 data = pd.read_excel(path, header=1)
 # Filter out the quality control and hoki-mackerel mix samples.
 data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
@@ -72,6 +72,14 @@ X,y = np.array(features), np.array(labels)
 # One hot encoding 
 y_train, y_test = np.eye(2)[y_train], np.eye(2)[y_test]
 
+from collections import Counter
+
+classes = [tuple(y) for y in y_train.tolist() ] 
+class_counts = Counter(classes)
+
+for class_name, count in class_counts.items():
+    print(f"Class {class_name}: {count} occurrences")
+
 X_train, X_test = Tensor(X_train, autograd=True), Tensor(X_test, autograd=True)
 y_train, y_test = Tensor(y_train, autograd=True), Tensor(y_test, autograd=True)
 
@@ -84,7 +92,8 @@ model = Sequential([
     Linear(100,2), 
     Sigmoid()
 ])
-criterion = MSELoss()
+
+criterion = CrossEntropyLoss()
 optim = SGD(parameters=model.get_parameters(), alpha=0.0001)
 
 for i in range(10_000):
