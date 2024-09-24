@@ -104,21 +104,21 @@ def train_model(
         logger.info(message)
 
         # Early stopping
-        if train_acc == 1:
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                epochs_without_improvement = 0
-                best_model = model.state_dict()
-            else:
-                epochs_without_improvement += 1
-                if epochs_without_improvement >= patience:
-                    message = f'Early stopping triggered after {epoch + 1} epochs'
-                    logger.info(message)
-                    print(message)
-                    print(f"Validation accuracy: {best_val_acc}")
-                    break
-        else: 
+        # if train_acc == 1:
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
             epochs_without_improvement = 0
+            best_model = model.state_dict()
+        else:
+            epochs_without_improvement += 1
+            if epochs_without_improvement >= patience:
+                message = f'Early stopping triggered after {epoch + 1} epochs'
+                logger.info(message)
+                print(message)
+                print(f"Validation accuracy: {best_val_acc}")
+                # break
+        # else: 
+            # epochs_without_improvement = 0
 
     # Plot the loss curve.
     plot_accuracy(
@@ -128,6 +128,7 @@ def train_model(
         val_accuracies=validation_accuracies
     ) 
 
+    # Early stopping (Morgan 1989)
     # Retrieve weights for the model that performs best on the validation set.
     if best_model is not None:
         model.load_state_dict(best_model)

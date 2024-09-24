@@ -124,22 +124,18 @@ def plot_confusion_matrix(
 
     cmatrix = confusion_matrix(actual, predicted)
 
-    labels = [] 
-    if dataset == "species":
-        labels = ["Hoki", "Mackerel"]
-    elif dataset == "part":
-        labels = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
-    elif dataset == "oil":
-        labels = ["50", "25", "10", "05", "01", "0.1"," 0"]
-    elif dataset == "oil_simple":
-        labels = ["Oil", "No oil"]
-    elif dataset == "cross-species":
-        labels = ["Hoki-Mackeral", "Hoki", "Mackerel"]
-    elif dataset == "instance-recognition":
-        labels = ["same", "different"]
-    else:
+    labels_per_dataset = {
+        "species": ["Hoki", "Mackerel"],
+        "part": ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"],
+        "oil": ["50", "25", "10", "05", "01", "0.1"," 0"],
+        "oil_simple": ["Oil", "No oil"],
+        "cross-species":["Hoki-Mackeral", "Hoki", "Mackerel"],
+        "instance-recognition": ["different", "same"]
+    }
+    if dataset not in labels_per_dataset.keys():
         raise ValueError(f"Not a valid dataset: {dataset}")
-    
+    labels = labels_per_dataset[dataset]
+    print(f"dataset: {dataset}")
     cm_display = ConfusionMatrixDisplay(confusion_matrix=cmatrix, display_labels=labels)
     # Use the blues color map, it is easy on the eyes.
     cm_display.plot(cmap=color_map)
