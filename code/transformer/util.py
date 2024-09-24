@@ -102,7 +102,7 @@ def random_augmentation(
     return xs, ys
 
 def load_from_file(
-        path: Iterable = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     """ Load the dataset from a file path.
 
@@ -283,7 +283,8 @@ def train_test_split_to_data_loader(
     train_split = 0.8
 
     # Step 2: Split your dataset into training, validation, and testing sets
-    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=(1-train_split))
+    # Freeze the random seed for reproducability.
+    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=(1-train_split), random_state=42)
     
     # Data augmentation - adding random noise.
     if is_data_augmentation:
