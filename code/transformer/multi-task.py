@@ -126,6 +126,9 @@ def main():
             num_epochs=args.epochs, 
             patience=args.early_stopping
         )
+    
+        # Save the model to disk.
+        torch.save(model.state_dict(), args.file_path)
         
         # finish measuring how long training took
         endTime = time.time()
