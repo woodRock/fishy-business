@@ -67,10 +67,14 @@ def main():
     logger = setup_logging(args)
 
     logger.info(f"Reading the dataset: fish {args.dataset}")
-
+    # Flag to store if first dataset.
+    first = True 
+    
     # for dataset in ["species", "part", "cross-species", "oil"]:
-    # for dataset in ["species", "cross-species", "part"]:
-    for dataset in ["species", "oil"]:
+    # for dataset in ["species", "cross-species"]:
+    # for dataset in ["species", "oil"]:
+    # for dataset in ["species", "part"]:
+    for dataset in ["cross-species", "species"]:
 
         n_features = 1023
         n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3}
@@ -98,12 +102,11 @@ def main():
         )
 
         # If not the first dataset, load model from disk.
-        if dataset != "species":
+        if not first:
             model = transfer_learning(dataset, model, file_path=args.file_path)
 
         logger.info(f"model: {model}")
 
-        
         # Label smoothing (Szegedy 2016)
         criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
         
@@ -141,7 +144,10 @@ def main():
             dataset=dataset, 
             device=device
         )
-    
+
+        # After the first run, set the first flag to false.
+        first = False
+
 
 if __name__ == "__main__":
     main()
