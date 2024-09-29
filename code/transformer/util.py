@@ -145,7 +145,6 @@ def filter_dataset(
 
     if dataset == "instance-recognition":
         data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
-    print(f"Third: len(data): {len(data)}")
     return data
 
 def one_hot_encoded_labels(dataset, data):
@@ -211,7 +210,6 @@ def one_hot_encoded_labels(dataset, data):
                         else None)))
     elif dataset == "instance-recognition":
         X = data.iloc[:, 1:].to_numpy() 
-        print(f"First: len(X): {len(X)}")
         # Take only the class label column.
         y = data.iloc[:, 0].to_numpy()
         features = list() 
@@ -223,7 +221,6 @@ def one_hot_encoded_labels(dataset, data):
             label = int(y[a_idx] == y[b_idx])
             features.append(concatenated)
             labels.append(label)
-        print(f"Second: len(features): {len(features)}")
         X,y = np.array(features), np.array(labels)
         y = np.eye(2)[y]
         return X,y
@@ -342,7 +339,6 @@ def preprocess_dataset(
         y = one_hot_encoded_labels(dataset=dataset, data=data)
         X = data.drop('m/z', axis=1)
         X,y = remove_instances_with_none_labels(X,y)
-    print(f"batch_size: {batch_size}")
     train_loader, val_loader, train_steps, val_steps = train_test_split_to_data_loader(
         X,
         y,

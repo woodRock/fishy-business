@@ -22,7 +22,10 @@ def load_dataset(
     """
     logger = logging.getLogger(__name__)
 
-    path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+    # Path for university computers
+    # path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+    # Path for home computer
+    path = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
     path = os.path.join(*path)
 
     # Load the dataset
@@ -86,6 +89,24 @@ def load_dataset(
                         else (1 if 'H' in x 
                         else (2 if 'M' in x
                         else None)))
+    elif dataset == "instance-recognition":
+        data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]    
+        X = data.iloc[:, 1:].to_numpy() 
+        # Take only the class label column.
+        y = data.iloc[:, 0].to_numpy()
+        features = list() 
+        labels = list() 
+
+        all_possible_pairs = [((a, a_idx), (b, b_idx)) for a_idx, a in enumerate(X) for b_idx, b in enumerate(X[a_idx + 1:])]
+        for (a, a_idx), (b, b_idx) in all_possible_pairs:
+            concatenated = np.concatenate((a, b))
+            label = int(y[a_idx] == y[b_idx])
+            features.append(concatenated)
+            labels.append(label)
+        X,y = np.array(features), np.array(labels)
+        # We don't want onehot encoding for multi-tree GP.
+        # y = np.eye(2)[y]
+        return X,y
     else: 
         # Return an excpetion if the dataset is not valid.
         raise ValueError(f"No valid dataset was specified: {dataset}")

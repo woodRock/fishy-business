@@ -14,7 +14,8 @@ from sklearn.metrics import balanced_accuracy_score
 from data import load_dataset
 
 if __name__ == "__main__":
-    datasets = ["species", "part", "oil", "cross-species"]
+    # datasets = ["species", "part", "oil", "cross-species"]
+    datasets = ["instance-recognition"]
     logger = logging.getLogger(__name__)
     # Run argument for numbered log files.
     output = f"logs/out.log"
