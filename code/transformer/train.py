@@ -54,7 +54,7 @@ def train_model(
         train_total = 0
 
         for x, y in train_loader:
-            x, y = x.to(device), y.to(device)            
+            x, y = x.to(device), y.to(device)        
             optimizer.zero_grad()
             outputs = model(x,x)
             loss = criterion(outputs, y)
