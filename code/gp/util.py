@@ -1,5 +1,6 @@
 import logging
 import numpy as np
+from scipy.spatial.distance import pdist, squareform
 from deap import gp
 from deap.gp import PrimitiveTree, Primitive, Terminal, PrimitiveSetTyped, genHalfAndHalf
 from deap.base import Toolbox
@@ -107,81 +108,49 @@ def normalize(
     x_norm = minmax_scale(x, feature_range=(0, 1), axis=0, copy=True)
     return x_norm
 
-def is_same_class(
-        a: Tuple[Iterable, int],
-        b: Tuple[Iterable, int]
-    ) -> bool:
+def pairwise_distances(X):
     """
-    Return True if a and b are in the same class.
-
-    Args:
-        a (Tuple[Iterable, int]): first point
-        b (Tuple[Iterable, int]): second point
-
-    Returns:
-        True if a and b are in the same class.
+    Compute pairwise distances for all points in X.
     """
-    return a[1] == b[1]
+    return squareform(pdist(X))
 
-def euclidian_distance(
-        a: Tuple[Iterable, int],
-        b: Tuple[Iterable, int]
-    ) -> Iterable:
+def class_distances(X, y):
     """
-    Return the euclidian distance between two points.
-
-    Args:
-        a (Tuple[Iterable, int]): first point
-        b (Tuple[Iterable, int]): second point
-
-    Returns:
-        distance (float): Euclidian distance between a and b.
+    Compute intraclass and interclass distances efficiently.
     """
-    a,b = a[0], b[0]
-    distance = np.linalg.norm(a-b)
-    return distance
+    distances = pairwise_distances(X)
+    n = len(y)
+    
+    # Create a mask for same-class pairs
+    same_class_mask = np.equal.outer(y, y)
+    
+    # Intraclass distances (upper triangle only to avoid duplicates)
+    intra_distances = distances[np.triu(same_class_mask, k=1)]
+    
+    # Interclass distances (upper triangle only to avoid duplicates)
+    inter_distances = distances[np.triu(~same_class_mask, k=1)]
+    
+    return intra_distances, inter_distances
 
-def intraclass_distance(
-        X: Iterable,
-        y: Iterable
-    ) -> float:
+def normalized_distances(X, y):
     """
-    Return the intra-class distance for a dataset.
-    The average distance between all pairs of instances that are from the same class.
-
-    Args:
-        X (Iterable): numpy array of features.
-        y (Iterable): numpy array of labels.
-
-    Returns:
-        distance (float): Intra-class distance for a dataset.
+    Compute normalized intraclass and interclass distances.
     """
-    data = list(zip(X, y))
-    pair_length = sum([1 if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
-    pair_length = max(1, pair_length)
-    distance = sum([euclidian_distance(a,b) if is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
-    return distance
-
-def interclass_distance(
-        X: Iterable,
-        y: Iterable
-    ) -> float:
-    """
-    Return the inter-class distance for a dataset.
-    The average distance between all pairs of instances that are from different classes.
-
-    Args:
-        X (Iterable): numpy array of features.
-        y (Iterable): numpy array of labels.
-
-    Returns:
-        distance (float): Inter-class distance for a dataset.
-    """
-    data = list(zip(X, y))
-    pair_length = sum([1 if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]])
-    pair_length = max(1, pair_length)
-    distance = sum([euclidian_distance(a,b) if not is_same_class(a,b) else 0 for idx, a in enumerate(data) for b in data[idx + 1:]]) / (pair_length * X.shape[1])
-    return distance
+    intra_distances, inter_distances = class_distances(X, y)
+    
+    if len(intra_distances) > 0:
+        intra_normalized = minmax_scale(intra_distances)
+        intra_mean = np.mean(intra_normalized)
+    else:
+        intra_mean = 0.0
+    
+    if len(inter_distances) > 0:
+        inter_normalized = minmax_scale(inter_distances)
+        inter_mean = np.mean(inter_normalized)
+    else:
+        inter_mean = 0.0
+    
+    return intra_mean, inter_mean
 
 def wrapper_classification_accuracy(
         X: Iterable = None, 
@@ -218,20 +187,30 @@ def wrapper_classification_accuracy(
 
     # Reserve a test set that is not touched by the training algorithm.
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=42)
+    assert len(X_train) == len(y_train)
+    assert len(X_test) == len(y_test)
+    
+    # Shuffle the datasets randomly then take 1,000 samples for evaluation.
+    p = np.random.permutation(len(X_train))
+    X_train, y_train = X_train[p], y_train[p]
+    X_train, y_train = X_train[0:1000], y_train[0:1000]
+    p = np.random.permutation(len(X_test))
+    X_test, y_test = X_test[p], y_test[p]
+    X_test, y_test = X_test[0:1000], y_test[0:1000]
 
     # Stratified k-fold validation.
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
-    for train_idx, val_idx in skf.split(X_train,y_train):
-        X_train, X_val = X[train_idx], X[val_idx]
-        y_train, y_val = y[train_idx], y[val_idx]
+    for train_idx, val_idx in skf.split(X_train, y_train):
+        X_train_fold, X_val = X_train[train_idx], X_train[val_idx]
+        y_train_fold, y_val = y_train[train_idx], y_train[val_idx]
         
         # Normalize features to interclass/intraclass distance sum to 1.
         if is_normalize:
-            X_train = normalize(X_train)
+            X_train_fold = normalize(X_train_fold)
         # Class-dependent multi-tree embedded GP (Tran 2019).
-        y_predict = [np.argmax(x) for x in X_train]
-        train_acc = balanced_accuracy_score(y_train, y_predict)
+        y_predict = [np.argmax(x) for x in X_train_fold]
+        train_acc = balanced_accuracy_score(y_train_fold, y_predict)
         train_accs.append(train_acc)
 
         # 2x speedup: only evaluate test set in verbose mode.
@@ -250,9 +229,9 @@ def wrapper_classification_accuracy(
     # Mean and standard deviation for training accuracy.
     train_accuracy = np.mean(train_accs)
     train_std = np.std(train_accs)
-    # Distance-based regularization method, intra/inter class distance.
-    train_intraclass_distance = intraclass_distance(X_train, y_train)
-    train_interclass_distance = interclass_distance(X_train, y_train)
+
+    # Compute distances once for the entire dataset
+    train_intraclass_distance, train_interclass_distance = normalized_distances(X_train, y_train)
 
     # 2x speedup: only evaluate test set in verbose mode.
     if verbose:
@@ -263,11 +242,9 @@ def wrapper_classification_accuracy(
         test_accuracy = np.mean(test_accs)
         test_std = np.std(test_accs)
         # Distance-based regularization method, intra/inter class distance.
-        val_intraclass_distance = intraclass_distance(X_val, y_val)
-        val_interclass_distance = interclass_distance(X_val, y_val)
+        val_intraclass_distance, val_interclass_distance = normalized_distances(X_val, y_val)
         # Distance-based regularization method, intra/inter class distance.
-        test_intrarclass_distance = intraclass_distance(X_test, y_test)
-        test_interclass_distance = interclass_distance(X_test, y_test)
+        test_intrarclass_distance, test_interclass_distance = normalized_distances(X_test, y_test)
         # When verbose, give a full evaluation for an individual.
         logger.info(f"Train accuracy: {train_accuracy} +- {train_std}")
         logger.info(f"Val accuracy: {val_accuracy} +- {val_std}")
@@ -277,19 +254,16 @@ def wrapper_classification_accuracy(
         logger.info(f"Val intra-class: {val_intraclass_distance}, Val Inter-class: {val_interclass_distance}")
         logger.info(f"Test intra-class: {test_intrarclass_distance}, Test inter-class: {test_interclass_distance}")
 
-    # Alpha balances the inter-class/intra-class distance.
+   # Alpha balances the inter-class/intra-class distance.
     alpha = 0.5
-    #  Beta balances the accuracy and distance regularization term.
+    # Beta balances the accuracy and distance regularization term.
     beta = 0.8
-    train_distance = alpha * (1 - train_intraclass_distance) + alpha * train_interclass_distance
+    train_distance = alpha * (1 - train_intraclass_distance) + (1 - alpha) * train_interclass_distance
 
     fitness = beta * train_accuracy + (1 - beta) * train_distance
 
     # Fitness value must be a tuple.
-    assert fitness <= 1, f"fitness {fitness} should be normalized, and cannot exceed 1"
-    if fitness > 1:
-        logger.info(f"Train intra-class: {train_intraclass_distance}")
-        logger.info(f"Train inter-class: {train_interclass_distance}")
+    assert 0 <= fitness <= 1, f"fitness {fitness} should be normalized between 0 and 1"
 
     return fitness
 
