@@ -52,4 +52,3 @@ INFO:__main__:model: Transformer(
   )
   (fc): Linear(in_features=2046, out_features=2, bias=True)
 )
-INFO:__main__:Training the network
