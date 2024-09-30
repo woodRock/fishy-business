@@ -157,3 +157,173 @@ INFO:train:Epoch 57/100 	Train Loss: 0.2076, Train Acc: 0.9980	 Val Loss: 0.3427
 INFO:train:Early stopping triggered after 57 epochs
 INFO:train:Epoch 58/100 	Train Loss: 0.2019, Train Acc: 0.9995	 Val Loss: 0.3371, Val Acc: 0.9473
 INFO:train:Early stopping triggered after 58 epochs
+INFO:train:Epoch 59/100 	Train Loss: 0.2044, Train Acc: 0.9985	 Val Loss: 0.3446, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 59 epochs
+INFO:train:Epoch 60/100 	Train Loss: 0.2010, Train Acc: 1.0000	 Val Loss: 0.3503, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 60 epochs
+INFO:train:Epoch 61/100 	Train Loss: 0.2004, Train Acc: 1.0000	 Val Loss: 0.3432, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 61 epochs
+INFO:train:Epoch 62/100 	Train Loss: 0.2001, Train Acc: 1.0000	 Val Loss: 0.3425, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 62 epochs
+INFO:train:Epoch 63/100 	Train Loss: 0.2000, Train Acc: 1.0000	 Val Loss: 0.3424, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 63 epochs
+INFO:train:Epoch 64/100 	Train Loss: 0.1998, Train Acc: 1.0000	 Val Loss: 0.3387, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 64 epochs
+INFO:train:Epoch 65/100 	Train Loss: 0.1997, Train Acc: 1.0000	 Val Loss: 0.3371, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 65 epochs
+INFO:train:Epoch 66/100 	Train Loss: 0.1997, Train Acc: 1.0000	 Val Loss: 0.3362, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 66 epochs
+INFO:train:Epoch 67/100 	Train Loss: 0.1996, Train Acc: 1.0000	 Val Loss: 0.3363, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 67 epochs
+INFO:train:Epoch 68/100 	Train Loss: 0.1996, Train Acc: 1.0000	 Val Loss: 0.3414, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 68 epochs
+INFO:train:Epoch 69/100 	Train Loss: 0.1996, Train Acc: 1.0000	 Val Loss: 0.3349, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 69 epochs
+INFO:train:Epoch 70/100 	Train Loss: 0.1995, Train Acc: 1.0000	 Val Loss: 0.3390, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 70 epochs
+INFO:train:Epoch 71/100 	Train Loss: 0.1994, Train Acc: 1.0000	 Val Loss: 0.3331, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 71 epochs
+INFO:train:Epoch 72/100 	Train Loss: 0.1994, Train Acc: 1.0000	 Val Loss: 0.3376, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 72 epochs
+INFO:train:Epoch 73/100 	Train Loss: 0.1994, Train Acc: 1.0000	 Val Loss: 0.3358, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 73 epochs
+INFO:train:Epoch 74/100 	Train Loss: 0.1993, Train Acc: 1.0000	 Val Loss: 0.3313, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 74 epochs
+INFO:train:Epoch 75/100 	Train Loss: 0.1993, Train Acc: 1.0000	 Val Loss: 0.3343, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 75 epochs
+INFO:train:Epoch 76/100 	Train Loss: 0.1993, Train Acc: 1.0000	 Val Loss: 0.3346, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 76 epochs
+INFO:train:Epoch 77/100 	Train Loss: 0.1993, Train Acc: 1.0000	 Val Loss: 0.3349, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 77 epochs
+INFO:train:Epoch 78/100 	Train Loss: 0.1993, Train Acc: 1.0000	 Val Loss: 0.3347, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 78 epochs
+INFO:train:Epoch 79/100 	Train Loss: 0.1992, Train Acc: 1.0000	 Val Loss: 0.3392, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 79 epochs
+INFO:train:Epoch 80/100 	Train Loss: 0.1992, Train Acc: 1.0000	 Val Loss: 0.3361, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 80 epochs
+INFO:train:Epoch 81/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3397, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 81 epochs
+INFO:train:Epoch 82/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3346, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 82 epochs
+INFO:train:Epoch 83/100 	Train Loss: 0.1992, Train Acc: 1.0000	 Val Loss: 0.3353, Val Acc: 0.9434
+INFO:train:Early stopping triggered after 83 epochs
+INFO:train:Epoch 84/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3365, Val Acc: 0.9434
+INFO:train:Early stopping triggered after 84 epochs
+INFO:train:Epoch 85/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3373, Val Acc: 0.9434
+INFO:train:Early stopping triggered after 85 epochs
+INFO:train:Epoch 86/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3362, Val Acc: 0.9434
+INFO:train:Early stopping triggered after 86 epochs
+INFO:train:Epoch 87/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3362, Val Acc: 0.9434
+INFO:train:Early stopping triggered after 87 epochs
+INFO:train:Epoch 88/100 	Train Loss: 0.1991, Train Acc: 1.0000	 Val Loss: 0.3368, Val Acc: 0.9434
+INFO:train:Early stopping triggered after 88 epochs
+INFO:train:Epoch 89/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3349, Val Acc: 0.9453
+INFO:train:Early stopping triggered after 89 epochs
+INFO:train:Epoch 90/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3325, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 90 epochs
+INFO:train:Epoch 91/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3327, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 91 epochs
+INFO:train:Epoch 92/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3353, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 92 epochs
+INFO:train:Epoch 93/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3354, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 93 epochs
+INFO:train:Epoch 94/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3314, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 94 epochs
+INFO:train:Epoch 95/100 	Train Loss: 0.1990, Train Acc: 1.0000	 Val Loss: 0.3340, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 95 epochs
+INFO:train:Epoch 96/100 	Train Loss: 0.1989, Train Acc: 1.0000	 Val Loss: 0.3367, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 96 epochs
+INFO:train:Epoch 97/100 	Train Loss: 0.1989, Train Acc: 1.0000	 Val Loss: 0.3331, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 97 epochs
+INFO:train:Epoch 98/100 	Train Loss: 0.1989, Train Acc: 1.0000	 Val Loss: 0.3362, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 98 epochs
+INFO:train:Epoch 99/100 	Train Loss: 0.1989, Train Acc: 1.0000	 Val Loss: 0.3349, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 99 epochs
+INFO:train:Epoch 100/100 	Train Loss: 0.1989, Train Acc: 1.0000	 Val Loss: 0.3328, Val Acc: 0.9473
+INFO:train:Early stopping triggered after 100 epochs
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 1420.80s
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 64 / 64 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:train got 60 / 60 correct, accuracy: 1.0
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:Total time taken evaluate on train set the model: 6.82s
+INFO:train:validation got 58 / 64 correct, accuracy: 0.90625
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 61 / 64 correct, accuracy: 0.953125
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 62 / 64 correct, accuracy: 0.96875
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 61 / 64 correct, accuracy: 0.953125
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 60 / 64 correct, accuracy: 0.9375
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 60 / 64 correct, accuracy: 0.9375
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 63 / 64 correct, accuracy: 0.984375
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:validation got 60 / 64 correct, accuracy: 0.9375
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:Total time taken evaluate on validation set the model: 1.82s
+INFO:plot:Saving attention map to: figures/encoder_attention_map.png
+INFO:plot:Saving attention map to: figures/decoder_attention_map.png
