@@ -21,7 +21,7 @@ cd /vol/ecrg-solar/woodj4/fishy-business/code/gp
 DATASET="instance-recognition"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp";
+NAME="tmp_2";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
@@ -38,4 +38,4 @@ python3 main.py \
     --dataset "${DATASET}" \
     --file-path "checkpoints/run_${i}.pth" \
     --output "logs/${DATASET}/${NAME}/run" --run "${i}" \
-    --generations 500 --beta 1;
+    --generations 1000 --beta 1;
