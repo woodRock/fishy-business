@@ -7006,3 +7006,32 @@ Notes:
     * Create a dataset 
         * Easy :math:`\to` fish stratification doesn't matter 
         * Hard :math:`\to` seperate individual fish, to ommit them from training, and only include them in the test.
+
+2024-08-29 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+* Section 3 should be about the transformer, flowchart, architecture diagram, focus on the transformer.
+* For a journal paper, need a related work section. 
+* Need to discuss where the data comes from, Cyber-Marine/PFR 
+* Remove the PSO and GA part from the results. 
+* Present the GP tree for instance recognition. 
+
+2024-09-26 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Mengjie Zhang, Jesse Wood 
+
+* Not multi-task learning, but instead transfer learning. Multi-task is run simultanesouly, transfer learning is asynchronous.
+* Heterogenous transfer learning; transform both feature set into a common feature set when different tasks have different number of features as input.
+* Imbalanced dataset: all possible combinations of the instance recognition problem, an imbalanced dataset and a more challenging problem. 
+* Statistical significance test: either paired or unparied, pair-wise comparison between transformer and other models. 
+
+2024-10-03 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood 
+
+* Rewrite the transfromer/GP methods section so that AJCAI and Journal paper are different. 
+* Look at the reviewers comments for the AJCAI paper, make revisions that are easy. 
+* Focus on the journal paper first, then revise the AJCAI paper while waiting for feedback. 
+* Use balanced accuracy to evaluate the perfromance on the instance recognition to evaluate the performance on the instance recognition dataset. 
+* Write a detailed report about the experimental setup for instance recognition.

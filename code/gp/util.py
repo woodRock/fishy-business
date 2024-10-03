@@ -191,12 +191,12 @@ def wrapper_classification_accuracy(
     assert len(X_test) == len(y_test)
     
     # Shuffle the datasets randomly then take 1,000 samples for evaluation.
-    p = np.random.permutation(len(X_train))
-    X_train, y_train = X_train[p], y_train[p]
-    X_train, y_train = X_train[0:1000], y_train[0:1000]
-    p = np.random.permutation(len(X_test))
-    X_test, y_test = X_test[p], y_test[p]
-    X_test, y_test = X_test[0:1000], y_test[0:1000]
+    # p = np.random.permutation(len(X_train))
+    # X_train, y_train = X_train[p], y_train[p]
+    # X_train, y_train = X_train[0:1000], y_train[0:1000]
+    # p = np.random.permutation(len(X_test))
+    # X_test, y_test = X_test[p], y_test[p]
+    # X_test, y_test = X_test[0:1000], y_test[0:1000]
 
     # Stratified k-fold validation.
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)

@@ -21,7 +21,7 @@ cd /vol/ecrg-solar/woodj4/fishy-business/code/gp
 DATASET="instance-recognition"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp_2";
+NAME="tmp_3";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];
