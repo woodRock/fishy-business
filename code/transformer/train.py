@@ -12,8 +12,17 @@ from sklearn.metrics import balanced_accuracy_score
 import numpy as np
 
 
-def split_tensor(x):
-    # Split the tensor in half along the last dimension
+def split_tensor(
+        x: torch.Tensor
+    ) -> Union[torch.Tensor, torch.Tensor]:
+    """Split the tensor in half along the last dimension.
+    
+    Args: 
+        x (torch.Tensor): the input tensor to split.
+
+    Return:
+        left, right (torch.tensor, torch.tensor): the tensor split in halves.
+    """
     mid = x.size(-1) // 2
     left_half = x[..., :mid]
     right_half = x[..., mid:]
@@ -126,7 +135,7 @@ def train_model(
                 logger.info(message)
                 print(message)
                 print(f"Best validation balanced accuracy: {best_val_balanced_acc:.4f}")
-                break
+                # break
 
     # Plot the accuracy curve.
     plot_accuracy(
