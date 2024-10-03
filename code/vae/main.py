@@ -3,6 +3,7 @@ import logging
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from util import preprocess_dataset
 from train import train_model, evaluate_model
 from vae import VAE
@@ -66,6 +67,35 @@ def setup_logging(args):    # Logging output to a file.
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     return logger
 
+
+def calculate_class_weights(train_loader: DataLoader) -> torch.Tensor:
+    """
+    Calculate the weights for each class based on their frequency in the dataset.
+    
+    Args:
+        train_loader (DataLoader): The training data loader.
+    
+    Returns:
+        torch.Tensor: A tensor of weights for each class.
+    """
+    class_counts = {}
+    total_samples = 0
+    
+    for _, labels in train_loader:
+        for label in labels:
+            class_label = label.argmax().item()
+            class_counts[class_label] = class_counts.get(class_label, 0) + 1
+            total_samples += 1
+    
+    class_weights = []
+    for i in range(len(class_counts)):
+        class_weights.append(1.0 / class_counts[i])
+    
+    class_weights = torch.FloatTensor(class_weights)
+    class_weights = class_weights / class_weights.sum() * len(class_counts)
+    
+    return class_weights
+
 def main():
     args = parse_arguments()
     logger = setup_logging(args)
@@ -87,6 +117,9 @@ def main():
         is_pre_train=False
     )
 
+    # Calculate class weights
+    class_weights = calculate_class_weights(train_loader)
+
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
@@ -98,8 +131,10 @@ def main():
         dropout=args.dropout
     )
     model = model.to(device)
+    class_weights = class_weights.to(device)
 
-    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+    # Initialize the weighted loss function
+    criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smoothing)
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     model = train_model(
