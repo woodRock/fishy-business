@@ -101,7 +101,8 @@ def random_augmentation(
     return xs, ys
 
 def load_from_file(
-        path: Iterable = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+        # path: Iterable = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     """ Load the dataset from a file path.
 
@@ -214,20 +215,14 @@ def one_hot_encoded_labels(dataset, data):
         features = list() 
         labels = list() 
 
-        for i, (current, next) in enumerate(zip(X, X[1:])):
-            concatenated = np.concatenate((current, next))
-            label = int(y[i] == y[i+1])
-            if np.random.rand(1) > 0.5:
-                idx = int(np.random.rand(1) * len(X))
-                random = X[idx]
-                concatenated = np.concatenate((current, random))
-                label = int(y[i] == y[idx])
+        all_possible_pairs = [((a, a_idx), (b, b_idx)) for a_idx, a in enumerate(X) for b_idx, b in enumerate(X[a_idx + 1:])]
+        for (a, a_idx), (b, b_idx) in all_possible_pairs:
+            concatenated = np.concatenate((a, b))
+            label = int(y[a_idx] == y[b_idx])
             features.append(concatenated)
             labels.append(label)
-
         X,y = np.array(features), np.array(labels)
         y = np.eye(2)[y]
-        print("I get here twice")
         return X,y
     else: 
         # Return an excpetion if the dataset is not valid.

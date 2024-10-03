@@ -8,6 +8,8 @@ from torch.utils.data import DataLoader
 from transformer import Transformer
 from plot import plot_confusion_matrix, plot_accuracy
 from typing import Union
+from sklearn.metrics import balanced_accuracy_score
+import numpy as np
 
 def train_model(
         model: Transformer, 
@@ -32,26 +34,25 @@ def train_model(
     Returns:
         model (Transformer): the trained model - with early stopping - that has best validation performance.
     """
-    # Logging output to a file.
     logger = logging.getLogger(__name__)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
 
-    training_accuracies = []
+    training_balanced_accuracies = []
     training_losses = []
-    validation_accuracies = []
+    validation_balanced_accuracies = []
     validation_losses = []
 
-    best_val_acc = float('-inf')
+    best_val_balanced_acc = float('-inf')
     epochs_without_improvement = 0
     best_model = None
 
     for epoch in (pbar := tqdm(range(num_epochs), desc="Training")):
         model.train()
         train_loss = 0.0
-        train_correct = 0
-        train_total = 0
+        train_preds = []
+        train_labels = []
 
         for x, y in train_loader:
             x, y = x.to(device), y.to(device)        
@@ -64,21 +65,20 @@ def train_model(
             train_loss += loss.item() * x.size(0)
             _, predicted = outputs.max(1)
             _, actual = y.max(1)
-            train_correct += predicted.eq(actual).sum().item()
-            train_total += y.size(0)
+            train_preds.extend(predicted.cpu().numpy())
+            train_labels.extend(actual.cpu().numpy())
 
         train_loss /= len(train_loader.dataset)
-        train_acc = train_correct / train_total
+        train_balanced_acc = balanced_accuracy_score(train_labels, train_preds)
 
-        # Telemetry for loss curve.
-        training_accuracies.append(train_acc)
+        training_balanced_accuracies.append(train_balanced_acc)
         training_losses.append(train_loss)
 
         # Validation
         model.eval()
         val_loss = 0.0
-        val_correct = 0
-        val_total = 0
+        val_preds = []
+        val_labels = []
 
         with torch.no_grad():
             for x, y in val_loader:
@@ -89,24 +89,22 @@ def train_model(
                 val_loss += loss.item() * x.size(0)
                 _, predicted = outputs.max(1)
                 _, actual = y.max(1)
-                val_correct += predicted.eq(actual).sum().item()
-                val_total += y.size(0)
+                val_preds.extend(predicted.cpu().numpy())
+                val_labels.extend(actual.cpu().numpy())
 
         val_loss /= len(val_loader.dataset)
-        val_acc = val_correct / val_total
+        val_balanced_acc = balanced_accuracy_score(val_labels, val_preds)
 
-        # Telemetry for loss curve.
-        validation_accuracies.append(val_acc)
+        validation_balanced_accuracies.append(val_balanced_acc)
         validation_losses.append(val_loss)
 
-        message = f'Epoch {epoch+1}/{num_epochs} \tTrain Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}\t Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}'
+        message = f'Epoch {epoch+1}/{num_epochs} \tTrain Loss: {train_loss:.4f}, Train Balanced Acc: {train_balanced_acc:.4f}\t Val Loss: {val_loss:.4f}, Val Balanced Acc: {val_balanced_acc:.4f}'
         pbar.set_description(message)
         logger.info(message)
 
         # Early stopping
-        # if train_acc == 1:
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
+        if val_balanced_acc > best_val_balanced_acc:
+            best_val_balanced_acc = val_balanced_acc
             epochs_without_improvement = 0
             best_model = model.state_dict()
         else:
@@ -115,20 +113,17 @@ def train_model(
                 message = f'Early stopping triggered after {epoch + 1} epochs'
                 logger.info(message)
                 print(message)
-                print(f"Validation accuracy: {best_val_acc}")
-                # break
-        # else: 
-            # epochs_without_improvement = 0
+                print(f"Best validation balanced accuracy: {best_val_balanced_acc:.4f}")
+                break
 
-    # Plot the loss curve.
+    # Plot the accuracy curve.
     plot_accuracy(
         train_losses=training_losses, 
         val_losses=validation_losses, 
-        train_accuracies=training_accuracies, 
-        val_accuracies=validation_accuracies
+        train_accuracies=training_balanced_accuracies, 
+        val_accuracies=validation_balanced_accuracies
     ) 
 
-    # Early stopping (Morgan 1989)
     # Retrieve weights for the model that performs best on the validation set.
     if best_model is not None:
         model.load_state_dict(best_model)
@@ -145,32 +140,34 @@ def evaluate_model(
     """Evaluate the model on the training and evaluation datasets.
 
     Args: 
-        model (LSTM): the model to evaluate.
+        model (Transformer): the model to evaluate.
         train_loader (DataLoader): the training set. 
         val_loader (DataLoader): the validation set.
         dataset (str): the name of the dataset to be evaluated.
         device: (torch.device, str): the device to evaluate the model/dataset on.
     """
-    # Logging output to a file.
     logger = logging.getLogger(__name__)
     
     model.eval()
-    # switch off autograd
     with torch.no_grad():
-        # loop over the test set
         datasets = [("train", train_loader), ("validation", val_loader)]
         for name, data_loader in datasets:
             startTime = time.time()
-            # finish measuring how long training too
+            all_preds = []
+            all_labels = []
             for x,y in data_loader:
                 x,y = x.to(device), y.to(device)
                 pred = model(x, x, src_mask=None)
-                test_correct = (pred.argmax(1) == y.argmax(1)).sum().item()
-                accuracy = test_correct / len(x)
-                logger.info(f"{name} got {test_correct} / {len(x)} correct, accuracy: {accuracy}")
-                plot_confusion_matrix(dataset, name, y.argmax(1).cpu(), pred.argmax(1).cpu())
+                _, predicted = pred.max(1)
+                _, actual = y.max(1)
+                all_preds.extend(predicted.cpu().numpy())
+                all_labels.extend(actual.cpu().numpy())
+            
+            balanced_accuracy = balanced_accuracy_score(all_labels, all_preds)
+            logger.info(f"{name} set balanced accuracy: {balanced_accuracy:.4f}")
+            plot_confusion_matrix(dataset, name, np.array(all_labels), np.array(all_preds))
             endTime = time.time()
-            logger.info(f"Total time taken evaluate on {name} set the model: {(endTime - startTime):.2f}s")
+            logger.info(f"Total time taken to evaluate on {name} set: {(endTime - startTime):.2f}s")
 
 
 def transfer_learning(
