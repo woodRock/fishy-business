@@ -52,3 +52,14 @@ INFO:__main__:model: Transformer(
   )
   (fc): Linear(in_features=2046, out_features=2, bias=True)
 )
+INFO:__main__:Training the network
+INFO:train:Epoch 1/100 	Train Loss: 0.3743, Train Balanced Acc: 0.5113	 Val Loss: 0.3635, Val Balanced Acc: 0.5000
+INFO:train:Epoch 2/100 	Train Loss: 0.3127, Train Balanced Acc: 0.4995	 Val Loss: 0.3461, Val Balanced Acc: 0.5000
+INFO:train:Epoch 3/100 	Train Loss: 0.3054, Train Balanced Acc: 0.5157	 Val Loss: 0.3254, Val Balanced Acc: 0.5000
+INFO:train:Epoch 4/100 	Train Loss: 0.3030, Train Balanced Acc: 0.5104	 Val Loss: 0.3278, Val Balanced Acc: 0.5000
+INFO:train:Epoch 5/100 	Train Loss: 0.2987, Train Balanced Acc: 0.5174	 Val Loss: 0.3253, Val Balanced Acc: 0.4969
+INFO:train:Epoch 6/100 	Train Loss: 0.3014, Train Balanced Acc: 0.5273	 Val Loss: 0.3316, Val Balanced Acc: 0.4980
+INFO:train:Epoch 7/100 	Train Loss: 0.2954, Train Balanced Acc: 0.5104	 Val Loss: 0.3184, Val Balanced Acc: 0.5000
+INFO:train:Epoch 8/100 	Train Loss: 0.2883, Train Balanced Acc: 0.5159	 Val Loss: 0.3228, Val Balanced Acc: 0.4980
+INFO:train:Epoch 9/100 	Train Loss: 0.2891, Train Balanced Acc: 0.5452	 Val Loss: 0.3230, Val Balanced Acc: 0.4990
+INFO:train:Epoch 10/100 	Train Loss: 0.2878, Train Balanced Acc: 0.5384	 Val Loss: 0.3344, Val Balanced Acc: 0.5176
