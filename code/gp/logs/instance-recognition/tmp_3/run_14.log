@@ -1,0 +1,8 @@
+INFO:data:Reading dataset fish: instance-recognition
+INFO:__main__:No model found. Train from scratch.
+INFO:gp:   	      	                                 fitness                                 	                      size                     
+   	      	-------------------------------------------------------------------------	-----------------------------------------------
+gen	nevals	avg     	gen	max     	min     	nevals	std      	avg   	gen	max	min	nevals	std    
+0  	1023  	0.500195	0  	0.591436	0.407183	1023  	0.0222664	3.5435	0  	7  	2  	1023  	1.40513
+INFO:gp:1  	776   	0.51753 	1  	0.591436	0.434852	776   	0.0239952	3.63441	1  	13 	2  	776   	1.5057 
+INFO:gp:2  	752   	0.533272	2  	0.623792	0.417135	752   	0.0291291	3.73118	2  	13 	2  	752   	1.47215
