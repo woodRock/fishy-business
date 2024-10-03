@@ -4,18 +4,18 @@ INFO:__main__:model: Transformer(
     (layers): ModuleList(
       (0-3): 4 x EncoderLayer(
         (self_attention): MultiHeadAttention(
-          (query): Linear(in_features=2046, out_features=2046, bias=True)
-          (key): Linear(in_features=2046, out_features=2046, bias=True)
-          (value): Linear(in_features=2046, out_features=2046, bias=True)
-          (fc_out): Linear(in_features=2046, out_features=2046, bias=True)
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
         )
         (feed_forward): FeedForward(
-          (fc1): Linear(in_features=2046, out_features=128, bias=True)
-          (fc2): Linear(in_features=128, out_features=2046, bias=True)
+          (fc1): Linear(in_features=1023, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=1023, bias=True)
           (dropout): Dropout(p=0.2, inplace=False)
         )
-        (norm1): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
-        (norm2): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (norm1): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
         (dropout1): Dropout(p=0.2, inplace=False)
         (dropout2): Dropout(p=0.2, inplace=False)
       )
@@ -25,41 +25,87 @@ INFO:__main__:model: Transformer(
     (layers): ModuleList(
       (0-3): 4 x DecoderLayer(
         (self_attention): MultiHeadAttention(
-          (query): Linear(in_features=2046, out_features=2046, bias=True)
-          (key): Linear(in_features=2046, out_features=2046, bias=True)
-          (value): Linear(in_features=2046, out_features=2046, bias=True)
-          (fc_out): Linear(in_features=2046, out_features=2046, bias=True)
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
         )
         (cross_attention): MultiHeadAttention(
-          (query): Linear(in_features=2046, out_features=2046, bias=True)
-          (key): Linear(in_features=2046, out_features=2046, bias=True)
-          (value): Linear(in_features=2046, out_features=2046, bias=True)
-          (fc_out): Linear(in_features=2046, out_features=2046, bias=True)
+          (query): Linear(in_features=1023, out_features=1023, bias=True)
+          (key): Linear(in_features=1023, out_features=1023, bias=True)
+          (value): Linear(in_features=1023, out_features=1023, bias=True)
+          (fc_out): Linear(in_features=1023, out_features=1023, bias=True)
         )
         (feed_forward): FeedForward(
-          (fc1): Linear(in_features=2046, out_features=128, bias=True)
-          (fc2): Linear(in_features=128, out_features=2046, bias=True)
+          (fc1): Linear(in_features=1023, out_features=128, bias=True)
+          (fc2): Linear(in_features=128, out_features=1023, bias=True)
           (dropout): Dropout(p=0.2, inplace=False)
         )
-        (norm1): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
-        (norm2): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
-        (norm3): LayerNorm((2046,), eps=1e-05, elementwise_affine=True)
+        (norm1): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((1023,), eps=1e-05, elementwise_affine=True)
         (dropout1): Dropout(p=0.2, inplace=False)
         (dropout2): Dropout(p=0.2, inplace=False)
         (dropout3): Dropout(p=0.2, inplace=False)
       )
     )
   )
-  (fc): Linear(in_features=2046, out_features=2, bias=True)
+  (fc): Linear(in_features=1023, out_features=2, bias=True)
 )
 INFO:__main__:Training the network
-INFO:train:Epoch 1/100 	Train Loss: 0.3743, Train Balanced Acc: 0.5113	 Val Loss: 0.3635, Val Balanced Acc: 0.5000
-INFO:train:Epoch 2/100 	Train Loss: 0.3127, Train Balanced Acc: 0.4995	 Val Loss: 0.3461, Val Balanced Acc: 0.5000
-INFO:train:Epoch 3/100 	Train Loss: 0.3054, Train Balanced Acc: 0.5157	 Val Loss: 0.3254, Val Balanced Acc: 0.5000
-INFO:train:Epoch 4/100 	Train Loss: 0.3030, Train Balanced Acc: 0.5104	 Val Loss: 0.3278, Val Balanced Acc: 0.5000
-INFO:train:Epoch 5/100 	Train Loss: 0.2987, Train Balanced Acc: 0.5174	 Val Loss: 0.3253, Val Balanced Acc: 0.4969
-INFO:train:Epoch 6/100 	Train Loss: 0.3014, Train Balanced Acc: 0.5273	 Val Loss: 0.3316, Val Balanced Acc: 0.4980
-INFO:train:Epoch 7/100 	Train Loss: 0.2954, Train Balanced Acc: 0.5104	 Val Loss: 0.3184, Val Balanced Acc: 0.5000
-INFO:train:Epoch 8/100 	Train Loss: 0.2883, Train Balanced Acc: 0.5159	 Val Loss: 0.3228, Val Balanced Acc: 0.4980
-INFO:train:Epoch 9/100 	Train Loss: 0.2891, Train Balanced Acc: 0.5452	 Val Loss: 0.3230, Val Balanced Acc: 0.4990
-INFO:train:Epoch 10/100 	Train Loss: 0.2878, Train Balanced Acc: 0.5384	 Val Loss: 0.3344, Val Balanced Acc: 0.5176
+INFO:train:Epoch 1/100 	Train Loss: 0.1672, Train Balanced Acc: 0.5432	 Val Loss: 0.1719, Val Balanced Acc: 0.5377
+INFO:train:Epoch 2/100 	Train Loss: 0.1604, Train Balanced Acc: 0.5572	 Val Loss: 0.1638, Val Balanced Acc: 0.5755
+INFO:train:Epoch 3/100 	Train Loss: 0.1554, Train Balanced Acc: 0.5606	 Val Loss: 0.1677, Val Balanced Acc: 0.5658
+INFO:train:Epoch 4/100 	Train Loss: 0.1525, Train Balanced Acc: 0.5759	 Val Loss: 0.1587, Val Balanced Acc: 0.5464
+INFO:train:Epoch 5/100 	Train Loss: 0.1513, Train Balanced Acc: 0.5838	 Val Loss: 0.1583, Val Balanced Acc: 0.5301
+INFO:train:Epoch 6/100 	Train Loss: 0.1516, Train Balanced Acc: 0.5986	 Val Loss: 0.1620, Val Balanced Acc: 0.5150
+INFO:train:Epoch 7/100 	Train Loss: 0.1511, Train Balanced Acc: 0.5953	 Val Loss: 0.1580, Val Balanced Acc: 0.5760
+INFO:train:Epoch 8/100 	Train Loss: 0.1505, Train Balanced Acc: 0.5873	 Val Loss: 0.1533, Val Balanced Acc: 0.5765
+INFO:train:Epoch 9/100 	Train Loss: 0.1464, Train Balanced Acc: 0.5910	 Val Loss: 0.1573, Val Balanced Acc: 0.5385
+INFO:train:Epoch 10/100 	Train Loss: 0.1469, Train Balanced Acc: 0.5958	 Val Loss: 0.1552, Val Balanced Acc: 0.5201
+INFO:train:Epoch 11/100 	Train Loss: 0.1466, Train Balanced Acc: 0.5971	 Val Loss: 0.1573, Val Balanced Acc: 0.5255
+INFO:train:Epoch 12/100 	Train Loss: 0.1462, Train Balanced Acc: 0.5887	 Val Loss: 0.1639, Val Balanced Acc: 0.5632
+INFO:train:Epoch 13/100 	Train Loss: 0.1456, Train Balanced Acc: 0.6228	 Val Loss: 0.1572, Val Balanced Acc: 0.5283
+INFO:train:Epoch 14/100 	Train Loss: 0.1430, Train Balanced Acc: 0.6083	 Val Loss: 0.1568, Val Balanced Acc: 0.5980
+INFO:train:Epoch 15/100 	Train Loss: 0.1425, Train Balanced Acc: 0.6149	 Val Loss: 0.1569, Val Balanced Acc: 0.5892
+INFO:train:Epoch 16/100 	Train Loss: 0.1404, Train Balanced Acc: 0.6180	 Val Loss: 0.1578, Val Balanced Acc: 0.5576
+INFO:train:Epoch 17/100 	Train Loss: 0.1408, Train Balanced Acc: 0.6157	 Val Loss: 0.1576, Val Balanced Acc: 0.5783
+INFO:train:Epoch 18/100 	Train Loss: 0.1419, Train Balanced Acc: 0.6142	 Val Loss: 0.1577, Val Balanced Acc: 0.6459
+INFO:train:Epoch 19/100 	Train Loss: 0.1411, Train Balanced Acc: 0.6254	 Val Loss: 0.1575, Val Balanced Acc: 0.6199
+INFO:train:Epoch 20/100 	Train Loss: 0.1395, Train Balanced Acc: 0.6302	 Val Loss: 0.1567, Val Balanced Acc: 0.5609
+INFO:train:Epoch 21/100 	Train Loss: 0.1380, Train Balanced Acc: 0.6216	 Val Loss: 0.1613, Val Balanced Acc: 0.6030
+INFO:train:Epoch 22/100 	Train Loss: 0.1400, Train Balanced Acc: 0.6284	 Val Loss: 0.1614, Val Balanced Acc: 0.6012
+INFO:train:Epoch 23/100 	Train Loss: 0.1374, Train Balanced Acc: 0.6333	 Val Loss: 0.1570, Val Balanced Acc: 0.6260
+INFO:train:Epoch 24/100 	Train Loss: 0.1382, Train Balanced Acc: 0.6330	 Val Loss: 0.1574, Val Balanced Acc: 0.6273
+INFO:train:Epoch 25/100 	Train Loss: 0.1372, Train Balanced Acc: 0.6387	 Val Loss: 0.1566, Val Balanced Acc: 0.6311
+INFO:train:Epoch 26/100 	Train Loss: 0.1367, Train Balanced Acc: 0.6397	 Val Loss: 0.1549, Val Balanced Acc: 0.5984
+INFO:train:Epoch 27/100 	Train Loss: 0.1367, Train Balanced Acc: 0.6320	 Val Loss: 0.1578, Val Balanced Acc: 0.6722
+INFO:train:Epoch 28/100 	Train Loss: 0.1357, Train Balanced Acc: 0.6540	 Val Loss: 0.1539, Val Balanced Acc: 0.5760
+INFO:train:Epoch 29/100 	Train Loss: 0.1349, Train Balanced Acc: 0.6348	 Val Loss: 0.1562, Val Balanced Acc: 0.6454
+INFO:train:Epoch 30/100 	Train Loss: 0.1368, Train Balanced Acc: 0.6323	 Val Loss: 0.1577, Val Balanced Acc: 0.6413
+INFO:train:Epoch 31/100 	Train Loss: 0.1343, Train Balanced Acc: 0.6456	 Val Loss: 0.1560, Val Balanced Acc: 0.6484
+INFO:train:Epoch 32/100 	Train Loss: 0.1333, Train Balanced Acc: 0.6402	 Val Loss: 0.1552, Val Balanced Acc: 0.6392
+INFO:train:Epoch 33/100 	Train Loss: 0.1333, Train Balanced Acc: 0.6453	 Val Loss: 0.1523, Val Balanced Acc: 0.6354
+INFO:train:Epoch 34/100 	Train Loss: 0.1334, Train Balanced Acc: 0.6481	 Val Loss: 0.1529, Val Balanced Acc: 0.5994
+INFO:train:Epoch 35/100 	Train Loss: 0.1328, Train Balanced Acc: 0.6440	 Val Loss: 0.1536, Val Balanced Acc: 0.6824
+INFO:train:Epoch 36/100 	Train Loss: 0.1332, Train Balanced Acc: 0.6397	 Val Loss: 0.1575, Val Balanced Acc: 0.6135
+INFO:train:Epoch 37/100 	Train Loss: 0.1311, Train Balanced Acc: 0.6570	 Val Loss: 0.1578, Val Balanced Acc: 0.6801
+INFO:train:Epoch 38/100 	Train Loss: 0.1316, Train Balanced Acc: 0.6517	 Val Loss: 0.1530, Val Balanced Acc: 0.6464
+INFO:train:Epoch 39/100 	Train Loss: 0.1308, Train Balanced Acc: 0.6519	 Val Loss: 0.1551, Val Balanced Acc: 0.6168
+INFO:train:Epoch 40/100 	Train Loss: 0.1307, Train Balanced Acc: 0.6489	 Val Loss: 0.1520, Val Balanced Acc: 0.6025
+INFO:train:Epoch 41/100 	Train Loss: 0.1303, Train Balanced Acc: 0.6502	 Val Loss: 0.1551, Val Balanced Acc: 0.6811
+INFO:train:Epoch 42/100 	Train Loss: 0.1302, Train Balanced Acc: 0.6622	 Val Loss: 0.1532, Val Balanced Acc: 0.6096
+INFO:train:Epoch 43/100 	Train Loss: 0.1293, Train Balanced Acc: 0.6570	 Val Loss: 0.1534, Val Balanced Acc: 0.6321
+INFO:train:Epoch 44/100 	Train Loss: 0.1293, Train Balanced Acc: 0.6550	 Val Loss: 0.1544, Val Balanced Acc: 0.5879
+INFO:train:Epoch 45/100 	Train Loss: 0.1285, Train Balanced Acc: 0.6588	 Val Loss: 0.1531, Val Balanced Acc: 0.6392
+INFO:train:Early stopping triggered after 45 epochs
+INFO:plot:Saving attention map to: figures/model_accuracy.png
+INFO:__main__:Total time taken to train the model: 420.16s
+INFO:train:train set balanced accuracy: 0.7505
+INFO:plot:Saving cofusion matrix map to: figures/train_confusion_matrix.png
+INFO:train:Total time taken to evaluate on train set: 2.96s
+INFO:train:validation set balanced accuracy: 0.6535
+INFO:plot:Saving cofusion matrix map to: figures/validation_confusion_matrix.png
+INFO:train:Total time taken to evaluate on validation set: 0.81s
+INFO:plot:Saving attention map to: figures/encoder_attention_map.png
+INFO:plot:Saving attention map to: figures/decoder_attention_map.png

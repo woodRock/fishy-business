@@ -4,12 +4,41 @@ import time
 import torch
 import torch.nn as nn 
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from util import preprocess_dataset
 from pre_training import pre_train_masked_spectra, pre_train_model_next_spectra, pre_train_transfer_learning
 from transformer import Transformer 
 from train import train_model, evaluate_model, transfer_learning
 from plot import plot_attention_map, plot_confusion_matrix
+import numpy as np
 
+def calculate_class_weights(train_loader: DataLoader) -> torch.Tensor:
+    """
+    Calculate the weights for each class based on their frequency in the dataset.
+    
+    Args:
+        train_loader (DataLoader): The training data loader.
+    
+    Returns:
+        torch.Tensor: A tensor of weights for each class.
+    """
+    class_counts = {}
+    total_samples = 0
+    
+    for _, labels in train_loader:
+        for label in labels:
+            class_label = label.argmax().item()
+            class_counts[class_label] = class_counts.get(class_label, 0) + 1
+            total_samples += 1
+    
+    class_weights = []
+    for i in range(len(class_counts)):
+        class_weights.append(1.0 / class_counts[i])
+    
+    class_weights = torch.FloatTensor(class_weights)
+    class_weights = class_weights / class_weights.sum() * len(class_counts)
+    
+    return class_weights
 
 def parse_arguments():
     # Handle the command line arguments for the script.
@@ -170,7 +199,8 @@ def main():
         logger.info("Total time taken to pre-train the model: {:.2f}s".format(endTime - startTime))
 
 
-    n_features = 2046 if args.dataset == "instance-recognition" else 1023
+    # n_features = 2046 if args.dataset == "instance-recognition" else 1023
+    n_features = 1023
     n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:
@@ -186,6 +216,15 @@ def main():
         batch_size=args.batch_size,
         is_pre_train=False
     )
+
+    # Calculate class weights
+    class_weights = calculate_class_weights(train_loader)
+    
+    # Move class weights to the same device as the model
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Initialize the weighted loss function
+    criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smoothing)
 
     # Initialize the model, criterion, and optimizer
     model = Transformer(
@@ -203,15 +242,18 @@ def main():
     if args.masked_spectra_modelling or args.next_spectra_prediction:
         model = transfer_learning(args.dataset, model, file_path=args.file_path)
     
-    # Label smoothing (Szegedy 2016)
-    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
-    
-    # AdamW (Loshchilov 2017)
-    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
-    
     # Specify the device (GPU or CPU)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
+    class_weights = class_weights.to(device)
+
+    # Initialize the weighted loss function
+    # Label smoothing (Szegedy 2016)
+    criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smoothing)
+    
+    # AdamW (Loshchilov 2017)
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
+
     logger.info("Training the network")
     startTime = time.time()
     

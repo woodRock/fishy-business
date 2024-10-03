@@ -11,6 +11,15 @@ from typing import Union
 from sklearn.metrics import balanced_accuracy_score
 import numpy as np
 
+
+def split_tensor(x):
+    # Split the tensor in half along the last dimension
+    mid = x.size(-1) // 2
+    left_half = x[..., :mid]
+    right_half = x[..., mid:]
+    return left_half, right_half
+
+
 def train_model(
         model: Transformer, 
         train_loader: DataLoader, 
@@ -56,8 +65,9 @@ def train_model(
 
         for x, y in train_loader:
             x, y = x.to(device), y.to(device)        
+            left_half, right_half = split_tensor(x)
             optimizer.zero_grad()
-            outputs = model(x,x)
+            outputs = model(left_half, right_half)
             loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
@@ -83,7 +93,9 @@ def train_model(
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
-                outputs = model(x,x)
+                # Split the tensor in half along the first dimension
+                left_half, right_half = split_tensor(x)
+                outputs = model(left_half, right_half)
                 loss = criterion(outputs, y)
 
                 val_loss += loss.item() * x.size(0)
@@ -157,7 +169,8 @@ def evaluate_model(
             all_labels = []
             for x,y in data_loader:
                 x,y = x.to(device), y.to(device)
-                pred = model(x, x, src_mask=None)
+                left_half, right_half = split_tensor(x)
+                pred = model(left_half, right_half)
                 _, predicted = pred.max(1)
                 _, actual = y.max(1)
                 all_preds.extend(predicted.cpu().numpy())
