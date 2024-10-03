@@ -74,14 +74,14 @@ def parse_arguments():
     # Hyperparameters
     parser.add_argument('-e', '--epochs', type=int, default=100,
                         help="The number of epochs to train the model for.")
-    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
-                        help="The learning rate for the model. Defaults to 1E-5.")
+    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
+                        help="The learning rate for the model. Defaults to 1E-3.")
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
                         help="The dimensionality of the hidden dimension. Defaults to 128")
     parser.add_argument('-l', '--num-layers', type=float, default=4,
-                        help="Number of layers. Defaults to 3.")
+                        help="Number of layers. Defaults to 4.")
     parser.add_argument('-nh', '--num-heads', type=int, default=3,
                         help='Number of heads. Defaults to 3.')
 
