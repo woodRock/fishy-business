@@ -74,15 +74,15 @@ def parse_arguments():
     # Hyperparameters
     parser.add_argument('-e', '--epochs', type=int, default=100,
                         help="The number of epochs to train the model for.")
-    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
-                        help="The learning rate for the model. Defaults to 1E-3.")
+    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
+                        help="The learning rate for the model. Defaults to 1E-5.")
     parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
                         help="The dimensionality of the hidden dimension. Defaults to 128")
     parser.add_argument('-l', '--num-layers', type=float, default=4,
                         help="Number of layers. Defaults to 4.")
-    parser.add_argument('-nh', '--num-heads', type=int, default=3,
+    parser.add_argument('-nh', '--num-heads', type=int, default=3, # 3, 11, 31
                         help='Number of heads. Defaults to 3.')
 
     return parser.parse_args()
@@ -97,11 +97,11 @@ def main():
     args = parse_arguments()
     logger = setup_logging(args)
 
-    input_dim = 1023
-    output_dim = 1023
+    input_dim = 1023 if args.dataset != "instance-recognition" else 2046
+    output_dim = 1023 if args.dataset != "instance-recognition" else 2046
 
     logger.info(f"Reading the dataset: fish {args.dataset}")
-    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+    train_loader, val_loader, _, _, data = preprocess_dataset(
         args.dataset, 
         args.data_augmentation, 
         batch_size=args.batch_size,
@@ -141,7 +141,8 @@ def main():
             device=device,
             criterion=criterion,
             optimizer=optimizer,
-            file_path=args.file_path
+            file_path=args.file_path,
+            n_features=input_dim
         )
 
         # finish measuring how long training took
