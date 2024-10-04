@@ -1,13 +1,21 @@
+import torch
 import torch.nn as nn
 
 class SiameseNetwork(nn.Module):
-    def __init__(self, input_dim):
+    def __init__(self, input_dim, dropout=0.3):
         super(SiameseNetwork, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(input_dim, 128),
-            nn.ReLU(),
+            nn.Linear(input_dim, 256),
+            nn.BatchNorm1d(256),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.GELU(),
+            nn.Dropout(dropout),
             nn.Linear(128, 64),
-            nn.ReLU(),
+            nn.BatchNorm1d(64),
+            nn.GELU(),
             nn.Linear(64, 32)
         )
         

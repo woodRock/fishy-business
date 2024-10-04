@@ -1,22 +1,10 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from sklearn.metrics import balanced_accuracy_score
 from siamese import SiameseNetwork
-
-class ContrastiveLoss(nn.Module):
-    def __init__(self, margin=1.0):
-        super(ContrastiveLoss, self).__init__()
-        self.margin = margin
-        
-    def forward(self, output1, output2, label):
-        euclidean_distance = F.pairwise_distance(output1, output2)
-        loss_contrastive = torch.mean((1 - label) * torch.pow(euclidean_distance, 2) +
-                                      (label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
-        return loss_contrastive
+from loss import ContrastiveLoss, TripletLoss
 
 def get_optimal_threshold(model, data_loader, device):
     model.eval()
@@ -59,17 +47,23 @@ def compute_balanced_accuracy(model, data_loader, device, threshold):
             predictions = (distances > threshold).float()
             all_labels.extend(labels.cpu().numpy())
             all_predictions.extend(predictions.cpu().numpy())
+    if (len(np.unique(all_labels)) == 1):
+        print(f"all_labels: {all_labels}")
     return balanced_accuracy_score(all_labels, all_predictions)
 
-def train_siamese_network(train_loader, val_loader, input_dim, epochs=50, learning_rate=0.001, margin=1.0):
+def train_siamese_network(train_loader, val_loader, input_dim, epochs=1_000, learning_rate=1E-5, margin=1.0):
     model = SiameseNetwork(input_dim)
     criterion = ContrastiveLoss(margin=margin)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # criterion = TripletLoss(margin=margin)
+    # criterion = MarginBasedLoss(margin=margin)
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     
     best_val_acc = 0
+    best_train_acc = 0
+    stop_epoch = 0
     patience = 10
     counter = 0
     
@@ -101,13 +95,18 @@ def train_siamese_network(train_loader, val_loader, input_dim, epochs=50, learni
         # Early stopping
         if val_balanced_acc > best_val_acc:
             best_val_acc = val_balanced_acc
+            best_train_acc = train_balanced_acc
+            stop_epoch = epoch + 1
             counter = 0
         else:
             counter += 1
             if counter >= patience:
-                print(f"Early stopping triggered after {epoch + 1} epochs")
-                break
-    
+                pass
+                # print(f"Early stopping triggered after {epoch + 1} epochs")
+                # print(f"best_train_acc: {best_train_acc}, best_val_acc: {best_val_acc}")
+                # break
+    print(f"Early stopping triggered after {stop_epoch} epochs")
+    print(f"best_train_acc: {best_train_acc}, best_val_acc: {best_val_acc}")
     return model, threshold
 
 def predict_similarity(model, X1, X2):

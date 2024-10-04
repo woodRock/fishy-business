@@ -1,9 +1,8 @@
 import argparse
 import logging
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
 from util import preprocess_dataset
 from siamese import SiameseNetwork
 
@@ -66,6 +65,7 @@ def setup_logging(args):    # Logging output to a file.
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     return logger
 
+
 def main():
     args = parse_arguments()
     logger = setup_logging(args)
@@ -93,7 +93,7 @@ def main():
 
     from train import train_siamese_network
 
-    train_siamese_network(train_loader=train_loader,val_loader=val_loader,input_dim=1023, epochs=1_000)
+    train_siamese_network(train_loader=train_loader,val_loader=val_loader,input_dim=1023, epochs=50)
 
 if __name__ == "__main__":
     main()
