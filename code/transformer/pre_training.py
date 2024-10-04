@@ -17,7 +17,8 @@ def pre_train_masked_spectra(
         device: Optional[Union[str, torch.device]] = None,
         criterion: CrossEntropyLoss = None,
         optimizer: AdamW = None,
-        mask_prob: float = 0.2
+        mask_prob: float = 0.2,
+        n_features = 1023
     ) -> Transformer:
     """ Masked spectra modelling.
 
@@ -33,6 +34,7 @@ def pre_train_masked_spectra(
         criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
         optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
         mask_prob (float): the probability of masking a spectra. Defaults to 0.2
+        n_features (int): the number of features. Defaults to 1023.
 
     Returns:
         model (Transformer): returns the pre-trained model.
@@ -50,7 +52,7 @@ def pre_train_masked_spectra(
             tgt_x, x = x.to(device), x.to(device)
 
             batch_size = x.shape[0]
-            mask = torch.rand(batch_size, 1023) < mask_prob
+            mask = torch.rand(batch_size, n_features) < mask_prob
             mask = mask.to(device)
             x[mask] = 0
 
@@ -67,7 +69,7 @@ def pre_train_masked_spectra(
             tgt_x, x = x.to(device), x.to(device)
 
             val_batch_size = x.shape[0]
-            mask = torch.rand(val_batch_size, 1023) < mask_prob
+            mask = torch.rand(val_batch_size, n_features) < mask_prob
             mask = mask.to(device)
             x[mask] = 0
 

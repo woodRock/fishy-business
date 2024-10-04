@@ -1,13 +1,12 @@
-import logging
 import os 
+from collections import defaultdict
 from tqdm import tqdm
-import torch
 import numpy as np
 import pandas as pd 
+import torch
 import torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, Sampler
 from sklearn.model_selection import train_test_split
-from transformer import Transformer
 from typing import Iterable, Tuple, Union
 
 
@@ -102,8 +101,8 @@ def random_augmentation(
     return xs, ys
 
 def load_from_file(
-        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     """ Load the dataset from a file path.
 
@@ -302,6 +301,57 @@ def train_test_split_to_data_loader(
     val_steps = max(1, val_steps)
     return train_loader, val_loader, train_steps, val_steps
 
+
+class BalancedBatchSampler(Sampler):
+    def __init__(self, dataloader, batch_size):
+        self.dataloader = dataloader
+        self.batch_size = batch_size
+        self.dataset = self.dataloader.dataset
+        self.indices_per_label = defaultdict(list)
+        self.used_indices_per_label = defaultdict(list)
+        
+        # Extract labels from the dataloader
+        self.labels = self._get_labels_from_dataloader()
+        
+        for idx, label in enumerate(self.labels):
+            self.indices_per_label[label].append(idx)
+        
+        self.labels_set = list(set(self.labels))
+        self.n_classes = len(self.labels_set)
+        self.n_samples = len(self.labels)
+        
+    def _get_labels_from_dataloader(self):
+        all_labels = []
+        for _, labels in self.dataloader:
+            if isinstance(labels, torch.Tensor) and labels.dim() > 1:
+                # Handle one-hot encoded labels
+                labels = labels.argmax(dim=1)
+            all_labels.extend(labels.tolist())
+        return all_labels
+    
+    def __iter__(self):
+        self.count = 0
+        while self.count + self.batch_size < self.n_samples:
+            classes = np.random.choice(self.labels_set, self.batch_size, replace=True)
+            indices = []
+            for class_ in classes:
+                if len(self.indices_per_label[class_]) == 0:
+                    self.indices_per_label[class_] = self.used_indices_per_label[class_]
+                    self.used_indices_per_label[class_] = []
+                
+                idx = self.indices_per_label[class_].pop()
+                self.used_indices_per_label[class_].append(idx)
+                indices.append(idx)
+            
+            yield indices
+            self.count += self.batch_size
+        
+    def __len__(self):
+        return self.n_samples // self.batch_size
+
+def get_balanced_dataloader(dataloader, batch_size):
+    sampler = BalancedBatchSampler(dataloader=dataloader, batch_size=batch_size)
+    return DataLoader(dataloader.dataset, batch_sampler=sampler)
     
 def preprocess_dataset(
         dataset: str ="species", 
@@ -345,4 +395,7 @@ def preprocess_dataset(
         is_data_augmentation=is_data_augmentation,
         batch_size=batch_size
     )
+    # Balanced batching 
+    train_loader = get_balanced_dataloader(dataloader=train_loader, batch_size=batch_size)
+    val_loader = get_balanced_dataloader(dataloader=val_loader, batch_size=batch_size)
     return train_loader, val_loader, train_steps, val_steps, data
