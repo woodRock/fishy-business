@@ -11,19 +11,39 @@ from sklearn.preprocessing import LabelEncoder
 from typing import Iterable, Tuple, Union
 
 class SiameseDataset(Dataset):
-    def __init__(self, samples: Iterable, labels: Iterable) -> None:
+    """ Generate a dataset of paired instances for contrastive learning. """
+    def __init__(self, samples, labels, pairs_per_sample=50):
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.from_numpy(np.vstack(labels).astype(float))
         self.samples = F.normalize(self.samples, dim=1)
-
-    def __len__(self) -> int:
-        return len(self.samples)
-
-    def __getitem__(self, idx: int) -> Tuple[Iterable, Iterable, Iterable]:
-        # Randomly choose another sample
-        idx2 = np.random.choice(len(self.labels))
+        self.pairs_per_sample = pairs_per_sample
         
-        X1, y1 = self.samples[idx], self.labels[idx]
+        # Create dictionaries to store indices for each class
+        self.class_indices = {}
+        for idx, label in enumerate(self.labels):
+            label_tuple = tuple(label.tolist())
+            if label_tuple not in self.class_indices:
+                self.class_indices[label_tuple] = []
+            self.class_indices[label_tuple].append(idx)
+
+    def __len__(self):
+        return len(self.samples) * self.pairs_per_sample
+
+    def __getitem__(self, idx):
+        # Determine the original sample index and pair number
+        sample_idx = idx // self.pairs_per_sample
+        X1, y1 = self.samples[sample_idx], self.labels[sample_idx]
+        
+        # 50% chance to choose a pair of the same class
+        if np.random.random() < 0.5:
+            same_class_indices = self.class_indices[tuple(y1.tolist())]
+            if len(same_class_indices) > 1:  # Ensure there's at least one other sample in the same class
+                idx2 = np.random.choice([i for i in same_class_indices if i != sample_idx])
+            else:
+                idx2 = np.random.choice(len(self.samples))  # If no other samples in the same class, choose randomly
+        else:
+            idx2 = np.random.choice(len(self.samples))  # Choose a random sample
+        
         X2, y2 = self.samples[idx2], self.labels[idx2]
         
         # 1 if same class, 0 if different class
@@ -32,8 +52,8 @@ class SiameseDataset(Dataset):
         return X1, X2, pair_label
 
 def load_from_file(
-        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-        path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     path = os.path.join(*path)
     data = pd.read_excel(path)
@@ -50,7 +70,6 @@ def filter_dataset(dataset: str, data: pd.DataFrame) -> pd.DataFrame:
 
     if dataset == "instance-recognition":
         data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
-    print(f"len(data): {len(data)}")
     return data
 
 def one_hot_encoded_labels(dataset, data):
@@ -88,8 +107,8 @@ def one_hot_encoded_labels(dataset, data):
         X,y = np.array(X), np.array(y)
         le = LabelEncoder()
         y = le.fit_transform(y)
-        print(f"y: {y}")
-        y = np.eye(24)[y]
+        n_classes = len(np.unique(y))
+        y = np.eye(n_classes)[y]
     else: 
         raise ValueError(f"No valid dataset was specified: {dataset}")
     return y
@@ -113,7 +132,7 @@ def preprocess_dataset(dataset: str ="species", batch_size: int = 64) -> Union[D
     X, y = remove_instances_with_none_labels(X, y)
 
     # Split your dataset into training and validation sets
-    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=0.5)
 
     train_dataset = SiameseDataset(X_train, y_train)
     val_dataset = SiameseDataset(X_val, y_val)
@@ -123,3 +142,31 @@ def preprocess_dataset(dataset: str ="species", batch_size: int = 64) -> Union[D
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     return train_loader, val_loader
+
+
+if __name__ == "__main__":
+    def inspect_data(train_loader):
+       class_counts = {0: 0, 1: 0}
+       feature_means = []
+       feature_stds = []
+       
+       for X1, X2, labels in train_loader:
+           class_counts[0] += (labels == 0).sum().item()
+           class_counts[1] += (labels == 1).sum().item()
+           
+           # Combine X1 and X2 for feature statistics
+           X = torch.cat((X1, X2), dim=0)
+           feature_means.append(X.mean(dim=0))
+           feature_stds.append(X.std(dim=0))
+       
+       feature_means = torch.stack(feature_means).mean(dim=0)
+       feature_stds = torch.stack(feature_stds).mean(dim=0)
+       
+       print(f"Class distribution: {class_counts}")
+       print(f"Feature means range: [{feature_means.min().item():.2f}, {feature_means.max().item():.2f}]")
+       print(f"Feature stds range: [{feature_stds.min().item():.2f}, {feature_stds.max().item():.2f}]")
+
+    train_loader, val_loader = preprocess_dataset(dataset="instance-recognition")
+    # Call this function before training
+    inspect_data(train_loader)
+    inspect_data(val_loader)
