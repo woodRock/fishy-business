@@ -7,21 +7,21 @@ import numpy as np
 from tqdm import tqdm
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, input_dim, d_model, nhead, num_layers, dim_feedforward):
+    def __init__(self, input_dim, d_model, nhead, num_layers, dim_feedforward, dropout=0.1):
         super().__init__()
         self.embedding = nn.Linear(input_dim, d_model)
         self.transformer = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward),
+            nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout=0.1, activation='gelu', norm_first=False),
             num_layers
         )
+        self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(d_model, d_model)
 
     def forward(self, x):
         x = self.embedding(x)
-        x = x.unsqueeze(1)  # Add sequence dimension
         x = self.transformer(x)
-        x = x.squeeze(1)  # Remove sequence dimension
         x = self.fc(x)
+        x = self.dropout(x) # Dropout.
         return x
 
 class ContrastiveModel(nn.Module):
@@ -147,10 +147,10 @@ def main():
     model = ContrastiveModel(input_dim, d_model, nhead, num_layers, dim_feedforward, num_classes).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 
-    num_epochs = 200
+    num_epochs = 500
     best_val_accuracy = 0
     # Contrastive loss, Triplet loss, Cross entropy, Balanced accuracy score
-    alpha, beta, gamma, delta = 0.3, 0.3, 0.2, 0.2  # Weights for different loss components
+    alpha, beta, gamma, delta = 0.5, 0.0, 0.5, 0.0  # Weights for different loss components
 
     for epoch in range(num_epochs):
         train_loss, train_accuracy, train_balanced_accuracy = train_epoch(model, train_loader, optimizer, device, alpha, beta, gamma, delta)
