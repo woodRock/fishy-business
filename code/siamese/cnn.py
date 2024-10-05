@@ -5,29 +5,34 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import balanced_accuracy_score, accuracy_score
 import numpy as np
 from tqdm import tqdm
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-class TransformerEncoder(nn.Module):
-    def __init__(self, input_dim, d_model, nhead, num_layers, dim_feedforward, dropout=0.1):
+class CNNEncoder(nn.Module):
+    def __init__(self, input_channels, d_model):
         super().__init__()
-        self.embedding = nn.Linear(input_dim, d_model)
-        self.transformer = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout=0.1, activation='gelu', norm_first=False),
-            num_layers
-        )
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(d_model, d_model)
+        self.conv1 = nn.Conv1d(input_channels, 32, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1)
+        self.conv3 = nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1)
+        self.pool = nn.AdaptiveAvgPool1d(1)
+        self.fc = nn.Linear(128, d_model)
+        self.dropout = nn.Dropout(0.1)
+        self.bn1 = nn.BatchNorm1d(32)
+        self.bn2 = nn.BatchNorm1d(64)
+        self.bn3 = nn.BatchNorm1d(128)
 
     def forward(self, x):
-        x = self.embedding(x)
-        x = self.transformer(x)
-        x = self.fc(x)
-        x = self.dropout(x) # Dropout.
+        x = x.unsqueeze(1)  # Add channel dimension if not present
+        x = self.bn1(torch.relu(self.conv1(x)))
+        x = self.bn2(torch.relu(self.conv2(x)))
+        x = self.bn3(torch.relu(self.conv3(x)))
+        x = self.pool(x).squeeze(-1)
+        x = self.dropout(self.fc(x))
         return x
 
 class ContrastiveModel(nn.Module):
-    def __init__(self, input_dim, d_model, nhead, num_layers, dim_feedforward, num_classes):
+    def __init__(self, input_channels, d_model, num_classes):
         super().__init__()
-        self.encoder = TransformerEncoder(input_dim, d_model, nhead, num_layers, dim_feedforward)
+        self.encoder = CNNEncoder(input_channels, d_model)
         self.classifier = nn.Linear(d_model, num_classes)
 
     def forward(self, x1, x2=None):
@@ -74,22 +79,19 @@ def train_epoch(model, dataloader, optimizer, device, alpha=0.3, beta=0.3, gamma
         z1, z2 = model(x1, x2)
         logits = model.classify(x1)
         
-        # Generate triplets
-        similarity = nn.functional.cosine_similarity(z1, z2)
-        preds = (similarity > 0.5).float()
-        
         # Ensure y is a 1D tensor
         y = y.squeeze()
         
+        similarity = nn.functional.cosine_similarity(z1, z2)
+        preds = (similarity > 0.5).float()
+        
         # Handle cases where all samples are positive or all are negative
         if torch.all(y == 1) or torch.all(y == 0):
-            # In this case, we can't form meaningful triplets, so we'll skip triplet loss
             loss = combined_loss(z1, z2, y, preds, z1, z1, z1, logits, alpha, 0, gamma, delta)
         else:
             positive_indices = torch.where(y == 1)[0]
             negative_indices = torch.where(y == 0)[0]
             
-            # Randomly select anchors
             num_triplets = min(len(positive_indices), len(negative_indices), len(z1))
             anchor_indices = torch.randperm(len(z1))[:num_triplets]
             
@@ -108,7 +110,6 @@ def train_epoch(model, dataloader, optimizer, device, alpha=0.3, beta=0.3, gamma
     balanced_accuracy = balanced_accuracy_score(all_labels, all_preds)
     loss = total_loss / len(dataloader)
     return loss, accuracy, balanced_accuracy
-
 
 def evaluate(model, dataloader, device):
     model.eval()
@@ -136,25 +137,26 @@ def main():
     train_loader, val_loader = preprocess_dataset(dataset="instance-recognition", batch_size=64)
 
     # Model parameters
-    input_dim = next(iter(train_loader))[0].shape[1]  # Get input dimension from data
+    input_channels = 1  # Adjust based on your data
     d_model = 128
-    nhead = 4
-    num_layers = 2
-    dim_feedforward = 256
-    num_classes = 2  # Assuming binary classification, adjust if needed
-    learning_rate = 1E-5
+    num_classes = 2  # Adjust based on your task
 
-    model = ContrastiveModel(input_dim, d_model, nhead, num_layers, dim_feedforward, num_classes).to(device)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    model = ContrastiveModel(input_channels, d_model, num_classes).to(device)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.1, patience=10, verbose=True)
 
     num_epochs = 200
     best_val_accuracy = 0
     # Contrastive loss, Triplet loss, Cross entropy, Balanced accuracy score
     alpha, beta, gamma, delta = 0.5, 0.0, 0.5, 0.0  # Weights for different loss components
+    patience = 20
+    initial_patience = patience
 
     for epoch in range(num_epochs):
         train_loss, train_accuracy, train_balanced_accuracy = train_epoch(model, train_loader, optimizer, device, alpha, beta, gamma, delta)
         val_accuracy, val_balanced_accuracy = evaluate(model, val_loader, device)
+        
+        scheduler.step(val_balanced_accuracy)
         
         print(f"Epoch {epoch+1}/{num_epochs}")
         print(f"Train Loss: {train_loss:.4f}")
@@ -162,10 +164,17 @@ def main():
         print(f"Train Balanced Accuracy: {train_balanced_accuracy:.4f}")
         print(f"Validation Accuracy: {val_accuracy:.4f}")
         print(f"Validation Balanced Accuracy: {val_balanced_accuracy:.4f}")
+        print(f"Learning Rate: {optimizer.param_groups[0]['lr']:.6f}")
         
         if val_balanced_accuracy > best_val_accuracy:
             best_val_accuracy = val_balanced_accuracy
             torch.save(model.state_dict(), "best_model.pth")
+            patience = initial_patience
+        else:
+            patience -= 1
+            if patience == 0:
+                print("Early stopping triggered")
+                break
         
         print("------------------------")
 
