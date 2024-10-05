@@ -2,9 +2,9 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import balanced_accuracy_score, accuracy_score
 from siamese import SiameseNetwork
-from loss import ContrastiveLoss, TripletLoss
+from loss import ContrastiveLoss, TripletLoss, ContrastiveLossWithBalancedAccuracy, WeightedContrastiveLossWithBalancedAccuracy
 
 def get_optimal_threshold(model, data_loader, device):
     model.eval()
@@ -47,19 +47,23 @@ def compute_balanced_accuracy(model, data_loader, device, threshold):
             predictions = (distances > threshold).float()
             all_labels.extend(labels.cpu().numpy())
             all_predictions.extend(predictions.cpu().numpy())
-    if (len(np.unique(all_labels)) == 1):
-        print(f"all_labels: {all_labels}")
+    acc = accuracy_score(all_labels, all_predictions)
+    print(f"Accuracy: {acc}")
     return balanced_accuracy_score(all_labels, all_predictions)
 
 def train_siamese_network(train_loader, val_loader, input_dim, epochs=1_000, learning_rate=1E-5, margin=1.0):
     model = SiameseNetwork(input_dim)
-    criterion = ContrastiveLoss(margin=margin)
-    # criterion = TripletLoss(margin=margin)
-    # criterion = MarginBasedLoss(margin=margin)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
+
+    class_weights = torch.tensor([1.0, 5.0])  # Adjust these weights based on your class distribution
+    class_weights = class_weights.to(device)
+    # criterion = ContrastiveLoss(margin=margin)
+    # criterion = TripletLoss(margin=margin)
+    # criterion = MarginBasedLoss(margin=margin)
+    # criterion = ContrastiveLossWithBalancedAccuracy(margin=margin)
+    criterion = WeightedContrastiveLossWithBalancedAccuracy(margin=margin, alpha=0.5, class_weights=class_weights)
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     
     best_val_acc = 0
     best_train_acc = 0

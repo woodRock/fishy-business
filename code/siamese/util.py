@@ -132,7 +132,7 @@ def preprocess_dataset(dataset: str ="species", batch_size: int = 64) -> Union[D
     X, y = remove_instances_with_none_labels(X, y)
 
     # Split your dataset into training and validation sets
-    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=0.5)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=0.5, shuffle=True)
 
     train_dataset = SiameseDataset(X_train, y_train)
     val_dataset = SiameseDataset(X_val, y_val)
