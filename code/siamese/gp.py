@@ -174,6 +174,27 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     return population, logbook
 
+
+def evaluate_best_individual(individual, data):
+    trees = compile_trees(individual)
+    predictions = []
+    labels = []
+    
+    for x1, x2, label in data:
+        outputs1 = [np.mean(tree(x1.astype(float), x2.astype(float))) for tree in trees]
+        outputs2 = [np.mean(tree(x2.astype(float), x1.astype(float))) for tree in trees]
+        output1 = torch.tensor(outputs1, dtype=torch.float32)
+        output2 = torch.tensor(outputs2, dtype=torch.float32)
+        
+        euclidean_distance = F.pairwise_distance(output1.unsqueeze(0), output2.unsqueeze(0))
+        pred = 0 if euclidean_distance < 0.5 else 1  # Adjust threshold as needed
+        predictions.append(pred)
+        labels.append(label)
+    
+    balanced_accuracy = balanced_accuracy_score(labels, predictions)
+    return balanced_accuracy
+
+
 def main():
     # Load and preprocess your data
     from util import preprocess_dataset
@@ -218,6 +239,10 @@ def main():
     best_individual = hof[0]
     best_fitness = evalContrastive(best_individual, val_data)
     print(f"Best individual fitness on validation set: {best_fitness[0]}")
+    
+    # Calculate and print the balanced accuracy score for the best individual
+    balanced_accuracy = evaluate_best_individual(best_individual, val_data)
+    print(f"Balanced Accuracy Score of the best individual on validation set: {balanced_accuracy:.4f}")
     
     pool.close()
     pool.join()
