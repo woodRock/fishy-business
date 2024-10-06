@@ -188,7 +188,7 @@ def main():
 
     num_epochs = 200
     best_val_accuracy = 0
-    alpha, beta, gamma, delta = 0.3, 0.3, 0.2, 0.2  # Weights for different loss components
+    alpha, beta, gamma, delta = 1.0, 0.0, 0.0, 0.0  # Weights for different loss components
     patience = 20
     initial_patience = patience
 
@@ -214,7 +214,8 @@ def main():
             patience -= 1
             if patience == 0:
                 print("Early stopping triggered")
-                break
+                # DEBUG - turn off early stopping
+                # break
         
         print("------------------------")
 
