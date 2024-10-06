@@ -174,7 +174,8 @@ def main():
             patience -= 1
             if patience == 0:
                 print("Early stopping triggered")
-                break
+                # DEBUG - turn off early stopping
+                # break
         
         print("------------------------")
 
