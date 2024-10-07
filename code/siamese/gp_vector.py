@@ -1,3 +1,13 @@
+"""
+
+References: 
+1.  Bromley, J., Guyon, I., LeCun, Y., Säckinger, E., & Shah, R. (1993). 
+    Signature verification using a" siamese" time delay neural network. 
+    Advances in neural information processing systems, 6.
+2.  Koza, J. R. (1994). 
+    Genetic programming II: automatic discovery of reusable programs.
+"""
+
 import numpy as np
 import operator
 from deap import algorithms, base, creator, gp, tools
@@ -224,7 +234,8 @@ def main():
     
     # Run GP with elitism
     pop, log = eaSimpleWithElitism(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=generations, 
-                                   stats=stats, halloffame=hof, verbose=True, elite_size=elite_size)
+                                   stats=stats, halloffame=hof, verbose=True, elite_size=elite_size,
+                                   train_data=train_data, val_data=val_data)
     
     # Evaluate best individual on validation set
     best_individual = hof[0]
