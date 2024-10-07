@@ -143,7 +143,7 @@ def evalContrastive(individual: List[gp.PrimitiveTree], data: List[Tuple[np.ndar
         loss = contrastive_loss(outputs1.unsqueeze(0), outputs2.unsqueeze(0), label)
         total_loss += loss.item()
         
-        similarity = nn.functional.cosine_similarity(outputs1, outputs2)
+        similarity = nn.functional.cosine_similarity(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
         preds = (similarity > 0.5).float()
         predictions.append(preds)
         labels.append(label)
@@ -251,7 +251,7 @@ def evaluate_best_individual(individual: List[gp.PrimitiveTree], data: List[Tupl
         outputs1 = torch.tensor(np.array([tree(*x1) for tree in trees]), dtype=torch.float32)
         outputs2 = torch.tensor(np.array([tree(*x2) for tree in trees]), dtype=torch.float32)
         
-        similarity = nn.functional.cosine_similarity(outputs1, outputs2)
+        similarity = nn.functional.cosine_similarity(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
         preds = (similarity > 0.5).float()
         predictions.append(preds)
         labels.append(label)
