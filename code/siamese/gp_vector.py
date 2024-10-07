@@ -1,4 +1,5 @@
 """
+Multi-tree vector-based genetic programming for contrastive learning.
 
 References: 
 1.  Bromley, J., Guyon, I., LeCun, Y., Säckinger, E., & Shah, R. (1993). 
@@ -8,6 +9,7 @@ References:
     Genetic programming II: automatic discovery of reusable programs.
 """
 
+from typing import List, Tuple, Callable, Any, Optional
 import numpy as np
 import operator
 from deap import algorithms, base, creator, gp, tools
@@ -20,28 +22,28 @@ import random
 from multiprocessing import Pool
 
 # Define primitives that work with numpy arrays and return float arrays
-def protectedDiv(left, right):
+def protectedDiv(left: np.ndarray, right: np.ndarray) -> np.ndarray:
     return np.divide(left, right, out=np.ones_like(left, dtype=float), where=right!=0)
 
-def add(x, y):
+def add(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     return x.astype(float) + y.astype(float)
 
-def sub(x, y):
+def sub(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     return x.astype(float) - y.astype(float)
 
-def mul(x, y):
+def mul(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     return x.astype(float) * y.astype(float)
 
-def neg(x):
+def neg(x: np.ndarray) -> np.ndarray:
     return -x.astype(float)
 
-def sin(x):
+def sin(x: np.ndarray) -> np.ndarray:
     return np.sin(x.astype(float))
 
-def cos(x):
+def cos(x: np.ndarray) -> np.ndarray:
     return np.cos(x.astype(float))
 
-def rand101(x):
+def rand101(x: np.ndarray) -> np.ndarray:
     return np.random.uniform(-1, 1, size=x.shape)
 
 pset = gp.PrimitiveSet("MAIN", 1)  # 1 input for individual feature evaluation
@@ -59,7 +61,7 @@ creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 # Define the number of trees per individual
-NUM_TREES = 5
+NUM_TREES: int = 5
 
 # Toolbox initialization
 toolbox = base.Toolbox()
@@ -69,24 +71,23 @@ toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.tre
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 # Compile function
-def compile_trees(individual):
+def compile_trees(individual: List[gp.PrimitiveTree]) -> List[Callable[[np.ndarray], np.ndarray]]:
     return [gp.compile(expr, pset) for expr in individual]
 
 # Contrastive loss function
-def contrastive_loss(output1, output2, label, margin=1.0):
+def contrastive_loss(output1: torch.Tensor, output2: torch.Tensor, label: float, margin: float = 1.0) -> torch.Tensor:
     euclidean_distance = F.pairwise_distance(output1, output2)
     loss = label * torch.pow(euclidean_distance, 2) + (1 - label) * torch.pow(torch.clamp(margin - euclidean_distance, min=0.0), 2)
     return loss.mean()
 
 # Evaluation function
-def evalContrastive(individual, data, alpha=0.5):
+def evalContrastive(individual: List[gp.PrimitiveTree], data: List[Tuple[np.ndarray, np.ndarray, float]], alpha: float = 0.5) -> Tuple[float]:
     trees = compile_trees(individual)
-    total_loss = 0
-    predictions = []
-    labels = []
+    total_loss = 0.0
+    predictions: List[int] = []
+    labels: List[float] = []
     
     for x1, x2, label in data:
-        # Evaluate both inputs using the same set of trees (Siamese approach)
         outputs1 = torch.tensor([tree(feature) for tree, feature in zip(trees, x1)], dtype=torch.float32)
         outputs2 = torch.tensor([tree(feature) for tree, feature in zip(trees, x2)], dtype=torch.float32)
         
@@ -105,14 +106,14 @@ def evalContrastive(individual, data, alpha=0.5):
     return (fitness,)
 
 # Custom crossover function
-def customCrossover(ind1, ind2):
+def customCrossover(ind1: List[gp.PrimitiveTree], ind2: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree], List[gp.PrimitiveTree]]:
     for i in range(len(ind1)):
         if random.random() < 0.5:
             ind1[i], ind2[i] = gp.cxOnePoint(ind1[i], ind2[i])
     return ind1, ind2
 
 # Custom mutation function
-def customMutate(individual):
+def customMutate(individual: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree]]:
     for i in range(len(individual)):
         if random.random() < 0.2:  # 20% chance to mutate each tree
             individual[i], = gp.mutUniform(individual[i], expr=toolbox.expr, pset=pset)
@@ -123,8 +124,15 @@ toolbox.register("mate", customCrossover)
 toolbox.register("mutate", customMutate)
 toolbox.register("select", tools.selTournament, tournsize=3)
 
-def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
-                        halloffame=None, verbose=__debug__, elite_size=1):
+def eaSimpleWithElitism(population: List[List[gp.PrimitiveTree]], 
+                        toolbox: base.Toolbox, 
+                        cxpb: float, 
+                        mutpb: float, 
+                        ngen: int, 
+                        stats: Optional[tools.Statistics] = None,
+                        halloffame: Optional[tools.HallOfFame] = None, 
+                        verbose: bool = __debug__, 
+                        elite_size: int = 1) -> Tuple[List[List[gp.PrimitiveTree]], tools.Logbook]:
     logbook = tools.Logbook()
     logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
@@ -178,10 +186,10 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     return population, logbook
 
-def evaluate_best_individual(individual, data):
+def evaluate_best_individual(individual: List[gp.PrimitiveTree], data: List[Tuple[np.ndarray, np.ndarray, float]]) -> float:
     trees = compile_trees(individual)
-    predictions = []
-    labels = []
+    predictions: List[int] = []
+    labels: List[float] = []
     
     for x1, x2, label in data:
         outputs1 = torch.tensor([tree(feature) for tree, feature in zip(trees, x1)], dtype=torch.float32)
@@ -195,13 +203,13 @@ def evaluate_best_individual(individual, data):
     balanced_accuracy = balanced_accuracy_score(labels, predictions)
     return balanced_accuracy
 
-def main():
+def main() -> Tuple[List[List[gp.PrimitiveTree]], tools.Logbook, tools.HallOfFame]:
     # Load and preprocess your data
     from util import preprocess_dataset
     train_loader, val_loader = preprocess_dataset(dataset="instance-recognition", batch_size=64)
     
     # Convert data loaders to list format for GP
-    def loader_to_list(loader):
+    def loader_to_list(loader: torch.utils.data.DataLoader) -> List[Tuple[np.ndarray, np.ndarray, float]]:
         data_list = []
         for x1, x2, y in loader:
             for i in range(len(y)):
@@ -216,9 +224,9 @@ def main():
     toolbox.register("evaluate", evalContrastive, data=train_data)
     
     # GP parameters
-    pop_size = 100
-    generations = 50
-    elite_size = 5  # Number of elite individuals to preserve
+    pop_size: int = 100
+    generations: int = 50
+    elite_size: int = 5  # Number of elite individuals to preserve
     
     # Initialize population
     pop = toolbox.population(n=pop_size)
@@ -229,14 +237,13 @@ def main():
     stats.register("min", np.min)
     stats.register("max", np.max)
 
-    pool = Pool()
-    toolbox.register("map", pool.map)
-    
-    # Run GP with elitism
-    pop, log = eaSimpleWithElitism(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=generations, 
-                                   stats=stats, halloffame=hof, verbose=True, elite_size=elite_size,
-                                   train_data=train_data, val_data=val_data)
-    
+    with Pool() as pool:
+        toolbox.register("map", pool.map)
+        
+        # Run GP with elitism
+        pop, log = eaSimpleWithElitism(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=generations, 
+                                    stats=stats, halloffame=hof, verbose=True, elite_size=elite_size)
+        
     # Evaluate best individual on validation set
     best_individual = hof[0]
     best_fitness = evalContrastive(best_individual, val_data)
@@ -263,9 +270,6 @@ def main():
             n.attr["label"] = labels[i]
 
         g.draw(f"figures/tree_{tree_idx}.pdf")
-
-    pool.close()
-    pool.join()
     
     return pop, log, hof
 
