@@ -17,6 +17,7 @@ from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from deap import algorithms, base, creator, gp, tools
 from sklearn.metrics import balanced_accuracy_score
@@ -122,9 +123,9 @@ def compile_trees(individual: List[gp.PrimitiveTree]) -> List[Callable]:
     return [gp.compile(expr, pset) for expr in individual]
 
 # Contrastive loss function
-def contrastive_loss(output1: torch.Tensor, output2: torch.Tensor, label: float, margin: float = 1.0) -> torch.Tensor:
-    euclidean_distance = F.pairwise_distance(output1, output2)
-    loss = label * torch.pow(euclidean_distance, 2) + (1 - label) * torch.pow(torch.clamp(margin - euclidean_distance, min=0.0), 2)
+def contrastive_loss(z1, z2, y, temperature=0.5):
+    similarity = nn.functional.cosine_similarity(z1, z2)
+    loss = y * torch.pow(1 - similarity, 2) + (1 - y) * torch.pow(torch.clamp(similarity - 0.1, min=0.0), 2)
     return loss.mean()
 
 # Evaluation function
