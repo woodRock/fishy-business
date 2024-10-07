@@ -52,8 +52,8 @@ def parse_arguments():
                         help="The number of elitists to be kept each generation.")
     parser.add_argument('-td', '--tree-depth', type=int, default=6,
                         help="The maximum tree depth for GP trees. Defaults to 6.")
-    parser.add_argument('-nt', '--num-trees', type=int, default=10,
-                        help="The number of trees for multi-tree GP. Defaults to 10.")
+    parser.add_argument('-nt', '--num-trees', type=int, default=20,
+                        help="The number of trees for multi-tree GP. Defaults to 20.")
 
     return parser.parse_args()
 
@@ -170,7 +170,7 @@ def customMutate(individual: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveT
 # Genetic operators
 toolbox.register("mate", customCrossover)
 toolbox.register("mutate", customMutate)
-toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("select", tools.selTournament, tournsize=7)
 
 def eaSimpleWithElitism(population: List[List[gp.PrimitiveTree]], 
                         toolbox: base.Toolbox, 
