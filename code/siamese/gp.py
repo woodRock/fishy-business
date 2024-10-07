@@ -143,9 +143,9 @@ def evalContrastive(individual: List[gp.PrimitiveTree], data: List[Tuple[np.ndar
         loss = contrastive_loss(outputs1.unsqueeze(0), outputs2.unsqueeze(0), label)
         total_loss += loss.item()
         
-        euclidean_distance = F.pairwise_distance(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
-        pred = 0 if euclidean_distance < 0.5 else 1  # Adjust threshold as needed
-        predictions.append(pred)
+        similarity = nn.functional.cosine_similarity(outputs1, outputs2)
+        preds = (similarity > 0.5).float()
+        predictions.append(preds)
         labels.append(label)
     
     avg_loss = total_loss / len(data)
@@ -251,9 +251,9 @@ def evaluate_best_individual(individual: List[gp.PrimitiveTree], data: List[Tupl
         outputs1 = torch.tensor(np.array([tree(*x1) for tree in trees]), dtype=torch.float32)
         outputs2 = torch.tensor(np.array([tree(*x2) for tree in trees]), dtype=torch.float32)
         
-        euclidean_distance = F.pairwise_distance(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
-        pred = 0 if euclidean_distance < 0.5 else 1  # Adjust threshold as needed
-        predictions.append(pred)
+        similarity = nn.functional.cosine_similarity(outputs1, outputs2)
+        preds = (similarity > 0.5).float()
+        predictions.append(preds)
         labels.append(label)
     
     balanced_accuracy = balanced_accuracy_score(labels, predictions)
