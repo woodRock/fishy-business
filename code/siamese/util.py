@@ -52,8 +52,8 @@ class SiameseDataset(Dataset):
         return X1, X2, pair_label
 
 def load_from_file(
-        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     path = os.path.join(*path)
     data = pd.read_excel(path)
