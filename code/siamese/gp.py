@@ -1,18 +1,18 @@
 import logging
 import random
 from multiprocessing import Pool
+from tqdm import tqdm
 import numpy as np
 import torch
 import torch.nn.functional as F
 from deap import algorithms, base, creator, gp, tools
 from sklearn.metrics import balanced_accuracy_score
-from sklearn.model_selection import train_test_split
 
 
 def setup_logging():    # Logging output to a file.
     logger = logging.getLogger(__name__)
     output = f"logs/instance-recognition/results_0.log"
-    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
+    logging.basicConfig(filename=output, level=logging.DEBUG, filemode='w')
     return logger
 
 
@@ -58,7 +58,7 @@ creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
 # Define the number of trees per individual
-NUM_TREES = 5
+NUM_TREES = 10
 
 # Toolbox initialization
 toolbox = base.Toolbox()
@@ -85,8 +85,6 @@ def evalContrastive(individual, data, alpha=0.5):
     labels = []
     
     for x1, x2, label in data:
-        logger.debug(f"x1: {x1.shape}, {x1}")
-        logger.debug(f"x2: {x2.shape}, {x2}")
         # Evaluate both inputs using the same set of trees (Siamese approach)
         outputs1 = torch.tensor(np.array([tree(*x1) for tree in trees]), dtype=torch.float32)
         outputs2 = torch.tensor(np.array([tree(*x2) for tree in trees]), dtype=torch.float32)
@@ -146,7 +144,7 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
         logger.info(logbook.stream)
 
     # Begin the generational process
-    for gen in range(1, ngen + 1):
+    for gen in tqdm(range(1, ngen + 1), desc="Training"):
         # Select the next generation individuals
         offspring = toolbox.select(population, len(population) - elite_size)
 
@@ -223,7 +221,7 @@ def main():
     toolbox.register("evaluate", evalContrastive, data=train_data)
     
     # GP parameters
-    pop_size = 100
+    pop_size = 1000
     generations = 50
     elite_size = 5  # Number of elite individuals to preserve
     
@@ -236,12 +234,12 @@ def main():
     stats.register("min", np.min)
     stats.register("max", np.max)
 
-    pool = Pool()
-    toolbox.register("map", pool.map)
-    
-    # Run GP with elitism
-    pop, log = eaSimpleWithElitism(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=generations, 
-                                   stats=stats, halloffame=hof, verbose=True, elite_size=elite_size)
+    with Pool() as pool:
+        toolbox.register("map", pool.map)
+        # Run GP with elitism
+        pop, log = eaSimpleWithElitism(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=generations, 
+                                    stats=stats, halloffame=hof, verbose=True, elite_size=elite_size,
+                                    train_data=train_data, val_data=val_data)
     
     # Evaluate best individual on validation set
     best_individual = hof[0]
@@ -269,9 +267,6 @@ def main():
             n.attr["label"] = labels[i]
 
         g.draw(f"figures/tree_{tree_idx}.pdf")
-
-    pool.close()
-    pool.join()
     
     return pop, log, hof
 
