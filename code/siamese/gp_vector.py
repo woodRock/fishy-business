@@ -1,22 +1,13 @@
-import logging
-import random
-from multiprocessing import Pool
 import numpy as np
-import torch
-import torch.nn.functional as F
+import operator
 from deap import algorithms, base, creator, gp, tools
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import train_test_split
-
-
-def setup_logging():    # Logging output to a file.
-    logger = logging.getLogger(__name__)
-    output = f"logs/instance-recognition/results_0.log"
-    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
-    return logger
-
-
-logger = setup_logging()
+import torch
+import torch.nn.functional as F
+from functools import partial
+import random
+from multiprocessing import Pool
 
 # Define primitives that work with numpy arrays and return float arrays
 def protectedDiv(left, right):
@@ -43,7 +34,7 @@ def cos(x):
 def rand101(x):
     return np.random.uniform(-1, 1, size=x.shape)
 
-pset = gp.PrimitiveSet("MAIN", 1023)  # 1 input for individual feature evaluation
+pset = gp.PrimitiveSet("MAIN", 1)  # 1 input for individual feature evaluation
 pset.addPrimitive(add, 2)
 pset.addPrimitive(sub, 2)
 pset.addPrimitive(mul, 2)
@@ -85,11 +76,9 @@ def evalContrastive(individual, data, alpha=0.5):
     labels = []
     
     for x1, x2, label in data:
-        logger.debug(f"x1: {x1.shape}, {x1}")
-        logger.debug(f"x2: {x2.shape}, {x2}")
         # Evaluate both inputs using the same set of trees (Siamese approach)
-        outputs1 = torch.tensor(np.array([tree(*x1) for tree in trees]), dtype=torch.float32)
-        outputs2 = torch.tensor(np.array([tree(*x2) for tree in trees]), dtype=torch.float32)
+        outputs1 = torch.tensor([tree(feature) for tree, feature in zip(trees, x1)], dtype=torch.float32)
+        outputs2 = torch.tensor([tree(feature) for tree, feature in zip(trees, x2)], dtype=torch.float32)
         
         loss = contrastive_loss(outputs1.unsqueeze(0), outputs2.unsqueeze(0), label)
         total_loss += loss.item()
@@ -125,8 +114,7 @@ toolbox.register("mutate", customMutate)
 toolbox.register("select", tools.selTournament, tournsize=3)
 
 def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
-                        halloffame=None, verbose=__debug__, elite_size=1,
-                        train_data=None, val_data=None):
+                        halloffame=None, verbose=__debug__, elite_size=1):
     logbook = tools.Logbook()
     logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
@@ -143,7 +131,7 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
     record = stats.compile(population) if stats else {}
     logbook.record(gen=0, nevals=len(invalid_ind), **record)
     if verbose:
-        logger.info(logbook.stream)
+        print(logbook.stream)
 
     # Begin the generational process
     for gen in range(1, ngen + 1):
@@ -172,16 +160,11 @@ def eaSimpleWithElitism(population, toolbox, cxpb, mutpb, ngen, stats=None,
         record = stats.compile(population) if stats else {}
         logbook.record(gen=gen, nevals=len(invalid_ind), **record)
         if verbose:
-            logger.info(logbook.stream)
+            print(logbook.stream)
         
         # Print the best (lowest) fitness in this generation
         best_fit = halloffame[0].fitness.values[0]
-        train_balanced_accuracy = evaluate_best_individual(halloffame[0], train_data)
-        val_balanced_accuracy = evaluate_best_individual(halloffame[0], val_data)
-        logger.info(f"""
-                    Generation {gen}: Best Fitness = {best_fit:.4f} 
-                    Balanced accuracy: Train: {train_balanced_accuracy:.4f} 
-                    Validation: {val_balanced_accuracy:.4f}""")
+        print(f"Generation {gen}: Best Fitness = {best_fit}")
 
     return population, logbook
 
@@ -191,8 +174,8 @@ def evaluate_best_individual(individual, data):
     labels = []
     
     for x1, x2, label in data:
-        outputs1 = torch.tensor(np.array([tree(*x1) for tree in trees]), dtype=torch.float32)
-        outputs2 = torch.tensor(np.array([tree(*x2) for tree in trees]), dtype=torch.float32)
+        outputs1 = torch.tensor([tree(feature) for tree, feature in zip(trees, x1)], dtype=torch.float32)
+        outputs2 = torch.tensor([tree(feature) for tree, feature in zip(trees, x2)], dtype=torch.float32)
         
         euclidean_distance = F.pairwise_distance(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
         pred = 0 if euclidean_distance < 0.5 else 1  # Adjust threshold as needed
@@ -213,7 +196,7 @@ def main():
         for x1, x2, y in loader:
             for i in range(len(y)):
                 # Ensure x1 and x2 have NUM_TREES features each
-                data_list.append((x1[i].numpy(), x2[i].numpy(), y[i].item()))
+                data_list.append((x1[i].numpy()[:NUM_TREES], x2[i].numpy()[:NUM_TREES], y[i].item()))
         return data_list
     
     train_data = loader_to_list(train_loader)
@@ -246,13 +229,13 @@ def main():
     # Evaluate best individual on validation set
     best_individual = hof[0]
     best_fitness = evalContrastive(best_individual, val_data)
-    logger.info(f"Best individual fitness on validation set: {best_fitness[0]}")
+    print(f"Best individual fitness on validation set: {best_fitness[0]}")
     
     # Calculate and print the balanced accuracy score for the best individual
     balanced_accuracy = evaluate_best_individual(best_individual, val_data)
-    logger.info(f"Balanced Accuracy Score of the best individual on validation set: {balanced_accuracy:.4f}")
+    print(f"Balanced Accuracy Score of the best individual on validation set: {balanced_accuracy:.4f}")
     
-    logger.info(f"Printing the GP trees")
+    print(f"Printing the GP trees")
     for tree_idx, tree in enumerate(best_individual):
         nodes, edges, labels = gp.graph(tree)
 
