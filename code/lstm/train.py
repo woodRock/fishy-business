@@ -1,11 +1,11 @@
 import logging
-from tqdm import tqdm
 import time
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from lstm_with_attention import LSTM
+from lstm import LSTM
 from plot import plot_confusion_matrix, plot_accuracy
 from typing import Union
 from sklearn.metrics import balanced_accuracy_score
@@ -114,12 +114,9 @@ def train_model(
                 message = f'Early stopping triggered after {epoch + 1} epochs'
                 logger.info(message)
                 print(message)
-                message = f"Best validation balanced accuracy: {best_val_balanced_acc:.4f}"
-                logger.info(message)
-                print(message)
-                break
+                print(f"Best validation balanced accuracy: {best_val_balanced_acc}")
 
-    # Plot the accuracy curve.
+    # Plot the loss curve.
     plot_accuracy(
         train_losses=training_losses, 
         val_losses=validation_losses, 
@@ -131,6 +128,7 @@ def train_model(
     if best_model is not None:
         model.load_state_dict(best_model)
     return model
+
 
 def evaluate_model(
         model : LSTM, 
@@ -153,17 +151,15 @@ def evaluate_model(
     model.eval()
     with torch.no_grad():
         datasets = [("train", train_loader), ("validation", val_loader)]
-        for name, data_loader in datasets:
+        for name, dataset_x_y in datasets:
             startTime = time.time()
             all_preds = []
             all_labels = []
-            for x, y in data_loader:
-                x, y = x.to(device), y.to(device)
+            for (x,y) in dataset_x_y:
+                (x,y) = (x.to(device), y.to(device))
                 pred = model(x)
-                _, predicted = pred.max(1)
-                _, actual = y.max(1)
-                all_preds.extend(predicted.cpu().numpy())
-                all_labels.extend(actual.cpu().numpy())
+                all_preds.extend(pred.argmax(1).cpu().numpy())
+                all_labels.extend(y.argmax(1).cpu().numpy())
             
             balanced_accuracy = balanced_accuracy_score(all_labels, all_preds)
             logger.info(f"{name} set balanced accuracy: {balanced_accuracy:.4f}")
