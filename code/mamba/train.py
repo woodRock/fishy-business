@@ -19,11 +19,11 @@ def train_model(
         optimizer: optim.AdamW, 
         num_epochs: int = 100, 
         patience: int  = 10
-    ) -> VAE:
+    ) -> Mamba:
     """ Train the model
     
     Args: 
-        model (VAE): the model to train.
+        model (Mamba): the model to train.
         train_loader (DataLoader): the training set.
         val_loader (DataLoader): the validation set.
         criterion (nn.CrossEntropyLoss): the loss function. Defaults to CrossEntropyLoss.
@@ -140,7 +140,7 @@ def evaluate_model(
     """Evaluate the model on the training and evaluation datasets.
 
     Args: 
-        model (VAE): the model to evaluate.
+        model (Mamba): the model to evaluate.
         train_loader (DataLoader): the training set. 
         val_loader (DataLoader): the validation set.
         dataset (str): the name of the dataset to be evaluated.
