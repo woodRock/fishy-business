@@ -70,3 +70,37 @@ test = np.array([
 train.mean(), train.std()
 test.mean(), test.std()
 ```
+
+GP
+
+```python
+ 
+                    Validation: 
+import numpy as np
+train = np.array([
+    0.8771,
+    0.9140,
+    0.8091,
+    0.8870,
+    0.8726,
+    0.8473,
+    0.8584,
+    0.9054,
+    0.7199,
+    0.8450,
+])
+test = np.array([
+    0.6702,
+    0.5841,
+    0.5460,
+    0.5946,
+    0.6910,
+    0.5123,
+    0.6805,
+    0.6959,
+    0.5503,
+    0.6022,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
