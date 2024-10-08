@@ -1,12 +1,18 @@
 import logging
 import argparse
 import time
+import os 
+import numpy as np
+import pandas as pd 
 import torch
 import torch.nn as nn 
 import torch.optim as optim
-from util import preprocess_dataset
+from torch.utils.data import DataLoader, TensorDataset, DataLoader
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 from transformer import Transformer 
 from train import train_model, evaluate_model, transfer_learning
+from typing import Iterable, Union
 
 
 def parse_arguments():
@@ -49,7 +55,7 @@ def parse_arguments():
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
                         help="The dimensionality of the hidden dimension. Defaults to 128")
-    parser.add_argument('-l', '--num-layers', type=float, default=4,
+    parser.add_argument('-l', '--num-layers', type=float, default=3,
                         help="Number of layers. Defaults to 3.")
     parser.add_argument('-nh', '--num-heads', type=int, default=3,
                         help='Number of heads. Defaults to 3.')
@@ -61,6 +67,69 @@ def setup_logging(args):
     output = f"{args.output}_{args.run}.log"
     logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
     return logger
+
+def preprocess_dataset(
+        dataset: str ="species", 
+        batch_size: int = 64,
+    ) -> Union[DataLoader, DataLoader, DataLoader, int, int, pd.DataFrame]:
+    """Preprocess the dataset for the downstream task of pre-training.
+    
+    Args: 
+        dataset (str): Fish species, part, oil or cross-species. Defaults to species.
+        batch_size (int): The batch_size for the DataLoaders.
+    
+    Returns:
+        train_loader (DataLoader), : the training set. 
+        val_loader (DataLoader), : the validation set.
+    """
+    path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+    path = os.path.join(*path)
+    data = pd.read_excel(path)
+
+    # Filter the dataset
+    data = data[~data['m/z'].str.contains('MO|QC')]
+    if dataset == "species":
+        data = data[~data['m/z'].str.contains('HM')]
+
+    X = data.iloc[:, 1:].to_numpy() 
+    # Normalize the data between [0,1]
+    X = (X - X.min(axis=0)) / (X.max(axis=0) - X.min(axis=0))
+    # Take only the class label column.
+    y = data.iloc[:, 0].to_numpy()
+    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=0.5, random_state=42, shuffle=True)
+
+    def label_encode(X,y):
+        features = list()
+        labels = list() 
+        for (X_t, y_t) in zip(X, y):
+            label = None
+            if dataset == "cross-species":
+                label = 0 if "HM" in y_t else (1 if "H" in y_t else (2 if "M" in y_t else None))
+            elif dataset == "species":
+                label = 0 if "H" in y_t else (1 if "M" in y_t else None)
+            if label is not None:
+                features.append(X_t)
+                labels.append(label)
+        n_classes = len(np.unique(np.array(labels)))
+        labels = np.eye(n_classes)[labels]
+        return features, labels
+    
+    X_train, y_train = label_encode(X_train, y_train)
+    X_val, y_val = label_encode(X_val, y_val)
+    batch_size = 64
+    train_loader = DataLoader(
+        TensorDataset(
+            torch.Tensor(np.array(X_train)), 
+            torch.Tensor(np.array(y_train))), 
+            batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(
+        TensorDataset(
+            torch.Tensor(np.array(X_val)), 
+            torch.Tensor(np.array(y_val))), 
+            batch_size=batch_size, shuffle=True)
+
+    return train_loader, val_loader
+
 
 def main():
     args = parse_arguments()
@@ -84,11 +153,9 @@ def main():
 
         # Load the dataset with quality control and other unrelated instances removed.
         # train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
-        train_loader, val_loader, _, _ ,_ = preprocess_dataset(
+        train_loader, val_loader = preprocess_dataset(
             dataset, 
-            args.data_augmentation, 
             batch_size=args.batch_size,
-            is_pre_train=False
         )
 
         # Initialize the model, criterion, and optimizer
