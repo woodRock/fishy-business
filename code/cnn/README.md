@@ -34,3 +34,12 @@ $ ts -G 1 python3 main.py
 ```
 
 For more information on the `ts` command from task spooler see: https://justanhduc.github.io/2021/02/03/Task-Spooler.html
+
+# Experiments
+
+## Instance recogntion 
+
+```python
+Train = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+Test = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+```

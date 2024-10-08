@@ -164,7 +164,7 @@ def main():
 
         if patience_counter >= patience:
             print(f"Early stopping triggered. No improvement for {patience} epochs.")
-            break
+            # break
         
         print("------------------------")
 

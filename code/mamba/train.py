@@ -58,7 +58,7 @@ def train_model(
             x, y = x.to(device), y.to(device)
             
             optimizer.zero_grad()
-            _, _, _ , outputs = model(x)
+            outputs = model(x)
             loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
@@ -84,7 +84,7 @@ def train_model(
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
-                _, _, _, outputs = model(x)
+                outputs = model(x)
                 loss = criterion(outputs, y)
 
                 val_loss += loss.item() * x.size(0)
@@ -157,7 +157,7 @@ def evaluate_model(
             all_labels = []
             for (x,y) in dataset_x_y:
                 (x,y) = (x.to(device), y.to(device))
-                _, _, _, pred = model(x)
+                pred = model(x)
                 all_preds.extend(pred.argmax(1).cpu().numpy())
                 all_labels.extend(y.argmax(1).cpu().numpy())
             

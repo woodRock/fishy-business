@@ -1,0 +1,84 @@
+INFO:numexpr.utils:Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+INFO:__main__:gen	nevals	avg     	std     	min     	max   
+0  	200   	0.531356	0.120933	0.302026	0.7935
+INFO:__main__:1  	172   	0.430065	0.0850404	0.302026	0.930374
+INFO:__main__:
+                    Generation 1: Best Fitness = 0.3020 
+                    Balanced accuracy: Train: 0.6211 
+                    Validation: 0.5965
+INFO:__main__:2  	167   	0.406367	0.106588 	0.285133	0.86812 
+INFO:__main__:
+                    Generation 2: Best Fitness = 0.2851 
+                    Balanced accuracy: Train: 0.6650 
+                    Validation: 0.5174
+INFO:__main__:3  	165   	0.371258	0.0981748	0.26193 	0.762196
+INFO:__main__:
+                    Generation 3: Best Fitness = 0.2619 
+                    Balanced accuracy: Train: 0.6703 
+                    Validation: 0.6180
+INFO:__main__:4  	169   	0.375832	0.0936765	0.26193 	0.774415
+INFO:__main__:
+                    Generation 4: Best Fitness = 0.2619 
+                    Balanced accuracy: Train: 0.6756 
+                    Validation: 0.6396
+INFO:__main__:5  	158   	0.352391	0.0910816	0.249709	0.762103
+INFO:__main__:
+                    Generation 5: Best Fitness = 0.2497 
+                    Balanced accuracy: Train: 0.7036 
+                    Validation: 0.5175
+INFO:__main__:6  	163   	0.349103	0.0984898	0.23606 	0.749011
+INFO:__main__:
+                    Generation 6: Best Fitness = 0.2361 
+                    Balanced accuracy: Train: 0.7294 
+                    Validation: 0.5568
+INFO:__main__:7  	161   	0.3472  	0.104962 	0.232761	0.747408
+INFO:__main__:
+                    Generation 7: Best Fitness = 0.2328 
+                    Balanced accuracy: Train: 0.7315 
+                    Validation: 0.5656
+INFO:__main__:8  	155   	0.327061	0.0959449	0.221615	0.710193
+INFO:__main__:
+                    Generation 8: Best Fitness = 0.2216 
+                    Balanced accuracy: Train: 0.7448 
+                    Validation: 0.5592
+INFO:__main__:9  	162   	0.321248	0.100812 	0.221615	0.748752
+INFO:__main__:
+                    Generation 9: Best Fitness = 0.2216 
+                    Balanced accuracy: Train: 0.7456 
+                    Validation: 0.5584
+INFO:__main__:10 	164   	0.303874	0.0973066	0.221559	0.741489
+INFO:__main__:
+                    Generation 10: Best Fitness = 0.2216 
+                    Balanced accuracy: Train: 0.7449 
+                    Validation: 0.5592
+INFO:__main__:11 	152   	0.295242	0.0958758	0.212249	0.755035
+INFO:__main__:
+                    Generation 11: Best Fitness = 0.2122 
+                    Balanced accuracy: Train: 0.7557 
+                    Validation: 0.5600
+INFO:__main__:12 	167   	0.300729	0.10319  	0.21066 	0.811538
+INFO:__main__:
+                    Generation 12: Best Fitness = 0.2107 
+                    Balanced accuracy: Train: 0.7561 
+                    Validation: 0.5610
+INFO:__main__:13 	166   	0.292506	0.0989117	0.207602	0.699998
+INFO:__main__:
+                    Generation 13: Best Fitness = 0.2076 
+                    Balanced accuracy: Train: 0.7547 
+                    Validation: 0.5586
+INFO:__main__:14 	160   	0.2838  	0.0970715	0.206116	0.713686
+INFO:__main__:
+                    Generation 14: Best Fitness = 0.2061 
+                    Balanced accuracy: Train: 0.7573 
+                    Validation: 0.5586
+INFO:__main__:15 	160   	0.273166	0.0837745	0.202004	0.645803
+INFO:__main__:
+                    Generation 15: Best Fitness = 0.2020 
+                    Balanced accuracy: Train: 0.7655 
+                    Validation: 0.5606
+INFO:__main__:16 	165   	0.257682	0.0756704	0.196776	0.695182
+INFO:__main__:
+                    Generation 16: Best Fitness = 0.1968 
+                    Balanced accuracy: Train: 0.7658 
+                    Validation: 0.5632

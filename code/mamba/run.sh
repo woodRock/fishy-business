@@ -24,5 +24,5 @@ do
     ts -G 1 python3 main.py \
         --dataset "${DATASET}" --output "logs/${DATASET}/${NAME}/run" --run "$i" \
 	    --dropout 0.2 --label-smoothing 0.1 --early-stopping 10 \
-        --epochs 100 --learning-rate "1E-3";
+        --epochs 200 --learning-rate "1E-3";
 done

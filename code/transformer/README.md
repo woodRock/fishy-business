@@ -34,3 +34,39 @@ $ ts -G 1 python3 main.py
 ```
 
 For more information on the `ts` command from task spooler see: https://justanhduc.github.io/2021/02/03/Task-Spooler.html
+
+
+# Experiments.
+
+Instance recognition
+
+```python
+import numpy as np
+train = np.array([
+    0.5118,
+    0.5181,
+    0.7942,
+    0.5481,
+    0.5000,
+    0.5180,
+    0.5057,
+    0.8573,
+    0.5000,
+    0.7233,
+    0.5181,
+])
+test = np.array([
+    0.7394,
+    0.6334,
+    0.8600,
+    0.7269,
+    0.6073,
+    0.6693,
+    0.6577,
+    0.8598,
+    0.5320,
+    0.7233,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```

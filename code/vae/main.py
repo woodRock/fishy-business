@@ -51,9 +51,9 @@ def parse_arguments():
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-is', '--input-size', type=int, default=1,
                         help='The number of layers. Defaults to 1.')
-    parser.add_argument('-l', '--num-layers', type=int, default=2,
+    parser.add_argument('-l', '--num-layers', type=int, default=4,
                         help='The number of layers. Defaults to 2.')
-    parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
+    parser.add_argument('-hd', '--hidden-dimension', type=int, default=256,
                         help='The number of hidden layer dimensions. Defaults to 128.')
     parser.add_argument('-nh', '--num-heads', type=int, default=4,
                         help='The number of heads for multi-head attention. Defaults to 4.')
