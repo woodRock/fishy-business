@@ -115,7 +115,7 @@ def train_model(
                 logger.info(message)
                 print(message)
                 print(f"Best validation balanced accuracy: {best_val_balanced_acc}")
-                break
+                # break
 
     # Plot the loss curve.
     plot_accuracy(

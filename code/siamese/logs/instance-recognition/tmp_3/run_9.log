@@ -1,0 +1,33 @@
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+INFO:__main__:gen	nevals	avg     	std     	min     	max    
+0  	200   	0.534376	0.124725	0.328747	0.83196
+INFO:__main__:1  	161   	0.427812	0.0838196	0.286128	0.779032
+INFO:__main__:
+                    Generation 1: Best Fitness = 0.2861 
+                    Balanced accuracy: Train: 0.6576 
+                    Validation: 0.6363
+INFO:__main__:2  	171   	0.393713	0.0865167	0.273574	0.734249
+INFO:__main__:
+                    Generation 2: Best Fitness = 0.2736 
+                    Balanced accuracy: Train: 0.6850 
+                    Validation: 0.5163
+INFO:__main__:3  	168   	0.377574	0.110769 	0.237893	0.778473
+INFO:__main__:
+                    Generation 3: Best Fitness = 0.2379 
+                    Balanced accuracy: Train: 0.7252 
+                    Validation: 0.7219
+INFO:__main__:4  	170   	0.346409	0.103037 	0.204383	0.877759
+INFO:__main__:
+                    Generation 4: Best Fitness = 0.2044 
+                    Balanced accuracy: Train: 0.7678 
+                    Validation: 0.6466
+INFO:__main__:5  	167   	0.308612	0.0984947	0.192757	0.770455
+INFO:__main__:
+                    Generation 5: Best Fitness = 0.1928 
+                    Balanced accuracy: Train: 0.7610 
+                    Validation: 0.6510
+INFO:__main__:6  	157   	0.305207	0.123082 	0.180313	0.767473
+INFO:__main__:
+                    Generation 6: Best Fitness = 0.1803 
+                    Balanced accuracy: Train: 0.7763 
+                    Validation: 0.6685

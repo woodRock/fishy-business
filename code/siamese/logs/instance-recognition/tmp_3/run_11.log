@@ -1,0 +1,14 @@
+INFO:numexpr.utils:Note: NumExpr detected 12 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+INFO:__main__:gen	nevals	avg     	std     	min     	max     
+0  	200   	0.517621	0.115508	0.322681	0.866779
+INFO:__main__:1  	160   	0.426706	0.0933865	0.253782	0.774208
+INFO:__main__:
+                    Generation 1: Best Fitness = 0.2538 
+                    Balanced accuracy: Train: 0.7196 
+                    Validation: 0.7235
+INFO:__main__:2  	169   	0.383199	0.085145 	0.252491	0.779931
+INFO:__main__:
+                    Generation 2: Best Fitness = 0.2525 
+                    Balanced accuracy: Train: 0.7264 
+                    Validation: 0.6327
