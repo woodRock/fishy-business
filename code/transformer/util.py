@@ -336,7 +336,7 @@ def preprocess_dataset(
     if (dataset == "instance-recognition"):
         X, y = one_hot_encoded_labels(dataset=dataset, data=data)
     else:
-        y = one_hot_encoded_labels(dataset=dataset, data=data)
+        
         X = data.drop('m/z', axis=1)
         X,y = remove_instances_with_none_labels(X,y)
     train_loader, val_loader, train_steps, val_steps = train_test_split_to_data_loader(

@@ -7035,3 +7035,17 @@ Notes:
 * Focus on the journal paper first, then revise the AJCAI paper while waiting for feedback. 
 * Use balanced accuracy to evaluate the perfromance on the instance recognition to evaluate the performance on the instance recognition dataset. 
 * Write a detailed report about the experimental setup for instance recognition.
+
+
+2024-10-03 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood 
+
+* The contribution of the paper is not clear, need a connection betweeen the AI task and the domain application.
+* I have four datasets with different number of instances. I need to clearly explain the preprocessing methods and how the four datasets are formulated. 
+* Explain how the LIME explanations are generated and why they only choose 10 important features. 
+* Only have one or two items for the future work section. 
+* Evaluate the results using cross-fodl validation, not train-test split. 
+* Train-test split, then normalize the dataset. 
+* Difference vector :math:`sample_1 - sample_2`: the difference between two sample vectors. 
+* Write a report for the construction of the dataset. Justify the choice of each dataset.
