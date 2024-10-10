@@ -21,7 +21,7 @@ cd /vol/ecrg-solar/woodj4/fishy-business/code/siamese
 DATASET="instance-recognition"; 
 # DATASET="species";
 # Directory to save results to.
-NAME="tmp_3";
+NAME="tmp_1";
 
 # If the directory does not already exsit.
 if [ ! -d "logs/${DATASET}/${NAME}" ];

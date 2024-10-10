@@ -1,50 +1,103 @@
-INFO:data:Reading dataset fish: instance-recognition
-INFO:__main__:Running 30 experiments
-INFO:__main__:Classifier: knn-n2
-INFO:__main__:training: 0.5286821705426356 +\- 0.013081036457896262
-INFO:__main__:test: 0.49884353741496595 +\- 0.0009024829361511283
-INFO:__main__:Classifier: knn-n3
-INFO:__main__:training: 0.5575187463873118 +\- 0.0161101153403825
-INFO:__main__:test: 0.49665120593692014 +\- 0.006210058412903558
-INFO:__main__:Classifier: knn-n5
-INFO:__main__:training: 0.5028879730147041 +\- 0.0028623156569091267
-INFO:__main__:test: 0.4995918367346938 +\- 0.0005650764532597398
-INFO:__main__:Classifier: knn-n10
-INFO:__main__:training: 0.5 +\- 0.0
-INFO:__main__:test: 0.5 +\- 0.0
-INFO:__main__:Classifier: knn-n20
-INFO:__main__:training: 0.5 +\- 0.0
-INFO:__main__:test: 0.5 +\- 0.0
-INFO:__main__:Classifier: dt
-INFO:__main__:training: 1.0 +\- 0.0
-INFO:__main__:test: 0.5228324056895485 +\- 0.03321271992135387
-INFO:__main__:Classifier: lda-lsqr
-INFO:__main__:training: 0.5758153787680832 +\- 0.010202436867029334
-INFO:__main__:test: 0.5414100185528757 +\- 0.02779486220462678
-INFO:__main__:Classifier: lda-svd
-INFO:__main__:training: 0.5753616647267026 +\- 0.009965074512577594
-INFO:__main__:test: 0.5407884972170687 +\- 0.026418540943669976
-INFO:__main__:Classifier: nb
-INFO:__main__:training: 0.6300918117680595 +\- 0.012486962333534867
-INFO:__main__:test: 0.5394124922696351 +\- 0.03679158695133945
-INFO:__main__:Classifier: rf
-INFO:__main__:training: 0.9994186046511627 +\- 0.0017441860465116311
-INFO:__main__:test: 0.5148453927025355 +\- 0.015902287334217096
-INFO:__main__:Classifier: svm-linear
-INFO:__main__:training: 0.5284319547711238 +\- 0.012751572179624037
-INFO:__main__:test: 0.5182776747062462 +\- 0.02048959807121518
-INFO:__main__:Classifier: svm-rbf
-INFO:__main__:training: 0.5 +\- 0.0
-INFO:__main__:test: 0.5 +\- 0.0
-INFO:__main__:Classifier: svm-poly
-INFO:__main__:training: 0.5 +\- 0.0
-INFO:__main__:test: 0.5 +\- 0.0
-INFO:__main__:Classifier: svm-sigmoid
-INFO:__main__:training: 0.49999386337902146 +\- 0.0025073340422464506
-INFO:__main__:test: 0.5010420531849104 +\- 0.00947277334452803
-INFO:__main__:Classifier: lor
-INFO:__main__:training: 0.5345137420718816 +\- 0.011747930016377086
-INFO:__main__:test: 0.5158256029684601 +\- 0.015391314796416273
-INFO:__main__:Classifier: ensemble
-INFO:__main__:training: 0.5856824714350192 +\- 0.009988811576600533
-INFO:__main__:test: 0.5148206555349413 +\- 0.01599609897689686
+Dataset: species
+  knn:
+    Train: 95.76\% $\pm$ 0.00\%
+    Test:  79.37\% $\pm$ 0.00\%
+  dt:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  99.17\% $\pm$ 0.00\%
+  lor:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  85.21\% $\pm$ 0.00\%
+  lda:
+    Train: 98.54\% $\pm$ 0.00\%
+    Test:  92.29\% $\pm$ 0.00\%
+  nb:
+    Train: 89.17\% $\pm$ 0.00\%
+    Test:  66.67\% $\pm$ 0.00\%
+  rf:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  90.05\% $\pm$ 0.56\%
+  svm:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  84.58\% $\pm$ 0.00\%
+  ensemble:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  87.84\% $\pm$ 0.40\%
+
+Dataset: part
+  knn:
+    Train: 43.06\% $\pm$ 0.00\%
+    Test:  39.17\% $\pm$ 0.00\%
+  dt:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  35.50\% $\pm$ 4.35\%
+  lor:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  59.58\% $\pm$ 0.00\%
+  lda:
+    Train: 74.31\% $\pm$ 0.00\%
+    Test:  52.92\% $\pm$ 0.00\%
+  nb:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  48.33\% $\pm$ 0.00\%
+  rf:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  47.36\% $\pm$ 5.22\%
+  svm:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  61.67\% $\pm$ 0.00\%
+  ensemble:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  52.33\% $\pm$ 2.57\%
+
+Dataset: oil
+  knn:
+    Train: 55.30\% $\pm$ 0.00\%
+    Test:  25.00\% $\pm$ 0.00\%
+  dt:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  23.40\% $\pm$ 2.06\%
+  lor:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  20.89\% $\pm$ 0.00\%
+  lda:
+    Train: 70.07\% $\pm$ 0.00\%
+    Test:  22.86\% $\pm$ 0.00\%
+  nb:
+    Train: 65.48\% $\pm$ 0.00\%
+    Test:  25.54\% $\pm$ 0.00\%
+  rf:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  32.45\% $\pm$ 2.32\%
+  svm:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  20.54\% $\pm$ 0.00\%
+  ensemble:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  28.13\% $\pm$ 1.00\%
+
+Dataset: cross-species
+  knn:
+    Train: 81.50\% $\pm$ 0.00\%
+    Test:  59.38\% $\pm$ 0.00\%
+  dt:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  63.51\% $\pm$ 1.72\%
+  lor:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  70.82\% $\pm$ 0.00\%
+  lda:
+    Train: 90.90\% $\pm$ 0.00\%
+    Test:  68.89\% $\pm$ 0.00\%
+  nb:
+    Train: 72.12\% $\pm$ 0.00\%
+    Test:  50.35\% $\pm$ 0.00\%
+  rf:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  63.97\% $\pm$ 2.13\%
+  svm:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  69.51\% $\pm$ 0.00\%
+  ensemble:
+    Train: 100.00\% $\pm$ 0.00\%
+    Test:  68.76\% $\pm$ 1.24\%
