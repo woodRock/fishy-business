@@ -7037,7 +7037,7 @@ Notes:
 * Write a detailed report about the experimental setup for instance recognition.
 
 
-2024-10-03 - Weekly 
+2024-10-10 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
 **Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood 
 
