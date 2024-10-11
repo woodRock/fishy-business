@@ -47,7 +47,7 @@ def parse_arguments():
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
                         help="The learning rate for the model. Defaults to 1E-5.")
-    parser.add_argument('-bs', '--batch-size', type=int, default=64,
+    parser.add_argument('-bs', '--batch-size', type=int, default=256,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-is', '--input-size', type=int, default=1,
                         help='The number of layers. Defaults to 1.')
@@ -110,7 +110,7 @@ def main():
     
     num_classes = num_classes_per_dataset[args.dataset]
 
-    train_loader, val_loader = preprocess_dataset(
+    train_loader, data = preprocess_dataset(
         dataset=args.dataset,
         is_data_augmentation=False,
         batch_size=64,
@@ -140,7 +140,6 @@ def main():
     model = train_model(
         model=model, 
         train_loader=train_loader, 
-        val_loader=val_loader, 
         criterion=criterion,
         optimizer=optimizer, 
         num_epochs=args.epochs, 

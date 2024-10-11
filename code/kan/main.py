@@ -97,7 +97,6 @@ def main():
     model = train_model(
         model=model, 
         train_loader=train_loader, 
-        val_loader=val_loader, 
         criterion=criterion,
         optimizer=optimizer, 
         num_epochs=args.epochs, 

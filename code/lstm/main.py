@@ -79,7 +79,7 @@ def main():
     
     n_classes = n_classes_per_dataset[args.dataset]
 
-    train_loader, val_loader = preprocess_dataset(
+    train_loader, data = preprocess_dataset(
         dataset=args.dataset,
         batch_size=args.batch_size,
         is_data_augmentation=True,
@@ -107,7 +107,6 @@ def main():
     trained_model = train_model(
         model, 
         train_loader, 
-        val_loader, 
         criterion, 
         optimizer,
         num_epochs=args.epochs,

@@ -37,9 +37,112 @@ For more information on the `ts` command from task spooler see: https://justanhd
 
 # Experiments
 
-## Instance recogntion 
+Species:
 
 ```python
-Train = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
-Test = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+import numpy as np
+train = np.array([
+    0.9167,
+    1.0000,
+    0.9000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Part:
+
+```python
+import numpy as np
+train = np.array([
+    0.8833,
+    0.8413,
+    0.9097,
+    1.0000,
+    0.9722,
+])
+test = np.array([
+    0.6000,
+    0.9000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Oil:
+
+```python
+import numpy as np
+train = np.array([
+    0.7609,
+    0.9020,
+    0.9320,
+    0.8444,
+    0.9000,
+])
+test = np.array([
+    0.6042,
+    0.9238,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Cross-species:
+
+```python
+import numpy as np
+train = np.array([
+    0.9505,
+    1.0000,
+    0.9722,
+    0.9841,
+    0.9521,
+])
+test = np.array([
+    0.8246,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Instance recogntion: 
+
+```python
+import numpy as np
+train = np.array([
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+])
+test = np.array([
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+    0.5,
+])
+train.mean(), train.std()
+test.mean(), test.std()
 ```

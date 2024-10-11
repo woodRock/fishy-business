@@ -76,7 +76,7 @@ def parse_arguments():
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
                         help="The learning rate for the model. Defaults to 1E-5.")
-    parser.add_argument('-bs', '--batch-size', type=int, default=64,
+    parser.add_argument('-bs', '--batch-size', type=int, default=256,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
                         help="The dimensionality of the hidden dimension. Defaults to 128")
@@ -101,14 +101,16 @@ def main():
     output_dim = 1023
 
     logger.info(f"Reading the dataset: fish {args.dataset}")
-    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
-        args.dataset, 
-        args.data_augmentation, 
-        batch_size=args.batch_size,
-        is_pre_train=True
-    )
+    
 
     if args.masked_spectra_modelling:
+
+        train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+            args.dataset, 
+            args.data_augmentation, 
+            batch_size=args.batch_size,
+            is_pre_train=True
+        )
         # Load the transformer.
         model = Transformer(
             input_dim, 
@@ -210,7 +212,7 @@ def main():
 
     # Load the dataset with quality control and other unrelated instances removed.
     # train_loader, val_loader, test_loader, train_steps, val_steps, data = preprocess_dataset(dataset, is_data_augmentation)
-    train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+    train_loader, data = preprocess_dataset(
         args.dataset, 
         args.data_augmentation, 
         batch_size=args.batch_size,
@@ -261,7 +263,6 @@ def main():
     model = train_model(
         model, 
         train_loader, 
-        val_loader, 
         criterion,
         optimizer, 
         num_epochs=args.epochs, 

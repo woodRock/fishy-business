@@ -106,7 +106,7 @@ def main():
         )
 
     # Load the dataset.
-    train_loader, val_loader = preprocess_dataset(
+    train_loader, data = preprocess_dataset(
         args.dataset, 
         args.data_augmentation, 
         batch_size=args.batch_size,
@@ -138,7 +138,6 @@ def main():
     model = train_model(
         model=model, 
         train_loader=train_loader, 
-        val_loader=val_loader, 
         criterion=criterion,
         optimizer=optimizer, 
         num_epochs=args.epochs, 

@@ -4,6 +4,94 @@
 
 # Experiments
 
+Species:
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Part:
+
+```python
+import numpy as np
+train = np.array([
+    0.8024,
+    0.8532,
+    0.7238,
+    0.8524,
+    0.9048,
+])
+test = np.array([
+    0.7500,
+    1.0000,
+    1.0000,
+    0.9000, 
+    0.7500,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Oil:
+
+```python
+import numpy as np
+train = np.array([
+    0.5810,
+    0.6341,
+    0.6081,
+    0.6876,
+    0.7536,
+])
+test = np.array([
+    0.5546,
+    0.6865,
+    0.7933,
+    0.6957,
+    0.7017,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Cross-species:
+
+```python
+import numpy as np
+train = np.array([
+    0.7444,
+    0.9676,
+    0.9872,
+    0.9861,
+    1.0000,
+])
+test = np.array([
+    0.9406,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
 Instance recognition
 
 ```python

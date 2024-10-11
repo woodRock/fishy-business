@@ -75,8 +75,8 @@ class CNN(nn.Module):
         self.flatten = nn.Flatten()
 
         # Calculate the size of the flattened features after convolutions
-        # self.flat_features = 256 * (input_size // 2 // 2 // 2 // 2)
-        self.flat_features = 32512
+        self.flat_features = 256 * (input_size // 2 // 2 // 2 // 2)
+        # self.flat_features = 32512
         
         self.fc_layers = nn.Sequential(
             nn.Linear(self.flat_features, 512),
