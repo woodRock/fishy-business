@@ -47,7 +47,7 @@ def run_experiments(datasets, runs=30):
             test_accs = []
 
             for _ in range(runs):
-                skf = StratifiedKFold(n_splits=4)
+                skf = StratifiedKFold(n_splits=5)
                 k_fold_train_accs = []
                 k_fold_test_accs = []
 

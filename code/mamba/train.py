@@ -1,132 +1,159 @@
-import logging
-import time
-from tqdm import tqdm
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
-from mamba import Mamba
-from plot import plot_confusion_matrix, plot_accuracy
-from typing import Union
+from torch.utils.data import DataLoader, Subset
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import balanced_accuracy_score
-import numpy as np
+from tqdm import tqdm
+import logging
+from mamba import Mamba
+from plot import plot_accuracy
+from typing import Union
 
 def train_model(
-        model: Mamba, 
-        train_loader: DataLoader, 
-        val_loader: DataLoader, 
-        criterion: nn.CrossEntropyLoss,
-        optimizer: optim.AdamW, 
-        num_epochs: int = 100, 
-        patience: int  = 10
-    ) -> Mamba:
-    """ Train the model
-    
-    Args: 
-        model (Mamba): the model to train.
-        train_loader (DataLoader): the training set.
-        val_loader (DataLoader): the validation set.
-        criterion (nn.CrossEntropyLoss): the loss function. Defaults to CrossEntropyLoss.
-        optimizer (optim.AdamW): the optimizer. Defaults to AdamW.
-        num_epochs (int): the number of epochs to train for.
-        patience (int): the patience for the early stopping mechanism.
-
-    Returns:
-        model (VAE): the trained model - with early stopping - that has best validation performance.
-    """
+    model: nn.Module,
+    train_loader: DataLoader,
+    criterion: nn.Module,
+    optimizer: optim.Optimizer,
+    num_epochs: int = 100,
+    patience: int = 10,
+    n_splits: int = 5,
+    device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
+) -> nn.Module:
     logger = logging.getLogger(__name__)
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
-
-    training_balanced_accuracies = []
-    training_losses = []
-    validation_balanced_accuracies = []
-    validation_losses = []
-
-    best_val_balanced_acc = float('-inf')
-    epochs_without_improvement = 0
-    best_model = None
-
-    for epoch in (pbar := tqdm(range(num_epochs), desc="Training")):
-        model.train()
-        train_loss = 0.0
-        train_preds = []
-        train_labels = []
-
-        for x, y in train_loader:
-            x, y = x.to(device), y.to(device)
-            
-            optimizer.zero_grad()
-            outputs = model(x)
-            loss = criterion(outputs, y)
-            loss.backward()
-            optimizer.step()
-
-            train_loss += loss.item() * x.size(0)
-            _, predicted = outputs.max(1)
-            _, actual = y.max(1)
-            train_preds.extend(predicted.cpu().numpy())
-            train_labels.extend(actual.cpu().numpy())
-
-        train_loss /= len(train_loader.dataset)
-        train_balanced_acc = balanced_accuracy_score(train_labels, train_preds)
-
-        training_balanced_accuracies.append(train_balanced_acc)
-        training_losses.append(train_loss)
-
-        # Validation
-        model.eval()
-        val_loss = 0.0
-        val_preds = []
-        val_labels = []
-
-        with torch.no_grad():
-            for x, y in val_loader:
-                x, y = x.to(device), y.to(device)
-                outputs = model(x)
-                loss = criterion(outputs, y)
-
-                val_loss += loss.item() * x.size(0)
-                _, predicted = outputs.max(1)
-                _, actual = y.max(1)
-                val_preds.extend(predicted.cpu().numpy())
-                val_labels.extend(actual.cpu().numpy())
-
-        val_loss /= len(val_loader.dataset)
-        val_balanced_acc = balanced_accuracy_score(val_labels, val_preds)
-
-        validation_balanced_accuracies.append(val_balanced_acc)
-        validation_losses.append(val_loss)
-
-        message = f'Epoch {epoch+1}/{num_epochs} \tTrain Loss: {train_loss:.4f}, Train Balanced Acc: {train_balanced_acc:.4f}\t Val Loss: {val_loss:.4f}, Val Balanced Acc: {val_balanced_acc:.4f}'
-        pbar.set_description(message)
-        logger.info(message)
-
-        # Early stopping
-        if val_balanced_acc > best_val_balanced_acc:
-            best_val_balanced_acc = val_balanced_acc
-            epochs_without_improvement = 0
-            best_model = model.state_dict()
+    
+    # Extract dataset from DataLoader
+    dataset = train_loader.dataset
+    
+    # Get all labels for stratification
+    all_labels = []
+    for _, labels in dataset:
+        if isinstance(labels, torch.Tensor):
+            if labels.dim() > 1:
+                # For multi-label classification, use argmax to get the primary label
+                all_labels.append(labels.argmax().item())
+            else:
+                all_labels.append(labels.argmax())
         else:
-            epochs_without_improvement += 1
-            if epochs_without_improvement >= patience:
-                message = f'Early stopping triggered after {epoch + 1} epochs'
-                logger.info(message)
-                print(message)
-                print(f"Best validation balanced accuracy: {best_val_balanced_acc}")
+            all_labels.append(labels)
+    all_labels = np.array(all_labels)
 
-    # Plot the loss curve.
+    # Initialize StratifiedKFold
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+    # Lists to store metrics
+    fold_train_losses = []
+    fold_val_losses = []
+    fold_train_accuracies = []
+    fold_val_accuracies = []
+
+    # Perform k-fold cross-validation
+    for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
+        logger.info(f"Fold {fold}/{n_splits}")
+
+        # Create data loaders for this fold
+        train_subset = Subset(dataset, train_idx)
+        val_subset = Subset(dataset, val_idx)
+        fold_train_loader = DataLoader(train_subset, batch_size=train_loader.batch_size, shuffle=True)
+        fold_val_loader = DataLoader(val_subset, batch_size=train_loader.batch_size)
+
+        # Initialize model, criterion, and optimizer
+        model = model.to(device)
+        criterion = criterion.to(device)
+        optimizer = optim.AdamW(model.parameters(), lr=0.001)
+
+        # Training loop
+        best_val_acc = float('-inf')
+        epochs_without_improvement = 0
+        train_losses = []
+        val_losses = []
+        train_accuracies = []
+        val_accuracies = []
+
+        for epoch in range(num_epochs):
+            # Train
+            model.train()
+            train_loss = 0.0
+            train_preds = []
+            train_labels = []
+            for inputs, labels in tqdm(fold_train_loader, desc=f"Epoch {epoch+1}/{num_epochs} - Training"):
+                inputs, labels = inputs.to(device), labels.to(device)
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+                train_loss += loss.item()
+                _, predicted = outputs.max(1)
+                _, actual = labels.max(1)
+                train_preds.extend(predicted.cpu().numpy())
+                train_labels.extend(actual.cpu().numpy())
+            
+            train_loss /= len(fold_train_loader)
+            train_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            train_losses.append(train_loss)
+            train_accuracies.append(train_acc)
+
+            # Validate
+            model.eval()
+            val_loss = 0.0
+            val_preds = []
+            val_labels = []
+            with torch.no_grad():
+                for inputs, labels in tqdm(fold_val_loader, desc=f"Epoch {epoch+1}/{num_epochs} - Validation"):
+                    inputs, labels = inputs.to(device), labels.to(device)
+                    outputs = model(inputs)
+                    loss = criterion(outputs, labels)
+                    val_loss += loss.item()
+                    _, predicted = outputs.max(1)
+                    _, actual = labels.max(1)
+                    val_preds.extend(predicted.cpu().numpy())
+                    val_labels.extend(labels.cpu().numpy())
+            
+            val_loss /= len(fold_val_loader)
+            val_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            val_losses.append(val_loss)
+            val_accuracies.append(val_acc)
+
+            # Early stopping
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                epochs_without_improvement = 0
+                best_model = model.state_dict()
+            else:
+                epochs_without_improvement += 1
+                if epochs_without_improvement >= patience:
+                    logger.info(f"Early stopping triggered after {epoch + 1} epochs")
+                    logger.info(f"Best validation accuracy: {best_val_acc:.4f}")
+                    # break
+
+            logger.info(f"Epoch {epoch+1}/{num_epochs} - Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}")
+
+        # Store the best results for this fold
+        fold_train_losses.append(train_losses)
+        fold_val_losses.append(val_losses)
+        fold_train_accuracies.append(train_accuracies)
+        fold_val_accuracies.append(val_accuracies)
+
+    # Calculate average performance across folds
+    avg_train_losses = np.mean(fold_train_losses, axis=0)
+    avg_val_losses = np.mean(fold_val_losses, axis=0)
+    avg_train_accuracies = np.mean(fold_train_accuracies, axis=0)
+    avg_val_accuracies = np.mean(fold_val_accuracies, axis=0)
+
+    # Plot average performance
     plot_accuracy(
-        train_losses=training_losses, 
-        val_losses=validation_losses, 
-        train_accuracies=training_balanced_accuracies, 
-        val_accuracies=validation_balanced_accuracies
-    ) 
+        train_losses=avg_train_losses,
+        val_losses=avg_val_losses,
+        train_accuracies=avg_train_accuracies,
+        val_accuracies=avg_val_accuracies
+    )
 
-    # Retrieve weights for the model that performs best on the validation set.
-    if best_model is not None:
-        model.load_state_dict(best_model)
+    logger.info(f"Average final validation accuracy: {avg_val_accuracies[-1]:.4f}")
+    
+    # Load the best model state
+    model.load_state_dict(best_model)
     return model
 
 
@@ -151,15 +178,17 @@ def evaluate_model(
     model.eval()
     with torch.no_grad():
         datasets = [("train", train_loader), ("validation", val_loader)]
-        for name, dataset_x_y in datasets:
+        for name, data_loader in datasets:
             startTime = time.time()
             all_preds = []
             all_labels = []
-            for (x,y) in dataset_x_y:
-                (x,y) = (x.to(device), y.to(device))
-                pred = model(x)
-                all_preds.extend(pred.argmax(1).cpu().numpy())
-                all_labels.extend(y.argmax(1).cpu().numpy())
+            for x,y in data_loader:
+                x,y = x.to(device), y.to(device)
+                pred = model(x,x)
+                _, predicted = pred.max(1)
+                _, actual = y.max(1)
+                all_preds.extend(predicted.cpu().numpy())
+                all_labels.extend(actual.cpu().numpy())
             
             balanced_accuracy = balanced_accuracy_score(all_labels, all_preds)
             logger.info(f"{name} set balanced accuracy: {balanced_accuracy:.4f}")

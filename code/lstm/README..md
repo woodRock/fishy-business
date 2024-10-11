@@ -4,29 +4,89 @@
 
 # Experiments.
 
+Species:
+
 ```python
 import numpy as np
 train = np.array([
-    0.9850,
     1.0000,
-    0.9960,
-    0.9879,
-    0.9990,
-    0.9841,
-    0.9803,
-    0.9812,
-    0.9732
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
 test = np.array([
-    0.6807050092764378,
-    0.6923933209647495,
-    0.6769944341372913,
-    0.6633580705009277,
-    0.6667903525046381,
-    0.6601113172541744,
-    0.7115027829313543,
-    0.6546382189239333,
-    0.7161410018552876
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Part:
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.7500,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Oil:
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.6607,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Cross-species:
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.8364,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
 train.mean(), train.std()
 test.mean(), test.std()

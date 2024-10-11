@@ -101,8 +101,8 @@ def random_augmentation(
     return xs, ys
 
 def load_from_file(
-        path: Iterable = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
-        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     """ Load the dataset from a file path.
 
@@ -144,7 +144,6 @@ def filter_dataset(
 
     if dataset == "instance-recognition":
         data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
-    print(f"len(data): {len(data)}")
     return data
 
 def one_hot_encoded_labels(dataset, data):
@@ -277,7 +276,8 @@ def train_test_split_to_data_loader(
     train_split = 0.8
 
     # Step 2: Split your dataset into training, validation, and testing sets
-    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=(1-train_split))
+    # Freeze the random seed for reproducability.
+    X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=(1-train_split), random_state=42)
     
     # Data augmentation - adding random noise.
     if is_data_augmentation:
@@ -338,10 +338,6 @@ def preprocess_dataset(
         y = one_hot_encoded_labels(dataset=dataset, data=data)
         X = data.drop('m/z', axis=1)
         X,y = remove_instances_with_none_labels(X,y)
-    train_loader, val_loader, train_steps, val_steps = train_test_split_to_data_loader(
-        X,
-        y,
-        is_data_augmentation=is_data_augmentation,
-        batch_size=batch_size
-    )
-    return train_loader, val_loader
+    train_dataset = CustomDataset(X, y)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    return train_loader, data
