@@ -51,8 +51,96 @@ $ qsub -t 1-30:1 grid.sh
 
 For more information on the grid, see https://ecs.wgtn.ac.nz/Support/TechNoteEcsGrid#A_basic_job_submission_script
 
-
-
 ## DEAP 
 
 For more information on DEAP, a python library for evolutionary compuation, see: https://deap.readthedocs.io/en/master/
+
+# Experiments
+
+Species:
+
+```python
+import numpy as np
+train = np.array([
+    0.989583,
+    0.989583,
+    0.986842,
+    1.0000,
+    0.989583,
+])
+test = np.array([
+    1.0000,
+    0.575000,
+    0.875000,
+    0.833333,
+    0.763889,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Part:
+
+```python
+import numpy as np
+train = np.array([
+    0.925000,
+    0.866667,
+    0.900000,
+    0.916667,
+    0.802778,
+])
+test = np.array([
+    0.200000,
+    0.333333,
+    0.833333,
+    0.000000,
+    0.000000,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Oil:
+
+```python
+import numpy as np
+train = np.array([
+    0.537415,
+    0.554422,
+    0.616327,
+    0.466667,
+    0.528571,
+])
+test = np.array([
+    0.142857,
+    0.166667,
+    0.154762,
+    0.345238,
+    0.107143,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```
+
+Cross-species:
+
+```python
+import numpy as np
+train = np.array([
+    0.863182,
+    0.752437,
+    0.864888,
+    0.860755,
+    0.804843,
+])
+test = np.array([
+    0.675926,
+    0.674074,
+    0.822222,
+    0.407407,
+    0.712963,
+])
+train.mean(), train.std()
+test.mean(), test.std()
+```

@@ -5,12 +5,12 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from lime.lime_tabular import LimeTabularExplainer
 from sklearn.preprocessing import StandardScaler
-from kan import StackedKAN
+from lstm import LSTM
 from util import preprocess_dataset
 from train import train_model
 
 
-class KANWrapper:
+class LSTMWrapper:
     def __init__(self, model):
         self.model = model
         self.model.eval()
@@ -25,26 +25,26 @@ class KANWrapper:
 
 # Instantiate your transformer model
 input_dim = 1023
-output_dim = 6
+output_dim = 7
 num_layers = 3
 num_heads = 3
 hidden_dim = 128
 dropout = 0.2
 
 # Initialize the model.
-model = StackedKAN(input_dim=input_dim, 
-    output_dim=3, 
-    hidden_dim=128, 
-    num_inner_functions=20, 
-    dropout_rate=0.2, 
-    num_layers=1
+model = LSTM(
+    input_size = 1023, 
+    hidden_size = 128, 
+    num_layers = 2, 
+    output_size = 7,
+    dropout = 0.2
 )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 
 train_loader, data = preprocess_dataset(
-    dataset='cross-species',
+    dataset='oil',
     batch_size=256,
     is_data_augmentation=False,
     is_pre_train=False
@@ -71,7 +71,7 @@ train_model(
 )
 
 # Wrap the model
-wrapped_model = KANWrapper(model)
+wrapped_model = LSTMWrapper(model)
 
 # Generate some dummy data to initialize the LIME explainer
 # This should ideally be a sample of your actual data
@@ -80,7 +80,7 @@ wrapped_model = KANWrapper(model)
 data_iter = iter(train_loader)
 features, labels = next(data_iter)
 
-class_names = ["Hoki-Mackerel", "Hoki", "Mackerel"]
+class_names = ['50','24','10','5','1','0.1', '0.0']
 feature_names = data.axes[1].tolist()
 
 # Standardize the data

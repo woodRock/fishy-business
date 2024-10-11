@@ -5,6 +5,7 @@ import os
 import numpy as np 
 from deap import base, creator, tools, gp
 from deap.gp import PrimitiveSetTyped
+from sklearn.model_selection import StratifiedKFold
 from util import compileMultiTree, evaluate_classification
 from operators import xmate, xmut, staticLimit
 from gp import train, save_model, load_model
@@ -115,56 +116,63 @@ def main():
     # c - number of classes, r - construction ratio, m - total number of constructed features.
     # m = r * c = 2 ratio * 4 classes = 8 features
 
-    r = 1
-    c = n_classes
-    m = r * c
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    
+    for train_index, test_index in skf.split(X, y):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
 
-    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
-    toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.expr, n=m)
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    toolbox.register("compile", compileMultiTree, X=X)
+        r = 1
+        c = n_classes
+        m = r * c
 
-    toolbox.register('evaluate', evaluate_classification, toolbox=toolbox, pset=pset, y=y)
-    toolbox.register("select", tools.selTournament, tournsize=7)
-    toolbox.register("mate", xmate)
-    toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-    toolbox.register("mutate", xmut, expr=toolbox.expr_mut, pset=pset)
+        toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
+        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.expr, n=m)
+        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+        toolbox.register("compile", compileMultiTree, X=X_train)
 
-    # See https://groups.google.com/g/deap-users/c/pWzR_q7mKJ0
-    toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=args.tree_depth))
-    toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=args.tree_depth))
+        toolbox.register('evaluate', evaluate_classification, toolbox=toolbox, pset=pset, X=X_train, y=y_train)
+        toolbox.register("select", tools.selTournament, tournsize=7)
+        toolbox.register("mate", xmate)
+        toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+        toolbox.register("mutate", xmut, expr=toolbox.expr_mut, pset=pset)
 
-    # File path for saved model.
-    pop, log, hof = None, None, None
+        # See https://groups.google.com/g/deap-users/c/pWzR_q7mKJ0
+        toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=args.tree_depth))
+        toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=args.tree_depth))
 
-    # If a saved model exists?
-    if args.load and os.path.isfile(args.file_path):
-        s = f"Loading model from file: {args.file_path}"
-        logger.info(s)
-        print(s)
-        pop, log, hof = load_model(file_path=args.file_path, toolbox=toolbox, generations=10)
-    else:
-        s = f"No model found. Train from scratch."
-        logger.info(s)
-        print(s)
-        pop, log, hof = train(
-            generations=args.generations, 
-            population=args.population, 
-            elitism=args.elitism, 
-            crossover_rate=args.crossover_rate, 
-            mutation_rate=args.mutation_rate, 
-            run=args.run, 
-            toolbox=toolbox
-        )
+        # File path for saved model.
+        pop, log, hof = None, None, None
 
-    logger.info(f"Saving model to file: {args.file_path}")
-    save_model(file_path=args.file_path, population=pop, generations=args.generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=args.run) # Best accuracy: 0.911423
-     
-    best = hof[0]
-    features = toolbox.compile(expr=best, pset=pset)
-    evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, y=y)
-    plot_tsne(dataset=args.dataset, X=X, y=y, features=features, toolbox=toolbox)
-    plot_gp_tree(best)
+        # If a saved model exists?
+        if args.load and os.path.isfile(args.file_path):
+            s = f"Loading model from file: {args.file_path}"
+            logger.info(s)
+            print(s)
+            pop, log, hof = load_model(file_path=args.file_path, toolbox=toolbox, generations=10)
+        else:
+            s = f"No model found. Train from scratch."
+            logger.info(s)
+            print(s)
+            pop, log, hof = train(
+                generations=args.generations, 
+                population=args.population, 
+                elitism=args.elitism, 
+                crossover_rate=args.crossover_rate, 
+                mutation_rate=args.mutation_rate, 
+                run=args.run, 
+                toolbox=toolbox
+            )
+
+        logger.info(f"Saving model to file: {args.file_path}")
+        save_model(file_path=args.file_path, population=pop, generations=args.generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=args.run) # Best accuracy: 0.911423
+        
+        best = hof[0]
+        features = toolbox.compile(expr=best, pset=pset, X=X_train)
+        evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X_train, y=y_train)
+        evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test)
+        # plot_tsne(dataset=args.dataset, X=X, y=y, features=features, toolbox=toolbox)
+        # plot_gp_tree(best)
 
 if __name__ == "__main__":
     main()

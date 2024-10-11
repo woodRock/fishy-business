@@ -5,12 +5,12 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 from lime.lime_tabular import LimeTabularExplainer
 from sklearn.preprocessing import StandardScaler
-from kan import StackedKAN
+from vae import VAE
 from util import preprocess_dataset
 from train import train_model
 
 
-class KANWrapper:
+class VAEWrapper:
     def __init__(self, model):
         self.model = model
         self.model.eval()
@@ -19,7 +19,7 @@ class KANWrapper:
         x = torch.tensor(x, dtype=torch.float32)
         x = x.to(device)
         with torch.no_grad():
-            logits = self.model(x)
+            _,_,_, logits = self.model(x)
         probs = F.softmax(logits, dim=-1).cpu().numpy()
         return probs
 
@@ -31,16 +31,17 @@ num_heads = 3
 hidden_dim = 128
 dropout = 0.2
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Initialize the model.
-model = StackedKAN(input_dim=input_dim, 
-    output_dim=3, 
-    hidden_dim=128, 
-    num_inner_functions=20, 
-    dropout_rate=0.2, 
-    num_layers=1
+model = VAE(
+    input_size=1023,
+    latent_dim=128,
+    num_classes=3,
+    device=device,
+    dropout=0.1
 )
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 
 train_loader, data = preprocess_dataset(
@@ -71,7 +72,7 @@ train_model(
 )
 
 # Wrap the model
-wrapped_model = KANWrapper(model)
+wrapped_model = VAEWrapper(model)
 
 # Generate some dummy data to initialize the LIME explainer
 # This should ideally be a sample of your actual data
@@ -96,9 +97,17 @@ explainer = LimeTabularExplainer(
     discretize_continuous=True,
 )
 
+instance = None
+label = None
 # Retrieve the first instance
-first_instance = features[0]
-first_instance_label = labels[0]
+for f, l in zip(features, labels):
+    if torch.equal(l,torch.tensor([1,0,0])):
+        instance = f
+        label = l
+        break
+
+first_instance = instance
+first_instance_label = label
 
 print(f"first_instance_label: {first_instance_label}")
 
@@ -120,7 +129,7 @@ fig.set_size_inches(10, 8)
 plt.tight_layout()
 
 # Save the figure
-fig.savefig('figures/oil/lime_explanation.png')
+fig.savefig('figures/cross-species/lime_explanation.png')
 
 # Optionally, display the explanation
 plt.show()

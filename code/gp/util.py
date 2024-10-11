@@ -182,79 +182,26 @@ def wrapper_classification_accuracy(
     logger = logging.getLogger(__name__)
 
     train_accs = []
-    val_accs = []
-    test_accs = []
 
-    # Reserve a test set that is not touched by the training algorithm.
-    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=42)
-    assert len(X_train) == len(y_train)
-    assert len(X_test) == len(y_test)
-    
-    # Shuffle the datasets randomly then take 1,000 samples for evaluation.
-    # p = np.random.permutation(len(X_train))
-    # X_train, y_train = X_train[p], y_train[p]
-    # X_train, y_train = X_train[0:1000], y_train[0:1000]
-    # p = np.random.permutation(len(X_test))
-    # X_test, y_test = X_test[p], y_test[p]
-    # X_test, y_test = X_test[0:1000], y_test[0:1000]
+    # Normalize features to interclass/intraclass distance sum to 1.
+    if is_normalize:
+        X = normalize(X)
+    # Class-dependent multi-tree embedded GP (Tran 2019).
+    y_predict = [np.argmax(x) for x in X]
+    train_acc = balanced_accuracy_score(y, y_predict)
+    train_accs.append(train_acc)
 
-    # Stratified k-fold validation.
-    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
-
-    for train_idx, val_idx in skf.split(X_train, y_train):
-        X_train_fold, X_val = X_train[train_idx], X_train[val_idx]
-        y_train_fold, y_val = y_train[train_idx], y_train[val_idx]
-        
-        # Normalize features to interclass/intraclass distance sum to 1.
-        if is_normalize:
-            X_train_fold = normalize(X_train_fold)
-        # Class-dependent multi-tree embedded GP (Tran 2019).
-        y_predict = [np.argmax(x) for x in X_train_fold]
-        train_acc = balanced_accuracy_score(y_train_fold, y_predict)
-        train_accs.append(train_acc)
-
-        # 2x speedup: only evaluate test set in verbose mode.
-        if verbose:
-            if is_normalize:
-                X_val, X_test = normalize(X_val), normalize(X_test)
-
-            y_predict = [np.argmax(x) for x in X_val]
-            val_acc = balanced_accuracy_score(y_val, y_predict)
-            val_accs.append(val_acc)
-
-            y_predict = [np.argmax(x) for x in X_test]
-            test_acc = balanced_accuracy_score(y_test, y_predict)
-            test_accs.append(test_acc)
+    if verbose:
+        logger.info("Balanced Accuracy: %f", train_acc)
 
     # Mean and standard deviation for training accuracy.
     train_accuracy = np.mean(train_accs)
     train_std = np.std(train_accs)
 
     # Compute distances once for the entire dataset
-    train_intraclass_distance, train_interclass_distance = normalized_distances(X_train, y_train)
+    train_intraclass_distance, train_interclass_distance = normalized_distances(X, y)
 
-    # 2x speedup: only evaluate test set in verbose mode.
-    if verbose:
-        # Mean and standard deviation for val accuracy.
-        val_accuracy = np.mean(val_accs)
-        val_std = np.std(val_accs)
-        # Mean and standard deviation for test accuracy.
-        test_accuracy = np.mean(test_accs)
-        test_std = np.std(test_accs)
-        # Distance-based regularization method, intra/inter class distance.
-        val_intraclass_distance, val_interclass_distance = normalized_distances(X_val, y_val)
-        # Distance-based regularization method, intra/inter class distance.
-        test_intrarclass_distance, test_interclass_distance = normalized_distances(X_test, y_test)
-        # When verbose, give a full evaluation for an individual.
-        logger.info(f"Train accuracy: {train_accuracy} +- {train_std}")
-        logger.info(f"Val accuracy: {val_accuracy} +- {val_std}")
-        logger.info(f"Test accuracy: {test_accuracy} +- {test_std}")
-
-        logger.info(f"Train intra-class: {train_intraclass_distance}, Train Inter-class: {train_interclass_distance}")
-        logger.info(f"Val intra-class: {val_intraclass_distance}, Val Inter-class: {val_interclass_distance}")
-        logger.info(f"Test intra-class: {test_intrarclass_distance}, Test inter-class: {test_interclass_distance}")
-
-   # Alpha balances the inter-class/intra-class distance.
+    # Alpha balances the inter-class/intra-class distance.
     alpha = 0.5
     # Beta balances the accuracy and distance regularization term.
     beta = 0.8
@@ -269,6 +216,7 @@ def wrapper_classification_accuracy(
 
 def evaluate_classification(
         individual: Iterable, 
+        X: Iterable = None,
         verbose: bool = False, 
         toolbox: Toolbox = None, 
         pset: PrimitiveSetTyped = None, 
@@ -290,6 +238,6 @@ def evaluate_classification(
     Returns:
         accuracy (tuple(int,)): The fitness of the individual.
     """
-    features = toolbox.compile(expr=individual, pset=pset)
+    features = toolbox.compile(expr=individual, X=X, pset=pset)
     fitness = wrapper_classification_accuracy(X=features, y=y, verbose=verbose)
     return fitness,
