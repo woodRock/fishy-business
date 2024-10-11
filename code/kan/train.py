@@ -81,6 +81,8 @@ def train_model(
                 inputs, labels = inputs.to(device), labels.to(device)
                 optimizer.zero_grad()
                 outputs = model(inputs)
+                print(f"outputs: {outputs.shape}")
+                print(f"labels: {labels.shape}")
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
