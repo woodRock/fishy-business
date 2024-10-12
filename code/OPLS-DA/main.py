@@ -6,7 +6,7 @@ from sklearn.metrics import balanced_accuracy_score, classification_report
 from pyopls import OPLS
 from data import load_dataset
 
-dataset = "cross-species"
+dataset = "instance-recognition"
 X,y = load_dataset(dataset=dataset)
 
 # 1. Standardize the features
