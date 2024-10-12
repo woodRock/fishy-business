@@ -7,6 +7,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as lda
 from sklearn.ensemble import VotingClassifier
 from sklearn.naive_bayes import GaussianNB as nb
 from sklearn.svm import SVC as svm
+from pyopls import OPLS
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import balanced_accuracy_score
 from data import load_dataset
@@ -26,6 +27,7 @@ def run_experiments(datasets, runs=30):
             'nb': nb(),
             'rf': rf(),
             'svm': svm(kernel='linear'),
+            'opls': OPLS(),
             'ensemble': VotingClassifier(
                 estimators=[
                     ('knn', knn()),

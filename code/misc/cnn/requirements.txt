@@ -1,6 +1,0 @@
-numpy 
-sklearn 
-skfeature-chappers 
-tensorflow 
-matplotlib 
-scipy

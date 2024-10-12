@@ -83,16 +83,33 @@ def main():
     # pset = gp.PrimitiveSet("MAIN", n_features)
     pset = PrimitiveSetTyped("main", [float]*n_features, float)
 
+
+    def protectedDiv(left: np.ndarray, right: np.ndarray) -> np.ndarray:
+        return np.divide(left, right, out=np.ones_like(left, dtype=float), where=right!=0)
+
+    def add(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return x.astype(float) + y.astype(float)
+
+    def sub(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return x.astype(float) - y.astype(float)
+
+    def mul(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return x.astype(float) * y.astype(float)
+
+    def neg(x: np.ndarray) -> np.ndarray:
+        return -x.astype(float)
+    
     # Basic arithmetic
-    pset.addPrimitive(operator.add, [float, float], float, name="+")
-    pset.addPrimitive(operator.mul, [float, float], float, name="x")
-    pset.addPrimitive(operator.sub, [float, float], float, name="-")
-    pset.addPrimitive(operator.neg, [float], float, name="-1*")
+    pset.addPrimitive(protectedDiv, [float, float], float, name="/")
+    pset.addPrimitive(add, [float, float], float, name="+")
+    pset.addPrimitive(mul, [float, float], float, name="x")
+    pset.addPrimitive(sub, [float, float], float, name="-")
+    pset.addPrimitive(neg, [float], float, name="-1*")
 
     # Trigonometry
-    pset.addPrimitive(np.sin, [float], float, name="sin")
-    pset.addPrimitive(np.cos, [float], float, name="cos")
-    pset.addPrimitive(np.tan, [float], float, name="tan")
+    # pset.addPrimitive(np.sin, [float], float, name="sin")
+    # pset.addPrimitive(np.cos, [float], float, name="cos")
+    # pset.addPrimitive(np.tan, [float], float, name="tan")
     # pset.addEphemeralConstant("rand101", lambda: random.randint(-1,1))
         
     toolbox = base.Toolbox()
