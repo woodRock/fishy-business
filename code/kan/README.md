@@ -14,6 +14,11 @@ train = np.array([
     1.0000,
     1.0000,
     1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
 test = np.array([
     1.0000,
@@ -21,9 +26,16 @@ test = np.array([
     1.0000,
     1.0000,
     1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
-train.mean(), train.std()
-test.mean(), test.std()
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
 
 Part:
@@ -36,6 +48,11 @@ train = np.array([
     1.0000,
     1.0000,
     1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
 test = np.array([
     0.8333,
@@ -43,9 +60,16 @@ test = np.array([
     1.0000,
     1.0000,
     1.0000,
+    0.8333,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
-train.mean(), train.std()
-test.mean(), test.std()
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
 
 Oil:
@@ -58,6 +82,11 @@ train = np.array([
     1.0000,
     1.0000,
     1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
 test = np.array([
     0.7556,
@@ -65,9 +94,16 @@ test = np.array([
     1.0000,
     1.0000,
     1.0000,
+    0.6667,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
-train.mean(), train.std()
-test.mean(), test.std()
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
 
 Cross-species:
@@ -80,6 +116,11 @@ train = np.array([
     1.0000,
     1.0000,
     1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
 test = np.array([
     0.8487,
@@ -87,9 +128,16 @@ test = np.array([
     1.0000,
     1.0000,
     1.0000,
+    0.8648,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
 ])
-train.mean(), train.std()
-test.mean(), test.std()
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
 
 Instance recognition:
@@ -118,7 +166,7 @@ test = np.array([
     0.5860853432282004, 
     0.5189239332096475, 
     0.6459183673469387, 
-    0.6346011131725418
+    0.6346011131725418,
 ])
 train.mean(), train.std()
 test.mean(), test.std()
