@@ -1,0 +1,259 @@
+INFO:numexpr.utils:Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+INFO:numexpr.utils:NumExpr defaulting to 8 threads.
+INFO:__main__:gen	nevals	avg     	std     	min     	max     
+0  	200   	0.521996	0.118252	0.284391	0.815359
+INFO:__main__:1  	169   	0.430556	0.0894135	0.265565	0.76818 
+INFO:__main__:
+                    Generation 1: Best Fitness = 0.2656 
+                    Balanced accuracy: Train: 0.7100 
+                    Validation: 0.7482
+INFO:__main__:2  	166   	0.391981	0.0980017	0.24716 	0.741505
+INFO:__main__:
+                    Generation 2: Best Fitness = 0.2472 
+                    Balanced accuracy: Train: 0.7220 
+                    Validation: 0.6867
+INFO:__main__:3  	164   	0.362951	0.102715 	0.226072	0.746904
+INFO:__main__:
+                    Generation 3: Best Fitness = 0.2261 
+                    Balanced accuracy: Train: 0.7566 
+                    Validation: 0.7060
+INFO:__main__:4  	165   	0.347963	0.103226 	0.226072	0.783087
+INFO:__main__:
+                    Generation 4: Best Fitness = 0.2261 
+                    Balanced accuracy: Train: 0.7575 
+                    Validation: 0.7077
+INFO:__main__:5  	169   	0.330257	0.11344  	0.223343	0.749218
+INFO:__main__:
+                    Generation 5: Best Fitness = 0.2233 
+                    Balanced accuracy: Train: 0.7596 
+                    Validation: 0.7162
+INFO:__main__:6  	167   	0.319486	0.116009 	0.213607	0.739073
+INFO:__main__:
+                    Generation 6: Best Fitness = 0.2136 
+                    Balanced accuracy: Train: 0.7478 
+                    Validation: 0.6669
+INFO:__main__:7  	163   	0.296774	0.107644 	0.207334	0.854784
+INFO:__main__:
+                    Generation 7: Best Fitness = 0.2073 
+                    Balanced accuracy: Train: 0.7711 
+                    Validation: 0.6887
+INFO:__main__:8  	156   	0.287011	0.102042 	0.203997	0.732774
+INFO:__main__:
+                    Generation 8: Best Fitness = 0.2040 
+                    Balanced accuracy: Train: 0.7753 
+                    Validation: 0.6914
+INFO:__main__:9  	153   	0.274544	0.100918 	0.195921	0.76261 
+INFO:__main__:
+                    Generation 9: Best Fitness = 0.1959 
+                    Balanced accuracy: Train: 0.7696 
+                    Validation: 0.6833
+INFO:__main__:10 	167   	0.269341	0.10456  	0.177175	0.713326
+INFO:__main__:
+                    Generation 10: Best Fitness = 0.1772 
+                    Balanced accuracy: Train: 0.7868 
+                    Validation: 0.6672
+INFO:__main__:11 	171   	0.286195	0.126587 	0.177175	0.742147
+INFO:__main__:
+                    Generation 11: Best Fitness = 0.1772 
+                    Balanced accuracy: Train: 0.7806 
+                    Validation: 0.6656
+INFO:__main__:12 	170   	0.269667	0.119341 	0.177175	0.85027 
+INFO:__main__:
+                    Generation 12: Best Fitness = 0.1772 
+                    Balanced accuracy: Train: 0.7817 
+                    Validation: 0.6680
+INFO:__main__:13 	162   	0.254736	0.103825 	0.177175	0.761923
+INFO:__main__:
+                    Generation 13: Best Fitness = 0.1772 
+                    Balanced accuracy: Train: 0.7807 
+                    Validation: 0.6647
+INFO:__main__:14 	168   	0.251677	0.100259 	0.171861	0.730978
+INFO:__main__:
+                    Generation 14: Best Fitness = 0.1719 
+                    Balanced accuracy: Train: 0.8107 
+                    Validation: 0.6788
+INFO:__main__:15 	171   	0.254124	0.113329 	0.163286	0.745045
+INFO:__main__:
+                    Generation 15: Best Fitness = 0.1633 
+                    Balanced accuracy: Train: 0.8106 
+                    Validation: 0.6841
+INFO:__main__:16 	151   	0.232596	0.101813 	0.163286	0.759071
+INFO:__main__:
+                    Generation 16: Best Fitness = 0.1633 
+                    Balanced accuracy: Train: 0.8023 
+                    Validation: 0.6801
+INFO:__main__:17 	164   	0.251665	0.125724 	0.162916	0.735781
+INFO:__main__:
+                    Generation 17: Best Fitness = 0.1629 
+                    Balanced accuracy: Train: 0.8145 
+                    Validation: 0.6840
+INFO:__main__:18 	162   	0.25142 	0.125913 	0.162916	0.730759
+INFO:__main__:
+                    Generation 18: Best Fitness = 0.1629 
+                    Balanced accuracy: Train: 0.8132 
+                    Validation: 0.6844
+INFO:__main__:19 	152   	0.232027	0.106863 	0.162555	0.708259
+INFO:__main__:
+                    Generation 19: Best Fitness = 0.1626 
+                    Balanced accuracy: Train: 0.8132 
+                    Validation: 0.6840
+INFO:__main__:20 	154   	0.245949	0.124119 	0.146872	0.753136
+INFO:__main__:
+                    Generation 20: Best Fitness = 0.1469 
+                    Balanced accuracy: Train: 0.8333 
+                    Validation: 0.6840
+INFO:__main__:21 	169   	0.25011 	0.131972 	0.146651	0.705523
+INFO:__main__:
+                    Generation 21: Best Fitness = 0.1467 
+                    Balanced accuracy: Train: 0.8325 
+                    Validation: 0.6831
+INFO:__main__:22 	160   	0.256226	0.144959 	0.146082	0.812301
+INFO:__main__:
+                    Generation 22: Best Fitness = 0.1461 
+                    Balanced accuracy: Train: 0.8351 
+                    Validation: 0.6844
+INFO:__main__:23 	171   	0.239057	0.125904 	0.145611	0.740556
+INFO:__main__:
+                    Generation 23: Best Fitness = 0.1456 
+                    Balanced accuracy: Train: 0.8333 
+                    Validation: 0.6836
+INFO:__main__:24 	175   	0.226557	0.134695 	0.132023	0.885599
+INFO:__main__:
+                    Generation 24: Best Fitness = 0.1320 
+                    Balanced accuracy: Train: 0.8513 
+                    Validation: 0.6882
+INFO:__main__:25 	156   	0.2283  	0.126574 	0.132023	0.72691 
+INFO:__main__:
+                    Generation 25: Best Fitness = 0.1320 
+                    Balanced accuracy: Train: 0.8535 
+                    Validation: 0.6878
+INFO:__main__:26 	147   	0.221287	0.123424 	0.131694	0.667462
+INFO:__main__:
+                    Generation 26: Best Fitness = 0.1317 
+                    Balanced accuracy: Train: 0.8549 
+                    Validation: 0.6888
+INFO:__main__:27 	169   	0.234525	0.15136  	0.131332	0.91401 
+INFO:__main__:
+                    Generation 27: Best Fitness = 0.1313 
+                    Balanced accuracy: Train: 0.8500 
+                    Validation: 0.6903
+INFO:__main__:28 	159   	0.219425	0.123357 	0.131115	0.74838 
+INFO:__main__:
+                    Generation 28: Best Fitness = 0.1311 
+                    Balanced accuracy: Train: 0.8544 
+                    Validation: 0.6920
+INFO:__main__:29 	154   	0.222013	0.137372 	0.11767 	0.762017
+INFO:__main__:
+                    Generation 29: Best Fitness = 0.1177 
+                    Balanced accuracy: Train: 0.8675 
+                    Validation: 0.6861
+INFO:__main__:30 	160   	0.220683	0.137743 	0.11767 	0.755482
+INFO:__main__:
+                    Generation 30: Best Fitness = 0.1177 
+                    Balanced accuracy: Train: 0.8668 
+                    Validation: 0.6856
+INFO:__main__:31 	170   	0.223549	0.139884 	0.11767 	0.750494
+INFO:__main__:
+                    Generation 31: Best Fitness = 0.1177 
+                    Balanced accuracy: Train: 0.8663 
+                    Validation: 0.6864
+INFO:__main__:32 	168   	0.230505	0.146929 	0.115974	0.759545
+INFO:__main__:
+                    Generation 32: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8669 
+                    Validation: 0.6838
+INFO:__main__:33 	158   	0.214145	0.145083 	0.115974	0.783381
+INFO:__main__:
+                    Generation 33: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8673 
+                    Validation: 0.6875
+INFO:__main__:34 	160   	0.199586	0.131629 	0.115974	0.757689
+INFO:__main__:
+                    Generation 34: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8681 
+                    Validation: 0.6839
+INFO:__main__:35 	176   	0.213201	0.126149 	0.115974	0.635351
+INFO:__main__:
+                    Generation 35: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8671 
+                    Validation: 0.6871
+INFO:__main__:36 	165   	0.210943	0.14322  	0.115974	0.75926 
+INFO:__main__:
+                    Generation 36: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8660 
+                    Validation: 0.6880
+INFO:__main__:37 	160   	0.221281	0.155149 	0.115974	0.782211
+INFO:__main__:
+                    Generation 37: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8620 
+                    Validation: 0.6823
+INFO:__main__:38 	154   	0.211494	0.148559 	0.115974	0.728496
+INFO:__main__:
+                    Generation 38: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8673 
+                    Validation: 0.6855
+INFO:__main__:39 	165   	0.202099	0.126431 	0.115974	0.838591
+INFO:__main__:
+                    Generation 39: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8684 
+                    Validation: 0.6896
+INFO:__main__:40 	167   	0.236665	0.156455 	0.115974	0.772313
+INFO:__main__:
+                    Generation 40: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8690 
+                    Validation: 0.6875
+INFO:__main__:41 	164   	0.224104	0.150648 	0.115974	0.778449
+INFO:__main__:
+                    Generation 41: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8684 
+                    Validation: 0.6885
+INFO:__main__:42 	164   	0.213613	0.139601 	0.115974	0.693785
+INFO:__main__:
+                    Generation 42: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8646 
+                    Validation: 0.6912
+INFO:__main__:43 	161   	0.202211	0.128526 	0.115974	0.743256
+INFO:__main__:
+                    Generation 43: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8648 
+                    Validation: 0.6843
+INFO:__main__:44 	162   	0.206286	0.129245 	0.115974	0.737083
+INFO:__main__:
+                    Generation 44: Best Fitness = 0.1160 
+                    Balanced accuracy: Train: 0.8663 
+                    Validation: 0.6897
+INFO:__main__:45 	161   	0.191957	0.120096 	0.115271	0.68273 
+INFO:__main__:
+                    Generation 45: Best Fitness = 0.1153 
+                    Balanced accuracy: Train: 0.8657 
+                    Validation: 0.6828
+INFO:__main__:46 	163   	0.218541	0.154203 	0.114995	0.853916
+INFO:__main__:
+                    Generation 46: Best Fitness = 0.1150 
+                    Balanced accuracy: Train: 0.8709 
+                    Validation: 0.6496
+INFO:__main__:47 	168   	0.21544 	0.140773 	0.11438 	0.786187
+INFO:__main__:
+                    Generation 47: Best Fitness = 0.1144 
+                    Balanced accuracy: Train: 0.8716 
+                    Validation: 0.6469
+INFO:__main__:48 	158   	0.206917	0.135904 	0.113309	0.780801
+INFO:__main__:
+                    Generation 48: Best Fitness = 0.1133 
+                    Balanced accuracy: Train: 0.8694 
+                    Validation: 0.6507
+INFO:__main__:49 	175   	0.210509	0.132419 	0.113309	0.736611
+INFO:__main__:
+                    Generation 49: Best Fitness = 0.1133 
+                    Balanced accuracy: Train: 0.8725 
+                    Validation: 0.6548
+INFO:__main__:50 	163   	0.205363	0.133423 	0.110742	0.715122
+INFO:__main__:
+                    Generation 50: Best Fitness = 0.1107 
+                    Balanced accuracy: Train: 0.8771 
+                    Validation: 0.6702
+INFO:__main__:Best individual fitness on validation set: 0.2751258934681223
+INFO:__main__:Balanced Accuracy Score of the best individual on validation set: 0.6698
+INFO:__main__:Printing the GP trees
+INFO:__main__:Plotting the constructed features for the best individual.
+INFO:__main__:Feature visualization saved as 'figures/constructed_features.pdf'
