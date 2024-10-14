@@ -12,28 +12,24 @@ def pre_train_masked_spectra(
         model: Transformer, 
         num_epochs: int = 100, 
         train_loader: DataLoader = None, 
-        val_loader: DataLoader = None, 
         file_path: str = "transformer_checkpoint.pth", 
         device: Optional[Union[str, torch.device]] = None,
         criterion: CrossEntropyLoss = None,
         optimizer: AdamW = None,
-        mask_prob: float = 0.2,
-        n_features = 1023
+        n_features: int = 1023
     ) -> Transformer:
-    """ Masked spectra modelling.
+    """ Masked spectra modelling with progressive masking.
 
-    Randomly masks spectra with a given probability, and pre-trains the model in predicting those masked spectra.
+    Progressively masks spectra features and pre-trains the model in predicting those masked features.
 
     Args: 
         model (Transformer): the nn.Module for the transformer.
         num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
         train_loader (DataLoader): the torch DataLoader containing the training set.
-        val_loader (DataLoader) the torch DataLoader containing the validation set.
         file_path (str): the file path to store the model checkpoints to. Defaults to "transformer_checkpoint.pth"
         device (str, torch,device): the device to perform the operations on. Defaults to None.
         criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
         optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
-        mask_prob (float): the probability of masking a spectra. Defaults to 0.2
         n_features (int): the number of features. Defaults to 1023.
 
     Returns:
@@ -47,41 +43,36 @@ def pre_train_masked_spectra(
         total_loss = 0.0
         model.train()
 
-        for (x,_) in train_loader:
-            # Generate batch of data
-            tgt_x, x = x.to(device), x.to(device)
-
+        for (x, _) in train_loader:
+            x = x.to(device)
             batch_size = x.shape[0]
-            mask = torch.rand(batch_size, n_features) < mask_prob
-            mask = mask.to(device)
-            x[mask] = 0
 
-            optimizer.zero_grad()
-            outputs  = model(x, x)
-            loss = criterion(outputs, tgt_x)  # Compare predicted spectra with true spectra
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
+            # Progressive masking
+            for i in range(1, n_features):
+                # Mask all features from index i onwards
+                mask = torch.zeros(batch_size, n_features, dtype=torch.bool)
+                mask[:, i:] = True
+                mask = mask.to(device)
 
-        total_val_loss = 0.0
-        model.eval()
-        for (x,_) in val_loader:
-            tgt_x, x = x.to(device), x.to(device)
+                masked_x = x.clone()
+                masked_x[mask] = 0
 
-            val_batch_size = x.shape[0]
-            mask = torch.rand(val_batch_size, n_features) < mask_prob
-            mask = mask.to(device)
-            x[mask] = 0
+                optimizer.zero_grad()
+                outputs = model(masked_x, masked_x)
+                
+                # The target is the next feature (i-th feature)
+                target = x[:, i]
 
-            outputs = model(x, x)
-            val_loss = criterion(outputs, tgt_x)
-            total_val_loss += val_loss.item()
+                loss = criterion(outputs[:, i, :], target)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
 
         # Print average loss for the epoch
-        logger.info(f'Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/batch_size:.4f}, Val: {val_loss/val_batch_size:.4f}')
+        avg_train_loss = total_loss / (len(train_loader) * (n_features - 1))
+        logger.info(f'Epoch [{epoch+1}/{num_epochs}], Train Loss: {avg_train_loss:.4f}')
 
-    masked_spectra_prediction = model
-    torch.save(masked_spectra_prediction.state_dict(), file_path)
+    torch.save(model.state_dict(), file_path)
     return model
 
 

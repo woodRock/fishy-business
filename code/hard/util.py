@@ -10,43 +10,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from typing import Iterable, Tuple, Union
 
-class SiameseDataset(Dataset):
-    """ Generate a dataset of paired instances for contrastive learning. """
-    def __init__(self, samples, labels, pairs_per_sample=50):
-        self.samples = torch.tensor(samples, dtype=torch.float32)
-        self.labels = torch.from_numpy(np.vstack(labels).astype(float))
-        self.samples = F.normalize(self.samples, dim=1)
-        self.pairs_per_sample = pairs_per_sample
-        
-        # Create dictionaries to store indices for each class
-        self.class_indices = {}
-        for idx, label in enumerate(self.labels):
-            label_tuple = tuple(label.tolist())
-            if label_tuple not in self.class_indices:
-                self.class_indices[label_tuple] = []
-            self.class_indices[label_tuple].append(idx)
+class CustomDataset(Dataset):
+    def __init__(self, features, labels):
+        self.features = features
+        self.labels = labels
 
     def __len__(self):
-        return len(self.samples) * self.pairs_per_sample
+        return len(self.features)
 
     def __getitem__(self, idx):
-        # Determine the original sample index and pair number
-        sample_idx = idx // self.pairs_per_sample
-        X1, y1 = self.samples[sample_idx], self.labels[sample_idx]
-        
-        # 50% chance to choose a pair of the same class
-        if np.random.random() < 0.5:
-            same_class_indices = self.class_indices[tuple(y1.tolist())]
-            if len(same_class_indices) > 1:  # Ensure there's at least one other sample in the same class
-                idx2 = np.random.choice([i for i in same_class_indices if i != sample_idx])
-            else:
-                idx2 = np.random.choice(len(self.samples))  # If no other samples in the same class, choose randomly
-        else:
-            idx2 = np.random.choice(len(self.samples))  # Choose a random sample
-        
-        X2, y2 = self.samples[idx2], self.labels[idx2]
-        
-        return X1, X2, y1, y2
+        return self.features[idx], self.labels[idx]
 
 def load_from_file(
         path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
@@ -105,7 +78,7 @@ def one_hot_encoded_labels(dataset, data):
         le = LabelEncoder()
         y = le.fit_transform(y)
         n_classes = len(np.unique(y))
-        y = np.eye(n_classes)[y]
+        # y = np.eye(n_classes)[y]
     else: 
         raise ValueError(f"No valid dataset was specified: {dataset}")
     return y
@@ -131,8 +104,8 @@ def preprocess_dataset(dataset: str ="species", batch_size: int = 64) -> Union[D
     # Split your dataset into training and validation sets
     X_train, X_val, y_train, y_val = train_test_split(X, y, stratify=y, test_size=0.5, shuffle=True)
 
-    train_dataset = SiameseDataset(X_train, y_train)
-    val_dataset = SiameseDataset(X_val, y_val)
+    train_dataset = CustomDataset(X_train, y_train)
+    val_dataset = CustomDataset(X_val, y_val)
 
     # Create PyTorch DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)

@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 from typing import Iterable, Union
 
 def load_dataset(
@@ -107,6 +108,18 @@ def load_dataset(
         X,y = np.array(features), np.array(labels)
         # We don't want onehot encoding for multi-tree GP.
         # y = np.eye(2)[y]
+        return X,y
+    elif dataset == "instance-recognition-hard":
+        data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]    
+        X = data.iloc[:, 1:].to_numpy() 
+        # Take only the class label column.
+        y = data.iloc[:, 0].to_numpy()
+        X,y = np.array(X), np.array(y)
+        le = LabelEncoder()
+        y = le.fit_transform(y)
+        n_classes = len(np.unique(y))
+        # y = np.eye(n_classes)[y]
+        print(f"n_classes: {n_classes}")
         return X,y
     else: 
         # Return an excpetion if the dataset is not valid.

@@ -11,7 +11,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import balanced_accuracy_score
 from data import load_dataset
 
-def run_experiments(datasets, runs=30):
+def run_experiments(datasets, runs=30, k=3):
     results = {}
 
     for dataset in datasets:
@@ -47,7 +47,7 @@ def run_experiments(datasets, runs=30):
             test_accs = []
 
             for _ in range(runs):
-                skf = StratifiedKFold(n_splits=5)
+                skf = StratifiedKFold(n_splits=k)
                 k_fold_train_accs = []
                 k_fold_test_accs = []
 
@@ -62,6 +62,9 @@ def run_experiments(datasets, runs=30):
 
                     k_fold_train_accs.append(balanced_accuracy_score(y_train, train_pred))
                     k_fold_test_accs.append(balanced_accuracy_score(y_test, test_pred))
+
+                print(f"  {name}: {np.mean(k_fold_train_accs) * 100:.2f}\%")
+                print(f"  {name}: {np.mean(k_fold_test_accs) * 100:.2f}\%")
 
                 train_accs.append(np.mean(k_fold_train_accs))
                 test_accs.append(np.mean(k_fold_test_accs))
@@ -83,7 +86,8 @@ def run_experiments(datasets, runs=30):
     return results
 
 if __name__ == "__main__":
-    datasets = ["species", "part", "oil", "cross-species"]
+    # datasets = ["species", "part", "oil", "cross-species"]
+    datasets = ["instance-recognition-hard"]
     results = run_experiments(datasets)
 
     # Print results (for verification)
