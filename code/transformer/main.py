@@ -101,11 +101,10 @@ def main():
     output_dim = 1023
 
     logger.info(f"Reading the dataset: fish {args.dataset}")
-    
 
     if args.masked_spectra_modelling:
 
-        train_loader, val_loader, train_steps, val_steps, data = preprocess_dataset(
+        train_loader, data = preprocess_dataset(
             args.dataset, 
             args.data_augmentation, 
             batch_size=args.batch_size,
@@ -139,7 +138,6 @@ def main():
             model, 
             num_epochs=args.epochs,  
             train_loader=train_loader, 
-            val_loader=val_loader,
             device=device,
             criterion=criterion,
             optimizer=optimizer,
