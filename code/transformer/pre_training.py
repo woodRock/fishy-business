@@ -16,21 +16,21 @@ def pre_train_masked_spectra(
         device: Optional[Union[str, torch.device]] = None,
         criterion: CrossEntropyLoss = None,
         optimizer: AdamW = None,
-        n_features: int = 1023
+        n_features: int = 1023,
+        chunk_size: int = 50  # Number of masked features to process at once
     ) -> Transformer:
-    """ Masked spectra modelling with progressive masking.
-
-    Progressively masks spectra features and pre-trains the model in predicting those masked features.
+    """Masked spectra modelling with progressive masking.
 
     Args: 
         model (Transformer): the nn.Module for the transformer.
         num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
         train_loader (DataLoader): the torch DataLoader containing the training set.
         file_path (str): the file path to store the model checkpoints to. Defaults to "transformer_checkpoint.pth"
-        device (str, torch,device): the device to perform the operations on. Defaults to None.
+        device (str, torch.device): the device to perform the operations on. Defaults to None.
         criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
         optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
         n_features (int): the number of features. Defaults to 1023.
+        chunk_size (int): Number of masked features to process at once to reduce memory usage.
 
     Returns:
         model (Transformer): returns the pre-trained model.
@@ -46,28 +46,32 @@ def pre_train_masked_spectra(
         for (x, _) in train_loader:
             x = x.to(device)
             batch_size = x.shape[0]
+            
+            # Iterate through features in chunks to avoid memory overflow
+            for start_idx in range(1, n_features, chunk_size):
+                end_idx = min(start_idx + chunk_size, n_features)
 
-            # Progressive masking
-            for i in range(1, n_features):
-                # Mask all features from index i onwards
-                mask = torch.zeros(batch_size, n_features, dtype=torch.bool)
-                mask[:, i:] = True
-                mask = mask.to(device)
+                # Create mask for the current chunk
+                mask = torch.zeros(batch_size, n_features, dtype=torch.bool).to(device)
+                mask[:, start_idx:end_idx] = True
 
+                # Apply the mask
                 masked_x = x.clone()
                 masked_x[mask] = 0
 
+                # Forward pass
                 optimizer.zero_grad()
                 outputs = model(masked_x, masked_x)
-                
-                # The target is the next feature (i-th feature)
-                target = x[:, i]
 
-                loss = criterion(outputs[:, i, :], target)
+                # Target for the current chunk
+                target = x[:, start_idx:end_idx]
+
+                # Calculate loss for the chunk
+                loss = criterion(outputs[:, start_idx:end_idx], target)
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
-
+            
         # Print average loss for the epoch
         avg_train_loss = total_loss / (len(train_loader) * (n_features - 1))
         logger.info(f'Epoch [{epoch+1}/{num_epochs}], Train Loss: {avg_train_loss:.4f}')
