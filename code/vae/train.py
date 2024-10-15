@@ -1,3 +1,6 @@
+from tqdm import tqdm
+import logging
+import copy
 import numpy as np
 import torch
 import torch.nn as nn
@@ -5,8 +8,6 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import balanced_accuracy_score
-from tqdm import tqdm
-import logging
 from vae import VAE
 from plot import plot_accuracy
 from typing import Union
@@ -21,6 +22,9 @@ def train_model(
     n_splits: int = 5,
     device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
 ) -> nn.Module:
+
+    model_copy = copy.deepcopy(model)
+
     logger = logging.getLogger(__name__)
     
     # Extract dataset from DataLoader
@@ -47,10 +51,14 @@ def train_model(
     fold_val_losses = []
     fold_train_accuracies = []
     fold_val_accuracies = []
+    best_val_accuraties = []
 
     # Perform k-fold cross-validation
     for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
         logger.info(f"Fold {fold}/{n_splits}")
+
+        # Reset model to initial state
+        model = copy.deepcopy(model_copy)
 
         # Create data loaders for this fold
         train_subset = Subset(dataset, train_idx)
@@ -135,6 +143,7 @@ def train_model(
         fold_val_losses.append(val_losses)
         fold_train_accuracies.append(train_accuracies)
         fold_val_accuracies.append(val_accuracies)
+        best_val_accuraties.append(best_val_acc)
 
     # Calculate average performance across folds
     avg_train_losses = np.mean(fold_train_losses, axis=0)
@@ -152,6 +161,10 @@ def train_model(
 
     logger.info(f"Average final validation accuracy: {avg_val_accuracies[-1]:.4f}")
     
+    # Print the best validation accuracies
+    for fold, val_acc in enumerate(best_val_accuraties, 1):
+        print(f"{val_acc:.4f},")
+
     # Load the best model state
     model.load_state_dict(best_model)
     return model
