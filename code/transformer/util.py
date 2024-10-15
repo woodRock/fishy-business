@@ -144,7 +144,7 @@ def filter_dataset(
     if dataset == "species" or dataset == "part" or dataset == "cross-species":
         data = data[~data['m/z'].str.contains('MO')]
 
-    if dataset == "instance-recognition":
+    if dataset == "instance-recognition" or dataset == "instance-recognition-hard":
         data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]
     return data
 

@@ -76,7 +76,7 @@ def parse_arguments():
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
                         help="The learning rate for the model. Defaults to 1E-5.")
-    parser.add_argument('-bs', '--batch-size', type=int, default=256,
+    parser.add_argument('-bs', '--batch-size', type=int, default=32,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-hd', '--hidden-dimension', type=int, default=128,
                         help="The dimensionality of the hidden dimension. Defaults to 128")
@@ -257,7 +257,7 @@ def main():
     logger.info("Training the network")
     startTime = time.time()
 
-    # model = pre_train_transfer_learning(model=model, output_dim=n_classes)
+    model = pre_train_transfer_learning(model=model, output_dim=n_classes)
     
     # Train the model
     model = train_model(

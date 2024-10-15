@@ -141,6 +141,41 @@ mean, std = test.mean(), test.std()
 print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
 
+Instance-recognition hard:
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.2591,
+    0.3889,
+    0.3636,
+    0.4194,
+    0.3056,
+    0.4273,
+    0.3750,
+    0.2667,
+    0.3654,
+    0.3214,
+    0.3403,
+    0.3690
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
+
 # Experiments - with pre-trained weights
 
 Species
@@ -272,6 +307,38 @@ test = np.array([
     1.0000,
     0.9373,
     0.9296,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
+
+Instance-recognition hard:
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.3729,
+    0.3269,
+    0.3918,
+    0.2828,
+    0.2751,
+    0.4053,
+    0.3214,
+    0.3403,
+    0.3690,
 ])
 mean, std = train.mean(), train.std()
 print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
