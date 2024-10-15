@@ -7,6 +7,7 @@ import pandas as pd
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from transformer import Transformer
 from typing import Iterable, Tuple, Union
 
@@ -225,6 +226,16 @@ def one_hot_encoded_labels(dataset, data):
         X,y = np.array(features), np.array(labels)
         y = np.eye(2)[y]
         return X,y
+    elif dataset == "instance-recognition-hard":
+        X = data.iloc[:, 1:].to_numpy() 
+        # Take only the class label column.
+        y = data.iloc[:, 0].to_numpy()
+        X,y = np.array(X), np.array(y)
+        le = LabelEncoder()
+        y = le.fit_transform(y)
+        n_classes = len(np.unique(y))
+        y = np.eye(n_classes)[y]
+        return X,y
     else: 
         # Return an excpetion if the dataset is not valid.
         raise ValueError(f"No valid dataset was specified: {dataset}")
@@ -334,7 +345,7 @@ def preprocess_dataset(
     # For pre-training, keep all instances.
     if not is_pre_train:
         data = filter_dataset(dataset=dataset, data=data)
-    if (dataset == "instance-recognition"):
+    if (dataset == "instance-recognition" or dataset == "instance-recognition-hard"):
         X, y = one_hot_encoded_labels(dataset=dataset, data=data)
     else:
         y = one_hot_encoded_labels(dataset=dataset, data=data)
