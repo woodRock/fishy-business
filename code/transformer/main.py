@@ -257,7 +257,7 @@ def main():
     logger.info("Training the network")
     startTime = time.time()
 
-    model = pre_train_transfer_learning(model=model, output_dim=n_classes)
+    # model = pre_train_transfer_learning(model=model, output_dim=n_classes)
     
     # Train the model
     model = train_model(
