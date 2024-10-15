@@ -19,7 +19,7 @@ def train_model(
     optimizer: optim.Optimizer,
     num_epochs: int = 100,
     patience: int = 10,
-    n_splits: int = 5,
+    n_splits: int = 3,
     device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
 ) -> nn.Module:
     logger = logging.getLogger(__name__)
@@ -55,6 +55,7 @@ def train_model(
     # Perform k-fold cross-validation
     for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
         
+        # New model each fold.
         model = copy.deepcopy(model_copy)
         
         logger.info(f"Fold {fold}/{n_splits}")
