@@ -163,7 +163,7 @@ def train_model(
     # Print out all the best validation losses
     logger.info("Best validation losses for each fold:")
     for fold, loss in enumerate(best_val_losses, 1):
-        logger.info(f"\t{loss:.4f},")
+        print(f"{loss:.4f},")
     
     # Load the best model state
     model.load_state_dict(best_model)

@@ -5,7 +5,141 @@
 
 # Experiments - without pre-trained weights
 
+Species
 
+```python
+import numpy as np
+train = np.array([
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+])
+test = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    0.9615,
+    0.9615,
+    1.0000,
+    1.0000,
+    1.0000,
+    0.9615,
+    1.0000,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
+
+Part
+
+```python
+import numpy as np
+train = np.array([
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+    1.000,
+])
+test = np.array([
+    0.8333,
+    0.9000,
+    0.9000,
+    0.7500,
+    0.8889,
+    0.8333,
+    0.9000,
+    0.9000,
+    0.7500,
+    0.7500,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
+
+Oil
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.5884,
+    0.5083,
+    0.3725,
+    0.5306,
+    0.5111,
+    0.5731,
+    0.5595,
+    0.4778,
+    0.5067,
+    0.4667,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
+
+Cross-species
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.8586,
+    0.9327,
+    1.0000,
+    0.8246,
+    0.9259,
+    0.8333,
+    0.9333,
+    0.9744,
+    0.8690,
+    0.9394,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
 
 # Experiments - with pre-trained weights
 
