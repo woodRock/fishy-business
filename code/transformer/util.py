@@ -218,8 +218,8 @@ def one_hot_encoded_labels(dataset, data):
 
         all_possible_pairs = [((a, a_idx), (b, b_idx)) for a_idx, a in enumerate(X) for b_idx, b in enumerate(X[a_idx + 1:])]
         for (a, a_idx), (b, b_idx) in all_possible_pairs:
-            concatenated = np.concatenate((a, b))
-            # concatenated = np.abs(a - b)
+            # concatenated = np.concatenate((a, b))
+            concatenated = np.abs(a - b)
             label = int(y[a_idx] == y[b_idx])
             features.append(concatenated)
             labels.append(label)
