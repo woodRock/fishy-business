@@ -19,7 +19,7 @@ def train_model(
     optimizer: optim.Optimizer,
     num_epochs: int = 100,
     patience: int = 10,
-    n_splits: int = 3,
+    n_splits: int = 5,
     device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
 ) -> nn.Module:
     logger = logging.getLogger(__name__)
