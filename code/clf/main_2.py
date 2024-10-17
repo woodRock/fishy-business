@@ -1,7 +1,7 @@
 import numpy as np
 import torch 
 from torch.utils.data import DataLoader
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.tree import DecisionTreeClassifier as dt
@@ -63,7 +63,7 @@ def run_experiments(datasets, runs=30, k=5):
         models = {
             'knn': knn(class_weights=class_weights),
             'dt': dt(class_weight=class_weights),
-            'lor': lor(class_weight=class_weights),
+            'lor': lor(max_iter=2000,class_weight=class_weights),
             'lda': lda(class_weights=class_weights),
             'nb': nb(class_weights=class_weights),
             'rf': rf(class_weight=class_weights),
@@ -72,7 +72,7 @@ def run_experiments(datasets, runs=30, k=5):
                 estimators=[
                     ('knn', knn(class_weights=class_weights)),
                     ('dt', dt(class_weight=class_weights)),
-                    ('lor', lor(class_weight=class_weights)),
+                    ('lor', lor(max_iter=2000,class_weight=class_weights)),
                     ('lda', lda(class_weights=class_weights)),
                     ('nb', nb(class_weights=class_weights)),
                     ('rf', rf(class_weight=class_weights)),
@@ -89,28 +89,18 @@ def run_experiments(datasets, runs=30, k=5):
             test_accs = []
 
             for _ in range(runs):
-                skf = StratifiedKFold(n_splits=k)
-                k_fold_train_accs = []
-                k_fold_test_accs = []
+                X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.5)
+                model.fit(X_train, y_train)
 
-                for train_index, test_index in skf.split(X, y):
-                    X_train, X_test = X[train_index], X[test_index]
-                    y_train, y_test = y[train_index], y[test_index]
+                train_pred = model.predict(X_train)
+                test_pred = model.predict(X_test)
 
-                    model.fit(X_train, y_train)
+                train_acc = balanced_accuracy_score(y_train, train_pred)
+                test_acc = balanced_accuracy_score(y_test, test_pred)
 
-                    train_pred = model.predict(X_train)
-                    test_pred = model.predict(X_test)
-
-                    k_fold_train_accs.append(balanced_accuracy_score(y_train, train_pred))
-                    k_fold_test_accs.append(balanced_accuracy_score(y_test, test_pred))
-
-                print(f"  {name}: {np.mean(k_fold_train_accs) * 100:.2f}\%")
-                print(f"  {name}: {np.mean(k_fold_test_accs) * 100:.2f}\%")
-
-                train_accs.append(np.mean(k_fold_train_accs))
-                test_accs.append(np.mean(k_fold_test_accs))
-
+                train_accs.append(np.mean(train_acc))
+                test_accs.append(np.mean(test_acc))
+           
             train_mean = np.mean(train_accs) * 100
             train_std = np.std(train_accs) * 100
             test_mean = np.mean(test_accs) * 100

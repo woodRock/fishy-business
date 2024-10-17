@@ -101,8 +101,8 @@ def random_augmentation(
     return xs, ys
 
 def load_from_file(
-        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     """ Load the dataset from a file path.
 
@@ -216,9 +216,10 @@ def one_hot_encoded_labels(dataset, data):
 
         all_possible_pairs = [((a, a_idx), (b, b_idx)) for a_idx, a in enumerate(X) for b_idx, b in enumerate(X[a_idx + 1:])]
         for (a, a_idx), (b, b_idx) in all_possible_pairs:
-            concatenated = np.concatenate((a, b))
+            # concatenated = np.concatenate((a, b))
+            difference = a - b
             label = int(y[a_idx] == y[b_idx])
-            features.append(concatenated)
+            features.append(difference)
             labels.append(label)
         X,y = np.array(features), np.array(labels)
         y = np.eye(2)[y]
