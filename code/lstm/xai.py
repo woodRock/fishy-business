@@ -36,7 +36,7 @@ model = LSTM(
     input_size = 1023, 
     hidden_size = 128, 
     num_layers = 2, 
-    output_size = 7,
+    output_size = 3,
     dropout = 0.2
 )
 
@@ -44,7 +44,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 
 train_loader, data = preprocess_dataset(
-    dataset='oil',
+    dataset='cross-species',
     batch_size=256,
     is_data_augmentation=False,
     is_pre_train=False
@@ -80,7 +80,7 @@ wrapped_model = LSTMWrapper(model)
 data_iter = iter(train_loader)
 features, labels = next(data_iter)
 
-class_names = ['50','24','10','5','1','0.1', '0.0']
+class_names = ['Hoki-Mackerel', "Hoki", "Mackerel"]
 feature_names = data.axes[1].tolist()
 
 # Standardize the data
@@ -97,8 +97,17 @@ explainer = LimeTabularExplainer(
 )
 
 # Retrieve the first instance
-first_instance = features[0]
-first_instance_label = labels[0]
+instance = None
+label = None
+# Retrieve the first instance
+for f, l in zip(features, labels):
+    if torch.equal(l,torch.tensor([1,0,0])):
+        instance = f
+        label = l
+        break
+
+first_instance = instance
+first_instance_label = label
 
 print(f"first_instance_label: {first_instance_label}")
 

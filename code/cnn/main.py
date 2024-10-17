@@ -74,7 +74,7 @@ def parse_arguments():
                         help="The number of epochs to train the model for.")
     parser.add_argument('-lr', '--learning-rate', type=float, default=1E-7,
                         help="The learning rate for the model. Defaults to 1E-3.")
-    parser.add_argument('-bs', '--batch-size', type=int, default=256,
+    parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
 
     return parser.parse_args()
@@ -126,12 +126,10 @@ def main():
             model=model,
             num_epochs=args.epochs,
             train_loader=train_loader,
-            val_loader=val_loader,
             file_path='checkpoints/cnn_checkpoint.pth',
             device = device,
             criterion=criterion,
             optimizer=optimizer,
-            mask_prob=0.2
         )
 
     # Load the dataset.
