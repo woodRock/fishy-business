@@ -7049,3 +7049,14 @@ Notes:
 * Train-test split, then normalize the dataset. 
 * Difference vector :math:`sample_1 - sample_2`: the difference between two sample vectors. 
 * Write a report for the construction of the dataset. Justify the choice of each dataset.
+
+2024-10-17 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood
+
+* Progressive left-to-right masking, get 1023 instances per training sample. Pre-train the model on this dataset of progressive masking, then fine-tune on down-stream tasks.
+* Contrastive learning: (pair 1) & (pair 2) :math:`\to` encoder :math:`\to` embedding :math:`\to` distance measure :math:`\to` contrastive loss 
+* Binary classification (pair 1) & (pair 2) :math:`\to` concatenate or difference :math:`\to` binary classification :math:`\to` "same" or "different"
+* Transactions on Artificial Intelligence (TAI) is the journal we are targetting for this paper. 
+* Focus on the journal paper this week. Try and get it finished. 
+* Organize a meeting with Daniel to discuss instance recognition for batch detection. See what he thinks of batch detection research. 
