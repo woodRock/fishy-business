@@ -128,8 +128,7 @@ def run_experiments(datasets, runs=30, k=5):
     return results
 
 if __name__ == "__main__":
-    # datasets = ["species", "part", "oil", "cross-species"]
-    datasets = ["instance-recognition"]
+    datasets = ["species", "part", "oil", "cross-species"]
     results = run_experiments(datasets)
 
     # Print results (for verification)

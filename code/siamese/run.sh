@@ -11,5 +11,5 @@ ts -S 3
 for i in {1..10}; 
 do 
     # Run the experiments using the ts command.
-    ts -G 1 python3 vae.py
+    ts -G 1 python3 transformer.py
 done

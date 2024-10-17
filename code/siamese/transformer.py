@@ -138,7 +138,7 @@ def main():
     # Model parameters
     input_dim = next(iter(train_loader))[0].shape[1]  # Get input dimension from data
     d_model = 128
-    nhead = 4
+    nhead = 8
     num_layers = 2
     dim_feedforward = 256
     num_classes = 2  # Assuming binary classification, adjust if needed
