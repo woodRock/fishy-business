@@ -69,7 +69,7 @@ class ResidualBlock(nn.Module):
         return out
 
 class CNN(nn.Module):
-    def __init__(self, input_size, num_classes, dropout=0.2):
+    def __init__(self, input_size, num_classes, dropout=0.5):
         super(CNN, self).__init__()
         
         self.conv_layers = nn.Sequential(

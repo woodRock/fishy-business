@@ -54,7 +54,7 @@ def train_model(
 
     # Perform k-fold cross-validation
     for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
-        
+
         # New model each fold.
         model = copy.deepcopy(model_copy)
         
@@ -64,7 +64,7 @@ def train_model(
         train_subset = Subset(dataset, train_idx)
         val_subset = Subset(dataset, val_idx)
         fold_train_loader = DataLoader(train_subset, batch_size=train_loader.batch_size, shuffle=True)
-        fold_val_loader = DataLoader(val_subset, batch_size=train_loader.batch_size)
+        fold_val_loader = DataLoader(val_subset, batch_size=train_loader.batch_size, shuffle=True)
 
         # Initialize model, criterion, and optimizer
         model = model.to(device)
@@ -99,7 +99,7 @@ def train_model(
                 train_labels.extend(actual.cpu().numpy())
             
             train_loss /= len(fold_train_loader)
-            train_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            train_acc = balanced_accuracy_score(train_labels, train_labels)
             train_losses.append(train_loss)
             train_accuracies.append(train_acc)
 
@@ -117,10 +117,10 @@ def train_model(
                     _, predicted = outputs.max(1)
                     _, actual = labels.max(1)
                     val_preds.extend(predicted.cpu().numpy())
-                    val_labels.extend(labels.cpu().numpy())
+                    val_labels.extend(actual.cpu().numpy())
             
             val_loss /= len(fold_val_loader)
-            val_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            val_acc = balanced_accuracy_score(val_labels, val_preds)
             val_losses.append(val_loss)
             val_accuracies.append(val_acc)
 

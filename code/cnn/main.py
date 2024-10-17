@@ -124,7 +124,7 @@ def main():
 
         model = pre_train_masked_spectra(
             model=model,
-            num_epochs=args.epochs,
+            num_epochs=3,
             train_loader=train_loader,
             file_path='checkpoints/cnn_checkpoint.pth',
             device = device,
@@ -147,6 +147,12 @@ def main():
         dropout = args.dropout
     )
 
+    model = pre_train_transfer_learning(
+        model = model, 
+        file_path ='checkpoints/cnn_checkpoint.pth', 
+        output_dim = n_classes
+    )
+
     # If pre-trained, load the pre-trained model weights.
     if args.masked_spectra_modelling:
         model = pre_train_transfer_learning(
@@ -156,11 +162,14 @@ def main():
         )
 
     class_weights = calculate_class_weights(train_loader=train_loader)
+    # class_weights = torch.tensor([0.5, 0.5])
+    # print(f"class_weights: {class_weights}")
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     # Label smoothing (Szegedy 2016)
-    criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smoothing)
+    # criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smoothing)
+    criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
     # AdamW optimizer (Loshchilov 2017)
     optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
 

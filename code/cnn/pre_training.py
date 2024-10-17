@@ -120,7 +120,7 @@ def mask_right_side(
 
 def pre_train_transfer_learning(
         model: CNN, 
-        file_path: str = 'transformer_checkpoint.pth', 
+        file_path: str = 'checkpoints/cnn_checkpoint.pth', 
         output_dim: int = 2
     ) -> CNN:
     """ Loads the weights from a pre-trained model.

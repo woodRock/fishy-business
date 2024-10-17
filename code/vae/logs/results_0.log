@@ -1,993 +1,1323 @@
 INFO:train:Fold 1/5
-INFO:train:Epoch 1/100 - Train Loss: 1.0859, Train Acc: 0.5864, Val Loss: 1.0837, Val Acc: 0.4052
-INFO:train:Epoch 2/100 - Train Loss: 1.0903, Train Acc: 0.1765, Val Loss: 1.0727, Val Acc: 0.4167
-INFO:train:Epoch 3/100 - Train Loss: 1.0888, Train Acc: 0.1899, Val Loss: 1.0779, Val Acc: 0.4359
-INFO:train:Epoch 4/100 - Train Loss: 1.0870, Train Acc: 0.1889, Val Loss: 1.0898, Val Acc: 0.5000
-INFO:train:Epoch 5/100 - Train Loss: 1.0876, Train Acc: 0.2162, Val Loss: 1.0827, Val Acc: 0.3300
-INFO:train:Epoch 6/100 - Train Loss: 1.0863, Train Acc: 0.1222, Val Loss: 1.0965, Val Acc: 0.2554
-INFO:train:Epoch 7/100 - Train Loss: 1.0810, Train Acc: 0.4376, Val Loss: 1.1061, Val Acc: 0.1778
-INFO:train:Epoch 8/100 - Train Loss: 1.0844, Train Acc: 0.2839, Val Loss: 1.0743, Val Acc: 0.3360
-INFO:train:Epoch 9/100 - Train Loss: 1.0802, Train Acc: 0.3956, Val Loss: 1.0868, Val Acc: 0.3453
-INFO:train:Epoch 10/100 - Train Loss: 1.0907, Train Acc: 0.2027, Val Loss: 1.0821, Val Acc: 0.3838
-INFO:train:Epoch 11/100 - Train Loss: 1.0780, Train Acc: 0.4220, Val Loss: 1.0704, Val Acc: 0.4921
-INFO:train:Epoch 12/100 - Train Loss: 1.0722, Train Acc: 0.4246, Val Loss: 1.0837, Val Acc: 0.3376
-INFO:train:Epoch 13/100 - Train Loss: 1.0702, Train Acc: 0.3671, Val Loss: 1.0674, Val Acc: 0.4916
-INFO:train:Early stopping triggered after 14 epochs
-INFO:train:Best validation accuracy: 0.5000
-INFO:train:Epoch 14/100 - Train Loss: 1.0489, Train Acc: 0.6605, Val Loss: 1.0758, Val Acc: 0.4915
-INFO:train:Early stopping triggered after 15 epochs
-INFO:train:Best validation accuracy: 0.5000
-INFO:train:Epoch 15/100 - Train Loss: 1.0381, Train Acc: 0.6579, Val Loss: 1.0437, Val Acc: 0.3833
-INFO:train:Early stopping triggered after 16 epochs
-INFO:train:Best validation accuracy: 0.5000
-INFO:train:Epoch 16/100 - Train Loss: 1.0074, Train Acc: 0.5174, Val Loss: 1.0113, Val Acc: 0.4074
-INFO:train:Epoch 17/100 - Train Loss: 0.9845, Train Acc: 0.6667, Val Loss: 0.9657, Val Acc: 0.6146
-INFO:train:Epoch 18/100 - Train Loss: 0.9470, Train Acc: 0.8093, Val Loss: 0.9400, Val Acc: 0.6870
-INFO:train:Epoch 19/100 - Train Loss: 0.8985, Train Acc: 0.7938, Val Loss: 0.9125, Val Acc: 0.6795
-INFO:train:Epoch 20/100 - Train Loss: 0.8859, Train Acc: 0.8021, Val Loss: 0.9439, Val Acc: 0.7685
-INFO:train:Epoch 21/100 - Train Loss: 0.8543, Train Acc: 0.8254, Val Loss: 0.9352, Val Acc: 0.4444
-INFO:train:Epoch 22/100 - Train Loss: 0.8457, Train Acc: 0.8306, Val Loss: 0.9351, Val Acc: 0.5500
-INFO:train:Epoch 23/100 - Train Loss: 0.8352, Train Acc: 0.7524, Val Loss: 0.9049, Val Acc: 0.5123
-INFO:train:Epoch 24/100 - Train Loss: 0.8140, Train Acc: 0.8014, Val Loss: 0.9321, Val Acc: 0.5813
-INFO:train:Epoch 25/100 - Train Loss: 0.7874, Train Acc: 0.8128, Val Loss: 0.9421, Val Acc: 0.5000
-INFO:train:Epoch 26/100 - Train Loss: 0.7801, Train Acc: 0.8623, Val Loss: 0.9449, Val Acc: 0.5455
-INFO:train:Epoch 27/100 - Train Loss: 0.7816, Train Acc: 0.8207, Val Loss: 0.9292, Val Acc: 0.5397
-INFO:train:Epoch 28/100 - Train Loss: 0.7484, Train Acc: 0.9259, Val Loss: 0.9724, Val Acc: 0.5397
-INFO:train:Epoch 29/100 - Train Loss: 0.7367, Train Acc: 0.8740, Val Loss: 0.9567, Val Acc: 0.5897
-INFO:train:Early stopping triggered after 30 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 30/100 - Train Loss: 0.7354, Train Acc: 0.8532, Val Loss: 0.9691, Val Acc: 0.5397
-INFO:train:Early stopping triggered after 31 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 31/100 - Train Loss: 0.7228, Train Acc: 0.8642, Val Loss: 0.9731, Val Acc: 0.5571
-INFO:train:Early stopping triggered after 32 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 32/100 - Train Loss: 0.7130, Train Acc: 0.9188, Val Loss: 0.9323, Val Acc: 0.6397
-INFO:train:Early stopping triggered after 33 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 33/100 - Train Loss: 0.7218, Train Acc: 0.9061, Val Loss: 0.9505, Val Acc: 0.5727
-INFO:train:Early stopping triggered after 34 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 34/100 - Train Loss: 0.7096, Train Acc: 0.8299, Val Loss: 0.9750, Val Acc: 0.5397
-INFO:train:Early stopping triggered after 35 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 35/100 - Train Loss: 0.7074, Train Acc: 0.9267, Val Loss: 0.9233, Val Acc: 0.6501
-INFO:train:Early stopping triggered after 36 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 36/100 - Train Loss: 0.7376, Train Acc: 0.8522, Val Loss: 0.9473, Val Acc: 0.5788
-INFO:train:Early stopping triggered after 37 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 37/100 - Train Loss: 0.7693, Train Acc: 0.7902, Val Loss: 0.9250, Val Acc: 0.7071
-INFO:train:Early stopping triggered after 38 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 38/100 - Train Loss: 0.7538, Train Acc: 0.8542, Val Loss: 0.9422, Val Acc: 0.6095
-INFO:train:Early stopping triggered after 39 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 39/100 - Train Loss: 0.7363, Train Acc: 0.8304, Val Loss: 0.9243, Val Acc: 0.7353
-INFO:train:Early stopping triggered after 40 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 40/100 - Train Loss: 0.7499, Train Acc: 0.9048, Val Loss: 0.9025, Val Acc: 0.6793
-INFO:train:Early stopping triggered after 41 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 41/100 - Train Loss: 0.7020, Train Acc: 0.8743, Val Loss: 0.9230, Val Acc: 0.6149
-INFO:train:Early stopping triggered after 42 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 42/100 - Train Loss: 0.7524, Train Acc: 0.8766, Val Loss: 0.9082, Val Acc: 0.6394
-INFO:train:Early stopping triggered after 43 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 43/100 - Train Loss: 0.6993, Train Acc: 0.8315, Val Loss: 0.8958, Val Acc: 0.7667
-INFO:train:Early stopping triggered after 44 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 44/100 - Train Loss: 0.6983, Train Acc: 0.9062, Val Loss: 0.9008, Val Acc: 0.6889
-INFO:train:Early stopping triggered after 45 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 45/100 - Train Loss: 0.6719, Train Acc: 0.9558, Val Loss: 0.9019, Val Acc: 0.6143
-INFO:train:Early stopping triggered after 46 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 46/100 - Train Loss: 0.6853, Train Acc: 0.8701, Val Loss: 0.8657, Val Acc: 0.7130
-INFO:train:Early stopping triggered after 47 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 47/100 - Train Loss: 0.7071, Train Acc: 0.9545, Val Loss: 0.8647, Val Acc: 0.7130
-INFO:train:Early stopping triggered after 48 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 48/100 - Train Loss: 0.6825, Train Acc: 0.9190, Val Loss: 0.8722, Val Acc: 0.6952
-INFO:train:Early stopping triggered after 49 epochs
-INFO:train:Best validation accuracy: 0.7685
-INFO:train:Epoch 49/100 - Train Loss: 0.6945, Train Acc: 0.9163, Val Loss: 0.9200, Val Acc: 0.7342
-INFO:train:Epoch 50/100 - Train Loss: 0.6670, Train Acc: 0.9298, Val Loss: 0.8537, Val Acc: 0.7714
-INFO:train:Epoch 51/100 - Train Loss: 0.6657, Train Acc: 0.9683, Val Loss: 0.8142, Val Acc: 0.7891
-INFO:train:Epoch 52/100 - Train Loss: 0.6783, Train Acc: 0.8850, Val Loss: 0.8374, Val Acc: 0.7352
-INFO:train:Epoch 53/100 - Train Loss: 0.6783, Train Acc: 0.8991, Val Loss: 0.8423, Val Acc: 0.7546
-INFO:train:Epoch 54/100 - Train Loss: 0.6693, Train Acc: 0.9444, Val Loss: 0.8583, Val Acc: 0.7564
-INFO:train:Epoch 55/100 - Train Loss: 0.6893, Train Acc: 0.8958, Val Loss: 0.8985, Val Acc: 0.6520
-INFO:train:Epoch 56/100 - Train Loss: 0.7259, Train Acc: 0.8688, Val Loss: 0.8699, Val Acc: 0.7119
-INFO:train:Epoch 57/100 - Train Loss: 0.6821, Train Acc: 0.9833, Val Loss: 0.8629, Val Acc: 0.7902
-INFO:train:Epoch 58/100 - Train Loss: 0.7039, Train Acc: 0.9032, Val Loss: 0.8643, Val Acc: 0.8000
-INFO:train:Epoch 59/100 - Train Loss: 0.6691, Train Acc: 0.9333, Val Loss: 0.8192, Val Acc: 0.7727
-INFO:train:Epoch 60/100 - Train Loss: 0.6681, Train Acc: 0.9200, Val Loss: 0.8684, Val Acc: 0.6731
-INFO:train:Epoch 61/100 - Train Loss: 0.6548, Train Acc: 0.9329, Val Loss: 0.8388, Val Acc: 0.7788
-INFO:train:Epoch 62/100 - Train Loss: 0.6483, Train Acc: 0.9412, Val Loss: 0.8807, Val Acc: 0.6905
-INFO:train:Epoch 63/100 - Train Loss: 0.6645, Train Acc: 0.9407, Val Loss: 0.8956, Val Acc: 0.7667
-INFO:train:Epoch 64/100 - Train Loss: 0.6588, Train Acc: 0.9649, Val Loss: 0.8427, Val Acc: 0.7513
-INFO:train:Epoch 65/100 - Train Loss: 0.6404, Train Acc: 0.9792, Val Loss: 0.8419, Val Acc: 0.7183
-INFO:train:Epoch 66/100 - Train Loss: 0.6863, Train Acc: 0.8783, Val Loss: 0.8329, Val Acc: 0.7614
-INFO:train:Epoch 67/100 - Train Loss: 0.6479, Train Acc: 0.9855, Val Loss: 0.8354, Val Acc: 0.7061
-INFO:train:Early stopping triggered after 68 epochs
-INFO:train:Best validation accuracy: 0.8000
-INFO:train:Epoch 68/100 - Train Loss: 0.6436, Train Acc: 0.9545, Val Loss: 0.8490, Val Acc: 0.7682
-INFO:train:Early stopping triggered after 69 epochs
-INFO:train:Best validation accuracy: 0.8000
-INFO:train:Epoch 69/100 - Train Loss: 0.6564, Train Acc: 0.9848, Val Loss: 0.8844, Val Acc: 0.7532
-INFO:train:Early stopping triggered after 70 epochs
-INFO:train:Best validation accuracy: 0.8000
-INFO:train:Epoch 70/100 - Train Loss: 0.6599, Train Acc: 0.9375, Val Loss: 0.8869, Val Acc: 0.7153
-INFO:train:Early stopping triggered after 71 epochs
-INFO:train:Best validation accuracy: 0.8000
-INFO:train:Epoch 71/100 - Train Loss: 0.6588, Train Acc: 0.9094, Val Loss: 0.8584, Val Acc: 0.6952
-INFO:train:Early stopping triggered after 72 epochs
-INFO:train:Best validation accuracy: 0.8000
-INFO:train:Epoch 72/100 - Train Loss: 0.6534, Train Acc: 0.9538, Val Loss: 0.8692, Val Acc: 0.6752
-INFO:train:Early stopping triggered after 73 epochs
-INFO:train:Best validation accuracy: 0.8000
-INFO:train:Epoch 73/100 - Train Loss: 0.6996, Train Acc: 0.9420, Val Loss: 0.8018, Val Acc: 0.7980
-INFO:train:Epoch 74/100 - Train Loss: 0.6355, Train Acc: 0.9792, Val Loss: 0.8269, Val Acc: 0.8141
-INFO:train:Epoch 75/100 - Train Loss: 0.6499, Train Acc: 0.9365, Val Loss: 0.8664, Val Acc: 0.7692
-INFO:train:Epoch 76/100 - Train Loss: 0.6765, Train Acc: 0.9848, Val Loss: 0.8490, Val Acc: 0.7149
-INFO:train:Epoch 77/100 - Train Loss: 0.6409, Train Acc: 0.9804, Val Loss: 0.8592, Val Acc: 0.7119
-INFO:train:Epoch 78/100 - Train Loss: 0.6358, Train Acc: 0.9691, Val Loss: 0.8800, Val Acc: 0.6731
-INFO:train:Epoch 79/100 - Train Loss: 0.6382, Train Acc: 0.9815, Val Loss: 0.8506, Val Acc: 0.7183
-INFO:train:Epoch 80/100 - Train Loss: 0.6258, Train Acc: 0.9841, Val Loss: 0.7883, Val Acc: 0.8000
-INFO:train:Epoch 81/100 - Train Loss: 0.6399, Train Acc: 0.9608, Val Loss: 0.8318, Val Acc: 0.7891
-INFO:train:Epoch 82/100 - Train Loss: 0.6504, Train Acc: 0.9412, Val Loss: 0.8311, Val Acc: 0.7481
-INFO:train:Epoch 83/100 - Train Loss: 0.6364, Train Acc: 1.0000, Val Loss: 0.8560, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 84 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 84/100 - Train Loss: 0.6420, Train Acc: 0.9538, Val Loss: 0.8289, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 85 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 85/100 - Train Loss: 0.6342, Train Acc: 0.9630, Val Loss: 0.8027, Val Acc: 0.7588
-INFO:train:Early stopping triggered after 86 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 86/100 - Train Loss: 0.6314, Train Acc: 1.0000, Val Loss: 0.8563, Val Acc: 0.7183
-INFO:train:Early stopping triggered after 87 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 87/100 - Train Loss: 0.6294, Train Acc: 0.9608, Val Loss: 0.8527, Val Acc: 0.7183
-INFO:train:Early stopping triggered after 88 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 88/100 - Train Loss: 0.6337, Train Acc: 0.9649, Val Loss: 0.8288, Val Acc: 0.7614
-INFO:train:Early stopping triggered after 89 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 89/100 - Train Loss: 0.6441, Train Acc: 0.9565, Val Loss: 0.8004, Val Acc: 0.7614
-INFO:train:Early stopping triggered after 90 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 90/100 - Train Loss: 0.6394, Train Acc: 0.9500, Val Loss: 0.8217, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 91 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 91/100 - Train Loss: 0.6248, Train Acc: 1.0000, Val Loss: 0.8560, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 92 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 92/100 - Train Loss: 0.6303, Train Acc: 0.9630, Val Loss: 0.8467, Val Acc: 0.7427
-INFO:train:Early stopping triggered after 93 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 93/100 - Train Loss: 0.6271, Train Acc: 0.9841, Val Loss: 0.8645, Val Acc: 0.7119
-INFO:train:Early stopping triggered after 94 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 94/100 - Train Loss: 0.6615, Train Acc: 0.9833, Val Loss: 0.8503, Val Acc: 0.7183
-INFO:train:Early stopping triggered after 95 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 95/100 - Train Loss: 0.6233, Train Acc: 0.9778, Val Loss: 0.8124, Val Acc: 0.7749
-INFO:train:Early stopping triggered after 96 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 96/100 - Train Loss: 0.6251, Train Acc: 0.9804, Val Loss: 0.8254, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 97 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 97/100 - Train Loss: 0.6233, Train Acc: 0.9630, Val Loss: 0.8416, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 98 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 98/100 - Train Loss: 0.6260, Train Acc: 0.9804, Val Loss: 0.8357, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 99 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 99/100 - Train Loss: 0.6232, Train Acc: 0.9815, Val Loss: 0.8351, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 100 epochs
-INFO:train:Best validation accuracy: 0.8141
-INFO:train:Epoch 100/100 - Train Loss: 0.6209, Train Acc: 1.0000, Val Loss: 0.8526, Val Acc: 0.7149
-INFO:train:Fold 2/5
-INFO:train:Epoch 1/100 - Train Loss: 1.0819, Train Acc: 0.5192, Val Loss: 1.0900, Val Acc: 0.3095
-INFO:train:Epoch 2/100 - Train Loss: 1.0824, Train Acc: 0.4509, Val Loss: 1.0756, Val Acc: 0.1389
-INFO:train:Epoch 3/100 - Train Loss: 1.0910, Train Acc: 0.0943, Val Loss: 1.0710, Val Acc: 0.2903
-INFO:train:Epoch 4/100 - Train Loss: 1.0818, Train Acc: 0.4483, Val Loss: 1.0950, Val Acc: 0.6026
-INFO:train:Epoch 5/100 - Train Loss: 1.0878, Train Acc: 0.3681, Val Loss: 1.0743, Val Acc: 0.3990
-INFO:train:Epoch 6/100 - Train Loss: 1.0933, Train Acc: 0.2407, Val Loss: 1.0808, Val Acc: 0.3593
-INFO:train:Epoch 7/100 - Train Loss: 1.0814, Train Acc: 0.4339, Val Loss: 1.0945, Val Acc: 0.1786
-INFO:train:Epoch 8/100 - Train Loss: 1.0882, Train Acc: 0.2519, Val Loss: 1.0918, Val Acc: 0.3202
-INFO:train:Epoch 9/100 - Train Loss: 1.0855, Train Acc: 0.3488, Val Loss: 1.0797, Val Acc: 0.5129
-INFO:train:Epoch 10/100 - Train Loss: 1.0761, Train Acc: 0.4439, Val Loss: 1.0849, Val Acc: 0.2009
-INFO:train:Epoch 11/100 - Train Loss: 1.0771, Train Acc: 0.2872, Val Loss: 1.0854, Val Acc: 0.4762
-INFO:train:Epoch 12/100 - Train Loss: 1.0750, Train Acc: 0.3444, Val Loss: 1.0820, Val Acc: 0.3190
-INFO:train:Epoch 13/100 - Train Loss: 1.0689, Train Acc: 0.4438, Val Loss: 1.0688, Val Acc: 0.6852
-INFO:train:Epoch 14/100 - Train Loss: 1.0614, Train Acc: 0.5516, Val Loss: 1.0664, Val Acc: 0.3735
-INFO:train:Epoch 15/100 - Train Loss: 1.0495, Train Acc: 0.6637, Val Loss: 1.0342, Val Acc: 0.6286
-INFO:train:Epoch 16/100 - Train Loss: 1.0434, Train Acc: 0.4716, Val Loss: 1.0560, Val Acc: 0.4933
-INFO:train:Epoch 17/100 - Train Loss: 1.0115, Train Acc: 0.3783, Val Loss: 0.9757, Val Acc: 0.6128
-INFO:train:Epoch 18/100 - Train Loss: 0.9811, Train Acc: 0.5931, Val Loss: 0.9802, Val Acc: 0.5897
-INFO:train:Epoch 19/100 - Train Loss: 0.9440, Train Acc: 0.6074, Val Loss: 0.9973, Val Acc: 0.4318
-INFO:train:Epoch 20/100 - Train Loss: 0.9466, Train Acc: 0.6187, Val Loss: 0.9259, Val Acc: 0.6063
-INFO:train:Epoch 21/100 - Train Loss: 0.9111, Train Acc: 0.6467, Val Loss: 0.9223, Val Acc: 0.4635
-INFO:train:Epoch 22/100 - Train Loss: 0.9098, Train Acc: 0.7698, Val Loss: 0.9895, Val Acc: 0.3902
-INFO:train:Early stopping triggered after 23 epochs
-INFO:train:Best validation accuracy: 0.6852
-INFO:train:Epoch 23/100 - Train Loss: 0.8962, Train Acc: 0.7834, Val Loss: 0.9171, Val Acc: 0.6154
-INFO:train:Early stopping triggered after 24 epochs
-INFO:train:Best validation accuracy: 0.6852
-INFO:train:Epoch 24/100 - Train Loss: 0.8804, Train Acc: 0.6806, Val Loss: 0.9190, Val Acc: 0.6106
-INFO:train:Early stopping triggered after 25 epochs
-INFO:train:Best validation accuracy: 0.6852
-INFO:train:Epoch 25/100 - Train Loss: 0.8697, Train Acc: 0.7520, Val Loss: 0.9139, Val Acc: 0.5625
-INFO:train:Epoch 26/100 - Train Loss: 0.8469, Train Acc: 0.7731, Val Loss: 0.8904, Val Acc: 0.7798
-INFO:train:Epoch 27/100 - Train Loss: 0.8543, Train Acc: 0.7717, Val Loss: 0.8905, Val Acc: 0.6746
-INFO:train:Epoch 28/100 - Train Loss: 0.8407, Train Acc: 0.8503, Val Loss: 0.8728, Val Acc: 0.6944
-INFO:train:Epoch 29/100 - Train Loss: 0.8375, Train Acc: 0.7498, Val Loss: 0.9007, Val Acc: 0.5667
-INFO:train:Epoch 30/100 - Train Loss: 0.8348, Train Acc: 0.7569, Val Loss: 0.8553, Val Acc: 0.7667
-INFO:train:Epoch 31/100 - Train Loss: 0.8124, Train Acc: 0.7431, Val Loss: 0.8484, Val Acc: 0.7744
-INFO:train:Epoch 32/100 - Train Loss: 0.7849, Train Acc: 0.8550, Val Loss: 0.8358, Val Acc: 0.6942
-INFO:train:Epoch 33/100 - Train Loss: 0.8091, Train Acc: 0.8074, Val Loss: 0.8724, Val Acc: 0.6333
-INFO:train:Epoch 34/100 - Train Loss: 0.7947, Train Acc: 0.8080, Val Loss: 0.8313, Val Acc: 0.7266
-INFO:train:Epoch 35/100 - Train Loss: 0.7667, Train Acc: 0.8327, Val Loss: 0.8090, Val Acc: 0.8376
-INFO:train:Epoch 36/100 - Train Loss: 0.7721, Train Acc: 0.8077, Val Loss: 0.7964, Val Acc: 0.7987
-INFO:train:Epoch 37/100 - Train Loss: 0.7446, Train Acc: 0.8567, Val Loss: 0.7853, Val Acc: 0.7889
-INFO:train:Epoch 38/100 - Train Loss: 0.7340, Train Acc: 0.8164, Val Loss: 0.8106, Val Acc: 0.7579
-INFO:train:Epoch 39/100 - Train Loss: 0.7917, Train Acc: 0.7954, Val Loss: 0.7742, Val Acc: 0.8578
-INFO:train:Epoch 40/100 - Train Loss: 0.7429, Train Acc: 0.8838, Val Loss: 0.8425, Val Acc: 0.7758
-INFO:train:Epoch 41/100 - Train Loss: 0.7637, Train Acc: 0.8233, Val Loss: 0.7940, Val Acc: 0.7987
-INFO:train:Epoch 42/100 - Train Loss: 0.7278, Train Acc: 0.8974, Val Loss: 0.8091, Val Acc: 0.7492
-INFO:train:Epoch 43/100 - Train Loss: 0.7353, Train Acc: 0.8283, Val Loss: 0.8107, Val Acc: 0.8333
-INFO:train:Epoch 44/100 - Train Loss: 0.7018, Train Acc: 0.9333, Val Loss: 0.7580, Val Acc: 0.8370
-INFO:train:Epoch 45/100 - Train Loss: 0.7306, Train Acc: 0.8175, Val Loss: 0.8218, Val Acc: 0.8111
-INFO:train:Epoch 46/100 - Train Loss: 0.7400, Train Acc: 0.9132, Val Loss: 0.7472, Val Acc: 0.8376
-INFO:train:Epoch 47/100 - Train Loss: 0.6802, Train Acc: 0.9136, Val Loss: 0.8313, Val Acc: 0.7778
-INFO:train:Epoch 48/100 - Train Loss: 0.6949, Train Acc: 0.9206, Val Loss: 0.7812, Val Acc: 0.9167
-INFO:train:Epoch 49/100 - Train Loss: 0.6793, Train Acc: 0.9119, Val Loss: 0.6990, Val Acc: 0.9410
-INFO:train:Epoch 50/100 - Train Loss: 0.6602, Train Acc: 0.9365, Val Loss: 0.7445, Val Acc: 0.8424
-INFO:train:Epoch 51/100 - Train Loss: 0.7078, Train Acc: 0.9471, Val Loss: 0.7338, Val Acc: 0.9190
-INFO:train:Epoch 52/100 - Train Loss: 0.6604, Train Acc: 0.9526, Val Loss: 0.7550, Val Acc: 0.9153
-INFO:train:Epoch 53/100 - Train Loss: 0.6774, Train Acc: 0.9322, Val Loss: 0.8052, Val Acc: 0.8222
-INFO:train:Epoch 54/100 - Train Loss: 0.6802, Train Acc: 0.9329, Val Loss: 0.7556, Val Acc: 0.9167
-INFO:train:Epoch 55/100 - Train Loss: 0.6562, Train Acc: 0.9552, Val Loss: 0.6949, Val Acc: 0.9389
-INFO:train:Epoch 56/100 - Train Loss: 0.6710, Train Acc: 0.9259, Val Loss: 0.7176, Val Acc: 0.9019
-INFO:train:Epoch 57/100 - Train Loss: 0.6601, Train Acc: 0.9583, Val Loss: 0.7123, Val Acc: 0.8737
-INFO:train:Epoch 58/100 - Train Loss: 0.6360, Train Acc: 0.9608, Val Loss: 0.7468, Val Acc: 0.8635
-INFO:train:Early stopping triggered after 59 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 59/100 - Train Loss: 0.6383, Train Acc: 0.9848, Val Loss: 0.7650, Val Acc: 0.8464
-INFO:train:Early stopping triggered after 60 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 60/100 - Train Loss: 0.6393, Train Acc: 0.9710, Val Loss: 0.7311, Val Acc: 0.8821
-INFO:train:Early stopping triggered after 61 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 61/100 - Train Loss: 0.6522, Train Acc: 0.9668, Val Loss: 0.6947, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 62 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 62/100 - Train Loss: 0.6389, Train Acc: 0.9848, Val Loss: 0.6834, Val Acc: 0.9389
-INFO:train:Early stopping triggered after 63 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 63/100 - Train Loss: 0.6264, Train Acc: 1.0000, Val Loss: 0.7365, Val Acc: 0.8737
-INFO:train:Early stopping triggered after 64 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 64/100 - Train Loss: 0.6538, Train Acc: 0.9762, Val Loss: 0.7066, Val Acc: 0.8821
-INFO:train:Early stopping triggered after 65 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 65/100 - Train Loss: 0.6217, Train Acc: 0.9804, Val Loss: 0.7419, Val Acc: 0.8476
-INFO:train:Early stopping triggered after 66 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 66/100 - Train Loss: 0.6342, Train Acc: 0.9867, Val Loss: 0.7870, Val Acc: 0.8686
-INFO:train:Early stopping triggered after 67 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 67/100 - Train Loss: 0.6309, Train Acc: 1.0000, Val Loss: 0.7229, Val Acc: 0.8833
-INFO:train:Early stopping triggered after 68 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 68/100 - Train Loss: 0.6344, Train Acc: 0.9649, Val Loss: 0.7474, Val Acc: 0.8074
-INFO:train:Early stopping triggered after 69 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 69/100 - Train Loss: 0.6356, Train Acc: 0.9671, Val Loss: 0.7864, Val Acc: 0.8686
-INFO:train:Early stopping triggered after 70 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 70/100 - Train Loss: 0.6347, Train Acc: 1.0000, Val Loss: 0.7297, Val Acc: 0.8821
-INFO:train:Early stopping triggered after 71 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 71/100 - Train Loss: 0.6348, Train Acc: 0.9697, Val Loss: 0.7778, Val Acc: 0.8333
-INFO:train:Early stopping triggered after 72 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 72/100 - Train Loss: 0.6360, Train Acc: 0.9833, Val Loss: 0.7400, Val Acc: 0.8535
-INFO:train:Early stopping triggered after 73 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 73/100 - Train Loss: 0.6145, Train Acc: 1.0000, Val Loss: 0.7293, Val Acc: 0.8869
-INFO:train:Early stopping triggered after 74 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 74/100 - Train Loss: 0.6290, Train Acc: 0.9861, Val Loss: 0.7378, Val Acc: 0.8370
-INFO:train:Early stopping triggered after 75 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 75/100 - Train Loss: 0.6311, Train Acc: 0.9633, Val Loss: 0.7270, Val Acc: 0.8641
-INFO:train:Early stopping triggered after 76 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 76/100 - Train Loss: 0.6281, Train Acc: 0.9815, Val Loss: 0.7324, Val Acc: 0.8864
-INFO:train:Early stopping triggered after 77 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 77/100 - Train Loss: 0.6201, Train Acc: 0.9825, Val Loss: 0.7098, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 78 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 78/100 - Train Loss: 0.6211, Train Acc: 0.9833, Val Loss: 0.7747, Val Acc: 0.8686
-INFO:train:Early stopping triggered after 79 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 79/100 - Train Loss: 0.6486, Train Acc: 0.9543, Val Loss: 0.7305, Val Acc: 0.8917
-INFO:train:Early stopping triggered after 80 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 80/100 - Train Loss: 0.6133, Train Acc: 1.0000, Val Loss: 0.7452, Val Acc: 0.8671
-INFO:train:Early stopping triggered after 81 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 81/100 - Train Loss: 0.6363, Train Acc: 0.9792, Val Loss: 0.7545, Val Acc: 0.8535
-INFO:train:Early stopping triggered after 82 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 82/100 - Train Loss: 0.6134, Train Acc: 1.0000, Val Loss: 0.7046, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 83 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 83/100 - Train Loss: 0.6137, Train Acc: 1.0000, Val Loss: 0.7444, Val Acc: 0.8476
-INFO:train:Early stopping triggered after 84 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 84/100 - Train Loss: 0.6231, Train Acc: 1.0000, Val Loss: 0.7075, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 85 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 85/100 - Train Loss: 0.6182, Train Acc: 0.9792, Val Loss: 0.7404, Val Acc: 0.8535
-INFO:train:Early stopping triggered after 86 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 86/100 - Train Loss: 0.6366, Train Acc: 1.0000, Val Loss: 0.7384, Val Acc: 0.8821
-INFO:train:Early stopping triggered after 87 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 87/100 - Train Loss: 0.6231, Train Acc: 0.9804, Val Loss: 0.7206, Val Acc: 0.9333
-INFO:train:Early stopping triggered after 88 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 88/100 - Train Loss: 0.6154, Train Acc: 1.0000, Val Loss: 0.7446, Val Acc: 0.9000
-INFO:train:Early stopping triggered after 89 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 89/100 - Train Loss: 0.6131, Train Acc: 1.0000, Val Loss: 0.7695, Val Acc: 0.8476
-INFO:train:Early stopping triggered after 90 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 90/100 - Train Loss: 0.6149, Train Acc: 1.0000, Val Loss: 0.7145, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 91 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 91/100 - Train Loss: 0.6122, Train Acc: 1.0000, Val Loss: 0.7477, Val Acc: 0.8535
-INFO:train:Early stopping triggered after 92 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 92/100 - Train Loss: 0.6241, Train Acc: 0.9815, Val Loss: 0.7067, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 93 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 93/100 - Train Loss: 0.6119, Train Acc: 1.0000, Val Loss: 0.7235, Val Acc: 0.8737
-INFO:train:Early stopping triggered after 94 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 94/100 - Train Loss: 0.6177, Train Acc: 1.0000, Val Loss: 0.6940, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 95 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 95/100 - Train Loss: 0.6130, Train Acc: 1.0000, Val Loss: 0.6973, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 96 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 96/100 - Train Loss: 0.6156, Train Acc: 1.0000, Val Loss: 0.7049, Val Acc: 0.9117
-INFO:train:Early stopping triggered after 97 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 97/100 - Train Loss: 0.6128, Train Acc: 1.0000, Val Loss: 0.7085, Val Acc: 0.8869
-INFO:train:Early stopping triggered after 98 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 98/100 - Train Loss: 0.6122, Train Acc: 1.0000, Val Loss: 0.7174, Val Acc: 0.9190
-INFO:train:Early stopping triggered after 99 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 99/100 - Train Loss: 0.6231, Train Acc: 1.0000, Val Loss: 0.7401, Val Acc: 0.8535
-INFO:train:Early stopping triggered after 100 epochs
-INFO:train:Best validation accuracy: 0.9410
-INFO:train:Epoch 100/100 - Train Loss: 0.6167, Train Acc: 1.0000, Val Loss: 0.7229, Val Acc: 0.8821
-INFO:train:Fold 3/5
-INFO:train:Epoch 1/100 - Train Loss: 1.0828, Train Acc: 0.5470, Val Loss: 1.0835, Val Acc: 0.5556
-INFO:train:Epoch 2/100 - Train Loss: 1.0955, Train Acc: 0.2415, Val Loss: 1.0808, Val Acc: 0.4267
-INFO:train:Epoch 3/100 - Train Loss: 1.0850, Train Acc: 0.3758, Val Loss: 1.0960, Val Acc: 0.2694
-INFO:train:Epoch 4/100 - Train Loss: 1.0837, Train Acc: 0.2315, Val Loss: 1.0918, Val Acc: 0.2639
-INFO:train:Epoch 5/100 - Train Loss: 1.0815, Train Acc: 0.5386, Val Loss: 1.0849, Val Acc: 0.3289
-INFO:train:Epoch 6/100 - Train Loss: 1.0852, Train Acc: 0.3333, Val Loss: 1.0843, Val Acc: 0.3969
-INFO:train:Epoch 7/100 - Train Loss: 1.0848, Train Acc: 0.4557, Val Loss: 1.0734, Val Acc: 0.4707
-INFO:train:Epoch 8/100 - Train Loss: 1.0817, Train Acc: 0.3828, Val Loss: 1.0846, Val Acc: 0.2810
-INFO:train:Epoch 9/100 - Train Loss: 1.0854, Train Acc: 0.3760, Val Loss: 1.0906, Val Acc: 0.2894
-INFO:train:Epoch 10/100 - Train Loss: 1.0851, Train Acc: 0.3736, Val Loss: 1.0883, Val Acc: 0.4016
+INFO:train:Epoch 1/100 - Train Loss: 0.1574, Train Acc: 0.5021, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 2/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 3/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 4/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 5/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 6/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 7/100 - Train Loss: 0.1543, Train Acc: 0.5015, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 8/100 - Train Loss: 0.1549, Train Acc: 0.4955, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 9/100 - Train Loss: 0.1539, Train Acc: 0.5003, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Epoch 10/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 11 epochs
-INFO:train:Best validation accuracy: 0.5556
-INFO:train:Epoch 11/100 - Train Loss: 1.0785, Train Acc: 0.3759, Val Loss: 1.0957, Val Acc: 0.2000
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 11/100 - Train Loss: 0.1540, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 12 epochs
-INFO:train:Best validation accuracy: 0.5556
-INFO:train:Epoch 12/100 - Train Loss: 1.0703, Train Acc: 0.4022, Val Loss: 1.0987, Val Acc: 0.1201
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 12/100 - Train Loss: 0.1540, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 13 epochs
-INFO:train:Best validation accuracy: 0.5556
-INFO:train:Epoch 13/100 - Train Loss: 1.0693, Train Acc: 0.4883, Val Loss: 1.0831, Val Acc: 0.2647
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 13/100 - Train Loss: 0.1540, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 14 epochs
-INFO:train:Best validation accuracy: 0.5556
-INFO:train:Epoch 14/100 - Train Loss: 1.0610, Train Acc: 0.5078, Val Loss: 1.0656, Val Acc: 0.2963
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 14/100 - Train Loss: 0.1540, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 15 epochs
-INFO:train:Best validation accuracy: 0.5556
-INFO:train:Epoch 15/100 - Train Loss: 1.0534, Train Acc: 0.3600, Val Loss: 1.0758, Val Acc: 0.3046
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 15/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 16 epochs
-INFO:train:Best validation accuracy: 0.5556
-INFO:train:Epoch 16/100 - Train Loss: 1.0356, Train Acc: 0.5833, Val Loss: 1.0525, Val Acc: 0.5146
-INFO:train:Epoch 17/100 - Train Loss: 1.0119, Train Acc: 0.6179, Val Loss: 1.0374, Val Acc: 0.5684
-INFO:train:Epoch 18/100 - Train Loss: 0.9758, Train Acc: 0.6127, Val Loss: 0.9883, Val Acc: 0.5855
-INFO:train:Epoch 19/100 - Train Loss: 0.9374, Train Acc: 0.7030, Val Loss: 0.9616, Val Acc: 0.6881
-INFO:train:Epoch 20/100 - Train Loss: 0.9337, Train Acc: 0.6857, Val Loss: 0.9121, Val Acc: 0.6750
-INFO:train:Epoch 21/100 - Train Loss: 0.9165, Train Acc: 0.6724, Val Loss: 0.9193, Val Acc: 0.7045
-INFO:train:Epoch 22/100 - Train Loss: 0.8888, Train Acc: 0.6538, Val Loss: 0.8873, Val Acc: 0.7215
-INFO:train:Epoch 23/100 - Train Loss: 0.8826, Train Acc: 0.7986, Val Loss: 0.8629, Val Acc: 0.8494
-INFO:train:Epoch 24/100 - Train Loss: 0.8564, Train Acc: 0.8167, Val Loss: 0.8520, Val Acc: 0.7917
-INFO:train:Epoch 25/100 - Train Loss: 0.8476, Train Acc: 0.6972, Val Loss: 0.9007, Val Acc: 0.6627
-INFO:train:Epoch 26/100 - Train Loss: 0.8414, Train Acc: 0.8262, Val Loss: 0.8330, Val Acc: 0.8143
-INFO:train:Epoch 27/100 - Train Loss: 0.8619, Train Acc: 0.6128, Val Loss: 0.8704, Val Acc: 0.7417
-INFO:train:Epoch 28/100 - Train Loss: 0.8253, Train Acc: 0.7537, Val Loss: 0.8420, Val Acc: 0.8222
-INFO:train:Epoch 29/100 - Train Loss: 0.8252, Train Acc: 0.7865, Val Loss: 0.8242, Val Acc: 0.7720
-INFO:train:Epoch 30/100 - Train Loss: 0.8281, Train Acc: 0.7979, Val Loss: 0.8399, Val Acc: 0.8222
-INFO:train:Epoch 31/100 - Train Loss: 0.8311, Train Acc: 0.7000, Val Loss: 0.9027, Val Acc: 0.6667
-INFO:train:Epoch 32/100 - Train Loss: 0.8106, Train Acc: 0.7940, Val Loss: 0.8089, Val Acc: 0.8462
-INFO:train:Early stopping triggered after 33 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 33/100 - Train Loss: 0.8216, Train Acc: 0.8152, Val Loss: 0.8834, Val Acc: 0.7037
-INFO:train:Early stopping triggered after 34 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 34/100 - Train Loss: 0.8196, Train Acc: 0.7920, Val Loss: 0.8807, Val Acc: 0.7083
-INFO:train:Early stopping triggered after 35 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 35/100 - Train Loss: 0.7829, Train Acc: 0.8862, Val Loss: 0.8271, Val Acc: 0.8413
-INFO:train:Early stopping triggered after 36 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 36/100 - Train Loss: 0.8352, Train Acc: 0.7833, Val Loss: 0.8232, Val Acc: 0.8413
-INFO:train:Early stopping triggered after 37 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 37/100 - Train Loss: 0.8155, Train Acc: 0.8636, Val Loss: 0.9247, Val Acc: 0.6019
-INFO:train:Early stopping triggered after 38 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 38/100 - Train Loss: 0.8263, Train Acc: 0.7584, Val Loss: 0.9509, Val Acc: 0.5741
-INFO:train:Early stopping triggered after 39 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 39/100 - Train Loss: 0.7907, Train Acc: 0.8416, Val Loss: 0.8035, Val Acc: 0.8222
-INFO:train:Early stopping triggered after 40 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 40/100 - Train Loss: 0.8066, Train Acc: 0.7648, Val Loss: 0.8093, Val Acc: 0.8135
-INFO:train:Early stopping triggered after 41 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 41/100 - Train Loss: 0.8372, Train Acc: 0.8883, Val Loss: 0.8099, Val Acc: 0.7778
-INFO:train:Early stopping triggered after 42 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 42/100 - Train Loss: 0.7677, Train Acc: 0.7852, Val Loss: 0.9539, Val Acc: 0.6528
-INFO:train:Early stopping triggered after 43 epochs
-INFO:train:Best validation accuracy: 0.8494
-INFO:train:Epoch 43/100 - Train Loss: 0.8166, Train Acc: 0.8330, Val Loss: 0.8359, Val Acc: 0.7460
-INFO:train:Epoch 44/100 - Train Loss: 0.7451, Train Acc: 0.8820, Val Loss: 0.7508, Val Acc: 0.9188
-INFO:train:Epoch 45/100 - Train Loss: 0.8563, Train Acc: 0.6843, Val Loss: 0.7874, Val Acc: 0.7778
-INFO:train:Epoch 46/100 - Train Loss: 0.7491, Train Acc: 0.8318, Val Loss: 0.8665, Val Acc: 0.7222
-INFO:train:Epoch 47/100 - Train Loss: 0.7849, Train Acc: 0.7525, Val Loss: 0.8788, Val Acc: 0.7037
-INFO:train:Epoch 48/100 - Train Loss: 0.7535, Train Acc: 0.9089, Val Loss: 0.8077, Val Acc: 0.7648
-INFO:train:Epoch 49/100 - Train Loss: 0.7661, Train Acc: 0.8063, Val Loss: 0.7666, Val Acc: 0.8492
-INFO:train:Epoch 50/100 - Train Loss: 0.7549, Train Acc: 0.7826, Val Loss: 0.8771, Val Acc: 0.7222
-INFO:train:Epoch 51/100 - Train Loss: 0.7507, Train Acc: 0.8853, Val Loss: 0.8973, Val Acc: 0.6845
-INFO:train:Epoch 52/100 - Train Loss: 0.7356, Train Acc: 0.8611, Val Loss: 0.8039, Val Acc: 0.7778
-INFO:train:Epoch 53/100 - Train Loss: 0.7282, Train Acc: 0.8569, Val Loss: 0.7711, Val Acc: 0.8440
-INFO:train:Early stopping triggered after 54 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 54/100 - Train Loss: 0.7427, Train Acc: 0.8069, Val Loss: 0.7840, Val Acc: 0.8095
-INFO:train:Early stopping triggered after 55 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 55/100 - Train Loss: 0.7267, Train Acc: 0.8505, Val Loss: 0.8932, Val Acc: 0.6889
-INFO:train:Early stopping triggered after 56 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 56/100 - Train Loss: 0.7312, Train Acc: 0.8389, Val Loss: 0.8098, Val Acc: 0.7460
-INFO:train:Early stopping triggered after 57 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 57/100 - Train Loss: 0.6966, Train Acc: 0.9377, Val Loss: 0.7275, Val Acc: 0.8721
-INFO:train:Early stopping triggered after 58 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 58/100 - Train Loss: 0.7254, Train Acc: 0.8635, Val Loss: 0.7651, Val Acc: 0.8492
-INFO:train:Early stopping triggered after 59 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 59/100 - Train Loss: 0.7219, Train Acc: 0.8711, Val Loss: 0.9113, Val Acc: 0.6667
-INFO:train:Early stopping triggered after 60 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 60/100 - Train Loss: 0.7651, Train Acc: 0.8505, Val Loss: 0.8321, Val Acc: 0.7460
-INFO:train:Early stopping triggered after 61 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 61/100 - Train Loss: 0.7065, Train Acc: 0.8889, Val Loss: 0.7725, Val Acc: 0.8103
-INFO:train:Early stopping triggered after 62 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 62/100 - Train Loss: 0.7621, Train Acc: 0.8569, Val Loss: 0.7555, Val Acc: 0.8321
-INFO:train:Early stopping triggered after 63 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 63/100 - Train Loss: 0.7428, Train Acc: 0.8660, Val Loss: 0.7499, Val Acc: 0.8492
-INFO:train:Early stopping triggered after 64 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 64/100 - Train Loss: 0.6842, Train Acc: 0.9488, Val Loss: 0.9151, Val Acc: 0.6889
-INFO:train:Early stopping triggered after 65 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 65/100 - Train Loss: 0.7628, Train Acc: 0.8381, Val Loss: 0.8153, Val Acc: 0.7566
-INFO:train:Early stopping triggered after 66 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 66/100 - Train Loss: 0.6961, Train Acc: 0.8993, Val Loss: 0.8358, Val Acc: 0.8167
-INFO:train:Early stopping triggered after 67 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 67/100 - Train Loss: 0.7808, Train Acc: 0.8222, Val Loss: 0.7346, Val Acc: 0.8653
-INFO:train:Early stopping triggered after 68 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 68/100 - Train Loss: 0.6973, Train Acc: 0.9449, Val Loss: 0.9077, Val Acc: 0.6723
-INFO:train:Early stopping triggered after 69 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 69/100 - Train Loss: 0.7450, Train Acc: 0.8322, Val Loss: 0.8918, Val Acc: 0.6898
-INFO:train:Early stopping triggered after 70 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 70/100 - Train Loss: 0.7116, Train Acc: 0.9288, Val Loss: 0.7485, Val Acc: 0.8492
-INFO:train:Early stopping triggered after 71 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 71/100 - Train Loss: 0.6814, Train Acc: 0.9515, Val Loss: 0.7139, Val Acc: 0.9167
-INFO:train:Early stopping triggered after 72 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 72/100 - Train Loss: 0.7280, Train Acc: 0.8673, Val Loss: 0.7212, Val Acc: 0.8813
-INFO:train:Early stopping triggered after 73 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 73/100 - Train Loss: 0.6926, Train Acc: 0.9515, Val Loss: 0.7350, Val Acc: 0.8397
-INFO:train:Early stopping triggered after 74 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 74/100 - Train Loss: 0.6741, Train Acc: 0.9182, Val Loss: 0.8677, Val Acc: 0.7037
-INFO:train:Early stopping triggered after 75 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 75/100 - Train Loss: 0.7227, Train Acc: 0.8823, Val Loss: 0.8101, Val Acc: 0.8095
-INFO:train:Early stopping triggered after 76 epochs
-INFO:train:Best validation accuracy: 0.9188
-INFO:train:Epoch 76/100 - Train Loss: 0.6814, Train Acc: 0.8976, Val Loss: 0.7690, Val Acc: 0.8095
-INFO:train:Epoch 77/100 - Train Loss: 0.6880, Train Acc: 0.9322, Val Loss: 0.6697, Val Acc: 0.9394
-INFO:train:Epoch 78/100 - Train Loss: 0.6870, Train Acc: 0.9417, Val Loss: 0.6991, Val Acc: 0.9000
-INFO:train:Epoch 79/100 - Train Loss: 0.6620, Train Acc: 0.9387, Val Loss: 0.7532, Val Acc: 0.8232
-INFO:train:Epoch 80/100 - Train Loss: 0.6567, Train Acc: 0.9327, Val Loss: 0.7831, Val Acc: 0.8120
-INFO:train:Epoch 81/100 - Train Loss: 0.6549, Train Acc: 0.9744, Val Loss: 0.7566, Val Acc: 0.8301
-INFO:train:Epoch 82/100 - Train Loss: 0.7059, Train Acc: 0.8706, Val Loss: 0.7626, Val Acc: 0.8182
-INFO:train:Epoch 83/100 - Train Loss: 0.6653, Train Acc: 0.9427, Val Loss: 0.8136, Val Acc: 0.7798
-INFO:train:Epoch 84/100 - Train Loss: 0.6693, Train Acc: 0.9472, Val Loss: 0.7562, Val Acc: 0.8755
-INFO:train:Epoch 85/100 - Train Loss: 0.6603, Train Acc: 0.9630, Val Loss: 0.7097, Val Acc: 0.8755
-INFO:train:Epoch 86/100 - Train Loss: 0.6627, Train Acc: 0.9804, Val Loss: 0.6859, Val Acc: 0.9327
-INFO:train:Early stopping triggered after 87 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 87/100 - Train Loss: 0.6670, Train Acc: 0.9180, Val Loss: 0.7055, Val Acc: 0.8721
-INFO:train:Early stopping triggered after 88 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 88/100 - Train Loss: 0.6669, Train Acc: 0.8677, Val Loss: 0.7646, Val Acc: 0.8120
-INFO:train:Early stopping triggered after 89 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 89/100 - Train Loss: 0.6449, Train Acc: 0.9456, Val Loss: 0.7838, Val Acc: 0.7798
-INFO:train:Early stopping triggered after 90 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 90/100 - Train Loss: 0.6752, Train Acc: 0.9275, Val Loss: 0.7458, Val Acc: 0.8492
-INFO:train:Early stopping triggered after 91 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 91/100 - Train Loss: 0.6638, Train Acc: 0.9630, Val Loss: 0.7305, Val Acc: 0.8721
-INFO:train:Early stopping triggered after 92 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 92/100 - Train Loss: 0.7026, Train Acc: 0.9096, Val Loss: 0.7079, Val Acc: 0.9167
-INFO:train:Early stopping triggered after 93 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 93/100 - Train Loss: 0.6547, Train Acc: 0.9444, Val Loss: 0.7763, Val Acc: 0.7897
-INFO:train:Early stopping triggered after 94 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 94/100 - Train Loss: 0.6868, Train Acc: 0.8816, Val Loss: 0.7702, Val Acc: 0.8120
-INFO:train:Early stopping triggered after 95 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 95/100 - Train Loss: 0.6504, Train Acc: 0.9594, Val Loss: 0.7029, Val Acc: 0.9000
-INFO:train:Early stopping triggered after 96 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 96/100 - Train Loss: 0.6486, Train Acc: 0.9615, Val Loss: 0.7048, Val Acc: 0.9000
-INFO:train:Early stopping triggered after 97 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 97/100 - Train Loss: 0.6353, Train Acc: 0.9753, Val Loss: 0.7238, Val Acc: 0.8755
-INFO:train:Early stopping triggered after 98 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 98/100 - Train Loss: 0.6502, Train Acc: 0.9649, Val Loss: 0.7607, Val Acc: 0.8397
-INFO:train:Early stopping triggered after 99 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 99/100 - Train Loss: 0.6313, Train Acc: 1.0000, Val Loss: 0.6799, Val Acc: 0.9327
-INFO:train:Epoch 100/100 - Train Loss: 0.6371, Train Acc: 0.9855, Val Loss: 0.6727, Val Acc: 0.9667
-INFO:train:Fold 4/5
-INFO:train:Epoch 1/100 - Train Loss: 1.0871, Train Acc: 0.3231, Val Loss: 1.0879, Val Acc: 0.3000
-INFO:train:Epoch 2/100 - Train Loss: 1.0907, Train Acc: 0.2043, Val Loss: 1.0803, Val Acc: 0.2500
-INFO:train:Epoch 3/100 - Train Loss: 1.0833, Train Acc: 0.4255, Val Loss: 1.0775, Val Acc: 0.3889
-INFO:train:Epoch 4/100 - Train Loss: 1.0836, Train Acc: 0.4006, Val Loss: 1.0687, Val Acc: 0.6603
-INFO:train:Epoch 5/100 - Train Loss: 1.0827, Train Acc: 0.3927, Val Loss: 1.0887, Val Acc: 0.2270
-INFO:train:Epoch 6/100 - Train Loss: 1.0896, Train Acc: 0.2873, Val Loss: 1.0915, Val Acc: 0.1889
-INFO:train:Epoch 7/100 - Train Loss: 1.0837, Train Acc: 0.3188, Val Loss: 1.0892, Val Acc: 0.1667
-INFO:train:Epoch 8/100 - Train Loss: 1.0802, Train Acc: 0.2815, Val Loss: 1.0799, Val Acc: 0.2964
-INFO:train:Epoch 9/100 - Train Loss: 1.0831, Train Acc: 0.3278, Val Loss: 1.0794, Val Acc: 0.3104
-INFO:train:Epoch 10/100 - Train Loss: 1.0734, Train Acc: 0.6154, Val Loss: 1.0957, Val Acc: 0.0870
-INFO:train:Epoch 11/100 - Train Loss: 1.0766, Train Acc: 0.2727, Val Loss: 1.0811, Val Acc: 0.5159
-INFO:train:Epoch 12/100 - Train Loss: 1.0730, Train Acc: 0.4125, Val Loss: 1.0637, Val Acc: 0.4919
-INFO:train:Epoch 13/100 - Train Loss: 1.0638, Train Acc: 0.4392, Val Loss: 1.0722, Val Acc: 0.2997
-INFO:train:Early stopping triggered after 14 epochs
-INFO:train:Best validation accuracy: 0.6603
-INFO:train:Epoch 14/100 - Train Loss: 1.0595, Train Acc: 0.3502, Val Loss: 1.0692, Val Acc: 0.4444
-INFO:train:Early stopping triggered after 15 epochs
-INFO:train:Best validation accuracy: 0.6603
-INFO:train:Epoch 15/100 - Train Loss: 1.0367, Train Acc: 0.5439, Val Loss: 1.0602, Val Acc: 0.1200
-INFO:train:Early stopping triggered after 16 epochs
-INFO:train:Best validation accuracy: 0.6603
-INFO:train:Epoch 16/100 - Train Loss: 1.0303, Train Acc: 0.3600, Val Loss: 1.0417, Val Acc: 0.6126
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 16/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 17 epochs
-INFO:train:Best validation accuracy: 0.6603
-INFO:train:Epoch 17/100 - Train Loss: 1.0001, Train Acc: 0.6462, Val Loss: 1.0180, Val Acc: 0.5863
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 17/100 - Train Loss: 0.1540, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 18 epochs
-INFO:train:Best validation accuracy: 0.6603
-INFO:train:Epoch 18/100 - Train Loss: 0.9769, Train Acc: 0.7607, Val Loss: 0.9919, Val Acc: 0.4876
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 18/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 19 epochs
-INFO:train:Best validation accuracy: 0.6603
-INFO:train:Epoch 19/100 - Train Loss: 0.9370, Train Acc: 0.4851, Val Loss: 0.9724, Val Acc: 0.6500
-INFO:train:Epoch 20/100 - Train Loss: 0.9160, Train Acc: 0.6387, Val Loss: 0.9582, Val Acc: 0.6794
-INFO:train:Epoch 21/100 - Train Loss: 0.8798, Train Acc: 0.7326, Val Loss: 0.9449, Val Acc: 0.6667
-INFO:train:Epoch 22/100 - Train Loss: 0.8850, Train Acc: 0.7327, Val Loss: 0.9233, Val Acc: 0.4343
-INFO:train:Epoch 23/100 - Train Loss: 0.8627, Train Acc: 0.8431, Val Loss: 0.9190, Val Acc: 0.4599
-INFO:train:Epoch 24/100 - Train Loss: 0.8550, Train Acc: 0.6584, Val Loss: 0.8990, Val Acc: 0.8105
-INFO:train:Epoch 25/100 - Train Loss: 0.8637, Train Acc: 0.7333, Val Loss: 0.9000, Val Acc: 0.7249
-INFO:train:Epoch 26/100 - Train Loss: 0.8582, Train Acc: 0.7745, Val Loss: 0.9466, Val Acc: 0.5670
-INFO:train:Epoch 27/100 - Train Loss: 0.8307, Train Acc: 0.8234, Val Loss: 0.8912, Val Acc: 0.7639
-INFO:train:Epoch 28/100 - Train Loss: 0.8390, Train Acc: 0.7536, Val Loss: 0.8882, Val Acc: 0.6704
-INFO:train:Epoch 29/100 - Train Loss: 0.7975, Train Acc: 0.7224, Val Loss: 0.9445, Val Acc: 0.6509
-INFO:train:Epoch 30/100 - Train Loss: 0.7794, Train Acc: 0.7920, Val Loss: 0.8956, Val Acc: 0.7458
-INFO:train:Epoch 31/100 - Train Loss: 0.7892, Train Acc: 0.8555, Val Loss: 0.9058, Val Acc: 0.6878
-INFO:train:Epoch 32/100 - Train Loss: 0.7857, Train Acc: 0.8190, Val Loss: 0.9292, Val Acc: 0.5944
-INFO:train:Epoch 33/100 - Train Loss: 0.7594, Train Acc: 0.8689, Val Loss: 0.8319, Val Acc: 0.7619
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 19/100 - Train Loss: 0.1540, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 20 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 20/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 21 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 21/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 22 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 22/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 23 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 23/100 - Train Loss: 0.1549, Train Acc: 0.4988, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 24 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 24/100 - Train Loss: 0.1536, Train Acc: 0.5000, Val Loss: 0.1534, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 25 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 25/100 - Train Loss: 0.1537, Train Acc: 0.5000, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 26 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 26/100 - Train Loss: 0.1534, Train Acc: 0.5000, Val Loss: 0.1540, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 27 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 27/100 - Train Loss: 0.1533, Train Acc: 0.5003, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 28 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 28/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1543, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 29 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 29/100 - Train Loss: 0.1539, Train Acc: 0.5000, Val Loss: 0.1541, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 30 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 30/100 - Train Loss: 0.1541, Train Acc: 0.5000, Val Loss: 0.1537, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 31 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 31/100 - Train Loss: 0.1530, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 32 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 32/100 - Train Loss: 0.1528, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 33 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 33/100 - Train Loss: 0.1521, Train Acc: 0.5000, Val Loss: 0.1519, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 34 epochs
-INFO:train:Best validation accuracy: 0.8105
-INFO:train:Epoch 34/100 - Train Loss: 0.8089, Train Acc: 0.7950, Val Loss: 0.8967, Val Acc: 0.6138
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 34/100 - Train Loss: 0.1511, Train Acc: 0.5054, Val Loss: 0.1528, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 35 epochs
-INFO:train:Best validation accuracy: 0.8105
-INFO:train:Epoch 35/100 - Train Loss: 0.7236, Train Acc: 0.8816, Val Loss: 0.9092, Val Acc: 0.7298
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 35/100 - Train Loss: 0.1510, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 36 epochs
-INFO:train:Best validation accuracy: 0.8105
-INFO:train:Epoch 36/100 - Train Loss: 0.7522, Train Acc: 0.8661, Val Loss: 0.8935, Val Acc: 0.6878
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 36/100 - Train Loss: 0.1511, Train Acc: 0.5000, Val Loss: 0.1519, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 37 epochs
-INFO:train:Best validation accuracy: 0.8105
-INFO:train:Epoch 37/100 - Train Loss: 0.7239, Train Acc: 0.8952, Val Loss: 0.8898, Val Acc: 0.6098
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 37/100 - Train Loss: 0.1505, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 38 epochs
-INFO:train:Best validation accuracy: 0.8105
-INFO:train:Epoch 38/100 - Train Loss: 0.7398, Train Acc: 0.8436, Val Loss: 0.8736, Val Acc: 0.6987
-INFO:train:Epoch 39/100 - Train Loss: 0.7030, Train Acc: 0.8942, Val Loss: 0.8190, Val Acc: 0.8385
-INFO:train:Epoch 40/100 - Train Loss: 0.6908, Train Acc: 0.9524, Val Loss: 0.8855, Val Acc: 0.7329
-INFO:train:Epoch 41/100 - Train Loss: 0.6958, Train Acc: 0.9246, Val Loss: 0.8407, Val Acc: 0.8238
-INFO:train:Epoch 42/100 - Train Loss: 0.7080, Train Acc: 0.8677, Val Loss: 0.8572, Val Acc: 0.7048
-INFO:train:Epoch 43/100 - Train Loss: 0.6945, Train Acc: 0.9630, Val Loss: 0.8906, Val Acc: 0.6250
-INFO:train:Epoch 44/100 - Train Loss: 0.7217, Train Acc: 0.8690, Val Loss: 0.8660, Val Acc: 0.7222
-INFO:train:Epoch 45/100 - Train Loss: 0.6900, Train Acc: 0.9164, Val Loss: 0.8307, Val Acc: 0.7675
-INFO:train:Epoch 46/100 - Train Loss: 0.6928, Train Acc: 0.8730, Val Loss: 0.8596, Val Acc: 0.7963
-INFO:train:Epoch 47/100 - Train Loss: 0.7051, Train Acc: 0.9352, Val Loss: 0.8622, Val Acc: 0.7917
-INFO:train:Epoch 48/100 - Train Loss: 0.6713, Train Acc: 0.9583, Val Loss: 0.7916, Val Acc: 0.8586
-INFO:train:Epoch 49/100 - Train Loss: 0.6854, Train Acc: 0.8726, Val Loss: 0.8508, Val Acc: 0.6818
-INFO:train:Epoch 50/100 - Train Loss: 0.6734, Train Acc: 0.9667, Val Loss: 0.8281, Val Acc: 0.7667
-INFO:train:Epoch 51/100 - Train Loss: 0.6638, Train Acc: 0.9259, Val Loss: 0.8403, Val Acc: 0.8028
-INFO:train:Epoch 52/100 - Train Loss: 0.7084, Train Acc: 0.8566, Val Loss: 0.8741, Val Acc: 0.7819
-INFO:train:Epoch 53/100 - Train Loss: 0.6816, Train Acc: 0.9444, Val Loss: 0.8096, Val Acc: 0.8385
-INFO:train:Epoch 54/100 - Train Loss: 0.6617, Train Acc: 0.9696, Val Loss: 0.9221, Val Acc: 0.6264
-INFO:train:Epoch 55/100 - Train Loss: 0.6917, Train Acc: 0.9093, Val Loss: 0.8137, Val Acc: 0.8232
-INFO:train:Epoch 56/100 - Train Loss: 0.6730, Train Acc: 0.9016, Val Loss: 0.8365, Val Acc: 0.8268
-INFO:train:Epoch 57/100 - Train Loss: 0.7279, Train Acc: 0.8909, Val Loss: 0.8453, Val Acc: 0.7917
-INFO:train:Early stopping triggered after 58 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 58/100 - Train Loss: 0.6650, Train Acc: 0.9490, Val Loss: 0.8819, Val Acc: 0.7250
-INFO:train:Early stopping triggered after 59 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 59/100 - Train Loss: 0.6725, Train Acc: 0.8980, Val Loss: 0.7841, Val Acc: 0.7694
-INFO:train:Early stopping triggered after 60 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 60/100 - Train Loss: 0.6699, Train Acc: 0.9655, Val Loss: 0.7757, Val Acc: 0.8487
-INFO:train:Early stopping triggered after 61 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 61/100 - Train Loss: 0.6545, Train Acc: 0.9491, Val Loss: 0.8444, Val Acc: 0.8028
-INFO:train:Early stopping triggered after 62 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 62/100 - Train Loss: 0.6366, Train Acc: 0.9583, Val Loss: 0.8983, Val Acc: 0.7481
-INFO:train:Early stopping triggered after 63 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 63/100 - Train Loss: 0.6733, Train Acc: 0.9298, Val Loss: 0.8700, Val Acc: 0.7759
-INFO:train:Early stopping triggered after 64 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 64/100 - Train Loss: 0.6556, Train Acc: 0.9474, Val Loss: 0.8116, Val Acc: 0.7694
-INFO:train:Early stopping triggered after 65 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 65/100 - Train Loss: 0.6538, Train Acc: 0.9686, Val Loss: 0.8174, Val Acc: 0.6823
-INFO:train:Early stopping triggered after 66 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 66/100 - Train Loss: 0.6623, Train Acc: 0.9568, Val Loss: 0.8108, Val Acc: 0.7667
-INFO:train:Early stopping triggered after 67 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 67/100 - Train Loss: 0.6432, Train Acc: 0.9804, Val Loss: 0.8830, Val Acc: 0.7819
-INFO:train:Early stopping triggered after 68 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 68/100 - Train Loss: 0.6463, Train Acc: 0.9825, Val Loss: 0.9264, Val Acc: 0.7515
-INFO:train:Early stopping triggered after 69 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 69/100 - Train Loss: 0.6653, Train Acc: 0.9325, Val Loss: 0.8620, Val Acc: 0.7917
-INFO:train:Early stopping triggered after 70 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 70/100 - Train Loss: 0.6363, Train Acc: 0.9583, Val Loss: 0.8050, Val Acc: 0.8268
-INFO:train:Early stopping triggered after 71 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 71/100 - Train Loss: 0.6419, Train Acc: 0.9841, Val Loss: 0.7722, Val Acc: 0.8586
-INFO:train:Early stopping triggered after 72 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 72/100 - Train Loss: 0.6572, Train Acc: 0.9314, Val Loss: 0.8944, Val Acc: 0.6856
-INFO:train:Early stopping triggered after 73 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 73/100 - Train Loss: 0.6611, Train Acc: 0.9377, Val Loss: 0.9021, Val Acc: 0.7153
-INFO:train:Early stopping triggered after 74 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 74/100 - Train Loss: 0.6741, Train Acc: 0.9306, Val Loss: 0.8846, Val Acc: 0.7963
-INFO:train:Early stopping triggered after 75 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 75/100 - Train Loss: 0.6723, Train Acc: 0.9030, Val Loss: 0.8237, Val Acc: 0.8268
-INFO:train:Early stopping triggered after 76 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 76/100 - Train Loss: 0.6447, Train Acc: 0.9667, Val Loss: 0.8699, Val Acc: 0.6889
-INFO:train:Early stopping triggered after 77 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 77/100 - Train Loss: 0.6698, Train Acc: 0.9321, Val Loss: 0.9106, Val Acc: 0.6630
-INFO:train:Early stopping triggered after 78 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 78/100 - Train Loss: 0.6758, Train Acc: 0.9770, Val Loss: 0.8140, Val Acc: 0.8440
-INFO:train:Early stopping triggered after 79 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 79/100 - Train Loss: 0.6631, Train Acc: 0.9198, Val Loss: 0.8129, Val Acc: 0.8268
-INFO:train:Early stopping triggered after 80 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 80/100 - Train Loss: 0.6527, Train Acc: 0.9365, Val Loss: 0.8726, Val Acc: 0.7963
-INFO:train:Early stopping triggered after 81 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 81/100 - Train Loss: 0.6298, Train Acc: 0.9649, Val Loss: 0.9153, Val Acc: 0.6878
-INFO:train:Early stopping triggered after 82 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 82/100 - Train Loss: 0.6418, Train Acc: 0.9600, Val Loss: 0.8783, Val Acc: 0.7222
-INFO:train:Early stopping triggered after 83 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 83/100 - Train Loss: 0.6319, Train Acc: 0.9792, Val Loss: 0.7822, Val Acc: 0.7870
-INFO:train:Early stopping triggered after 84 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 84/100 - Train Loss: 0.6449, Train Acc: 0.9676, Val Loss: 0.7788, Val Acc: 0.8306
-INFO:train:Early stopping triggered after 85 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 85/100 - Train Loss: 0.6280, Train Acc: 1.0000, Val Loss: 0.8835, Val Acc: 0.7222
-INFO:train:Early stopping triggered after 86 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 86/100 - Train Loss: 0.6267, Train Acc: 0.9855, Val Loss: 0.8759, Val Acc: 0.7759
-INFO:train:Early stopping triggered after 87 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 87/100 - Train Loss: 0.6374, Train Acc: 0.9474, Val Loss: 0.8714, Val Acc: 0.7759
-INFO:train:Early stopping triggered after 88 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 88/100 - Train Loss: 0.6304, Train Acc: 0.9630, Val Loss: 0.8751, Val Acc: 0.7054
-INFO:train:Early stopping triggered after 89 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 89/100 - Train Loss: 0.6284, Train Acc: 0.9683, Val Loss: 0.7811, Val Acc: 0.7861
-INFO:train:Early stopping triggered after 90 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 90/100 - Train Loss: 0.6352, Train Acc: 0.9630, Val Loss: 0.7643, Val Acc: 0.8487
-INFO:train:Early stopping triggered after 91 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 91/100 - Train Loss: 0.6242, Train Acc: 1.0000, Val Loss: 0.7955, Val Acc: 0.8348
-INFO:train:Early stopping triggered after 92 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 92/100 - Train Loss: 0.6332, Train Acc: 0.9815, Val Loss: 0.8960, Val Acc: 0.7329
-INFO:train:Early stopping triggered after 93 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 93/100 - Train Loss: 0.6361, Train Acc: 0.9556, Val Loss: 0.8231, Val Acc: 0.8155
-INFO:train:Early stopping triggered after 94 epochs
-INFO:train:Best validation accuracy: 0.8586
-INFO:train:Epoch 94/100 - Train Loss: 0.6316, Train Acc: 0.9667, Val Loss: 0.8357, Val Acc: 0.8074
-INFO:train:Epoch 95/100 - Train Loss: 0.6276, Train Acc: 0.9825, Val Loss: 0.7614, Val Acc: 0.8611
-INFO:train:Epoch 96/100 - Train Loss: 0.6329, Train Acc: 0.9606, Val Loss: 0.7685, Val Acc: 0.8487
-INFO:train:Epoch 97/100 - Train Loss: 0.6257, Train Acc: 0.9861, Val Loss: 0.9092, Val Acc: 0.6667
-INFO:train:Epoch 98/100 - Train Loss: 0.6481, Train Acc: 0.9423, Val Loss: 0.9219, Val Acc: 0.6878
-INFO:train:Epoch 99/100 - Train Loss: 0.6334, Train Acc: 0.9825, Val Loss: 0.8630, Val Acc: 0.7917
-INFO:train:Epoch 100/100 - Train Loss: 0.6220, Train Acc: 0.9815, Val Loss: 0.8133, Val Acc: 0.8268
-INFO:train:Fold 5/5
-INFO:train:Epoch 1/100 - Train Loss: 1.0812, Train Acc: 0.2647, Val Loss: 1.0696, Val Acc: 0.5600
-INFO:train:Epoch 2/100 - Train Loss: 1.0950, Train Acc: 0.3730, Val Loss: 1.0809, Val Acc: 0.4167
-INFO:train:Epoch 3/100 - Train Loss: 1.0861, Train Acc: 0.2348, Val Loss: 1.0711, Val Acc: 0.3611
-INFO:train:Epoch 4/100 - Train Loss: 1.0853, Train Acc: 0.3588, Val Loss: 1.0820, Val Acc: 0.6622
-INFO:train:Epoch 5/100 - Train Loss: 1.0891, Train Acc: 0.2331, Val Loss: 1.0789, Val Acc: 0.4058
-INFO:train:Epoch 6/100 - Train Loss: 1.0797, Train Acc: 0.4164, Val Loss: 1.0934, Val Acc: 0.2665
-INFO:train:Epoch 7/100 - Train Loss: 1.0706, Train Acc: 0.4574, Val Loss: 1.0950, Val Acc: 0.1624
-INFO:train:Epoch 8/100 - Train Loss: 1.0829, Train Acc: 0.3222, Val Loss: 1.0726, Val Acc: 0.6722
-INFO:train:Epoch 9/100 - Train Loss: 1.0769, Train Acc: 0.4418, Val Loss: 1.0806, Val Acc: 0.3792
-INFO:train:Epoch 10/100 - Train Loss: 1.0749, Train Acc: 0.2186, Val Loss: 1.0792, Val Acc: 0.5111
-INFO:train:Epoch 11/100 - Train Loss: 1.0701, Train Acc: 0.2716, Val Loss: 1.0952, Val Acc: 0.3493
-INFO:train:Epoch 12/100 - Train Loss: 1.0706, Train Acc: 0.3958, Val Loss: 1.0792, Val Acc: 0.5556
-INFO:train:Epoch 13/100 - Train Loss: 1.0753, Train Acc: 0.3179, Val Loss: 1.1091, Val Acc: 0.2954
-INFO:train:Epoch 14/100 - Train Loss: 1.0557, Train Acc: 0.3536, Val Loss: 1.0750, Val Acc: 0.3903
-INFO:train:Epoch 15/100 - Train Loss: 1.0447, Train Acc: 0.4690, Val Loss: 1.0508, Val Acc: 0.5111
-INFO:train:Epoch 16/100 - Train Loss: 1.0296, Train Acc: 0.4987, Val Loss: 1.0523, Val Acc: 0.3087
-INFO:train:Epoch 17/100 - Train Loss: 1.0108, Train Acc: 0.4556, Val Loss: 0.9864, Val Acc: 0.7083
-INFO:train:Epoch 18/100 - Train Loss: 0.9858, Train Acc: 0.6404, Val Loss: 0.9660, Val Acc: 0.6250
-INFO:train:Epoch 19/100 - Train Loss: 0.9585, Train Acc: 0.6247, Val Loss: 0.9221, Val Acc: 0.6652
-INFO:train:Epoch 20/100 - Train Loss: 0.9361, Train Acc: 0.6653, Val Loss: 0.9081, Val Acc: 0.7500
-INFO:train:Epoch 21/100 - Train Loss: 0.8904, Train Acc: 0.6972, Val Loss: 0.8789, Val Acc: 0.6652
-INFO:train:Epoch 22/100 - Train Loss: 0.8798, Train Acc: 0.7290, Val Loss: 0.8898, Val Acc: 0.6667
-INFO:train:Epoch 23/100 - Train Loss: 0.8730, Train Acc: 0.8325, Val Loss: 0.9166, Val Acc: 0.4704
-INFO:train:Epoch 24/100 - Train Loss: 0.8701, Train Acc: 0.8522, Val Loss: 0.8790, Val Acc: 0.7921
-INFO:train:Epoch 25/100 - Train Loss: 0.8713, Train Acc: 0.7258, Val Loss: 0.8406, Val Acc: 0.8452
-INFO:train:Epoch 26/100 - Train Loss: 0.8629, Train Acc: 0.7166, Val Loss: 0.8752, Val Acc: 0.6786
-INFO:train:Epoch 27/100 - Train Loss: 0.8217, Train Acc: 0.7270, Val Loss: 0.8544, Val Acc: 0.7459
-INFO:train:Epoch 28/100 - Train Loss: 0.8395, Train Acc: 0.8587, Val Loss: 0.8289, Val Acc: 0.7630
-INFO:train:Epoch 29/100 - Train Loss: 0.8378, Train Acc: 0.7328, Val Loss: 0.7995, Val Acc: 0.8159
-INFO:train:Epoch 30/100 - Train Loss: 0.8298, Train Acc: 0.7397, Val Loss: 0.7723, Val Acc: 0.9167
-INFO:train:Epoch 31/100 - Train Loss: 0.7965, Train Acc: 0.8439, Val Loss: 0.8242, Val Acc: 0.7847
-INFO:train:Epoch 32/100 - Train Loss: 0.8002, Train Acc: 0.8635, Val Loss: 0.7726, Val Acc: 0.8889
-INFO:train:Epoch 33/100 - Train Loss: 0.7919, Train Acc: 0.7905, Val Loss: 0.7891, Val Acc: 0.7886
-INFO:train:Epoch 34/100 - Train Loss: 0.7853, Train Acc: 0.8333, Val Loss: 0.7786, Val Acc: 0.8746
-INFO:train:Epoch 35/100 - Train Loss: 0.7658, Train Acc: 0.8616, Val Loss: 0.7786, Val Acc: 0.7919
-INFO:train:Epoch 36/100 - Train Loss: 0.7607, Train Acc: 0.8527, Val Loss: 0.7509, Val Acc: 0.8333
-INFO:train:Epoch 37/100 - Train Loss: 0.7641, Train Acc: 0.7662, Val Loss: 0.7993, Val Acc: 0.7795
-INFO:train:Epoch 38/100 - Train Loss: 0.7628, Train Acc: 0.7639, Val Loss: 0.7777, Val Acc: 0.7944
-INFO:train:Epoch 39/100 - Train Loss: 0.7412, Train Acc: 0.8347, Val Loss: 0.7305, Val Acc: 0.8974
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 38/100 - Train Loss: 0.1500, Train Acc: 0.5000, Val Loss: 0.1516, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 39 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 39/100 - Train Loss: 0.1501, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 40 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 40/100 - Train Loss: 0.7561, Train Acc: 0.8337, Val Loss: 0.7178, Val Acc: 0.9056
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 40/100 - Train Loss: 0.1503, Train Acc: 0.5000, Val Loss: 0.1511, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 41 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 41/100 - Train Loss: 0.7510, Train Acc: 0.8847, Val Loss: 0.7255, Val Acc: 0.8721
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 41/100 - Train Loss: 0.1499, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 42 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 42/100 - Train Loss: 0.7206, Train Acc: 0.9109, Val Loss: 0.6944, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 42/100 - Train Loss: 0.1509, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 43 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 43/100 - Train Loss: 0.7246, Train Acc: 0.8929, Val Loss: 0.7513, Val Acc: 0.8121
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 43/100 - Train Loss: 0.1504, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 44 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 44/100 - Train Loss: 0.7313, Train Acc: 0.9249, Val Loss: 0.7131, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 44/100 - Train Loss: 0.1502, Train Acc: 0.5000, Val Loss: 0.1532, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 45 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 45/100 - Train Loss: 0.7159, Train Acc: 0.8891, Val Loss: 0.7339, Val Acc: 0.8394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 45/100 - Train Loss: 0.1501, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 46 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 46/100 - Train Loss: 0.7228, Train Acc: 0.8205, Val Loss: 0.7340, Val Acc: 0.8593
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 46/100 - Train Loss: 0.1491, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 47 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 47/100 - Train Loss: 0.7222, Train Acc: 0.9024, Val Loss: 0.7189, Val Acc: 0.8963
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 47/100 - Train Loss: 0.1499, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 48 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 48/100 - Train Loss: 0.6892, Train Acc: 0.9611, Val Loss: 0.7879, Val Acc: 0.7944
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 48/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 49 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 49/100 - Train Loss: 0.7150, Train Acc: 0.8728, Val Loss: 0.7919, Val Acc: 0.8121
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 49/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 50 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 50/100 - Train Loss: 0.7175, Train Acc: 0.8196, Val Loss: 0.7380, Val Acc: 0.8746
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 50/100 - Train Loss: 0.1492, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 51 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 51/100 - Train Loss: 0.7324, Train Acc: 0.9286, Val Loss: 0.8203, Val Acc: 0.7111
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 51/100 - Train Loss: 0.1498, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 52 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 52/100 - Train Loss: 0.7518, Train Acc: 0.8738, Val Loss: 0.7181, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 52/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 53 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 53/100 - Train Loss: 0.7421, Train Acc: 0.8506, Val Loss: 0.7447, Val Acc: 0.8426
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 53/100 - Train Loss: 0.1493, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 54 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 54/100 - Train Loss: 0.7026, Train Acc: 0.8740, Val Loss: 0.7034, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 54/100 - Train Loss: 0.1499, Train Acc: 0.5000, Val Loss: 0.1502, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 55 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 55/100 - Train Loss: 0.7631, Train Acc: 0.8018, Val Loss: 0.7978, Val Acc: 0.8542
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 55/100 - Train Loss: 0.1500, Train Acc: 0.5000, Val Loss: 0.1515, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 56 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 56/100 - Train Loss: 0.7882, Train Acc: 0.8925, Val Loss: 0.8414, Val Acc: 0.7778
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 56/100 - Train Loss: 0.1498, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 57 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 57/100 - Train Loss: 0.7339, Train Acc: 0.8805, Val Loss: 0.7349, Val Acc: 0.8519
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 57/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 58 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 58/100 - Train Loss: 0.7046, Train Acc: 0.8958, Val Loss: 0.7548, Val Acc: 0.8746
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 58/100 - Train Loss: 0.1497, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 59 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 59/100 - Train Loss: 0.7308, Train Acc: 0.8967, Val Loss: 0.7231, Val Acc: 0.8593
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 59/100 - Train Loss: 0.1488, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 60 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 60/100 - Train Loss: 0.6829, Train Acc: 0.9331, Val Loss: 0.7586, Val Acc: 0.8121
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 60/100 - Train Loss: 0.1506, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 61 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 61/100 - Train Loss: 0.6832, Train Acc: 0.9235, Val Loss: 0.7165, Val Acc: 0.8974
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 61/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 62 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 62/100 - Train Loss: 0.7146, Train Acc: 0.8955, Val Loss: 0.7301, Val Acc: 0.8974
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 62/100 - Train Loss: 0.1492, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 63 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 63/100 - Train Loss: 0.7113, Train Acc: 0.9083, Val Loss: 0.7675, Val Acc: 0.8091
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 63/100 - Train Loss: 0.1504, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 64 epochs
-INFO:train:Best validation accuracy: 0.9167
-INFO:train:Epoch 64/100 - Train Loss: 0.6901, Train Acc: 0.9159, Val Loss: 0.7761, Val Acc: 0.8091
-INFO:train:Epoch 65/100 - Train Loss: 0.6784, Train Acc: 0.9458, Val Loss: 0.6763, Val Acc: 0.9394
-INFO:train:Epoch 66/100 - Train Loss: 0.6735, Train Acc: 0.9643, Val Loss: 0.6853, Val Acc: 0.9394
-INFO:train:Epoch 67/100 - Train Loss: 0.6638, Train Acc: 0.9290, Val Loss: 0.7214, Val Acc: 0.8974
-INFO:train:Epoch 68/100 - Train Loss: 0.6668, Train Acc: 0.9246, Val Loss: 0.7232, Val Acc: 0.8974
-INFO:train:Epoch 69/100 - Train Loss: 0.6639, Train Acc: 0.9600, Val Loss: 0.7308, Val Acc: 0.8974
-INFO:train:Epoch 70/100 - Train Loss: 0.6580, Train Acc: 0.9855, Val Loss: 0.7396, Val Acc: 0.8593
-INFO:train:Epoch 71/100 - Train Loss: 0.6689, Train Acc: 0.9515, Val Loss: 0.7552, Val Acc: 0.8121
-INFO:train:Epoch 72/100 - Train Loss: 0.6821, Train Acc: 0.9268, Val Loss: 0.7662, Val Acc: 0.8121
-INFO:train:Epoch 73/100 - Train Loss: 0.6509, Train Acc: 1.0000, Val Loss: 0.7120, Val Acc: 0.8974
-INFO:train:Epoch 74/100 - Train Loss: 0.6695, Train Acc: 0.9500, Val Loss: 0.7182, Val Acc: 0.8974
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 64/100 - Train Loss: 0.1487, Train Acc: 0.5000, Val Loss: 0.1501, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 65 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 65/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 66 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 66/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 67 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 67/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 68 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 68/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1529, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 69 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 69/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 70 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 70/100 - Train Loss: 0.1491, Train Acc: 0.5000, Val Loss: 0.1501, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 71 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 71/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 72 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 72/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1490, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 73 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 73/100 - Train Loss: 0.1486, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 74 epochs
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 74/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 75 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 75/100 - Train Loss: 0.6699, Train Acc: 0.9067, Val Loss: 0.7099, Val Acc: 0.8974
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 75/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 76 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 76/100 - Train Loss: 0.6609, Train Acc: 0.9881, Val Loss: 0.7106, Val Acc: 0.9056
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 76/100 - Train Loss: 0.1494, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 77 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 77/100 - Train Loss: 0.6823, Train Acc: 0.9722, Val Loss: 0.7048, Val Acc: 0.8963
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 77/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 78 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 78/100 - Train Loss: 0.6730, Train Acc: 0.9452, Val Loss: 0.7717, Val Acc: 0.8091
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 78/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 79 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 79/100 - Train Loss: 0.6584, Train Acc: 0.9545, Val Loss: 0.7390, Val Acc: 0.8810
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 79/100 - Train Loss: 0.1484, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 80 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 80/100 - Train Loss: 0.7194, Train Acc: 0.8250, Val Loss: 0.7110, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 80/100 - Train Loss: 0.1491, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 81 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 81/100 - Train Loss: 0.6607, Train Acc: 0.9444, Val Loss: 0.7987, Val Acc: 0.7778
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 81/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 82 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 82/100 - Train Loss: 0.6580, Train Acc: 0.9107, Val Loss: 0.7700, Val Acc: 0.8056
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 82/100 - Train Loss: 0.1488, Train Acc: 0.5000, Val Loss: 0.1531, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 83 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 83/100 - Train Loss: 0.6605, Train Acc: 0.9331, Val Loss: 0.7048, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 83/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 84 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 84/100 - Train Loss: 0.7340, Train Acc: 0.7948, Val Loss: 0.6718, Val Acc: 0.9394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 84/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 85 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 85/100 - Train Loss: 0.6417, Train Acc: 0.9833, Val Loss: 0.7730, Val Acc: 0.8091
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 85/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 86 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 86/100 - Train Loss: 0.7071, Train Acc: 0.8193, Val Loss: 0.7285, Val Acc: 0.8721
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 86/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1526, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 87 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 87/100 - Train Loss: 0.6569, Train Acc: 0.9638, Val Loss: 0.6801, Val Acc: 0.9394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 87/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 88 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 88/100 - Train Loss: 0.7008, Train Acc: 0.9087, Val Loss: 0.6749, Val Acc: 0.9394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 88/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1530, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 89 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 89/100 - Train Loss: 0.6646, Train Acc: 0.9538, Val Loss: 0.7634, Val Acc: 0.8091
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 89/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 90 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 90/100 - Train Loss: 0.7290, Train Acc: 0.8214, Val Loss: 0.7464, Val Acc: 0.8426
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 90/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 91 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 91/100 - Train Loss: 0.6887, Train Acc: 0.9855, Val Loss: 0.6789, Val Acc: 0.9394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 91/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 92 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 92/100 - Train Loss: 0.6624, Train Acc: 0.9600, Val Loss: 0.6755, Val Acc: 0.9394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 92/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1530, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 93 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 93/100 - Train Loss: 0.6492, Train Acc: 0.9469, Val Loss: 0.7188, Val Acc: 0.8974
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 93/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 94 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 94/100 - Train Loss: 0.6462, Train Acc: 0.9524, Val Loss: 0.7688, Val Acc: 0.8348
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 94/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 95 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 95/100 - Train Loss: 0.6565, Train Acc: 0.9815, Val Loss: 0.7052, Val Acc: 0.9167
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 95/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 96 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 96/100 - Train Loss: 0.6354, Train Acc: 0.9659, Val Loss: 0.6901, Val Acc: 0.8963
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 96/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 97 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 97/100 - Train Loss: 0.6683, Train Acc: 0.9333, Val Loss: 0.7034, Val Acc: 0.9394
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 97/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1519, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 98 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 98/100 - Train Loss: 0.6725, Train Acc: 0.9615, Val Loss: 0.7011, Val Acc: 0.8721
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 98/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 99 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 99/100 - Train Loss: 0.6392, Train Acc: 0.9645, Val Loss: 0.7965, Val Acc: 0.7778
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 99/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1514, Val Acc: 0.5000
 INFO:train:Early stopping triggered after 100 epochs
-INFO:train:Best validation accuracy: 0.9394
-INFO:train:Epoch 100/100 - Train Loss: 0.6398, Train Acc: 0.9833, Val Loss: 0.8309, Val Acc: 0.7556
+INFO:train:Best validation accuracy: 0.5000
+INFO:train:Epoch 100/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Fold 2/5
+INFO:train:Epoch 1/100 - Train Loss: 0.1555, Train Acc: 0.5052, Val Loss: 0.1544, Val Acc: 0.5000
+INFO:train:Epoch 2/100 - Train Loss: 0.1527, Train Acc: 0.5000, Val Loss: 0.1542, Val Acc: 0.5000
+INFO:train:Epoch 3/100 - Train Loss: 0.1537, Train Acc: 0.5000, Val Loss: 0.1537, Val Acc: 0.5000
+INFO:train:Epoch 4/100 - Train Loss: 0.1526, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
+INFO:train:Epoch 5/100 - Train Loss: 0.1523, Train Acc: 0.5000, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Epoch 6/100 - Train Loss: 0.1522, Train Acc: 0.5008, Val Loss: 0.1514, Val Acc: 0.5000
+INFO:train:Epoch 7/100 - Train Loss: 0.1513, Train Acc: 0.5008, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Epoch 8/100 - Train Loss: 0.1511, Train Acc: 0.5028, Val Loss: 0.1517, Val Acc: 0.5072
+INFO:train:Epoch 9/100 - Train Loss: 0.1504, Train Acc: 0.5066, Val Loss: 0.1505, Val Acc: 0.5020
+INFO:train:Epoch 10/100 - Train Loss: 0.1513, Train Acc: 0.5145, Val Loss: 0.1502, Val Acc: 0.5184
+INFO:train:Epoch 11/100 - Train Loss: 0.1509, Train Acc: 0.5064, Val Loss: 0.1505, Val Acc: 0.5061
+INFO:train:Epoch 12/100 - Train Loss: 0.1495, Train Acc: 0.5094, Val Loss: 0.1506, Val Acc: 0.5143
+INFO:train:Epoch 13/100 - Train Loss: 0.1495, Train Acc: 0.5120, Val Loss: 0.1497, Val Acc: 0.5133
+INFO:train:Epoch 14/100 - Train Loss: 0.1497, Train Acc: 0.5128, Val Loss: 0.1495, Val Acc: 0.5092
+INFO:train:Epoch 15/100 - Train Loss: 0.1491, Train Acc: 0.5084, Val Loss: 0.1491, Val Acc: 0.5112
+INFO:train:Epoch 16/100 - Train Loss: 0.1492, Train Acc: 0.5089, Val Loss: 0.1491, Val Acc: 0.5051
+INFO:train:Epoch 17/100 - Train Loss: 0.1497, Train Acc: 0.5064, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Epoch 18/100 - Train Loss: 0.1497, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5010
+INFO:train:Epoch 19/100 - Train Loss: 0.1497, Train Acc: 0.5015, Val Loss: 0.1490, Val Acc: 0.5020
+INFO:train:Early stopping triggered after 20 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 20/100 - Train Loss: 0.1499, Train Acc: 0.5008, Val Loss: 0.1488, Val Acc: 0.5020
+INFO:train:Early stopping triggered after 21 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 21/100 - Train Loss: 0.1497, Train Acc: 0.5023, Val Loss: 0.1540, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 22 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 22/100 - Train Loss: 0.1512, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 23 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 23/100 - Train Loss: 0.1506, Train Acc: 0.5003, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 24 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 24/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 25 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 25/100 - Train Loss: 0.1495, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 26 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 26/100 - Train Loss: 0.1501, Train Acc: 0.5000, Val Loss: 0.1514, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 27 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 27/100 - Train Loss: 0.1494, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 28 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 28/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 29 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 29/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 30 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 30/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1490, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 31 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 31/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 32 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 32/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 33 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 33/100 - Train Loss: 0.1488, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 34 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 34/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 35 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 35/100 - Train Loss: 0.1499, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 36 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 36/100 - Train Loss: 0.1502, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 37 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 37/100 - Train Loss: 0.1495, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 38 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 38/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 39 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 39/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 40 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 40/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1545, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 41 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 41/100 - Train Loss: 0.1490, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 42 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 42/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 43 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 43/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 44 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 44/100 - Train Loss: 0.1486, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 45 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 45/100 - Train Loss: 0.1498, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 46 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 46/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 47 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 47/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 48 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 48/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 49 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 49/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1484, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 50 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 50/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 51 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 51/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 52 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 52/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 53 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 53/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 54 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 54/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 55 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 55/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1490, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 56 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 56/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 57 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 57/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 58 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 58/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 59 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 59/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1481, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 60 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 60/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1483, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 61 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 61/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 62 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 62/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 63 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 63/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1484, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 64 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 64/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 65 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 65/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 66 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 66/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1490, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 67 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 67/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 68 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 68/100 - Train Loss: 0.1509, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 69 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 69/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 70 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 70/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 71 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 71/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 72 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 72/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1484, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 73 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 73/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 74 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 74/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 75 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 75/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 76 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 76/100 - Train Loss: 0.1491, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 77 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 77/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 78 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 78/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 79 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 79/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 80 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 80/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 81 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 81/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1484, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 82 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 82/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 83 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 83/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 84 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 84/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 85 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 85/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 86 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 86/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 87 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 87/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 88 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 88/100 - Train Loss: 0.1487, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 89 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 89/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 90 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 90/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 91 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 91/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1481, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 92 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 92/100 - Train Loss: 0.1487, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 93 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 93/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 94 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 94/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 95 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 95/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 96 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 96/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 97 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 97/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1501, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 98 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 98/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 99 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 99/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 100 epochs
+INFO:train:Best validation accuracy: 0.5184
+INFO:train:Epoch 100/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Fold 3/5
+INFO:train:Epoch 1/100 - Train Loss: 0.1555, Train Acc: 0.5036, Val Loss: 0.1540, Val Acc: 0.5000
+INFO:train:Epoch 2/100 - Train Loss: 0.1531, Train Acc: 0.5000, Val Loss: 0.1539, Val Acc: 0.5000
+INFO:train:Epoch 3/100 - Train Loss: 0.1522, Train Acc: 0.5000, Val Loss: 0.1539, Val Acc: 0.5000
+INFO:train:Epoch 4/100 - Train Loss: 0.1522, Train Acc: 0.5003, Val Loss: 0.1536, Val Acc: 0.5000
+INFO:train:Epoch 5/100 - Train Loss: 0.1516, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Epoch 6/100 - Train Loss: 0.1506, Train Acc: 0.5013, Val Loss: 0.1535, Val Acc: 0.5082
+INFO:train:Epoch 7/100 - Train Loss: 0.1509, Train Acc: 0.5102, Val Loss: 0.1529, Val Acc: 0.5133
+INFO:train:Epoch 8/100 - Train Loss: 0.1507, Train Acc: 0.5036, Val Loss: 0.1515, Val Acc: 0.5010
+INFO:train:Epoch 9/100 - Train Loss: 0.1501, Train Acc: 0.5092, Val Loss: 0.1519, Val Acc: 0.5020
+INFO:train:Epoch 10/100 - Train Loss: 0.1497, Train Acc: 0.5153, Val Loss: 0.1522, Val Acc: 0.5164
+INFO:train:Epoch 11/100 - Train Loss: 0.1497, Train Acc: 0.5117, Val Loss: 0.1513, Val Acc: 0.5082
+INFO:train:Epoch 12/100 - Train Loss: 0.1487, Train Acc: 0.5115, Val Loss: 0.1526, Val Acc: 0.5051
+INFO:train:Epoch 13/100 - Train Loss: 0.1489, Train Acc: 0.5069, Val Loss: 0.1556, Val Acc: 0.5082
+INFO:train:Epoch 14/100 - Train Loss: 0.1534, Train Acc: 0.5008, Val Loss: 0.1541, Val Acc: 0.5000
+INFO:train:Epoch 15/100 - Train Loss: 0.1511, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5010
+INFO:train:Epoch 16/100 - Train Loss: 0.1485, Train Acc: 0.5026, Val Loss: 0.1518, Val Acc: 0.5031
+INFO:train:Epoch 17/100 - Train Loss: 0.1493, Train Acc: 0.5023, Val Loss: 0.1520, Val Acc: 0.5000
+INFO:train:Epoch 18/100 - Train Loss: 0.1488, Train Acc: 0.5005, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Epoch 19/100 - Train Loss: 0.1501, Train Acc: 0.5013, Val Loss: 0.1564, Val Acc: 0.5010
+INFO:train:Early stopping triggered after 20 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 20/100 - Train Loss: 0.1496, Train Acc: 0.5003, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 21 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 21/100 - Train Loss: 0.1483, Train Acc: 0.5010, Val Loss: 0.1525, Val Acc: 0.5041
+INFO:train:Early stopping triggered after 22 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 22/100 - Train Loss: 0.1485, Train Acc: 0.5036, Val Loss: 0.1525, Val Acc: 0.5031
+INFO:train:Early stopping triggered after 23 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 23/100 - Train Loss: 0.1478, Train Acc: 0.5010, Val Loss: 0.1517, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 24 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 24/100 - Train Loss: 0.1481, Train Acc: 0.5005, Val Loss: 0.1516, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 25 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 25/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1526, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 26 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 26/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 27 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 27/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 28 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 28/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1534, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 29 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 29/100 - Train Loss: 0.1476, Train Acc: 0.5003, Val Loss: 0.1538, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 30 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 30/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1555, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 31 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 31/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 32 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 32/100 - Train Loss: 0.1500, Train Acc: 0.5000, Val Loss: 0.1536, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 33 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 33/100 - Train Loss: 0.1506, Train Acc: 0.5000, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 34 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 34/100 - Train Loss: 0.1491, Train Acc: 0.5000, Val Loss: 0.1511, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 35 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 35/100 - Train Loss: 0.1492, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 36 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 36/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1511, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 37 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 37/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1515, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 38 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 38/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1509, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 39 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 39/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1520, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 40 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 40/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1522, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 41 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 41/100 - Train Loss: 0.1490, Train Acc: 0.5000, Val Loss: 0.1511, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 42 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 42/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 43 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 43/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1525, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 44 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 44/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1529, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 45 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 45/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 46 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 46/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 47 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 47/100 - Train Loss: 0.1484, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 48 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 48/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 49 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 49/100 - Train Loss: 0.1486, Train Acc: 0.5000, Val Loss: 0.1515, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 50 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 50/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1572, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 51 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 51/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1573, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 52 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 52/100 - Train Loss: 0.1484, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 53 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 53/100 - Train Loss: 0.1487, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 54 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 54/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1511, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 55 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 55/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1526, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 56 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 56/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1520, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 57 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 57/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1564, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 58 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 58/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1552, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 59 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 59/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1569, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 60 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 60/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1518, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 61 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 61/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1519, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 62 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 62/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1511, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 63 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 63/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1546, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 64 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 64/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1550, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 65 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 65/100 - Train Loss: 0.1484, Train Acc: 0.5000, Val Loss: 0.1532, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 66 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 66/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 67 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 67/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 68 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 68/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1568, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 69 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 69/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1525, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 70 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 70/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1520, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 71 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 71/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1525, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 72 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 72/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 73 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 73/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 74 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 74/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1525, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 75 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 75/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1560, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 76 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 76/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 77 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 77/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 78 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 78/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1581, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 79 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 79/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1521, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 80 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 80/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 81 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 81/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 82 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 82/100 - Train Loss: 0.1463, Train Acc: 0.5000, Val Loss: 0.1520, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 83 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 83/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 84 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 84/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 85 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 85/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 86 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 86/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 87 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 87/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 88 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 88/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1561, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 89 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 89/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1531, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 90 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 90/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1533, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 91 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 91/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1534, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 92 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 92/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1549, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 93 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 93/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1514, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 94 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 94/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1578, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 95 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 95/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1520, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 96 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 96/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1514, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 97 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 97/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1515, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 98 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 98/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1518, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 99 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 99/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1542, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 100 epochs
+INFO:train:Best validation accuracy: 0.5164
+INFO:train:Epoch 100/100 - Train Loss: 0.1463, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
+INFO:train:Fold 4/5
+INFO:train:Epoch 1/100 - Train Loss: 0.1564, Train Acc: 0.4890, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Epoch 2/100 - Train Loss: 0.1538, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Epoch 3/100 - Train Loss: 0.1535, Train Acc: 0.5000, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Epoch 4/100 - Train Loss: 0.1524, Train Acc: 0.5000, Val Loss: 0.1526, Val Acc: 0.5000
+INFO:train:Epoch 5/100 - Train Loss: 0.1516, Train Acc: 0.5003, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Epoch 6/100 - Train Loss: 0.1513, Train Acc: 0.5013, Val Loss: 0.1504, Val Acc: 0.5010
+INFO:train:Epoch 7/100 - Train Loss: 0.1515, Train Acc: 0.5041, Val Loss: 0.1516, Val Acc: 0.5000
+INFO:train:Epoch 8/100 - Train Loss: 0.1538, Train Acc: 0.5000, Val Loss: 0.1530, Val Acc: 0.5000
+INFO:train:Epoch 9/100 - Train Loss: 0.1520, Train Acc: 0.5013, Val Loss: 0.1511, Val Acc: 0.5010
+INFO:train:Epoch 10/100 - Train Loss: 0.1507, Train Acc: 0.5049, Val Loss: 0.1510, Val Acc: 0.5051
+INFO:train:Epoch 11/100 - Train Loss: 0.1529, Train Acc: 0.5051, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Epoch 12/100 - Train Loss: 0.1506, Train Acc: 0.5020, Val Loss: 0.1508, Val Acc: 0.5020
+INFO:train:Epoch 13/100 - Train Loss: 0.1514, Train Acc: 0.4999, Val Loss: 0.1511, Val Acc: 0.5000
+INFO:train:Epoch 14/100 - Train Loss: 0.1503, Train Acc: 0.5046, Val Loss: 0.1507, Val Acc: 0.5020
+INFO:train:Epoch 15/100 - Train Loss: 0.1501, Train Acc: 0.5072, Val Loss: 0.1525, Val Acc: 0.5224
+INFO:train:Epoch 16/100 - Train Loss: 0.1503, Train Acc: 0.5064, Val Loss: 0.1502, Val Acc: 0.5092
+INFO:train:Epoch 17/100 - Train Loss: 0.1499, Train Acc: 0.5074, Val Loss: 0.1512, Val Acc: 0.5010
+INFO:train:Epoch 18/100 - Train Loss: 0.1501, Train Acc: 0.5031, Val Loss: 0.1500, Val Acc: 0.5010
+INFO:train:Epoch 19/100 - Train Loss: 0.1492, Train Acc: 0.5026, Val Loss: 0.1508, Val Acc: 0.5051
+INFO:train:Epoch 20/100 - Train Loss: 0.1492, Train Acc: 0.5033, Val Loss: 0.1496, Val Acc: 0.5010
+INFO:train:Epoch 21/100 - Train Loss: 0.1484, Train Acc: 0.5023, Val Loss: 0.1493, Val Acc: 0.5020
+INFO:train:Epoch 22/100 - Train Loss: 0.1489, Train Acc: 0.5010, Val Loss: 0.1490, Val Acc: 0.5020
+INFO:train:Epoch 23/100 - Train Loss: 0.1491, Train Acc: 0.5003, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Epoch 24/100 - Train Loss: 0.1482, Train Acc: 0.5003, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 25 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 25/100 - Train Loss: 0.1483, Train Acc: 0.5003, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 26 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 26/100 - Train Loss: 0.1501, Train Acc: 0.5000, Val Loss: 0.1502, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 27 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 27/100 - Train Loss: 0.1498, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 28 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 28/100 - Train Loss: 0.1503, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 29 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 29/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 30 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 30/100 - Train Loss: 0.1488, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 31 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 31/100 - Train Loss: 0.1488, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 32 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 32/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 33 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 33/100 - Train Loss: 0.1519, Train Acc: 0.5000, Val Loss: 0.1519, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 34 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 34/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 35 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 35/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 36 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 36/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 37 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 37/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 38 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 38/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 39 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 39/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 40 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 40/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 41 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 41/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 42 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 42/100 - Train Loss: 0.1507, Train Acc: 0.5000, Val Loss: 0.1529, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 43 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 43/100 - Train Loss: 0.1510, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 44 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 44/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 45 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 45/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 46 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 46/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 47 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 47/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1490, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 48 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 48/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1521, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 49 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 49/100 - Train Loss: 0.1495, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 50 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 50/100 - Train Loss: 0.1493, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 51 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 51/100 - Train Loss: 0.1464, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 52 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 52/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1504, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 53 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 53/100 - Train Loss: 0.1490, Train Acc: 0.5000, Val Loss: 0.1484, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 54 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 54/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 55 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 55/100 - Train Loss: 0.1499, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 56 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 56/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 57 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 57/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 58 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 58/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 59 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 59/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 60 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 60/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 61 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 61/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 62 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 62/100 - Train Loss: 0.1505, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 63 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 63/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 64 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 64/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1502, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 65 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 65/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1502, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 66 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 66/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 67 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 67/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 68 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 68/100 - Train Loss: 0.1463, Train Acc: 0.5000, Val Loss: 0.1509, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 69 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 69/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 70 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 70/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 71 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 71/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 72 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 72/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 73 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 73/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 74 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 74/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1509, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 75 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 75/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 76 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 76/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 77 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 77/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 78 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 78/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 79 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 79/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 80 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 80/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 81 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 81/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 82 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 82/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 83 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 83/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 84 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 84/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 85 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 85/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 86 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 86/100 - Train Loss: 0.1463, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 87 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 87/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 88 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 88/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 89 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 89/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 90 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 90/100 - Train Loss: 0.1463, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 91 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 91/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 92 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 92/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 93 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 93/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 94 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 94/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 95 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 95/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 96 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 96/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 97 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 97/100 - Train Loss: 0.1490, Train Acc: 0.5010, Val Loss: 0.1526, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 98 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 98/100 - Train Loss: 0.1499, Train Acc: 0.5020, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 99 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 99/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1497, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 100 epochs
+INFO:train:Best validation accuracy: 0.5224
+INFO:train:Epoch 100/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Fold 5/5
+INFO:train:Epoch 1/100 - Train Loss: 0.1561, Train Acc: 0.5005, Val Loss: 0.1519, Val Acc: 0.5000
+INFO:train:Epoch 2/100 - Train Loss: 0.1535, Train Acc: 0.5000, Val Loss: 0.1529, Val Acc: 0.5000
+INFO:train:Epoch 3/100 - Train Loss: 0.1530, Train Acc: 0.5000, Val Loss: 0.1524, Val Acc: 0.5000
+INFO:train:Epoch 4/100 - Train Loss: 0.1527, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Epoch 5/100 - Train Loss: 0.1525, Train Acc: 0.5003, Val Loss: 0.1513, Val Acc: 0.5000
+INFO:train:Epoch 6/100 - Train Loss: 0.1520, Train Acc: 0.5003, Val Loss: 0.1523, Val Acc: 0.5000
+INFO:train:Epoch 7/100 - Train Loss: 0.1525, Train Acc: 0.5010, Val Loss: 0.1532, Val Acc: 0.5000
+INFO:train:Epoch 8/100 - Train Loss: 0.1519, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Epoch 9/100 - Train Loss: 0.1508, Train Acc: 0.5028, Val Loss: 0.1509, Val Acc: 0.5000
+INFO:train:Epoch 10/100 - Train Loss: 0.1514, Train Acc: 0.5028, Val Loss: 0.1502, Val Acc: 0.5061
+INFO:train:Epoch 11/100 - Train Loss: 0.1506, Train Acc: 0.5077, Val Loss: 0.1513, Val Acc: 0.5082
+INFO:train:Epoch 12/100 - Train Loss: 0.1504, Train Acc: 0.5130, Val Loss: 0.1527, Val Acc: 0.5000
+INFO:train:Epoch 13/100 - Train Loss: 0.1513, Train Acc: 0.5140, Val Loss: 0.1502, Val Acc: 0.5010
+INFO:train:Epoch 14/100 - Train Loss: 0.1497, Train Acc: 0.5005, Val Loss: 0.1500, Val Acc: 0.5010
+INFO:train:Epoch 15/100 - Train Loss: 0.1502, Train Acc: 0.5008, Val Loss: 0.1504, Val Acc: 0.5010
+INFO:train:Epoch 16/100 - Train Loss: 0.1503, Train Acc: 0.5008, Val Loss: 0.1537, Val Acc: 0.5000
+INFO:train:Epoch 17/100 - Train Loss: 0.1507, Train Acc: 0.5010, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Epoch 18/100 - Train Loss: 0.1506, Train Acc: 0.5013, Val Loss: 0.1493, Val Acc: 0.5031
+INFO:train:Epoch 19/100 - Train Loss: 0.1495, Train Acc: 0.5010, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Epoch 20/100 - Train Loss: 0.1500, Train Acc: 0.5000, Val Loss: 0.1510, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 21 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 21/100 - Train Loss: 0.1501, Train Acc: 0.5000, Val Loss: 0.1515, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 22 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 22/100 - Train Loss: 0.1504, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 23 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 23/100 - Train Loss: 0.1495, Train Acc: 0.5000, Val Loss: 0.1499, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 24 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 24/100 - Train Loss: 0.1494, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 25 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 25/100 - Train Loss: 0.1498, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 26 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 26/100 - Train Loss: 0.1496, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 27 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 27/100 - Train Loss: 0.1499, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 28 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 28/100 - Train Loss: 0.1487, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 29 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 29/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1483, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 30 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 30/100 - Train Loss: 0.1486, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 31 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 31/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1588, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 32 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 32/100 - Train Loss: 0.1542, Train Acc: 0.5000, Val Loss: 0.1532, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 33 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 33/100 - Train Loss: 0.1505, Train Acc: 0.5000, Val Loss: 0.1540, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 34 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 34/100 - Train Loss: 0.1509, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 35 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 35/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 36 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 36/100 - Train Loss: 0.1489, Train Acc: 0.5000, Val Loss: 0.1489, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 37 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 37/100 - Train Loss: 0.1480, Train Acc: 0.5000, Val Loss: 0.1490, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 38 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 38/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 39 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 39/100 - Train Loss: 0.1487, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 40 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 40/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 41 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 41/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 42 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 42/100 - Train Loss: 0.1491, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 43 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 43/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 44 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 44/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 45 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 45/100 - Train Loss: 0.1502, Train Acc: 0.5000, Val Loss: 0.1491, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 46 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 46/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1495, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 47 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 47/100 - Train Loss: 0.1486, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 48 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 48/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 49 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 49/100 - Train Loss: 0.1489, Train Acc: 0.5000, Val Loss: 0.1500, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 50 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 50/100 - Train Loss: 0.1498, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 51 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 51/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 52 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 52/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1507, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 53 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 53/100 - Train Loss: 0.1485, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 54 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 54/100 - Train Loss: 0.1492, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 55 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 55/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 56 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 56/100 - Train Loss: 0.1482, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 57 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 57/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1517, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 58 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 58/100 - Train Loss: 0.1481, Train Acc: 0.5000, Val Loss: 0.1496, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 59 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 59/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1529, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 60 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 60/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1476, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 61 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 61/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1498, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 62 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 62/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 63 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 63/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1480, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 64 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 64/100 - Train Loss: 0.1486, Train Acc: 0.5000, Val Loss: 0.1477, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 65 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 65/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 66 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 66/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1483, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 67 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 67/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 68 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 68/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1488, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 69 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 69/100 - Train Loss: 0.1470, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 70 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 70/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1503, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 71 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 71/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1480, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 72 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 72/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1512, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 73 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 73/100 - Train Loss: 0.1476, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 74 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 74/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 75 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 75/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1481, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 76 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 76/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 77 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 77/100 - Train Loss: 0.1493, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 78 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 78/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 79 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 79/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1483, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 80 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 80/100 - Train Loss: 0.1464, Train Acc: 0.5000, Val Loss: 0.1493, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 81 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 81/100 - Train Loss: 0.1477, Train Acc: 0.5000, Val Loss: 0.1542, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 82 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 82/100 - Train Loss: 0.1478, Train Acc: 0.5000, Val Loss: 0.1481, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 83 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 83/100 - Train Loss: 0.1469, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 84 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 84/100 - Train Loss: 0.1473, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 85 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 85/100 - Train Loss: 0.1497, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 86 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 86/100 - Train Loss: 0.1471, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 87 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 87/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1487, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 88 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 88/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1508, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 89 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 89/100 - Train Loss: 0.1475, Train Acc: 0.5000, Val Loss: 0.1528, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 90 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 90/100 - Train Loss: 0.1483, Train Acc: 0.5000, Val Loss: 0.1494, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 91 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 91/100 - Train Loss: 0.1507, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 92 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 92/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1506, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 93 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 93/100 - Train Loss: 0.1479, Train Acc: 0.5000, Val Loss: 0.1485, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 94 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 94/100 - Train Loss: 0.1474, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 95 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 95/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1492, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 96 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 96/100 - Train Loss: 0.1465, Train Acc: 0.5000, Val Loss: 0.1509, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 97 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 97/100 - Train Loss: 0.1472, Train Acc: 0.5000, Val Loss: 0.1505, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 98 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 98/100 - Train Loss: 0.1466, Train Acc: 0.5000, Val Loss: 0.1486, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 99 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 99/100 - Train Loss: 0.1467, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
+INFO:train:Early stopping triggered after 100 epochs
+INFO:train:Best validation accuracy: 0.5082
+INFO:train:Epoch 100/100 - Train Loss: 0.1468, Train Acc: 0.5000, Val Loss: 0.1482, Val Acc: 0.5000
 INFO:plot:Saving attention map to: figures/model_accuracy.png
-INFO:train:Average final validation accuracy: 0.8292
+INFO:train:Average final validation accuracy: 0.5000
