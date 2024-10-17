@@ -98,7 +98,7 @@ def train_model(
                 train_labels.extend(actual.cpu().numpy())
             
             train_loss /= len(fold_train_loader)
-            train_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            train_acc = balanced_accuracy_score(actual.cpu(), predicted.cpu())
             train_losses.append(train_loss)
             train_accuracies.append(train_acc)
 
@@ -119,7 +119,7 @@ def train_model(
                     val_labels.extend(labels.cpu().numpy())
             
             val_loss /= len(fold_val_loader)
-            val_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            val_acc = balanced_accuracy_score(actual.cpu(), predicted.cpu())
             val_losses.append(val_loss)
             val_accuracies.append(val_acc)
 

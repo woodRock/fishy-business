@@ -70,12 +70,22 @@ class CNN(nn.Module):
             nn.GELU(),
             nn.MaxPool1d(kernel_size=2, stride=2),
             nn.Dropout(p=dropout),
+
+            nn.Conv1d(256, 512, kernel_size=3, stride=1, padding=1),
+            nn.GELU(),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
+
+            nn.Conv1d(512, 1024, kernel_size=3, stride=1, padding=1),
+            nn.GELU(),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
         )
         
         self.flatten = nn.Flatten()
 
         # Calculate the size of the flattened features after convolutions
-        self.flat_features = 256 * (input_size // 2 // 2 // 2 // 2)
+        self.flat_features = 1024 * (input_size // 2 // 2 // 2 // 2 // 2 // 2)
         # self.flat_features = 32512
         
         self.fc_layers = nn.Sequential(
