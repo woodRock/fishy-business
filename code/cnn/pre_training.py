@@ -12,27 +12,25 @@ def pre_train_masked_spectra(
         model: CNN, 
         num_epochs: int = 100, 
         train_loader: DataLoader = None, 
-        val_loader: DataLoader = None, 
         file_path: str = "transformer_checkpoint.pth", 
         device: Optional[Union[str, torch.device]] = None,
         criterion: CrossEntropyLoss = None,
         optimizer: AdamW = None,
-        mask_prob: float = 0.2
+        n_features: int = 1023,
+        chunk_size: int = 50  # Number of masked features to process at once
     ) -> CNN:
-    """ Masked spectra modelling.
-
-    Randomly masks spectra with a given probability, and pre-trains the model in predicting those masked spectra.
+    """Masked spectra modelling with progressive masking.
 
     Args: 
         model (CNN): the nn.Module for the CNN.
         num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
         train_loader (DataLoader): the torch DataLoader containing the training set.
-        val_loader (DataLoader) the torch DataLoader containing the validation set.
         file_path (str): the file path to store the model checkpoints to. Defaults to "transformer_checkpoint.pth"
-        device (str, torch,device): the device to perform the operations on. Defaults to None.
+        device (str, torch.device): the device to perform the operations on. Defaults to None.
         criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
         optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
-        mask_prob (float): the probability of masking a spectra. Defaults to 0.2
+        n_features (int): the number of features. Defaults to 1023.
+        chunk_size (int): Number of masked features to process at once to reduce memory usage.
 
     Returns:
         model (Transformer): returns the pre-trained model.
@@ -45,41 +43,40 @@ def pre_train_masked_spectra(
         total_loss = 0.0
         model.train()
 
-        for (x,_) in train_loader:
-            # Generate batch of data
-            tgt_x, x = x.to(device), x.to(device)
-
+        for (x, _) in train_loader:
+            x = x.to(device)
             batch_size = x.shape[0]
-            mask = torch.rand(batch_size, 1023) < mask_prob
-            mask = mask.to(device)
-            x[mask] = 0
+            
+            # Iterate through features in chunks to avoid memory overflow
+            for start_idx in range(1, n_features, chunk_size):
+                end_idx = min(start_idx + chunk_size, n_features)
 
-            optimizer.zero_grad()
-            outputs  = model(x)
-            loss = criterion(outputs, tgt_x)  # Compare predicted spectra with true spectra
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
+                # Create mask for the current chunk
+                mask = torch.zeros(batch_size, n_features, dtype=torch.bool).to(device)
+                mask[:, start_idx:end_idx] = True
 
-        total_val_loss = 0.0
-        model.eval()
-        for (x,_) in val_loader:
-            tgt_x, x = x.to(device), x.to(device)
+                # Apply the mask
+                masked_x = x.clone()
+                masked_x[mask] = 0
 
-            val_batch_size = x.shape[0]
-            mask = torch.rand(val_batch_size, 1023) < mask_prob
-            mask = mask.to(device)
-            x[mask] = 0
+                # Forward pass
+                optimizer.zero_grad()
+                outputs = model(masked_x)
 
-            outputs = model(x)
-            val_loss = criterion(outputs, tgt_x)
-            total_val_loss += val_loss.item()
+                # Target for the current chunk
+                target = x[:, start_idx:end_idx]
 
+                # Calculate loss for the chunk
+                loss = criterion(outputs[:, start_idx:end_idx], target)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+            
         # Print average loss for the epoch
-        logger.info(f'Epoch [{epoch+1}/{num_epochs}], Loss: {total_loss/batch_size:.4f}, Val: {val_loss/val_batch_size:.4f}')
+        avg_train_loss = total_loss / (len(train_loader) * (n_features - 1))
+        logger.info(f'Epoch [{epoch+1}/{num_epochs}], Train Loss: {avg_train_loss:.4f}')
 
-    masked_spectra_prediction = model
-    torch.save(masked_spectra_prediction.state_dict(), file_path)
+    torch.save(model.state_dict(), file_path)
     return model
 
 

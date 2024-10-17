@@ -37,7 +37,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = VAE(
     input_size=1023,
     latent_dim=128,
-    num_classes=3,
+    num_classes=6,
     device=device,
     dropout=0.1
 )
@@ -45,7 +45,7 @@ model = VAE(
 model = model.to(device)
 
 train_loader, data = preprocess_dataset(
-    dataset='cross-species',
+    dataset='part',
     batch_size=256,
     is_data_augmentation=False,
     is_pre_train=False
@@ -81,7 +81,7 @@ wrapped_model = VAEWrapper(model)
 data_iter = iter(train_loader)
 features, labels = next(data_iter)
 
-class_names = ["Hoki-Mackerel", "Hoki", "Mackerel"]
+class_names = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
 feature_names = data.axes[1].tolist()
 
 # Standardize the data
@@ -101,7 +101,7 @@ instance = None
 label = None
 # Retrieve the first instance
 for f, l in zip(features, labels):
-    if torch.equal(l,torch.tensor([1,0,0])):
+    if torch.equal(l,torch.tensor([1,0,0,0,0,0])):
         instance = f
         label = l
         break
