@@ -41,25 +41,25 @@ class ResidualBlock(nn.Module):
         return out
 
 class CNNEncoder(nn.Module):
-    def __init__(self, input_size, num_classes, dropout=0.2):
+    def __init__(self, input_size, num_classes, dropout=0.3):
         super(CNNEncoder, self).__init__()
         
         self.conv_layers = nn.Sequential(
             ResidualBlock(1, 32, dropout=dropout),  # First block expects 1 channel
             ResidualBlock(32, 64, dropout=dropout, downsample=True),  # Downsample here
-            ResidualBlock(64, 128, dropout=dropout),
-            ResidualBlock(128, 256, dropout=dropout, downsample=True),  # Downsample here
+            # ResidualBlock(64, 128, dropout=dropout),
+            # ResidualBlock(128, 256, dropout=dropout, downsample=True),  # Downsample here
             nn.AdaptiveMaxPool1d(4)  # Fixed output size to 4
         )
         
         self.flatten = nn.Flatten()
-        self.flat_features = 256 * 4  # Adjusted based on the pooling layer
+        self.flat_features = 64 * 4  # Adjusted based on the pooling layer
         
         self.fc_layers = nn.Sequential(
-            nn.Linear(self.flat_features, 256),
+            nn.Linear(self.flat_features, 64),
             nn.ReLU(),
             nn.Dropout(p=dropout),
-            nn.Linear(256, num_classes)
+            nn.Linear(64, num_classes)
         )
         
     def forward(self, x):
@@ -200,7 +200,7 @@ def main():
 
     # Model parameters
     input_channels = 1  # Adjust based on your data
-    d_model = 128
+    d_model = 128 # The size of the embedding space.
     num_classes = 2  # Adjust based on your task
 
     model = ContrastiveModel(input_channels, d_model, num_classes).to(device)
@@ -210,7 +210,7 @@ def main():
     num_epochs = 200
     best_val_accuracy = 0
     # Contrastive loss, Triplet loss, Cross entropy, Balanced accuracy score
-    alpha, beta, gamma, delta = 0.5, 0.0, 0.5, 0.0  # Weights for different loss components
+    alpha, beta, gamma, delta = 0.8, 0.0, 0.2, 0.0  # Weights for different loss components
     patience = 20
     initial_patience = patience
 

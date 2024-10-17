@@ -53,7 +53,8 @@ def train_model(
     best_val_accuracies = []
 
     # Perform k-fold cross-validation
-    for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
+    for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels)):
+
         logger.info(f"Fold {fold}/{n_splits}")
 
         # Reset model to initial state
@@ -63,7 +64,7 @@ def train_model(
         train_subset = Subset(dataset, train_idx)
         val_subset = Subset(dataset, val_idx)
         fold_train_loader = DataLoader(train_subset, batch_size=train_loader.batch_size, shuffle=True)
-        fold_val_loader = DataLoader(val_subset, batch_size=train_loader.batch_size)
+        fold_val_loader = DataLoader(val_subset, batch_size=train_loader.batch_size, shuffle=True)
 
         # Initialize model, criterion, and optimizer
         model = model.to(device)
@@ -88,8 +89,6 @@ def train_model(
                 inputs, labels = inputs.to(device), labels.to(device)
                 optimizer.zero_grad()
                 outputs = model(inputs)
-                print(f"outputs: {outputs.shape}")
-                print(f"labels: {labels.shape}")
                 loss = criterion(outputs, labels)
                 loss.backward()
                 optimizer.step()
@@ -100,7 +99,7 @@ def train_model(
                 train_labels.extend(actual.cpu().numpy())
             
             train_loss /= len(fold_train_loader)
-            train_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            train_acc = balanced_accuracy_score(train_labels, train_preds)
             train_losses.append(train_loss)
             train_accuracies.append(train_acc)
 
@@ -118,10 +117,10 @@ def train_model(
                     _, predicted = outputs.max(1)
                     _, actual = labels.max(1)
                     val_preds.extend(predicted.cpu().numpy())
-                    val_labels.extend(labels.cpu().numpy())
+                    val_labels.extend(actual.cpu().numpy())
             
             val_loss /= len(fold_val_loader)
-            val_acc = balanced_accuracy_score(predicted.cpu(), actual.cpu())
+            val_acc = balanced_accuracy_score(val_labels, val_preds)
             val_losses.append(val_loss)
             val_accuracies.append(val_acc)
 
@@ -161,11 +160,11 @@ def train_model(
     )
 
     logger.info(f"Average final validation accuracy: {avg_val_accuracies[-1]:.4f}")
-    
-    # Print the best validation accuracies.
-    for fold, best_val_acc in enumerate(best_val_accuracies, 1):
-        print(f"{best_val_acc:.4f},")
 
+    # Print the best validation accuracies
+    for fold, val_acc in enumerate(best_val_accuracies, 1):
+        print(f"{val_acc:.4f},")
+    
     # Load the best model state
     model.load_state_dict(best_model)
     return model
