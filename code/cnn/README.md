@@ -258,19 +258,31 @@ Instance recogntion:
 ```python
 import numpy as np
 train = np.array([
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
+    0.9997,
+    1.0000,
+    0.9942,
+    1.0000,
+    0.9825,
+    0.9995,
+    0.9942,
+    0.9186,
+    0.8621,
+    0.8621,
 ])
 test = np.array([
-    0.5,
-    0.5,
-    0.5,
-    0.5,
-    0.5,
+    0.5227,
+    0.5217,
+    0.5000,
+    0.5000,
+    0.5000,
+    0.5000,
+    0.5197,
+    0.5000,
+    0.5187,
+    0.5000, # 10
 ])
-train.mean(), train.std()
-test.mean(), test.std()
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
