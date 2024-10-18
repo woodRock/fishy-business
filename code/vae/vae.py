@@ -1,3 +1,22 @@
+""" A variational autoencoder (VAE) with a classifier
+
+References: 
+1. Kingma, D. P., & Welling, M. (2013). 
+    Auto-encoding variational bayes. 
+    arXiv preprint arXiv:1312.6114.
+2. Srivastava, N., Hinton, G., Krizhevsky, A.,
+    Sutskever, I., & Salakhutdinov, R. (2014).
+    Dropout: a simple way to prevent neural networks from overfitting.
+    The journal of machine learning research, 15(1), 1929-1958.
+3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
+    I., & Salakhutdinov, R. R. (2012).
+    Improving neural networks by preventing co-adaptation of feature detectors.
+    arXiv preprint arXiv:1207.0580.
+4. Fukushima, K. (1969). 
+    Visual feature extraction by a multilayered network of analog threshold elements. 
+    IEEE Transactions on Systems Science and Cybernetics, 5(4), 322-333.
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,7 +31,7 @@ class VAE(nn.Module):
         device: Union[torch.device, str] = 'cpu',
         dropout: float = 0.2
     ) -> None:
-        """ A variational autoencoder (VAE) with a classifier.
+        """ Variational Autoencoder with a classifier.
 
         Args:
             input_size (int): The size of the inlatentput data.
@@ -20,22 +39,6 @@ class VAE(nn.Module):
             num_classes (int): The number of classes in the dataset.
             device (Union[str, torch.device]): The device to run the model on.
             dropout (float): The dropout rate. Defaults to 0.2.
-
-        References: 
-        1. Kingma, D. P., & Welling, M. (2013). 
-            Auto-encoding variational bayes. 
-            arXiv preprint arXiv:1312.6114.
-        2. Srivastava, N., Hinton, G., Krizhevsky, A.,
-            Sutskever, I., & Salakhutdinov, R. (2014).
-            Dropout: a simple way to prevent neural networks from overfitting.
-            The journal of machine learning research, 15(1), 1929-1958.
-        3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-            I., & Salakhutdinov, R. R. (2012).
-            Improving neural networks by preventing co-adaptation of feature detectors.
-            arXiv preprint arXiv:1207.0580.
-        4. Fukushima, K. (1969). 
-            Visual feature extraction by a multilayered network of analog threshold elements. 
-            IEEE Transactions on Systems Science and Cybernetics, 5(4), 322-333.
         """
         super(VAE, self).__init__()
         

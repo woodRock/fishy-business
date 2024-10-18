@@ -45,9 +45,9 @@ def parse_arguments():
     # Hyperparameters
     parser.add_argument('-e', '--epochs', type=int, default=100,
                         help="The number of epochs to train the model for.")
-    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-5,
+    parser.add_argument('-lr', '--learning-rate', type=float, default=1E-3,
                         help="The learning rate for the model. Defaults to 1E-5.")
-    parser.add_argument('-bs', '--batch-size', type=int, default=256,
+    parser.add_argument('-bs', '--batch-size', type=int, default=64,
                         help='Batch size for the DataLoader. Defaults to 64.')
     parser.add_argument('-is', '--input-size', type=int, default=1,
                         help='The number of layers. Defaults to 1.')
@@ -101,8 +101,6 @@ def main():
     logger = setup_logging(args)
 
     n_features = 1023
-    if args.dataset == "instance-recognition":
-        n_features = 2046
     num_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "oil_simple": 2, "cross-species": 3, "instance-recognition": 2}
     
     if args.dataset not in num_classes_per_dataset.keys():
