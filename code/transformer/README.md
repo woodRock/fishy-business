@@ -141,6 +141,39 @@ mean, std = test.mean(), test.std()
 print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
 
+Instance-recognition: binary classificaiton
+
+```python
+import numpy as np
+train = np.array([
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+    1.0000,
+])
+test = np.array([
+    0.6254,
+    0.6105,
+    0.5990,
+    0.6446,
+    0.6497,
+    0.6696,
+    0.6302,
+    0.6609,
+    0.6129,
+    0.6510,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
+
 Instance-recognition hard:
 
 ```python
