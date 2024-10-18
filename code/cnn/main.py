@@ -147,11 +147,11 @@ def main():
         dropout = args.dropout
     )
 
-    model = pre_train_transfer_learning(
-        model = model, 
-        file_path ='checkpoints/cnn_checkpoint.pth', 
-        output_dim = n_classes
-    )
+    # model = pre_train_transfer_learning(
+    #     model = model, 
+    #     file_path ='checkpoints/cnn_checkpoint.pth', 
+    #     output_dim = n_classes
+    # )
 
     # If pre-trained, load the pre-trained model weights.
     if args.masked_spectra_modelling:

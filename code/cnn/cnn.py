@@ -35,134 +35,66 @@ References:
 import torch
 import torch.nn as nn
 
-class ResidualBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, dropout=0.2, downsample=False):
-        super(ResidualBlock, self).__init__()
-        stride = 2 if downsample else 1
-        
-        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1)
-        self.bn1 = nn.BatchNorm1d(out_channels)
-        self.relu = nn.ReLU()
-        self.conv2 = nn.Conv1d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
-        self.bn2 = nn.BatchNorm1d(out_channels)
-        self.dropout = nn.Dropout(p=dropout)
-
-        # Shortcut path: if in_channels and out_channels differ, adjust with a 1x1 conv
-        self.shortcut = nn.Sequential()
-        if in_channels != out_channels or downsample:
-            self.shortcut = nn.Sequential(
-                nn.Conv1d(in_channels, out_channels, kernel_size=1, stride=stride, padding=0),
-                nn.BatchNorm1d(out_channels)
-            )
-    
-    def forward(self, x):
-        residual = self.shortcut(x)  # Match dimensions
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.dropout(out)
-        
-        out += residual  # Add the shortcut (residual) connection
-        out = self.relu(out)
-        return out
-
 class CNN(nn.Module):
-    def __init__(self, input_size, num_classes, dropout=0.5):
+    def __init__(self, 
+        input_size: int = 1023, 
+        num_classes: int = 7, 
+        dropout: int = 0.5
+    ) -> None:
+        
         super(CNN, self).__init__()
         
+        # Convolutional neural network (LeCun 1989,1989,1998)
         self.conv_layers = nn.Sequential(
-            ResidualBlock(1, 32, dropout=dropout),  # First block expects 1 channel
-            ResidualBlock(32, 64, dropout=dropout, downsample=True),  # Downsample here
-            ResidualBlock(64, 128, dropout=dropout),
-            ResidualBlock(128, 256, dropout=dropout, downsample=True),  # Downsample here
-            nn.AdaptiveMaxPool1d(4)  # Fixed output size to 4
+            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(32),  # Batch normalization
+            nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(64),  # Batch normalization
+            # GELU activation (Hendrycks 2016)
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
+               
+            nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(128),  # Batch normalization
+            nn.Conv1d(128, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(256),  # Batch normalization
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=2),
         )
         
         self.flatten = nn.Flatten()
-        self.flat_features = 256 * 4  # Adjusted based on the pooling layer
+
+        # Calculate the size of the flattened features after convolutions
+        self.flat_features = 256 * (input_size // 4)
         
         self.fc_layers = nn.Sequential(
             nn.Linear(self.flat_features, 256),
             nn.ReLU(),
+            # Dropout layer (Srivastava 2014, Hinton 2012)
             nn.Dropout(p=dropout),
-            nn.Linear(256, num_classes)
+            nn.Linear(256, num_classes),
         )
-        
+
     def forward(self, x):
-        x = x.unsqueeze(1) # Add channel dimension
+        """ Forward pass for the CNN.
+        
+        Args:
+            x (torch.Tensor): the input tensor.
+
+        Returns: 
+            x (torch.Tensor): the output tensor.
+        """
+        # Add channel dimension
+        x = x.unsqueeze(1)
+        
+        # Convolutional layers
         x = self.conv_layers(x)
+        
+        # Flatten the output
         x = self.flatten(x)
+        
+        # Fully connected layers
         x = self.fc_layers(x)
+        
         return x
-
-# Example input
-# model = CNN(input_size=1024, num_classes=10)
-# input_tensor = torch.randn(1, 1, 1024)  # Batch size of 1, 1 channel, 1024 length
-# output = model(input_tensor)
-# print(output.shape)  # Should be [1, 10]
-
-# class CNN(nn.Module):
-#     def __init__(self, 
-#         input_size: int = 1023, 
-#         num_classes: int = 7, 
-#         dropout: int = 0.5
-#     ) -> None:
-        
-#         super(CNN, self).__init__()
-        
-#         # Convolutional neural network (LeCun 1989,1989,1998)
-#         self.conv_layers = nn.Sequential(
-#             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
-#             nn.BatchNorm1d(32),  # Batch normalization
-#             nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
-#             nn.BatchNorm1d(64),  # Batch normalization
-#             # GELU activation (Hendrycks 2016)
-#             nn.ReLU(),
-#             nn.MaxPool1d(kernel_size=2, stride=2),
-#             nn.Dropout(p=dropout),
-               
-#             nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
-#             nn.BatchNorm1d(128),  # Batch normalization
-#             nn.Conv1d(128, 256, kernel_size=3, stride=1, padding=1),
-#             nn.BatchNorm1d(256),  # Batch normalization
-#             nn.ReLU(),
-#             nn.MaxPool1d(kernel_size=2, stride=2),
-#         )
-        
-#         self.flatten = nn.Flatten()
-
-#         # Calculate the size of the flattened features after convolutions
-#         self.flat_features = 256 * (input_size // 4)
-        
-#         self.fc_layers = nn.Sequential(
-#             nn.Linear(self.flat_features, 256),
-#             nn.ReLU(),
-#             # Dropout layer (Srivastava 2014, Hinton 2012)
-#             nn.Dropout(p=dropout),
-#             nn.Linear(256, num_classes),
-#         )
-
-#     def forward(self, x):
-#         """ Forward pass for the CNN.
-        
-#         Args:
-#             x (torch.Tensor): the input tensor.
-
-#         Returns: 
-#             x (torch.Tensor): the output tensor.
-#         """
-#         # Add channel dimension
-#         x = x.unsqueeze(1)
-        
-#         # Convolutional layers
-#         x = self.conv_layers(x)
-        
-#         # Flatten the output
-#         x = self.flatten(x)
-        
-#         # Fully connected layers
-#         x = self.fc_layers(x)
-        
-#         return x

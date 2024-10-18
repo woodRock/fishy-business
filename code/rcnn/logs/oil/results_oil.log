@@ -1,0 +1,501 @@
+INFO:__main__:[Epoch 1, Batch 1] loss: 0.195
+INFO:__main__:[Epoch 1] Train Loss: 0.000, Train Accuracy: 0.078
+INFO:__main__:[Epoch 1, Batch 2] loss: 0.195
+INFO:__main__:[Epoch 1] Train Loss: 0.000, Train Accuracy: 0.167
+INFO:__main__:[Epoch 1] Validation Loss: 1.945, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 101, Batch 1] loss: 0.194
+INFO:__main__:[Epoch 101] Train Loss: 0.000, Train Accuracy: 0.172
+INFO:__main__:[Epoch 101, Batch 2] loss: 0.194
+INFO:__main__:[Epoch 101] Train Loss: 0.000, Train Accuracy: 0.139
+INFO:__main__:[Epoch 101] Validation Loss: 1.945, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 201, Batch 1] loss: 0.194
+INFO:__main__:[Epoch 201] Train Loss: 0.000, Train Accuracy: 0.125
+INFO:__main__:[Epoch 201, Batch 2] loss: 0.193
+INFO:__main__:[Epoch 201] Train Loss: 0.000, Train Accuracy: 0.222
+INFO:__main__:[Epoch 201] Validation Loss: 1.943, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 301, Batch 1] loss: 0.194
+INFO:__main__:[Epoch 301] Train Loss: 0.000, Train Accuracy: 0.156
+INFO:__main__:[Epoch 301, Batch 2] loss: 0.194
+INFO:__main__:[Epoch 301] Train Loss: 0.000, Train Accuracy: 0.222
+INFO:__main__:[Epoch 301] Validation Loss: 1.940, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 401, Batch 1] loss: 0.193
+INFO:__main__:[Epoch 401] Train Loss: 0.000, Train Accuracy: 0.266
+INFO:__main__:[Epoch 401, Batch 2] loss: 0.193
+INFO:__main__:[Epoch 401] Train Loss: 0.000, Train Accuracy: 0.139
+INFO:__main__:[Epoch 401] Validation Loss: 1.936, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 501, Batch 1] loss: 0.194
+INFO:__main__:[Epoch 501] Train Loss: 0.000, Train Accuracy: 0.172
+INFO:__main__:[Epoch 501, Batch 2] loss: 0.193
+INFO:__main__:[Epoch 501] Train Loss: 0.000, Train Accuracy: 0.222
+INFO:__main__:[Epoch 501] Validation Loss: 1.930, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 601, Batch 1] loss: 0.193
+INFO:__main__:[Epoch 601] Train Loss: 0.000, Train Accuracy: 0.203
+INFO:__main__:[Epoch 601, Batch 2] loss: 0.191
+INFO:__main__:[Epoch 601] Train Loss: 0.000, Train Accuracy: 0.333
+INFO:__main__:[Epoch 601] Validation Loss: 1.927, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 701, Batch 1] loss: 0.192
+INFO:__main__:[Epoch 701] Train Loss: 0.000, Train Accuracy: 0.312
+INFO:__main__:[Epoch 701, Batch 2] loss: 0.193
+INFO:__main__:[Epoch 701] Train Loss: 0.000, Train Accuracy: 0.139
+INFO:__main__:[Epoch 701] Validation Loss: 1.923, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 801, Batch 1] loss: 0.191
+INFO:__main__:[Epoch 801] Train Loss: 0.000, Train Accuracy: 0.281
+INFO:__main__:[Epoch 801, Batch 2] loss: 0.192
+INFO:__main__:[Epoch 801] Train Loss: 0.000, Train Accuracy: 0.333
+INFO:__main__:[Epoch 801] Validation Loss: 1.920, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 901, Batch 1] loss: 0.192
+INFO:__main__:[Epoch 901] Train Loss: 0.000, Train Accuracy: 0.266
+INFO:__main__:[Epoch 901, Batch 2] loss: 0.190
+INFO:__main__:[Epoch 901] Train Loss: 0.000, Train Accuracy: 0.389
+INFO:__main__:[Epoch 901] Validation Loss: 1.915, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1001, Batch 1] loss: 0.189
+INFO:__main__:[Epoch 1001] Train Loss: 0.000, Train Accuracy: 0.281
+INFO:__main__:[Epoch 1001, Batch 2] loss: 0.192
+INFO:__main__:[Epoch 1001] Train Loss: 0.000, Train Accuracy: 0.222
+INFO:__main__:[Epoch 1001] Validation Loss: 1.913, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1101, Batch 1] loss: 0.190
+INFO:__main__:[Epoch 1101] Train Loss: 0.000, Train Accuracy: 0.266
+INFO:__main__:[Epoch 1101, Batch 2] loss: 0.189
+INFO:__main__:[Epoch 1101] Train Loss: 0.000, Train Accuracy: 0.389
+INFO:__main__:[Epoch 1101] Validation Loss: 1.911, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1201, Batch 1] loss: 0.189
+INFO:__main__:[Epoch 1201] Train Loss: 0.000, Train Accuracy: 0.359
+INFO:__main__:[Epoch 1201, Batch 2] loss: 0.188
+INFO:__main__:[Epoch 1201] Train Loss: 0.000, Train Accuracy: 0.306
+INFO:__main__:[Epoch 1201] Validation Loss: 1.910, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1301, Batch 1] loss: 0.186
+INFO:__main__:[Epoch 1301] Train Loss: 0.000, Train Accuracy: 0.391
+INFO:__main__:[Epoch 1301, Batch 2] loss: 0.190
+INFO:__main__:[Epoch 1301] Train Loss: 0.000, Train Accuracy: 0.333
+INFO:__main__:[Epoch 1301] Validation Loss: 1.913, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1401, Batch 1] loss: 0.186
+INFO:__main__:[Epoch 1401] Train Loss: 0.000, Train Accuracy: 0.422
+INFO:__main__:[Epoch 1401, Batch 2] loss: 0.189
+INFO:__main__:[Epoch 1401] Train Loss: 0.000, Train Accuracy: 0.250
+INFO:__main__:[Epoch 1401] Validation Loss: 1.913, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 1501, Batch 1] loss: 0.188
+INFO:__main__:[Epoch 1501] Train Loss: 0.000, Train Accuracy: 0.344
+INFO:__main__:[Epoch 1501, Batch 2] loss: 0.183
+INFO:__main__:[Epoch 1501] Train Loss: 0.000, Train Accuracy: 0.306
+INFO:__main__:[Epoch 1501] Validation Loss: 1.918, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 1601, Batch 1] loss: 0.185
+INFO:__main__:[Epoch 1601] Train Loss: 0.000, Train Accuracy: 0.297
+INFO:__main__:[Epoch 1601, Batch 2] loss: 0.183
+INFO:__main__:[Epoch 1601] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 1601] Validation Loss: 1.922, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 1701, Batch 1] loss: 0.184
+INFO:__main__:[Epoch 1701] Train Loss: 0.000, Train Accuracy: 0.344
+INFO:__main__:[Epoch 1701, Batch 2] loss: 0.184
+INFO:__main__:[Epoch 1701] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 1701] Validation Loss: 1.932, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1801, Batch 1] loss: 0.184
+INFO:__main__:[Epoch 1801] Train Loss: 0.000, Train Accuracy: 0.281
+INFO:__main__:[Epoch 1801, Batch 2] loss: 0.181
+INFO:__main__:[Epoch 1801] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 1801] Validation Loss: 1.942, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 1901, Batch 1] loss: 0.183
+INFO:__main__:[Epoch 1901] Train Loss: 0.000, Train Accuracy: 0.359
+INFO:__main__:[Epoch 1901, Batch 2] loss: 0.181
+INFO:__main__:[Epoch 1901] Train Loss: 0.000, Train Accuracy: 0.361
+INFO:__main__:[Epoch 1901] Validation Loss: 1.951, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2001, Batch 1] loss: 0.179
+INFO:__main__:[Epoch 2001] Train Loss: 0.000, Train Accuracy: 0.422
+INFO:__main__:[Epoch 2001, Batch 2] loss: 0.184
+INFO:__main__:[Epoch 2001] Train Loss: 0.000, Train Accuracy: 0.333
+INFO:__main__:[Epoch 2001] Validation Loss: 1.966, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2101, Batch 1] loss: 0.179
+INFO:__main__:[Epoch 2101] Train Loss: 0.000, Train Accuracy: 0.375
+INFO:__main__:[Epoch 2101, Batch 2] loss: 0.183
+INFO:__main__:[Epoch 2101] Train Loss: 0.000, Train Accuracy: 0.361
+INFO:__main__:[Epoch 2101] Validation Loss: 1.982, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2201, Batch 1] loss: 0.181
+INFO:__main__:[Epoch 2201] Train Loss: 0.000, Train Accuracy: 0.391
+INFO:__main__:[Epoch 2201, Batch 2] loss: 0.177
+INFO:__main__:[Epoch 2201] Train Loss: 0.000, Train Accuracy: 0.361
+INFO:__main__:[Epoch 2201] Validation Loss: 1.996, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2301, Batch 1] loss: 0.179
+INFO:__main__:[Epoch 2301] Train Loss: 0.000, Train Accuracy: 0.344
+INFO:__main__:[Epoch 2301, Batch 2] loss: 0.175
+INFO:__main__:[Epoch 2301] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 2301] Validation Loss: 2.011, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2401, Batch 1] loss: 0.175
+INFO:__main__:[Epoch 2401] Train Loss: 0.000, Train Accuracy: 0.422
+INFO:__main__:[Epoch 2401, Batch 2] loss: 0.180
+INFO:__main__:[Epoch 2401] Train Loss: 0.000, Train Accuracy: 0.333
+INFO:__main__:[Epoch 2401] Validation Loss: 2.029, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2501, Batch 1] loss: 0.176
+INFO:__main__:[Epoch 2501] Train Loss: 0.000, Train Accuracy: 0.438
+INFO:__main__:[Epoch 2501, Batch 2] loss: 0.178
+INFO:__main__:[Epoch 2501] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 2501] Validation Loss: 2.052, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2601, Batch 1] loss: 0.176
+INFO:__main__:[Epoch 2601] Train Loss: 0.000, Train Accuracy: 0.359
+INFO:__main__:[Epoch 2601, Batch 2] loss: 0.173
+INFO:__main__:[Epoch 2601] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 2601] Validation Loss: 2.075, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2701, Batch 1] loss: 0.172
+INFO:__main__:[Epoch 2701] Train Loss: 0.000, Train Accuracy: 0.375
+INFO:__main__:[Epoch 2701, Batch 2] loss: 0.176
+INFO:__main__:[Epoch 2701] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 2701] Validation Loss: 2.105, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2801, Batch 1] loss: 0.173
+INFO:__main__:[Epoch 2801] Train Loss: 0.000, Train Accuracy: 0.359
+INFO:__main__:[Epoch 2801, Batch 2] loss: 0.173
+INFO:__main__:[Epoch 2801] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 2801] Validation Loss: 2.133, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 2901, Batch 1] loss: 0.169
+INFO:__main__:[Epoch 2901] Train Loss: 0.000, Train Accuracy: 0.406
+INFO:__main__:[Epoch 2901, Batch 2] loss: 0.176
+INFO:__main__:[Epoch 2901] Train Loss: 0.000, Train Accuracy: 0.361
+INFO:__main__:[Epoch 2901] Validation Loss: 2.168, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 3001, Batch 1] loss: 0.168
+INFO:__main__:[Epoch 3001] Train Loss: 0.000, Train Accuracy: 0.484
+INFO:__main__:[Epoch 3001, Batch 2] loss: 0.171
+INFO:__main__:[Epoch 3001] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 3001] Validation Loss: 2.191, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 3101, Batch 1] loss: 0.165
+INFO:__main__:[Epoch 3101] Train Loss: 0.000, Train Accuracy: 0.438
+INFO:__main__:[Epoch 3101, Batch 2] loss: 0.175
+INFO:__main__:[Epoch 3101] Train Loss: 0.000, Train Accuracy: 0.389
+INFO:__main__:[Epoch 3101] Validation Loss: 2.234, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 3201, Batch 1] loss: 0.168
+INFO:__main__:[Epoch 3201] Train Loss: 0.000, Train Accuracy: 0.391
+INFO:__main__:[Epoch 3201, Batch 2] loss: 0.166
+INFO:__main__:[Epoch 3201] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 3201] Validation Loss: 2.258, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 3301, Batch 1] loss: 0.164
+INFO:__main__:[Epoch 3301] Train Loss: 0.000, Train Accuracy: 0.406
+INFO:__main__:[Epoch 3301, Batch 2] loss: 0.172
+INFO:__main__:[Epoch 3301] Train Loss: 0.000, Train Accuracy: 0.444
+INFO:__main__:[Epoch 3301] Validation Loss: 2.306, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 3401, Batch 1] loss: 0.170
+INFO:__main__:[Epoch 3401] Train Loss: 0.000, Train Accuracy: 0.438
+INFO:__main__:[Epoch 3401, Batch 2] loss: 0.159
+INFO:__main__:[Epoch 3401] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 3401] Validation Loss: 2.346, Validation Accuracy: 0.269
+INFO:__main__:[Epoch 3501, Batch 1] loss: 0.166
+INFO:__main__:[Epoch 3501] Train Loss: 0.000, Train Accuracy: 0.422
+INFO:__main__:[Epoch 3501, Batch 2] loss: 0.164
+INFO:__main__:[Epoch 3501] Train Loss: 0.000, Train Accuracy: 0.444
+INFO:__main__:[Epoch 3501] Validation Loss: 2.396, Validation Accuracy: 0.269
+INFO:__main__:[Epoch 3601, Batch 1] loss: 0.159
+INFO:__main__:[Epoch 3601] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 3601, Batch 2] loss: 0.169
+INFO:__main__:[Epoch 3601] Train Loss: 0.000, Train Accuracy: 0.389
+INFO:__main__:[Epoch 3601] Validation Loss: 2.447, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 3701, Batch 1] loss: 0.167
+INFO:__main__:[Epoch 3701] Train Loss: 0.000, Train Accuracy: 0.375
+INFO:__main__:[Epoch 3701, Batch 2] loss: 0.160
+INFO:__main__:[Epoch 3701] Train Loss: 0.000, Train Accuracy: 0.417
+INFO:__main__:[Epoch 3701] Validation Loss: 2.491, Validation Accuracy: 0.269
+INFO:__main__:[Epoch 3801, Batch 1] loss: 0.162
+INFO:__main__:[Epoch 3801] Train Loss: 0.000, Train Accuracy: 0.578
+INFO:__main__:[Epoch 3801, Batch 2] loss: 0.161
+INFO:__main__:[Epoch 3801] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 3801] Validation Loss: 2.556, Validation Accuracy: 0.269
+INFO:__main__:[Epoch 3901, Batch 1] loss: 0.160
+INFO:__main__:[Epoch 3901] Train Loss: 0.000, Train Accuracy: 0.531
+INFO:__main__:[Epoch 3901, Batch 2] loss: 0.156
+INFO:__main__:[Epoch 3901] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 3901] Validation Loss: 2.619, Validation Accuracy: 0.231
+INFO:__main__:[Epoch 4001, Batch 1] loss: 0.154
+INFO:__main__:[Epoch 4001] Train Loss: 0.000, Train Accuracy: 0.547
+INFO:__main__:[Epoch 4001, Batch 2] loss: 0.164
+INFO:__main__:[Epoch 4001] Train Loss: 0.000, Train Accuracy: 0.389
+INFO:__main__:[Epoch 4001] Validation Loss: 2.676, Validation Accuracy: 0.269
+INFO:__main__:[Epoch 4101, Batch 1] loss: 0.161
+INFO:__main__:[Epoch 4101] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 4101, Batch 2] loss: 0.152
+INFO:__main__:[Epoch 4101] Train Loss: 0.000, Train Accuracy: 0.444
+INFO:__main__:[Epoch 4101] Validation Loss: 2.756, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 4201, Batch 1] loss: 0.159
+INFO:__main__:[Epoch 4201] Train Loss: 0.000, Train Accuracy: 0.516
+INFO:__main__:[Epoch 4201, Batch 2] loss: 0.158
+INFO:__main__:[Epoch 4201] Train Loss: 0.000, Train Accuracy: 0.444
+INFO:__main__:[Epoch 4201] Validation Loss: 2.826, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 4301, Batch 1] loss: 0.160
+INFO:__main__:[Epoch 4301] Train Loss: 0.000, Train Accuracy: 0.438
+INFO:__main__:[Epoch 4301, Batch 2] loss: 0.153
+INFO:__main__:[Epoch 4301] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 4301] Validation Loss: 2.887, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 4401, Batch 1] loss: 0.153
+INFO:__main__:[Epoch 4401] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 4401, Batch 2] loss: 0.157
+INFO:__main__:[Epoch 4401] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 4401] Validation Loss: 2.970, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 4501, Batch 1] loss: 0.152
+INFO:__main__:[Epoch 4501] Train Loss: 0.000, Train Accuracy: 0.531
+INFO:__main__:[Epoch 4501, Batch 2] loss: 0.155
+INFO:__main__:[Epoch 4501] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 4501] Validation Loss: 3.022, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 4601, Batch 1] loss: 0.151
+INFO:__main__:[Epoch 4601] Train Loss: 0.000, Train Accuracy: 0.516
+INFO:__main__:[Epoch 4601, Batch 2] loss: 0.159
+INFO:__main__:[Epoch 4601] Train Loss: 0.000, Train Accuracy: 0.556
+INFO:__main__:[Epoch 4601] Validation Loss: 3.114, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 4701, Batch 1] loss: 0.148
+INFO:__main__:[Epoch 4701] Train Loss: 0.000, Train Accuracy: 0.562
+INFO:__main__:[Epoch 4701, Batch 2] loss: 0.160
+INFO:__main__:[Epoch 4701] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 4701] Validation Loss: 3.191, Validation Accuracy: 0.115
+INFO:__main__:[Epoch 4801, Batch 1] loss: 0.157
+INFO:__main__:[Epoch 4801] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 4801, Batch 2] loss: 0.140
+INFO:__main__:[Epoch 4801] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 4801] Validation Loss: 3.283, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 4901, Batch 1] loss: 0.148
+INFO:__main__:[Epoch 4901] Train Loss: 0.000, Train Accuracy: 0.531
+INFO:__main__:[Epoch 4901, Batch 2] loss: 0.155
+INFO:__main__:[Epoch 4901] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 4901] Validation Loss: 3.348, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 5001, Batch 1] loss: 0.149
+INFO:__main__:[Epoch 5001] Train Loss: 0.000, Train Accuracy: 0.516
+INFO:__main__:[Epoch 5001, Batch 2] loss: 0.151
+INFO:__main__:[Epoch 5001] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 5001] Validation Loss: 3.444, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 5101, Batch 1] loss: 0.147
+INFO:__main__:[Epoch 5101] Train Loss: 0.000, Train Accuracy: 0.547
+INFO:__main__:[Epoch 5101, Batch 2] loss: 0.148
+INFO:__main__:[Epoch 5101] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 5101] Validation Loss: 3.519, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 5201, Batch 1] loss: 0.145
+INFO:__main__:[Epoch 5201] Train Loss: 0.000, Train Accuracy: 0.531
+INFO:__main__:[Epoch 5201, Batch 2] loss: 0.152
+INFO:__main__:[Epoch 5201] Train Loss: 0.000, Train Accuracy: 0.556
+INFO:__main__:[Epoch 5201] Validation Loss: 3.611, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 5301, Batch 1] loss: 0.152
+INFO:__main__:[Epoch 5301] Train Loss: 0.000, Train Accuracy: 0.531
+INFO:__main__:[Epoch 5301, Batch 2] loss: 0.141
+INFO:__main__:[Epoch 5301] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 5301] Validation Loss: 3.704, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 5401, Batch 1] loss: 0.142
+INFO:__main__:[Epoch 5401] Train Loss: 0.000, Train Accuracy: 0.562
+INFO:__main__:[Epoch 5401, Batch 2] loss: 0.155
+INFO:__main__:[Epoch 5401] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 5401] Validation Loss: 3.775, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 5501, Batch 1] loss: 0.149
+INFO:__main__:[Epoch 5501] Train Loss: 0.000, Train Accuracy: 0.531
+INFO:__main__:[Epoch 5501, Batch 2] loss: 0.141
+INFO:__main__:[Epoch 5501] Train Loss: 0.000, Train Accuracy: 0.500
+INFO:__main__:[Epoch 5501] Validation Loss: 3.878, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 5601, Batch 1] loss: 0.149
+INFO:__main__:[Epoch 5601] Train Loss: 0.000, Train Accuracy: 0.422
+INFO:__main__:[Epoch 5601, Batch 2] loss: 0.144
+INFO:__main__:[Epoch 5601] Train Loss: 0.000, Train Accuracy: 0.639
+INFO:__main__:[Epoch 5601] Validation Loss: 3.959, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 5701, Batch 1] loss: 0.141
+INFO:__main__:[Epoch 5701] Train Loss: 0.000, Train Accuracy: 0.547
+INFO:__main__:[Epoch 5701, Batch 2] loss: 0.154
+INFO:__main__:[Epoch 5701] Train Loss: 0.000, Train Accuracy: 0.389
+INFO:__main__:[Epoch 5701] Validation Loss: 4.056, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 5801, Batch 1] loss: 0.141
+INFO:__main__:[Epoch 5801] Train Loss: 0.000, Train Accuracy: 0.641
+INFO:__main__:[Epoch 5801, Batch 2] loss: 0.150
+INFO:__main__:[Epoch 5801] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 5801] Validation Loss: 4.125, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 5901, Batch 1] loss: 0.135
+INFO:__main__:[Epoch 5901] Train Loss: 0.000, Train Accuracy: 0.609
+INFO:__main__:[Epoch 5901, Batch 2] loss: 0.149
+INFO:__main__:[Epoch 5901] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 5901] Validation Loss: 4.211, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6001, Batch 1] loss: 0.139
+INFO:__main__:[Epoch 6001] Train Loss: 0.000, Train Accuracy: 0.547
+INFO:__main__:[Epoch 6001, Batch 2] loss: 0.139
+INFO:__main__:[Epoch 6001] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 6001] Validation Loss: 4.316, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6101, Batch 1] loss: 0.135
+INFO:__main__:[Epoch 6101] Train Loss: 0.000, Train Accuracy: 0.609
+INFO:__main__:[Epoch 6101, Batch 2] loss: 0.150
+INFO:__main__:[Epoch 6101] Train Loss: 0.000, Train Accuracy: 0.472
+INFO:__main__:[Epoch 6101] Validation Loss: 4.416, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6201, Batch 1] loss: 0.141
+INFO:__main__:[Epoch 6201] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 6201, Batch 2] loss: 0.131
+INFO:__main__:[Epoch 6201] Train Loss: 0.000, Train Accuracy: 0.694
+INFO:__main__:[Epoch 6201] Validation Loss: 4.509, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6301, Batch 1] loss: 0.133
+INFO:__main__:[Epoch 6301] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 6301, Batch 2] loss: 0.153
+INFO:__main__:[Epoch 6301] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 6301] Validation Loss: 4.590, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6401, Batch 1] loss: 0.133
+INFO:__main__:[Epoch 6401] Train Loss: 0.000, Train Accuracy: 0.609
+INFO:__main__:[Epoch 6401, Batch 2] loss: 0.144
+INFO:__main__:[Epoch 6401] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 6401] Validation Loss: 4.691, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6501, Batch 1] loss: 0.139
+INFO:__main__:[Epoch 6501] Train Loss: 0.000, Train Accuracy: 0.609
+INFO:__main__:[Epoch 6501, Batch 2] loss: 0.145
+INFO:__main__:[Epoch 6501] Train Loss: 0.000, Train Accuracy: 0.528
+INFO:__main__:[Epoch 6501] Validation Loss: 4.784, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6601, Batch 1] loss: 0.135
+INFO:__main__:[Epoch 6601] Train Loss: 0.000, Train Accuracy: 0.578
+INFO:__main__:[Epoch 6601, Batch 2] loss: 0.143
+INFO:__main__:[Epoch 6601] Train Loss: 0.000, Train Accuracy: 0.611
+INFO:__main__:[Epoch 6601] Validation Loss: 4.859, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6701, Batch 1] loss: 0.128
+INFO:__main__:[Epoch 6701] Train Loss: 0.000, Train Accuracy: 0.719
+INFO:__main__:[Epoch 6701, Batch 2] loss: 0.142
+INFO:__main__:[Epoch 6701] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 6701] Validation Loss: 4.964, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6801, Batch 1] loss: 0.137
+INFO:__main__:[Epoch 6801] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 6801, Batch 2] loss: 0.136
+INFO:__main__:[Epoch 6801] Train Loss: 0.000, Train Accuracy: 0.556
+INFO:__main__:[Epoch 6801] Validation Loss: 5.006, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 6901, Batch 1] loss: 0.138
+INFO:__main__:[Epoch 6901] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 6901, Batch 2] loss: 0.135
+INFO:__main__:[Epoch 6901] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 6901] Validation Loss: 5.123, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 7001, Batch 1] loss: 0.140
+INFO:__main__:[Epoch 7001] Train Loss: 0.000, Train Accuracy: 0.484
+INFO:__main__:[Epoch 7001, Batch 2] loss: 0.127
+INFO:__main__:[Epoch 7001] Train Loss: 0.000, Train Accuracy: 0.722
+INFO:__main__:[Epoch 7001] Validation Loss: 5.224, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 7101, Batch 1] loss: 0.142
+INFO:__main__:[Epoch 7101] Train Loss: 0.000, Train Accuracy: 0.625
+INFO:__main__:[Epoch 7101, Batch 2] loss: 0.133
+INFO:__main__:[Epoch 7101] Train Loss: 0.000, Train Accuracy: 0.556
+INFO:__main__:[Epoch 7101] Validation Loss: 5.319, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 7201, Batch 1] loss: 0.131
+INFO:__main__:[Epoch 7201] Train Loss: 0.000, Train Accuracy: 0.719
+INFO:__main__:[Epoch 7201, Batch 2] loss: 0.136
+INFO:__main__:[Epoch 7201] Train Loss: 0.000, Train Accuracy: 0.611
+INFO:__main__:[Epoch 7201] Validation Loss: 5.386, Validation Accuracy: 0.192
+INFO:__main__:[Epoch 7301, Batch 1] loss: 0.131
+INFO:__main__:[Epoch 7301] Train Loss: 0.000, Train Accuracy: 0.578
+INFO:__main__:[Epoch 7301, Batch 2] loss: 0.135
+INFO:__main__:[Epoch 7301] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 7301] Validation Loss: 5.494, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 7401, Batch 1] loss: 0.132
+INFO:__main__:[Epoch 7401] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 7401, Batch 2] loss: 0.132
+INFO:__main__:[Epoch 7401] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 7401] Validation Loss: 5.563, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 7501, Batch 1] loss: 0.132
+INFO:__main__:[Epoch 7501] Train Loss: 0.000, Train Accuracy: 0.641
+INFO:__main__:[Epoch 7501, Batch 2] loss: 0.128
+INFO:__main__:[Epoch 7501] Train Loss: 0.000, Train Accuracy: 0.694
+INFO:__main__:[Epoch 7501] Validation Loss: 5.668, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 7601, Batch 1] loss: 0.133
+INFO:__main__:[Epoch 7601] Train Loss: 0.000, Train Accuracy: 0.641
+INFO:__main__:[Epoch 7601, Batch 2] loss: 0.126
+INFO:__main__:[Epoch 7601] Train Loss: 0.000, Train Accuracy: 0.722
+INFO:__main__:[Epoch 7601] Validation Loss: 5.767, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 7701, Batch 1] loss: 0.134
+INFO:__main__:[Epoch 7701] Train Loss: 0.000, Train Accuracy: 0.578
+INFO:__main__:[Epoch 7701, Batch 2] loss: 0.124
+INFO:__main__:[Epoch 7701] Train Loss: 0.000, Train Accuracy: 0.722
+INFO:__main__:[Epoch 7701] Validation Loss: 5.865, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 7801, Batch 1] loss: 0.132
+INFO:__main__:[Epoch 7801] Train Loss: 0.000, Train Accuracy: 0.672
+INFO:__main__:[Epoch 7801, Batch 2] loss: 0.132
+INFO:__main__:[Epoch 7801] Train Loss: 0.000, Train Accuracy: 0.694
+INFO:__main__:[Epoch 7801] Validation Loss: 5.933, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 7901, Batch 1] loss: 0.120
+INFO:__main__:[Epoch 7901] Train Loss: 0.000, Train Accuracy: 0.703
+INFO:__main__:[Epoch 7901, Batch 2] loss: 0.137
+INFO:__main__:[Epoch 7901] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 7901] Validation Loss: 6.015, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8001, Batch 1] loss: 0.125
+INFO:__main__:[Epoch 8001] Train Loss: 0.000, Train Accuracy: 0.719
+INFO:__main__:[Epoch 8001, Batch 2] loss: 0.132
+INFO:__main__:[Epoch 8001] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 8001] Validation Loss: 6.077, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8101, Batch 1] loss: 0.128
+INFO:__main__:[Epoch 8101] Train Loss: 0.000, Train Accuracy: 0.688
+INFO:__main__:[Epoch 8101, Batch 2] loss: 0.130
+INFO:__main__:[Epoch 8101] Train Loss: 0.000, Train Accuracy: 0.639
+INFO:__main__:[Epoch 8101] Validation Loss: 6.192, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8201, Batch 1] loss: 0.129
+INFO:__main__:[Epoch 8201] Train Loss: 0.000, Train Accuracy: 0.609
+INFO:__main__:[Epoch 8201, Batch 2] loss: 0.130
+INFO:__main__:[Epoch 8201] Train Loss: 0.000, Train Accuracy: 0.694
+INFO:__main__:[Epoch 8201] Validation Loss: 6.280, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8301, Batch 1] loss: 0.130
+INFO:__main__:[Epoch 8301] Train Loss: 0.000, Train Accuracy: 0.609
+INFO:__main__:[Epoch 8301, Batch 2] loss: 0.125
+INFO:__main__:[Epoch 8301] Train Loss: 0.000, Train Accuracy: 0.778
+INFO:__main__:[Epoch 8301] Validation Loss: 6.367, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8401, Batch 1] loss: 0.133
+INFO:__main__:[Epoch 8401] Train Loss: 0.000, Train Accuracy: 0.594
+INFO:__main__:[Epoch 8401, Batch 2] loss: 0.124
+INFO:__main__:[Epoch 8401] Train Loss: 0.000, Train Accuracy: 0.722
+INFO:__main__:[Epoch 8401] Validation Loss: 6.466, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8501, Batch 1] loss: 0.117
+INFO:__main__:[Epoch 8501] Train Loss: 0.000, Train Accuracy: 0.750
+INFO:__main__:[Epoch 8501, Batch 2] loss: 0.139
+INFO:__main__:[Epoch 8501] Train Loss: 0.000, Train Accuracy: 0.611
+INFO:__main__:[Epoch 8501] Validation Loss: 6.529, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8601, Batch 1] loss: 0.121
+INFO:__main__:[Epoch 8601] Train Loss: 0.000, Train Accuracy: 0.688
+INFO:__main__:[Epoch 8601, Batch 2] loss: 0.132
+INFO:__main__:[Epoch 8601] Train Loss: 0.000, Train Accuracy: 0.694
+INFO:__main__:[Epoch 8601] Validation Loss: 6.642, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8701, Batch 1] loss: 0.119
+INFO:__main__:[Epoch 8701] Train Loss: 0.000, Train Accuracy: 0.766
+INFO:__main__:[Epoch 8701, Batch 2] loss: 0.135
+INFO:__main__:[Epoch 8701] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 8701] Validation Loss: 6.728, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8801, Batch 1] loss: 0.116
+INFO:__main__:[Epoch 8801] Train Loss: 0.000, Train Accuracy: 0.750
+INFO:__main__:[Epoch 8801, Batch 2] loss: 0.132
+INFO:__main__:[Epoch 8801] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 8801] Validation Loss: 6.774, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 8901, Batch 1] loss: 0.124
+INFO:__main__:[Epoch 8901] Train Loss: 0.000, Train Accuracy: 0.688
+INFO:__main__:[Epoch 8901, Batch 2] loss: 0.123
+INFO:__main__:[Epoch 8901] Train Loss: 0.000, Train Accuracy: 0.750
+INFO:__main__:[Epoch 8901] Validation Loss: 6.893, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9001, Batch 1] loss: 0.134
+INFO:__main__:[Epoch 9001] Train Loss: 0.000, Train Accuracy: 0.562
+INFO:__main__:[Epoch 9001, Batch 2] loss: 0.106
+INFO:__main__:[Epoch 9001] Train Loss: 0.000, Train Accuracy: 0.806
+INFO:__main__:[Epoch 9001] Validation Loss: 6.981, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9101, Batch 1] loss: 0.121
+INFO:__main__:[Epoch 9101] Train Loss: 0.000, Train Accuracy: 0.656
+INFO:__main__:[Epoch 9101, Batch 2] loss: 0.124
+INFO:__main__:[Epoch 9101] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 9101] Validation Loss: 7.034, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9201, Batch 1] loss: 0.116
+INFO:__main__:[Epoch 9201] Train Loss: 0.000, Train Accuracy: 0.750
+INFO:__main__:[Epoch 9201, Batch 2] loss: 0.130
+INFO:__main__:[Epoch 9201] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 9201] Validation Loss: 7.139, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9301, Batch 1] loss: 0.116
+INFO:__main__:[Epoch 9301] Train Loss: 0.000, Train Accuracy: 0.734
+INFO:__main__:[Epoch 9301, Batch 2] loss: 0.126
+INFO:__main__:[Epoch 9301] Train Loss: 0.000, Train Accuracy: 0.750
+INFO:__main__:[Epoch 9301] Validation Loss: 7.227, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9401, Batch 1] loss: 0.118
+INFO:__main__:[Epoch 9401] Train Loss: 0.000, Train Accuracy: 0.766
+INFO:__main__:[Epoch 9401, Batch 2] loss: 0.126
+INFO:__main__:[Epoch 9401] Train Loss: 0.000, Train Accuracy: 0.583
+INFO:__main__:[Epoch 9401] Validation Loss: 7.246, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9501, Batch 1] loss: 0.126
+INFO:__main__:[Epoch 9501] Train Loss: 0.000, Train Accuracy: 0.625
+INFO:__main__:[Epoch 9501, Batch 2] loss: 0.120
+INFO:__main__:[Epoch 9501] Train Loss: 0.000, Train Accuracy: 0.722
+INFO:__main__:[Epoch 9501] Validation Loss: 7.339, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9601, Batch 1] loss: 0.124
+INFO:__main__:[Epoch 9601] Train Loss: 0.000, Train Accuracy: 0.672
+INFO:__main__:[Epoch 9601, Batch 2] loss: 0.124
+INFO:__main__:[Epoch 9601] Train Loss: 0.000, Train Accuracy: 0.667
+INFO:__main__:[Epoch 9601] Validation Loss: 7.408, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9701, Batch 1] loss: 0.120
+INFO:__main__:[Epoch 9701] Train Loss: 0.000, Train Accuracy: 0.672
+INFO:__main__:[Epoch 9701, Batch 2] loss: 0.121
+INFO:__main__:[Epoch 9701] Train Loss: 0.000, Train Accuracy: 0.722
+INFO:__main__:[Epoch 9701] Validation Loss: 7.487, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9801, Batch 1] loss: 0.118
+INFO:__main__:[Epoch 9801] Train Loss: 0.000, Train Accuracy: 0.766
+INFO:__main__:[Epoch 9801, Batch 2] loss: 0.115
+INFO:__main__:[Epoch 9801] Train Loss: 0.000, Train Accuracy: 0.778
+INFO:__main__:[Epoch 9801] Validation Loss: 7.608, Validation Accuracy: 0.154
+INFO:__main__:[Epoch 9901, Batch 1] loss: 0.115
+INFO:__main__:[Epoch 9901] Train Loss: 0.000, Train Accuracy: 0.688
+INFO:__main__:[Epoch 9901, Batch 2] loss: 0.131
+INFO:__main__:[Epoch 9901] Train Loss: 0.000, Train Accuracy: 0.611
+INFO:__main__:[Epoch 9901] Validation Loss: 7.708, Validation Accuracy: 0.154
+INFO:__main__:Finished Training

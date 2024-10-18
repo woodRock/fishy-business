@@ -259,3 +259,37 @@ print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 mean, std = test.mean(), test.std()
 print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
 ```
+
+Instance recognition 
+
+```python
+import numpy as np
+train = np.array([
+    0.5233,
+    0.6380,
+    0.5463,
+    0.5337,
+    0.5967,
+    0.5233,
+    0.6491,
+    0.5463,
+    0.5402,
+    0.5907,
+])
+test = np.array([
+    0.5217,
+    0.5414,
+    0.5424,
+    0.5238,
+    0.5425,
+    0.5455,
+    0.5414,
+    0.5424,
+    0.5238,
+    0.5425,
+])
+mean, std = train.mean(), train.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+mean, std = test.mean(), test.std()
+print(f"{mean*100:.2f}\% $\pm$ {std*100:.2f}\%")
+```
