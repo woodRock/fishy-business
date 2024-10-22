@@ -24,8 +24,9 @@ class KANWrapper:
         return probs
 
 # Instantiate your transformer model
+dataset = "oil"
 input_dim = 1023
-output_dim = 6
+output_dim = 7
 num_layers = 3
 num_heads = 3
 hidden_dim = 128
@@ -33,18 +34,18 @@ dropout = 0.2
 
 # Initialize the model.
 model = StackedKAN(input_dim=input_dim, 
-    output_dim=3, 
-    hidden_dim=128, 
+    output_dim=output_dim, 
+    hidden_dim=hidden_dim, 
     num_inner_functions=20, 
-    dropout_rate=0.2, 
-    num_layers=1
+    dropout_rate=dropout, 
+    num_layers=num_layers
 )
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
 
 train_loader, data = preprocess_dataset(
-    dataset='cross-species',
+    dataset=dataset,
     batch_size=256,
     is_data_augmentation=False,
     is_pre_train=False
@@ -80,8 +81,22 @@ wrapped_model = KANWrapper(model)
 data_iter = iter(train_loader)
 features, labels = next(data_iter)
 
-class_names = ["Hoki-Mackerel", "Hoki", "Mackerel"]
-feature_names = data.axes[1].tolist()
+labels_per_dataset = {
+    "species": ["Hoki", "Mackerel"],
+    "part": ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"],
+    "oil": ["50", "25", "10", "05", "01", "0.1"," 0"],
+    "oil_simple": ["Oil", "No oil"],
+    "cross-species":["Hoki-Mackeral", "Hoki", "Mackerel"],
+    "instance-recognition": ["different", "same"]
+}
+
+if dataset not in labels_per_dataset.keys():
+    raise ValueError(f"Not a valid dataset: {dataset}")
+
+class_names = labels_per_dataset[dataset]
+# Give mass-to-charge ratios to 4 decimal places as feature names.
+# Skip the first column, which is the label.
+feature_names = [f"{float(x):.4f}" for x in data.axes[1].tolist()[1:]]
 
 # Standardize the data
 scaler = StandardScaler()
@@ -97,8 +112,21 @@ explainer = LimeTabularExplainer(
 )
 
 # Retrieve the first instance
-first_instance = features[0]
-first_instance_label = labels[0]
+# Retrieve the first instance
+instance = None
+label = None
+# Retrieve the first instance
+for f, l in zip(features, labels):
+    # ["Hoki", "Mackerel"]
+    # ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
+    # ["50", "25", "10", "05", "01", "0.1"," 0"]
+    if torch.equal(l,torch.tensor([0,0,0,0,0,0,1])):
+        instance = f
+        label = l
+        break
+
+first_instance = instance
+first_instance_label = label
 
 print(f"first_instance_label: {first_instance_label}")
 
@@ -106,7 +134,7 @@ print(f"first_instance_label: {first_instance_label}")
 explanation = explainer.explain_instance(
     first_instance.cpu().numpy(), 
     wrapped_model.predict_proba, 
-    num_features=10,
+    num_features=5,
     num_samples=100
 )
 
@@ -120,7 +148,7 @@ fig.set_size_inches(10, 8)
 plt.tight_layout()
 
 # Save the figure
-fig.savefig('figures/oil/lime_explanation.png')
+fig.savefig('figures/oil/lime_kan_0.png')
 
 # Optionally, display the explanation
 plt.show()
