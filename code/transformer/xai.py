@@ -25,9 +25,9 @@ class TransformerWrapper:
         return probs
 
 # Instantiate your transformer model
-dataset = "instance-recognition"
-input_dim = 2046
-output_dim = 2
+dataset = "cross-species"
+input_dim = 1023
+output_dim = 3
 num_layers = 3
 num_heads = 3
 hidden_dim = 128
@@ -45,7 +45,7 @@ model = Transformer(
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-train_loader, val_loader, _ ,_, data = preprocess_dataset(
+train_loader, data = preprocess_dataset(
     dataset=dataset,
     batch_size=64,
     is_data_augmentation=False,
@@ -65,7 +65,6 @@ model.to(device)
 model = train_model(
     model, 
     train_loader, 
-    val_loader, 
     criterion,
     optimizer, 
     num_epochs=100, 
@@ -95,7 +94,9 @@ if dataset not in labels_per_dataset.keys():
     raise ValueError(f"Not a valid dataset: {dataset}")
 
 class_names = labels_per_dataset[dataset]
-feature_names = list(data.axes[1].tolist()) * 2
+# Give mass-to-charge ratios to 4 decimal places as feature names.
+# Skip the first column, which is the label.
+feature_names = [f"{float(x):.4f}" for x in data.axes[1].tolist()[1:]]
 
 # Standardize the data
 scaler = StandardScaler()
@@ -111,8 +112,20 @@ explainer = LimeTabularExplainer(
 )
 
 # Retrieve the first instance
-first_instance = features[0]
-first_instance_label = labels[0]
+instance = None
+label = None
+# Retrieve the first instance
+for f, l in zip(features, labels):
+    # ["Hoki", "Mackerel"]
+    # ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"]
+    # ["Hoki-Mackeral", "Hoki", "Mackerel"]
+    if torch.equal(l,torch.tensor([0,0,1])):
+        instance = f
+        label = l
+        break
+
+first_instance = instance
+first_instance_label = label
 
 print(f"first_instance_label: {first_instance_label}")
 
@@ -120,7 +133,7 @@ print(f"first_instance_label: {first_instance_label}")
 explanation = explainer.explain_instance(
     first_instance.cpu().numpy(), 
     wrapped_model.predict_proba, 
-    num_features=10,
+    num_features=5,
     num_samples=100
 )
 
@@ -134,7 +147,7 @@ fig.set_size_inches(10, 8)
 plt.tight_layout()
 
 # Save the figure
-fig.savefig('figures/lime_explanation.png')
+fig.savefig('figures/cross-species/lime_transformer_cross-species_mackerel.png')
 
 # Optionally, display the explanation
 plt.show()
