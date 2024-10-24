@@ -38,6 +38,12 @@ def train_model(
                 all_labels.append(labels.argmax().item())
             else:
                 all_labels.append(labels.argmax())
+        if isinstance(labels, np.ndarray):
+            if labels.ndim > 1:
+                # For multi-label classification, use argmax to get the primary label
+                all_labels.append(np.argmax(labels))
+            else:
+                all_labels.append(np.argmax(labels))
         else:
             all_labels.append(labels)
     all_labels = np.array(all_labels)

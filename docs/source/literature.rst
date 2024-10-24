@@ -2508,6 +2508,17 @@ nguyen2014filtermccann2012local
     * It draws from the strengths of filter and wrapper based feature selection.
     * This proposed method outperformed three state-of-the-art and two traditional feature selection methods.
 
+nguyen2016surrogate
+-------------------
+Surrogate-assisted genetic programming with simplified models for automated design of dispatching rules
+
+(Nguyen 2016) use GP for dynamic flexible job shop scheduling.
+
+Available: https://ieeexplore.ieee.org/abstract/document/7473913/
+
+Related: 
+    * Discussed in :ref:`2024-10-18 - ECRG <2024-10-18 - ECRG >`
+
 olah2018building
 ----------------
 The Building Blocks of Interpretability
