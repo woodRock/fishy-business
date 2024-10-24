@@ -7060,3 +7060,38 @@ Notes:
 * Transactions on Artificial Intelligence (TAI) is the journal we are targetting for this paper. 
 * Focus on the journal paper this week. Try and get it finished. 
 * Organize a meeting with Daniel to discuss instance recognition for batch detection. See what he thinks of batch detection research. 
+
+2024-10-18 - ECRG 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 15:00 - 16:00, **Attendees:** Hao Xie, Luyau  Zhu, Mengjie Zhang, Yi Mei 
+
+General notes:
+
+* Pacific Asia Conference on Knowledge Discovery and Data Mining, paper submission deadline is November 30th 2024. https://pakdd2025.org/
+* Topics: Anomoly detection, outlier detection, transfer learning, learning in real-time, fraud detection, scientific data. 
+* Progress report: Hi I'm Jesse, a 3rd year PhD stduent working on an industry project in seafood with machine learning for mass spectrometry. 
+    * Write another revision for my journal paper, plan to submit ot transactions on artificial intelligence.
+    * Gave a presentation on instance recognition for batch detection in FASLIP yesterday, ran experiments on this task . 
+    * Organize a meeting with Daniel to discuss the dataset for instance recognition for batch detection. 
+    * Added pre-trained transformer results to my journal paper, pre-training on a large dataset, then fine-tune on downstream classficiation tasks, left-to-right progressive masking. 
+
+Multi-label feature selection
+Hao Xie https://ecs.wgtn.ac.nz/Main/GradHaoXie 
+
+Notes: 
+* Multi-label feature selection based on manifold learning and sparse regularization. 
+* Dual graph manifold learning. 
+* Distances between vectors are similar in their low-dimensional embedding.
+* Dataset - 10 multi-label datasets publicly available at the Mulan library. 
+* Method - novel multi-label feature selection method with dual graphs and non-convex sparse regression. 
+
+Sample-aware dynamic job shop scheduling 
+Luyao Zhu https://ecs.wgtn.ac.nz/Main/GradLuyaoZhu
+
+Notes:
+* Hyper Heuristic - GP as a hyper heuristic to learn the DFJSS rules automatically.
+* Surrogate-assisted genetic programming with simplified models for automated design of dispatching rules.
+* Rule-size based selection strategy; only evaluate the smallest individuals. 
+
+Related: 
+* Paper mentioned on GP for DFJSS :ref:`(Nguyen 2016 <nguyen2016surrogate>)`

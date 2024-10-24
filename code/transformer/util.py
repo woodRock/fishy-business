@@ -46,6 +46,68 @@ class CustomDataset(Dataset):
             idx (int): the index of the element to retrive.
         """
         return self.samples[idx], self.labels[idx]
+    
+class SiameseDataset(Dataset):
+    """ Generate a dataset of paired instances for contrastive learning. """
+    def __init__(self, samples, labels, pairs_per_sample=50):
+        self.samples = torch.tensor(samples, dtype=torch.float32)
+        self.labels = torch.from_numpy(np.vstack(labels).astype(float))
+        self.samples = F.normalize(self.samples, dim=1)
+        self.pairs_per_sample = pairs_per_sample
+        
+        # Create dictionaries to store indices for each class
+        self.class_indices = {}
+        for idx, label in enumerate(self.labels):
+            label_tuple = tuple(label.tolist())
+            if label_tuple not in self.class_indices:
+                self.class_indices[label_tuple] = []
+            self.class_indices[label_tuple].append(idx)
+
+        samples = [] 
+        labels = [] 
+
+        # For each sample in the dataset.
+        for sample_idx, _ in enumerate(self.samples):
+            X1, y1 = self.samples[sample_idx], self.labels[sample_idx]
+            
+            # Generate 50 pairs per sample.
+            for _ in range(50):
+                # 50% chance to choose a pair of the same class
+                if np.random.random() < 0.5:
+                    same_class_indices = self.class_indices[tuple(y1.tolist())]
+                    if len(same_class_indices) > 1:  # Ensure there's at least one other sample in the same class
+                        idx2 = np.random.choice([i for i in same_class_indices if i != sample_idx])
+                    else:
+                        idx2 = np.random.choice(len(self.samples))  # If no other samples in the same class, choose randomly
+                else:
+                    idx2 = np.random.choice(len(self.samples))  # Choose a random sample
+                
+                X2, y2 = self.samples[idx2], self.labels[idx2]
+                
+                difference = X1 - X2
+                # 1 if same class, 0 if different class
+                pair_label = torch.FloatTensor([int(torch.all(y1 == y2))])
+
+                samples.append(difference)
+                labels.append(pair_label)
+
+        # Store the newly generated samples and labels.
+        self.samples = samples
+        n_classes = len(np.unique(labels)) 
+        # Convert labels to an array of ints.
+        labels = np.asarray(labels, dtype=int)
+        print(f"labels: {labels}")
+        # One hot encoding for the class labels.
+        self.labels = np.eye(n_classes)[labels].squeeze()
+        print(f"self.labels: {self.labels}")
+
+    def __len__(self):
+        return len(self.samples) 
+
+    def __getitem__(self, idx):
+        # Determine the original sample index and pair number
+        x, y = self.samples[idx], self.labels[idx]
+        return x, y
 
 def random_augmentation(
         X: Iterable, 
@@ -103,8 +165,8 @@ def random_augmentation(
     return xs, ys
 
 def load_from_file(
-        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     """ Load the dataset from a file path.
 
@@ -213,18 +275,11 @@ def one_hot_encoded_labels(dataset, data):
         X = data.iloc[:, 1:].to_numpy() 
         # Take only the class label column.
         y = data.iloc[:, 0].to_numpy()
-        features = list() 
-        labels = list() 
-
-        all_possible_pairs = [((a, a_idx), (b, b_idx)) for a_idx, a in enumerate(X) for b_idx, b in enumerate(X[a_idx + 1:])]
-        for (a, a_idx), (b, b_idx) in all_possible_pairs:
-            # concatenated = np.concatenate((a, b))
-            concatenated = np.abs(a - b)
-            label = int(y[a_idx] == y[b_idx])
-            features.append(concatenated)
-            labels.append(label)
-        X,y = np.array(features), np.array(labels)
-        y = np.eye(2)[y]
+        X,y = np.array(X), np.array(y)
+        le = LabelEncoder()
+        y = le.fit_transform(y)
+        n_classes = len(np.unique(y))
+        y = np.eye(n_classes)[y]
         return X,y
     elif dataset == "instance-recognition-hard":
         X = data.iloc[:, 1:].to_numpy() 
@@ -358,7 +413,10 @@ def preprocess_dataset(
         # is_data_augmentation=is_data_augmentation,
         # batch_size=batch_size
     # )
-    train_dataset = CustomDataset(X, y)
+    if dataset == "instance-recognition":
+        train_dataset = SiameseDataset(X ,y)
+    else:
+        train_dataset = CustomDataset(X, y)
 
     # Step 4: Create PyTorch DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)

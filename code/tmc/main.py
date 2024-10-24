@@ -295,7 +295,8 @@ if __name__ == "__main__":
             
         if patience >= max_patience:
             print("Early stopping triggered")
-            break
+            print(f"Best validation accuracy: {best_val_acc}")
+            # break
             
         print(f"Epoch {epoch}")
         print(f"Total Loss: {total_loss:.4f}, Classification Loss: {cls_loss:.4f}")

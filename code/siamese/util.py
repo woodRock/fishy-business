@@ -26,34 +26,49 @@ class SiameseDataset(Dataset):
                 self.class_indices[label_tuple] = []
             self.class_indices[label_tuple].append(idx)
 
+        samples = [] 
+        labels = [] 
+
+        # For each sample in the dataset.
+        for sample_idx, _ in enumerate(self.samples):
+            X1, y1 = self.samples[sample_idx], self.labels[sample_idx]
+            
+            # Generate 50 pairs per sample.
+            for _ in range(50):
+                # 50% chance to choose a pair of the same class
+                if np.random.random() < 0.5:
+                    same_class_indices = self.class_indices[tuple(y1.tolist())]
+                    if len(same_class_indices) > 1:  # Ensure there's at least one other sample in the same class
+                        idx2 = np.random.choice([i for i in same_class_indices if i != sample_idx])
+                    else:
+                        idx2 = np.random.choice(len(self.samples))  # If no other samples in the same class, choose randomly
+                else:
+                    idx2 = np.random.choice(len(self.samples))  # Choose a random sample
+                
+                X2, y2 = self.samples[idx2], self.labels[idx2]
+                
+                # 1 if same class, 0 if different class
+                pair_label = torch.FloatTensor([int(torch.all(y1 == y2))])
+
+                samples.append((X1, X2))
+                labels.append(pair_label)
+
+        # Store the newly generated samples and labels.
+        self.samples = samples 
+        self.labels = labels 
+
     def __len__(self):
-        return len(self.samples) * self.pairs_per_sample
+        return len(self.samples) 
 
     def __getitem__(self, idx):
         # Determine the original sample index and pair number
         sample_idx = idx // self.pairs_per_sample
-        X1, y1 = self.samples[sample_idx], self.labels[sample_idx]
-        
-        # 50% chance to choose a pair of the same class
-        if np.random.random() < 0.5:
-            same_class_indices = self.class_indices[tuple(y1.tolist())]
-            if len(same_class_indices) > 1:  # Ensure there's at least one other sample in the same class
-                idx2 = np.random.choice([i for i in same_class_indices if i != sample_idx])
-            else:
-                idx2 = np.random.choice(len(self.samples))  # If no other samples in the same class, choose randomly
-        else:
-            idx2 = np.random.choice(len(self.samples))  # Choose a random sample
-        
-        X2, y2 = self.samples[idx2], self.labels[idx2]
-        
-        # 1 if same class, 0 if different class
-        pair_label = torch.FloatTensor([int(torch.all(y1 == y2))])
-        
-        return X1, X2, pair_label
+        (X1,X2), y1 = self.samples[sample_idx], self.labels[sample_idx]
+        return X1, X2, y1
 
 def load_from_file(
-        path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-        # path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
+        # path: Iterable = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+        path: Iterable = ["/vol","ecrg-solar","woodj4","fishy-business","data", "REIMS_data.xlsx"]
     ) -> pd.DataFrame:
     path = os.path.join(*path)
     data = pd.read_excel(path)
