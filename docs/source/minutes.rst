@@ -7095,3 +7095,51 @@ Notes:
 
 Related: 
 * Paper mentioned on GP for DFJSS :ref:`(Nguyen 2016 <nguyen2016surrogate>)`
+
+2024-10-24 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 15:00 - 16:00, **Attendees:** Fei Ming
+
+* A Review of Evolutionary Multimodal Multiobjective Optimization (Tanabe 2019)
+* A many-objective test problem for visually examining diversity maintenance behavior in a decision space (Ishibuchi 2011)
+* Balancing Convergence and Diversity in Objective and Decision Spaces for Multimodal Multi-Objective Optimization (Ming 2022)
+
+Related:
+* :ref:`(Ming 2022) <ming2022balancing>`
+* :ref:`(Ishibuchi 2011) <ishibuchi2011many>`
+* :ref:`(Tanabe 2019) <tanabe2019review>`
+
+2024-10-25 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO362, **Time:** Friday 10:00 AM - 10:30 AM, **Attendees:** Bach Nguyen, Jesse Wood 
+
+* AJCAI -  revise the paper based on the comments from the reviwers. Put it into PAKDD format. 
+* Revise journal - once Bach has revied the Transactions on Artificial Intelligence (TAI) journal paper, revised based of his comments.
+* The AJCAI paper and TAI journal paper may be too similar to each other. Have to be careful not to plagerize myself. 
+
+2024-10-24 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** 
+
+"LGP with trainable primitives for firsh biomass compositio spectra" Zhixing Huang https://people.wgtn.ac.nz/zhixing.huang
+
+Notes: 
+    * Raman spectra 
+        1. Laser hits a molecule 
+        2. Molecule absorbs and reflects light. 
+        3. Near Infared (NIR) spatial region focusses on reflecting lights
+    * Limitations - the wavelength region is critical for detecting precision and sensitivity.
+    * Linear Genetic Programming (LGP)
+        * A sequence of register based instructions. 
+        * Sequential execution of instructions. 
+        * Destination, Source, Registers 
+    * Intron - ineffective program 
+    * Extron - effective program. 
+    * Benefits of LGP 
+        1. Flexible - multi-input and multi-output 
+        2. Assembley - control flow operation 
+        3. Easy to model search space 
+    * Trainable primatives 
+        * Wrap input terminals by linear models 
+        * wave-sepecfici trainable terminals
+    * Data augmentation - magnify, rotate, amplify; based on paper on RAMAN NIR data augmentation. 
