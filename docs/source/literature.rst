@@ -1316,6 +1316,15 @@ Algorithmic amplification of politics on Twitter
 Related:
     * Discussed in Deep Learning - 2022-11-30
 
+ishibuchi2011many
+-----------------
+A many-objective test problem for visually examining diversity maintenance behavior in a decision space
+
+Available: https://dl.acm.org/doi/abs/10.1145/2001576.2001666
+
+Related: 
+    * Discussed in :ref:`2024-10-24 - FASLIP`
+
 li2022language
 --------------
 Language-driven semantic segmentation
@@ -2407,6 +2416,15 @@ Related:
     * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
     * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
 
+ming2022balancing
+-----------------
+Balancing convergence and diversity in objective and decision spaces for multimodal multi-objective optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/9962333
+
+Related:   
+    * Discussed in :ref:`2024-10-24 - FASLIP <2024-10-24 - FASLIP>`
+
 morgan1989generalization
 ------------------------
 Generalization and parameter estimation in feedforward nets: Some experiments
@@ -3207,6 +3225,15 @@ Related:
     * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
     * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
     * Same author, adversarial attacks on NNs :ref:`(Szegedy 2013) <szegedy2013intriguing>`
+
+tanabe2019review
+----------------
+A review of evolutionary multimodal multiobjective optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/8684299
+
+Related: 
+    * Discussed in :ref:`2024-10-24 - FASLIP <2024-10-24 - FASLIP>`
 
 tran2019genetic
 ---------------
