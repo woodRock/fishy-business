@@ -126,7 +126,7 @@ class ModelTrainer:
         )
         
         # Initialize model for pre-training
-        model = self._create_model(input_dim=1023, output_dim=1023)
+        model = self._create_model(input_dim=2080, output_dim=2080)
         model = model.to(self.device)
         
         # Setup pre-training configuration
@@ -415,6 +415,6 @@ def main() -> None:
     except Exception as e:
         logging.error(f"Error in training pipeline: {str(e)}", exc_info=True)
         raise
-    
+
 if __name__ == "__main__":
     main()

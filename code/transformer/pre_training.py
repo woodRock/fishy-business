@@ -21,7 +21,7 @@ class PreTrainingConfig:
     """Configuration for pre-training tasks."""
     num_epochs: int = 100
     file_path: str = "transformer_checkpoint.pth"
-    n_features: int = 1023
+    n_features: int = 2080
     chunk_size: int = 50
     device: Device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
