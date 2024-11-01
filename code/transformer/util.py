@@ -387,23 +387,16 @@ def preprocess_dataset(
     dataset: str = "species",
     is_data_augmentation: bool = True,
     batch_size: int = 64,
-    is_pre_train: bool = False
+    is_pre_train: bool = False,
+    augmentation_config: Optional[AugmentationConfig] = None
 ) -> Tuple[DataLoader, pd.DataFrame]:
-    """Preprocess dataset for training or pre-training.
-    
-    Args:
-        dataset: Name of dataset to process
-        is_data_augmentation: Whether to apply data augmentation
-        batch_size: Batch size for DataLoader
-        is_pre_train: Whether preprocessing is for pre-training
+    """Preprocess dataset for training or pre-training."""
+    # Use provided config or create default
+    if augmentation_config is None:
+        aug_config = AugmentationConfig(enabled=is_data_augmentation)
+    else:
+        aug_config = augmentation_config
         
-    Returns:
-        Tuple containing:
-            - DataLoader for training data
-            - Original DataFrame with raw data
-    """
-    # Initialize configuration and processor
-    aug_config = AugmentationConfig(enabled=is_data_augmentation)
     processor = DataProcessor(dataset, aug_config, batch_size)
     
     try:
@@ -420,9 +413,9 @@ def preprocess_dataset(
         logger.info(f"Features shape: {X.shape}, Labels shape: {y.shape}")
         
         # Apply data augmentation if enabled
-        if is_data_augmentation:
-            logger.info("Applying data augmentation...")
-            original_size = len(X)
+        original_size = len(X)
+        if aug_config.enabled:
+            logger.info(f"Applying data augmentation with {aug_config.num_augmentations} augmentations per sample...")
             X, y = processor.augmenter.augment(X, y)
             logger.info(f"Dataset size increased from {original_size} to {len(X)} samples")
         
@@ -430,26 +423,29 @@ def preprocess_dataset(
         dataset_class = SiameseDataset if dataset == "instance-recognition" else CustomDataset
         train_dataset = dataset_class(X, y)
         
-        # Create and return DataLoader
+        # Create DataLoader
         train_loader = DataLoader(
             train_dataset,
             batch_size=batch_size,
             shuffle=True,
-            num_workers=0,  # Set to 0 for debugging
+            num_workers=0,
             pin_memory=True
         )
         
-        logger.info(f"Created DataLoader with {len(train_loader)} batches")
-        logger.info(f"Total number of samples: {len(train_dataset)}")
-        
-        # Verify augmentation ratio
-        if is_data_augmentation:
-            expected_size = original_size * (processor.augmenter.config.num_augmentations + 1)
-            if len(train_dataset) != expected_size:
+        # Verify dataset size
+        if aug_config.enabled:
+            expected_size = original_size * (aug_config.num_augmentations + 1)
+            actual_size = len(train_dataset)
+            logger.info(f"Dataset size verification:")
+            logger.info(f"  Original size: {original_size}")
+            logger.info(f"  Expected size: {expected_size}")
+            logger.info(f"  Actual size: {actual_size}")
+            
+            if actual_size != expected_size:
                 logger.warning(
                     f"Unexpected dataset size. Expected {expected_size} samples "
-                    f"(original {original_size} × {processor.augmenter.config.num_augmentations + 1}), "
-                    f"but got {len(train_dataset)}"
+                    f"(original {original_size} × {aug_config.num_augmentations + 1}), "
+                    f"but got {actual_size}"
                 )
         
         return train_loader, data
@@ -468,37 +464,24 @@ class DataModule:
         augmentation_config: Optional[AugmentationConfig] = None,
         is_pre_train: bool = False
     ):
-        """Initialize DataModule.
-        
-        Args:
-            dataset_name: Name of dataset to process
-            batch_size: Batch size for DataLoader
-            augmentation_config: Configuration for data augmentation
-            is_pre_train: Whether this is for pre-training
-        """
         self.dataset_name = dataset_name
         self.batch_size = batch_size
-        self.augmentation_config = augmentation_config or AugmentationConfig()
+        self.augmentation_config = augmentation_config
         self.is_pre_train = is_pre_train
         self.processor = DataProcessor(
             dataset_name,
-            self.augmentation_config,
+            augmentation_config,
             batch_size
         )
         
     def setup(self) -> Tuple[DataLoader, pd.DataFrame]:
-        """Set up data processing pipeline.
-        
-        Returns:
-            Tuple containing:
-                - DataLoader for training
-                - Original DataFrame
-        """
+        """Set up data processing pipeline."""
         return preprocess_dataset(
             dataset=self.dataset_name,
-            is_data_augmentation=self.augmentation_config.enabled,
+            is_data_augmentation=self.augmentation_config.enabled if self.augmentation_config else False,
             batch_size=self.batch_size,
-            is_pre_train=self.is_pre_train
+            is_pre_train=self.is_pre_train,
+            augmentation_config=self.augmentation_config
         )
     
     @staticmethod
@@ -543,10 +526,21 @@ def create_data_module(
     Returns:
         Configured DataModule instance
     """
+    logger.info(f"Creating DataModule with augmentation parameters: {augmentation_kwargs}")
+    
+    # Create augmentation config with all parameters
     aug_config = AugmentationConfig(
         enabled=augmentation_enabled,
-        **augmentation_kwargs
+        num_augmentations=augmentation_kwargs.get('num_augmentations', 5),
+        noise_enabled=augmentation_kwargs.get('noise_enabled', True),
+        shift_enabled=augmentation_kwargs.get('shift_enabled', False),
+        scale_enabled=augmentation_kwargs.get('scale_enabled', False),
+        noise_level=augmentation_kwargs.get('noise_level', 0.1),
+        shift_range=augmentation_kwargs.get('shift_range', 0.1),
+        scale_range=augmentation_kwargs.get('scale_range', 0.1)
     )
+    
+    logger.info(f"Created augmentation config with {aug_config.num_augmentations} augmentations")
     
     return DataModule(
         dataset_name=dataset_name,
