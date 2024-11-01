@@ -289,7 +289,7 @@ class ModelTrainer:
             model = KAN(
                 input_dim=input_dim,
                 output_dim=output_dim,
-                hidden_dim=64,
+                hidden_dim=self.config.hidden_dimension,
                 num_inner_functions=10,
                 dropout_rate=self.config.dropout,
                 num_layers=self.config.num_layers,

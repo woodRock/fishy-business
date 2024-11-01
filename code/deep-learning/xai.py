@@ -12,7 +12,13 @@ from lime.lime_tabular import LimeTabularExplainer
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader
 
+from lstm import LSTM
 from transformer import Transformer
+from cnn import CNN
+from rcnn import RCNN
+from mamba import Mamba
+from kan import KAN
+from vae import VAE
 from train import train_model
 from util import preprocess_dataset
 
@@ -67,7 +73,14 @@ class ModelWrapper:
         try:
             x = torch.tensor(x, dtype=torch.float32).to(self.device)
             with torch.no_grad():
-                logits = self.model(x, x)  # Using same input for src and tgt
+                if isinstance(self.model, VAE):
+                    _, _, _, logits = self.model(x)
+                else:
+                    logits = (
+                        self.model(x, x) 
+                        if isinstance(self.model, Transformer) 
+                        else self.model(x)  
+                     )
                 probs = F.softmax(logits, dim=-1).cpu().numpy()
             return probs
         except Exception as e:
@@ -75,7 +88,7 @@ class ModelWrapper:
             raise
 
 
-class TransformerExplainer:
+class Explainer:
     """Handles LIME explanations for transformer models."""
 
     LABELS_PER_DATASET = {
@@ -133,7 +146,7 @@ class TransformerExplainer:
                 feature_names=feature_names,
                 class_names=self.class_names,
                 discretize_continuous=True,
-                random_state=self.config.random_seed,
+                random_state=self.config.random_seed,  # Fixed: Use config's random_seed
             )
         except Exception as e:
             logger.error(f"Error setting up explainer: {str(e)}")
@@ -178,8 +191,8 @@ class TransformerExplainer:
             explanation = explainer.explain_instance(
                 instance.cpu().numpy(),
                 self.wrapped_model.predict_proba,
-                num_features=self.config.num_features,
-                num_samples=self.config.num_samples,
+                num_features=self.config.num_features,    # Fixed: Use config.num_features
+                num_samples=self.config.num_samples,      # Fixed: Use config.num_samples
             )
 
             # Create visualization
@@ -207,7 +220,7 @@ def explain_transformer_predictions(
     output_dim: int = 3,
     num_layers: int = 4,
     num_heads: int = 4,
-    hidden_dim: int = 128,
+    hidden_dimension: int = 128,
     dropout: float = 0.2,
     batch_size: int = 64,
     learning_rate: float = 1e-5,
@@ -221,14 +234,62 @@ def explain_transformer_predictions(
         logger.info(f"Starting explanation generation for dataset: {dataset_name}")
 
         # Initialize model
-        model = Transformer(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            num_layers=num_layers,
-            num_heads=num_heads,
-            hidden_dim=hidden_dim,
-            dropout=dropout,
-        )
+        if model_name == "transformer":
+            model = Transformer(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                num_layers=num_layers,
+                num_heads=num_heads,
+                hidden_dim=hidden_dimension,
+                dropout=dropout,
+            )
+        elif model_name == "lstm":
+            model = LSTM(
+                input_size=input_dim,
+                hidden_size=hidden_dimension,
+                num_layers=num_layers,
+                output_size=output_dim,
+                dropout=dropout,
+            )
+        elif model_name == "cnn":
+            model = CNN(
+                input_size=input_dim,
+                num_classes=output_dim,
+                dropout=dropout,
+            )
+        elif model_name == "rcnn":
+            model = RCNN(
+                input_size=input_dim,
+                num_classes=output_dim,
+                dropout=dropout,
+            )
+        elif model_name == "mamba":
+            model = Mamba(
+                d_model=input_dim,
+                d_state=hidden_dimension,
+                d_conv=4,
+                expand=2,
+                depth=num_layers,
+                n_classes=output_dim,
+            )
+        elif model_name == "kan":
+            model = KAN(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                hidden_dim=hidden_dimension,
+                num_inner_functions=10,
+                dropout_rate=dropout,
+                num_layers=num_layers,
+            )
+        elif model_name == "vae":
+            model = VAE(
+                input_size=input_dim,
+                latent_dim=hidden_dimension,
+                num_classes=output_dim,
+                dropout=dropout,
+            )
+        else:
+            raise ValueError(f"Invalid model: {model_name}")
 
         # Setup device and move model
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -259,7 +320,7 @@ def explain_transformer_predictions(
 
         # Setup explainer
         config = ExplanationConfig()
-        explainer = TransformerExplainer(dataset_name, model, config)
+        explainer = Explainer(dataset_name, model, config)
 
         # Get feature names
         feature_names = [f"{float(x):.4f}" for x in data.axes[1].tolist()[1:]]
@@ -296,6 +357,6 @@ if __name__ == "__main__":
     explain_transformer_predictions(
         dataset_name="cross-species",
         instance_name="hoki-mackerel",
-        model_name="transformer",
+        model_name="rcnn",
         target_label=[0,0,1]
     )
