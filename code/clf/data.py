@@ -24,7 +24,7 @@ def load_dataset(
     logger = logging.getLogger(__name__)
 
     # Path for university computers
-    path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+    path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
     # Path for home computer
     # path = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
     path = os.path.join(*path)
@@ -54,8 +54,9 @@ def load_dataset(
                     else (2 if 'Livers' in x
                     else (3 if 'Skins' in x
                     else (4 if 'Guts' in x
+                    else (5 if 'Gonads' in x
                     else (5 if 'Frames' in x
-                    else None )))))  # For fish parts
+                    else None ))))))  # For fish parts
     elif dataset == "oil_simple":
         y = data['m/z'].apply(lambda x: 1 if 'MO' in x else 0)
     elif dataset == "oil":

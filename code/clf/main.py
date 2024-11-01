@@ -205,7 +205,7 @@ def run_experiments(datasets, runs=30, k=3):
 
 if __name__ == "__main__":
     # datasets = ["species", "part", "oil", "cross-species"]
-    datasets = ["part"]
+    datasets = ["species"]
     results = run_experiments(datasets)
 
     # Print results (for verification)
