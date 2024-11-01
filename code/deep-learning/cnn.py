@@ -1,4 +1,3 @@
-
 """ Convolutional Neural Network for classification.
 
 References: 
@@ -35,15 +34,14 @@ References:
 import torch
 import torch.nn as nn
 
+
 class CNN(nn.Module):
-    def __init__(self, 
-        input_size: int = 1023, 
-        num_classes: int = 7, 
-        dropout: int = 0.5
+    def __init__(
+        self, input_size: int = 1023, num_classes: int = 7, dropout: int = 0.5
     ) -> None:
-        
+
         super(CNN, self).__init__()
-        
+
         # Convolutional neural network (LeCun 1989,1989,1998)
         self.conv_layers = nn.Sequential(
             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
@@ -54,7 +52,6 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=2, stride=2),
             nn.Dropout(p=dropout),
-               
             nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm1d(128),  # Batch normalization
             nn.Conv1d(128, 256, kernel_size=3, stride=1, padding=1),
@@ -62,12 +59,12 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=2, stride=2),
         )
-        
+
         self.flatten = nn.Flatten()
 
         # Calculate the size of the flattened features after convolutions
         self.flat_features = 256 * (input_size // 4)
-        
+
         self.fc_layers = nn.Sequential(
             nn.Linear(self.flat_features, 256),
             nn.ReLU(),
@@ -77,24 +74,24 @@ class CNN(nn.Module):
         )
 
     def forward(self, x):
-        """ Forward pass for the CNN.
-        
+        """Forward pass for the CNN.
+
         Args:
             x (torch.Tensor): the input tensor.
 
-        Returns: 
+        Returns:
             x (torch.Tensor): the output tensor.
         """
         # Add channel dimension
         x = x.unsqueeze(1)
-        
+
         # Convolutional layers
         x = self.conv_layers(x)
-        
+
         # Flatten the output
         x = self.flatten(x)
-        
+
         # Fully connected layers
         x = self.fc_layers(x)
-        
+
         return x
