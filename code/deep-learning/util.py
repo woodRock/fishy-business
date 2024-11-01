@@ -149,45 +149,56 @@ class DataAugmenter:
         """Perform data augmentation on the dataset.
         
         Args:
-            X: Input features
+            X: Input features of shape (n_samples, n_features)
             y: Target labels
             
         Returns:
-            Augmented features and labels
+            Tuple of (augmented_features, augmented_labels)
         """
         if not self.config.enabled:
             return X, y
         
         logger.info(f"Starting data augmentation with {self.config.num_augmentations} augmentations per sample")
-        original_size = len(X)
         
-        # Initialize with original data
-        xs = list(X)
-        ys = list(y)
+        # Initialize arrays to store augmented data
+        n_samples, n_features = X.shape
+        total_samples = n_samples * (self.config.num_augmentations + 1)  # +1 for original samples
+        
+        # Pre-allocate arrays for efficiency
+        X_augmented = np.zeros((total_samples, n_features))
+        y_augmented = np.zeros((total_samples,) + y.shape[1:])
+        
+        # Copy original data
+        X_augmented[:n_samples] = X
+        y_augmented[:n_samples] = y
         
         # Create augmented samples
-        for i in tqdm(range(original_size), desc="Data augmentation"):
+        for i in tqdm(range(n_samples), desc="Augmenting data"):
             x, y_sample = X[i], y[i]
             
-            for _ in range(self.config.num_augmentations):
+            # Generate augmentations for each sample
+            for j in range(self.config.num_augmentations):
+                idx = n_samples * (j + 1) + i  # Calculate position in augmented array
                 augmented = x.copy()
                 
+                # Apply noise augmentation
                 if self.config.noise_enabled:
-                    augmented += np.random.normal(
-                        scale=self.config.noise_level, 
-                        size=x.shape
+                    noise = np.random.normal(
+                        loc=0,
+                        scale=self.config.noise_level * np.std(augmented),
+                        size=augmented.shape
                     )
-                    
+                    augmented += noise
+                
+                # Apply shift augmentation
                 if self.config.shift_enabled:
-                    shift_amount = np.random.uniform(
-                        -self.config.shift_range, 
+                    shift_amount = int(len(augmented) * np.random.uniform(
+                        -self.config.shift_range,
                         self.config.shift_range
-                    )
-                    augmented = np.roll(
-                        augmented, 
-                        int(shift_amount * len(x))
-                    )
-                    
+                    ))
+                    augmented = np.roll(augmented, shift_amount)
+                
+                # Apply scale augmentation
                 if self.config.scale_enabled:
                     scale_factor = np.random.uniform(
                         1 - self.config.scale_range,
@@ -195,16 +206,28 @@ class DataAugmenter:
                     )
                     augmented *= scale_factor
                 
-                xs.append(augmented)
-                ys.append(y_sample)
+                # Store augmented sample and label
+                X_augmented[idx] = augmented
+                y_augmented[idx] = y_sample
         
-        X_augmented = np.array(xs)
-        y_augmented = np.array(ys)
+        # Verify augmentation results
+        actual_samples = len(X_augmented)
+        expected_samples = n_samples * (self.config.num_augmentations + 1)
+        
+        if actual_samples != expected_samples:
+            logger.warning(
+                f"Mismatch in augmented samples. Expected {expected_samples}, got {actual_samples}"
+            )
         
         logger.info(
-            f"Augmentation complete. Dataset size increased from {original_size} "
-            f"to {len(X_augmented)} samples"
+            f"Augmentation complete. Dataset size increased from {n_samples} "
+            f"to {actual_samples} samples"
         )
+        
+        # Shuffle the augmented dataset
+        shuffle_idx = np.random.permutation(len(X_augmented))
+        X_augmented = X_augmented[shuffle_idx]
+        y_augmented = y_augmented[shuffle_idx]
         
         return X_augmented, y_augmented
 

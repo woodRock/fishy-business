@@ -118,7 +118,7 @@ def plot_confusion_matrix(
     if name == "validation" or name == "test":
         if dataset == "part":
             # Padding includes on label from each class.
-            pad = torch.tensor([0,1,2,3,4,5])
+            pad = torch.tensor([0,1,2,3,4,5,6])
             actual = torch.concat([pad, actual])
             predicted = torch.concat([pad, predicted])
 
@@ -126,7 +126,7 @@ def plot_confusion_matrix(
 
     labels_per_dataset = {
         "species": ["Hoki", "Mackerel"],
-        "part": ["Fillet", "Heads", "Livers", "Skins", "Guts", "Frames"],
+        "part": ["Fillet", "Heads", "Livers", "Skins", "Guts", "Gonads", "Frames"],
         "oil": ["50", "25", "10", "05", "01", "0.1"," 0"],
         "oil_simple": ["Oil", "No oil"],
         "cross-species":["Hoki-Mackeral", "Hoki", "Mackerel"],
