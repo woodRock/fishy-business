@@ -426,7 +426,7 @@ def preprocess_dataset(
     try:
         # Load and process data
         logger.info(f"Loading dataset: {dataset}")
-        data = processor.load_data("/home/woodj/Desktop/fishy-business/data/REIMS_data.xlsx")
+        data = processor.load_data("/home/woodj/Desktop/fishy-business/data/REIMS.xlsx")
         
         # Filter data based on pre-training flag
         filtered_data = processor.filter_data(data, is_pre_train)

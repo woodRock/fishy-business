@@ -105,7 +105,7 @@ class ModelTrainer:
             raise ValueError(f"Invalid dataset: {config.dataset}")
             
         self.n_classes = self.N_CLASSES_PER_DATASET[config.dataset]
-        self.n_features = 1023  # Could be made configurable if needed
+        self.n_features = 2080  # Could be made configurable if needed
         
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration."""
@@ -225,12 +225,13 @@ class ModelTrainer:
         self.logger.info(f"Training time: {time.time() - start_time:.2f}s")
         
         if (isinstance(model, Transformer)):
+            pass 
             # Plot attention maps
-            self._plot_attention_maps(model, data)
+            # self._plot_attention_maps(model, data)
         
         return model
     
-    def _create_model(self, input_dim: int, output_dim: int) -> Transformer:
+    def _create_model(self, input_dim: int, output_dim: int) -> nn.Module:
         """Create a new transformer model instance."""
         if (self.model_type == "transformer"):
             model = Transformer(
@@ -309,18 +310,10 @@ class ModelTrainer:
     
     def _plot_attention_maps(self, model: Transformer, data) -> None:
         """Plot attention maps for model analysis."""
-        i = 10
-        columns = data.axes[1][1:(i+1)].tolist()
-        
-        # First self-attention layer of the encoder
-        attention_weights = model.encoder.layers[0].self_attention.fc_out.weight
-        attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
-        plot_attention_map("encoder", attention_weights, columns, columns)
-        
-        # Last self-attention layer of the decoder
-        attention_weights = model.decoder.layers[-1].self_attention.fc_out.weight
-        attention_weights = attention_weights[:i,:i].cpu().detach().numpy()
-        plot_attention_map("decoder", attention_weights, columns, columns)
+        raise NotImplementedError
+        # i = 10
+        # columns = data.axes[1][1:(i+1)].tolist()
+        # plot_attention_map("encoder", layer_weights, columns, columns)
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
@@ -366,7 +359,7 @@ def parse_arguments() -> argparse.Namespace:
                     help="Hidden dimension size. Defaults to 128.")
     parser.add_argument('-l', '--num-layers', type=float, default=4,
                     help="Number of transformer layers. Defaults to 4.")
-    parser.add_argument('-nh', '--num-heads', type=int, default=3,
+    parser.add_argument('-nh', '--num-heads', type=int, default=4,
                     help='Number of attention heads. Defaults to 4.')
     
     # Data augmentation parameters
