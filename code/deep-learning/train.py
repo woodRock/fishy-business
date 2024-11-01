@@ -140,7 +140,7 @@ def transfer_learning(
     output_dims = {
         "species": 2,
         "oil_simple": 2,
-        "part": 6,
+        "part": 7,
         "oil": 7,
         "cross-species": 3
     }
@@ -183,11 +183,13 @@ def _calculate_metrics(
             - f1: Weighted F1 score
             - auc_roc: Area under ROC curve (if y_prob provided)
     """
+    unique_classes = np.unique(np.concatenate([y_true, y_pred]))
+
     metrics: MetricsDict = {
         'balanced_accuracy': balanced_accuracy_score(y_true, y_pred),
-        'precision': precision_score(y_true, y_pred, average='weighted'),
-        'recall': recall_score(y_true, y_pred, average='weighted'),
-        'f1': f1_score(y_true, y_pred, average='weighted')
+        'precision': precision_score(y_true, y_pred, average='weighted', zero_division=0, labels=unique_classes),
+        'recall': recall_score(y_true, y_pred, average='weighted', zero_division=0, labels=unique_classes),
+        'f1': f1_score(y_true, y_pred, average='weighted', zero_division=0,labels=unique_classes)
     }
     
     if y_prob is not None:
