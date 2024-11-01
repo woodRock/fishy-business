@@ -1,273 +1,257 @@
+from dataclasses import dataclass
 import logging
-from tqdm import tqdm
 import random
+from typing import List, Tuple, Union, Optional, TypeVar
+
 import torch
-from torch.utils.data import DataLoader
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
 from transformer import Transformer
-from typing import Union, Optional
 
-def pre_train_masked_spectra(
-        model: Transformer, 
-        num_epochs: int = 100, 
-        train_loader: DataLoader = None, 
-        file_path: str = "transformer_checkpoint.pth", 
-        device: Optional[Union[str, torch.device]] = None,
-        criterion: CrossEntropyLoss = None,
-        optimizer: AdamW = None,
-        n_features: int = 1023,
-        chunk_size: int = 50  # Number of masked features to process at once
-    ) -> Transformer:
-    """Masked spectra modelling with progressive masking.
+# Type aliases
+T = TypeVar('T', bound=torch.Tensor)
+TensorPair = Tuple[torch.Tensor, torch.Tensor]
+Device = Union[str, torch.device]
 
-    Args: 
-        model (Transformer): the nn.Module for the transformer.
-        num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
-        train_loader (DataLoader): the torch DataLoader containing the training set.
-        file_path (str): the file path to store the model checkpoints to. Defaults to "transformer_checkpoint.pth"
-        device (str, torch.device): the device to perform the operations on. Defaults to None.
-        criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
-        optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
-        n_features (int): the number of features. Defaults to 1023.
-        chunk_size (int): Number of masked features to process at once to reduce memory usage.
+@dataclass
+class PreTrainingConfig:
+    """Configuration for pre-training tasks."""
+    num_epochs: int = 100
+    file_path: str = "transformer_checkpoint.pth"
+    n_features: int = 1023
+    chunk_size: int = 50
+    device: Device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    Returns:
-        model (Transformer): returns the pre-trained model.
-    """
+def mask_spectra_side(
+    input_spectra: T,
+    side: str = 'left'
+) -> T:
+    """Mask either left or right side of the input spectra.
     
-    logger = logging.getLogger(__name__)
-    
-    # Training loop
-    for epoch in tqdm(range(num_epochs), desc="Pre-training: Masked Spectra Modelling"):
-        total_loss = 0.0
-        model.train()
-
-        for (x, _) in train_loader:
-            x = x.to(device)
-            batch_size = x.shape[0]
-            
-            # Iterate through features in chunks to avoid memory overflow
-            for start_idx in range(1, n_features, chunk_size):
-                end_idx = min(start_idx + chunk_size, n_features)
-
-                # Create mask for the current chunk
-                mask = torch.zeros(batch_size, n_features, dtype=torch.bool).to(device)
-                mask[:, start_idx:end_idx] = True
-
-                # Apply the mask
-                masked_x = x.clone()
-                masked_x[mask] = 0
-
-                # Forward pass
-                optimizer.zero_grad()
-                outputs = model(masked_x, masked_x)
-
-                # Target for the current chunk
-                target = x[:, start_idx:end_idx]
-
-                # Calculate loss for the chunk
-                loss = criterion(outputs[:, start_idx:end_idx], target)
-                loss.backward()
-                optimizer.step()
-                total_loss += loss.item()
-            
-        # Print average loss for the epoch
-        avg_train_loss = total_loss / (len(train_loader) * (n_features - 1))
-        logger.info(f'Epoch [{epoch+1}/{num_epochs}], Train Loss: {avg_train_loss:.4f}')
-
-    torch.save(model.state_dict(), file_path)
-    return model
-
-
-def mask_left_side(
-        input_spectra: torch.Tensor, 
-        quarter: bool = True
-    ) -> torch.Tensor:
-    """
-    Masks the left-hand side of the input spectra tensor.
-
     Args:
-        input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
-
-    Returns:
-        torch.Tensor: Masked input spectra tensor.
-    """
-    # Calculate the index to split the tensor
-    split_index = input_spectra.shape[0] // 2
-    # Mask the left half of the input tensor
-    input_spectra[:split_index] = 0
-    return input_spectra
-
-def mask_right_side(
-        input_spectra: torch.Tensor
-    ) -> torch.Tensor:
-    """
-    Masks the right-hand side of the input spectra tensor.
-
-    Args:
-        input_spectra (torch.Tensor): Input spectra tensor of shape (batch_size, 1023).
-
-    Returns:
-        torch.Tensor: Masked input spectra tensor.
-    """
-    # Calculate the index to split the tensor
-    split_index = input_spectra.shape[0] // 2
-    # Mask the left half of the input tensor
-    input_spectra[split_index:] = 0
-    return input_spectra
-
-
-def pre_train_model_next_spectra(
-        model: Transformer, 
-        num_epochs: int = 100, 
-        train_loader: DataLoader = None, 
-        val_loader: DataLoader = None, 
-        file_path: str = "transformer_checkpoint.pth", 
-        device: Optional[Union[str, torch.device]] = None,
-        criterion: CrossEntropyLoss = None,
-        optimizer: AdamW = None
-    ) -> Transformer:
-    """
-    Pre-trains the model with Next Spectra Prediction (NSP).
-    This is a variant of Next Sentence Prediction (NSP) from (Devlin 2018).
-
-    Args:
-        model (torch.nn.Module): The pre-trained model.
-        num_epochs (int): The number of epochs to pre-train for. Defaults to 100.
-        train_loader (DataLoader): the torch DataLoader for the training set.
-        val_loader (DataLoader): the torch DataLoader for the validation set.
-        file_path (str): The path to save the model weights.
-        device (str, torch,device): the device to perform the operations on. Defaults to None.
-        criterion (CrossEntropyLoss): the cross entropy loss function to measure loss by.
-        optimizer (AdamW): the AdamW optimizer to perform gradient descent with.
-
-    Returns: 
-        model (Transformer): the pre-trained model
-    """
-    logger = logging.getLogger(__name__)
-    # Generate the training set of contrastive pairs.
-    X_train = []
-    y_train = []
-    # Iterate over batches in the training loader.
-    for (x,_) in train_loader:
-        # Randomly choose pairs of adjacent spectra from the same index or different indexes
-        for i in range(len(x)):
-            if random.random() < 0.5:
-                # Choose two adjacent spectra from the same index
-                if i < len(x) - 1:
-                    # Mask the right side of the spectra
-                    left = mask_right_side(x[i])
-                    right = mask_left_side(x[i])
-                    X_train.append((left, right))
-                    y_train.append([1,0])
-            else:
-                # Choose two spectra from different indexes
-                j = random.randint(0, len(x) - 1)
-                # Exhaustive search for two different indexes.
-                while (j == i):
-                    j = random.randint(0, len(x) - 1)
-                left = mask_right_side(x[i])
-                right = mask_left_side(x[j])
-                X_train.append((left, right))
-                y_train.append([0,1])
-
-    # Generate the validation set of contrastive pairs.
-    X_val = []
-    y_val = []
-    # Iterate over batches in the validation loader.
-    for (x,_) in val_loader: 
-        # Randomly choose pairs of adjacent spectra from the same index or different indexes
-        for i in range(len(x)):
-            if random.random() < 0.5:
-                # Choose two adjacent spectra from the same index
-                if i < len(x) - 1:
-                    # Mask the right side of the spectra
-                    left = mask_right_side(x[i])
-                    right = mask_right_side(x[i])
-                    X_val.append((left, right))
-                    y_val.append([0,1])
-            else:
-                # Choose two spectra from different indexes
-                j = random.randint(0, len(x) - 1)
-                # Exhaustive search for two different indexes.
-                while (j == i):
-                    j = random.randint(0, len(x) - 1)
-                left = mask_left_side(x[i])
-                right = mask_right_side(x[j])
-                X_val.append((left, right))
-                y_val.append([1,0])
-
-
-    for epoch in tqdm(range(num_epochs), desc="Pre-training: Next Spectra Prediction"):
-        model.train()
-        total_loss = 0.0
-
-        for (left, right), label in zip(X_train, y_train):
-            # Forward pass
-            left = left.to(device)
-            right = right.to(device)
-            label = torch.tensor(label).to(device)
-
-            optimizer.zero_grad()
-            output = model(left.unsqueeze(0), right.unsqueeze(0))
-            label = label.float()
-            
-            loss = criterion(output, label.unsqueeze(0))
-            total_loss += loss.item()
-            # Backpropagation
-            loss.backward()
-            optimizer.step()
-
-        # Calculate average loss for the epoch
-        avg_loss = total_loss / len(X_train)
+        input_spectra: Input spectra tensor of shape (batch_size, n_features)
+        side: Which side to mask ('left' or 'right')
         
-        model.eval()
-        val_total_loss = 0.0
-
-        for (left, right), label in zip(X_val, y_val):
-            # Forward pass
-            left = left.to(device)
-            right = right.to(device)
-            label = torch.tensor(label).to(device)
-
-            optimizer.zero_grad()
-            output = model(left.unsqueeze(0), right.unsqueeze(0))
-            label = label.float()   
-
-            loss = criterion(output, label.unsqueeze(0))
-            val_total_loss += loss.item()
-
-        val_avg_loss = val_total_loss / len(X_val)
-        logger.info(f"Epoch {epoch + 1}, Average Loss: {avg_loss:.4f} Validation: {val_avg_loss:.4f}")
-
-    next_spectra_model = model
-    torch.save(next_spectra_model.state_dict(), file_path)
-    return model
-
-
-def pre_train_transfer_learning(
-        model: Transformer, 
-        file_path: str = 'transformer_checkpoint.pth', 
-        output_dim: int = 2
-    ) -> Transformer:
-    """ Loads the weights from a pre-trained model.
-
-    This method handles the differences in dimensions for the output dimension between pre-training and training tasks.
-
-    Args: 
-        model (Transformer): the model to load the pre-trained weights to
-        file_path (str): the filepath where the checkpoint is stored.
-        output_dim (int): the number of classes for the output dimension. Defaults to 2 for next spectra prediction.
-
     Returns:
-        model (Transformer): the model is returned with the pre-trained weights loaded into it.
+        Masked spectra tensor
+        
+    Raises:
+        ValueError: If side is not 'left' or 'right'
     """
-    # Load the state dictionary from the checkpoint.
+    if side not in ['left', 'right']:
+        raise ValueError("side must be either 'left' or 'right'")
+        
+    split_index = input_spectra.shape[0] // 2
+    masked_spectra = input_spectra.clone()
+    
+    if side == 'left':
+        masked_spectra[:split_index] = 0
+    else:
+        masked_spectra[split_index:] = 0
+        
+    return masked_spectra
+
+class PreTrainer:
+    """Handles pre-training tasks for transformer models."""
+    
+    def __init__(
+        self,
+        model: Transformer,
+        config: PreTrainingConfig,
+        criterion: Optional[CrossEntropyLoss] = None,
+        optimizer: Optional[AdamW] = None
+    ):
+        """Initialize pre-trainer with model and configuration.
+        
+        Args:
+            model: Transformer model to pre-train
+            config: Pre-training configuration
+            criterion: Loss function (defaults to CrossEntropyLoss)
+            optimizer: Optimizer (defaults to AdamW)
+        """
+        self.model = model
+        self.config = config
+        self.logger = logging.getLogger(__name__)
+        
+        if criterion is None:
+            criterion = CrossEntropyLoss()
+        if optimizer is None:
+            optimizer = AdamW(model.parameters())
+            
+        self.criterion = criterion
+        self.optimizer = optimizer
+        
+    def pre_train_masked_spectra(
+        self,
+        train_loader: DataLoader
+    ) -> Transformer:
+        """Pre-train using masked spectra modeling with progressive masking.
+        
+        Args:
+            train_loader: DataLoader containing training data
+            
+        Returns:
+            Pre-trained transformer model
+        """
+        for epoch in tqdm(range(self.config.num_epochs), desc="Pre-training: Masked Spectra"):
+            total_loss = 0.0
+            self.model.train()
+
+            for x, _ in train_loader:
+                x = x.to(self.config.device)
+                batch_size = x.shape[0]
+                
+                # Process features in chunks to manage memory
+                for start_idx in range(1, self.config.n_features, self.config.chunk_size):
+                    end_idx = min(start_idx + self.config.chunk_size, self.config.n_features)
+                    
+                    # Create and apply mask
+                    mask = torch.zeros(batch_size, self.config.n_features, dtype=torch.bool)
+                    mask = mask.to(self.config.device)
+                    mask[:, start_idx:end_idx] = True
+                    
+                    masked_x = x.clone()
+                    masked_x[mask] = 0
+
+                    # Forward pass
+                    self.optimizer.zero_grad()
+                    outputs = self.model(masked_x, masked_x)
+                    target = x[:, start_idx:end_idx]
+                    
+                    # Calculate loss and update
+                    loss = self.criterion(outputs[:, start_idx:end_idx], target)
+                    loss.backward()
+                    self.optimizer.step()
+                    total_loss += loss.item()
+            
+            avg_loss = total_loss / (len(train_loader) * (self.config.n_features - 1))
+            self.logger.info(f'Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}')
+
+        torch.save(self.model.state_dict(), self.config.file_path)
+        return self.model
+
+    def pre_train_next_spectra(
+        self,
+        train_loader: DataLoader,
+        val_loader: DataLoader
+    ) -> Transformer:
+        """Pre-train using Next Spectra Prediction (NSP).
+        
+        Args:
+            train_loader: Training data loader
+            val_loader: Validation data loader
+            
+        Returns:
+            Pre-trained transformer model
+        """
+        # Generate contrastive pairs
+        train_pairs = self._generate_contrastive_pairs(train_loader)
+        val_pairs = self._generate_contrastive_pairs(val_loader)
+
+        for epoch in tqdm(range(self.config.num_epochs), desc="Pre-training: Next Spectra"):
+            # Training phase
+            train_loss = self._run_epoch(train_pairs, training=True)
+            
+            # Validation phase
+            self.model.eval()
+            with torch.no_grad():
+                val_loss = self._run_epoch(val_pairs, training=False)
+            
+            self.logger.info(
+                f"Epoch {epoch + 1}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}"
+            )
+
+        torch.save(self.model.state_dict(), self.config.file_path)
+        return self.model
+
+    def _generate_contrastive_pairs(
+        self,
+        data_loader: DataLoader
+    ) -> List[Tuple[TensorPair, List[float]]]:
+        """Generate contrastive pairs for NSP training.
+        
+        Args:
+            data_loader: Input data loader
+            
+        Returns:
+            List of (input_pair, label) tuples
+        """
+        pairs = []
+        
+        for x, _ in data_loader:
+            for i in range(len(x)):
+                if random.random() < 0.5 and i < len(x) - 1:
+                    # Same sequence pairs
+                    left = mask_spectra_side(x[i], 'right')
+                    right = mask_spectra_side(x[i], 'left')
+                    pairs.append(((left, right), [1, 0]))
+                else:
+                    # Different sequence pairs
+                    j = random.choice([k for k in range(len(x)) if k != i])
+                    left = mask_spectra_side(x[i], 'right')
+                    right = mask_spectra_side(x[j], 'left')
+                    pairs.append(((left, right), [0, 1]))
+                    
+        return pairs
+
+    def _run_epoch(
+        self,
+        pairs: List[Tuple[TensorPair, List[float]]],
+        training: bool = True
+    ) -> float:
+        """Run a single epoch of training or validation.
+        
+        Args:
+            pairs: List of (input_pair, label) tuples
+            training: Whether this is a training epoch
+            
+        Returns:
+            Average loss for the epoch
+        """
+        total_loss = 0.0
+        
+        for (left, right), label in pairs:
+            left = left.to(self.config.device)
+            right = right.to(self.config.device)
+            label = torch.tensor(label, dtype=torch.float).to(self.config.device)
+            
+            if training:
+                self.optimizer.zero_grad()
+                
+            output = self.model(left.unsqueeze(0), right.unsqueeze(0))
+            loss = self.criterion(output, label.unsqueeze(0))
+            
+            if training:
+                loss.backward()
+                self.optimizer.step()
+                
+            total_loss += loss.item()
+            
+        return total_loss / len(pairs)
+
+def load_pretrained_weights(
+    model: Transformer,
+    file_path: str = 'transformer_checkpoint.pth',
+    output_dim: int = 2
+) -> Transformer:
+    """Load pre-trained weights and adjust output dimension.
+    
+    Args:
+        model: Target transformer model
+        file_path: Path to checkpoint file
+        output_dim: Number of output classes
+        
+    Returns:
+        Model with loaded pre-trained weights
+    """
     checkpoint = torch.load(file_path)
-    # Modify the 'fc.weight' and 'fc.bias' parameters
-    checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]  # Keep only the first 2 rows
-    checkpoint['fc.bias'] = checkpoint['fc.bias'][:output_dim] # Keep only the first 2 elements
-    # Load the modified state dictionary into the model.
+    
+    # Adjust final layer dimensions
+    checkpoint['fc.weight'] = checkpoint['fc.weight'][:output_dim]
+    checkpoint['fc.bias'] = checkpoint['fc.bias'][:output_dim]
+    
     model.load_state_dict(checkpoint, strict=False)
-    return model 
+    return model
