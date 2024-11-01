@@ -357,6 +357,6 @@ if __name__ == "__main__":
     explain_transformer_predictions(
         dataset_name="cross-species",
         instance_name="hoki-mackerel",
-        model_name="rcnn",
+        model_name="transformer",
         target_label=[0,0,1]
     )
