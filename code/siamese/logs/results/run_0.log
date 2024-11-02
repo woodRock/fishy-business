@@ -1,16 +1,6 @@
-2024-11-02 19:12:21,114 - INFO - Loading dataset: instance-recognition
-2024-11-02 19:12:27,414 - INFO - Initializing GP model
-2024-11-02 19:12:27,417 - INFO - Starting training
-2024-11-02 19:14:48,910 - INFO - Gen 1: Best Fitness = 0.1113, Train Acc = 0.8606, Val Acc = 0.6441
-2024-11-02 19:16:01,456 - INFO - Gen 2: Best Fitness = 0.0981, Train Acc = 0.8829, Val Acc = 0.6768
-2024-11-02 19:17:09,994 - INFO - Gen 3: Best Fitness = 0.0981, Train Acc = 0.8828, Val Acc = 0.6859
-2024-11-02 19:18:18,492 - INFO - Gen 4: Best Fitness = 0.0456, Train Acc = 0.9489, Val Acc = 0.6618
-2024-11-02 19:19:24,253 - INFO - Gen 5: Best Fitness = 0.0417, Train Acc = 0.9601, Val Acc = 0.6079
-2024-11-02 19:20:32,287 - INFO - Gen 6: Best Fitness = 0.0300, Train Acc = 0.9693, Val Acc = 0.6209
-2024-11-02 19:21:41,746 - INFO - Gen 7: Best Fitness = 0.0000, Train Acc = 1.0000, Val Acc = 0.6479
-2024-11-02 19:22:50,784 - INFO - Gen 8: Best Fitness = 0.0000, Train Acc = 1.0000, Val Acc = 0.6482
-2024-11-02 19:23:59,526 - INFO - Gen 9: Best Fitness = 0.0000, Train Acc = 1.0000, Val Acc = 0.6471
-2024-11-02 19:25:07,345 - INFO - Gen 10: Best Fitness = 0.0000, Train Acc = 1.0000, Val Acc = 0.6471
-2024-11-02 19:25:13,717 - INFO - Final validation accuracy: 0.6471
-2024-11-02 19:25:13,717 - INFO - Generating visualizations
-2024-11-02 19:26:27,460 - INFO - Training completed successfully
+2024-11-02 20:59:14,702 - INFO - Loading dataset: instance-recognition
+2024-11-02 20:59:20,790 - INFO - Initializing GP model
+2024-11-02 20:59:20,793 - INFO - Starting training
+2024-11-02 21:01:44,420 - INFO - Gen 1: Best Fitness = 0.3418, Train Acc = 0.5521, Val Acc = 0.4989
+2024-11-02 21:02:50,651 - INFO - Gen 2: Best Fitness = 0.3232, Train Acc = 0.5682, Val Acc = 0.4880
+2024-11-02 21:04:01,483 - INFO - Gen 3: Best Fitness = 0.3068, Train Acc = 0.5694, Val Acc = 0.5156

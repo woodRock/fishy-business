@@ -96,7 +96,7 @@ def train(
         toolbox: Toolbox = None
     ) -> Union[Iterable, Logbook, HallOfFame]:
     """
-    This is a Multi-tree GP with Elitism for Multi-class classification.d
+    This is a Multi-tree GP with Elitism for Multi-class classification.
 
     An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
 

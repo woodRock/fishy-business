@@ -1,0 +1,2 @@
+2024-11-02 20:48:12,730 - __main__ - INFO - Training Set - Class distribution: {0: 1154, 1: 646} | Feature mean range: [0.000, 0.350] | Feature std range: [0.000, 0.131]
+2024-11-02 20:48:12,779 - __main__ - INFO - Validation Set - Class distribution: {0: 1133, 1: 667} | Feature mean range: [0.000, 0.373] | Feature std range: [0.000, 0.129]
