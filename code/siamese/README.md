@@ -282,3 +282,22 @@ test = np.array([
 train.mean(), train.std()
 test.mean(), test.std()
 ```
+
+## GP error
+
+```
+Traceback (most recent call last):
+  File "/home/woodj/Desktop/fishy-business/code/siamese/gp.py", line 338, in <module>
+    main()
+  File "/home/woodj/Desktop/fishy-business/code/siamese/gp.py", line 335, in main
+    model.train(train_data, val_data)
+  File "/home/woodj/Desktop/fishy-business/code/siamese/gp.py", line 303, in train
+    record = stats.compile(pop)
+  File "/home/woodj/.local/lib/python3.10/site-packages/deap/tools/support.py", line 201, in compile
+    values = tuple(self.key(elem) for elem in data)
+  File "/home/woodj/.local/lib/python3.10/site-packages/deap/tools/support.py", line 201, in <genexpr>
+    values = tuple(self.key(elem) for elem in data)
+  File "/home/woodj/Desktop/fishy-business/code/siamese/gp.py", line 274, in <lambda>
+    stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+IndexError: tuple index out of range
+```

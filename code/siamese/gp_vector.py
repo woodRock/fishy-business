@@ -8,6 +8,8 @@ import torch.nn.functional as F
 from deap import algorithms, base, creator, gp, tools
 from sklearn.metrics import balanced_accuracy_score
 
+from util import prepare_dataset, DataConfig
+
 class DataPoint(NamedTuple):
     """Single data point for contrastive learning."""
     anchor: np.ndarray
@@ -18,7 +20,7 @@ class DataPoint(NamedTuple):
 class GPConfig:
     """Configuration for GP evolution."""
     num_trees: int = 5
-    population_size: int = 100
+    population_size: int = 10
     generations: int = 50
     elite_size: int = 5
     crossover_prob: float = 0.5
@@ -109,8 +111,22 @@ class ContrastiveGP:
     
     def _get_outputs(self, trees: List[Callable], x: np.ndarray) -> torch.Tensor:
         """Apply trees to input and get tensor output."""
-        outputs = torch.tensor([tree(x) for tree in trees], dtype=torch.float32)
-        return outputs.view(1, -1)
+        try:
+            # Handle potential NaN/inf in tree outputs
+            outputs = []
+            for tree in trees:
+                out = tree(x)
+                if not np.all(np.isfinite(out)):
+                    out = np.zeros_like(out, dtype=np.float32)
+                outputs.append(out)
+            
+            outputs = np.array(outputs, dtype=np.float32)
+            outputs = torch.from_numpy(outputs)
+            return outputs.view(1, -1)
+            
+        except Exception as e:
+            print(f"Error in _get_outputs: {str(e)}")
+            return torch.zeros((1, len(trees)), dtype=torch.float32)
     
     def get_predictions(self, individual: List[gp.PrimitiveTree], 
                        data: List[DataPoint]) -> Tuple[List[int], List[float]]:
@@ -134,31 +150,52 @@ class ContrastiveGP:
     def _compute_loss(self, output1: torch.Tensor, output2: torch.Tensor, 
                      label: float) -> float:
         """Compute contrastive loss between outputs."""
-        distance = F.pairwise_distance(output1, output2)
-        similar_loss = label * torch.pow(distance, 2)
-        dissimilar_loss = (1 - label) * torch.pow(
-            torch.clamp(self.config.margin - distance, min=0.0), 2)
-        return (similar_loss + dissimilar_loss).mean().item()
+        try:
+            distance = F.pairwise_distance(output1, output2)
+            similar_loss = label * torch.pow(distance, 2)
+            dissimilar_loss = (1 - label) * torch.pow(
+                torch.clamp(self.config.margin - distance, min=0.0), 2)
+            loss = (similar_loss + dissimilar_loss).mean().item()
+            
+            if not np.isfinite(loss):
+                return float('inf')
+            return loss
+            
+        except Exception as e:
+            print(f"Error in _compute_loss: {str(e)}")
+            return float('inf')
 
     def evaluate(self, individual: List[gp.PrimitiveTree], 
                 data: List[DataPoint]) -> Tuple[float]:
         """Evaluate individual on dataset."""
-        trees = [gp.compile(expr, self.pset) for expr in individual]
-        total_loss = 0.0
-        
-        predictions, labels = self.get_predictions(individual, data)
-        
-        for point in data:
-            out1 = self._get_outputs(trees, point.anchor)
-            out2 = self._get_outputs(trees, point.compare)
-            total_loss += self._compute_loss(out1, out2, point.label)
-        
-        avg_loss = total_loss / len(data)
-        accuracy = balanced_accuracy_score(labels, predictions)
-        fitness = (self.config.fitness_alpha * (1 - accuracy) + 
-                  (1 - self.config.fitness_alpha) * avg_loss)
-        
-        return (fitness,)
+        try:
+            trees = [gp.compile(expr, self.pset) for expr in individual]
+            total_loss = 0.0
+            
+            predictions, labels = self.get_predictions(individual, data)
+            
+            for point in data:
+                out1 = self._get_outputs(trees, point.anchor)
+                out2 = self._get_outputs(trees, point.compare)
+                loss = self._compute_loss(out1, out2, point.label)
+                if not np.isfinite(loss):
+                    return (float('inf'),)
+                total_loss += loss
+            
+            avg_loss = total_loss / len(data)
+            accuracy = balanced_accuracy_score(labels, predictions)
+            fitness = (self.config.fitness_alpha * (1 - accuracy) + 
+                      (1 - self.config.fitness_alpha) * avg_loss)
+            
+            # Handle any NaN or infinite values
+            if not np.isfinite(fitness):
+                return (float('inf'),)
+                
+            return (float(fitness),)
+            
+        except Exception as e:
+            print(f"Error in evaluate: {str(e)}")
+            return (float('inf'),)
 
     def _crossover(self, ind1: List[gp.PrimitiveTree], 
                   ind2: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree], 
@@ -205,9 +242,11 @@ class ContrastiveGP:
         hof = tools.HallOfFame(self.config.elite_size)
         
         # Setup statistics
-        stats = tools.Statistics(lambda ind: ind.fitness.values)
-        for stat in ["mean", "std", "min", "max"]:
-            stats.register(stat, getattr(np, stat))
+        stats = tools.Statistics(lambda ind: ind.fitness.values[0])
+        stats.register("avg", np.nanmean)
+        stats.register("std", np.nanstd)
+        stats.register("min", np.nanmin)
+        stats.register("max", np.nanmax)
         
         # Print initial accuracies
         print("\nStarting evolution:")
@@ -223,8 +262,8 @@ class ContrastiveGP:
             )
             
             # Evaluate offspring
-            fits = self.toolbox.map(self.toolbox.evaluate, offspring)
-            for fit, ind in zip(fits, offspring):
+            for ind in offspring:
+                fit = self.evaluate(ind, train_data)
                 ind.fitness.values = fit
             
             # Select next generation
@@ -236,6 +275,8 @@ class ContrastiveGP:
             
             # Print accuracies for this generation
             self.print_accuracies(pop, train_data, val_data, gen)
+            print(f"Stats - avg: {record['avg']:.4f}, std: {record['std']:.4f}, "
+                  f"min: {record['min']:.4f}, max: {record['max']:.4f}")
         
         return pop, None, hof
 
@@ -248,18 +289,16 @@ def prepare_data(loader: torch.utils.data.DataLoader) -> List[DataPoint]:
     ]
 
 def main() -> None:
-    """Run the ContrastiveGP training."""
-    from util import preprocess_dataset  # type: ignore
-    
+    """Run the ContrastiveGP training."""    
     # Initialize model
     config = GPConfig()
     model = ContrastiveGP(config)
     
     # Prepare data
-    train_loader, val_loader = preprocess_dataset(
-        dataset="instance-recognition",
-        batch_size=64
-    )
+    config = DataConfig()
+    print("\nStarting data preparation...")
+    train_loader, val_loader = prepare_dataset(config)
+
     train_data = prepare_data(train_loader)
     val_data = prepare_data(val_loader)
     

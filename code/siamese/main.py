@@ -10,6 +10,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from sklearn.metrics import balanced_accuracy_score, accuracy_score
 
+from util import prepare_dataset, DataConfig
 from lstm import LSTM
 from transformer import Transformer
 from cnn import CNN
@@ -323,11 +324,9 @@ def main():
     print(f"Using device: {device}")
 
     # Load dataset
-    from util import preprocess_dataset
-    train_loader, val_loader = preprocess_dataset(
-        dataset="instance-recognition",
-        batch_size=64
-    )
+    config = DataConfig()
+    print("\nStarting data preparation...")
+    train_loader, val_loader = prepare_dataset(config)
 
     # Create factory and model
     factory = ModelFactory()
