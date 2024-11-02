@@ -508,11 +508,22 @@ def preprocess_dataset(
                 f"Dataset size increased from {original_size} to {len(X)} samples"
             )
 
+        original_size = len(X)
+
         # Create dataset instance
         dataset_class = (
             SiameseDataset if dataset == "instance-recognition" else CustomDataset
         )
         train_dataset = dataset_class(X, y)
+
+        if isinstance(train_dataset, SiameseDataset):
+            logger.info(
+                f"Applying siamese dataset with {train_dataset.pairs_per_sample} pairs per sample..."
+            )
+            X, y = processor.augmenter.augment(X, y)
+            logger.info(
+                f"Dataset size increased from {original_size} to {len(train_dataset.samples)} samples"
+            )
 
         # Create DataLoader
         train_loader = DataLoader(

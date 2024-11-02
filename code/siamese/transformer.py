@@ -1,175 +1,157 @@
+"""
+References:
+1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez,
+    A. N., ... & Polosukhin, I. (2017).
+    Attention is all you need.
+    Advances in neural information processing systems, 30.
+2. He, K., Zhang, X., Ren, S., & Sun, J. (2016).
+    Deep residual learning for image recognition.
+    In Proceedings of the IEEE conference on
+    computer vision and pattern recognition (pp. 770-778).
+3. LeCun, Y. (1989). Generalization and network design strategies.
+    Connectionism in perspective, 19(143-155), 18.
+4. LeCun, Y., Boser, B., Denker, J., Henderson, D., Howard,
+    R., Hubbard, W., & Jackel, L. (1989).
+    Handwritten digit recognition with a back-propagation network.
+    Advances in neural information processing systems, 2.
+5. LeCun, Y., Boser, B., Denker, J. S., Henderson, D., Howard, R. E.,
+    Hubbard, W., & Jackel, L. D. (1989).
+    Backpropagation applied to handwritten zip code recognition.
+    Neural computation, 1(4), 541-551.
+6. Hendrycks, D., & Gimpel, K. (2016).
+    Gaussian error linear units (gelus).
+    arXiv preprint arXiv:1606.08415.
+7. Ba, J. L., Kiros, J. R., & Hinton, G. E. (2016).
+    Layer normalization. arXiv preprint arXiv:1607.06450.
+8. Srivastava, N., Hinton, G., Krizhevsky, A.,
+    Sutskever, I., & Salakhutdinov, R. (2014).
+    Dropout: a simple way to prevent neural networks from overfitting.
+    The journal of machine learning research, 15(1), 1929-1958.
+9. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
+    I., & Salakhutdinov, R. R. (2012).
+    Improving neural networks by preventing co-adaptation of feature detectors.
+    arXiv preprint arXiv:1207.0580.
+10. Glorot, X., & Bengio, Y. (2010, March).
+    Understanding the difficulty of training deep feedforward neural networks.
+    In Proceedings of the thirteenth international conference on artificial intelligence and statistics (pp. 249-256).
+    JMLR Workshop and Conference Proceedings.
+11. Loshchilov, I., & Hutter, F. (2017).
+    Decoupled weight decay regularization.
+    arXiv preprint arXiv:1711.05101.
+12. Goodfellow, Ian, Yoshua Bengio, and Aaron Courville.
+    Deep learning. MIT press, 2016.
+13. Morgan, N., & Bourlard, H. (1989).
+    Generalization and parameter estimation in feedforward nets:
+    Some experiments. Advances in neural information processing systems, 2.
+14. Xiong, R., Yang, Y., He, D., Zheng, K.,
+    Zheng, S., Xing, C., ... & Liu, T. (2020, November).
+    On layer normalization in the transformer architecture.
+    In International Conference on Machine Learning (pp. 10524-10533). PMLR.
+14. Karpathy, Andrej (2023)
+    Let's build GPT: from scratch, in code, spelled out.
+    YouTube https://youtu.be/kCc8FmEb1nY?si=1vM4DhyqsGKUSAdV
+15. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
+    Rethinking the inception architecture for computer vision.
+    In Proceedings of the IEEE conference on computer vision
+    and pattern recognition (pp. 2818-2826).
+16. He, Kaiming, et al. "Delving deep into rectifiers:
+    Surpassing human-level performance on imagenet classification."
+    Proceedings of the IEEE international conference on computer vision. 2015.
+17. Saxe, A. M., McClelland, J. L., & Ganguli, S. (2013).
+    Exact solutions to the nonlinear dynamics of learning in
+    deep linear neural networks. arXiv preprint arXiv:1312.6120.
+18. 8. He, K., Zhang, X., Ren, S., & Sun, J. (2016). 
+    Deep residual learning for image recognition. 
+    In Proceedings of the IEEE conference on 
+    computer vision and pattern recognition (pp. 770-778).
+"""
+
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from sklearn.metrics import balanced_accuracy_score, accuracy_score
-import numpy as np
-from tqdm import tqdm
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-class TransformerEncoder(nn.Module):
-    def __init__(self, input_dim, d_model, nhead, num_layers, dim_feedforward, dropout=0.1):
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, input_dim: int, num_heads: int) -> None:
         super().__init__()
-        self.embedding = nn.Linear(input_dim, d_model)
-        self.transformer = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward, dropout=0.1, activation='gelu', norm_first=False),
-            num_layers
-        )
-        self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(d_model, d_model)
+        assert input_dim % num_heads == 0
 
-    def forward(self, x):
-        x = self.embedding(x)
-        x = self.transformer(x)
-        x = self.fc(x)
-        x = self.dropout(x) # Dropout.
+        self.input_dim = input_dim
+        self.num_heads = num_heads
+        self.head_dim = input_dim // num_heads
+
+        # Combined projection for Q, K, V
+        self.qkv = nn.Linear(input_dim, 3 * input_dim)
+        self.fc_out = nn.Linear(input_dim, input_dim)
+
+        self.scale = self.head_dim**-0.5
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        batch_size = x.shape[0]
+
+        # Single matrix multiplication for all projections
+        qkv = self.qkv(x)
+        qkv = qkv.reshape(batch_size, -1, 3, self.num_heads, self.head_dim)
+        qkv = qkv.permute(2, 0, 3, 1, 4)
+        q, k, v = qkv[0], qkv[1], qkv[2]
+
+        # Scaled dot-product attention
+        attn = (q @ k.transpose(-2, -1)) * self.scale
+        attn = attn.softmax(dim=-1)
+
+        # Combine heads
+        x = (attn @ v).transpose(1, 2).reshape(batch_size, -1, self.input_dim)
+        x = self.fc_out(x)
         return x
 
-class ContrastiveModel(nn.Module):
-    def __init__(self, input_dim, d_model, nhead, num_layers, dim_feedforward, num_classes):
+
+class Transformer(nn.Module):
+    def __init__(
+        self,
+        input_dim: int,
+        output_dim: int,
+        num_heads: int,
+        hidden_dim: int,
+        num_layers: int = 1,
+        dropout: float = 0.1,
+    ) -> None:
         super().__init__()
-        self.encoder = TransformerEncoder(input_dim, d_model, nhead, num_layers, dim_feedforward)
-        self.classifier = nn.Linear(d_model, num_classes)
 
-    def forward(self, x1, x2=None):
-        z1 = self.encoder(x1)
-        if x2 is not None:
-            z2 = self.encoder(x2)
-            return z1, z2
-        return z1
+        self.attention_layers = nn.ModuleList(
+            [MultiHeadAttention(input_dim, num_heads) for _ in range(num_layers)]
+        )
 
-    def classify(self, x):
-        z = self.encoder(x)
-        return self.classifier(z)
+        self.feed_forward = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, input_dim),
+        )
 
-def contrastive_loss(z1, z2, y, temperature=0.5):
-    similarity = nn.functional.cosine_similarity(z1, z2)
-    loss = y * torch.pow(1 - similarity, 2) + (1 - y) * torch.pow(torch.clamp(similarity - 0.1, min=0.0), 2)
-    return loss.mean()
+        self.layer_norm1 = nn.LayerNorm(input_dim)
+        self.layer_norm2 = nn.LayerNorm(input_dim)
+        self.dropout = nn.Dropout(dropout)
+        self.fc_out = nn.Linear(input_dim, output_dim)
 
-def triplet_loss(anchor, positive, negative, margin=1.0):
-    distance_positive = (anchor - positive).pow(2).sum(1)
-    distance_negative = (anchor - negative).pow(2).sum(1)
-    losses = torch.relu(distance_positive - distance_negative + margin)
-    return losses.mean()
+    def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        # Ensure input has 3 dimensions [batch_size, seq_length, features]
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
 
-def balanced_accuracy_loss(preds, labels):
-    ba = balanced_accuracy_score(labels.cpu().numpy(), preds.cpu().numpy())
-    return 1 - ba
+        # Apply attention layers with residual connections
+        for attention in self.attention_layers:
+            residual = x
+            x = self.layer_norm1(x)
+            x = residual + self.dropout(attention(x))
 
-def combined_loss(z1, z2, y, preds, anchor, positive, negative, logits, alpha=0.3, beta=0.3, gamma=0.2, delta=0.2, temperature=0.5, margin=1.0):
-    cl = contrastive_loss(z1, z2, y, temperature)
-    tl = triplet_loss(anchor, positive, negative, margin)
-    ce = nn.functional.cross_entropy(logits, y.long())
-    bal = balanced_accuracy_loss(preds, y)
-    return alpha * cl + beta * tl + gamma * ce + delta * bal
+        # Feed-forward with residual connection
+        residual = x
+        x = self.layer_norm2(x)
+        x = residual + self.dropout(self.feed_forward(x))
 
-def train_epoch(model, dataloader, optimizer, device, alpha=0.3, beta=0.3, gamma=0.2, delta=0.2):
-    model.train()
-    all_preds = []
-    all_labels = []
-    total_loss = 0
-    for x1, x2, y in tqdm(dataloader, desc="Training"):
-        x1, x2, y = x1.to(device), x2.to(device), y.to(device)
-        optimizer.zero_grad()
-        z1, z2 = model(x1, x2)
-        logits = model.classify(x1)
-        
-        # Generate triplets
-        similarity = nn.functional.cosine_similarity(z1, z2)
-        preds = (similarity > 0.5).float()
-        
-        # Ensure y is a 1D tensor
-        y = y.squeeze()
-        
-        # Handle cases where all samples are positive or all are negative
-        if torch.all(y == 1) or torch.all(y == 0):
-            # In this case, we can't form meaningful triplets, so we'll skip triplet loss
-            loss = combined_loss(z1, z2, y, preds, z1, z1, z1, logits, alpha, 0, gamma, delta)
-        else:
-            positive_indices = torch.where(y == 1)[0]
-            negative_indices = torch.where(y == 0)[0]
-            
-            # Randomly select anchors
-            num_triplets = min(len(positive_indices), len(negative_indices), len(z1))
-            anchor_indices = torch.randperm(len(z1))[:num_triplets]
-            
-            anchor = z1[anchor_indices]
-            positive = z2[positive_indices[torch.randperm(len(positive_indices))[:num_triplets]]]
-            negative = z2[negative_indices[torch.randperm(len(negative_indices))[:num_triplets]]]
-            
-            loss = combined_loss(z1, z2, y, preds, anchor, positive, negative, logits, alpha, beta, gamma, delta)
-        
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
-        all_preds.extend(preds.cpu().numpy())
-        all_labels.extend(y.cpu().numpy())
-    accuracy = accuracy_score(all_labels, all_preds)
-    balanced_accuracy = balanced_accuracy_score(all_labels, all_preds)
-    loss = total_loss / len(dataloader)
-    return loss, accuracy, balanced_accuracy
-
-
-def evaluate(model, dataloader, device):
-    model.eval()
-    all_preds = []
-    all_labels = []
-    with torch.no_grad():
-        for x1, x2, y in tqdm(dataloader, desc="Evaluating"):
-            x1, x2, y = x1.to(device), x2.to(device), y.to(device)
-            z1, z2 = model(x1, x2)
-            similarity = nn.functional.cosine_similarity(z1, z2)
-            preds = (similarity > 0.5).float()
-            all_preds.extend(preds.cpu().numpy())
-            all_labels.extend(y.cpu().numpy())
-    accuracy = accuracy_score(all_labels, all_preds)
-    balanced_accuracy = balanced_accuracy_score(all_labels, all_preds)
-    return accuracy, balanced_accuracy
-
-def main():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-
-    from util import preprocess_dataset
-
-    # Load your data
-    train_loader, val_loader = preprocess_dataset(dataset="instance-recognition", batch_size=64)
-
-    # Model parameters
-    input_dim = next(iter(train_loader))[0].shape[1]  # Get input dimension from data
-    d_model = 128
-    nhead = 8
-    num_layers = 2
-    dim_feedforward = 256
-    num_classes = 2  # Assuming binary classification, adjust if needed
-    learning_rate = 1E-5
-
-    model = ContrastiveModel(input_dim, d_model, nhead, num_layers, dim_feedforward, num_classes).to(device)
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-
-    num_epochs = 200
-    best_val_accuracy = 0
-    # Contrastive loss, Triplet loss, Cross entropy, Balanced accuracy score
-    alpha, beta, gamma, delta = 0.5, 0.0, 0.5, 0.0  # Weights for different loss components
-
-    for epoch in range(num_epochs):
-        train_loss, train_accuracy, train_balanced_accuracy = train_epoch(model, train_loader, optimizer, device, alpha, beta, gamma, delta)
-        val_accuracy, val_balanced_accuracy = evaluate(model, val_loader, device)
-        
-        print(f"Epoch {epoch+1}/{num_epochs}")
-        print(f"Train Loss: {train_loss:.4f}")
-        print(f"Train Accuracy: {train_accuracy:.4f}")
-        print(f"Train Balanced Accuracy: {train_balanced_accuracy:.4f}")
-        print(f"Validation Accuracy: {val_accuracy:.4f}")
-        print(f"Validation Balanced Accuracy: {val_balanced_accuracy:.4f}")
-        
-        if val_balanced_accuracy > best_val_accuracy:
-            best_val_accuracy = val_balanced_accuracy
-            torch.save(model.state_dict(), "best_model.pth")
-        
-        print("------------------------")
-
-    print(f"Best Validation Balanced Accuracy: {best_val_accuracy:.4f}")
-
-if __name__ == "__main__":
-    main()
+        # Global pooling and classification
+        x = x.mean(dim=1)  # Global average pooling
+        x = self.fc_out(x)
+        return x
