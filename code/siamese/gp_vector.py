@@ -1,277 +1,270 @@
-"""
-Multi-tree vector-based genetic programming for contrastive learning.
+from dataclasses import dataclass
+from typing import List, Tuple, NamedTuple, Dict, Any, Callable
+import random
 
-References: 
-1.  Bromley, J., Guyon, I., LeCun, Y., Säckinger, E., & Shah, R. (1993). 
-    Signature verification using a" siamese" time delay neural network. 
-    Advances in neural information processing systems, 6.
-2.  Koza, J. R. (1994). 
-    Genetic programming II: automatic discovery of reusable programs.
-"""
-
-from typing import List, Tuple, Callable, Any, Optional
 import numpy as np
-import operator
-from deap import algorithms, base, creator, gp, tools
-from sklearn.metrics import balanced_accuracy_score
-from sklearn.model_selection import train_test_split
 import torch
 import torch.nn.functional as F
-from functools import partial
-import random
-from multiprocessing import Pool
+from deap import algorithms, base, creator, gp, tools
+from sklearn.metrics import balanced_accuracy_score
 
-# Define primitives that work with numpy arrays and return float arrays
-def protectedDiv(left: np.ndarray, right: np.ndarray) -> np.ndarray:
-    return np.divide(left, right, out=np.ones_like(left, dtype=float), where=right!=0)
+class DataPoint(NamedTuple):
+    """Single data point for contrastive learning."""
+    anchor: np.ndarray
+    compare: np.ndarray
+    label: float
 
-def add(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    return x.astype(float) + y.astype(float)
-
-def sub(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    return x.astype(float) - y.astype(float)
-
-def mul(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-    return x.astype(float) * y.astype(float)
-
-def neg(x: np.ndarray) -> np.ndarray:
-    return -x.astype(float)
-
-def sin(x: np.ndarray) -> np.ndarray:
-    return np.sin(x.astype(float))
-
-def cos(x: np.ndarray) -> np.ndarray:
-    return np.cos(x.astype(float))
-
-def rand101(x: np.ndarray) -> np.ndarray:
-    return np.random.uniform(-1, 1, size=x.shape)
-
-pset = gp.PrimitiveSet("MAIN", 1)  # 1 input for individual feature evaluation
-pset.addPrimitive(add, 2)
-pset.addPrimitive(sub, 2)
-pset.addPrimitive(mul, 2)
-pset.addPrimitive(protectedDiv, 2)
-pset.addPrimitive(neg, 1)
-pset.addPrimitive(sin, 1)
-pset.addPrimitive(cos, 1)
-pset.addPrimitive(rand101, 1)
-pset.renameArguments(ARG0='x')
-
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", list, fitness=creator.FitnessMin)
-
-# Define the number of trees per individual
-NUM_TREES: int = 5
-
-# Toolbox initialization
-toolbox = base.Toolbox()
-toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=1, max_=6)
-toolbox.register("tree", tools.initIterate, gp.PrimitiveTree, toolbox.expr)
-toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.tree, n=NUM_TREES)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-
-# Compile function
-def compile_trees(individual: List[gp.PrimitiveTree]) -> List[Callable[[np.ndarray], np.ndarray]]:
-    return [gp.compile(expr, pset) for expr in individual]
-
-# Contrastive loss function
-def contrastive_loss(output1: torch.Tensor, output2: torch.Tensor, label: float, margin: float = 1.0) -> torch.Tensor:
-    euclidean_distance = F.pairwise_distance(output1, output2)
-    loss = label * torch.pow(euclidean_distance, 2) + (1 - label) * torch.pow(torch.clamp(margin - euclidean_distance, min=0.0), 2)
-    return loss.mean()
-
-# Evaluation function
-def evalContrastive(individual: List[gp.PrimitiveTree], data: List[Tuple[np.ndarray, np.ndarray, float]], alpha: float = 0.5) -> Tuple[float]:
-    trees = compile_trees(individual)
-    total_loss = 0.0
-    predictions: List[int] = []
-    labels: List[float] = []
-    
-    for x1, x2, label in data:
-        outputs1 = torch.tensor([tree(feature) for tree, feature in zip(trees, x1)], dtype=torch.float32)
-        outputs2 = torch.tensor([tree(feature) for tree, feature in zip(trees, x2)], dtype=torch.float32)
-        
-        loss = contrastive_loss(outputs1.unsqueeze(0), outputs2.unsqueeze(0), label)
-        total_loss += loss.item()
-        
-        euclidean_distance = F.pairwise_distance(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
-        pred = 0 if euclidean_distance < 0.5 else 1  # Adjust threshold as needed
-        predictions.append(pred)
-        labels.append(label)
-    
-    avg_loss = total_loss / len(data)
-    balanced_accuracy = balanced_accuracy_score(labels, predictions)
-    loss_balanced = 1 - balanced_accuracy
-    fitness = alpha * loss_balanced + (1 - alpha) * avg_loss  # Combine accuracy and loss
-    return (fitness,)
-
-# Custom crossover function
-def customCrossover(ind1: List[gp.PrimitiveTree], ind2: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree], List[gp.PrimitiveTree]]:
-    for i in range(len(ind1)):
-        if random.random() < 0.5:
-            ind1[i], ind2[i] = gp.cxOnePoint(ind1[i], ind2[i])
-    return ind1, ind2
-
-# Custom mutation function
-def customMutate(individual: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree]]:
-    for i in range(len(individual)):
-        if random.random() < 0.2:  # 20% chance to mutate each tree
-            individual[i], = gp.mutUniform(individual[i], expr=toolbox.expr, pset=pset)
-    return individual,
-
-# Genetic operators
-toolbox.register("mate", customCrossover)
-toolbox.register("mutate", customMutate)
-toolbox.register("select", tools.selTournament, tournsize=3)
-
-def eaSimpleWithElitism(population: List[List[gp.PrimitiveTree]], 
-                        toolbox: base.Toolbox, 
-                        cxpb: float, 
-                        mutpb: float, 
-                        ngen: int, 
-                        stats: Optional[tools.Statistics] = None,
-                        halloffame: Optional[tools.HallOfFame] = None, 
-                        verbose: bool = __debug__, 
-                        elite_size: int = 1) -> Tuple[List[List[gp.PrimitiveTree]], tools.Logbook]:
-    logbook = tools.Logbook()
-    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
-
-    # Evaluate the individuals with an invalid fitness
-    invalid_ind = [ind for ind in population if not ind.fitness.valid]
-    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-    for ind, fit in zip(invalid_ind, fitnesses):
-        ind.fitness.values = fit
-
-    if halloffame is None:
-        raise ValueError("halloffame parameter must not be None")
-    halloffame.update(population)
-
-    record = stats.compile(population) if stats else {}
-    logbook.record(gen=0, nevals=len(invalid_ind), **record)
-    if verbose:
-        print(logbook.stream)
-
-    # Begin the generational process
-    for gen in range(1, ngen + 1):
-        # Select the next generation individuals
-        offspring = toolbox.select(population, len(population) - elite_size)
-
-        # Vary the pool of individuals
-        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-
-        # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitness.values = fit
-
-        # Add the best back to population:
-        offspring.extend(halloffame.items)
-
-        # Update the hall of fame with the generated individuals
-        halloffame.update(offspring)
-
-        # Replace the current population by the offspring
-        population[:] = offspring
-
-        # Append the current generation statistics to the logbook
-        record = stats.compile(population) if stats else {}
-        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
-        if verbose:
-            print(logbook.stream)
-        
-        # Print the best (lowest) fitness in this generation
-        best_fit = halloffame[0].fitness.values[0]
-        print(f"Generation {gen}: Best Fitness = {best_fit}")
-
-    return population, logbook
-
-def evaluate_best_individual(individual: List[gp.PrimitiveTree], data: List[Tuple[np.ndarray, np.ndarray, float]]) -> float:
-    trees = compile_trees(individual)
-    predictions: List[int] = []
-    labels: List[float] = []
-    
-    for x1, x2, label in data:
-        outputs1 = torch.tensor([tree(feature) for tree, feature in zip(trees, x1)], dtype=torch.float32)
-        outputs2 = torch.tensor([tree(feature) for tree, feature in zip(trees, x2)], dtype=torch.float32)
-        
-        euclidean_distance = F.pairwise_distance(outputs1.unsqueeze(0), outputs2.unsqueeze(0))
-        pred = 0 if euclidean_distance < 0.5 else 1  # Adjust threshold as needed
-        predictions.append(pred)
-        labels.append(label)
-    
-    balanced_accuracy = balanced_accuracy_score(labels, predictions)
-    return balanced_accuracy
-
-def main() -> Tuple[List[List[gp.PrimitiveTree]], tools.Logbook, tools.HallOfFame]:
-    # Load and preprocess your data
-    from util import preprocess_dataset
-    train_loader, val_loader = preprocess_dataset(dataset="instance-recognition", batch_size=64)
-    
-    # Convert data loaders to list format for GP
-    def loader_to_list(loader: torch.utils.data.DataLoader) -> List[Tuple[np.ndarray, np.ndarray, float]]:
-        data_list = []
-        for x1, x2, y in loader:
-            for i in range(len(y)):
-                # Ensure x1 and x2 have NUM_TREES features each
-                data_list.append((x1[i].numpy()[:NUM_TREES], x2[i].numpy()[:NUM_TREES], y[i].item()))
-        return data_list
-    
-    train_data = loader_to_list(train_loader)
-    val_data = loader_to_list(val_loader)
-    
-    # Register the evaluation function with the training data
-    toolbox.register("evaluate", evalContrastive, data=train_data)
-    
-    # GP parameters
-    pop_size: int = 100
+@dataclass
+class GPConfig:
+    """Configuration for GP evolution."""
+    num_trees: int = 5
+    population_size: int = 100
     generations: int = 50
-    elite_size: int = 5  # Number of elite individuals to preserve
-    
-    # Initialize population
-    pop = toolbox.population(n=pop_size)
-    hof = tools.HallOfFame(elite_size)
-    stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register("avg", np.mean)
-    stats.register("std", np.std)
-    stats.register("min", np.min)
-    stats.register("max", np.max)
+    elite_size: int = 5
+    crossover_prob: float = 0.5
+    mutation_prob: float = 0.2
+    tournament_size: int = 3
+    distance_threshold: float = 0.5
+    margin: float = 1.0
+    fitness_alpha: float = 0.5
 
-    with Pool() as pool:
-        toolbox.register("map", pool.map)
+class GPOperations:
+    """Primitive operations for GP trees."""
+    
+    @staticmethod
+    def add(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return x.astype(float) + y.astype(float)
+    
+    @staticmethod
+    def sub(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return x.astype(float) - y.astype(float)
+    
+    @staticmethod
+    def mul(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return x.astype(float) * y.astype(float)
+    
+    @staticmethod
+    def protected_div(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return np.divide(x, y, out=np.ones_like(x, dtype=float), where=y!=0)
+    
+    @staticmethod
+    def sin(x: np.ndarray) -> np.ndarray:
+        return np.sin(x.astype(float))
+    
+    @staticmethod
+    def cos(x: np.ndarray) -> np.ndarray:
+        return np.cos(x.astype(float))
+    
+    @staticmethod
+    def neg(x: np.ndarray) -> np.ndarray:
+        return -x.astype(float)
+
+class ContrastiveGP:
+    """Genetic Programming for learning contrastive representations."""
+    
+    def __init__(self, config: GPConfig):
+        self.config = config
+        self.pset = self._init_primitives()
+        self.toolbox = self._init_toolbox()
+        self.val_data: List[DataPoint] = []  # Will be set during training
+
+    def _init_primitives(self) -> gp.PrimitiveSet:
+        """Initialize GP primitive operations."""
+        pset = gp.PrimitiveSet("MAIN", 1)
+        ops = GPOperations()
         
-        # Run GP with elitism
-        pop, log = eaSimpleWithElitism(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=generations, 
-                                    stats=stats, halloffame=hof, verbose=True, elite_size=elite_size)
+        primitives = [
+            ('add', 2), ('sub', 2), ('mul', 2), ('protected_div', 2),
+            ('sin', 1), ('cos', 1), ('neg', 1)
+        ]
         
-    # Evaluate best individual on validation set
-    best_individual = hof[0]
-    best_fitness = evalContrastive(best_individual, val_data)
-    print(f"Best individual fitness on validation set: {best_fitness[0]}")
+        for name, arity in primitives:
+            pset.addPrimitive(getattr(ops, name), arity)
+        
+        pset.renameArguments(ARG0='x')
+        return pset
+
+    def _init_toolbox(self) -> base.Toolbox:
+        """Initialize DEAP toolbox with genetic operators."""
+        if not hasattr(creator, "FitnessMin"):
+            creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+        if not hasattr(creator, "Individual"):
+            creator.create("Individual", list, fitness=creator.FitnessMin)
+        
+        tb = base.Toolbox()
+        
+        tb.register("expr", gp.genHalfAndHalf, pset=self.pset, min_=1, max_=6)
+        tb.register("tree", tools.initIterate, gp.PrimitiveTree, tb.expr)
+        tb.register("individual", tools.initRepeat, creator.Individual, 
+                   tb.tree, n=self.config.num_trees)
+        tb.register("population", tools.initRepeat, list, tb.individual)
+        
+        tb.register("mate", self._crossover)
+        tb.register("mutate", self._mutate)
+        tb.register("select", tools.selTournament, 
+                   tournsize=self.config.tournament_size)
+        tb.register("map", map)
+        
+        return tb
     
-    # Calculate and print the balanced accuracy score for the best individual
-    balanced_accuracy = evaluate_best_individual(best_individual, val_data)
-    print(f"Balanced Accuracy Score of the best individual on validation set: {balanced_accuracy:.4f}")
+    def _get_outputs(self, trees: List[Callable], x: np.ndarray) -> torch.Tensor:
+        """Apply trees to input and get tensor output."""
+        outputs = torch.tensor([tree(x) for tree in trees], dtype=torch.float32)
+        return outputs.view(1, -1)
     
-    print(f"Printing the GP trees")
-    for tree_idx, tree in enumerate(best_individual):
-        nodes, edges, labels = gp.graph(tree)
+    def get_predictions(self, individual: List[gp.PrimitiveTree], 
+                       data: List[DataPoint]) -> Tuple[List[int], List[float]]:
+        """Get predictions and labels for a dataset."""
+        trees = [gp.compile(expr, self.pset) for expr in individual]
+        predictions = []
+        labels = []
+        
+        for point in data:
+            out1 = self._get_outputs(trees, point.anchor)
+            out2 = self._get_outputs(trees, point.compare)
+            
+            distance = F.pairwise_distance(out1, out2).mean().item()
+            pred = 0 if distance < self.config.distance_threshold else 1
+            
+            predictions.append(pred)
+            labels.append(point.label)
+            
+        return predictions, labels
 
-        ### Graphviz Section ###
-        import pygraphviz as pgv
+    def _compute_loss(self, output1: torch.Tensor, output2: torch.Tensor, 
+                     label: float) -> float:
+        """Compute contrastive loss between outputs."""
+        distance = F.pairwise_distance(output1, output2)
+        similar_loss = label * torch.pow(distance, 2)
+        dissimilar_loss = (1 - label) * torch.pow(
+            torch.clamp(self.config.margin - distance, min=0.0), 2)
+        return (similar_loss + dissimilar_loss).mean().item()
 
-        g = pgv.AGraph()
-        g.add_nodes_from(nodes)
-        g.add_edges_from(edges)
-        g.layout(prog="dot")
+    def evaluate(self, individual: List[gp.PrimitiveTree], 
+                data: List[DataPoint]) -> Tuple[float]:
+        """Evaluate individual on dataset."""
+        trees = [gp.compile(expr, self.pset) for expr in individual]
+        total_loss = 0.0
+        
+        predictions, labels = self.get_predictions(individual, data)
+        
+        for point in data:
+            out1 = self._get_outputs(trees, point.anchor)
+            out2 = self._get_outputs(trees, point.compare)
+            total_loss += self._compute_loss(out1, out2, point.label)
+        
+        avg_loss = total_loss / len(data)
+        accuracy = balanced_accuracy_score(labels, predictions)
+        fitness = (self.config.fitness_alpha * (1 - accuracy) + 
+                  (1 - self.config.fitness_alpha) * avg_loss)
+        
+        return (fitness,)
 
-        for i in nodes:
-            n = g.get_node(i)
-            n.attr["label"] = labels[i]
+    def _crossover(self, ind1: List[gp.PrimitiveTree], 
+                  ind2: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree], 
+                                                       List[gp.PrimitiveTree]]:
+        """Perform crossover between individuals."""
+        for i in range(len(ind1)):
+            if random.random() < 0.5:
+                ind1[i], ind2[i] = gp.cxOnePoint(ind1[i], ind2[i])
+        return ind1, ind2
 
-        g.draw(f"figures/tree_{tree_idx}.pdf")
+    def _mutate(self, individual: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree]]:
+        """Mutate an individual."""
+        for i in range(len(individual)):
+            if random.random() < 0.2:
+                individual[i], = gp.mutUniform(individual[i], expr=self.toolbox.expr, 
+                                             pset=self.pset)
+        return individual,
+
+    def print_accuracies(self, population: List[List[gp.PrimitiveTree]], 
+                        train_data: List[DataPoint], val_data: List[DataPoint], 
+                        generation: int) -> None:
+        """Print training and validation accuracies for best individual."""
+        best_ind = tools.selBest(population, 1)[0]
+        
+        # Get training accuracy
+        train_preds, train_labels = self.get_predictions(best_ind, train_data)
+        train_acc = balanced_accuracy_score(train_labels, train_preds)
+        
+        # Get validation accuracy
+        val_preds, val_labels = self.get_predictions(best_ind, val_data)
+        val_acc = balanced_accuracy_score(val_labels, val_preds)
+        
+        print(f"Generation {generation:3d} - Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
+
+    def train(self, train_data: List[DataPoint], 
+             val_data: List[DataPoint]) -> Tuple[List[List[gp.PrimitiveTree]], 
+                                               tools.Logbook, tools.HallOfFame]:
+        """Train the GP model."""
+        self.toolbox.register("evaluate", self.evaluate, data=train_data)
+        self.val_data = val_data
+        
+        # Initialize evolution
+        pop = self.toolbox.population(n=self.config.population_size)
+        hof = tools.HallOfFame(self.config.elite_size)
+        
+        # Setup statistics
+        stats = tools.Statistics(lambda ind: ind.fitness.values)
+        for stat in ["mean", "std", "min", "max"]:
+            stats.register(stat, getattr(np, stat))
+        
+        # Print initial accuracies
+        print("\nStarting evolution:")
+        self.print_accuracies(pop, train_data, val_data, 0)
+        
+        # Run evolution with generation callbacks
+        for gen in range(1, self.config.generations + 1):
+            # Create next generation
+            offspring = algorithms.varAnd(
+                pop, self.toolbox, 
+                cxpb=self.config.crossover_prob, 
+                mutpb=self.config.mutation_prob
+            )
+            
+            # Evaluate offspring
+            fits = self.toolbox.map(self.toolbox.evaluate, offspring)
+            for fit, ind in zip(fits, offspring):
+                ind.fitness.values = fit
+            
+            # Select next generation
+            pop = self.toolbox.select(offspring + pop, k=len(pop))
+            
+            # Update hall of fame and record stats
+            hof.update(pop)
+            record = stats.compile(pop)
+            
+            # Print accuracies for this generation
+            self.print_accuracies(pop, train_data, val_data, gen)
+        
+        return pop, None, hof
+
+def prepare_data(loader: torch.utils.data.DataLoader) -> List[DataPoint]:
+    """Convert data loader to list of DataPoints."""
+    return [
+        DataPoint(x1[i].numpy(), x2[i].numpy(), y[i].item())
+        for x1, x2, y in loader
+        for i in range(len(y))
+    ]
+
+def main() -> None:
+    """Run the ContrastiveGP training."""
+    from util import preprocess_dataset  # type: ignore
     
-    return pop, log, hof
+    # Initialize model
+    config = GPConfig()
+    model = ContrastiveGP(config)
+    
+    # Prepare data
+    train_loader, val_loader = preprocess_dataset(
+        dataset="instance-recognition",
+        batch_size=64
+    )
+    train_data = prepare_data(train_loader)
+    val_data = prepare_data(val_loader)
+    
+    # Train model
+    model.train(train_data, val_data)
 
 if __name__ == "__main__":
-    pop, log, hof = main()
+    main()
