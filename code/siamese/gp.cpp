@@ -1188,6 +1188,8 @@ public:
                     << "\n  Validation Accuracy: " << val_accuracy * 100.0f << "%"
                     << std::endl;
 
+            std::cout << "I get here" << std::endl;
+
             // Check for improvement
             if (gen_best_fitness < best_fitness) {
                 best_fitness = gen_best_fitness;
@@ -1196,10 +1198,15 @@ public:
                 generations_without_improvement++;
             }
 
+            std::cout << "I get here II" << std::endl;
+
+
             if (generations_without_improvement > 20) {
                 std::cout << "Early stopping due to lack of improvement" << std::endl;
                 break;
             }
+
+            std::cout << "I get here III" << std::endl;
 
             // Create new population
             std::vector<Individual> new_population;
@@ -1211,10 +1218,16 @@ public:
             std::sort(indices.begin(), indices.end(),
                     [&](size_t a, size_t b) { return fitnesses[a] < fitnesses[b]; });
 
+            std::cout << "I get here IV" << std::endl;
+
             // Elitism
             for (int i = 0; i < config.elite_size && i < population.size(); ++i) {
                 new_population.push_back(Individual(population[indices[i]]));
             }
+
+            std::cout << "I get here V" << std::endl;
+
+            // DEBUG - segmenation fault here on second iteration.
 
             // Generate remaining individuals
             auto& rng = getGen();
@@ -1237,6 +1250,8 @@ public:
                 
                 new_population.push_back(std::move(offspring));
             }
+
+            std::cout << "I get here VI" << std::endl;
 
             // Replace population
             population = std::move(new_population);

@@ -296,6 +296,9 @@ OpenXLSX.Library_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 OpenXLSX.Library_SOURCE_DIR:STATIC=/home/woodj/Desktop/fishy-business/code/siamese/OpenXLSX
 
+//The directory containing a CMake configuration file for OpenXLSX.
+OpenXLSX_DIR:PATH=OpenXLSX_DIR-NOTFOUND
+
 //Value Computed by CMake
 app_BINARY_DIR:STATIC=/home/woodj/Desktop/fishy-business/code/siamese/build
 
