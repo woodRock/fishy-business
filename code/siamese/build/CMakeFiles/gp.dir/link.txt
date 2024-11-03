@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/gp.dir/gp.cpp.o -o gp  -lOpenXLSX::OpenXSLX 
