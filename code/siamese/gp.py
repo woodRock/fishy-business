@@ -39,7 +39,7 @@ import torch
 import torch.nn.functional as F
 from deap import algorithms, base, creator, gp, tools
 from sklearn.metrics import balanced_accuracy_score
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from util import prepare_dataset, DataConfig
 
@@ -53,20 +53,22 @@ class DataPoint(NamedTuple):
 class GPConfig:
     """Configuration for GP evolution."""
     n_features: int = 2080
-    num_trees: int = 10
+    num_trees: int = 20
     population_size: int = 100
     generations: int = 100
     elite_size: int = 10
     crossover_prob: float = 0.8
     mutation_prob: float = 0.3
     tournament_size: int = 7
-    distance_threshold: float = 0.5
-    margin: float = 2.0
-    fitness_alpha: float = 0.6
+    distance_threshold: float = 0.8
+    margin: float = 1.0
+    fitness_alpha: float = 0.8
+    loss_alpha: float = 0.2
+    balance_alpha: float = 0.001
     max_tree_depth: int = 6
-    parsimony_coeff: float = 0.01
+    parsimony_coeff: float = 0.001
     batch_size: int = 128  # Added batch processing
-    num_workers: int = 16  # Added parallel processing
+    num_workers: int = 15  # Added parallel processing
     dropout_prob: float = 0.2  # Added dropout probability
     bn_momentum: float = 0.1  # Batch norm momentum
     bn_epsilon: float = 1e-5  # Batch norm epsilon
@@ -120,18 +122,18 @@ class BatchNorm:
 class GPOperations:
     """Primitive operations for GP trees with batch normalization."""
     
-    def __init__(self, dropout_prob: float = 0.2):
+    def __init__(self, dropout_prob: float = 0.2, momentum = 0.1, epsilon=1e-5):
         self.dropout_prob = dropout_prob
         self.training = True
         # Create batch norm layers for each operation
         self.batch_norms = {
-            'add': BatchNorm(),
-            'sub': BatchNorm(),
-            'mul': BatchNorm(),
-            'div': BatchNorm(),
-            'sin': BatchNorm(),
-            'cos': BatchNorm(),
-            'neg': BatchNorm()
+            'add': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'sub': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'mul': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'div': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'sin': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'cos': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'neg': BatchNorm(momentum=momentum, epsilon=epsilon)
         }
     
     def set_training(self, mode: bool = True):
@@ -217,17 +219,28 @@ class GPOperations:
 class ContrastiveGP:
     """Optimized Genetic Programming for learning contrastive representations."""
     
+    # Class-level shared variables
+    _shared_pset = None
+    _shared_config = None
+    _shared_ops = None  # Add shared ops instance
+    
     def __init__(self, config: GPConfig):
         self.config = config
-        self.ops = GPOperations(dropout_prob=config.dropout_prob)
-        self.pset = self._init_primitives()
+        # Create single shared ops instance
+        if ContrastiveGP._shared_ops is None:
+            ContrastiveGP._shared_ops = GPOperations(
+                dropout_prob=config.dropout_prob,
+                momentum=config.bn_momentum, 
+                epsilon=config.bn_epsilon
+            )
+        self.ops = ContrastiveGP._shared_ops
+        
+        # Initialize the primitive set and store as class variable
+        ContrastiveGP._shared_pset = self._init_primitives()
+        ContrastiveGP._shared_config = config
+        self.pset = ContrastiveGP._shared_pset
         self.toolbox = self._init_toolbox()
         self.val_data: List[DataPoint] = []
-        
-        # Pre-compile primitive operations
-        self.primitive_lookup = {
-            prim.name: prim for prim in self.pset.primitives[object]
-        }
 
     def _init_toolbox(self) -> base.Toolbox:
         """Initialize DEAP toolbox with genetic operators."""
@@ -327,14 +340,9 @@ class ContrastiveGP:
         
         return predictions, labels
 
-    def random_constant(self) -> float:
-        """Generate random constant between -1 and 1."""
-        return random.uniform(-1, 1)
-
     def _init_primitives(self) -> gp.PrimitiveSet:
-        """Initialize GP primitive operations."""
-        pset = gp.PrimitiveSet("MAIN", self.config.n_features)  # Keep input arity as 1
-        ops = GPOperations()
+        """Initialize GP primitive operations using shared ops."""
+        pset = gp.PrimitiveSet("MAIN", self.config.n_features)
         
         primitives = [
             ('add', 2), ('sub', 2), ('mul', 2), ('protected_div', 2),
@@ -342,64 +350,18 @@ class ContrastiveGP:
         ]
         
         for name, arity in primitives:
-            pset.addPrimitive(getattr(ops, name), arity)
+            pset.addPrimitive(getattr(self.ops, name), arity)
         
         # Add feature selection terminals
-        for i in range(2080):  # Add terminals for each feature
+        for i in range(2080):
             pset.addTerminal(i, name=f'f{i}')
         
-        # Add constant terminals for more expressiveness
+        # Add constant terminals
         for const in [-1.0, -0.5, 0.0, 0.5, 1.0]:
             pset.addTerminal(const)
         
         pset.renameArguments(ARG0='x')
         return pset
-
-    def _batch_get_outputs(self, trees: List[Callable], 
-                      batch: np.ndarray) -> torch.Tensor:
-        """Process a batch of inputs through trees efficiently."""
-        batch_size = batch.shape[0]
-        minibatch_size = min(32, batch_size)
-        num_minibatches = (batch_size + minibatch_size - 1) // minibatch_size
-        
-        outputs = []
-        for tree in trees:
-            tree_outputs = []
-            try:
-                # Process in minibatches
-                for i in range(num_minibatches):
-                    start_idx = i * minibatch_size
-                    end_idx = min((i + 1) * minibatch_size, batch_size)
-                    minibatch = batch[start_idx:end_idx]
-                    
-                    # FIXED: Process each sample in minibatch
-                    minibatch_outputs = []
-                    for sample in minibatch:
-                        # Pass each feature as a separate argument
-                        out = tree(*[x for x in sample])
-                        
-                        # Handle feature selection
-                        if isinstance(out, (int, np.integer)) and 0 <= out < len(sample):
-                            out = sample[out]
-                        
-                        # Ensure output is a float
-                        out = np.asarray(out, dtype=np.float32).item()
-                        minibatch_outputs.append(out)
-                    
-                    # Stack minibatch outputs
-                    out = np.array(minibatch_outputs, dtype=np.float32)
-                    tree_outputs.append(out)
-                
-                # Concatenate minibatch results
-                tree_output = np.concatenate(tree_outputs, axis=0)
-                outputs.append(tree_output)
-                
-            except Exception as e:
-                print(f"Error in tree evaluation: {str(e)}")
-                outputs.append(np.zeros(batch_size, dtype=np.float32))
-        
-        outputs = np.stack(outputs).astype(np.float32)
-        return torch.from_numpy(outputs).transpose(0, 1)
 
     def _evaluate_batch(self, trees: List[Callable], 
                    batch: List[DataPoint]) -> Tuple[float, List[int]]:
@@ -408,8 +370,8 @@ class ContrastiveGP:
         compares = np.stack([p.compare for p in batch])
         labels = torch.tensor([p.label for p in batch])
         
-        out1 = self._batch_get_outputs(trees, anchors)
-        out2 = self._batch_get_outputs(trees, compares)
+        out1 = self.batch_get_outputs_static(trees, anchors, self.ops)
+        out2 = self.batch_get_outputs_static(trees, compares, self.ops)
         
         batch_size = len(batch)
         minibatch_size = min(32, batch_size)
@@ -441,175 +403,173 @@ class ContrastiveGP:
         avg_loss = total_loss / batch_size
         return avg_loss, all_predictions
 
-    def _compute_loss(self, output1: torch.Tensor, output2: torch.Tensor, 
-                 label: float) -> float:
-        """Compute improved contrastive loss between outputs."""
+    @staticmethod
+    def evaluate_static(args: Tuple[List[gp.PrimitiveTree], List[DataPoint]]) -> Tuple[float]:
+        """Static evaluation method using shared ops instance.
+        
+        Args:
+            args: Tuple containing (individual, data)
+            
+        Returns:
+            Tuple containing single fitness value
+        """
+        individual, data = args
+        
+        # Use shared ops instance instead of creating new one
+        ops = ContrastiveGP._shared_ops
+        ops.set_training(True)
+        
         try:
-            # Normalize outputs to unit length
-            output1 = F.normalize(output1, p=2, dim=1)
-            output2 = F.normalize(output2, p=2, dim=1)
-            
-            distance = F.pairwise_distance(output1, output2)
-            
-            # Modified contrastive loss with better gradient properties
-            if label == 1:  # Similar pairs
-                loss = torch.pow(distance, 2)
-            else:  # Dissimilar pairs
-                loss = torch.pow(torch.clamp(self.config.margin - distance, min=0.0), 2)
-            
-            loss = loss.mean().item()
-            
-            if not np.isfinite(loss):
-                return float('inf')
-            return loss
-            
-        except Exception as e:
-            print(f"Error in _compute_loss: {str(e)}")
-            return float('inf')
-
-    def evaluate(self, individual: List[gp.PrimitiveTree], 
-            data: List[DataPoint]) -> Tuple[float]:
-        """Evaluate individual on dataset."""
-        try:
-            self.ops.set_training(True)  # Enable dropout for training
-            trees = [gp.compile(expr, self.pset) for expr in individual]
+            trees = [gp.compile(expr, ContrastiveGP._shared_pset) for expr in individual]
             total_loss = 0.0
+            predictions = []
+            labels = []
             
-            predictions, labels = self.get_predictions(individual, data)
-            
-            for point in data:
-                out1 = self._batch_get_outputs(trees, point.anchor.reshape(1, -1))
-                out2 = self._batch_get_outputs(trees, point.compare.reshape(1, -1))
-                loss = self._compute_loss(out1, out2, point.label)
-                if not np.isfinite(loss):
-                    return (float('inf'),)
-                total_loss += loss
+            # Process data in batches
+            batch_size = ContrastiveGP._shared_config.batch_size
+            for i in range(0, len(data), batch_size):
+                batch = data[i:i + batch_size]
+                batch_anchors = np.stack([p.anchor for p in batch])
+                batch_compares = np.stack([p.compare for p in batch])
+                batch_labels = torch.tensor([p.label for p in batch])
+                
+                # Get outputs using shared ops instance
+                out1 = ContrastiveGP.batch_get_outputs_static(trees, batch_anchors, ops)
+                out2 = ContrastiveGP.batch_get_outputs_static(trees, batch_compares, ops)
+                
+                # Normalize outputs
+                out1 = F.normalize(out1, p=2, dim=1)
+                out2 = F.normalize(out2, p=2, dim=1)
+                
+                # Calculate distances and predictions
+                distances = F.pairwise_distance(out1, out2)
+                threshold = ContrastiveGP._shared_config.distance_threshold
+                batch_preds = (distances < threshold).int().tolist()
+                predictions.extend(batch_preds)
+                labels.extend(p.label for p in batch)
+                
+                # Compute contrastive loss
+                margin = ContrastiveGP._shared_config.margin
+                similar_loss = batch_labels * torch.pow(distances, 2)
+                dissimilar_loss = (1 - batch_labels) * torch.pow(
+                    torch.clamp(margin - distances, min=0.0), 2)
+                batch_loss = (similar_loss + dissimilar_loss).mean().item()
+                total_loss += batch_loss * len(batch_labels)
             
             avg_loss = total_loss / len(data)
             accuracy = balanced_accuracy_score(labels, predictions)
             
-            # Penalize extreme predictions
             pred_ratio = sum(predictions) / len(predictions)
             balance_penalty = abs(0.5 - pred_ratio)
+
+            print(f"accuracy: {accuracy}")
+            print(f"avg_loss: {avg_loss}")
+            print(f"balance_penalty: {balance_penalty}")
+            print(f"parsimony: {sum(len(tree) for tree in individual)}")
             
+            # Get coefficients from shared config
             fitness = (
-                0.6 * (1 - accuracy) +
-                0.3 * avg_loss +
-                0.1 * balance_penalty
+                ContrastiveGP._shared_config.fitness_alpha * (1 - accuracy) #+
+                # ContrastiveGP._shared_config.loss_alpha * avg_loss +
+                # ContrastiveGP._shared_config.balance_alpha * balance_penalty +
+                ContrastiveGP._shared_config.parsimony_coeff * sum(len(tree) for tree in individual)
             )
             
-            if not np.isfinite(fitness):
-                return (float('inf'),)
-                
             return (float(fitness),)
             
         except Exception as e:
-            print(f"Error in evaluate: {str(e)}")
+            print(f"Error in evaluate_static: {str(e)}")
             return (float('inf'),)
+        finally:
+            ops.set_training(False)
+            
+    @staticmethod
+    def batch_get_outputs_static(trees: List[Callable], 
+                               batch: np.ndarray,
+                               ops: GPOperations) -> torch.Tensor:
+        """Static method for batch processing outputs."""
+        batch_size = batch.shape[0]
+        outputs = []
+        
+        for tree in trees:
+            tree_outputs = []
+            for sample in batch:
+                try:
+                    out = tree(*[x for x in sample])
+                    if isinstance(out, (int, np.integer)) and 0 <= out < len(sample):
+                        out = sample[out]
+                    out = np.asarray(out, dtype=np.float32).item()
+                    tree_outputs.append(out)
+                except Exception as e:
+                    tree_outputs.append(0.0)
+            
+            outputs.append(np.array(tree_outputs, dtype=np.float32))
+        
+        outputs = np.stack(outputs).astype(np.float32)
+        return torch.from_numpy(outputs).transpose(0, 1)
 
     def train(self, train_data: List[DataPoint], 
-          val_data: List[DataPoint]) -> Tuple[List[List[gp.PrimitiveTree]], 
-                                            tools.Logbook, 
-                                            tools.HallOfFame]:
-        """Train with robust parallel evaluation of population."""
-        self.toolbox.register("evaluate", self.evaluate, data=train_data)
+              val_data: List[DataPoint]) -> Tuple[List[List[gp.PrimitiveTree]], 
+                                                 tools.Logbook, 
+                                                 tools.HallOfFame]:
+        """Train with multiprocessing Pool for parallel evaluation."""
         self.val_data = val_data
         
+        # Create initial population
         pop = self.toolbox.population(n=self.config.population_size)
         hof = tools.HallOfFame(self.config.elite_size)
         
         stats = tools.Statistics(lambda ind: ind.fitness.values[0] 
-                            if hasattr(ind.fitness, 'values') 
-                            and len(ind.fitness.values) > 0 
-                            else float('inf'))
+                               if hasattr(ind.fitness, 'values') 
+                               and len(ind.fitness.values) > 0 
+                               else float('inf'))
         stats.register("avg", np.nanmean)
         stats.register("std", np.nanstd)
         stats.register("min", np.nanmin)
         stats.register("max", np.nanmax)
         
-        def evaluate_population(population, is_offspring=False):
-            """Helper function to evaluate population with error handling."""
-            chunk_size = 5  # Process smaller chunks to avoid memory issues
-            results = []
+        with multiprocessing.Pool(processes=self.config.num_workers) as pool:
+            # Evaluate initial population
+            print("\nEvaluating initial population...")
+            eval_args = [(ind, train_data) for ind in pop]
+            fitnesses = pool.map(self.evaluate_static, eval_args)
             
-            for i in range(0, len(population), chunk_size):
-                chunk = population[i:i + chunk_size]
-                retry_count = 0
-                max_retries = 3
+            for ind, fit in zip(pop, fitnesses):
+                ind.fitness.values = fit
+            
+            print("\nStarting evolution:")
+            self.print_accuracies(pop, train_data, val_data, 0)
+            
+            for gen in range(1, self.config.generations + 1):
+                offspring = algorithms.varAnd(
+                    pop, self.toolbox,
+                    cxpb=self.config.crossover_prob,
+                    mutpb=self.config.mutation_prob
+                )
                 
-                while retry_count < max_retries:
-                    try:
-                        with ProcessPoolExecutor(max_workers=min(chunk_size, self.config.num_workers)) as executor:
-                            futures = []
-                            for ind in chunk:
-                                if not ind.fitness.valid:
-                                    future = executor.submit(self.evaluate, ind, train_data)
-                                    futures.append((ind, future))
-                            
-                            # Wait for all futures with timeout
-                            for ind, future in futures:
-                                try:
-                                    result = future.result(timeout=60)  # 60 second timeout
-                                    results.append((ind, result))
-                                except Exception as e:
-                                    print(f"Error evaluating individual: {str(e)}")
-                                    results.append((ind, (float('inf'),)))
-                        
-                        break  # Success, exit retry loop
-                        
-                    except Exception as e:
-                        retry_count += 1
-                        print(f"Process pool error (attempt {retry_count}/{max_retries}): {str(e)}")
-                        if retry_count == max_retries:
-                            print("Max retries reached, falling back to sequential evaluation")
-                            # Fall back to sequential evaluation for this chunk
-                            for ind in chunk:
-                                if not ind.fitness.valid:
-                                    try:
-                                        result = self.evaluate(ind, train_data)
-                                        results.append((ind, result))
-                                    except Exception as e:
-                                        print(f"Sequential evaluation error: {str(e)}")
-                                        results.append((ind, (float('inf'),)))
-            
-            # Update fitness values
-            for ind, fitness in results:
-                ind.fitness.values = fitness
-        
-        # Evaluate initial population
-        print("\nEvaluating initial population...")
-        evaluate_population(pop)
-        
-        # Continue with regular evolution...
-        print("\nStarting evolution:")
-        self.print_accuracies(pop, train_data, val_data, 0)
-        
-        for gen in range(1, self.config.generations + 1):
-            offspring = algorithms.varAnd(
-                pop, self.toolbox, 
-                cxpb=self.config.crossover_prob, 
-                mutpb=self.config.mutation_prob
-            )
-            
-            # Evaluate offspring
-            evaluate_population(offspring, is_offspring=True)
-            
-            pop = self.toolbox.select(offspring + pop, k=len(pop))
-            hof.update(pop)
-            
-            valid_pop = [ind for ind in pop 
-                        if hasattr(ind.fitness, 'values') 
-                        and len(ind.fitness.values) > 0]
-            
-            if valid_pop:
-                record = stats.compile(valid_pop)
-                self.print_accuracies(pop, train_data, val_data, gen)
-                print(f"Stats - avg: {record['avg']:.4f}, "
-                    f"std: {record['std']:.4f}, "
-                    f"min: {record['min']:.4f}, "
-                    f"max: {record['max']:.4f}")
-            else:
-                print(f"Generation {gen}: No valid individuals found")
+                # Evaluate offspring
+                eval_args = [(ind, train_data) for ind in offspring]
+                fitnesses = pool.map(self.evaluate_static, eval_args)
+                
+                for ind, fit in zip(offspring, fitnesses):
+                    ind.fitness.values = fit
+                
+                pop = self.toolbox.select(offspring + pop, k=len(pop))
+                hof.update(pop)
+                
+                valid_pop = [ind for ind in pop
+                            if hasattr(ind.fitness, 'values')
+                            and len(ind.fitness.values) > 0]
+                
+                if valid_pop:
+                    record = stats.compile(valid_pop)
+                    self.print_accuracies(pop, train_data, val_data, gen)
+                    print(f"Stats - avg: {record['avg']:.4f}, "
+                          f"std: {record['std']:.4f}, "
+                          f"min: {record['min']:.4f}, "
+                          f"max: {record['max']:.4f}")
+                else:
+                    print(f"Generation {gen}: No valid individuals found")
         
         return pop, None, hof
 
