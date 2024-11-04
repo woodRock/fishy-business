@@ -1,6 +1,4 @@
 // ContrastiveGP.hpp
-#pragma once
-
 #include <OpenXLSX.hpp>
 #include <unordered_set>
 #include <vector>
@@ -18,24 +16,24 @@
 // Configuration struct
 struct GPConfig {
     int n_features = 2080;
-    int num_trees = 10;
-    int population_size = 100;
-    int generations = 100;
-    int elite_size = 10;
-    float crossover_prob = 0.8f;
-    float mutation_prob = 0.3f;
-    int tournament_size = 7;
-    float distance_threshold = 1.0f;
-    float margin = 1.0f;
-    float fitness_alpha = 0.9f;
-    float loss_alpha = 0.1f;
-    float parsimony_coeff = 0.01f;
-    int max_tree_depth = 6;
-    int batch_size = 128;
-    int num_workers = std::thread::hardware_concurrency();  // Use available CPU cores
-    float dropout_prob = 0.001f;
-    float bn_momentum = 0.1f;
-    float bn_epsilon = 1e-5f;
+    int num_trees = 20;                   // Keep this
+    int population_size = 200;            // Increase from 100 to 200 for more diversity
+    int generations = 300;                // Keep this
+    int elite_size = 5;                   // Reduce from 10 to 5 to prevent overfitting to elite solutions
+    float crossover_prob = 0.7f;          // Slightly reduce from 0.8
+    float mutation_prob = 0.4f;           // Increase from 0.3 for more exploration
+    int tournament_size = 5;              // Reduce from 7 to decrease selection pressure
+    float distance_threshold = 0.5f;      // Keep this
+    float margin = 1.0f;                  // Increase from 1.0 to create bigger separation
+    float fitness_alpha = 0.999f;           // Reduce from 0.9 to put less emphasis on accuracy
+    float loss_alpha = 0.0f;              // Increase from 0.1 for better generalization
+    float parsimony_coeff = 0.001f;        // Increase from 0.001 to strongly penalize complex trees
+    int max_tree_depth = 6;               // Reduce from 6 to prevent overly complex trees
+    int batch_size = 64;                  // Reduce from 128 for more frequent updates
+    int num_workers = std::thread::hardware_concurrency();
+    float dropout_prob = 0.1f;            // Increase from 0.001 for stronger regularization
+    float bn_momentum = 0.001f;             // Keep this
+    float bn_epsilon = 1e-5f;             // Keep this
 };
 
 // Data structures
@@ -265,10 +263,15 @@ public:
             }
             
             std::cout << "Successfully processed " << instances.size() 
-                    << " valid instances" << std::endl;
+                << " valid instances" << std::endl;
+        
+            // Shuffle instances before generating pairs
+            std::random_device rd;
+            std::mt19937 shuffler(rd());
+            std::shuffle(instances.begin(), instances.end(), shuffler);
             
-            // Generate pairs before closing the document
-            std::cout << "Generating pairs..." << std::endl;
+            // Generate pairs with shuffled instances
+            std::cout << "Generating pairs from shuffled instances..." << std::endl;
             auto pairs = generatePairs(instances);
             std::cout << "Generated " << pairs.size() << " pairs" << std::endl;
             
@@ -283,14 +286,197 @@ public:
     }
 
     // Splits data into training and validation sets
-    std::pair<std::vector<DataPoint>, std::vector<DataPoint>> 
-    splitTrainVal(const std::vector<DataPoint>& data, float valRatio = 0.2) {
-        size_t valSize = static_cast<size_t>(data.size() * valRatio);
-        size_t trainSize = data.size() - valSize;
+    std::pair<std::vector<DataPoint>, std::vector<DataPoint>> splitTrainVal(const std::vector<DataPoint>& data, float valRatio = 0.2) {
+        std::vector<DataPoint> trainData;
+        std::vector<DataPoint> valData;
+        
+        // First separate positive and negative pairs
+        std::vector<const DataPoint*> positivePairs;
+        std::vector<const DataPoint*> negativePairs;
+        
+        for (const auto& point : data) {
+            if (point.label > 0.5f) {
+                positivePairs.push_back(&point);
+            } else {
+                negativePairs.push_back(&point);
+            }
+        }
+        
+        // Calculate validation set sizes
+        size_t numPosVal = static_cast<size_t>(positivePairs.size() * valRatio);
+        size_t numNegVal = static_cast<size_t>(negativePairs.size() * valRatio);
+        
+        // Create random number generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        
+        // Shuffle both positive and negative pairs
+        std::shuffle(positivePairs.begin(), positivePairs.end(), gen);
+        std::shuffle(negativePairs.begin(), negativePairs.end(), gen);
+        
+        // Reserve space for efficiency
+        trainData.reserve(data.size() - numPosVal - numNegVal);
+        valData.reserve(numPosVal + numNegVal);
+        
+        // Split positive pairs
+        for (size_t i = 0; i < positivePairs.size(); ++i) {
+            if (i < numPosVal) {
+                valData.push_back(*positivePairs[i]);
+            } else {
+                trainData.push_back(*positivePairs[i]);
+            }
+        }
+        
+        // Split negative pairs
+        for (size_t i = 0; i < negativePairs.size(); ++i) {
+            if (i < numNegVal) {
+                valData.push_back(*negativePairs[i]);
+            } else {
+                trainData.push_back(*negativePairs[i]);
+            }
+        }
+        
+        // Calculate normalization parameters from training data only
+        std::vector<float> means, stds;
+        if (!trainData.empty() && !trainData[0].anchor.empty()) {
+            size_t numFeatures = trainData[0].anchor.size();
+            std::vector<float> means(numFeatures, 0.0f);
+            std::vector<float> stds(numFeatures, 0.0f);
+            
+            // First pass: compute means
+            size_t totalVectors = 0;
+            for (const auto& point : trainData) {
+                for (size_t i = 0; i < numFeatures; ++i) {
+                    means[i] += point.anchor[i];
+                    means[i] += point.compare[i];
+                }
+                totalVectors += 2;  // Count both anchor and compare
+            }
+            
+            // Finalize means
+            for (auto& mean : means) {
+                mean /= totalVectors;
+            }
+            
+            // Second pass: compute standard deviations
+            for (const auto& point : trainData) {
+                for (size_t i = 0; i < numFeatures; ++i) {
+                    float diff_anchor = point.anchor[i] - means[i];
+                    float diff_compare = point.compare[i] - means[i];
+                    stds[i] += diff_anchor * diff_anchor;
+                    stds[i] += diff_compare * diff_compare;
+                }
+            }
+            
+            // Finalize standard deviations
+            for (auto& std : stds) {
+                std = std::sqrt(std / totalVectors);
+                if (std < 1e-10f) std = 1.0f;  // Prevent division by zero
+            }
 
-        std::vector<DataPoint> trainData(data.begin(), data.begin() + trainSize);
-        std::vector<DataPoint> valData(data.begin() + trainSize, data.end());
+            // Print pre-normalization statistics
+            std::cout << "\nPre-normalization statistics:"
+                    << "\n  Mean range: [" << *std::min_element(means.begin(), means.end())
+                    << ", " << *std::max_element(means.begin(), means.end()) << "]"
+                    << "\n  Std range: [" << *std::min_element(stds.begin(), stds.end())
+                    << ", " << *std::max_element(stds.begin(), stds.end()) << "]" << std::endl;
+            
+            // Apply normalization to training data
+            for (auto& point : trainData) {
+                std::vector<float> normalized_anchor(numFeatures);
+                std::vector<float> normalized_compare(numFeatures);
+                
+                for (size_t i = 0; i < numFeatures; ++i) {
+                    normalized_anchor[i] = (point.anchor[i] - means[i]) / stds[i];
+                    normalized_compare[i] = (point.compare[i] - means[i]) / stds[i];
+                }
+                point.anchor = std::move(normalized_anchor);
+                point.compare = std::move(normalized_compare);
+            }
+            
+            // Apply same normalization to validation data
+            for (auto& point : valData) {
+                std::vector<float> normalized_anchor(numFeatures);
+                std::vector<float> normalized_compare(numFeatures);
+                
+                for (size_t i = 0; i < numFeatures; ++i) {
+                    normalized_anchor[i] = (point.anchor[i] - means[i]) / stds[i];
+                    normalized_compare[i] = (point.compare[i] - means[i]) / stds[i];
+                }
+                point.anchor = std::move(normalized_anchor);
+                point.compare = std::move(normalized_compare);
+            }
 
+            // Verify normalization by computing statistics after
+            std::vector<float> post_means(numFeatures, 0.0f);
+            std::vector<float> post_stds(numFeatures, 0.0f);
+            
+            // Compute post-normalization statistics on training data
+            totalVectors = 0;
+            for (const auto& point : trainData) {
+                for (size_t i = 0; i < numFeatures; ++i) {
+                    post_means[i] += point.anchor[i];
+                    post_means[i] += point.compare[i];
+                }
+                totalVectors += 2;
+            }
+            
+            for (auto& mean : post_means) {
+                mean /= totalVectors;
+            }
+            
+            for (const auto& point : trainData) {
+                for (size_t i = 0; i < numFeatures; ++i) {
+                    float diff_anchor = point.anchor[i] - post_means[i];
+                    float diff_compare = point.compare[i] - post_means[i];
+                    post_stds[i] += diff_anchor * diff_anchor;
+                    post_stds[i] += diff_compare * diff_compare;
+                }
+            }
+            
+            for (auto& std : post_stds) {
+                std = std::sqrt(std / totalVectors);
+            }
+            
+            std::cout << "\nPost-normalization statistics:"
+                    << "\n  Mean range: [" << *std::min_element(post_means.begin(), post_means.end())
+                    << ", " << *std::max_element(post_means.begin(), post_means.end()) << "]"
+                    << "\n  Std range: [" << *std::min_element(post_stds.begin(), post_stds.end())
+                    << ", " << *std::max_element(post_stds.begin(), post_stds.end()) << "]"
+                    << "\n  Number of features: " << numFeatures << std::endl;
+        }
+
+        
+        // Final shuffle of both sets
+        std::shuffle(trainData.begin(), trainData.end(), gen);
+        std::shuffle(valData.begin(), valData.end(), gen);
+        
+        // Print class distribution statistics
+        size_t trainPos = 0, trainNeg = 0, valPos = 0, valNeg = 0;
+        for (const auto& point : trainData) {
+            if (point.label > 0.5f) trainPos++;
+            else trainNeg++;
+        }
+        for (const auto& point : valData) {
+            if (point.label > 0.5f) valPos++;
+            else valNeg++;
+        }
+        
+        std::cout << "\nFinal Split Statistics (after normalization):"
+                << "\nTraining Set:"
+                << "\n  Total: " << trainData.size()
+                << "\n  Positive: " << trainPos << " (" 
+                << (100.0f * trainPos / trainData.size()) << "%)"
+                << "\n  Negative: " << trainNeg << " ("
+                << (100.0f * trainNeg / trainData.size()) << "%)"
+                << "\nValidation Set:"
+                << "\n  Total: " << valData.size()
+                << "\n  Positive: " << valPos << " ("
+                << (100.0f * valPos / valData.size()) << "%)"
+                << "\n  Negative: " << valNeg << " ("
+                << (100.0f * valNeg / valData.size()) << "%)"
+                << std::endl;
+        
         return {trainData, valData};
     }
 };
@@ -604,11 +790,7 @@ public:
             return std::vector<float>{0.0f};
         }
         
-        // Scale the input value to a reasonable range
-        float raw_value = input[feature_index];
-        float scaled_value = std::tanh(raw_value * SCALE_FACTOR);
-        
-        return std::vector<float>{scaled_value};
+        return std::vector<float>{input[feature_index]};
     }
 
     std::unique_ptr<GPNode> clone() const override {
@@ -739,7 +921,15 @@ public:
     Individual(std::vector<std::unique_ptr<GPNode>> t, std::shared_ptr<GPOperations> operations) 
         : trees(std::move(t))
         , fitness(std::numeric_limits<float>::infinity())
-        , ops(operations) {}
+        , ops(operations) 
+    {
+        if (trees.empty()) {
+            throw std::runtime_error("Cannot create Individual with empty tree vector");
+        }
+        if (!ops) {
+            throw std::runtime_error("Cannot create Individual with null operations");
+        }
+    }
 
     // Deep copy constructor
     Individual(const Individual& other) 
@@ -749,7 +939,7 @@ public:
         std::lock_guard<std::mutex> lock(other.eval_mutex);
         trees.reserve(other.trees.size());
         for (const auto& tree : other.trees) {
-            trees.push_back(tree->clone());
+            trees.push_back(tree->clone());  // Make sure clone() does deep copy
         }
     }
 
@@ -1034,14 +1224,10 @@ private:
         int correct_predictions = 0;
         int total_pairs = 0;
         
-        // Keep track of distance statistics
-        float min_distance = std::numeric_limits<float>::max();
-        float max_distance = std::numeric_limits<float>::min();
-        float avg_distance = 0.0f;
-        float similar_pair_avg_dist = 0.0f;
-        float dissimilar_pair_avg_dist = 0.0f;
-        int similar_pairs = 0;
-        int dissimilar_pairs = 0;
+        float avg_similar_dist = 0.0f;
+        float avg_dissimilar_dist = 0.0f;
+        int similar_count = 0;
+        int dissimilar_count = 0;
         
         for (size_t i = 0; i < data.size(); i += config.batch_size) {
             size_t batch_end = std::min(i + config.batch_size, data.size());
@@ -1055,19 +1241,6 @@ private:
                 bool prediction = distance < config.distance_threshold;
                 bool actual = point.label > 0.5f;
                 
-                // Update distance statistics
-                min_distance = std::min(min_distance, distance);
-                max_distance = std::max(max_distance, distance);
-                avg_distance += distance;
-                
-                if (actual) {
-                    similar_pair_avg_dist += distance;
-                    similar_pairs++;
-                } else {
-                    dissimilar_pair_avg_dist += distance;
-                    dissimilar_pairs++;
-                }
-                
                 if (prediction == actual) {
                     correct_predictions++;
                 }
@@ -1075,22 +1248,12 @@ private:
             }
         }
         
-        // Print distance statistics
-        if (total_pairs > 0) {
-            avg_distance /= total_pairs;
-            if (similar_pairs > 0) similar_pair_avg_dist /= similar_pairs;
-            if (dissimilar_pairs > 0) dissimilar_pair_avg_dist /= dissimilar_pairs;
-            
-            std::cout << "\n  Distance Statistics:"
-                    << "\n    Min Distance: " << min_distance
-                    << "\n    Max Distance: " << max_distance
-                    << "\n    Avg Distance: " << avg_distance
-                    << "\n    Similar Pairs Avg Distance: " << similar_pair_avg_dist
-                    << "\n    Dissimilar Pairs Avg Distance: " << dissimilar_pair_avg_dist
-                    << "\n    Distance Threshold: " << config.distance_threshold << std::endl;
-        }
+        // Calculate averages
+        if (similar_count > 0) avg_similar_dist /= similar_count;
+        if (dissimilar_count > 0) avg_dissimilar_dist /= dissimilar_count;
         
-        return static_cast<float>(correct_predictions) / total_pairs;
+        float accuracy = static_cast<float>(correct_predictions) / total_pairs;
+        return accuracy;
     }
 
 public:
@@ -1106,8 +1269,7 @@ public:
         }
     }
 
-    void train(const std::vector<DataPoint>& trainData,
-          const std::vector<DataPoint>& valData) {
+    void train(const std::vector<DataPoint>& trainData, const std::vector<DataPoint>& valData) {
         float best_fitness = std::numeric_limits<float>::max();
         int generations_without_improvement = 0;
 
@@ -1188,8 +1350,6 @@ public:
                     << "\n  Validation Accuracy: " << val_accuracy * 100.0f << "%"
                     << std::endl;
 
-            std::cout << "I get here" << std::endl;
-
             // Check for improvement
             if (gen_best_fitness < best_fitness) {
                 best_fitness = gen_best_fitness;
@@ -1198,15 +1358,11 @@ public:
                 generations_without_improvement++;
             }
 
-            std::cout << "I get here II" << std::endl;
-
-
             if (generations_without_improvement > 20) {
-                std::cout << "Early stopping due to lack of improvement" << std::endl;
-                break;
+                // DEBUG disable early stopping for now.
+                // std::cout << "Early stopping due to lack of improvement" << std::endl;
+                // break;
             }
-
-            std::cout << "I get here III" << std::endl;
 
             // Create new population
             std::vector<Individual> new_population;
@@ -1218,16 +1374,10 @@ public:
             std::sort(indices.begin(), indices.end(),
                     [&](size_t a, size_t b) { return fitnesses[a] < fitnesses[b]; });
 
-            std::cout << "I get here IV" << std::endl;
-
             // Elitism
             for (int i = 0; i < config.elite_size && i < population.size(); ++i) {
                 new_population.push_back(Individual(population[indices[i]]));
             }
-
-            std::cout << "I get here V" << std::endl;
-
-            // DEBUG - segmenation fault here on second iteration.
 
             // Generate remaining individuals
             auto& rng = getGen();
@@ -1235,23 +1385,32 @@ public:
             std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
 
             while (new_population.size() < config.population_size) {
-                // Tournament selection
-                size_t parent1_idx = indices[parent_dist(rng)];
-                size_t parent2_idx = indices[parent_dist(rng)];
-                
-                // Crossover
-                Individual offspring = crossover(population[parent1_idx], 
-                                            population[parent2_idx]);
-                
-                // Mutation
-                if (prob_dist(rng) < config.mutation_prob) {
-                    offspring.mutate(rng, config);
+                try {
+                    // Tournament selection
+                    size_t parent1_idx = indices[parent_dist(rng)];
+                    size_t parent2_idx = indices[parent_dist(rng)];
+                    
+                    // Create offspring
+                    Individual offspring = crossover(population[parent1_idx], 
+                                                population[parent2_idx]);
+                    
+                    // Verify offspring is valid before adding
+                    if (offspring.totalSize() == 0) {
+                        std::cerr << "Warning: Created invalid offspring with no trees" << std::endl;
+                        continue;
+                    }
+                    
+                    // Mutation
+                    if (prob_dist(rng) < config.mutation_prob) {
+                        offspring.mutate(rng, config);
+                    }
+                    
+                    new_population.push_back(std::move(offspring));
+                } catch (const std::exception& e) {
+                    std::cerr << "Error creating new individual: " << e.what() << std::endl;
+                    continue;
                 }
-                
-                new_population.push_back(std::move(offspring));
             }
-
-            std::cout << "I get here VI" << std::endl;
 
             // Replace population
             population = std::move(new_population);
@@ -1262,15 +1421,19 @@ public:
         std::vector<Individual> tournament;
         auto& local_gen = getGen();  // Get thread-local RNG
         
-        for (int i = 0; i < config.tournament_size; ++i) {
-            std::uniform_int_distribution<int> dist(0, population.size() - 1);
-            tournament.push_back(population[dist(local_gen)]);
-        }
-        
-        return *std::min_element(tournament.begin(), tournament.end(),
-                               [](const auto& a, const auto& b) {
-                                   return a.getFitness() < b.getFitness();
-                               });
+        std::vector<size_t> indices(population.size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(indices.begin(), indices.end(),
+            [&](size_t a, size_t b) {
+                return population[a].getFitness() < population[b].getFitness();
+            });
+
+        // Select from top performers with higher probability.
+        std::uniform_real_distribution<float> dist(0.0, 1.0f);
+        float r = dist(getGen());
+        float prob = r*r; // Square to bias towards better individuals.
+        size_t index = static_cast<size_t>(prob * indices.size());
+        return population[indices[index]];
     }
 
     Individual crossover(const Individual& parent1, const Individual& parent2) {
@@ -1279,17 +1442,21 @@ public:
         std::vector<std::unique_ptr<GPNode>> offspring_trees;
         offspring_trees.reserve(config.num_trees);
 
-        if (dist(rng) < config.crossover_prob) {
-            for (int i = 0; i < config.num_trees; ++i) {
+        // Always create trees, but conditionally decide how to create them
+        for (int i = 0; i < config.num_trees; ++i) {
+            if (dist(rng) < config.crossover_prob) {
+                // Do crossover
                 if (dist(rng) < 0.5f) {
                     offspring_trees.push_back(parent1.getTree(i)->clone());
                 } else {
                     offspring_trees.push_back(parent2.getTree(i)->clone());
                 }
+            } else {
+                // No crossover - just clone from first parent
+                offspring_trees.push_back(parent1.getTree(i)->clone());
             }
         }
 
-        // Create new Individual with the trees and shared operations pointer
         return Individual(std::move(offspring_trees), this->ops);
     }
 
