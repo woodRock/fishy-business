@@ -1387,12 +1387,11 @@ public:
             while (new_population.size() < config.population_size) {
                 try {
                     // Tournament selection
-                    size_t parent1_idx = indices[parent_dist(rng)];
-                    size_t parent2_idx = indices[parent_dist(rng)];
+                    Individual parent1 = selectParent();
+                    Individual parent2 = selectParent();
                     
                     // Create offspring
-                    Individual offspring = crossover(population[parent1_idx], 
-                                                population[parent2_idx]);
+                    Individual offspring = crossover(parent1, parent2);
                     
                     // Verify offspring is valid before adding
                     if (offspring.totalSize() == 0) {
