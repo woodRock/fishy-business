@@ -27,9 +27,9 @@ struct GPConfig {
     int tournament_size = 5;              // Reduce from 7 to decrease selection pressure
     float distance_threshold = 0.5f;      // Keep this
     float margin = 1.0f;                  // Increase from 1.0 to create bigger separation
-    float fitness_alpha = 0.9999f;           // Reduce from 0.9 to put less emphasis on accuracy
-    float loss_alpha = 0.0f;              // Increase from 0.1 for better generalization
-    float parsimony_coeff = 0.0001f;        // Increase from 0.001 to strongly penalize complex trees
+    float fitness_alpha = 0.8f;           // Reduce from 0.9 to put less emphasis on accuracy
+    float loss_alpha = 0.2f;              // Increase from 0.1 for better generalization
+    float parsimony_coeff = 0.0f;        // Increase from 0.001 to strongly penalize complex trees
     int max_tree_depth = 6;               // Reduce from 6 to prevent overly complex trees
     int batch_size = 64;                  // Reduce from 128 for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
@@ -593,7 +593,6 @@ public:
     }
 };
 
-// GP Operations class
 class GPOperations {
 public:
     // Constructor
@@ -730,7 +729,6 @@ private:
         return std::vector<float>();
     }
 
-    // Protected operations
     std::vector<float> protectedDiv(const std::vector<float>& x,
                                   const std::vector<float>& y) {
         std::vector<float> result(x.size());
@@ -766,7 +764,6 @@ private:
     }
 };
 
-// GP Node class hierarchy
 class GPNode {
 public:
     virtual ~GPNode() = default;
@@ -782,7 +779,6 @@ public:
         return d > 0 && d < 1000; // Reasonable upper limit
     }
     
-    // Add depth checking with overflow protection
     virtual int safeDepth() const {
         try {
             int d = depth();
@@ -797,10 +793,8 @@ public:
         }
     }
 
-    // Add method to check if node is a leaf
     virtual bool isLeaf() const = 0;
     
-    // Add method to check if node is an operator
     virtual bool isOperator() const = 0;
 };
 
@@ -849,7 +843,6 @@ public:
     bool isOperator() const override { return false; }
 };
 
-// Also modify the constant node to stay in a reasonable range
 class ConstantNode : public GPNode {
 private:
     float value;
@@ -1028,10 +1021,6 @@ public:
     const std::string& getOperatorName() const { return op_name; }
     const std::vector<std::unique_ptr<GPNode>>& getChildren() const { return children; }
 };
-
-class GPNode;
-struct GPConfig;
-class GPOperations;
 
 class TreeOperations {
 public:
@@ -1393,14 +1382,30 @@ private:
             return std::numeric_limits<float>::max();
         }
 
-        float sum = 0.0f;
-        for (size_t i = 0; i < v1.size(); ++i) {
-            float diff = v1[i] - v2[i];
-            sum += diff * diff;
-        }
+        // Calculate dot product and magnitudes
+        float dot_product = 0.0f;
+        float mag1 = 0.0f;
+        float mag2 = 0.0f;
         
-        // Normalize by vector dimension
-        float distance = std::sqrt(sum) / std::sqrt(static_cast<float>(v1.size()));
+        for (size_t i = 0; i < v1.size(); ++i) {
+            dot_product += v1[i] * v2[i];
+            mag1 += v1[i] * v1[i];
+            mag2 += v2[i] * v2[i];
+        }
+
+        // Add small epsilon to prevent division by zero
+        constexpr float epsilon = 1e-8f;
+        mag1 = std::sqrt(mag1 + epsilon);
+        mag2 = std::sqrt(mag2 + epsilon);
+
+        // Calculate cosine similarity
+        float similarity = dot_product / (mag1 * mag2);
+        
+        // Clamp similarity to [-1, 1] range to handle numerical instability
+        similarity = std::max(-1.0f, std::min(1.0f, similarity));
+        
+        // Convert similarity to distance (1 - similarity) and scale to [0, 2] range
+        float distance = 1.0f - similarity;
         
         // Check for NaN or inf
         if (std::isnan(distance) || std::isinf(distance)) {
