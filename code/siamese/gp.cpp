@@ -12,13 +12,15 @@
 #include <functional>
 #include <string>
 #include <iostream>
+#include <chrono>
+#include <fstream>
 
 // Configuration struct
 struct GPConfig {
     int n_features = 2080;
     int num_trees = 20;                   // Keep this
     int population_size = 200;            // Increase from 100 to 200 for more diversity
-    int generations = 300;                // Keep this
+    int generations = 2000;                // Keep this
     int elite_size = 5;                   // Reduce from 10 to 5 to prevent overfitting to elite solutions
     float crossover_prob = 0.7f;          // Slightly reduce from 0.8
     float mutation_prob = 0.4f;           // Increase from 0.3 for more exploration
@@ -105,7 +107,7 @@ private:
 
             // Shuffle and limit number of pairs per class
             std::shuffle(possiblePairs.begin(), possiblePairs.end(), gen);
-            size_t numPairs = std::min(possiblePairs.size(), maxPairsPerClass);
+            size_t numPairs = std::min((size_t)possiblePairs.size(), maxPairsPerClass);
 
             for (size_t i = 0; i < numPairs; ++i) {
                 const auto& [idx1, idx2] = possiblePairs[i];
@@ -773,6 +775,8 @@ public:
     virtual int size() const = 0;
     virtual int depth() const = 0;
     virtual void mutate(std::mt19937& gen, const GPConfig& config) = 0;
+    virtual std::vector<GPNode*> getAllNodes() = 0;
+    virtual void replaceSubtree(GPNode* old_subtree, std::unique_ptr<GPNode> new_subtree) = 0;
 };
 
 class FeatureNode : public GPNode {
@@ -804,6 +808,17 @@ public:
         std::uniform_int_distribution<int> dist(0, config.n_features - 1);
         feature_index = dist(gen);
     }
+
+    std::vector<GPNode*> getAllNodes() override {
+        return {this};
+    }
+
+    void replaceSubtree(GPNode* old_subtree, std::unique_ptr<GPNode> new_subtree) override {
+        // No-op for leaf nodes unless it is the target node
+        if (old_subtree == this) {
+            throw std::runtime_error("Cannot replace root node in FeatureNode");
+        }
+    }
 };
 
 // Also modify the constant node to stay in a reasonable range
@@ -828,6 +843,17 @@ public:
     void mutate(std::mt19937& gen, const GPConfig& config) override {
         std::uniform_real_distribution<float> dist(-2.0f, 2.0f);
         value = std::tanh(dist(gen));  // Keep value in [-1, 1] range
+    }
+
+     std::vector<GPNode*> getAllNodes() override {
+        return {this};
+    }
+
+    void replaceSubtree(GPNode* old_subtree, std::unique_ptr<GPNode> new_subtree) override {
+        // No-op for leaf nodes unless it is the target node
+        if (old_subtree == this) {
+            throw std::runtime_error("Cannot replace root node in ConstantNode");
+        }
     }
 };
 
@@ -905,6 +931,34 @@ public:
         
         if (children[child_idx]) {
             children[child_idx]->mutate(gen, config);
+        }
+    }
+
+    std::vector<GPNode*> getAllNodes() override {
+        std::vector<GPNode*> nodes = {this};
+        for (const auto& child : children) {
+            if (child) {
+                auto child_nodes = child->getAllNodes();
+                nodes.insert(nodes.end(), child_nodes.begin(), child_nodes.end());
+            }
+        }
+        return nodes;
+    }
+
+    void replaceSubtree(GPNode* old_subtree, std::unique_ptr<GPNode> new_subtree) override {
+        // Check if any direct child is the target
+        for (auto& child : children) {
+            if (child.get() == old_subtree) {
+                child = std::move(new_subtree);
+                return;
+            }
+        }
+
+        // If not found in direct children, recurse into children
+        for (auto& child : children) {
+            if (child) {
+                child->replaceSubtree(old_subtree, std::move(new_subtree));
+            }
         }
     }
 };
@@ -1011,6 +1065,55 @@ public:
         return trees[index];
     }
 };
+
+// Profiling class to track timings
+// Updated Profiler class
+class Profiler {
+private:
+    struct TimingData {
+        double total_time = 0.0;
+        size_t calls = 0;
+    };
+    
+    std::map<std::string, TimingData> timings;
+    std::chrono::high_resolution_clock::time_point generation_start;
+    
+public:
+    void startGeneration() {
+        generation_start = std::chrono::high_resolution_clock::now();
+    }
+    
+    double getGenerationTime() {
+        auto now = std::chrono::high_resolution_clock::now();
+        return std::chrono::duration<double>(now - generation_start).count();
+    }
+    
+    void recordTime(const std::string& operation, double seconds) {
+        timings[operation].total_time += seconds;
+        timings[operation].calls++;
+    }
+    
+    // Add this method to expose timings
+    const std::map<std::string, TimingData>& getTimings() const {
+        return timings;
+    }
+    
+    void printStatistics(int generation) {
+        std::cout << "\nProfiling Statistics for Generation " << generation << ":\n";
+        for (const auto& [operation, data] : timings) {
+            double avg_time = data.total_time / data.calls;
+            std::cout << "  " << operation << ":\n"
+                     << "    Total time: " << data.total_time << "s\n"
+                     << "    Calls: " << data.calls << "\n"
+                     << "    Average time: " << avg_time << "s\n";
+        }
+        std::cout << std::endl;
+        
+        // Clear timings for next generation
+        timings.clear();
+    }
+};
+
 
 class ContrastiveGP {
 private:
@@ -1131,15 +1234,31 @@ private:
         return fitness;
     }
 
-    std::unique_ptr<GPNode> createRandomTree(int depth) {
+    std::unique_ptr<GPNode> enforceMaxDepth(std::unique_ptr<GPNode> tree, int max_depth) {
+        if (!tree) return nullptr;
+        
+        if (tree->depth() > max_depth) {
+            // Replace with a random leaf node if depth exceeds maximum
+            std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+            if (prob_dist(rng) < 0.8) {
+                std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+                return std::make_unique<FeatureNode>(feature_dist(rng));
+            } else {
+                std::uniform_real_distribution<float> const_dist(-1.0f, 1.0f);
+                return std::make_unique<ConstantNode>(const_dist(rng));
+            }
+        }
+        return tree;
+    }
+
+    std::unique_ptr<GPNode> createRandomTree(int depth, int current_depth = 0) {
         // Thread-local distributions
         static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
         static thread_local std::uniform_int_distribution<int> op_dist(0, 6);
         static thread_local std::uniform_real_distribution<float> const_dist(-1.0f, 1.0f);
 
-        // Early termination or leaf node creation
-        if (depth <= 1 || (depth < config.max_tree_depth && prob_dist(rng) < 0.3)) {
-            // Create leaf node (80% chance for feature node, 20% for constant)
+        // Force leaf node creation if we're at max depth
+        if (current_depth >= depth) {
             if (prob_dist(rng) < 0.8) {
                 std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
                 return std::make_unique<FeatureNode>(feature_dist(rng));
@@ -1148,46 +1267,37 @@ private:
             }
         }
 
-        // Create children for operator node
+        // Early termination with decreasing probability as we go deeper
+        float termination_prob = 0.3f * (1.0f + current_depth / static_cast<float>(depth));
+        if (prob_dist(rng) < termination_prob) {
+            if (prob_dist(rng) < 0.8) {
+                std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+                return std::make_unique<FeatureNode>(feature_dist(rng));
+            } else {
+                return std::make_unique<ConstantNode>(const_dist(rng));
+            }
+        }
+
+        // Create operator node with depth-aware children
         std::vector<std::unique_ptr<GPNode>> children;
-        children.push_back(createRandomTree(depth - 1));
-        children.push_back(createRandomTree(depth - 1));
+        children.push_back(createRandomTree(depth, current_depth + 1));
+        children.push_back(createRandomTree(depth, current_depth + 1));
 
         // Select operation type
         int op_choice = op_dist(rng);
         std::string op_name;
-
         switch (op_choice) {
-            case 0:
-                op_name = "add";
-                break;
-            case 1:
-                op_name = "sub";
-                break;
-            case 2:
-                op_name = "div";
-                break;
-            case 3:
-                op_name = "sin";
-                break;
-            case 4:
-                op_name = "cos";
-                break;
-            case 5:
-                op_name = "neg";
-                break;
-            default:
-                op_name = "mul";
-                break;
+            case 0: op_name = "add"; break;
+            case 1: op_name = "sub"; break;
+            case 2: op_name = "div"; break;
+            case 3: op_name = "sin"; break;
+            case 4: op_name = "cos"; break;
+            case 5: op_name = "neg"; break;
+            default: op_name = "mul"; break;
         }
 
-        // Create operator node with operation name, children, and ops pointer
-        return std::make_unique<OperatorNode>(
-            op_name,
-            std::move(children),
-            ops
-        );
-        }
+        return std::make_unique<OperatorNode>(op_name, std::move(children), ops);
+    }
 
     Individual createRandomIndividual() {
         std::vector<std::unique_ptr<GPNode>> trees;
@@ -1256,6 +1366,70 @@ private:
         return accuracy;
     }
 
+     // Helper method to run a single tournament
+    Individual& runTournament(const std::vector<size_t>& available_indices) {
+        if (available_indices.empty()) {
+            throw std::runtime_error("No individuals available for tournament");
+        }
+
+        // Randomly select tournament_size individuals
+        std::vector<size_t> tournament_candidates;
+        tournament_candidates.reserve(config.tournament_size);
+        
+        auto& local_gen = getGen();
+        std::uniform_int_distribution<size_t> idx_dist(0, available_indices.size() - 1);
+        
+        // Fill tournament pool
+        for (int i = 0; i < config.tournament_size && i < available_indices.size(); ++i) {
+            size_t random_idx = idx_dist(local_gen);
+            tournament_candidates.push_back(available_indices[random_idx]);
+        }
+
+        // Find the best individual in the tournament
+        size_t best_idx = tournament_candidates[0];
+        float best_fitness = population[best_idx].getFitness();
+
+        for (size_t idx : tournament_candidates) {
+            float current_fitness = population[idx].getFitness();
+            if (current_fitness < best_fitness) { // Lower fitness is better
+                best_fitness = current_fitness;
+                best_idx = idx;
+            }
+        }
+
+        return population[best_idx];
+    }
+
+    void evaluatePopulation(const std::vector<DataPoint>& trainData) {
+        const size_t num_workers = std::min((size_t)config.num_workers, population.size());
+        const size_t batch_size = (population.size() + num_workers - 1) / num_workers;
+
+        // Add before evaluation
+        size_t total_nodes = 0;
+        for (const auto& individual : population) {
+            total_nodes += individual.totalSize();
+        }
+        std::cout << "Average tree size: " << (float)total_nodes / population.size() << std::endl;
+
+        std::cout << "Population size: " << population.size() << std::endl;
+        
+        std::vector<std::future<void>> futures;
+        
+        for (size_t i = 0; i < population.size(); i += batch_size) {
+            size_t end = std::min(i + batch_size, population.size());
+            futures.push_back(std::async(std::launch::async, [this, i, end, &trainData]() {
+                for (size_t j = i; j < end; ++j) {
+                    float fitness = evaluateIndividual(population[j], trainData);
+                    population[j].setFitness(fitness);
+                }
+            }));
+        }
+        
+        for (auto& future : futures) {
+            future.wait();
+        }
+    }
+
 public:
     ContrastiveGP(const GPConfig& cfg) : config(cfg) {
         // Initialize operations as shared_ptr
@@ -1269,86 +1443,252 @@ public:
         }
     }
 
+    // Method to select multiple parents using tournament selection
+    std::vector<std::pair<Individual*, Individual*>> selectParents(size_t num_pairs_needed) {
+        std::vector<std::pair<Individual*, Individual*>> selected_pairs;
+        selected_pairs.reserve(num_pairs_needed);
+        
+        // Create indices for available individuals
+        std::vector<size_t> available_indices(population.size());
+        std::iota(available_indices.begin(), available_indices.end(), 0);
+
+        // Create batches for parallel processing
+        const size_t num_workers = std::min((size_t)config.num_workers, num_pairs_needed);
+        const size_t pairs_per_worker = (num_pairs_needed + num_workers - 1) / num_workers;
+        
+        std::vector<std::future<std::vector<std::pair<Individual*, Individual*>>>> futures;
+        std::mutex selection_mutex;  // For thread-safe access to shared resources
+
+        // Launch parallel tournament selections
+        for (size_t worker = 0; worker < num_workers; ++worker) {
+            size_t start_pair = worker * pairs_per_worker;
+            size_t end_pair = std::min(start_pair + pairs_per_worker, num_pairs_needed);
+            
+            if (start_pair >= end_pair) break;
+
+            futures.push_back(std::async(std::launch::async, [this, start_pair, end_pair, &available_indices, &selection_mutex]() {
+                std::vector<std::pair<Individual*, Individual*>> worker_pairs;
+                worker_pairs.reserve(end_pair - start_pair);
+                
+                auto& local_gen = getGen();  // Thread-local RNG
+                
+                for (size_t i = start_pair; i < end_pair; ++i) {
+                    std::lock_guard<std::mutex> lock(selection_mutex);
+                    
+                    // Run tournaments to select two parents
+                    Individual& parent1 = runTournament(available_indices);
+                    Individual& parent2 = runTournament(available_indices);
+                    
+                    // Add selected pair
+                    worker_pairs.emplace_back(&parent1, &parent2);
+                }
+                
+                return worker_pairs;
+            }));
+        }
+
+        // Collect results from all workers
+        for (auto& future : futures) {
+            auto worker_results = future.get();
+            selected_pairs.insert(selected_pairs.end(), 
+                                worker_results.begin(), 
+                                worker_results.end());
+        }
+
+        return selected_pairs;
+    }
+
     void train(const std::vector<DataPoint>& trainData, const std::vector<DataPoint>& valData) {
+        Profiler profiler;
         float best_fitness = std::numeric_limits<float>::max();
         int generations_without_improvement = 0;
 
+        // Setup file for CSV logging
+        std::ofstream timing_log;
+        timing_log.open("gp_timing.csv");
+        timing_log << "Generation,Operation,Total_Time,Calls,Average_Time\n";
+
         for (int generation = 0; generation < config.generations; ++generation) {
+            profiler.startGeneration();
             std::cout << "\nStarting generation " << generation << std::endl;
-            std::cout << "Population size: " << population.size() << std::endl;
             
-            ops->setTraining(true);
-
-            // Create batch indices for parallel processing
-            std::vector<std::pair<size_t, size_t>> batch_indices;
-            const size_t num_workers = std::min((size_t)config.num_workers, population.size());
-            const size_t batch_size = (population.size() + num_workers - 1) / num_workers;
+            // Profile population evaluation
+            auto eval_start = std::chrono::high_resolution_clock::now();
+            evaluatePopulation(trainData);
+            auto eval_end = std::chrono::high_resolution_clock::now();
+            profiler.recordTime("Population_Evaluation", 
+                std::chrono::duration<double>(eval_end - eval_start).count());
             
-            for (size_t i = 0; i < population.size(); i += batch_size) {
-                size_t end = std::min(i + batch_size, population.size());
-                batch_indices.emplace_back(i, end);
-            }
-
-            // Evaluate batches in parallel
-            std::vector<std::future<void>> futures;
-            std::vector<float> fitnesses(population.size(), std::numeric_limits<float>::max());
-            std::mutex mtx;
-
-            for (const auto& [start, end] : batch_indices) {
-                futures.push_back(std::async(std::launch::async, [&, start, end]() {
-                    try {
-                        std::vector<std::pair<size_t, float>> local_results;
-                        local_results.reserve(end - start);
-
-                        for (size_t i = start; i < end; ++i) {
-                            float fitness = evaluateIndividual(population[i], trainData);
-                            local_results.emplace_back(i, fitness);
-                        }
-
-                        // Update results with mutex protection
-                        std::lock_guard<std::mutex> lock(mtx);
-                        for (const auto& [idx, fitness] : local_results) {
-                            fitnesses[idx] = fitness;
-                            population[idx].setFitness(fitness);
-                        }
-                    } catch (const std::exception& e) {
-                        std::cerr << "Worker error: " << e.what() << std::endl;
-                    }
-                }));
-            }
-
-            // Wait for all evaluations to complete
-            for (auto& future : futures) {
-                future.wait();
-            }
-
-            // Find best individual and calculate statistics
+            // Profile fitness statistics calculation
+            auto stats_start = std::chrono::high_resolution_clock::now();
+            Individual* best_individual = nullptr;
             float gen_best_fitness = std::numeric_limits<float>::max();
             float gen_avg_fitness = 0.0f;
-            size_t best_idx = 0;
-
-            for (size_t i = 0; i < population.size(); ++i) {
-                float fitness = fitnesses[i];
+            
+            for (auto& individual : population) {
+                float fitness = individual.getFitness();
                 gen_avg_fitness += fitness;
                 if (fitness < gen_best_fitness) {
                     gen_best_fitness = fitness;
-                    best_idx = i;
+                    best_individual = &individual;
+                }
+            }
+            gen_avg_fitness /= population.size();
+            auto stats_end = std::chrono::high_resolution_clock::now();
+            profiler.recordTime("Fitness_Statistics", 
+                std::chrono::duration<double>(stats_end - stats_start).count());
+
+            // Profile new population creation
+            auto new_pop_start = std::chrono::high_resolution_clock::now();
+            std::vector<Individual> new_population;
+            new_population.reserve(config.population_size);
+
+            // Profile elitism
+            auto elitism_start = std::chrono::high_resolution_clock::now();
+            std::vector<size_t> indices(population.size());
+            std::iota(indices.begin(), indices.end(), 0);
+            std::sort(indices.begin(), indices.end(),
+                    [this](size_t a, size_t b) { 
+                        return population[a].getFitness() < population[b].getFitness(); 
+                    });
+
+            for (int i = 0; i < config.elite_size && i < population.size(); ++i) {
+                new_population.push_back(Individual(population[indices[i]]));
+            }
+            auto elitism_end = std::chrono::high_resolution_clock::now();
+            profiler.recordTime("Elitism", 
+                std::chrono::duration<double>(elitism_end - elitism_start).count());
+
+            // Profile crossover and mutation
+            double total_crossover_time = 0.0;
+            double total_mutation_time = 0.0;
+            int crossover_count = 0;
+            int mutation_count = 0;
+
+            auto breeding_start = std::chrono::high_resolution_clock::now();
+            size_t remaining_slots = config.population_size - new_population.size();
+            size_t pairs_needed = (remaining_slots + 1) / 2;  // Round up division
+
+            // Profile parent selection
+            auto selection_start = std::chrono::high_resolution_clock::now();
+            auto selected_pairs = selectParents(pairs_needed);
+            auto selection_end = std::chrono::high_resolution_clock::now();
+            profiler.recordTime("Parent_Selection", 
+                std::chrono::duration<double>(selection_end - selection_start).count());
+
+            // Process all pairs
+            for (const auto& [parent1, parent2] : selected_pairs) {
+                if (new_population.size() >= config.population_size) {
+                    break;
+                }
+
+                // Time individual crossover operations
+                auto crossover_start = std::chrono::high_resolution_clock::now();
+                Individual offspring = crossover(*parent1, *parent2);
+                auto crossover_end = std::chrono::high_resolution_clock::now();
+                total_crossover_time += std::chrono::duration<double>(crossover_end - crossover_start).count();
+                crossover_count++;
+
+                auto& local_gen = getGen();
+                std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+                if (prob_dist(local_gen) < config.mutation_prob) {
+                    auto mutation_start = std::chrono::high_resolution_clock::now();
+                    offspring.mutate(local_gen, config);
+                    auto mutation_end = std::chrono::high_resolution_clock::now();
+                    total_mutation_time += std::chrono::duration<double>(mutation_end - mutation_start).count();
+                    mutation_count++;
+                }
+
+                new_population.push_back(std::move(offspring));
+
+                // Add a second offspring if we need it and have space
+                if (new_population.size() < config.population_size) {
+                    // Profile second crossover
+                    auto crossover_start2 = std::chrono::high_resolution_clock::now();
+                    Individual second_offspring = crossover(*parent2, *parent1); // Reverse parents
+                    auto crossover_end2 = std::chrono::high_resolution_clock::now();
+                    total_crossover_time += std::chrono::duration<double>(crossover_end2 - crossover_start2).count();
+                    crossover_count++;
+                    
+                    if (prob_dist(local_gen) < config.mutation_prob) {
+                        auto mutation_start = std::chrono::high_resolution_clock::now();
+                        second_offspring.mutate(local_gen, config);
+                        auto mutation_end = std::chrono::high_resolution_clock::now();
+                        total_mutation_time += std::chrono::duration<double>(mutation_end - mutation_start).count();
+                        mutation_count++;
+                    }
+                    
+                    new_population.push_back(std::move(second_offspring));
                 }
             }
 
-            gen_avg_fitness /= population.size();
+            // Profile population completion
+            auto completion_start = std::chrono::high_resolution_clock::now();
 
-            // Calculate accuracies
-            float train_accuracy = calculateAccuracy(population[best_idx], trainData);
-            float val_accuracy = calculateAccuracy(population[best_idx], valData);
+            // Fill any remaining slots with clones of the best individuals
+            while (new_population.size() < config.population_size) {
+                size_t idx = new_population.size() % population.size();
+                new_population.push_back(Individual(population[indices[idx]]));
+            }
 
-            // Print progress
+            // Verify population size
+            if (new_population.size() != config.population_size) {
+                std::cerr << "Error: Population size mismatch. Expected " << config.population_size 
+                        << " but got " << new_population.size() << std::endl;
+                // Adjust population size if needed
+                while (new_population.size() > config.population_size) {
+                    new_population.pop_back();
+                }
+                while (new_population.size() < config.population_size) {
+                    new_population.push_back(Individual(population[0])); // Clone best individual
+                }
+            }
+
+            auto breeding_end = std::chrono::high_resolution_clock::now();
+
+            // Record breeding statistics
+            profiler.recordTime("Total_Breeding", 
+                std::chrono::duration<double>(breeding_end - breeding_start).count());
+            if (crossover_count > 0) {
+                profiler.recordTime("Average_Crossover", total_crossover_time / crossover_count);
+            }
+            if (mutation_count > 0) {
+                profiler.recordTime("Average_Mutation", total_mutation_time / mutation_count);
+            }
+            profiler.recordTime("Population_Completion", 
+                std::chrono::duration<double>(breeding_end - completion_start).count());
+
+            // Profile accuracy calculations
+            auto accuracy_start = std::chrono::high_resolution_clock::now();
+            float train_accuracy = calculateAccuracy(population[indices[0]], trainData);
+            ops->setTraining(false);
+            float val_accuracy = calculateAccuracy(population[indices[0]], valData);
+            ops->setTraining(true);
+            auto accuracy_end = std::chrono::high_resolution_clock::now();
+            profiler.recordTime("Accuracy_Calculation", 
+                std::chrono::duration<double>(accuracy_end - accuracy_start).count());
+
+            // Output generation statistics
             std::cout << "Generation " << generation 
                     << "\n  Best Fitness: " << gen_best_fitness
                     << "\n  Avg Fitness: " << gen_avg_fitness
                     << "\n  Training Accuracy: " << train_accuracy * 100.0f << "%"
                     << "\n  Validation Accuracy: " << val_accuracy * 100.0f << "%"
+                    << "\n  Population Size: " << new_population.size()
+                    << "\n  Generation Time: " << profiler.getGenerationTime() << "s"
                     << std::endl;
+
+            // Print detailed profiling statistics and save to CSV
+            for (const auto& [operation, data] : profiler.getTimings()) {
+                timing_log << generation << ","
+                        << operation << ","
+                        << data.total_time << ","
+                        << data.calls << ","
+                        << (data.total_time / data.calls) << "\n";
+            }
+
+            // Print current generation profiling statistics
+            // profiler.printStatistics(generation);
 
             // Check for improvement
             if (gen_best_fitness < best_fitness) {
@@ -1358,105 +1698,85 @@ public:
                 generations_without_improvement++;
             }
 
-            if (generations_without_improvement > 20) {
-                // DEBUG disable early stopping for now.
-                // std::cout << "Early stopping due to lack of improvement" << std::endl;
-                // break;
-            }
-
-            // Create new population
-            std::vector<Individual> new_population;
-            new_population.reserve(config.population_size);
-
-            // Sort current population by fitness
-            std::vector<size_t> indices(population.size());
-            std::iota(indices.begin(), indices.end(), 0);
-            std::sort(indices.begin(), indices.end(),
-                    [&](size_t a, size_t b) { return fitnesses[a] < fitnesses[b]; });
-
-            // Elitism
-            for (int i = 0; i < config.elite_size && i < population.size(); ++i) {
-                new_population.push_back(Individual(population[indices[i]]));
-            }
-
-            // Generate remaining individuals
-            auto& rng = getGen();
-            std::uniform_int_distribution<size_t> parent_dist(0, indices.size() - 1);
-            std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
-
-            while (new_population.size() < config.population_size) {
-                try {
-                    // Tournament selection
-                    Individual parent1 = selectParent();
-                    Individual parent2 = selectParent();
-                    
-                    // Create offspring
-                    Individual offspring = crossover(parent1, parent2);
-                    
-                    // Verify offspring is valid before adding
-                    if (offspring.totalSize() == 0) {
-                        std::cerr << "Warning: Created invalid offspring with no trees" << std::endl;
-                        continue;
-                    }
-                    
-                    // Mutation
-                    if (prob_dist(rng) < config.mutation_prob) {
-                        offspring.mutate(rng, config);
-                    }
-                    
-                    new_population.push_back(std::move(offspring));
-                } catch (const std::exception& e) {
-                    std::cerr << "Error creating new individual: " << e.what() << std::endl;
-                    continue;
-                }
-            }
-
-            // Replace population
+            // Replace old population
             population = std::move(new_population);
         }
-    }
-
-    Individual selectParent() {
-        std::vector<Individual> tournament;
-        auto& local_gen = getGen();  // Get thread-local RNG
         
-        std::vector<size_t> indices(population.size());
-        std::iota(indices.begin(), indices.end(), 0);
-        std::sort(indices.begin(), indices.end(),
-            [&](size_t a, size_t b) {
-                return population[a].getFitness() < population[b].getFitness();
-            });
-
-        // Select from top performers with higher probability.
-        std::uniform_real_distribution<float> dist(0.0, 1.0f);
-        float r = dist(getGen());
-        float prob = r*r; // Square to bias towards better individuals.
-        size_t index = static_cast<size_t>(prob * indices.size());
-        return population[indices[index]];
+        timing_log.close();
     }
-
+    
+    
     Individual crossover(const Individual& parent1, const Individual& parent2) {
-        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-        
         std::vector<std::unique_ptr<GPNode>> offspring_trees;
         offspring_trees.reserve(config.num_trees);
-
-        // Always create trees, but conditionally decide how to create them
+        
+        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+        
         for (int i = 0; i < config.num_trees; ++i) {
             if (dist(rng) < config.crossover_prob) {
-                // Do crossover
-                if (dist(rng) < 0.5f) {
-                    offspring_trees.push_back(parent1.getTree(i)->clone());
+                auto parent1_tree = parent1.getTree(i).get();
+                auto parent2_tree = parent2.getTree(i).get();
+                
+                auto nodes1 = parent1_tree->getAllNodes();
+                auto nodes2 = parent2_tree->getAllNodes();
+                
+                if (nodes1.empty() || nodes2.empty()) {
+                    offspring_trees.push_back(enforceMaxDepth(parent1.getTree(i)->clone(), config.max_tree_depth));
+                    continue;
+                }
+                
+                // Select random crossover points
+                std::uniform_int_distribution<size_t> node_dist1(0, nodes1.size() - 1);
+                std::uniform_int_distribution<size_t> node_dist2(0, nodes2.size() - 1);
+                
+                // Try to find valid crossover points that won't exceed max depth
+                int max_attempts = 10;
+                bool valid_crossover = false;
+                std::unique_ptr<GPNode> new_tree;
+                
+                while (max_attempts-- > 0) {
+                    GPNode* subtree1 = nodes1[node_dist1(rng)];
+                    GPNode* subtree2 = nodes2[node_dist2(rng)];
+                    
+                    try {
+                        auto new_tree1 = parent1.getTree(i)->clone();
+                        auto subtree2_clone = subtree2->clone();
+                        
+                        // Calculate resulting depth before performing crossover
+                        int parent_depth = parent1_tree->depth();
+                        int subtree1_depth = subtree1->depth();
+                        int subtree2_depth = subtree2->depth();
+                        
+                        // Calculate potential new depth
+                        int new_depth = parent_depth - subtree1_depth + subtree2_depth;
+                        
+                        if (new_depth <= config.max_tree_depth) {
+                            if (subtree1 == parent1_tree) {
+                                new_tree = std::move(subtree2_clone);
+                            } else {
+                                new_tree1->replaceSubtree(subtree1, std::move(subtree2_clone));
+                                new_tree = std::move(new_tree1);
+                            }
+                            valid_crossover = true;
+                            break;
+                        }
+                    } catch (const std::exception& e) {
+                        std::cerr << "Crossover attempt failed: " << e.what() << std::endl;
+                    }
+                }
+                
+                if (valid_crossover) {
+                    offspring_trees.push_back(std::move(new_tree));
                 } else {
-                    offspring_trees.push_back(parent2.getTree(i)->clone());
+                    // Fallback to cloning if no valid crossover found
+                    offspring_trees.push_back(enforceMaxDepth(parent1.getTree(i)->clone(), config.max_tree_depth));
                 }
             } else {
-                // No crossover - just clone from first parent
-                offspring_trees.push_back(parent1.getTree(i)->clone());
+                offspring_trees.push_back(enforceMaxDepth(parent1.getTree(i)->clone(), config.max_tree_depth));
             }
         }
-
-        return Individual(std::move(offspring_trees), this->ops);
+        
+        return Individual(std::move(offspring_trees), ops);
     }
 
     // Method to generate synthetic data pairs
