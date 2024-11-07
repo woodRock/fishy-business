@@ -508,8 +508,6 @@ def preprocess_dataset(
                 f"Dataset size increased from {original_size} to {len(X)} samples"
             )
 
-        original_size = len(X)
-
         # Create dataset instance
         dataset_class = (
             SiameseDataset if dataset == "instance-recognition" else CustomDataset

@@ -18,6 +18,7 @@ from rcnn import RCNN
 from mamba import Mamba
 from kan import KAN
 from vae import VAE
+from MOE import MOE
 from train import train_model
 from util import preprocess_dataset, create_data_module, AugmentationConfig
 
@@ -301,6 +302,16 @@ class ModelTrainer:
                 num_classes=output_dim,
                 dropout=self.config.dropout,
             )
+        elif self.model_type == "moe":
+            model = MOE(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                num_heads=self.config.num_heads,
+                num_layers=self.config.num_layers,
+                hidden_dim=self.config.hidden_dimension,
+                num_experts=4,
+                k=2,
+            )
         else:
             raise ValueError(f"Invalid model: {self.model_type}")
 
@@ -420,7 +431,7 @@ def parse_arguments() -> argparse.Namespace:
         help="Learning rate. Defaults to 1e-5.",
     )
     parser.add_argument(
-        "-bs", "--batch-size", type=int, default=64, help="Batch size. Defaults to 64/"
+        "-bs", "--batch-size", type=int, default=64, help="Batch size. Defaults to 64."
     )
     parser.add_argument(
         "-hd",
