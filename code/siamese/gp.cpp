@@ -14,6 +14,7 @@
 #include <iostream>
 #include <chrono>
 #include <fstream>
+#include <optional>
 
 // Configuration struct
 struct GPConfig {
@@ -77,106 +78,89 @@ private:
         return false;
     }
 
-    std::vector<DataPoint> generatePairs(const std::vector<Instance>& instances, 
-                                   size_t pairs_per_instance = 50) {
-        std::vector<DataPoint> pairs;
-        const size_t expected_total = instances.size() * pairs_per_instance;
-        pairs.reserve(expected_total);
-        
+    std::vector<DataPoint> generatePairs(const std::vector<DataPoint>& instances, size_t pairs_per_sample = 50) {
+        // Initialize random number generators
         std::random_device rd;
         std::mt19937 gen(rd());
-
-        // For each instance, generate exactly pairs_per_instance pairs
-        for (size_t i = 0; i < instances.size(); ++i) {
-            const Instance& anchor = instances[i];
-            
-            // We want 25 positive and 25 negative pairs for each instance
-            size_t positive_needed = pairs_per_instance / 2;
-            size_t negative_needed = pairs_per_instance - positive_needed;
-            
-            // Collect all possible positive and negative pair candidates
-            std::vector<size_t> positive_candidates;
-            std::vector<size_t> negative_candidates;
-            
-            for (size_t j = 0; j < instances.size(); ++j) {
-                if (j != i) {  // Avoid self-comparison
-                    if (instances[j].label == anchor.label) {
-                        positive_candidates.push_back(j);
-                    } else {
-                        negative_candidates.push_back(j);
-                    }
-                }
-            }
-
-            // Shuffle candidates
-            std::shuffle(positive_candidates.begin(), positive_candidates.end(), gen);
-            std::shuffle(negative_candidates.begin(), negative_candidates.end(), gen);
-
-            // Generate positive pairs
-            for (size_t p = 0; p < positive_needed && p < positive_candidates.size(); ++p) {
-                size_t compare_idx = positive_candidates[p % positive_candidates.size()];
-                pairs.emplace_back(anchor.features, 
-                                instances[compare_idx].features, 
-                                1.0f);
-            }
-
-            // If we don't have enough positive candidates, make up the difference with negative pairs
-            if (positive_candidates.size() < positive_needed) {
-                negative_needed += (positive_needed - positive_candidates.size());
-            }
-
-            // Generate negative pairs
-            for (size_t n = 0; n < negative_needed && n < negative_candidates.size(); ++n) {
-                size_t compare_idx = negative_candidates[n % negative_candidates.size()];
-                pairs.emplace_back(anchor.features, 
-                                instances[compare_idx].features, 
-                                0.0f);
-            }
-
-            // If we don't have enough total pairs for this instance, resample from available candidates
-            size_t current_pairs = std::min(positive_needed, positive_candidates.size()) +
-                                std::min(negative_needed, negative_candidates.size());
-            
-            while (current_pairs < pairs_per_instance) {
-                // Pick randomly from available candidates
-                std::vector<size_t>& candidates = !negative_candidates.empty() ? negative_candidates : positive_candidates;
-                std::uniform_int_distribution<size_t> dist(0, candidates.size() - 1);
-                size_t compare_idx = candidates[dist(gen)];
-                float label = (instances[compare_idx].label == anchor.label) ? 1.0f : 0.0f;
-                
-                pairs.emplace_back(anchor.features, 
-                                instances[compare_idx].features, 
-                                label);
-                current_pairs++;
-            }
-
-            if ((i + 1) % 10 == 0 || i == instances.size() - 1) {
-                std::cout << "Generated pairs for instance " << (i + 1) << "/" << instances.size()
-                        << " (" << pairs.size() << " total pairs)" << std::endl;
+        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+        
+        // Create class indices map
+        std::unordered_map<std::string, std::vector<size_t>> class_indices;
+        for (size_t idx = 0; idx < instances.size(); ++idx) {
+            const auto& label = instances[idx].label;
+            if (label > 0.5f) {
+                class_indices["1"].push_back(idx);
+            } else {
+                class_indices["0"].push_back(idx);
             }
         }
         
-        // Print final statistics
+        // Generate pairs
+        std::vector<DataPoint> pairs;
+        const size_t expected_pairs = instances.size() * pairs_per_sample;
+        pairs.reserve(expected_pairs);
+        
+        for (size_t idx1 = 0; idx1 < instances.size(); ++idx1) {
+            const auto& feat1 = instances[idx1];
+            const std::string label1_key = feat1.label > 0.5f ? "1" : "0";
+            
+            for (size_t p = 0; p < pairs_per_sample; ++p) {
+                size_t idx2;
+                
+                if (dist(gen) < 0.5f) {
+                    // Try to get same class sample
+                    const auto& same_class_indices = class_indices[label1_key];
+                    if (same_class_indices.size() > 1) {
+                        // Filter out the current index
+                        std::vector<size_t> valid_indices;
+                        std::copy_if(same_class_indices.begin(), 
+                                same_class_indices.end(),
+                                std::back_inserter(valid_indices),
+                                [idx1](size_t idx) { return idx != idx1; });
+                        
+                        std::uniform_int_distribution<size_t> index_dist(0, valid_indices.size() - 1);
+                        idx2 = valid_indices[index_dist(gen)];
+                    } else {
+                        std::uniform_int_distribution<size_t> index_dist(0, instances.size() - 1);
+                        idx2 = index_dist(gen);
+                    }
+                } else {
+                    // Random sample from different class
+                    std::uniform_int_distribution<size_t> index_dist(0, instances.size() - 1);
+                    idx2 = index_dist(gen);
+                }
+                
+                const auto& feat2 = instances[idx2];
+                float pair_label = (feat1.label > 0.5f) == (feat2.label > 0.5f) ? 1.0f : 0.0f;
+                
+                // Create pair using DataPoint constructor
+                pairs.emplace_back(feat1.anchor, feat2.anchor, pair_label);
+            }
+        }
+        
+        // Shuffle the pairs
+        std::shuffle(pairs.begin(), pairs.end(), gen);
+        
+        // Log statistics
         size_t positive_pairs = std::count_if(pairs.begin(), pairs.end(),
             [](const DataPoint& p) { return p.label > 0.5f; });
         size_t negative_pairs = pairs.size() - positive_pairs;
         
-        std::cout << "\nFinal pair generation statistics:"
-                << "\nTotal pairs generated: " << pairs.size() << "/" << expected_total
+        std::cout << "\nPair Generation Statistics:"
+                << "\nTotal pairs generated: " << pairs.size()
                 << "\nPositive pairs: " << positive_pairs 
                 << " (" << (100.0f * positive_pairs / pairs.size()) << "%)"
                 << "\nNegative pairs: " << negative_pairs
                 << " (" << (100.0f * negative_pairs / pairs.size()) << "%)"
                 << "\nAverage pairs per instance: " 
-                << (static_cast<float>(pairs.size()) / instances.size()) << std::endl;
+                << (static_cast<float>(pairs.size()) / instances.size()) 
+                << std::endl;
         
-        // Final shuffle of all pairs
-        std::shuffle(pairs.begin(), pairs.end(), gen);
         return pairs;
     }
 
 public:
-    std::vector<DataPoint> readExcel(const std::string& filename, 
+   std::vector<DataPoint> readExcel(const std::string& filename, 
                                const std::string& sheetName = "All data no QC filtering") {
         try {
             std::cout << "Opening Excel file: " << filename << std::endl;
@@ -215,6 +199,7 @@ public:
                 throw std::runtime_error("Excel file has insufficient data");
             }
 
+            // Create temporary vector for instances
             std::vector<Instance> instances;
             instances.reserve(actualLastRow - 1);  // Reserve space excluding header row
             
@@ -284,15 +269,34 @@ public:
             
             std::cout << "Successfully processed " << instances.size() 
                 << " valid instances" << std::endl;
-        
-            // Shuffle instances before generating pairs
+
+            // Convert instances to DataPoints
+            std::vector<DataPoint> dataPoints;
+            dataPoints.reserve(instances.size());
+            
+            // Create label encoder
+            std::unordered_map<std::string, float> labelEncoder;
+            float currentLabel = 0.0f;
+            for (const auto& instance : instances) {
+                if (labelEncoder.find(instance.label) == labelEncoder.end()) {
+                    labelEncoder[instance.label] = currentLabel++;
+                }
+            }
+            
+            // Convert instances to DataPoints with encoded labels
+            for (const auto& instance : instances) {
+                float encodedLabel = labelEncoder[instance.label];
+                dataPoints.emplace_back(instance.features, encodedLabel);
+            }
+
+            // Shuffle dataPoints before generating pairs
             std::random_device rd;
             std::mt19937 shuffler(rd());
-            std::shuffle(instances.begin(), instances.end(), shuffler);
+            std::shuffle(dataPoints.begin(), dataPoints.end(), shuffler);
             
-            // Generate pairs with shuffled instances
+            // Generate pairs with shuffled DataPoints
             std::cout << "Generating pairs from shuffled instances..." << std::endl;
-            auto pairs = generatePairs(instances);
+            auto pairs = generatePairs(dataPoints);
             std::cout << "Generated " << pairs.size() << " pairs" << std::endl;
             
             doc.close();
@@ -824,6 +828,8 @@ private:
 public:
     explicit FeatureNode(int idx) : feature_index(idx) {}
 
+    int getFeatureIndex() const { return feature_index; }
+
     std::vector<float> evaluate(const std::vector<float>& input) override {
         if (feature_index >= input.size()) {
             std::cerr << "Warning: Feature index " << feature_index 
@@ -867,6 +873,8 @@ private:
 
 public:
     explicit ConstantNode(float v) : value(std::tanh(v)) {}  // Ensure value is in [-1, 1]
+
+    float getValue() const { return value; }
 
     std::vector<float> evaluate(const std::vector<float>& input) override {
         return std::vector<float>{value};
@@ -1182,6 +1190,40 @@ private:
     const GPConfig& config;  // Reference to config
     mutable std::mutex eval_mutex;
 
+    size_t computeTreeHash(const std::unique_ptr<GPNode>& tree) const {
+        if (!tree) return 0;
+        
+        // Use node visitor pattern to build hash
+        std::vector<GPNode*> nodes = tree->getAllNodes();
+        size_t hash = 0;
+        
+        for (const GPNode* node : nodes) {
+            // Hash node type and data
+            if (const auto* op_node = dynamic_cast<const OperatorNode*>(node)) {
+                // Hash operator nodes - combine operator name and arity
+                hash = hashCombine(hash, std::hash<std::string>{}(op_node->getOperatorName()));
+                hash = hashCombine(hash, op_node->getChildren().size());
+            }
+            else if (const auto* feature_node = dynamic_cast<const FeatureNode*>(node)) {
+                // Hash feature nodes - include feature index
+                hash = hashCombine(hash, 0x1234567); // Magic number for feature node type
+                hash = hashCombine(hash, feature_node->getFeatureIndex());
+            }
+            else if (const auto* constant_node = dynamic_cast<const ConstantNode*>(node)) {
+                // Hash constant nodes - include value
+                hash = hashCombine(hash, 0x89ABCDEF); // Magic number for constant node type
+                hash = hashCombine(hash, constant_node->getValue());
+            }
+        }
+        return hash;
+    }
+    
+    // Helper function to combine hash values
+    static size_t hashCombine(size_t seed, size_t value) {
+        seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        return seed;
+    }
+
 public:
     Individual(
         std::vector<std::unique_ptr<GPNode>> t, 
@@ -1288,7 +1330,84 @@ public:
     const std::unique_ptr<GPNode>& getTree(int index) const {
         return trees[index];
     }
+
+    size_t computeHash() const {
+        size_t hash = 0;
+        
+        // Hash each tree in the individual
+        for (const auto& tree : trees) {
+            hash = hashCombine(hash, computeTreeHash(tree));
+        }
+        
+        // Include fitness in hash to differentiate between similar but not identical individuals
+        hash = hashCombine(hash, std::hash<float>{}(fitness));
+        
+        return hash;
+    }
 };
+
+namespace std {
+    template<>
+    struct hash<Individual> {
+        size_t operator()(const Individual& ind) const {
+            return ind.computeHash();
+        }
+    };
+
+    // Also implement equality comparison for hash map lookups
+    template<>
+    struct equal_to<Individual> {
+        bool operator()(const Individual& lhs, const Individual& rhs) const {
+            // Compare fitness first as it's cheaper
+            if (std::abs(lhs.getFitness() - rhs.getFitness()) > 1e-6f) {
+                return false;
+            }
+            
+            // Then compare tree structures
+            return lhs.computeHash() == rhs.computeHash();
+        }
+    };
+}
+
+class FitnessCache {
+private:
+    std::unordered_map<Individual, float> cache;
+    std::mutex cache_mutex;
+    static constexpr size_t MAX_CACHE_SIZE = 10000;
+
+public:
+    void clear() {
+        std::lock_guard<std::mutex> lock(cache_mutex);
+        cache.clear();
+    }
+
+public:
+    FitnessCache() = default;
+    FitnessCache(const FitnessCache&) = delete;
+    FitnessCache& operator=(const FitnessCache&) = delete;
+
+    std::optional<float> get(const Individual& ind) {
+        std::lock_guard<std::mutex> lock(cache_mutex);
+        auto it = cache.find(ind);
+        if (it != cache.end()) {
+            return it->second;
+        }
+        return std::nullopt;
+    }
+
+    void put(const Individual& ind, float fitness) {
+        std::lock_guard<std::mutex> lock(cache_mutex);
+        if (cache.size() >= MAX_CACHE_SIZE) {
+            // Simple eviction strategy: clear half the cache
+            auto it = cache.begin();
+            for (size_t i = 0; i < MAX_CACHE_SIZE / 2 && it != cache.end(); ++i) {
+                it = cache.erase(it);
+            }
+        }
+        cache.emplace(ind, fitness);
+    }
+};
+
 
 // Profiling class to track timings
 // Updated Profiler class
@@ -1345,6 +1464,7 @@ private:
     std::shared_ptr<GPOperations> ops;
     std::vector<Individual> population;
     static thread_local std::mt19937 rng;
+    FitnessCache fitness_cache; // Add as class member
     
     std::mt19937& getGen() {
         return rng;  // Now returns reference to thread-local RNG
@@ -1435,6 +1555,11 @@ private:
     }
 
     float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
+        // Try to get cached fitness
+        if (auto cached_fitness = fitness_cache.get(ind)) {
+            return *cached_fitness;
+        }
+
         float total_loss = 0.0f;
         float total_distance = 0.0f;
         int correct_predictions = 0;
@@ -1511,6 +1636,9 @@ private:
             std::cerr << "Warning: Invalid fitness calculated" << std::endl;
             return std::numeric_limits<float>::max();
         }
+
+        // Cache the computed fitness
+        fitness_cache.put(ind, fitness);
         
         return fitness;
     }
@@ -1708,7 +1836,15 @@ private:
     }
 
     void evaluatePopulation(const std::vector<DataPoint>& trainData) {
-         // Add depth monitoring
+        static int generation_count = 0;
+        generation_count++;
+
+        // Periodically clear the cache
+        if (generation_count % 10 == 0) {
+            fitness_cache.clear(); // Reset cache every 10 generations
+        }
+
+        // Add depth monitoring
         int max_depth_seen = 0;
         int total_depth = 0;
         int valid_trees = 0;

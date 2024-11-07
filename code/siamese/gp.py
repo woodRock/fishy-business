@@ -55,7 +55,7 @@ class GPConfig:
     n_features: int = 2080
     num_trees: int = 20
     population_size: int = 100
-    generations: int = 100
+    generations: int = 50
     elite_size: int = 10
     crossover_prob: float = 0.8
     mutation_prob: float = 0.3
@@ -462,14 +462,14 @@ class ContrastiveGP:
             pred_ratio = sum(predictions) / len(predictions)
             balance_penalty = abs(0.5 - pred_ratio)
 
-            print(f"accuracy: {accuracy}")
-            print(f"avg_loss: {avg_loss}")
-            print(f"balance_penalty: {balance_penalty}")
-            print(f"parsimony: {sum(len(tree) for tree in individual)}")
+            # print(f"accuracy: {accuracy:.4f}")
+            # print(f"avg_loss: {avg_loss:.4f}")
+            # print(f"balance_penalty: {balance_penalty:4f}")
+            # print(f"parsimony: {sum(len(tree) for tree in individual)}")
             
             # Get coefficients from shared config
             fitness = (
-                ContrastiveGP._shared_config.fitness_alpha * (1 - accuracy) #+
+                ContrastiveGP._shared_config.fitness_alpha * (1 - accuracy) +
                 # ContrastiveGP._shared_config.loss_alpha * avg_loss +
                 # ContrastiveGP._shared_config.balance_alpha * balance_penalty +
                 ContrastiveGP._shared_config.parsimony_coeff * sum(len(tree) for tree in individual)
