@@ -1628,13 +1628,10 @@ private:
     }
 
     float calculateAccuracy(const Individual& ind, const std::vector<DataPoint>& data) {
-        int correct_predictions = 0;
-        int total_pairs = 0;
-        
-        float avg_similar_dist = 0.0f;
-        float avg_dissimilar_dist = 0.0f;
-        int similar_count = 0;
-        int dissimilar_count = 0;
+        int true_positives = 0;
+        int true_negatives = 0;
+        int total_positives = 0;
+        int total_negatives = 0;
         
         for (size_t i = 0; i < data.size(); i += config.batch_size) {
             size_t batch_end = std::min(i + config.batch_size, data.size());
@@ -1648,19 +1645,32 @@ private:
                 bool prediction = distance < config.distance_threshold;
                 bool actual = point.label > 0.5f;
                 
-                if (prediction == actual) {
-                    correct_predictions++;
+                if (actual) {
+                    total_positives++;
+                    if (prediction) {
+                        true_positives++;
+                    }
+                } else {
+                    total_negatives++;
+                    if (!prediction) {
+                        true_negatives++;
+                    }
                 }
-                total_pairs++;
             }
         }
         
-        // Calculate averages
-        if (similar_count > 0) avg_similar_dist /= similar_count;
-        if (dissimilar_count > 0) avg_dissimilar_dist /= dissimilar_count;
+        // Calculate sensitivity (true positive rate)
+        float sensitivity = total_positives > 0 ? 
+            static_cast<float>(true_positives) / total_positives : 0.0f;
         
-        float accuracy = static_cast<float>(correct_predictions) / total_pairs;
-        return accuracy;
+        // Calculate specificity (true negative rate)
+        float specificity = total_negatives > 0 ? 
+            static_cast<float>(true_negatives) / total_negatives : 0.0f;
+        
+        // Balanced accuracy is the average of sensitivity and specificity
+        float balanced_accuracy = (sensitivity + specificity) / 2.0f;
+        
+        return balanced_accuracy;
     }
 
      // Helper method to run a single tournament
