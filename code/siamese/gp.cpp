@@ -19,17 +19,17 @@
 struct GPConfig {
     int n_features = 2080;
     int num_trees = 20;                   // Keep this
-    int population_size = 200;            // Increase from 100 to 200 for more diversity
-    int generations = 2000;                // Keep this
+    int population_size = 100;            // Increase from 100 to 200 for more diversity
+    int generations = 50;                // Keep this
     int elite_size = 5;                   // Reduce from 10 to 5 to prevent overfitting to elite solutions
-    float crossover_prob = 0.7f;          // Slightly reduce from 0.8
-    float mutation_prob = 0.4f;           // Increase from 0.3 for more exploration
+    float crossover_prob = 0.8f;          // Slightly reduce from 0.8
+    float mutation_prob = 0.2f;           // Increase from 0.3 for more exploration
     int tournament_size = 5;              // Reduce from 7 to decrease selection pressure
     float distance_threshold = 0.5f;      // Keep this
     float margin = 1.0f;                  // Increase from 1.0 to create bigger separation
     float fitness_alpha = 0.8f;           // Reduce from 0.9 to put less emphasis on accuracy
     float loss_alpha = 0.2f;              // Increase from 0.1 for better generalization
-    float parsimony_coeff = 0.0f;        // Increase from 0.001 to strongly penalize complex trees
+    float parsimony_coeff = 0.001f;        // Increase from 0.001 to strongly penalize complex trees
     int max_tree_depth = 6;               // Reduce from 6 to prevent overly complex trees
     int batch_size = 64;                  // Reduce from 128 for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
@@ -77,81 +77,99 @@ private:
         return false;
     }
 
-    // Helper function to generate all possible pairs from instances
-    // Modified generatePairs function for ExcelProcessor class
     std::vector<DataPoint> generatePairs(const std::vector<Instance>& instances, 
-                                   size_t maxPairsPerClass = 50,  // Default value set to 50
-                                   size_t maxNegativePairs = 50)  { // Also limit negative pairs
+                                   size_t pairs_per_instance = 50) {
         std::vector<DataPoint> pairs;
+        const size_t expected_total = instances.size() * pairs_per_instance;
+        pairs.reserve(expected_total);
+        
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        // Group instances by label
-        std::unordered_map<std::string, std::vector<const Instance*>> labelGroups;
-        for (const auto& instance : instances) {
-            labelGroups[instance.label].push_back(&instance);
-        }
-
-        // Generate positive pairs (same label)
-        int total_positive_pairs = 0;
-        for (const auto& [label, group] : labelGroups) {
-            if (group.size() < 2) continue;
-
-            // Generate all possible pairs
-            std::vector<std::pair<size_t, size_t>> possiblePairs;
-            for (size_t i = 0; i < group.size(); ++i) {
-                for (size_t j = i + 1; j < group.size(); ++j) {
-                    possiblePairs.emplace_back(i, j);
+        // For each instance, generate exactly pairs_per_instance pairs
+        for (size_t i = 0; i < instances.size(); ++i) {
+            const Instance& anchor = instances[i];
+            
+            // We want 25 positive and 25 negative pairs for each instance
+            size_t positive_needed = pairs_per_instance / 2;
+            size_t negative_needed = pairs_per_instance - positive_needed;
+            
+            // Collect all possible positive and negative pair candidates
+            std::vector<size_t> positive_candidates;
+            std::vector<size_t> negative_candidates;
+            
+            for (size_t j = 0; j < instances.size(); ++j) {
+                if (j != i) {  // Avoid self-comparison
+                    if (instances[j].label == anchor.label) {
+                        positive_candidates.push_back(j);
+                    } else {
+                        negative_candidates.push_back(j);
+                    }
                 }
             }
 
-            // Shuffle and limit number of pairs per class
-            std::shuffle(possiblePairs.begin(), possiblePairs.end(), gen);
-            size_t numPairs = std::min((size_t)possiblePairs.size(), maxPairsPerClass);
+            // Shuffle candidates
+            std::shuffle(positive_candidates.begin(), positive_candidates.end(), gen);
+            std::shuffle(negative_candidates.begin(), negative_candidates.end(), gen);
 
-            for (size_t i = 0; i < numPairs; ++i) {
-                const auto& [idx1, idx2] = possiblePairs[i];
-                pairs.emplace_back(group[idx1]->features, 
-                                group[idx2]->features, 
+            // Generate positive pairs
+            for (size_t p = 0; p < positive_needed && p < positive_candidates.size(); ++p) {
+                size_t compare_idx = positive_candidates[p % positive_candidates.size()];
+                pairs.emplace_back(anchor.features, 
+                                instances[compare_idx].features, 
                                 1.0f);
-                total_positive_pairs++;
             }
 
-            std::cout << "Generated " << numPairs << " positive pairs for class " << label << std::endl;
-        }
+            // If we don't have enough positive candidates, make up the difference with negative pairs
+            if (positive_candidates.size() < positive_needed) {
+                negative_needed += (positive_needed - positive_candidates.size());
+            }
 
-        // Generate negative pairs (different labels)
-        std::vector<const Instance*> allInstances;
-        for (const auto& instance : instances) {
-            allInstances.push_back(&instance);
-        }
-
-        // Generate balanced number of negative pairs
-        size_t desired_negative_pairs = std::min(total_positive_pairs, static_cast<int>(maxNegativePairs));
-        std::uniform_int_distribution<size_t> dist(0, allInstances.size() - 1);
-        
-        int negative_pairs_generated = 0;
-        int max_attempts = desired_negative_pairs * 10;  // Avoid infinite loop
-        int attempts = 0;
-
-        std::cout << "Attempting to generate " << desired_negative_pairs << " negative pairs..." << std::endl;
-
-        while (negative_pairs_generated < desired_negative_pairs && attempts < max_attempts) {
-            size_t idx1 = dist(gen);
-            size_t idx2 = dist(gen);
-            attempts++;
-
-            if (idx1 != idx2 && allInstances[idx1]->label != allInstances[idx2]->label) {
-                pairs.emplace_back(allInstances[idx1]->features,
-                                allInstances[idx2]->features,
+            // Generate negative pairs
+            for (size_t n = 0; n < negative_needed && n < negative_candidates.size(); ++n) {
+                size_t compare_idx = negative_candidates[n % negative_candidates.size()];
+                pairs.emplace_back(anchor.features, 
+                                instances[compare_idx].features, 
                                 0.0f);
-                negative_pairs_generated++;
+            }
+
+            // If we don't have enough total pairs for this instance, resample from available candidates
+            size_t current_pairs = std::min(positive_needed, positive_candidates.size()) +
+                                std::min(negative_needed, negative_candidates.size());
+            
+            while (current_pairs < pairs_per_instance) {
+                // Pick randomly from available candidates
+                std::vector<size_t>& candidates = !negative_candidates.empty() ? negative_candidates : positive_candidates;
+                std::uniform_int_distribution<size_t> dist(0, candidates.size() - 1);
+                size_t compare_idx = candidates[dist(gen)];
+                float label = (instances[compare_idx].label == anchor.label) ? 1.0f : 0.0f;
+                
+                pairs.emplace_back(anchor.features, 
+                                instances[compare_idx].features, 
+                                label);
+                current_pairs++;
+            }
+
+            if ((i + 1) % 10 == 0 || i == instances.size() - 1) {
+                std::cout << "Generated pairs for instance " << (i + 1) << "/" << instances.size()
+                        << " (" << pairs.size() << " total pairs)" << std::endl;
             }
         }
-
-        std::cout << "Generated " << negative_pairs_generated << " negative pairs" << std::endl;
-        std::cout << "Total pairs generated: " << pairs.size() << std::endl;
-
+        
+        // Print final statistics
+        size_t positive_pairs = std::count_if(pairs.begin(), pairs.end(),
+            [](const DataPoint& p) { return p.label > 0.5f; });
+        size_t negative_pairs = pairs.size() - positive_pairs;
+        
+        std::cout << "\nFinal pair generation statistics:"
+                << "\nTotal pairs generated: " << pairs.size() << "/" << expected_total
+                << "\nPositive pairs: " << positive_pairs 
+                << " (" << (100.0f * positive_pairs / pairs.size()) << "%)"
+                << "\nNegative pairs: " << negative_pairs
+                << " (" << (100.0f * negative_pairs / pairs.size()) << "%)"
+                << "\nAverage pairs per instance: " 
+                << (static_cast<float>(pairs.size()) / instances.size()) << std::endl;
+        
         // Final shuffle of all pairs
         std::shuffle(pairs.begin(), pairs.end(), gen);
         return pairs;
