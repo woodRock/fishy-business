@@ -6,5 +6,5 @@ CXX_DEFINES = -DOPENXLSX_STATIC_DEFINE
 
 CXX_INCLUDES = -I/home/woodj/Desktop/fishy-business/code/siamese/OpenXLSX -I/home/woodj/Desktop/fishy-business/code/siamese/OpenXLSX/headers -I/home/woodj/Desktop/fishy-business/code/siamese/build/OpenXLSX
 
-CXX_FLAGS = 
+CXX_FLAGS = -fopenmp
 
