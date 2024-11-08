@@ -575,6 +575,16 @@ cai2020high
     * Reward function is scaled by velocity, so faster lap times are rewarded. 
     * Works for 4 different kinds of vehicles, although the truck struggles to achieve same performance as lighter ones. 
 
+chang2018pyramid
+----------------
+Pyramid stereo matching network
+
+Available: https://openaccess.thecvf.com/content_cvpr_2018/html/Chang_Pyramid_Stereo_Matching_CVPR_2018_paper.html
+
+Related: 
+    * Discussed in :ref:`2024-11-08 - ECRG <2024-11-08 - ECRG>`
+    * GitHub: https://github.com/JiaRenChang/PSMNet
+
 chase1973perception
 -------------------
     * Domain expertise allows people to build meaningful schema to represent patterns.
@@ -2376,6 +2386,15 @@ Related:
     * Related to node2vec (Grover 2016) for graph embeddings.
     * Related to (Olah 2018) for feature visualisation.
     * Same author as :ref:`(Mikolov 2013) <mikolov2013efficient>`.
+
+mildenhall2021nerf
+------------------
+Nerf: Representing scenes as neural radiance fields for view synthesis
+
+Available: https://dl.acm.org/doi/abs/10.1145/3503250
+
+Related: 
+    * Discussed in :ref:`2024-11-08 - ECRG <2024-11-08 - ECRG>`
 
 miles1998state
 --------------
