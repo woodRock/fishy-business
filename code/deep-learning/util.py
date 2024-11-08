@@ -352,6 +352,11 @@ class DataProcessor:
             filtered = filtered[~filtered["m/z"].str.contains("MO")]
 
         if self.dataset_type in [
+            DatasetType.OIL
+        ]:
+            filtered = filtered[filtered['m/z'].str.contains('MO', na=False)]
+
+        if self.dataset_type in [
             DatasetType.INSTANCE_RECOGNITION,
             DatasetType.INSTANCE_RECOGNITION_HARD,
         ]:
@@ -366,6 +371,7 @@ class DataProcessor:
             ]
 
         logger.info(f"Filtered data shape: {filtered.shape}")
+        print(f"filtered: {np.unique(filtered['m/z'])}")
         return filtered
 
     def encode_labels(self, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
@@ -487,7 +493,9 @@ def preprocess_dataset(
     try:
         # Load and process data
         logger.info(f"Loading dataset: {dataset}")
-        data = processor.load_data("/home/woodj/Desktop/fishy-business/data/REIMS.xlsx")
+        file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
+        # file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
+        data = processor.load_data(file_path)
 
         # Filter data based on pre-training flag
         filtered_data = processor.filter_data(data, is_pre_train)
