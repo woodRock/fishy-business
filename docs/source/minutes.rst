@@ -7179,3 +7179,30 @@ Notes:
 
 Related: 
     * NASWOT :ref:`(Mellor 2021) <mellor2021neural>`
+
+2024-11-08 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Benny Lin, Mengjie Zhang, Bing Xue, Huia Ma 
+
+Notes: 
+    * Candidate development plan (CDP) is due in the following week 2024-11-15. 
+    * EvoStart deadline: we have another week until the submission deadline. 
+    * Progress: I have been working on my journal paper, implemented multi-tree GP in c++ for a performance boost. 
+
+Machine Learning for Computer Vision for detecting Radiata Pine Tree Branch Locations for Drone-Based Prunings.
+Benny Lin https://ecs.wgtn.ac.nz/Main/GradYidaLin
+
+Notes: 
+    * 14.8 million million cubic meters of NZ radiata pine logs were exported to China from Jan - Nov 2022.
+    * Regular pruning is necessary to promote strong trunk growth and good wood quality. 
+    * ZED mini steroe camera is attached to a small electronic unmanned drone. 
+    * NZ Forestry has an injury rate that is 30 times higher than other industries. 
+    * There is no existing dataset. They need to create a dataset. Label annotation is a time-consuming task. 
+    * Considered using LiDAR to estimate branch length, but too expensive and difficult to implement. Intead solve the problem with vision alone.
+    * Pyramid Stereo Monitoring Network (PSMNet) https://github.com/JiaRenChang/PSMNet
+    * Semi-Global Block Matching (SGBM) 
+    * Neural Radiance Fields (NerF)
+
+Related:
+    * Pyramid Stereo Monitoring Network (PSMNet) :ref:`(Chang 2018) <chang2018pyramid>`
+    * Neural Radiance Fields (NeRF) :ref:`(Mildenhall 2021) <mildenhall2021nerf>`
