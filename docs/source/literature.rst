@@ -2338,6 +2338,16 @@ Related:
     * :ref:`(Gomes 2022)<gomes2020ensemble>` for concept drift from data stream mining.
     * See (Wood 2023), my proposal, which references Hoki seasonal variation.
 
+mellor2021neural
+----------------
+Neural architecture search without training
+
+Available: https://proceedings.mlr.press/v139/mellor21a.html
+
+Related: 
+    * Discussed in :ref:`2024-11-01 - ECRG <2024-11-01 - ECRG>`
+
+
 mikolov2013efficient
 ---------------------
 Efficient Estimation of Word Representations in Vector Space

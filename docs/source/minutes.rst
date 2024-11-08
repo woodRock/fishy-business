@@ -7176,3 +7176,6 @@ Notes:
     * Multi-shot, few-shot, one-shot, zero-cost proxy. 
     * EPADs: Efficient Pertubation-Aware Distinguishing Score for Zero-Shot Neural Architecture Search. 
     * NASWOT: expensive zero-shot NAS proxy. 
+
+Related: 
+    * NASWOT :ref:`(Mellor 2021) <mellor2021neural>`
