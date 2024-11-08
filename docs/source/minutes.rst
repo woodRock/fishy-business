@@ -7143,3 +7143,36 @@ Notes:
         * Wrap input terminals by linear models 
         * wave-sepecfici trainable terminals
     * Data augmentation - magnify, rotate, amplify; based on paper on RAMAN NIR data augmentation. 
+
+2024-10-31 - Weekly 
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00 **Attendees:** Bing Xue, Bach Hoai Nguyen 
+
+Notes: 
+    * The hournal paper is 3 times as much work as the AJCAI paper. 
+    * Focus on the journal paper, forget about the AJCAI paper. 
+    * We spoke to Daniel about how to form the instance recogntion dataset. 
+    * MCIFC is a feature construction method. Follow the original work and append a classifier to the MCIFC. 
+
+2024-11-01 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Emrah Hancer, Junhao Huang 
+
+A methodology for forecasting green-lipped mussel settlement. https://people.wgtn.ac.nz/emrah.hancer 
+
+Notes: 
+    * Wild spat availability is inconsistent. 
+    * Variables: 
+        1. sea surface tempertature (SST)
+        2. mean water temperature (MT) 
+        3. temperature anomoly (TA)
+    * Mean imputation for missing values.  Samples with missing perma are removed from the dataset. 
+    * Lagged features, feature averaging, decision-tree based averaging.
+    * Combine STT + MT + TA ? 
+
+Neural architecture search https://people.wgtn.ac.nz/junhao.huang
+
+Notes: 
+    * Multi-shot, few-shot, one-shot, zero-cost proxy. 
+    * EPADs: Efficient Pertubation-Aware Distinguishing Score for Zero-Shot Neural Architecture Search. 
+    * NASWOT: expensive zero-shot NAS proxy. 

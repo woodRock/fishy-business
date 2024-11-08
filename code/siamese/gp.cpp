@@ -28,10 +28,11 @@ struct GPConfig {
     int tournament_size = 5;              // Reduce from 7 to decrease selection pressure
     float distance_threshold = 0.5f;      // Keep this
     float margin = 1.0f;                  // Increase from 1.0 to create bigger separation
-    float fitness_alpha = 0.8f;           // Reduce from 0.9 to put less emphasis on accuracy
-    float loss_alpha = 0.2f;              // Increase from 0.1 for better generalization
+    float fitness_alpha = 0.98f;           // Reduce from 0.9 to put less emphasis on accuracy
+    float loss_alpha = 0.01f;              // Increase from 0.1 for better generalization
     float parsimony_coeff = 0.001f;        // Increase from 0.001 to strongly penalize complex trees
     int max_tree_depth = 6;               // Reduce from 6 to prevent overly complex trees
+    int min_tree_depth = 3;
     int batch_size = 64;                  // Reduce from 128 for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
     float dropout_prob = 0.1f;            // Increase from 0.001 for stronger regularization
@@ -635,28 +636,42 @@ public:
 
     // Main evaluation interface
     std::vector<float> evaluate(const std::string& op_name,
-                              const std::vector<std::vector<float>>& inputs,
-                              size_t node_id) {
+                          const std::vector<std::vector<float>>& inputs,
+                          size_t node_id) {
         std::lock_guard<std::mutex> lock(mutex);
-
+        
+        // Validate inputs
+        if (inputs.empty() || inputs[0].empty()) {
+            return std::vector<float>{0.0f};
+        }
+        
         // Check for dropout
         if (shouldDropNode(node_id)) {
             return scaleForDropout(inputs[0]);
         }
-
-        // Validate inputs
-        if (inputs.empty() || inputs[0].empty()) {
-            return std::vector<float>();
+        
+        // Validate input sizes match
+        size_t expected_size = inputs[0].size();
+        for (const auto& input : inputs) {
+            if (input.size() != expected_size) {
+                return std::vector<float>{0.0f};
+            }
         }
-
+        
         // Perform operation
-        std::vector<float> result = performOperation(op_name, inputs);
-
+        std::vector<float> result;
+        try {
+            result = performOperation(op_name, inputs);
+        } catch (const std::exception& e) {
+            std::cerr << "Operation failed: " << e.what() << std::endl;
+            return std::vector<float>{0.0f};
+        }
+        
         // Apply batch normalization
         if (auto it = batch_norms.find(op_name); it != batch_norms.end()) {
             result = it->second->operator()(result);
         }
-
+        
         return result;
     }
 
@@ -926,16 +941,35 @@ public:
     {}
 
     std::vector<float> evaluate(const std::vector<float>& input) override {
-        // Collect results from children
+        if (children.empty()) {
+            return std::vector<float>{0.0f};
+        }
+        
         std::vector<std::vector<float>> child_results;
         child_results.reserve(children.size());
         
+        // Evaluate children and validate results
+        bool valid_results = true;
         for (const auto& child : children) {
-            if (child) {
-                child_results.push_back(child->evaluate(input));
+            if (!child) {
+                valid_results = false;
+                break;
             }
+            
+            auto result = child->evaluate(input);
+            if (result.empty()) {
+                valid_results = false;
+                break;
+            }
+            
+            child_results.push_back(std::move(result));
         }
-
+        
+        // Return safe default if any evaluation failed
+        if (!valid_results) {
+            return std::vector<float>{0.0f};
+        }
+        
         // Use GPOperations to evaluate this node
         return ops->evaluate(op_name, child_results, node_id);
     }
@@ -1050,6 +1084,7 @@ public:
 
 class TreeOperations {
 public:
+    // Update createRandomOperatorNode to handle minimum depth
     static std::unique_ptr<GPNode> createRandomOperatorNode(
         int max_depth,
         int current_depth,
@@ -1057,11 +1092,9 @@ public:
         std::shared_ptr<GPOperations> ops,
         std::mt19937& gen
     ) {
-        // Create operator node with depth-aware children
         static thread_local std::uniform_int_distribution<int> op_dist(0, 6);
         static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
         
-        // Select operation type
         int op_choice = op_dist(gen);
         std::string op_name;
         bool is_unary = false;
@@ -1085,13 +1118,15 @@ public:
             default: op_name = "mul"; break;
         }
 
-        // Create children
         std::vector<std::unique_ptr<GPNode>> children;
-        children.push_back(createRandomTree(max_depth, current_depth + 1, config, ops, gen));
+        int remaining_depth = std::max(0, config.min_tree_depth - (current_depth + 1));
+        
+        // Create first child
+        children.push_back(createRandomTree(max_depth, current_depth + 1, config, ops, gen, remaining_depth));
         
         // For binary operators, create second child
         if (!is_unary) {
-            children.push_back(createRandomTree(max_depth, current_depth + 1, config, ops, gen));
+            children.push_back(createRandomTree(max_depth, current_depth + 1, config, ops, gen, remaining_depth));
         }
 
         return std::make_unique<OperatorNode>(op_name, std::move(children), ops);
@@ -1144,13 +1179,15 @@ private:
         int current_depth,
         const GPConfig& config,
         std::shared_ptr<GPOperations> ops,
-        std::mt19937& gen
+        std::mt19937& gen,
+        int min_depth = 0
     ) {
         static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+        static thread_local std::uniform_int_distribution<int> op_dist(0, 6);
         static thread_local std::uniform_real_distribution<float> const_dist(-1.0f, 1.0f);
 
-        // Force operator node at root level
-        bool force_operator = (current_depth == 0);
+        // Force operator node if we haven't reached minimum depth
+        bool force_operator = (current_depth == 0) || (current_depth < min_depth);
 
         // Force leaf node creation if we're at max depth
         if (current_depth >= max_depth) {
@@ -1162,8 +1199,7 @@ private:
             }
         }
 
-        // Early termination with decreasing probability as we go deeper
-        // Only allow early termination if we're not at root level
+        // Early termination only allowed if we're past minimum depth
         if (!force_operator) {
             float termination_prob = 0.3f * (1.0f + current_depth / static_cast<float>(max_depth));
             if (prob_dist(gen) < termination_prob) {
@@ -1176,7 +1212,6 @@ private:
             }
         }
 
-        // Create operator node with appropriate arity
         return createRandomOperatorNode(max_depth, current_depth, config, ops, gen);
     }
 };
@@ -1275,26 +1310,52 @@ public:
     std::vector<float> evaluate(const std::vector<float>& input) const {
         std::lock_guard<std::mutex> lock(eval_mutex);
         
+        if (input.empty()) {
+            std::cerr << "Warning: Empty input vector" << std::endl;
+            return std::vector<float>{0.0f};
+        }
+        
         ops->startNewEvaluation();
         std::vector<std::vector<float>> tree_results;
         tree_results.reserve(trees.size());
         
+        bool valid_result = false;
+        // Evaluate each tree and collect results
         for (const auto& tree : trees) {
-            if (tree) {  // Add null check
-                tree_results.push_back(tree->evaluate(input));
+            if (tree && tree->isValidDepth() && tree->depth() >= config.min_tree_depth) {
+                auto result = tree->evaluate(input);
+                if (!result.empty()) {
+                    tree_results.push_back(std::move(result));
+                    valid_result = true;
+                }
             }
         }
         
-        if (tree_results.empty()) {
-            return std::vector<float>{0.0f};  // Return safe default
+        // If no valid results, return safe default
+        if (!valid_result) {
+            return std::vector<float>{0.0f};
         }
         
-        std::vector<float> result(tree_results[0].size(), 0.0f);
-        float scale = 1.0f / trees.size();
+        // Ensure all results have same size
+        size_t result_size = tree_results[0].size();
+        std::vector<float> result(result_size, 0.0f);
+        int valid_trees = 0;
         
+        // Combine results
         for (const auto& tree_result : tree_results) {
-            for (size_t i = 0; i < tree_result.size(); ++i) {
-                result[i] += tree_result[i] * scale;
+            if (tree_result.size() == result_size) {
+                for (size_t i = 0; i < result_size; ++i) {
+                    result[i] += tree_result[i];
+                }
+                valid_trees++;
+            }
+        }
+        
+        // Average the results
+        if (valid_trees > 0) {
+            float scale = 1.0f / valid_trees;
+            for (auto& val : result) {
+                val *= scale;
             }
         }
         
@@ -1344,6 +1405,16 @@ public:
         
         return hash;
     }
+
+    bool validateDepth() const {
+    for (const auto& tree : trees) {
+        int depth = tree->depth();
+        if (depth < config.min_tree_depth || depth > config.max_tree_depth) {
+            return false;
+        }
+    }
+    return true;
+}
 };
 
 namespace std {
@@ -1478,26 +1549,16 @@ private:
         bool is_unary = false;
         
         switch (op_choice) {
-            case 0: op_name = "add"; break;
-            case 1: op_name = "sub"; break;
-            case 2: op_name = "div"; break;
-            case 3: 
-                op_name = "sin"; 
-                is_unary = true;
-                break;
-            case 4: 
-                op_name = "cos"; 
-                is_unary = true;
-                break;
-            case 5: 
-                op_name = "neg"; 
-                is_unary = true;
-                break;
-            default: op_name = "mul"; break;
+            // ... operator selection code remains the same ...
         }
 
         std::vector<std::unique_ptr<GPNode>> children;
+        int remaining_depth = std::max(0, config.min_tree_depth - (current_depth + 1));
+        
+        // Create first child with minimum depth requirement
         children.push_back(createRandomTree(max_depth, current_depth + 1));
+        
+        // For binary operators, create second child with minimum depth requirement
         if (!is_unary) {
             children.push_back(createRandomTree(max_depth, current_depth + 1));
         }
@@ -1507,9 +1568,13 @@ private:
 
     Individual createRandomIndividual() {
         std::vector<std::unique_ptr<GPNode>> trees;
+        trees.reserve(config.num_trees);
+        
         for (int i = 0; i < config.num_trees; ++i) {
-            trees.push_back(createRandomOperatorNode(config.max_tree_depth, 0));
+            auto tree = createRandomTree(config.max_tree_depth, 0);
+            trees.push_back(fixTree(std::move(tree)));
         }
+        
         return Individual(std::move(trees), ops, config);
     }
 
@@ -1661,75 +1726,96 @@ private:
     }
 
     std::unique_ptr<GPNode> createRandomTree(int max_depth, int current_depth = 0) {
-        // Thread-local distributions
         static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
-        static thread_local std::uniform_int_distribution<int> op_dist(0, 6);
         static thread_local std::uniform_real_distribution<float> const_dist(-1.0f, 1.0f);
-
-        // At root level (current_depth == 0), always create an operator node
-        bool force_operator = (current_depth == 0);
-
-        // Force leaf node creation if we're at max depth
-        if (current_depth >= max_depth) {
-            if (prob_dist(rng) < 0.8) {
-                std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
-                return std::make_unique<FeatureNode>(feature_dist(rng));
-            } else {
-                return std::make_unique<ConstantNode>(const_dist(rng));
+        
+        // At root level or before minimum depth, always create operator node
+        bool force_operator = (current_depth == 0) || (current_depth < config.min_tree_depth);
+        
+        // Create operator node if forced or randomly when depth allows
+        if (force_operator || (current_depth < max_depth && prob_dist(rng) > 0.3f)) {
+            static thread_local std::uniform_int_distribution<int> op_dist(0, 6);
+            int op_choice = op_dist(rng);
+            std::string op_name;
+            bool is_unary = false;
+            
+            switch (op_choice) {
+                case 0: op_name = "add"; break;
+                case 1: op_name = "sub"; break;
+                case 2: op_name = "mul"; break;
+                case 3: 
+                    op_name = "sin"; 
+                    is_unary = true;
+                    break;
+                case 4: 
+                    op_name = "cos"; 
+                    is_unary = true;
+                    break;
+                case 5: 
+                    op_name = "neg"; 
+                    is_unary = true;
+                    break;
+                default: op_name = "div"; break;
             }
+            
+            std::vector<std::unique_ptr<GPNode>> children;
+            children.reserve(is_unary ? 1 : 2);
+            
+            // Create at least one child
+            children.push_back(createRandomTree(max_depth, current_depth + 1));
+            
+            // For binary operators, create second child
+            if (!is_unary) {
+                children.push_back(createRandomTree(max_depth, current_depth + 1));
+            }
+            
+            return std::make_unique<OperatorNode>(op_name, std::move(children), ops);
         }
+        
+        // Create leaf node when allowed
+        if (prob_dist(rng) < 0.8f) {
+            std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+            return std::make_unique<FeatureNode>(feature_dist(rng));
+        } else {
+            return std::make_unique<ConstantNode>(const_dist(rng));
+        }
+    }
 
-        // Early termination with decreasing probability as we go deeper
-        // Only allow early termination if we're not at root level
-        if (!force_operator) {
-            float termination_prob = 0.3f * (1.0f + current_depth / static_cast<float>(max_depth));
-            if (prob_dist(rng) < termination_prob) {
-                if (prob_dist(rng) < 0.8) {
-                    std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
-                    return std::make_unique<FeatureNode>(feature_dist(rng));
-                } else {
-                    return std::make_unique<ConstantNode>(const_dist(rng));
+    bool isValidTree(const GPNode* node, int current_depth = 0) {
+        if (!node) return false;
+        
+        // Check depth constraints
+        if (current_depth < config.min_tree_depth) {
+            if (!node->isOperator()) return false;
+        }
+        if (current_depth > config.max_tree_depth) return false;
+        
+        // For operator nodes, check children
+        if (const auto* op_node = dynamic_cast<const OperatorNode*>(node)) {
+            const auto& children = op_node->getChildren();
+            if (children.empty()) return false;
+            
+            // Check each child
+            for (const auto& child : children) {
+                if (!isValidTree(child.get(), current_depth + 1)) {
+                    return false;
                 }
             }
         }
+        
+        return true;
+    }
 
-        // Create operator node with depth-aware children
-        std::vector<std::unique_ptr<GPNode>> children;
+    // Method to fix invalid trees
+    std::unique_ptr<GPNode> fixTree(std::unique_ptr<GPNode> tree) {
+        if (!tree) return createRandomTree(config.max_tree_depth, 0);
         
-        // For unary operators (sin, cos, neg), create one child
-        // For binary operators (add, sub, mul, div), create two children
-        int op_choice = op_dist(rng);
-        std::string op_name;
-        bool is_unary = false;
-        
-        switch (op_choice) {
-            case 0: op_name = "add"; break;
-            case 1: op_name = "sub"; break;
-            case 2: op_name = "div"; break;
-            case 3: 
-                op_name = "sin"; 
-                is_unary = true;
-                break;
-            case 4: 
-                op_name = "cos"; 
-                is_unary = true;
-                break;
-            case 5: 
-                op_name = "neg"; 
-                is_unary = true;
-                break;
-            default: op_name = "mul"; break;
+        // If tree is invalid, create new one
+        if (!isValidTree(tree.get())) {
+            return createRandomTree(config.max_tree_depth, 0);
         }
-
-        // Always create at least one child
-        children.push_back(createRandomTree(max_depth, current_depth + 1));
         
-        // For binary operators, create second child
-        if (!is_unary) {
-            children.push_back(createRandomTree(max_depth, current_depth + 1));
-        }
-
-        return std::make_unique<OperatorNode>(op_name, std::move(children), ops);
+        return tree;
     }
 
     std::vector<float> generateRandomVector(std::mt19937& gen, float min = -1.0f, float max = 1.0f) {
@@ -2191,6 +2277,7 @@ public:
     }
     
     
+    // Inside ContrastiveGP class
     Individual crossover(const Individual& parent1, const Individual& parent2) {
         std::vector<std::unique_ptr<GPNode>> offspring_trees;
         offspring_trees.reserve(config.num_trees);
@@ -2202,53 +2289,78 @@ public:
                 auto parent1_tree = parent1.getTree(i).get();
                 auto parent2_tree = parent2.getTree(i).get();
                 
+                // Validate parent trees
+                if (!parent1_tree || !parent2_tree) {
+                    offspring_trees.push_back(TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth, 0, config, ops, rng));
+                    continue;
+                }
+                
                 auto nodes1 = parent1_tree->getAllNodes();
                 auto nodes2 = parent2_tree->getAllNodes();
                 
                 if (nodes1.empty() || nodes2.empty()) {
-                    offspring_trees.push_back(createRandomOperatorNode(config.max_tree_depth, 0));
+                    offspring_trees.push_back(TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth, 0, config, ops, rng));
                     continue;
                 }
                 
-                // Filter nodes to get only operator nodes from parent2 when selecting root replacement
-                std::vector<GPNode*> operator_nodes2;
-                for (auto* node : nodes2) {
-                    if (node->isOperator()) {
-                        operator_nodes2.push_back(node);
+                // Create pools of valid crossover points that maintain minimum depth
+                std::vector<GPNode*> valid_nodes1;
+                std::vector<GPNode*> valid_nodes2;
+                
+                // For parent1 nodes, we need nodes that won't reduce depth below minimum when replaced
+                for (auto* node : nodes1) {
+                    int parent_depth = parent1_tree->depth();
+                    int node_depth = node->depth();
+                    int node_level = parent_depth - node_depth;
+                    
+                    // Check if replacing this node could still maintain minimum depth
+                    if (node_level + config.min_tree_depth <= config.max_tree_depth) {
+                        valid_nodes1.push_back(node);
                     }
                 }
                 
-                // If no operator nodes found in parent2, create a new random operator node
-                if (operator_nodes2.empty()) {
-                    offspring_trees.push_back(createRandomOperatorNode(config.max_tree_depth, 0));
+                // For parent2 nodes, we need nodes that are deep enough to maintain minimum depth
+                for (auto* node : nodes2) {
+                    if (node->depth() >= config.min_tree_depth) {
+                        valid_nodes2.push_back(node);
+                    }
+                }
+                
+                // If no valid nodes found, create new random tree
+                if (valid_nodes1.empty() || valid_nodes2.empty()) {
+                    offspring_trees.push_back(TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth, 0, config, ops, rng));
                     continue;
                 }
                 
-                // Select random crossover points
-                std::uniform_int_distribution<size_t> node_dist1(0, nodes1.size() - 1);
-                std::uniform_int_distribution<size_t> op_dist2(0, operator_nodes2.size() - 1);
-                
+                // Try crossover with valid nodes
                 int max_attempts = 10;
                 bool valid_crossover = false;
                 std::unique_ptr<GPNode> new_tree;
                 
                 while (max_attempts-- > 0) {
-                    GPNode* subtree1 = nodes1[node_dist1(rng)];
-                    GPNode* subtree2 = operator_nodes2[op_dist2(rng)];
+                    std::uniform_int_distribution<size_t> node_dist1(0, valid_nodes1.size() - 1);
+                    std::uniform_int_distribution<size_t> node_dist2(0, valid_nodes2.size() - 1);
+                    
+                    GPNode* subtree1 = valid_nodes1[node_dist1(rng)];
+                    GPNode* subtree2 = valid_nodes2[node_dist2(rng)];
                     
                     try {
-                        auto new_tree1 = parent1.getTree(i)->clone();
+                        auto new_tree1 = parent1_tree->clone();
                         auto subtree2_clone = subtree2->clone();
                         
                         int parent_depth = parent1_tree->depth();
                         int subtree1_depth = subtree1->depth();
                         int subtree2_depth = subtree2->depth();
-                        
                         int new_depth = parent_depth - subtree1_depth + subtree2_depth;
                         
-                        if (new_depth <= config.max_tree_depth) {
-                            // For root node replacement, ensure we're using an operator node
+                        // Validate both minimum and maximum depth constraints
+                        if (new_depth >= config.min_tree_depth && new_depth <= config.max_tree_depth) {
+                            // Special handling for root node replacement
                             if (subtree1 == parent1_tree) {
+                                // For root node, ensure we're using an operator node
                                 if (subtree2->isOperator()) {
                                     new_tree = std::move(subtree2_clone);
                                     valid_crossover = true;
@@ -2257,8 +2369,12 @@ public:
                             } else {
                                 new_tree1->replaceSubtree(subtree1, std::move(subtree2_clone));
                                 new_tree = std::move(new_tree1);
-                                valid_crossover = true;
-                                break;
+                                
+                                // Verify the resulting tree maintains minimum depth
+                                if (new_tree->depth() >= config.min_tree_depth) {
+                                    valid_crossover = true;
+                                    break;
+                                }
                             }
                         }
                     } catch (const std::exception& e) {
@@ -2266,25 +2382,46 @@ public:
                     }
                 }
                 
-                if (valid_crossover) {
-                    offspring_trees.push_back(std::move(new_tree));
-                } else {
-                    // Fallback to creating a new random operator node
-                    offspring_trees.push_back(createRandomOperatorNode(config.max_tree_depth, 0));
+                // If crossover succeeded and produced valid tree, use it
+                if (valid_crossover && new_tree) {
+                    // Double-check depth constraints
+                    int final_depth = new_tree->depth();
+                    if (final_depth >= config.min_tree_depth && final_depth <= config.max_tree_depth) {
+                        offspring_trees.push_back(std::move(new_tree));
+                        continue;
+                    }
                 }
+                
+                // If crossover failed or produced invalid tree, create new random tree
+                offspring_trees.push_back(TreeOperations::createRandomOperatorNode(
+                    config.max_tree_depth, 0, config, ops, rng));
+                
             } else {
-                offspring_trees.push_back(parent1.getTree(i)->clone());
-            }
-        }
-
-        // Validate all trees have operator nodes at root
-        for (auto& tree : offspring_trees) {
-            if (!tree || !tree->isOperator()) {
-                tree = createRandomOperatorNode(config.max_tree_depth, 0);
+                // Direct copy from parent1
+                auto clone = parent1.getTree(i)->clone();
+                // Verify clone meets depth requirements
+                int clone_depth = clone->depth();
+                if (clone_depth >= config.min_tree_depth && clone_depth <= config.max_tree_depth) {
+                    offspring_trees.push_back(std::move(clone));
+                } else {
+                    // If clone somehow violates constraints, create new random tree
+                    offspring_trees.push_back(TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth, 0, config, ops, rng));
+                }
             }
         }
         
-        // Pass config along with trees and ops
+        // Final validation of offspring
+        for (auto& tree : offspring_trees) {
+            if (!tree || !tree->isOperator() || 
+                tree->depth() < config.min_tree_depth || 
+                tree->depth() > config.max_tree_depth) {
+                // Replace invalid trees with new random trees
+                tree = TreeOperations::createRandomOperatorNode(
+                    config.max_tree_depth, 0, config, ops, rng);
+            }
+        }
+        
         return Individual(std::move(offspring_trees), ops, config);
     }
 
@@ -2391,7 +2528,9 @@ int main() {
     try {
 
         std::cout << "Reading the Excel file" << std::endl;
-        auto allData = processor.readExcel("/home/woodj/Desktop/fishy-business/data/REIMS.xlsx", "All data no QC filtering");
+        auto filePath = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx";
+        // auto filePath = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx";
+        auto allData = processor.readExcel(filePath, "All data no QC filtering");
         auto [trainData, valData] = processor.splitTrainVal(allData);
         
         // Train 
