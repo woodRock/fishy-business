@@ -40,6 +40,11 @@ struct GPConfig {
     float bn_epsilon = 1e-6f;             // Reduced for more precise normalization
 };
 
+inline std::mt19937& getThreadLocalRNG() {
+    static thread_local std::mt19937 rng{std::random_device{}()};
+    return rng;
+}
+
 // Data structures
 struct DataPoint {
     std::vector<float> anchor;
@@ -532,6 +537,16 @@ namespace vec_ops {
         return result;
     }
 
+    inline std::vector<float> divide(const std::vector<float>& a, const std::vector<float>& b) {
+        std::vector<float> result(a.size());
+        // Safe divide by zero check
+        auto denominator = std::max(b, std::vector<float>(b.size(), 1e-6f));
+        for (size_t i = 0; i < a.size(); ++i) {
+            result[i] = a[i] / denominator[i];
+        }
+        return result;
+    }
+
     inline float mean(const std::vector<float>& v) {
         if (v.empty()) return 0.0f;
         return std::accumulate(v.begin(), v.end(), 0.0f) / v.size();
@@ -616,33 +631,6 @@ public:
     }
 };
 
-class AdaptiveMutation {
-private:
-    float base_rate;
-    float min_rate;
-    float max_rate;
-    int stagnation_count;
-    float last_best_fitness;
-
-public:
-    AdaptiveMutation(float base = 0.25f, float min = 0.1f, float max = 0.4f)
-        : base_rate(base), min_rate(min), max_rate(max)
-        , stagnation_count(0), last_best_fitness(std::numeric_limits<float>::max()) {}
-
-    float getMutationRate(float current_best_fitness) {
-        if (current_best_fitness >= last_best_fitness) {
-            stagnation_count++;
-            // Increase mutation rate during stagnation
-            return std::min(max_rate, base_rate * (1.0f + 0.1f * stagnation_count));
-        } else {
-            stagnation_count = 0;
-            // Decrease mutation rate when improving
-            return std::max(min_rate, base_rate);
-        }
-        last_best_fitness = current_best_fitness;
-    }
-};
-
 class GPOperations {
 public:
     // Constructor
@@ -653,6 +641,15 @@ public:
         , training(true)
         , current_eval_id(0)
     {
+        operations = {
+            {"add", [this](const auto& inputs, size_t id) { return vec_ops::add(inputs[0], inputs[1]); }},
+            {"sub", [this](const auto& inputs, size_t id) { return vec_ops::subtract(inputs[0], inputs[1]); }},
+            {"mul", [this](const auto& inputs, size_t id) { return vec_ops::multiply(inputs[0], inputs[1]); }},
+            {"div", [this](const auto& inputs, size_t id) { return protectedDiv(inputs[0], inputs[1]);}},
+            {"sin", [this](const auto& inputs, size_t id) { return applySin(inputs[0]); }},
+            {"cos", [this](const auto& inputs, size_t id) { return applyCos(inputs[0]); }},
+            {"neg", [this](const auto& inputs, size_t id) { return applyNeg(inputs[0]); }}
+        };
         // Initialize batch normalizations for each operation type
         initializeBatchNorms(batch_norm_momentum, batch_norm_epsilon);
     }
@@ -663,43 +660,67 @@ public:
 
     // Main evaluation interface
     std::vector<float> evaluate(const std::string& op_name,
-                          const std::vector<std::vector<float>>& inputs,
-                          size_t node_id) {
+                      const std::vector<std::vector<float>>& inputs,
+                      size_t node_id) {
         std::lock_guard<std::mutex> lock(mutex);
         
-        // Validate inputs
-        if (inputs.empty() || inputs[0].empty()) {
-            return std::vector<float>{0.0f};
-        }
-        
-        // Check for dropout
-        if (shouldDropNode(node_id)) {
-            return scaleForDropout(inputs[0]);
-        }
-        
-        // Validate input sizes match
-        size_t expected_size = inputs[0].size();
-        for (const auto& input : inputs) {
-            if (input.size() != expected_size) {
+        try {
+            // Input validation
+            if (op_name.empty() || inputs.empty()) {
                 return std::vector<float>{0.0f};
             }
-        }
-        
-        // Perform operation
-        std::vector<float> result;
-        try {
-            result = performOperation(op_name, inputs);
-        } catch (const std::exception& e) {
-            std::cerr << "Operation failed: " << e.what() << std::endl;
+
+            // Check input sizes
+            if (inputs.size() < 1 || inputs[0].empty()) {
+                return std::vector<float>{0.0f};
+            }
+
+            const size_t input_size = inputs[0].size();
+            for (const auto& input : inputs) {
+                if (input.size() != input_size) {
+                    return std::vector<float>{0.0f};
+                }
+            }
+
+            // Validate operation exists
+            auto op_it = operations.find(op_name);
+            if (op_it == operations.end()) {
+                return std::vector<float>{0.0f};
+            }
+
+            // Track evaluation state
+            current_eval_id = node_id;
+
+            // Perform operation with exception handling
+            std::vector<float> result;
+            try {
+                result = op_it->second(inputs, node_id);
+            } catch (...) {
+                return std::vector<float>{0.0f};
+            }
+
+            // Validate result
+            if (result.empty() || result.size() != input_size) {
+                return std::vector<float>{0.0f};
+            }
+
+            // Apply dropout if enabled
+            if (training && dropout_prob > 0.0f) {
+                static thread_local std::mt19937 gen(std::random_device{}());
+                std::bernoulli_distribution dropout(dropout_prob);
+                
+                for (auto& val : result) {
+                    if (dropout(gen)) {
+                        val = 0.0f;
+                    }
+                }
+            }
+
+            return result;
+
+        } catch (...) {
             return std::vector<float>{0.0f};
         }
-        
-        // Apply batch normalization
-        if (auto it = batch_norms.find(op_name); it != batch_norms.end()) {
-            result = it->second->operator()(result);
-        }
-        
-        return result;
     }
 
     // Training mode control
@@ -727,6 +748,8 @@ private:
     std::map<std::string, std::unique_ptr<BatchNorm>> batch_norms;
     std::map<size_t, bool> dropout_mask;
     static thread_local std::mt19937 rng;
+    std::unordered_map<std::string, std::function<std::vector<float>(const std::vector<std::vector<float>>&, size_t)>> operations;
+    std::mutex op_mutex; // Add this line to declare the mutex
 
     // Initialize batch normalizations
     void initializeBatchNorms(float momentum, float epsilon) {
@@ -766,31 +789,47 @@ private:
 
     // Core operation implementation
     std::vector<float> performOperation(const std::string& op_name,
-                                      const std::vector<std::vector<float>>& inputs) {
-        if (op_name == "add") {
-            return vec_ops::add(inputs[0], inputs[1]);
+                                  const std::vector<std::vector<float>>& inputs,
+                                  size_t node_id) {
+        // Input validation
+        if (inputs.empty() || inputs[0].empty()) {
+            std::cerr << "Invalid inputs" << std::endl;
+            return std::vector<float>{0.0f};
         }
-        else if (op_name == "sub") {
-            return vec_ops::subtract(inputs[0], inputs[1]);
+
+        // Get operation with bounds checking
+        auto op_it = operations.find(op_name);
+        if (op_it == operations.end()) {
+            std::cerr << "Unknown operation: " << op_name << std::endl;
+            return std::vector<float>{0.0f};
         }
-        else if (op_name == "mul") {
-            return vec_ops::multiply(inputs[0], inputs[1]);
+
+        // Ensure consistent input sizes
+        const size_t expected_size = inputs[0].size();
+        for (const auto& input : inputs) {
+            if (input.size() != expected_size) {
+                std::cerr << "Inconsistent input sizes" << std::endl;
+                return std::vector<float>{0.0f};
+            }
         }
-        else if (op_name == "div") {
-            return protectedDiv(inputs[0], inputs[1]);
+
+        try {
+            // Perform operation with mutex protection
+            std::lock_guard<std::mutex> lock(op_mutex);
+            auto result = op_it->second(inputs, node_id);
+
+            // Validate result
+            if (result.empty() || result.size() != expected_size) {
+                std::cerr << "Invalid result size" << std::endl;
+                return std::vector<float>{0.0f};
+            }
+
+            return result;
+
+        } catch (const std::exception& e) {
+            std::cerr << "Operation failed: " << e.what() << std::endl;
+            return std::vector<float>{0.0f};
         }
-        else if (op_name == "sin") {
-            return applySin(inputs[0]);
-        }
-        else if (op_name == "cos") {
-            return applyCos(inputs[0]);
-        }
-        else if (op_name == "neg") {
-            return applyNeg(inputs[0]);
-        }
-        
-        // Default case: return empty vector
-        return std::vector<float>();
     }
 
     std::vector<float> protectedDiv(const std::vector<float>& x,
@@ -1459,6 +1498,11 @@ public:
 thread_local int TreeOperations::operation_counter = 0;
 
 // Individual class representing a collection of trees
+// Function to combine two hash values
+inline size_t hashCombine(size_t seed, size_t hash) {
+    return seed ^ (hash + 0x9e3779b9 + (seed << 6) + (seed >> 2));
+}
+
 class Individual {
 private:
     std::vector<std::unique_ptr<GPNode>> trees;
@@ -1468,6 +1512,7 @@ private:
     mutable std::mutex eval_mutex;
     mutable std::atomic<int> eval_count{0};
     mutable std::atomic<bool> evaluation_in_progress{false};
+    static constexpr int MAX_RETRIES = 3;
 
     size_t computeTreeHash(const std::unique_ptr<GPNode>& tree) const {
         if (!tree) return 0;
@@ -1485,33 +1530,43 @@ private:
             }
             else if (const auto* feature_node = dynamic_cast<const FeatureNode*>(node)) {
                 // Hash feature nodes - include feature index
-                hash = hashCombine(hash, 0x1234567); // Magic number for feature node type
+                hash = hashCombine(hash, 0x1234567); // Magic number for feature node 
                 hash = hashCombine(hash, feature_node->getFeatureIndex());
             }
-            else if (const auto* constant_node = dynamic_cast<const ConstantNode*>(node)) {
-                // Hash constant nodes - include value
-                hash = hashCombine(hash, 0x89ABCDEF); // Magic number for constant node type
-                hash = hashCombine(hash, constant_node->getValue());
-            }
+
+            // Hash node depth
+            hash = hashCombine(hash, node->depth());
         }
+
         return hash;
     }
-    
-    // Helper function to combine hash values
-    static size_t hashCombine(size_t seed, size_t value) {
-        seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        return seed;
+
+    // Helper function to safely evaluate a tree
+    std::vector<float> safeTreeEvaluate(const std::unique_ptr<GPNode>& tree, 
+                                      const std::vector<float>& input,
+                                      int retry_count = 0) const {
+        if (!tree || retry_count >= MAX_RETRIES) {
+            return std::vector<float>{0.0f};
+        }
+
+        try {
+            return tree->evaluate(input);
+        } catch (...) {
+            if (retry_count < MAX_RETRIES - 1) {
+                return safeTreeEvaluate(tree, input, retry_count + 1);
+            }
+            return std::vector<float>{0.0f};
+        }
     }
 
 public:
-    Individual(
-        std::vector<std::unique_ptr<GPNode>> t, 
-        std::shared_ptr<GPOperations> operations,
-        const GPConfig& cfg
-    ) : trees(std::move(t))
-      , fitness(std::numeric_limits<float>::infinity())
-      , ops(operations)
-      , config(cfg)
+    Individual(std::vector<std::unique_ptr<GPNode>> t, 
+              std::shared_ptr<GPOperations> operations,
+              const GPConfig& cfg)
+        : trees(std::move(t))
+        , fitness(std::numeric_limits<float>::infinity())
+        , ops(operations)
+        , config(cfg)
     {
         if (trees.empty()) {
             throw std::runtime_error("Cannot create Individual with empty tree vector");
@@ -1521,111 +1576,118 @@ public:
         }
     }
 
-    // Deep copy constructor - properly initialize config reference
+    // Copy constructor with proper mutex handling
     Individual(const Individual& other) 
         : fitness(other.fitness)
         , ops(other.ops)
-        , config(other.config)  // Initialize reference from other
+        , config(other.config)
     {
         std::lock_guard<std::mutex> lock(other.eval_mutex);
         trees.reserve(other.trees.size());
         for (const auto& tree : other.trees) {
-            trees.push_back(tree->clone());
+            if (tree) {
+                trees.push_back(tree->clone());
+            }
         }
     }
 
-    // Move constructor - properly initialize config reference
+    // Move constructor
     Individual(Individual&& other) noexcept
         : trees(std::move(other.trees))
         , fitness(other.fitness)
         , ops(std::move(other.ops))
-        , config(other.config)  // Initialize reference from other
+        , config(other.config)
     {}
 
-    // Copy assignment operator
+    // Copy assignment
     Individual& operator=(Individual other) {
         std::swap(trees, other.trees);
         fitness = other.fitness;
         ops = other.ops;
-        // Note: We can't swap config as it's a reference
         return *this;
     }
 
+    // Compute hash value for the individual
+    size_t computeHash() const {
+        size_t hash = 0;
+        for (const auto& tree : trees) {
+            hash = hashCombine(hash, computeTreeHash(tree));
+        }
+        return hash;
+    }
+
+    // In Individual class:
     std::vector<float> evaluate(const std::vector<float>& input) const {
-        std::vector<float> result(1, 0.0f);
         std::lock_guard<std::mutex> lock(eval_mutex);
         
-        try {
-            if (input.empty() || trees.empty()) {
-                return result;
-            }
+        // Input validation
+        if (input.empty() || input.size() != config.n_features) {
+            return std::vector<float>{0.0f};
+        }
 
-            size_t valid_evaluations = 0;
-            const size_t max_retries = 3;
-            
-            for (size_t i = 0; i < trees.size(); ++i) {
-                size_t retries = 0;
-                bool success = false;
-                
-                while (retries < max_retries && !success) {
-                    try {
-                        // Validate tree
-                        if (!trees[i]) {
-                            break;
-                        }
-                        
-                        // Check depth before evaluation
-                        int depth = trees[i]->depth();
-                        if (depth < 0 || depth >= config.max_tree_depth) {
-                            break;
-                        }
+        // Initialize result
+        std::vector<float> result{0.0f};
+        int valid_evaluations = 0;
 
-                        // Evaluate with state tracking
-                        auto tree_result = trees[i]->evaluate(input);
-                        
-                        // Validate result immediately
-                        if (tree_result.empty()) {
-                            retries++;
-                            continue;
-                        }
-
-                        // Update result safely
-                        result[0] += tree_result[0];
-                        valid_evaluations++;
-                        success = true;
-                    }
-                    catch (...) {
-                        retries++;
-                    }
+        // Evaluate each tree with safety checks
+        for (size_t i = 0; i < trees.size(); ++i) {
+            try {
+                // Safety check for null pointer
+                const auto& tree = trees[i];
+                if (!tree) {
+                    continue;
                 }
-            }
 
-            // Average only if we have valid results
-            if (valid_evaluations > 0) {
-                result[0] /= static_cast<float>(valid_evaluations);
+                // Safety check for tree operations
+                if (!tree->isValidDepth()) {
+                    continue;
+                }
+
+                // Safe evaluation with value validation
+                std::vector<float> tree_output;
+                try {
+                    tree_output = tree->evaluate(input);
+                } catch (...) {
+                    continue;
+                }
+
+                // Validate output
+                if (tree_output.empty() || !std::isfinite(tree_output[0])) {
+                    continue;
+                }
+
+                // Accumulate result
+                result[0] += tree_output[0];
+                valid_evaluations++;
+
+            } catch (...) {
+                // Ignore any errors and continue with next tree
+                continue;
             }
         }
-        catch (...) {
-            // Return default on catastrophic failure
-            return std::vector<float>(1, 0.0f);
+
+        // Average results if we have any valid evaluations
+        if (valid_evaluations > 0) {
+            result[0] /= static_cast<float>(valid_evaluations);
         }
 
         return result;
     }
 
-    void setFitness(float f) { fitness = f; }
-    float getFitness() const { return fitness; }
+    void setFitness(float f) { 
+        fitness = f; 
+    }
+    
+    float getFitness() const { 
+        return fitness; 
+    }
 
     void mutate(std::mt19937& gen) {
         std::uniform_real_distribution<float> dist(0.0f, 1.0f);
         for (auto& tree : trees) {
-            if (dist(gen) < config.mutation_prob) {
-                if (tree && tree->isValidDepth()) {
+            if (tree && dist(gen) < config.mutation_prob) {
+                if (tree->isValidDepth()) {
                     TreeOperations::mutateNode(tree.get(), config, gen);
-                } else {
-                    // If tree is invalid, create a new valid tree
-                    tree = TreeOperations::createRandomOperatorNode(
-                        config.max_tree_depth, 0, config, ops, gen);
                 }
             }
         }
@@ -1634,7 +1696,9 @@ public:
     int totalSize() const {
         int size = 0;
         for (const auto& tree : trees) {
-            size += tree->size();
+            if (tree) {
+                size += tree->size();
+            }
         }
         return size;
     }
@@ -1643,52 +1707,17 @@ public:
         return trees[index];
     }
 
-    size_t computeHash() const {
-        size_t hash = 0;
-        
-        // Hash each tree in the individual
-        for (const auto& tree : trees) {
-            hash = hashCombine(hash, computeTreeHash(tree));
-        }
-        
-        // Include fitness in hash to differentiate between similar but not identical individuals
-        hash = hashCombine(hash, std::hash<float>{}(fitness));
-        
-        return hash;
-    }
-
-    void debugPrintTreeDepths() const {
-        std::cout << "Individual tree depths:" << std::endl;
-        for (size_t i = 0; i < trees.size(); ++i) {
-            if (trees[i]) {
-                int depth = trees[i]->depth();
-                std::cout << "  Tree " << i << ": depth = " << depth 
-                         << " (valid: " << (depth >= config.min_tree_depth && 
-                                          depth <= config.max_tree_depth) << ")" << std::endl;
-            } else {
-                std::cout << "  Tree " << i << ": NULL" << std::endl;
-            }
-        }
-    }
-
     bool validateDepth() const {
-        bool valid = true;
         for (const auto& tree : trees) {
             if (!tree) {
-                std::cout << "Found null tree in individual" << std::endl;
-                valid = false;
-                continue;
+                return false;
             }
-            
             int depth = tree->depth();
             if (depth < config.min_tree_depth || depth > config.max_tree_depth) {
-                std::cout << "Invalid tree depth: " << depth 
-                         << " (min: " << config.min_tree_depth 
-                         << ", max: " << config.max_tree_depth << ")" << std::endl;
-                valid = false;
+                return false;
             }
         }
-        return valid;
+        return true;
     }
 };
 
@@ -1813,7 +1842,7 @@ private:
     FitnessCache fitness_cache; // Add as class member
 
     std::mt19937& getGen() {
-        return rng;  // Now returns reference to thread-local RNG
+        return getThreadLocalRNG();  // Use the global initialization function
     }
 
     Individual createRandomIndividual() {
@@ -1878,99 +1907,6 @@ private:
         }
         
         return distance;
-    }
-
-    float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
-        // Try to get cached fitness first
-        if (auto cached_fitness = fitness_cache.get(ind)) {
-            return *cached_fitness;
-        }
-
-        if (data.empty()) {
-            std::cerr << "Warning: Empty dataset in evaluation" << std::endl;
-            return std::numeric_limits<float>::max();
-        }
-
-        float total_loss = 0.0f;
-        int valid_pairs = 0;
-        int failed_evaluations = 0;
-        constexpr int MAX_FAILURES = 10;
-
-        for (size_t i = 0; i < data.size() && failed_evaluations < MAX_FAILURES; i += config.batch_size) {
-            size_t batch_end = std::min(i + config.batch_size, data.size());
-            
-            for (size_t j = i; j < batch_end; ++j) {
-                const auto& point = data[j];
-                try {
-                    if (point.anchor.empty() || point.compare.empty()) {
-                        std::cerr << "Empty vectors in data point " << j << std::endl;
-                        continue;
-                    }
-
-                    if (point.anchor.size() != point.compare.size()) {
-                        std::cerr << "Mismatched vector sizes in data point " << j << ": "
-                                << point.anchor.size() << " vs " << point.compare.size() << std::endl;
-                        continue;
-                    }
-
-                    auto anchor_output = ind.evaluate(point.anchor);
-                    auto compare_output = ind.evaluate(point.compare);
-                    
-                    if (anchor_output.empty() || compare_output.empty()) {
-                        std::cerr << "Empty output from individual evaluation at point " << j << std::endl;
-                        failed_evaluations++;
-                        continue;
-                    }
-                    
-                    if (anchor_output.size() != compare_output.size()) {
-                        std::cerr << "Mismatched output sizes at point " << j << ": "
-                                << anchor_output.size() << " vs " << compare_output.size() << std::endl;
-                        failed_evaluations++;
-                        continue;
-                    }
-                    
-                    float distance = calculateDistance(anchor_output, compare_output);
-                    if (std::isnan(distance) || std::isinf(distance)) {
-                        std::cerr << "Invalid distance calculated at point " << j << std::endl;
-                        failed_evaluations++;
-                        continue;
-                    }
-                    
-                    float loss;
-                    if (point.label > 0.5f) {
-                        loss = distance * distance;
-                    } else {
-                        float margin_diff = std::max(0.0f, config.margin - distance);
-                        loss = margin_diff * margin_diff;
-                    }
-                    
-                    total_loss += loss;
-                    valid_pairs++;
-                    
-                } catch (const std::exception& e) {
-                    std::cerr << "Error evaluating point " << j << ": " << e.what() << std::endl;
-                    failed_evaluations++;
-                }
-            }
-        }
-        
-        if (failed_evaluations >= MAX_FAILURES) {
-            std::cerr << "Too many evaluation failures" << std::endl;
-            return std::numeric_limits<float>::max();
-        }
-        
-        if (valid_pairs == 0) {
-            std::cerr << "No valid evaluations completed" << std::endl;
-            return std::numeric_limits<float>::max();
-        }
-        
-        float avg_loss = total_loss / valid_pairs;
-        float complexity_penalty = config.parsimony_coeff * ind.totalSize();
-        float fitness = avg_loss + complexity_penalty;
-        
-        // Cache the result
-        fitness_cache.put(ind, fitness);
-        return fitness;
     }
 
     float calculateAccuracy(const Individual& ind, const std::vector<DataPoint>& data) {
@@ -2069,93 +2005,180 @@ private:
         return population[best_idx];
     }
 
-    void evaluatePopulation(const std::vector<DataPoint>& trainData) {
-        std::cout << "\nStarting population evaluation..." << std::endl;
-        
-        // Log initial state
-        std::cout << "Population size: " << population.size() << std::endl;
-        std::cout << "Training data size: " << trainData.size() << std::endl;
-        
-        static int generation_count = 0;
-        generation_count++;
-        
-        std::cout << "Generation: " << generation_count << std::endl;
+    float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
+        // Check cache first
+        if (auto cached = fitness_cache.get(ind)) {
+            return *cached;
+        }
 
-        // Add timing instrumentation
-        auto start_time = std::chrono::high_resolution_clock::now();
+        // Input validation
+        if (data.empty()) {
+            return std::numeric_limits<float>::max();
+        }
+
+        try {
+            float total_loss = 0.0f;
+            int valid_pairs = 0;
+            int failed_evaluations = 0;
+            const int MAX_FAILURES = 5;
+            const int SAFE_BATCH_SIZE = 8;
+
+            // Process in small batches for better error handling
+            for (size_t i = 0; i < data.size() && failed_evaluations < MAX_FAILURES; i += SAFE_BATCH_SIZE) {
+                size_t batch_end = std::min(i + SAFE_BATCH_SIZE, data.size());
+                
+                for (size_t j = i; j < batch_end; ++j) {
+                    try {
+                        const auto& point = data[j];
+                        
+                        // Validate data point
+                        if (point.anchor.empty() || point.compare.empty() || 
+                            point.anchor.size() != config.n_features || 
+                            point.compare.size() != config.n_features) {
+                            continue;
+                        }
+
+                        // Evaluate both vectors
+                        auto anchor_output = ind.evaluate(point.anchor);
+                        auto compare_output = ind.evaluate(point.compare);
+
+                        // Validate outputs
+                        if (anchor_output.empty() || compare_output.empty() || 
+                            anchor_output.size() != compare_output.size()) {
+                            failed_evaluations++;
+                            continue;
+                        }
+
+                        // Calculate distance
+                        float dot_product = 0.0f;
+                        float mag1 = 0.0f;
+                        float mag2 = 0.0f;
+
+                        for (size_t k = 0; k < anchor_output.size(); ++k) {
+                            dot_product += anchor_output[k] * compare_output[k];
+                            mag1 += anchor_output[k] * anchor_output[k];
+                            mag2 += compare_output[k] * compare_output[k];
+                        }
+
+                        // Safe sqrt and division
+                        constexpr float epsilon = 1e-10f;
+                        float distance;
+                        if (mag1 < epsilon || mag2 < epsilon) {
+                            distance = 1.0f;  // Maximum distance for degenerate vectors
+                        } else {
+                            float similarity = dot_product / (std::sqrt(mag1 * mag2) + epsilon);
+                            similarity = std::max(-1.0f, std::min(1.0f, similarity));  // Clamp to [-1, 1]
+                            distance = 1.0f - similarity;
+                        }
+
+                        // Calculate loss based on label
+                        float loss;
+                        if (point.label > 0.5f) {
+                            // Same class: minimize distance
+                            loss = distance * distance;
+                        } else {
+                            // Different class: enforce margin
+                            float margin_diff = std::max(0.0f, config.margin - distance);
+                            loss = margin_diff * margin_diff;
+                        }
+
+                        // Accumulate loss if valid
+                        if (std::isfinite(loss)) {
+                            total_loss += loss;
+                            valid_pairs++;
+                        }
+
+                    } catch (const std::exception&) {
+                        failed_evaluations++;
+                    }
+                }
+            }
+
+            // If too many failures or no valid pairs, return maximum fitness
+            if (failed_evaluations >= MAX_FAILURES || valid_pairs == 0) {
+                return std::numeric_limits<float>::max();
+            }
+
+            // Calculate average loss and add complexity penalty
+            float avg_loss = total_loss / valid_pairs;
+            float complexity_penalty = config.parsimony_coeff * ind.totalSize();
+            float fitness = avg_loss + complexity_penalty;
+
+            // Cache and return if valid
+            if (std::isfinite(fitness)) {
+                fitness_cache.put(ind, fitness);
+                return fitness;
+            }
+
+            return std::numeric_limits<float>::max();
+
+        } catch (...) {
+            return std::numeric_limits<float>::max();
+        }
+    }
+
+    void evaluatePopulation(const std::vector<DataPoint>& trainData) {
+        if (population.empty() || trainData.empty()) {
+            return;
+        }
+
+        // Create a temporary vector to store results
+        std::vector<float> fitnesses(population.size(), std::numeric_limits<float>::max());
         
-        // Add depth monitoring with progress updates
-        int max_depth_seen = 0;
-        int total_depth = 0;
-        int valid_trees = 0;
-        
-        std::cout << "Analyzing tree depths..." << std::endl;
+        // Evaluate each individual sequentially
         for (size_t i = 0; i < population.size(); ++i) {
-            if (i % 10 == 0) {
-                std::cout << "Processed " << i << "/" << population.size() << " individuals" << std::endl;
+            try {
+                // Validate individual
+                if (i >= population.size()) {
+                    continue;
+                }
+
+                // Try to evaluate
+                float fitness = evaluateIndividual(population[i], trainData);
+                
+                // Store fitness
+                if (std::isfinite(fitness)) {
+                    fitnesses[i] = fitness;
+                }
+
+            } catch (...) {
+                continue;
+            }
+        }
+
+        // Update population fitnesses safely
+        for (size_t i = 0; i < population.size(); ++i) {
+            try {
+                if (i < population.size() && i < fitnesses.size()) {
+                    population[i].setFitness(fitnesses[i]);
+                }
+            } catch (...) {
+                continue;
+            }
+        }
+
+        // Create deep copy of best individual if needed
+        try {
+            float best_fitness = std::numeric_limits<float>::max();
+            size_t best_idx = 0;
+            
+            for (size_t i = 0; i < population.size(); ++i) {
+                float fitness = population[i].getFitness();
+                if (fitness < best_fitness) {
+                    best_fitness = fitness;
+                    best_idx = best_idx;
+                }
             }
             
-            const auto& individual = population[i];
-            for (int j = 0; j < config.num_trees; ++j) {
-                const auto& tree = individual.getTree(j);
-                if (tree) {
-                    int tree_depth = tree->safeDepth();
-                    max_depth_seen = std::max(max_depth_seen, tree_depth);
-                    if (tree_depth > 0) {
-                        total_depth += tree_depth;
-                        valid_trees++;
-                    }
-                }
+            // Keep copy of best individual
+            if (best_idx < population.size()) {
+                Individual best_copy(population[best_idx]);
+                population[best_idx] = std::move(best_copy);
             }
+        } catch (...) {
+            // If copying best individual fails, continue anyway
         }
-        
-        // Log depth statistics
-        std::cout << "Depth analysis complete:" << std::endl;
-        if (valid_trees > 0) {
-            float avg_depth = static_cast<float>(total_depth) / valid_trees;
-            std::cout << "  Max depth: " << max_depth_seen << std::endl;
-            std::cout << "  Average depth: " << avg_depth << std::endl;
-            std::cout << "  Valid trees: " << valid_trees << "/" 
-                    << (population.size() * config.num_trees) << std::endl;
-        }
-
-        const size_t num_workers = std::min((size_t)config.num_workers, population.size());
-        const size_t batch_size = (population.size() + num_workers - 1) / num_workers;
-
-        std::cout << "Starting parallel evaluation with:" << std::endl;
-        std::cout << "  Number of workers: " << num_workers << std::endl;
-        std::cout << "  Batch size: " << batch_size << std::endl;
-
-        std::vector<std::future<void>> futures;
-        std::atomic<int> completed_individuals{0};
-        
-        for (size_t i = 0; i < population.size(); i += batch_size) {
-            size_t end = std::min(i + batch_size, population.size());
-            futures.push_back(std::async(std::launch::async, [this, i, end, &trainData, &completed_individuals]() {
-                for (size_t j = i; j < end; ++j) {
-                    try {
-                        float fitness = evaluateIndividual(population[j], trainData);
-                        population[j].setFitness(fitness);
-                        int completed = ++completed_individuals;
-                        if (completed % 10 == 0) {
-                            std::cout << "Completed evaluating " << completed << " individuals" << std::endl;
-                        }
-                    } catch (const std::exception& e) {
-                        std::cerr << "Error evaluating individual " << j << ": " << e.what() << std::endl;
-                    }
-                }
-            }));
-        }
-        
-        std::cout << "Waiting for all evaluations to complete..." << std::endl;
-        for (auto& future : futures) {
-            future.wait();
-        }
-        
-        auto end_time = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
-        std::cout << "Population evaluation completed in " << duration.count() << " seconds" << std::endl;
-    }
+}
     
 public:
     ContrastiveGP(const GPConfig& cfg) 
@@ -2226,240 +2249,251 @@ public:
     }
 
     void train(const std::vector<DataPoint>& trainData, const std::vector<DataPoint>& valData) {
-        Profiler profiler;
-        float best_fitness = std::numeric_limits<float>::max();
-        int generations_without_improvement = 0;
-        const size_t EVAL_SUBSET_SIZE = 100;  // Size of random subset for evaluation
+        if (trainData.empty() || valData.empty()) {
+            return;
+        }
 
-        // RNG for selecting random training samples
-        std::random_device rd;
-        std::mt19937 subset_gen(rd());
+        const size_t EVAL_SUBSET_SIZE = std::min(size_t(100), trainData.size());
+        auto subset_gen = std::mt19937{std::random_device{}()};
 
         for (int generation = 0; generation < config.generations; ++generation) {
-            profiler.startGeneration();
-            std::cout << "\nStarting generation " << generation << std::endl;
-            
-            // Create random subset of training data for this generation
-            std::vector<DataPoint> train_subset;
-            train_subset.reserve(EVAL_SUBSET_SIZE);
-            
-            if (trainData.size() <= EVAL_SUBSET_SIZE) {
-                train_subset = trainData;  // Use all data if we have less than subset size
-            } else {
-                // Create indices for sampling
-                std::vector<size_t> indices(trainData.size());
-                std::iota(indices.begin(), indices.end(), 0);
-                
-                // Randomly shuffle and take first EVAL_SUBSET_SIZE elements
-                std::shuffle(indices.begin(), indices.end(), subset_gen);
-                for (size_t i = 0; i < EVAL_SUBSET_SIZE; ++i) {
-                    train_subset.push_back(trainData[indices[i]]);
-                }
-            }
-
-            std::cout << "Evaluate population on susbet" << std::endl;
-            
-            // Evaluate current population using the subset
-            evaluatePopulation(train_subset);
-            
-            // Sort population by fitness
-            std::vector<size_t> indices(population.size());
-            std::iota(indices.begin(), indices.end(), 0);
-            std::sort(indices.begin(), indices.end(),
-                    [this](size_t a, size_t b) { 
-                        return population[a].getFitness() < population[b].getFitness(); 
-                    });
-
-            // Create new population vector
             std::vector<Individual> new_population;
             new_population.reserve(config.population_size);
 
-            std::cout << "Elitism" << std::endl;
-
-            // Add elite individuals first
-            for (int i = 0; i < config.elite_size && i < indices.size(); ++i) {
-                new_population.push_back(Individual(population[indices[i]]));
-            }
-
-            // Keep track of failed attempts to prevent infinite loops
-            std::cout << "Starting crossover and mutation..." << std::endl;
-
-            while (new_population.size() < config.population_size) {
-                std::cout << "Starting new iteration, current population size: " 
-                        << new_population.size() << std::endl;
+            try {
+                // Create training subset
+                std::vector<DataPoint> train_subset;
+                train_subset.reserve(EVAL_SUBSET_SIZE);
                 
-                // Select parents using tournament selection
-                Individual& parent1 = runTournament(indices);
-                Individual& parent2 = runTournament(indices);
-                
-                std::cout << "Parents selected. Validating..." << std::endl;
-                // Validate parents
-                if (!parent1.validateDepth() || !parent2.validateDepth()) {
-                    std::cout << "Invalid parent depth detected, creating random individual" << std::endl;
-                    new_population.push_back(createRandomIndividual());
-                    continue;
-                }
-                
-                std::cout << "Creating offspring through crossover..." << std::endl;
-                // Create offspring through crossover
-                Individual offspring(crossover(parent1, parent2));
-                
-                std::cout << "Validating offspring..." << std::endl;
-                // Validate offspring
-                if (!offspring.validateDepth()) {
-                    std::cout << "Invalid offspring depth detected, creating random individual" << std::endl;
-                    new_population.push_back(createRandomIndividual());
-                    continue;
-                }
-                
-                std::cout << "Applying mutation..." << std::endl;
-                // Apply mutation
-                if (std::uniform_real_distribution<float>(0.0f, 1.0f)(rng) < config.mutation_prob) {
-                    offspring.mutate(rng);
-                    // Validate after mutation
-                    if (!offspring.validateDepth()) {
-                        std::cout << "Invalid depth after mutation, creating random individual" << std::endl;
-                        new_population.push_back(createRandomIndividual());
-                        continue;
+                {
+                    std::vector<size_t> indices(trainData.size());
+                    std::iota(indices.begin(), indices.end(), 0);
+                    std::shuffle(indices.begin(), indices.end(), subset_gen);
+                    
+                    for (size_t i = 0; i < EVAL_SUBSET_SIZE && i < indices.size(); ++i) {
+                        if (indices[i] < trainData.size()) {
+                            train_subset.push_back(trainData[indices[i]]);
+                        }
                     }
                 }
 
-                std::cout << "Adding offspring to population..." << std::endl;
-                // Verify offspring is still valid
-                if (!offspring.validateDepth()) {
-                    std::cerr << "Invalid offspring before adding to population!" << std::endl;
-                    return;
+                // Evaluate current population
+                if (!population.empty()) {
+                    evaluatePopulation(train_subset);
                 }
-                new_population.push_back(std::move(offspring));
-                std::cout << "Successfully added offspring" << std::endl;
-            }
 
-            // Fill any remaining slots with random individuals
-            while (new_population.size() < config.population_size) {
-                new_population.push_back(createRandomIndividual());
-            }
+                // Create next generation
+                // Add elite individuals first
+                {
+                    std::vector<std::pair<float, size_t>> sorted_indices;
+                    sorted_indices.reserve(population.size());
+                    
+                    for (size_t i = 0; i < population.size(); ++i) {
+                        sorted_indices.emplace_back(population[i].getFitness(), i);
+                    }
+                    
+                    std::sort(sorted_indices.begin(), sorted_indices.end());
+                    
+                    for (size_t i = 0; i < config.elite_size && i < sorted_indices.size(); ++i) {
+                        try {
+                            size_t idx = sorted_indices[i].second;
+                            if (idx < population.size()) {
+                                new_population.push_back(Individual(population[idx]));
+                            }
+                        } catch (...) {
+                            continue;
+                        }
+                    }
+                }
 
-            // Calculate statistics for current generation
-            float gen_best_fitness = std::numeric_limits<float>::max();
-            float gen_avg_fitness = 0.0f;
-            
-            for (const auto& individual : new_population) {
-                float fitness = individual.getFitness();
-                gen_avg_fitness += fitness;
-                gen_best_fitness = std::min(gen_best_fitness, fitness);
-            }
-            gen_avg_fitness /= new_population.size();
+                // Fill rest with offspring
+                while (new_population.size() < config.population_size) {
+                    try {
+                        if (population.empty()) {
+                            new_population.push_back(createRandomIndividual());
+                            continue;
+                        }
 
-            std::cout << "Calculating accuracy" << std::endl;
+                        // Select parents
+                        size_t idx1 = std::uniform_int_distribution<size_t>{0, population.size() - 1}(getGen());
+                        size_t idx2 = std::uniform_int_distribution<size_t>{0, population.size() - 1}(getGen());
+                        
+                        if (idx1 >= population.size() || idx2 >= population.size()) {
+                            new_population.push_back(createRandomIndividual());
+                            continue;
+                        }
 
-            // Calculate accuracies on the full training and validation sets
-            // for the best individual to get true performance metrics
-            std::cout << "Best: " << new_population[0].getFitness() << std::endl;
-        
-            float train_accuracy = calculateAccuracy(new_population[0], trainData);
-            ops->setTraining(false);
-            float val_accuracy = calculateAccuracy(new_population[0], valData);
-            ops->setTraining(true);
+                        Individual offspring = crossover(population[idx1], population[idx2]);
+                        
+                        if (std::uniform_real_distribution<float>{0.0f, 1.0f}(getGen()) < config.mutation_prob) {
+                            offspring.mutate(getGen());
+                        }
+                        
+                        new_population.push_back(std::move(offspring));
+                    } catch (...) {
+                        // On error, add random individual
+                        try {
+                            new_population.push_back(createRandomIndividual());
+                        } catch (...) {
+                            continue;
+                        }
+                    }
+                }
 
-            // Output statistics
-            std::cout << "Generation " << generation 
-                    << "\n  Best Fitness (on subset): " << gen_best_fitness
-                    << "\n  Avg Fitness (on subset): " << gen_avg_fitness
-                    << "\n  Training Accuracy (full set): " << train_accuracy * 100.0f << "%"
-                    << "\n  Validation Accuracy: " << val_accuracy * 100.0f << "%"
-                    << "\n  Population Size: " << new_population.size()
-                    << "\n  Training Subset Size: " << train_subset.size()
-                    << std::endl;
+                // Calculate statistics before population swap
+                float gen_best_fitness = std::numeric_limits<float>::max();
+                float train_acc = 0.0f;
+                float val_acc = 0.0f;
+                
+                if (!new_population.empty()) {
+                    try {
+                        // Find best individual
+                        size_t best_idx = 0;
+                        for (size_t i = 0; i < new_population.size(); ++i) {
+                            float fitness = new_population[i].getFitness();
+                            if (fitness < gen_best_fitness) {
+                                gen_best_fitness = fitness;
+                                best_idx = i;
+                            }
+                        }
 
-            std::cout << "Updating population" << std::endl;
+                        // Calculate accuracies
+                        if (best_idx < new_population.size()) {
+                            std::cout << "I get here" << std::endl;
+                            train_acc = calculateAccuracy(new_population[best_idx], trainData);
+                            std::cout << "I get here II" << std::endl;
+                            ops->setTraining(false);
+                            val_acc = calculateAccuracy(new_population[best_idx], valData);
+                            std::cout << "I get here III" << std::endl;
+                            ops->setTraining(true);
+                        }
+                    } catch (...) {
+                        // If statistics calculation fails, use default values
+                    }
+                }
 
-            // Update population
-            population = std::move(new_population);
+                // Safely swap populations
+                if (!new_population.empty()) {
+                    population = std::move(new_population);
+                }
 
-            // Update best fitness and check for improvement
-            if (gen_best_fitness < best_fitness) {
-                best_fitness = gen_best_fitness;
-                generations_without_improvement = 0;
-            } else {
-                generations_without_improvement++;
-            }
+                // Print statistics
+                std::cout << "Generation " << generation 
+                        << "\n  Best Fitness: " << gen_best_fitness
+                        << "\n  Train Accuracy: " << train_acc * 100.0f << "%"
+                        << "\n  Val Accuracy: " << val_acc * 100.0f << "%"
+                        << std::endl;
 
-            // Every 10 generations, clear the fitness cache to prevent memory bloat
-            if (generation % 10 == 0) {
-                fitness_cache.clear();
+                // Clear cache periodically
+                if (generation % 10 == 0) {
+                    fitness_cache.clear();
+                }
+
+            } catch (...) {
+                // If entire generation fails, keep old population
+                continue;
             }
         }
     }
     
     Individual crossover(const Individual& parent1, const Individual& parent2) {
+        // Create trees vector for offspring
         std::vector<std::unique_ptr<GPNode>> offspring_trees;
         offspring_trees.reserve(config.num_trees);
         
-        std::cout << "Starting crossover process..." << std::endl;
-        
-        // Track mutations and crossovers performed to encourage diversity
-        int mutations_performed = 0;
         int crossovers_performed = 0;
+        int mutations_performed = 0;
         
         static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
         
+        // Process each tree position
         for (int i = 0; i < config.num_trees; ++i) {
-            auto parent1_tree = parent1.getTree(i).get();
-            auto parent2_tree = parent2.getTree(i).get();
-            
-            bool should_crossover = prob_dist(getGen()) < config.crossover_prob;
-            
-            if (should_crossover && parent1_tree && parent2_tree && 
-                parent1_tree->isValidDepth() && parent2_tree->isValidDepth()) {
-                try {
-                    auto new_tree = TreeOperations::multiPointCrossover(
-                        parent1_tree, parent2_tree, config, ops, getGen());
+            try {
+                // Get parent trees with safety checks
+                auto* parent1_tree = parent1.getTree(i).get();
+                auto* parent2_tree = parent2.getTree(i).get();
+                
+                if (!parent1_tree || !parent2_tree) {
+                    // If either parent tree is invalid, create a new random tree
+                    offspring_trees.push_back(
+                        TreeOperations::createRandomOperatorNode(
+                            config.max_tree_depth - 1, 0, config, ops, getGen()
+                        )
+                    );
+                    continue;
+                }
+                
+                // Decide whether to perform crossover
+                bool should_crossover = prob_dist(getGen()) < config.crossover_prob;
+                
+                if (should_crossover && 
+                    parent1_tree->isValidDepth() && 
+                    parent2_tree->isValidDepth()) {
                     
-                    if (new_tree && new_tree->depth() >= config.min_tree_depth && 
-                        new_tree->depth() < config.max_tree_depth) {
+                    // Attempt crossover
+                    auto new_tree = TreeOperations::multiPointCrossover(
+                        parent1_tree, parent2_tree, config, ops, getGen()
+                    );
+                    
+                    // Validate result
+                    if (new_tree && new_tree->isValidDepth()) {
                         offspring_trees.push_back(std::move(new_tree));
                         crossovers_performed++;
                         continue;
                     }
-                } catch (const std::exception& e) {
-                    std::cout << "Crossover failed for tree " << i << ": " << e.what() << std::endl;
                 }
-            }
-            
-            // If crossover fails or isn't performed, try mutation of parent1's tree
-            try {
-                auto new_tree = parent1.getTree(i)->clone();
-                if (new_tree && new_tree->isValidDepth()) {
-                    TreeOperations::mutateNode(new_tree.get(), config, getGen(), 0, config.max_tree_depth - 1);
-                    
-                    if (new_tree->depth() >= config.min_tree_depth && 
-                        new_tree->depth() < config.max_tree_depth) {
+                
+                // If crossover fails or isn't chosen, try mutation
+                if (auto new_tree = parent1_tree->clone()) {
+                    TreeOperations::mutateNode(new_tree.get(), config, getGen());
+                    if (new_tree->isValidDepth()) {
                         offspring_trees.push_back(std::move(new_tree));
                         mutations_performed++;
                         continue;
                     }
                 }
-            } catch (const std::exception& e) {
-                std::cout << "Mutation failed for tree " << i << ": " << e.what() << std::endl;
+                
+                // If all else fails, create random tree
+                offspring_trees.push_back(
+                    TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth - 1, 0, config, ops, getGen()
+                    )
+                );
+                
+            } catch (...) {
+                // On any error, add a random tree
+                offspring_trees.push_back(
+                    TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth - 1, 0, config, ops, getGen()
+                    )
+                );
             }
-            
-            // If both crossover and mutation fail, create a new random tree
-            std::cout << "Creating random tree for position " << i << std::endl;
-            offspring_trees.push_back(TreeOperations::createRandomOperatorNode(
-                config.max_tree_depth - 1, 0, config, ops, getGen()));
         }
         
-        std::cout << "Crossover complete: " << crossovers_performed << " crossovers, "
-                << mutations_performed << " mutations performed" << std::endl;
-                
-        return Individual(std::move(offspring_trees), ops, config);
-    }   
+        // Create new individual with safety check
+        try {
+            return Individual(std::move(offspring_trees), ops, config);
+        } catch (...) {
+            // If individual creation fails, create a completely new random individual
+            std::vector<std::unique_ptr<GPNode>> random_trees;
+            random_trees.reserve(config.num_trees);
+            
+            for (int i = 0; i < config.num_trees; ++i) {
+                random_trees.push_back(
+                    TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth - 1, 0, config, ops, getGen()
+                    )
+                );
+            }
+            
+            return Individual(std::move(random_trees), ops, config);
+        }
+    }
 };
 
+thread_local std::mt19937 GPOperations::rng = getThreadLocalRNG();
+thread_local std::mt19937 ContrastiveGP::rng = getThreadLocalRNG();
 size_t OperatorNode::next_node_id = 0;
-// Initialize static member
-thread_local std::mt19937 ContrastiveGP::rng{std::random_device{}()};
-thread_local std::mt19937 GPOperations::rng{std::random_device{}()};
 
 // Example usage:
 int main() {
