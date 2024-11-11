@@ -371,8 +371,31 @@ CMakeFiles/app.dir/gp.cpp.o: ../gp.cpp \
   /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
   /usr/include/c++/11/bits/fstream.tcc \
-  /usr/include/c++/11/optional
+  /usr/include/c++/11/optional \
+  /usr/include/c++/11/iomanip \
+  /usr/include/c++/11/locale \
+  /usr/include/c++/11/bits/locale_facets_nonio.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h \
+  /usr/include/libintl.h \
+  /usr/include/c++/11/bits/locale_facets_nonio.tcc \
+  /usr/include/c++/11/bits/locale_conv.h \
+  /usr/include/c++/11/bits/quoted_string.h \
+  /usr/include/c++/11/sstream \
+  /usr/include/c++/11/bits/sstream.tcc
 
+
+/usr/include/c++/11/sstream:
+
+/usr/include/c++/11/bits/quoted_string.h:
+
+/usr/include/c++/11/bits/locale_conv.h:
+
+/usr/include/c++/11/bits/locale_facets_nonio.tcc:
+
+/usr/include/libintl.h:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h:
 
 /usr/include/c++/11/optional:
 
@@ -421,6 +444,8 @@ CMakeFiles/app.dir/gp.cpp.o: ../gp.cpp \
 /usr/include/c++/11/bits/stl_tree.h:
 
 /usr/include/c++/11/map:
+
+/usr/include/c++/11/bits/locale_facets_nonio.h:
 
 ../OpenXLSX/headers/XLCommandQuery.hpp:
 
@@ -572,6 +597,8 @@ CMakeFiles/app.dir/gp.cpp.o: ../gp.cpp \
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
 
+/usr/include/c++/11/iomanip:
+
 /usr/include/c++/11/cctype:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
@@ -599,6 +626,8 @@ CMakeFiles/app.dir/gp.cpp.o: ../gp.cpp \
 /usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
 
 /usr/include/c++/11/bits/stl_iterator.h:
+
+/usr/include/c++/11/bits/sstream.tcc:
 
 /usr/include/c++/11/new:
 
@@ -844,6 +873,8 @@ CMakeFiles/app.dir/gp.cpp.o: ../gp.cpp \
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
 
+/usr/include/c++/11/locale:
+
 ../OpenXLSX/headers/XLSharedStrings.hpp:
 
 /usr/include/ctype.h:
@@ -1077,6 +1108,8 @@ OpenXLSX/OpenXLSX-Exports.hpp:
 /usr/include/c++/11/bits/stl_iterator_base_types.h:
 
 ../OpenXLSX/external/pugixml/pugixml.cpp:
+
+/usr/include/x86_64-linux-gnu/c++/11/bits/messages_members.h:
 
 ../OpenXLSX/external/pugixml/pugixml.hpp:
 

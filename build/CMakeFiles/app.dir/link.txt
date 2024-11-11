@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/app.dir/gp.cpp.o -o app  OpenXLSX/libOpenXLSXd.a /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.a 
