@@ -16,12 +16,14 @@
 #include <fstream>
 #include <optional>
 #include <iomanip>
+#include <atomic>
+#include <mutex>
 
 // Configuration struct
 struct GPConfig {
     int n_features = 2080;
     int num_trees = 20;                   // Increased from 20 to 30 for better ensemble
-    int population_size = 200;            // Doubled population size for more diversity
+    int population_size = 100;            // Doubled population size for more diversity
     int generations = 100;                // Doubled to allow more evolution time
     int elite_size = 10;                  // Increased to preserve good solutions
     float crossover_prob = 0.8f;         // Slightly increased for more genetic material exchange
@@ -36,7 +38,7 @@ struct GPConfig {
     int min_tree_depth = 3;               // Kept the same
     int batch_size = 32;                  // Reduced for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
-    float dropout_prob = 0.0f;           // Increased for stronger regularization
+    float dropout_prob = 0.1f;           // Increased for stronger regularization
     float bn_momentum = 0.001f;            // Reduced  faster adaptation
     float bn_epsilon = 1e-6f;             // Reduced for more precise normalization
 };
@@ -515,64 +517,160 @@ public:
 // Vector operations helper functions
 namespace vec_ops {
     inline std::vector<float> add(const std::vector<float>& a, const std::vector<float>& b) {
-        if (a.size() != b.size()) {
-            std::cerr << "Vector addition: Mismatched sizes (a: " << a.size() << ", b: " << b.size() << ")" << std::endl;
-            return a;
+        // If either input is empty, return zero
+        if (a.empty() || b.empty()) {
+            return std::vector<float>{0.0f};
         }
-        std::vector<float> result(a.size());
+
+        // For scalar broadcast, always return scalar result
+        if (a.size() == 1 || b.size() == 1) {
+            const float a_val = a[0];
+            const float b_val = b[0];
+            
+            if (std::isinf(a_val) || std::isinf(b_val) || std::isnan(a_val) || std::isnan(b_val)) {
+                return std::vector<float>{0.0f};
+            }
+            
+            return std::vector<float>{a_val + b_val};
+        }
+
+        // Otherwise, sizes must match exactly
+        if (a.size() != b.size()) {
+            std::cerr << "Vector addition: Mismatched sizes (a: " << a.size() 
+                     << ", b: " << b.size() << ")" << std::endl;
+            return std::vector<float>{0.0f};
+        }
+
+        std::vector<float> result(1);  // Always return scalar
+        float sum = 0.0f;
+        
+        // Sum all elements
         for (size_t i = 0; i < a.size(); ++i) {
             if (std::isinf(a[i]) || std::isinf(b[i]) || std::isnan(a[i]) || std::isnan(b[i])) {
-                std::cerr << "Overflow/Underflow detected in addition" << std::endl;
-                return std::vector<float>{0.0f}; // Handle overflow/underflow
+                return std::vector<float>{0.0f};
             }
-            result[i] = a[i] + b[i];
+            sum += a[i] + b[i];
         }
+        
+        result[0] = sum / static_cast<float>(a.size());  // Return average
         return result;
     }
 
     inline std::vector<float> subtract(const std::vector<float>& a, const std::vector<float>& b) {
-        if (a.size() != b.size()) {
-            std::cerr << "Vector subtraction: Mismatched sizes (a: " << a.size() << ", b: " << b.size() << ")" << std::endl;
-            return a;
+        if (a.empty() || b.empty()) {
+            return std::vector<float>{0.0f};
         }
-        std::vector<float> result(a.size());
+
+        // For scalar broadcast, always return scalar result
+        if (a.size() == 1 || b.size() == 1) {
+            const float a_val = a[0];
+            const float b_val = b[0];
+            
+            if (std::isinf(a_val) || std::isinf(b_val) || std::isnan(a_val) || std::isnan(b_val)) {
+                return std::vector<float>{0.0f};
+            }
+            
+            return std::vector<float>{a_val - b_val};
+        }
+
+        if (a.size() != b.size()) {
+            std::cerr << "Vector subtraction: Mismatched sizes (a: " << a.size() 
+                     << ", b: " << b.size() << ")" << std::endl;
+            return std::vector<float>{0.0f};
+        }
+
+        std::vector<float> result(1);
+        float diff = 0.0f;
+        
         for (size_t i = 0; i < a.size(); ++i) {
             if (std::isinf(a[i]) || std::isinf(b[i]) || std::isnan(a[i]) || std::isnan(b[i])) {
-                std::cerr << "Overflow/Underflow detected in subtraction" << std::endl;
-                return std::vector<float>{0.0f}; // Handle overflow/underflow
+                return std::vector<float>{0.0f};
             }
-            result[i] = a[i] - b[i];
+            diff += a[i] - b[i];
         }
+        
+        result[0] = diff / static_cast<float>(a.size());
         return result;
     }
 
     inline std::vector<float> multiply(const std::vector<float>& a, const std::vector<float>& b) {
-        if (a.size() != b.size()) {
-            std::cerr << "Vector addition: Mismatched sizes (a: " << a.size() << ", b: " << b.size() << ")" << std::endl;
-            return a;
+        if (a.empty() || b.empty()) {
+            return std::vector<float>{0.0f};
         }
-        std::vector<float> result(a.size());
+
+        // For scalar broadcast, always return scalar result
+        if (a.size() == 1 || b.size() == 1) {
+            const float a_val = a[0];
+            const float b_val = b[0];
+            
+            if (std::isinf(a_val) || std::isinf(b_val) || std::isnan(a_val) || std::isnan(b_val)) {
+                return std::vector<float>{0.0f};
+            }
+            
+            return std::vector<float>{a_val * b_val};
+        }
+
+        if (a.size() != b.size()) {
+            std::cerr << "Vector multiplication: Mismatched sizes (a: " << a.size() 
+                     << ", b: " << b.size() << ")" << std::endl;
+            return std::vector<float>{0.0f};
+        }
+
+        std::vector<float> result(1);
+        float prod = 0.0f;
+        
         for (size_t i = 0; i < a.size(); ++i) {
             if (std::isinf(a[i]) || std::isinf(b[i]) || std::isnan(a[i]) || std::isnan(b[i])) {
-                std::cerr << "Overflow/Underflow detected in multiplication" << std::endl;
-                return std::vector<float>{0.0f}; // Handle overflow/underflow
+                return std::vector<float>{0.0f};
             }
-            result[i] = a[i] * b[i];
+            prod += a[i] * b[i];
         }
+        
+        result[0] = prod / static_cast<float>(a.size());
         return result;
     }
 
     inline std::vector<float> divide(const std::vector<float>& a, const std::vector<float>& b) {
+        if (a.empty() || b.empty()) {
+            return std::vector<float>{0.0f};
+        }
+
+        // For scalar broadcast, always return scalar result
+        if (a.size() == 1 || b.size() == 1) {
+            const float a_val = a[0];
+            const float b_val = b[0];
+            
+            if (std::isinf(a_val) || std::isinf(b_val) || std::isnan(a_val) || std::isnan(b_val)) {
+                return std::vector<float>{0.0f};
+            }
+            
+            return std::vector<float>{std::abs(b_val) < 1e-10f ? a_val : a_val / (b_val + 1e-10f)};
+        }
+
         if (a.size() != b.size()) {
-            std::cerr << "Vector division: Mismatched sizes (a: " << a.size() << ", b: " << b.size() << ")" << std::endl;
-            return a;
+            std::cerr << "Vector division: Mismatched sizes (a: " << a.size() 
+                     << ", b: " << b.size() << ")" << std::endl;
+            return std::vector<float>{0.0f};
         }
-        std::vector<float> result(a.size());
-        // Safe divide by zero check
-        auto denominator = std::max(b, std::vector<float>(b.size(), 1e-6f));
+
+        std::vector<float> result(1);
+        float sum = 0.0f;
+        float count = 0.0f;
+        
         for (size_t i = 0; i < a.size(); ++i) {
-            result[i] = a[i] / denominator[i];
+            if (std::isinf(a[i]) || std::isinf(b[i]) || std::isnan(a[i]) || std::isnan(b[i])) {
+                continue;
+            }
+            if (std::abs(b[i]) >= 1e-10f) {
+                sum += a[i] / (b[i] + 1e-10f);
+                count += 1.0f;
+            } else {
+                sum += a[i];
+                count += 1.0f;
+            }
         }
+        
+        result[0] = count > 0.0f ? sum / count : 0.0f;
         return result;
     }
 
@@ -671,9 +769,9 @@ public:
         , current_eval_id(0)
     {
         operations = {
-            {"add", [this](const auto& inputs, size_t id) { return safeAdd(inputs[0], inputs[1]); }},
-            {"sub", [this](const auto& inputs, size_t id) { return safeSubtract(inputs[0], inputs[1]); }},
-            {"mul", [this](const auto& inputs, size_t id) { return safeMultiply(inputs[0], inputs[1]); }},
+            {"add", [this](const auto& inputs, size_t id) { return vec_ops::add(inputs[0], inputs[1]); }},
+            {"sub", [this](const auto& inputs, size_t id) { return vec_ops::subtract(inputs[0], inputs[1]); }},
+            {"mul", [this](const auto& inputs, size_t id) { return vec_ops::multiply(inputs[0], inputs[1]); }},
             {"div", [this](const auto& inputs, size_t id) { return protectedDiv(inputs[0], inputs[1]);}},
             {"sin", [this](const auto& inputs, size_t id) { return applySin(inputs[0]); }},
             {"cos", [this](const auto& inputs, size_t id) { return applyCos(inputs[0]); }},
@@ -688,9 +786,10 @@ public:
     GPOperations& operator=(const GPOperations&) = delete;
 
     // Main evaluation interface
+    // In GPOperations class, modify the evaluate method:
     std::vector<float> evaluate(const std::string& op_name,
-                      const std::vector<std::vector<float>>& inputs,
-                      size_t node_id) {
+                    const std::vector<std::vector<float>>& inputs,
+                    size_t node_id) {
         std::lock_guard<std::mutex> lock(mutex);
         
         try {
@@ -731,6 +830,17 @@ public:
             // Validate result
             if (result.empty() || result.size() != input_size) {
                 return std::vector<float>{0.0f};
+            }
+
+            // Apply batch normalization
+            auto bn_it = batch_norms.find(op_name);
+            if (bn_it != batch_norms.end() && bn_it->second) {
+                try {
+                    result = bn_it->second->operator()(result);
+                } catch (const std::exception& e) {
+                    std::cerr << "BatchNorm error: " << e.what() << std::endl;
+                    // Continue with unnormalized result if BatchNorm fails
+                }
             }
 
             // Apply dropout if enabled
@@ -1054,12 +1164,10 @@ public:
     }
 
     std::vector<float> evaluate(const std::vector<float>& input) override {
-        // Input validation
         if (input.empty()) {
             return std::vector<float>{0.0f};
         }
         
-        // Children validation
         if (children.empty()) {
             return std::vector<float>{0.0f};
         }
@@ -1070,7 +1178,6 @@ public:
             child_results.reserve(children.size());
             
             for (const auto& child : children) {
-                // Null check
                 if (!child) {
                     return std::vector<float>{0.0f};
                 }
@@ -1088,22 +1195,27 @@ public:
                     return std::vector<float>{0.0f};
                 }
                 
-                child_results.push_back(std::move(result));
-            }
-            
-            // Validate all child results have same size
-            if (!child_results.empty()) {
-                const size_t expected_size = child_results[0].size();
-                for (const auto& result : child_results) {
-                    if (result.size() != expected_size) {
-                        return std::vector<float>{0.0f};
-                    }
+                // Ensure each child returns scalar
+                if (result.size() > 1) {
+                    result = std::vector<float>{result[0]};
                 }
+                
+                child_results.push_back(std::move(result));
             }
             
             // Safe operator evaluation with error handling
             try {
-                return ops->evaluate(op_name, child_results, node_id);
+                auto result = ops->evaluate(op_name, child_results, node_id);
+                
+                // Ensure final result is scalar
+                if (result.empty()) {
+                    return std::vector<float>{0.0f};
+                }
+                if (result.size() > 1) {
+                    result = std::vector<float>{result[0]};
+                }
+                
+                return result;
             } catch (...) {
                 return std::vector<float>{0.0f};
             }
@@ -1111,7 +1223,7 @@ public:
         } catch (...) {
             return std::vector<float>{0.0f};
         }
-    }   
+    }
 
     void replaceChild(GPNode* old_child, std::unique_ptr<GPNode> new_child) {
         for (auto& child : children) {
@@ -1291,35 +1403,98 @@ private:
         }
     }
 
-public:
-
-    static std::unique_ptr<GPNode> createRandomTree(
-        int max_depth,
-        int current_depth,
-        const GPConfig& config,
-        std::shared_ptr<GPOperations> ops,
-        std::mt19937& gen
-    ) {
-        // At max_depth-1, only create leaf nodes to ensure we don't exceed max_depth
-        if (current_depth >= max_depth - 1) {
-            return createLeafNode(config, gen);
+    static void validateTreeOutputs(GPNode* node, const GPConfig& config) {
+        if (!node) {
+            throw std::runtime_error("Null node in validation");
         }
+        
+        try {
+            // Test evaluation with dummy input
+            std::vector<float> test_input(config.n_features, 0.0f);
+            auto result = node->evaluate(test_input);
+            
+            // Every node must output a scalar
+            if (result.size() != 1) {
+                throw std::runtime_error("Invalid node output size: " + std::to_string(result.size()));
+            }
 
-        // If we haven't reached minimum depth, must create operator
-        if (current_depth < config.min_tree_depth) {
-            return createRandomOperatorNode(max_depth, current_depth, config, ops, gen);
+            // Check for NaN/Inf
+            if (!std::isfinite(result[0])) {
+                throw std::runtime_error("Node produced non-finite output");
+            }
+            
+            // Validate children of operator nodes
+            if (auto* op_node = dynamic_cast<OperatorNode*>(node)) {
+                for (const auto& child : op_node->getChildren()) {
+                    if (!child) {
+                        throw std::runtime_error("Null child in operator node");
+                    }
+                    validateTreeOutputs(child.get(), config);
+                }
+            }
+        } catch (const std::exception& e) {
+            throw std::runtime_error("Tree validation failed: " + std::string(e.what()));
         }
-
-        // Between min and max depth, randomly choose
-        static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
-        if (prob_dist(gen) < OPERATOR_PROB && current_depth < max_depth - 1) {
-            return createRandomOperatorNode(max_depth, current_depth, config, ops, gen);
-        }
-
-        return createLeafNode(config, gen);
     }
 
-    // In TreeOperations class
+    void validateTreeStructure(GPNode* node, int depth = 0) {
+        if (!node) {
+            throw std::runtime_error("Null node encountered");
+        }
+
+        // Check basic properties
+        if (depth > 1000) {
+            throw std::runtime_error("Tree exceeds maximum depth");
+        }
+
+        // If it's an operator node, validate its children
+        if (auto* op_node = dynamic_cast<OperatorNode*>(node)) {
+            const auto& children = op_node->getChildren();
+            
+            // Validate operator type matches number of children
+            bool is_unary = (op_node->getOperatorName() == "sin" || 
+                            op_node->getOperatorName() == "cos" || 
+                            op_node->getOperatorName() == "neg");
+            
+            if (is_unary && children.size() != 1) {
+                throw std::runtime_error("Unary operator with incorrect number of children: " + 
+                                    op_node->getOperatorName());
+            }
+            
+            if (!is_unary && children.size() != 2) {
+                throw std::runtime_error("Binary operator with incorrect number of children: " + 
+                                    op_node->getOperatorName());
+            }
+
+            // Recursively validate all children
+            for (const auto& child : children) {
+                if (!child) {
+                    throw std::runtime_error("Null child in operator node");
+                }
+                validateTreeStructure(child.get(), depth + 1);
+            }
+        }
+    }
+
+public:
+
+    // Helper function to ensure minimum depth
+    static bool hasMinimumDepth(const GPNode* node, int min_depth) {
+        if (!node) return false;
+        if (min_depth <= 1) return true;
+        
+        if (const auto* op_node = dynamic_cast<const OperatorNode*>(node)) {
+            const auto& children = op_node->getChildren();
+            for (const auto& child : children) {
+                if (hasMinimumDepth(child.get(), min_depth - 1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Modified to enforce minimum depth
     static std::unique_ptr<GPNode> createRandomOperatorNode(
         int max_depth,
         int current_depth,
@@ -1327,227 +1502,70 @@ public:
         std::shared_ptr<GPOperations> ops,
         std::mt19937& gen
     ) {
-        // First, ensure we have enough depth remaining to meet minimum requirements
-        const int remaining_depth = max_depth - current_depth;
-        const int min_required = config.min_tree_depth - current_depth;
+        // Calculate required depth to meet minimum
+        int depth_needed = config.min_tree_depth - current_depth;
         
-        if (remaining_depth < min_required || remaining_depth < 2) {
-            return createFallbackTree(config, ops, gen);
+        // If we need more depth than available, create full binary tree
+        if (depth_needed >= max_depth - current_depth) {
+            return createFullBinaryTree(depth_needed, config, ops, gen);
         }
 
-        // Select operator
-        static thread_local std::uniform_int_distribution<int> op_dist(0, 6);
-        static const std::vector<std::pair<std::string, bool>> operators = {
-            {"add", false}, {"sub", false}, {"mul", false}, 
-            {"sin", true}, {"cos", true}, {"neg", true}, {"div", false}
-        };
-
-        const auto& [op_name, is_unary] = operators[op_dist(gen)];
+        static const std::vector<std::string> binary_ops = {"add", "mul", "sub", "div"};
+        std::uniform_int_distribution<size_t> op_dist(0, binary_ops.size() - 1);
+        
+        // Always create binary operator to ensure depth potential
         std::vector<std::unique_ptr<GPNode>> children;
+        
+        // First child must maintain minimum depth
+        auto first_child = createRandomOperatorNode(
+            max_depth - 1,
+            current_depth + 1,
+            config,
+            ops,
+            gen
+        );
+        if (!first_child) return nullptr;
+        children.push_back(std::move(first_child));
 
-        // Create children with guaranteed minimum depth
-        try {
-            // First child
-            auto first_child = createRandomTree(
-                max_depth - 1, 
-                current_depth + 1,
-                config, 
-                ops, 
-                gen
-            );
-            if (!first_child) return nullptr;
-            children.push_back(std::move(first_child));
+        // Second child can be simpler if minimum depth is already met
+        auto second_child = (depth_needed > 1) ?
+            createRandomOperatorNode(max_depth - 1, current_depth + 1, config, ops, gen) :
+            createLeafNode(config, gen);
+        if (!second_child) return nullptr;
+        children.push_back(std::move(second_child));
 
-            // Create second child for binary operators
-            if (!is_unary) {
-                auto second_child = createRandomTree(
-                    max_depth - 1,
-                    current_depth + 1,
-                    config,
-                    ops,
-                    gen
-                );
-                if (!second_child) return nullptr;
-                children.push_back(std::move(second_child));
-            }
-
-            // Create the operator node
-            auto node = std::make_unique<OperatorNode>(op_name, std::move(children), ops);
-            
-            // If depth requirements aren't met, try again with fallback
-            if (node->depth() < config.min_tree_depth) {
-                return createFallbackTree(config, ops, gen);
-            }
-            
-            return node;
-
-        } catch (...) {
-            return createFallbackTree(config, ops, gen);
-        }
+        return std::make_unique<OperatorNode>(
+            binary_ops[op_dist(gen)],
+            std::move(children),
+            ops
+        );
     }
 
-    // Modified fallback tree to strictly enforce minimum depth
-    static std::unique_ptr<GPNode> createFallbackTree(
+    // Helper to create guaranteed full binary tree of exact depth
+    static std::unique_ptr<GPNode> createFullBinaryTree(
+        int exact_depth,
         const GPConfig& config,
         std::shared_ptr<GPOperations> ops,
         std::mt19937& gen
     ) {
-        std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
-
-        // Create a tree that guarantees minimum depth
-        // Level 3 (bottom): Create leaf nodes
-        auto leaf1 = std::make_unique<FeatureNode>(feature_dist(gen));
-        auto leaf2 = std::make_unique<FeatureNode>(feature_dist(gen));
-        auto leaf3 = std::make_unique<FeatureNode>(feature_dist(gen));
-        auto leaf4 = std::make_unique<FeatureNode>(feature_dist(gen));
-
-        // Level 2: Create binary operator nodes
-        std::vector<std::unique_ptr<GPNode>> inner1_children;
-        inner1_children.push_back(std::move(leaf1));
-        inner1_children.push_back(std::move(leaf2));
-        auto inner1 = std::make_unique<OperatorNode>("mul", std::move(inner1_children), ops);
-
-        std::vector<std::unique_ptr<GPNode>> inner2_children;
-        inner2_children.push_back(std::move(leaf3));
-        inner2_children.push_back(std::move(leaf4));
-        auto inner2 = std::make_unique<OperatorNode>("add", std::move(inner2_children), ops);
-
-        // Level 1 (root): Create root node with binary operator
-        std::vector<std::unique_ptr<GPNode>> root_children;
-        root_children.push_back(std::move(inner1));
-        root_children.push_back(std::move(inner2));
-        auto root = std::make_unique<OperatorNode>("add", std::move(root_children), ops);
-
-        // Verify the depth
-        int depth = root->depth();
-        if (depth < config.min_tree_depth) {
-            std::cerr << "Warning: Fallback tree has insufficient depth " 
-                    << depth << " (minimum required: " << config.min_tree_depth << ")" << std::endl;
+        if (exact_depth <= 1) {
+            return createLeafNode(config, gen);
         }
 
-        return root;
+        static const std::vector<std::string> binary_ops = {"add", "mul", "sub", "div"};
+        std::uniform_int_distribution<size_t> op_dist(0, binary_ops.size() - 1);
+        
+        std::vector<std::unique_ptr<GPNode>> children;
+        children.push_back(createFullBinaryTree(exact_depth - 1, config, ops, gen));
+        children.push_back(createFullBinaryTree(exact_depth - 1, config, ops, gen));
+        
+        return std::make_unique<OperatorNode>(
+            binary_ops[op_dist(gen)],
+            std::move(children),
+            ops
+        );
     }
 
-    
-    // In the TreeOperations class, modify the mutateNode method:
-    static void mutateNode(
-        GPNode* node,
-        const GPConfig& config,
-        std::shared_ptr<GPOperations> ops,
-        std::mt19937& gen,
-        int current_depth = 0,
-        int max_allowed_depth = 0  // New parameter to track allowed depth
-    ) {
-        if (!node) return;
-        
-        if (max_allowed_depth == 0) {
-            // Initialize max_allowed_depth on first call
-            max_allowed_depth = config.max_tree_depth;
-        }
-        
-        static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
-        
-        // Calculate remaining depth needed for minimum requirement
-        int depth_needed = config.min_tree_depth - current_depth;
-        
-        if (node->isOperator()) {
-            auto* op_node = dynamic_cast<OperatorNode*>(node);
-            if (!op_node) return;
-
-            // Operator mutation
-            if (prob_dist(gen) < 0.1f) {
-                const bool is_unary = op_node->getChildren().size() == 1;
-                
-                // Only allow operator change if we're above min_depth requirement
-                // or if the change maintains the same structure
-                if (current_depth >= config.min_tree_depth - 1) {
-                    const std::vector<std::string>& ops = is_unary ? 
-                        std::vector<std::string>{"sin", "cos", "neg"} :
-                        std::vector<std::string>{"add", "sub", "mul", "div"};
-                    
-                    std::uniform_int_distribution<size_t> op_dist(0, ops.size() - 1);
-                    try {
-                        op_node->setOperator(ops[op_dist(gen)]);
-                    } catch (const std::exception&) {
-                        // Ignore operator mutation failures
-                    }
-                }
-            }
-            
-            // Available depth for children
-            int remaining_depth = max_allowed_depth - current_depth - 1;
-            if (remaining_depth <= 0) return;
-            
-            auto& children = op_node->getMutableChildren();
-            for (auto& child : children) {
-                if (child && prob_dist(gen) < config.mutation_prob) {
-                    // Create backup
-                    auto backup = child->clone();
-                    
-                    if (depth_needed > 1) {
-                        // If we need more depth, replace leaf with operator node
-                        if (child->isLeaf()) {
-                            child = createRandomOperatorNode(
-                                remaining_depth,
-                                current_depth + 1,
-                                config,
-                                op_node->getOperations(),
-                                gen
-                            );
-                            continue;
-                        }
-                    }
-                    
-                    // Normal mutation with depth checks
-                    auto* child_ptr = child.get();
-                    mutateNode(child_ptr, config, ops, gen, current_depth + 1, remaining_depth);
-                    
-                    // Verify depth requirements after mutation
-                    int new_depth = child->depth();
-                    if (new_depth < config.min_tree_depth - current_depth - 1) {
-                        child = std::move(backup);
-                    }
-                }
-            }
-        } else if (current_depth < config.min_tree_depth - 1) {
-            auto new_node = createRandomOperatorNode(
-                max_allowed_depth,
-                current_depth,
-                config,
-                ops,
-                gen
-            );
-            // Simply return if we couldn't create a new node
-            if (!new_node) return;
-
-            // Get the parent node
-            if (auto* op_node = dynamic_cast<OperatorNode*>(node)) {
-                for (auto& child : op_node->getMutableChildren()) {
-                    if (child && child->isLeaf()) {
-                        child = std::move(new_node);
-                        break;
-                    }
-                }
-            }
-        } else if (current_depth < config.min_tree_depth - 1) {
-            auto new_node = createRandomOperatorNode(
-                max_allowed_depth,
-                current_depth,
-                config,
-                ops,
-                gen
-            );
-            if (new_node) {
-                // Replace the existing node's contents
-                *node = std::move(*new_node);
-            }
-        } else if (prob_dist(gen) < config.mutation_prob) {
-            // Normal leaf mutation when we're above minimum depth
-            node->mutate(gen, config);
-        }
-    }
-
-    // Modify the multiPointCrossover method:
     static std::unique_ptr<GPNode> multiPointCrossover(
         const GPNode* parent1,
         const GPNode* parent2,
@@ -1555,87 +1573,260 @@ public:
         std::shared_ptr<GPOperations> ops,
         std::mt19937& gen
     ) {
-        if (!parent1 || !parent2) return nullptr;
-        
-        // Create initial copy of parent1
-        auto result = parent1->clone();
-        if (!result || result->depth() >= config.max_tree_depth) {
-            return createFallbackTree(config, ops, gen);
+        if (!parent1 || !parent2) {
+            return createFullBinaryTree(config.min_tree_depth, config, ops, gen);
         }
 
-        auto temp_parent2 = parent2->clone();
-        if (!temp_parent2) return result;
-
-        std::vector<GPNode*> nodes1 = result->getAllNodes();
-        std::vector<GPNode*> nodes2 = temp_parent2->getAllNodes();
-        
-        int attempts = 0;
         const int MAX_ATTEMPTS = 5;
         
-        while (attempts < MAX_ATTEMPTS) {
-            // Select random nodes
-            std::uniform_int_distribution<size_t> idx_dist1(0, nodes1.size() - 1);
-            std::uniform_int_distribution<size_t> idx_dist2(0, nodes2.size() - 1);
-            
-            size_t idx1 = idx_dist1(gen);
-            size_t idx2 = idx_dist2(gen);
-            
-            // Get the depth of the target node in the tree
-            int target_depth = getNodeDepth(nodes1[idx1], result.get());
-            
-            // Calculate remaining depth needed for minimum requirement
-            int depth_needed = config.min_tree_depth - target_depth;
-            
-            // If we're below minimum depth, only allow operator node replacements
-            if (depth_needed > 0 && nodes2[idx2]->isLeaf()) {
-                attempts++;
+        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            try {
+                auto offspring = parent1->clone();
+                if (!offspring) continue;
+                
+                std::vector<std::tuple<const GPNode*, int, bool>> valid_nodes1;
+                std::vector<std::tuple<const GPNode*, int, bool>> valid_nodes2;
+                
+                // Modified to ensure minimum depth
+                auto collectValidNodes = [&config](const GPNode* root, 
+                    std::vector<std::tuple<const GPNode*, int, bool>>& nodes) {
+                    std::function<void(const GPNode*, int)> traverse = 
+                        [&](const GPNode* node, int depth) {
+                        if (!node) return;
+                        
+                        if (const auto* op_node = dynamic_cast<const OperatorNode*>(node)) {
+                            const auto& children = op_node->getChildren();
+                            
+                            // Check if this subtree maintains minimum depth
+                            bool maintains_min_depth = hasMinimumDepth(node, config.min_tree_depth - depth);
+                            
+                            if (maintains_min_depth && depth + node->depth() < config.max_tree_depth) {
+                                nodes.emplace_back(node, depth, true);
+                            }
+                            
+                            for (const auto& child : children) {
+                                if (child) traverse(child.get(), depth + 1);
+                            }
+                        }
+                    };
+                    
+                    traverse(root, 0);
+                };
+
+                collectValidNodes(offspring.get(), valid_nodes1);
+                collectValidNodes(parent2, valid_nodes2);
+
+                if (valid_nodes1.empty() || valid_nodes2.empty()) {
+                    return createFullBinaryTree(config.min_tree_depth, config, ops, gen);
+                }
+
+                // Select random valid nodes
+                std::uniform_int_distribution<size_t> dist1(0, valid_nodes1.size() - 1);
+                std::uniform_int_distribution<size_t> dist2(0, valid_nodes2.size() - 1);
+                
+                auto [target_node, target_depth, _1] = valid_nodes1[dist1(gen)];
+                auto [source_node, source_depth, _2] = valid_nodes2[dist2(gen)];
+
+                // Clone and validate subtree
+                auto new_subtree = source_node->clone();
+                if (!new_subtree || !hasMinimumDepth(new_subtree.get(), config.min_tree_depth - target_depth)) {
+                    continue;
+                }
+
+                // Test replacement
+                auto test_tree = offspring->clone();
+                if (!test_tree) continue;
+
+                try {
+                    // Find corresponding node
+                    std::function<const GPNode*(const GPNode*, const GPNode*)> findCorresponding;
+                    findCorresponding = [&findCorresponding](const GPNode* root, const GPNode* target) 
+                        -> const GPNode* {
+                        if (!root || !target) return nullptr;
+                        if (root == target) return root;
+                        
+                        if (const auto* op_node = dynamic_cast<const OperatorNode*>(root)) {
+                            for (const auto& child : op_node->getChildren()) {
+                                if (auto* found = findCorresponding(child.get(), target)) {
+                                    return found;
+                                }
+                            }
+                        }
+                        return nullptr;
+                    };
+
+                    auto* test_target = findCorresponding(test_tree.get(), target_node);
+                    if (!test_target) continue;
+
+                    // Test replacement
+                    test_tree->replaceSubtree(const_cast<GPNode*>(test_target), new_subtree->clone());
+                    
+                    // Validate minimum depth
+                    if (!hasMinimumDepth(test_tree.get(), config.min_tree_depth)) {
+                        continue;
+                    }
+
+                    // Perform actual replacement
+                    offspring->replaceSubtree(const_cast<GPNode*>(target_node), std::move(new_subtree));
+                    
+                    // Final validation
+                    if (hasMinimumDepth(offspring.get(), config.min_tree_depth)) {
+                        return offspring;
+                    }
+                } catch (...) {
+                    continue;
+                }
+            } catch (...) {
                 continue;
             }
-            
-            // Create a copy to test the crossover
-            auto test_tree = result->clone();
-            if (!test_tree) continue;
-            
-            // Clone the subtree we want to insert
-            auto new_subtree = nodes2[idx2]->clone();
-            if (!new_subtree) continue;
-            
-            try {
-                // Try the replacement on the test tree
-                test_tree->replaceSubtree(nodes1[idx1], std::move(new_subtree));
-                
-                // Verify depth constraints
-                int new_depth = test_tree->depth();
-                if (new_depth >= config.min_tree_depth && new_depth < config.max_tree_depth) {
-                    // If valid, perform the actual replacement
-                    auto actual_subtree = nodes2[idx2]->clone();
-                    result->replaceSubtree(nodes1[idx1], std::move(actual_subtree));
-                    return result;
-                }
-            } catch (const std::exception&) {
-                // If replacement fails, try again
-            }
-            
-            attempts++;
         }
-        
-        // If all attempts fail, return fallback tree
-        return createFallbackTree(config, ops, gen);
+
+        // If all attempts fail, create guaranteed minimum depth tree
+        return createFullBinaryTree(config.min_tree_depth, config, ops, gen);
     }
 
-    // Helper function to get node depth in tree
-    static int getNodeDepth(GPNode* node, const GPNode* root, int current_depth = 0) {
-        if (!node || !root) return -1;
-        if (node == root) return current_depth;
+    // Create a deeper initial tree
+    static std::unique_ptr<GPNode> createDeepTree(
+        const GPConfig& config,
+        std::shared_ptr<GPOperations> ops,
+        std::mt19937& gen
+    ) {
+        // Target a depth closer to max_depth while ensuring minimum
+        int target_depth = std::max(
+            config.min_tree_depth,
+            config.min_tree_depth + (config.max_tree_depth - config.min_tree_depth) * 3 / 4
+        );
+
+        std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+        static const std::vector<std::string> ops_list = {"add", "mul", "sub", "div"};
+        std::uniform_int_distribution<size_t> op_dist(0, ops_list.size() - 1);
         
-        if (const auto* op_node = dynamic_cast<const OperatorNode*>(root)) {
-            for (const auto& child : op_node->getChildren()) {
-                int depth = getNodeDepth(node, child.get(), current_depth + 1);
-                if (depth >= 0) return depth;
+        std::function<std::unique_ptr<GPNode>(int)> buildDeep = 
+            [&](int remaining_depth) -> std::unique_ptr<GPNode> {
+            if (remaining_depth <= 1) {
+                return std::make_unique<FeatureNode>(feature_dist(gen));
+            }
+            
+            // Higher probability of creating operator nodes at lower depths
+            float op_prob = std::min(0.9f, 0.5f + (remaining_depth / static_cast<float>(target_depth)));
+            std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+            
+            if (prob_dist(gen) < op_prob) {
+                std::vector<std::unique_ptr<GPNode>> children;
+                children.push_back(buildDeep(remaining_depth - 1));
+                children.push_back(buildDeep(remaining_depth - 1));
+                return std::make_unique<OperatorNode>(ops_list[op_dist(gen)], std::move(children), ops);
+            } else {
+                return std::make_unique<FeatureNode>(feature_dist(gen));
+            }
+        };
+
+        return buildDeep(target_depth);
+    }
+
+    // Enhanced mutation to encourage deeper trees
+    static void mutateNode(
+        GPNode* node,
+        const GPConfig& config,
+        std::shared_ptr<GPOperations> ops,
+        std::mt19937& gen,
+        int current_depth = 0
+    ) {
+        if (!node) return;
+
+        std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+        
+        if (auto* op_node = dynamic_cast<OperatorNode*>(node)) {
+            // Higher chance of mutation at deeper levels to encourage complexity
+            float mutation_prob = std::min(0.8f, 0.3f + (current_depth / static_cast<float>(config.max_tree_depth)));
+            
+            if (prob_dist(gen) < mutation_prob) {
+                // Chance to add more complexity by replacing a leaf with an operator
+                for (auto& child : op_node->getMutableChildren()) {
+                    if (child && child->isLeaf() && 
+                        current_depth + 2 < config.max_tree_depth && 
+                        prob_dist(gen) < 0.4f) {
+                        // Create a new operator node
+                        std::vector<std::unique_ptr<GPNode>> new_children;
+                        std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+                        
+                        new_children.push_back(std::make_unique<FeatureNode>(feature_dist(gen)));
+                        new_children.push_back(std::make_unique<FeatureNode>(feature_dist(gen)));
+                        
+                        static const std::vector<std::string> ops_list = {"add", "mul", "sub", "div"};
+                        std::uniform_int_distribution<size_t> op_dist(0, ops_list.size() - 1);
+                        
+                        child = std::make_unique<OperatorNode>(
+                            ops_list[op_dist(gen)], 
+                            std::move(new_children), 
+                            ops
+                        );
+                    }
+                }
+            }
+            
+            // Recurse on children
+            for (auto& child : op_node->getMutableChildren()) {
+                if (child) {
+                    mutateNode(child.get(), config, ops, gen, current_depth + 1);
+                }
+            }
+        } else if (auto* feature_node = dynamic_cast<FeatureNode*>(node)) {
+            // Higher chance to replace feature nodes with operators at shallow depths
+            float replace_prob = std::max(0.0f, 0.6f - (current_depth / static_cast<float>(config.max_tree_depth)));
+            
+            if (current_depth + 2 < config.max_tree_depth && prob_dist(gen) < replace_prob) {
+                // Create a new operator node to replace this feature node
+                std::vector<std::unique_ptr<GPNode>> new_children;
+                std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+                
+                new_children.push_back(std::make_unique<FeatureNode>(feature_dist(gen)));
+                new_children.push_back(std::make_unique<FeatureNode>(feature_dist(gen)));
+                
+                static const std::vector<std::string> ops_list = {"add", "mul", "sub", "div"};
+                std::uniform_int_distribution<size_t> op_dist(0, ops_list.size() - 1);
+                
+                *node = OperatorNode(ops_list[op_dist(gen)], std::move(new_children), ops);
             }
         }
+    }
         
-        return -1;
+    // Create exact depth tree - no changes needed here
+    static std::unique_ptr<GPNode> createExactDepthTree(
+        int exact_depth,
+        const GPConfig& config,
+        std::shared_ptr<GPOperations> ops,
+        std::mt19937& gen
+    ) {
+        std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+        
+        if (exact_depth == 1) {
+            return std::make_unique<FeatureNode>(feature_dist(gen));
+        }
+        
+        std::vector<std::unique_ptr<GPNode>> children;
+        children.push_back(createExactDepthTree(exact_depth - 1, config, ops, gen));
+        children.push_back(createExactDepthTree(exact_depth - 1, config, ops, gen));
+        
+        static const std::vector<std::string> ops_list = {"add", "mul", "sub"};
+        std::uniform_int_distribution<size_t> op_dist(0, ops_list.size() - 1);
+        return std::make_unique<OperatorNode>(ops_list[op_dist(gen)], std::move(children), ops);
+    }
+
+    // Modified to accept const pointers
+    static bool isFullBinaryToDepth(const GPNode* node, int current_depth, int required_depth) {
+        if (!node) return false;
+        
+        if (current_depth >= required_depth) return true;
+        
+        const auto* op_node = dynamic_cast<const OperatorNode*>(node);
+        if (!op_node) return false;
+        
+        const auto& children = op_node->getChildren();
+        if (children.size() != 2) return false;
+        
+        return isFullBinaryToDepth(children[0].get(), current_depth + 1, required_depth) &&
+            isFullBinaryToDepth(children[1].get(), current_depth + 1, required_depth);
     }
 };
 
@@ -1734,24 +1925,6 @@ private:
         return hash;
     }
 
-    // Helper function to safely evaluate a tree
-    std::vector<float> safeTreeEvaluate(const std::unique_ptr<GPNode>& tree, 
-                                      const std::vector<float>& input,
-                                      int retry_count = 0) const {
-        if (!tree || retry_count >= MAX_RETRIES) {
-            return std::vector<float>{0.0f};
-        }
-
-        try {
-            return tree->evaluate(input);
-        } catch (...) {
-            if (retry_count < MAX_RETRIES - 1) {
-                return safeTreeEvaluate(tree, input, retry_count + 1);
-            }
-            return std::vector<float>{0.0f};
-        }
-    }
-
 public:
     Individual(std::vector<std::unique_ptr<GPNode>> t, 
               std::shared_ptr<GPOperations> operations,
@@ -1822,32 +1995,33 @@ public:
     // In Individual class:
     std::vector<float> evaluate(const std::vector<float>& input) const {
         std::lock_guard<std::mutex> lock(trees_mutex);
-        
+    
         try {
             if (input.empty() || input.size() != config.n_features) {
                 return std::vector<float>{0.0f};
             }
 
-            // Initialize result vector with outputs from all trees
             std::vector<float> result;
-            result.reserve(trees.size());  // Each tree contributes one dimension
+            result.reserve(trees.size());
             
             for (const auto& tree : trees) {
                 if (!tree) continue;
                 
-                auto tree_output = tree->evaluate(input);
-
-                if (!tree_output.empty() && std::isfinite(tree_output[0])) {
-                    result.push_back(tree_output[0]);
+                try {
+                    auto tree_output = tree->evaluate(input);
+                    if (!tree_output.empty() && std::isfinite(tree_output[0])) {
+                        result.push_back(tree_output[0]);
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Tree evaluation error: " << e.what() << std::endl;
+                    continue;
                 }
             }
 
-            if (result.empty()) {
-                return std::vector<float>{0.0f};
-            }
-
-            return result;  // Return multi-dimensional output
-        } catch (...) {
+            return result.empty() ? std::vector<float>{0.0f} : result;
+            
+        } catch (const std::exception& e) {
+            std::cerr << "Individual evaluation error: " << e.what() << std::endl;
             return std::vector<float>{0.0f};
         }
     }
@@ -2225,20 +2399,28 @@ private:
 
         return population[best_idx];
     }
-
+    
     float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
-            try {
-            // Check if we have this individual in cache
-            if (auto cached_fitness = fitness_cache.get(ind)) {
-                return *cached_fitness;
+        try {
+            // Check cache first with proper locking
+            float cached_fitness;
+            {
+                std::lock_guard<std::mutex> lock(cache_mutex);
+                if (auto cached = fitness_cache.get(ind)) {
+                    return *cached;
+                }
             }
 
             // Calculate accuracy
             float balanced_accuracy;
             try {
                 balanced_accuracy = calculateAccuracy(ind, data);
-            } catch (...) {
-                std::cerr << "Failed to calculate accuracy" << std::endl;
+            } catch (const std::exception& e) {
+                std::cerr << "Error calculating accuracy: " << e.what() << std::endl;
+                return std::numeric_limits<float>::max();
+            }
+
+            if (!std::isfinite(balanced_accuracy)) {
                 return std::numeric_limits<float>::max();
             }
 
@@ -2246,20 +2428,30 @@ private:
             float complexity_penalty;
             try {
                 complexity_penalty = config.parsimony_coeff * ind.totalSize();
-            } catch (...) {
-                std::cerr << "Failed to calculate complexity" << std::endl;
+            } catch (const std::exception& e) {
+                std::cerr << "Error calculating complexity: " << e.what() << std::endl;
                 return std::numeric_limits<float>::max();
             }
 
-            // Calculate final fitness
-            float fitness = (1.0f - balanced_accuracy) * config.fitness_alpha + complexity_penalty;
-            
-            // Cache the result
-            fitness_cache.put(ind, fitness);
+            // Calculate final fitness with safety checks
+            float fitness;
+            if (balanced_accuracy >= 0.0f && balanced_accuracy <= 1.0f) {
+                fitness = (1.0f - balanced_accuracy) * config.fitness_alpha + complexity_penalty;
+            } else {
+                std::cerr << "Invalid accuracy value: " << balanced_accuracy << std::endl;
+                return std::numeric_limits<float>::max();
+            }
+
+            // Store in cache if valid
+            if (std::isfinite(fitness)) {
+                std::lock_guard<std::mutex> lock(cache_mutex);
+                fitness_cache.put(ind, fitness);
+            }
 
             return fitness;
-        } catch (...) {
-            std::cerr << "Unexpected error in evaluateIndividual" << std::endl;
+
+        } catch (const std::exception& e) {
+            std::cerr << "Unexpected error in evaluateIndividual: " << e.what() << std::endl;
             return std::numeric_limits<float>::max();
         }
     }
@@ -2267,57 +2459,95 @@ private:
 
     void evaluatePopulation(const std::vector<DataPoint>& trainData) {
         if (population.empty() || trainData.empty()) {
+            std::cerr << "Empty population or training data" << std::endl;
             return;
         }
 
-        // Create a temporary vector to store results
+        // Create vectors to store results safely
         std::vector<float> fitnesses(population.size(), std::numeric_limits<float>::max());
-        
-        // Evaluate each individual sequentially
-        for (size_t i = 0; i < population.size(); ++i) {
-            try {
-                // Try to 
-                float fitness = evaluateIndividual(population[i], trainData);
-                
-                // Store fitness if valid
-                if (std::isfinite(fitness)) {
-                    fitnesses[i] = fitness;
+        std::vector<std::mutex> individual_mutexes(population.size());
+        std::mutex global_mutex;
+
+        // Process individuals in chunks
+        const size_t chunk_size = std::max(size_t(1), population.size() / config.num_workers);
+        std::vector<std::future<void>> futures;
+
+        for (size_t start = 0; start < population.size(); start += chunk_size) {
+            size_t end = std::min(start + chunk_size, population.size());
+            
+            futures.push_back(std::async(std::launch::async, [&, start, end]() {
+                try {
+                    for (size_t i = start; i < end; ++i) {
+                        if (i >= population.size()) break;  // Safety check
+
+                        // Evaluate individual
+                        float fitness;
+                        try {
+                            {
+                                std::lock_guard<std::mutex> lock(individual_mutexes[i]);
+                                fitness = evaluateIndividual(population[i], trainData);
+                            }
+                        } catch (const std::exception& e) {
+                            std::cerr << "Error evaluating individual " << i << ": " << e.what() << std::endl;
+                            continue;
+                        }
+
+                        // Store result if valid
+                        if (std::isfinite(fitness)) {
+                            std::lock_guard<std::mutex> lock(individual_mutexes[i]);
+                            fitnesses[i] = fitness;
+                        }
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Worker thread error: " << e.what() << std::endl;
                 }
-            } catch (...) {
-                continue;
+            }));
+        }
+
+        // Wait for all evaluations to complete
+        for (auto& future : futures) {
+            if (future.valid()) {
+                try {
+                    future.get();
+                } catch (const std::exception& e) {
+                    std::cerr << "Error waiting for future: " << e.what() << std::endl;
+                }
             }
         }
 
-        // Keep track of best individual
+        // Update population fitnesses and track best individual
         float best_fitness = std::numeric_limits<float>::max();
         size_t best_idx = 0;
-        
-        // Update population fitnesses and find best individual
-        for (size_t i = 0; i < population.size(); ++i) {
-            try {
-                float fitness = fitnesses[i];
-                population[i].setFitness(fitness);
+
+        {
+            std::lock_guard<std::mutex> lock(global_mutex);
+            for (size_t i = 0; i < population.size(); ++i) {
+                std::lock_guard<std::mutex> indiv_lock(individual_mutexes[i]);
+                float current_fitness = fitnesses[i];
                 
-                if (fitness < best_fitness) {
-                    best_fitness = fitness;
-                    best_idx = i;
+                try {
+                    population[i].setFitness(current_fitness);
+                    
+                    if (current_fitness < best_fitness) {
+                        best_fitness = current_fitness;
+                        best_idx = i;
+                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Error updating fitness for individual " << i << ": " << e.what() << std::endl;
                 }
-            } catch (...) {
-                continue;
             }
         }
 
-        // Create copy of best individual and preserve it
+        // Preserve best individual
         try {
             if (best_idx < population.size()) {
-                // Create a copy first
-                Individual best_copy(population[best_idx]);
-                // Then insert it at the beginning of the population
-                population[0] = std::move(best_copy);
+                std::lock_guard<std::mutex> lock(global_mutex);
+                std::lock_guard<std::mutex> indiv_lock(individual_mutexes[best_idx]);
+                Individual best_copy(population[best_idx]);  // Create copy of best individual
+                population[0] = std::move(best_copy);       // Place at front of population
             }
-        } catch (...) {
-            // If copying best individual fails, continue anyway
-            std::cerr << "Failed to preserve best individual" << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error preserving best individual: " << e.what() << std::endl;
         }
     }
 
@@ -2473,7 +2703,7 @@ public:
 
         // Use smaller batch size for faster iterations and more exploration
         // const size_t EVAL_SUBSET_SIZE = std::min(trainData.size(), trainData.size());
-        const size_t EVAL_SUBSET_SIZE = std::min((size_t)100, trainData.size());
+        const size_t EVAL_SUBSET_SIZE = std::min((size_t)1000, trainData.size());
         auto subset_gen = std::mt19937{std::random_device{}()};
         std::vector<size_t> tournament_indices(population.size());
 
