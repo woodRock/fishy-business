@@ -19,6 +19,11 @@ from mamba import Mamba
 from kan import KAN
 from vae import VAE
 from MOE import MOE
+from dense import Dense
+from ode import ODE 
+from rwkv import RWKV
+from tcn import TCN
+from wavenet import WaveNet
 from train import train_model
 from util import preprocess_dataset, create_data_module, AugmentationConfig
 
@@ -311,6 +316,37 @@ class ModelTrainer:
                 hidden_dim=self.config.hidden_dimension,
                 num_experts=4,
                 k=2,
+            )
+        elif self.model_type == "dense":
+            model = Dense(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                dropout=self.config.dropout,
+            )
+        elif self.model_type == "ode":
+            model = ODE(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                dropout=self.config.dropout,
+            )
+        elif self.model_type == "rwkv":
+            model = RWKV(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                hidden_dim=self.config.hidden_dimension,
+                dropout=self.config.dropout,
+            )
+        elif self.model_type == "tcn":
+            model = TCN(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                dropout=self.config.dropout,
+            )
+        elif self.model_type == "wavenet":
+            model = WaveNet(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                dropout=self.config.dropout,
             )
         else:
             raise ValueError(f"Invalid model: {self.model_type}")
