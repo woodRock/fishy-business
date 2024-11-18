@@ -2697,9 +2697,9 @@ public:
         }
 
         // Population of trees
+        const size_t pop_size = config.population_size;  // Moved up
+        const size_t elite_size = config.elite_size;     // Moved up
         std::vector<std::vector<std::unique_ptr<GPNode>>> population;
-        const size_t pop_size = config.population_size;  // Population size
-        const size_t elite_size = config.elite_size;  // Number of elite individuals to preserve
 
         // Initialize population
         population.reserve(pop_size);
@@ -2713,62 +2713,58 @@ public:
         }
 
         float best_val_accuracy = 0.0f;
+        float best_train_accuracy = 0.0f;
         int epochs_without_improvement = 0;
         auto best_trees = cloneTrees();
+
+        // Create fixed validation set
+        auto validation_batch = createBalancedBatch(valData, std::min(valData.size(), size_t(1000)));
 
         ProgressBar progress(max_epochs, 50, "Training Progress");
 
         // Training loop
         for (int epoch = 0; epoch < max_epochs; ++epoch) {
-            std::cout << "\nEpoch " << epoch + 1 << ":" << std::endl;
-
-            // Update the progress bar.
-            progress.update();
-
-            // Evaluate all individuals in population
+            // Keep dropout enabled for training fitness evaluation
             std::vector<std::pair<float, size_t>> fitness_scores;
             fitness_scores.reserve(pop_size);
 
             for (size_t i = 0; i < population.size(); ++i) {
-                // Temporarily set trees to evaluate this individual
                 auto backup_trees = cloneTrees();
                 trees = std::move(population[i]);
 
-                // Evaluate on a batch
                 auto batch = createBalancedBatch(trainData, batch_size);
-                auto stats = evaluateBatch(batch);
+                auto stats = evaluateBatch(batch);  // With dropout
                 float fitness = (stats.sensitivity + stats.specificity) / 2.0f;
 
                 fitness_scores.emplace_back(fitness, i);
 
-                // Restore trees
                 population[i] = cloneTrees();
                 trees = std::move(backup_trees);
             }
 
-            // Sort by fitness
+            // Sort by fitness (using dropout-enabled scores)
             std::sort(fitness_scores.begin(), fitness_scores.end(),
                      std::greater<std::pair<float, size_t>>());
 
-            // Create new population with elitism
+            // Create new population starting with elites
             std::vector<std::vector<std::unique_ptr<GPNode>>> new_population;
             new_population.reserve(pop_size);
 
-            // Add elite individuals
-            for (size_t i = 0; i < elite_size && i < fitness_scores.size(); ++i) {
+            // Always preserve current best trees
+            new_population.push_back(cloneTreeVector(population[fitness_scores[0].second]));
+
+            // Add remaining elites
+            for (size_t i = 0; i < elite_size - 1 && i < fitness_scores.size(); ++i) {
                 new_population.push_back(cloneTreeVector(population[fitness_scores[i].second]));
             }
 
-            // Fill rest of population through tournament selection and variation
+            // Fill rest of population through tournament selection and crossover
             while (new_population.size() < pop_size) {
-                // Tournament selection
                 size_t parent1_idx = tournamentSelect(fitness_scores);
                 size_t parent2_idx = tournamentSelect(fitness_scores);
 
-                // Create offspring through crossover
                 auto offspring = createOffspring(population[parent1_idx], population[parent2_idx]);
 
-                // Apply mutation
                 if (std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
                     config.mutation_prob) {
                     mutateTreeVector(offspring);
@@ -2777,14 +2773,23 @@ public:
                 new_population.push_back(std::move(offspring));
             }
 
-            // Evaluate best individual on validation set
+            // Only disable dropout for final validation metrics
             trees = cloneTreeVector(population[fitness_scores[0].second]);
-            auto val_stats = evaluateBatch(createBalancedBatch(valData, batch_size));
-            float val_accuracy = (val_stats.sensitivity + val_stats.specificity) / 2.0f;
+            
+            // Get training accuracy with dropout (real training conditions)
+            auto train_stats = evaluateBatch(createBalancedBatch(trainData, 1000));
+            float train_accuracy = (train_stats.sensitivity + train_stats.specificity) / 2.0f;
 
-            // Track best model
+            // Get validation accuracy without dropout
+            ops->setTraining(false);  // Disable dropout only for validation
+            auto val_stats = evaluateBatch(validation_batch);
+            float val_accuracy = (val_stats.sensitivity + val_stats.specificity) / 2.0f;
+            ops->setTraining(true);   // Re-enable dropout
+
+            // Track best model based on validation accuracy
             if (val_accuracy > best_val_accuracy) {
                 best_val_accuracy = val_accuracy;
+                best_train_accuracy = train_accuracy;
                 best_trees = cloneTrees();
                 epochs_without_improvement = 0;
             } else {
@@ -2792,11 +2797,14 @@ public:
             }
 
             // Print progress
-            std::cout << "\nBest Training Fitness: " << fitness_scores[0].first * 100.0f << "%"
+            std::cout << "\nEpoch " << epoch + 1
+                     << "\nTraining Accuracy (with dropout): " << train_accuracy * 100.0f << "%"
                      << "\nValidation Accuracy: " << val_accuracy * 100.0f << "%"
+                     << "\nBest Training Accuracy: " << best_train_accuracy * 100.0f << "%"
+                     << "\nBest Validation Accuracy: " << best_val_accuracy * 100.0f << "%"
                      << "\nEpochs without improvement: " << epochs_without_improvement << std::endl;
 
-            // Early stopping
+            // Early stopping check
             if (epochs_without_improvement >= 10) {
                 std::cout << "Early stopping triggered" << std::endl;
                 // break;
@@ -2804,10 +2812,19 @@ public:
 
             // Replace population
             population = std::move(new_population);
+            progress.update();
         }
 
-        // Restore best trees
+        // Final evaluation with best model and no dropout
+        ops->setTraining(false);
         trees = std::move(best_trees);
+        
+        // Final validation score
+        auto final_val_stats = evaluateBatch(validation_batch);
+        std::cout << "\nFinal Model Performance (No Dropout):"
+                  << "\nValidation Accuracy: " << (final_val_stats.accuracy * 100.0f) << "%"
+                  << "\nSensitivity: " << (final_val_stats.sensitivity * 100.0f) << "%"
+                  << "\nSpecificity: " << (final_val_stats.specificity * 100.0f) << "%" << std::endl;
     }
 
 private:
