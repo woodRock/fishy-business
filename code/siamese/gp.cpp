@@ -2621,7 +2621,6 @@ public:
         if (std::max(positive_votes, negative_votes) < config.min_votes) {
             return 0.5f;  // Not confident enough
         }
-        
         // Return confidence-weighted average
         return total_confidence > 0.0f ? weighted_sum / total_confidence : 0.5f;
     }
@@ -2728,11 +2727,13 @@ public:
             std::vector<std::pair<float, size_t>> fitness_scores;
             fitness_scores.reserve(pop_size);
 
+            // Create balanced batch for training
+            auto batch = createBalancedBatch(trainData, 1000);
+
             for (size_t i = 0; i < population.size(); ++i) {
                 auto backup_trees = cloneTrees();
                 trees = std::move(population[i]);
 
-                auto batch = createBalancedBatch(trainData, batch_size);
                 auto stats = evaluateBatch(batch);  // With dropout
                 float fitness = (stats.sensitivity + stats.specificity) / 2.0f;
 
