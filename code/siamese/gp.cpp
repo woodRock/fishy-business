@@ -26,11 +26,20 @@ struct GPConfig {
     int population_size = 100;            // Doubled population size for more diversity
     int generations = 100;                // Doubled to allow more evolution time
     int elite_size = 10;                  // Increased to preserve good solutions
-    float crossover_prob = 0.8f;         // Slightly increased for more genetic material exchange
-    float mutation_prob = 0.2f;          // Increased for better exploration
+    float crossover_prob = 0.8f;          // Slightly increased for more genetic material exchange
+    float mutation_prob = 0.2f;           // Increased for better exploration
     int tournament_size = 7;              // Increased for stronger selection pressure
+    int classifier_trees = 20;            // Number of trees for voting
+    float decision_threshold = 0.5f;      // Classification threshold
+    float feature_scale = 0.01f;          // Scale factor for feature normalization
+    int min_votes = 5;                    // Minimum votes for positive classification
     float distance_threshold = 1.0f;      // Reduced to be more selective
-    float margin = 1.0f;                  // Increased margin for better separation
+    float margin = 1.0f;      
+    float initial_distance_threshold = 1.0f;
+    float threshold_adaptation_rate = 0.01f;
+    float threshold_min = 0.1f;
+    float threshold_max = 2.0f;
+    int threshold_window_size = 100;      // Increased margin for better separation
     float fitness_alpha = 0.7f;           // Reduced to balance accuracy vs. complexity
     float loss_alpha = 0.3f;              // Increased to focus more on loss reduction
     float parsimony_coeff = 0.0005f;      // Reduced to allow more complex solutions
@@ -38,9 +47,15 @@ struct GPConfig {
     int min_tree_depth = 3;               // Kept the same
     int batch_size = 32;                  // Reduced for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
-    float dropout_prob = 0.1f;           // Increased for stronger regularization
-    float bn_momentum = 0.001f;            // Reduced  faster adaptation
+    float dropout_prob = 0.1f;            // Increased for stronger regularization
+    float bn_momentum = 0.001f;           // Reduced  faster adaptation
     float bn_epsilon = 1e-6f;             // Reduced for more precise normalization
+    int boosting_rounds = 5;              // Number of boosting rounds
+    float learning_rate = 0.1f;           // Learning rate for boosting
+    int max_features = 2080;              // Maximum features to consider per tree
+    float feature_sampling_ratio = 0.7f;  // Ratio of features to sample
+    float instance_sampling_ratio = 0.8f; // Ratio of instances to sample
+    bool use_feature_importance = true;   // Use feature importance for sampling
 };
 
 inline std::mt19937& getThreadLocalRNG() {
@@ -784,6 +799,8 @@ public:
     // Disable copying
     GPOperations(const GPOperations&) = delete;
     GPOperations& operator=(const GPOperations&) = delete;
+
+    bool isTraining() const { return training; }  // Add this accessor
 
     // Main evaluation interface
     // In GPOperations class, modify the evaluate method:
@@ -2183,6 +2200,922 @@ public:
     }
 };
 
+struct ThresholdStats {
+    std::deque<float> recent_distances;  // Stores recent distances
+    float current_threshold;
+    float positive_mean;
+    float negative_mean;
+    mutable std::mutex stats_mutex;  // Make mutex mutable so it can be locked in const functions
+
+    ThresholdStats(float initial_threshold) 
+        : current_threshold(initial_threshold)
+        , positive_mean(initial_threshold)
+        , negative_mean(initial_threshold * 2.0f)
+    {}
+
+    void updateStats(float distance, bool is_same_class) {
+        std::lock_guard<std::mutex> lock(stats_mutex);
+        recent_distances.push_back(distance);
+        
+        // Keep only recent distances
+        while (recent_distances.size() > 1000) {
+            recent_distances.pop_front();
+        }
+
+        // Recalculate means
+        std::vector<float> pos_distances;
+        std::vector<float> neg_distances;
+        
+        size_t window_start = recent_distances.size() > 100 ? 
+                             recent_distances.size() - 100 : 0;
+        
+        for (size_t i = window_start; i < recent_distances.size(); ++i) {
+            if (is_same_class) {
+                pos_distances.push_back(recent_distances[i]);
+            } else {
+                neg_distances.push_back(recent_distances[i]);
+            }
+        }
+
+        if (!pos_distances.empty()) {
+            positive_mean = std::accumulate(pos_distances.begin(), 
+                                         pos_distances.end(), 0.0f) / pos_distances.size();
+        }
+        if (!neg_distances.empty()) {
+            negative_mean = std::accumulate(neg_distances.begin(), 
+                                         neg_distances.end(), 0.0f) / neg_distances.size();
+        }
+    }
+
+    float getAdaptiveThreshold() const {
+        std::lock_guard<std::mutex> lock(stats_mutex);  // Now works with mutable mutex
+        return (positive_mean + negative_mean) / 2.0f;
+    }
+};
+
+class ProgressBar {
+private:
+    size_t total;
+    size_t current;
+    size_t bar_width;
+    std::chrono::steady_clock::time_point start_time;
+    std::chrono::steady_clock::time_point last_update;
+    std::string description;
+    
+public:
+    ProgressBar(size_t total_, size_t width = 50, const std::string& desc = "")
+        : total(total_)
+        , current(0)
+        , bar_width(width)
+        , start_time(std::chrono::steady_clock::now())
+        , last_update(start_time)
+        , description(desc)
+    {
+        // Print initial bar
+        printBar();
+    }
+    
+    void update(size_t n = 1) {
+        current += n;
+        auto now = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update).count();
+        
+        // Update at most once every 100ms to avoid too frequent refreshes
+        if (duration > 100 || current >= total) {
+            printBar();
+            last_update = now;
+        }
+    }
+    
+    void printBar() {
+        float progress = static_cast<float>(current) / total;
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start_time).count();
+        
+        // Calculate ETA
+        float speed = elapsed > 0 ? static_cast<float>(current) / elapsed : 0;
+        int eta = speed > 0 ? (total - current) / speed : 0;
+        
+        // Create the progress bar
+        int pos = static_cast<int>(bar_width * progress);
+        
+        std::cout << "\r" << description << " [";
+        for (int i = 0; i < bar_width; ++i) {
+            if (i < pos) std::cout << "=";
+            else if (i == pos) std::cout << ">";
+            else std::cout << " ";
+        }
+        
+        std::cout << "] " << static_cast<int>(progress * 100.0f) << "% "
+                 << current << "/" << total << " "
+                 << "[" << elapsed << "s elapsed, ETA " << eta << "s]" << std::flush;
+        
+        if (current >= total) {
+            std::cout << std::endl;
+        }
+    }
+};
+
+class BinaryClassifier {
+private:
+    std::vector<std::unique_ptr<GPNode>> trees;
+    const GPConfig& config;
+    std::shared_ptr<GPOperations> ops;
+    mutable std::mutex predict_mutex;
+    std::vector<float> feature_importance;
+    std::vector<float> sample_weights;
+
+    struct TrainingStats {
+        float accuracy = 0.0f;
+        float sensitivity = 0.0f;
+        float specificity = 0.0f;
+        int true_positives = 0;
+        int true_negatives = 0;
+        int false_positives = 0;
+        int false_negatives = 0;
+
+        void print() const {
+            std::cout << "Training Statistics:\n"
+                     << "  Accuracy: " << (accuracy * 100.0f) << "%\n"
+                     << "  Sensitivity: " << (sensitivity * 100.0f) << "%\n"
+                     << "  Specificity: " << (specificity * 100.0f) << "%\n"
+                     << "  True Positives: " << true_positives << "\n"
+                     << "  True Negatives: " << true_negatives << "\n"
+                     << "  False Positives: " << false_positives << "\n"
+                     << "  False Negatives: " << false_negatives << std::endl;
+        }
+    };
+
+    std::vector<const DataPoint*> createBalancedBatch(
+        const std::vector<DataPoint>& data, 
+        size_t batch_size
+    ) const {
+        std::vector<const DataPoint*> positive_samples;
+        std::vector<const DataPoint*> negative_samples;
+        
+        for (const auto& point : data) {
+            if (point.label > 0.5f) {
+                positive_samples.push_back(&point);
+            } else {
+                negative_samples.push_back(&point);
+            }
+        }
+
+        // Determine number of samples from each class
+        size_t pos_samples = std::min(batch_size / 2, positive_samples.size());
+        size_t neg_samples = std::min(batch_size - pos_samples, negative_samples.size());
+        
+        // Readjust positive samples if we couldn't get enough negative ones
+        pos_samples = std::min(batch_size - neg_samples, positive_samples.size());
+
+        // Create batch
+        std::vector<const DataPoint*> batch;
+        batch.reserve(pos_samples + neg_samples);
+
+        // Shuffle and select samples
+        std::shuffle(positive_samples.begin(), positive_samples.end(), getThreadLocalRNG());
+        std::shuffle(negative_samples.begin(), negative_samples.end(), getThreadLocalRNG());
+
+        batch.insert(batch.end(), positive_samples.begin(), positive_samples.begin() + pos_samples);
+        batch.insert(batch.end(), negative_samples.begin(), negative_samples.begin() + neg_samples);
+        
+        // Final shuffle
+        std::shuffle(batch.begin(), batch.end(), getThreadLocalRNG());
+        
+        return batch;
+    }
+
+    // Evaluate a batch of samples
+    TrainingStats evaluateBatch(const std::vector<const DataPoint*>& batch) const {
+        int tp = 0, tn = 0, fp = 0, fn = 0;
+        
+        #pragma omp parallel for reduction(+:tp,tn,fp,fn)
+        for (size_t i = 0; i < batch.size(); ++i) {
+            const auto& point = *batch[i];
+            float prediction = predict(point.anchor, point.compare);
+            bool predicted_same = prediction >= config.decision_threshold;
+            bool actually_same = point.label > 0.5f;
+
+            if (actually_same) {
+                if (predicted_same) ++tp;
+                else ++fn;
+            } else {
+                if (predicted_same) ++fp;
+                else ++tn;
+            }
+        }
+
+        // Create stats object and fill it with results
+        TrainingStats stats;
+        stats.true_positives = tp;
+        stats.true_negatives = tn;
+        stats.false_positives = fp;
+        stats.false_negatives = fn;
+
+        // Calculate metrics
+        float total_positive = stats.true_positives + stats.false_negatives;
+        float total_negative = stats.true_negatives + stats.false_positives;
+        float total = total_positive + total_negative;
+
+        stats.sensitivity = total_positive > 0 ? 
+            static_cast<float>(stats.true_positives) / total_positive : 0.0f;
+        stats.specificity = total_negative > 0 ? 
+            static_cast<float>(stats.true_negatives) / total_negative : 0.0f;
+        stats.accuracy = total > 0 ? 
+            static_cast<float>(stats.true_positives + stats.true_negatives) / total : 0.0f;
+
+        return stats;
+    }
+
+    std::vector<std::unique_ptr<GPNode>> cloneTrees() const {
+        std::vector<std::unique_ptr<GPNode>> cloned;
+        cloned.reserve(trees.size());
+        for (const auto& tree : trees) {
+            if (tree) {
+                cloned.push_back(tree->clone());
+            }
+        }
+        return cloned;
+    }
+    
+    // Helper function to apply sigmoid
+    float sigmoid(float x) const {
+        return 1.0f / (1.0f + std::exp(-x));
+    }
+
+    // Helper to normalize feature vector
+    std::vector<float> normalizeFeatures(const std::vector<float>& features) const {
+        if (features.empty()) return {};
+        
+        std::vector<float> normalized(features.size());
+        float mean = 0.0f;
+        float var = 0.0f;
+        
+        // Calculate mean
+        for (float f : features) {
+            mean += f;
+        }
+        mean /= features.size();
+        
+        // Calculate variance
+        for (float f : features) {
+            float diff = f - mean;
+            var += diff * diff;
+        }
+        var = std::sqrt(var / features.size() + 1e-6f);
+        
+        // Normalize
+        for (size_t i = 0; i < features.size(); ++i) {
+            normalized[i] = (features[i] - mean) / (var + 1e-6f);
+        }
+        
+        return normalized;
+    }
+
+    // Updated feature sampling method to respect bounds
+    std::vector<int> sampleFeatures() const {
+        // Number of base features
+        const size_t base_features = config.n_features;
+        
+        // Calculate features per type (anchor, compare, diff, prod, max, min)
+        const size_t features_to_sample = std::min(
+            static_cast<size_t>(base_features * config.feature_sampling_ratio),
+            static_cast<size_t>(config.max_features)
+        );
+
+        std::vector<int> selected_features;
+        selected_features.reserve(features_to_sample * 6);  // Space for all types
+
+        // Sample for each feature type
+        for (int type = 0; type < 6; ++type) {
+            if (feature_importance.empty() || !config.use_feature_importance) {
+                // Uniform sampling within base feature range
+                std::vector<int> type_features(base_features);
+                std::iota(type_features.begin(), type_features.end(), 0);
+                std::shuffle(type_features.begin(), type_features.end(), getThreadLocalRNG());
+                
+                // Take subset and add type offset
+                for (size_t i = 0; i < features_to_sample && i < type_features.size(); ++i) {
+                    selected_features.push_back(type_features[i] + type * base_features);
+                }
+            } else {
+                // Importance-based sampling within current type's range
+                std::vector<float> type_importance(
+                    feature_importance.begin() + type * base_features,
+                    feature_importance.begin() + (type + 1) * base_features
+                );
+                
+                std::discrete_distribution<int> dist(
+                    type_importance.begin(), type_importance.end());
+                
+                std::unordered_set<int> type_features;
+                while (type_features.size() < features_to_sample) {
+                    int base_idx = dist(getThreadLocalRNG());
+                    type_features.insert(base_idx + type * base_features);
+                }
+                
+                selected_features.insert(
+                    selected_features.end(),
+                    type_features.begin(),
+                    type_features.end()
+                );
+            }
+        }
+
+        // Final shuffle of all selected features
+        std::shuffle(selected_features.begin(), selected_features.end(), getThreadLocalRNG());
+        
+        return selected_features;
+    }
+
+    // Updated feature combination method
+    std::vector<float> combineFeatures(
+        const std::vector<float>& anchor, 
+        const std::vector<float>& compare
+    ) const {
+        if (anchor.empty() || compare.empty() || anchor.size() != compare.size()) {
+            return {};
+        }
+
+        // Get sampled feature indices
+        auto selected_features = sampleFeatures();
+        
+        // Create combined feature vector
+        std::vector<float> combined;
+        combined.reserve(selected_features.size());
+
+        const size_t base_features = config.n_features;
+        
+        for (int idx : selected_features) {
+            // Determine feature type and base index
+            const int feature_type = idx / base_features;
+            const int base_idx = idx % base_features;
+            
+            // Skip if base index is out of bounds
+            if (base_idx >= anchor.size()) continue;
+            
+            // Add appropriate feature based on type
+            switch (feature_type) {
+                case 0: // Original anchor features
+                    combined.push_back(anchor[base_idx]);
+                    break;
+                case 1: // Original compare features
+                    combined.push_back(compare[base_idx]);
+                    break;
+                case 2: // Difference features
+                    combined.push_back(anchor[base_idx] - compare[base_idx]);
+                    break;
+                case 3: // Product features
+                    combined.push_back(anchor[base_idx] * compare[base_idx]);
+                    break;
+                case 4: // Max features
+                    combined.push_back(std::max(anchor[base_idx], compare[base_idx]));
+                    break;
+                case 5: // Min features
+                    combined.push_back(std::min(anchor[base_idx], compare[base_idx]));
+                    break;
+            }
+        }
+
+        return normalizeFeatures(combined);
+    }
+
+    // Improved training with boosting
+    void trainBoostedEnsemble(
+        const std::vector<DataPoint>& trainData,
+        const std::vector<DataPoint>& valData,
+        int max_epochs
+    ) {
+        // Initialize sample weights
+        sample_weights.assign(trainData.size(), 1.0f / trainData.size());
+        
+        // Initialize feature importance
+        feature_importance.assign(config.n_features * 6, 1.0f);
+        
+        float best_accuracy = 0.0f;
+        std::vector<std::unique_ptr<GPNode>> best_trees;
+        
+        for (int boost_round = 0; boost_round < config.boosting_rounds; ++boost_round) {
+            std::cout << "\nBoosting Round " << boost_round + 1 << std::endl;
+            
+            // Train base model
+            trainBaseModel(trainData, valData, max_epochs);
+            
+            // Evaluate current ensemble
+            auto train_stats = evaluateEnsemble(trainData);
+            auto val_stats = evaluateEnsemble(valData);
+            
+            // Update best model if improved
+            if (val_stats.accuracy > best_accuracy) {
+                best_accuracy = val_stats.accuracy;
+                best_trees = cloneTrees();
+            }
+            
+            // Update sample weights based on errors
+            updateSampleWeights(trainData);
+            
+            // Update feature importance
+            updateFeatureImportance(trainData);
+            
+            // Print progress
+            std::cout << "Training Accuracy: " << (train_stats.accuracy * 100.0f) << "%"
+                     << "\nValidation Accuracy: " << (val_stats.accuracy * 100.0f) << "%"
+                     << "\nBest Accuracy: " << (best_accuracy * 100.0f) << "%" << std::endl;
+        }
+        
+        // Restore best trees
+        trees = std::move(best_trees);
+    }
+
+    void updateSampleWeights(const std::vector<DataPoint>& data) {
+        float total_weight = 0.0f;
+        
+        #pragma omp parallel for reduction(+:total_weight)
+        for (size_t i = 0; i < data.size(); ++i) {
+            float pred = predict(data[i].anchor, data[i].compare);
+            float error = std::abs(pred - (data[i].label > 0.5f ? 1.0f : 0.0f));
+            
+            // Increase weights for misclassified samples
+            sample_weights[i] *= std::exp(config.learning_rate * error);
+            total_weight += sample_weights[i];
+        }
+        
+        // Normalize weights
+        if (total_weight > 0.0f) {
+            #pragma omp parallel for
+            for (size_t i = 0; i < sample_weights.size(); ++i) {
+                sample_weights[i] /= total_weight;
+            }
+        }
+    }
+
+    void updateFeatureImportance(const std::vector<DataPoint>& data) {
+        std::vector<float> importance_delta(feature_importance.size(), 0.0f);
+        std::vector<float> feature_errors(feature_importance.size(), 0.0f);
+        
+        // Calculate feature-wise errors
+        #pragma omp parallel for
+        for (size_t i = 0; i < data.size(); ++i) {
+            auto selected_features = sampleFeatures();
+            float pred = predict(data[i].anchor, data[i].compare);
+            float error = std::abs(pred - (data[i].label > 0.5f ? 1.0f : 0.0f));
+            
+            for (int feat_idx : selected_features) {
+                #pragma omp atomic
+                feature_errors[feat_idx] += error * sample_weights[i];
+            }
+        }
+        
+        // Update importance scores
+        float total_importance = 0.0f;
+        for (size_t i = 0; i < feature_importance.size(); ++i) {
+            feature_importance[i] *= std::exp(-config.learning_rate * feature_errors[i]);
+            total_importance += feature_importance[i];
+        }
+        
+        // Normalize importance scores
+        if (total_importance > 0.0f) {
+            for (auto& imp : feature_importance) {
+                imp /= total_importance;
+            }
+        }
+    }
+
+    TrainingStats evaluateEnsemble(const std::vector<DataPoint>& data) const {
+        int tp = 0, tn = 0, fp = 0, fn = 0;
+        
+        #pragma omp parallel for reduction(+:tp,tn,fp,fn)
+        for (size_t i = 0; i < data.size(); ++i) {
+            const auto& point = data[i];
+            float prediction = predict(point.anchor, point.compare);
+            bool predicted_same = prediction >= config.decision_threshold;
+            bool actually_same = point.label > 0.5f;
+
+            if (actually_same) {
+                if (predicted_same) ++tp;
+                else ++fn;
+            } else {
+                if (predicted_same) ++fp;
+                else ++tn;
+            }
+        }
+
+        TrainingStats stats;
+        stats.true_positives = tp;
+        stats.true_negatives = tn;
+        stats.false_positives = fp;
+        stats.false_negatives = fn;
+
+        float total_positive = stats.true_positives + stats.false_negatives;
+        float total_negative = stats.true_negatives + stats.false_positives;
+        float total = total_positive + total_negative;
+
+        stats.sensitivity = total_positive > 0 ? 
+            static_cast<float>(stats.true_positives) / total_positive : 0.0f;
+        stats.specificity = total_negative > 0 ? 
+            static_cast<float>(stats.true_negatives) / total_negative : 0.0f;
+        stats.accuracy = total > 0 ? 
+            static_cast<float>(stats.true_positives + stats.true_negatives) / total : 0.0f;
+
+        return stats;
+    }
+
+    // Train base model method
+    void trainBaseModel(const std::vector<DataPoint>& trainData,
+                       const std::vector<DataPoint>& valData,
+                       int max_epochs) {
+        std::cout << "\nTraining base model:" << std::endl;
+        ProgressBar epoch_progress(max_epochs, 50, "Epochs");
+
+        // Population of trees
+        std::vector<std::vector<std::unique_ptr<GPNode>>> population;
+        const size_t pop_size = config.population_size;
+        const size_t elite_size = config.elite_size;
+
+        // Initialize population
+        population.reserve(pop_size);
+        for (size_t i = 0; i < pop_size; ++i) {
+            std::vector<std::unique_ptr<GPNode>> new_trees;
+            new_trees.reserve(config.classifier_trees);
+            for (int j = 0; j < config.classifier_trees; ++j) {
+                new_trees.push_back(createRandomTree(config.min_tree_depth, config.max_tree_depth));
+            }
+            population.push_back(std::move(new_trees));
+        }
+
+        float best_val_accuracy = 0.0f;
+        int epochs_without_improvement = 0;
+        auto best_trees = cloneTrees();
+
+        // Training loop
+        for (int epoch = 0; epoch < max_epochs; ++epoch) {
+            // Update progress 
+            epoch_progress.update();
+
+            // Create weighted batch
+            auto batch = createWeightedBatch(trainData, config.batch_size);
+            
+            // Evaluate population
+            std::vector<std::pair<float, size_t>> fitness_scores;
+            fitness_scores.reserve(pop_size);
+
+            for (size_t i = 0; i < population.size(); ++i) {
+                auto backup_trees = cloneTrees();
+                trees = std::move(population[i]);
+
+                auto stats = evaluateEnsemble(batch);
+                float fitness = stats.accuracy;
+
+                fitness_scores.emplace_back(fitness, i);
+
+                population[i] = cloneTrees();
+                trees = std::move(backup_trees);
+            }
+
+            std::sort(fitness_scores.begin(), fitness_scores.end(),
+                     std::greater<std::pair<float, size_t>>());
+
+            // Create new population with elitism
+            std::vector<std::vector<std::unique_ptr<GPNode>>> new_population;
+            new_population.reserve(pop_size);
+
+            // Add elite individuals
+            for (size_t i = 0; i < elite_size && i < fitness_scores.size(); ++i) {
+                new_population.push_back(cloneTreeVector(population[fitness_scores[i].second]));
+            }
+
+            // Fill rest with tournament selection and variation
+            while (new_population.size() < pop_size) {
+                size_t parent1_idx = tournamentSelect(fitness_scores);
+                size_t parent2_idx = tournamentSelect(fitness_scores);
+
+                auto offspring = createOffspring(population[parent1_idx], population[parent2_idx]);
+
+                if (std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
+                    config.mutation_prob) {
+                    mutateTreeVector(offspring);
+                }
+
+                new_population.push_back(std::move(offspring));
+            }
+
+            // Evaluate best individual
+            trees = cloneTreeVector(population[fitness_scores[0].second]);
+            auto val_stats = evaluateEnsemble(valData);
+
+            if (val_stats.accuracy > best_val_accuracy) {
+                best_val_accuracy = val_stats.accuracy;
+                best_trees = cloneTrees();
+                epochs_without_improvement = 0;
+            } else {
+                epochs_without_improvement++;
+            }
+
+            if (epochs_without_improvement >= 10) {
+                break;
+            }
+
+            population = std::move(new_population);
+        }
+
+        trees = std::move(best_trees);
+    }
+
+    // Create weighted batch based on sample weights
+    std::vector<DataPoint> createWeightedBatch(
+        const std::vector<DataPoint>& data,
+        size_t batch_size
+    ) const {
+        if (data.empty() || batch_size == 0) return {};
+
+        // Create distribution based on sample weights
+        std::discrete_distribution<size_t> dist(sample_weights.begin(), sample_weights.end());
+
+        std::vector<DataPoint> batch;
+        batch.reserve(batch_size);
+
+        // Sample instances based on weights
+        for (size_t i = 0; i < batch_size; ++i) {
+            size_t idx = dist(getThreadLocalRNG());
+            batch.push_back(data[idx]);
+        }
+
+        return batch;
+    }
+
+public:
+    BinaryClassifier(const GPConfig& cfg, std::shared_ptr<GPOperations> operations) 
+        : config(cfg)
+        , ops(operations) 
+    {
+        initializeTrees();
+    }
+    
+    // Initialize the classifier trees
+    void initializeTrees() {
+        trees.clear();
+        trees.reserve(config.classifier_trees);
+        
+        for (int i = 0; i < config.classifier_trees; ++i) {
+            auto tree = createRandomTree(config.min_tree_depth, config.max_tree_depth);
+            if (tree) {
+                trees.push_back(std::move(tree));
+            }
+        }
+    }
+    
+    // Create a random tree with specific depth constraints
+    std::unique_ptr<GPNode> createRandomTree(int min_depth, int max_depth) {
+        std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+        
+        // Important: Base feature index should be within original feature count
+        std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+        
+        // Helper function to create tree recursively
+        std::function<std::unique_ptr<GPNode>(int, int)> buildTree = 
+            [&](int depth, int max_allowed) -> std::unique_ptr<GPNode> {
+            
+            if (depth >= max_allowed) {
+                // When creating a feature node, generate both feature type and index
+                std::uniform_int_distribution<int> type_dist(0, 5);  // 6 feature types
+                int feature_type = type_dist(getThreadLocalRNG());
+                int base_feature = feature_dist(getThreadLocalRNG());
+                
+                return std::make_unique<FeatureNode>(base_feature);
+            }
+            
+            if (depth >= min_depth && prob_dist(getThreadLocalRNG()) < 0.3f) {
+                // Same as above for leaf nodes
+                std::uniform_int_distribution<int> type_dist(0, 5);
+                int feature_type = type_dist(getThreadLocalRNG());
+                int base_feature = feature_dist(getThreadLocalRNG());
+                
+                return std::make_unique<FeatureNode>(base_feature);
+            }
+            
+            // Create operator node
+            std::vector<std::string> possible_ops = {"add", "sub", "mul", "div"};
+            std::uniform_int_distribution<size_t> op_dist(0, possible_ops.size() - 1);
+            
+            std::vector<std::unique_ptr<GPNode>> children;
+            children.push_back(buildTree(depth + 1, max_allowed));
+            children.push_back(buildTree(depth + 1, max_allowed));
+            
+            return std::make_unique<OperatorNode>(
+                possible_ops[op_dist(getThreadLocalRNG())],
+                std::move(children),
+                ops
+            );
+        };
+        
+        return buildTree(0, max_depth);
+    }
+    
+    // Main prediction function
+    float predict(const std::vector<float>& anchor, const std::vector<float>& compare) const {
+        std::lock_guard<std::mutex> lock(predict_mutex);
+        
+        if (anchor.empty() || compare.empty() || anchor.size() != compare.size()) {
+            return 0.0f;
+        }
+        
+        // Combine features with various operations
+        std::vector<float> combined = combineFeatures(anchor, compare);
+        if (combined.empty()) return 0.0f;
+        
+        // Get predictions from each tree
+        std::vector<float> predictions;
+        predictions.reserve(trees.size());
+        
+        for (const auto& tree : trees) {
+            if (!tree) continue;
+            
+            try {
+                auto output = tree->evaluate(combined);
+                if (!output.empty() && std::isfinite(output[0])) {
+                    predictions.push_back(sigmoid(output[0] * config.feature_scale));
+                }
+            } catch (...) {
+                continue;
+            }
+        }
+        
+        if (predictions.empty()) return 0.0f;
+        
+        // Sort predictions and remove outliers
+        std::sort(predictions.begin(), predictions.end());
+        if (predictions.size() > 3) {
+            // Remove most extreme predictions
+            predictions.erase(predictions.begin());
+            predictions.pop_back();
+        }
+        
+        // Count strong votes
+        int positive_votes = 0;
+        int negative_votes = 0;
+        float total_confidence = 0.0f;
+        float weighted_sum = 0.0f;
+        
+        for (float pred : predictions) {
+            float confidence = std::abs(pred - 0.5f) * 2.0f;  // Scale to [0,1]
+            total_confidence += confidence;
+            weighted_sum += pred * confidence;
+            
+            if (pred >= 0.5f) {
+                positive_votes++;
+            } else {
+                negative_votes++;
+            }
+        }
+        
+        // Check if we have enough confident votes
+        if (std::max(positive_votes, negative_votes) < config.min_votes) {
+            return 0.5f;  // Not confident enough
+        }
+        
+        // Return confidence-weighted average
+        return total_confidence > 0.0f ? weighted_sum / total_confidence : 0.5f;
+    }
+    
+    // Function to mutate trees
+    void mutate() {
+        std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+        
+        for (auto& tree : trees) {
+            if (!tree) continue;
+            
+            if (prob_dist(getThreadLocalRNG()) < config.mutation_prob) {
+                tree->mutate(getThreadLocalRNG(), config);
+            }
+        }
+    }
+    
+    // Function to perform crossover with another classifier
+    void crossover(const BinaryClassifier& other) {
+        std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+        
+        for (size_t i = 0; i < trees.size() && i < other.trees.size(); ++i) {
+            if (prob_dist(getThreadLocalRNG()) < config.crossover_prob) {
+                if (trees[i] && other.trees[i]) {
+                    auto new_tree = TreeOperations::multiPointCrossover(
+                        trees[i].get(), 
+                        other.trees[i].get(), 
+                        config, 
+                        ops, 
+                        getThreadLocalRNG()
+                    );
+                    if (new_tree) {
+                        trees[i] = std::move(new_tree);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Function to get classifier size (total nodes across all trees)
+    int getSize() const {
+        int total = 0;
+        for (const auto& tree : trees) {
+            if (tree) {
+                total += tree->size();
+            }
+        }
+        return total;
+    }
+    
+    // Function to clone the classifier
+    std::unique_ptr<BinaryClassifier> clone() const {
+        auto new_classifier = std::make_unique<BinaryClassifier>(config, ops);
+        new_classifier->trees.clear();
+        
+        for (const auto& tree : trees) {
+            if (tree) {
+                new_classifier->trees.push_back(tree->clone());
+            }
+        }
+        
+        return new_classifier;
+    }
+
+    // Main training method
+    void train(const std::vector<DataPoint>& trainData, 
+              const std::vector<DataPoint>& valData,
+              int max_epochs = 100,
+              size_t batch_size = 64) {
+        if (trainData.empty() || valData.empty()) {
+            std::cerr << "Empty training or validation data" << std::endl;
+            return;
+        }
+
+        // Initialize weights and importance scores
+        sample_weights.assign(trainData.size(), 1.0f / trainData.size());
+        feature_importance.assign(config.n_features * 6, 1.0f / (config.n_features * 6));
+
+        // Train boosted ensemble
+        trainBoostedEnsemble(trainData, valData, max_epochs);
+    }
+
+
+private:
+    // Helper methods for population management
+    std::vector<std::unique_ptr<GPNode>> cloneTreeVector(
+        const std::vector<std::unique_ptr<GPNode>>& tree_vec) const {
+        std::vector<std::unique_ptr<GPNode>> cloned;
+        cloned.reserve(tree_vec.size());
+        for (const auto& tree : tree_vec) {
+            if (tree) {
+                cloned.push_back(tree->clone());
+            }
+        }
+        return cloned;
+    }
+
+    void mutateTreeVector(std::vector<std::unique_ptr<GPNode>>& tree_vec) {
+        for (auto& tree : tree_vec) {
+            if (tree && std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
+                config.mutation_prob) {
+                tree->mutate(getThreadLocalRNG(), config);
+            }
+        }
+    }
+
+    size_t tournamentSelect(const std::vector<std::pair<float, size_t>>& fitness_scores) {
+        std::uniform_int_distribution<size_t> dist(0, fitness_scores.size() - 1);
+        size_t best_idx = dist(getThreadLocalRNG());
+        float best_fitness = fitness_scores[best_idx].first;
+
+        for (int i = 1; i < config.tournament_size; ++i) {
+            size_t idx = dist(getThreadLocalRNG());
+            if (fitness_scores[idx].first > best_fitness) {
+                best_idx = idx;
+                best_fitness = fitness_scores[idx].first;
+            }
+        }
+
+        return fitness_scores[best_idx].second;
+    }
+
+    std::vector<std::unique_ptr<GPNode>> createOffspring(
+        const std::vector<std::unique_ptr<GPNode>>& parent1,
+        const std::vector<std::unique_ptr<GPNode>>& parent2) {
+        std::vector<std::unique_ptr<GPNode>> offspring;
+        offspring.reserve(parent1.size());
+
+        for (size_t i = 0; i < parent1.size() && i < parent2.size(); ++i) {
+            if (std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
+                config.crossover_prob) {
+                auto new_tree = TreeOperations::multiPointCrossover(
+                    parent1[i].get(), parent2[i].get(), config, ops, getThreadLocalRNG());
+                offspring.push_back(std::move(new_tree));
+            } else {
+                offspring.push_back(parent1[i]->clone());
+            }
+        }
+
+        return offspring;
+    }
+};
+
 class ContrastiveGP {
 private:
     GPConfig config;
@@ -2191,6 +3124,7 @@ private:
     static thread_local std::mt19937 rng;
     FitnessCache fitness_cache; // Add as class member
     std::mutex cache_mutex; // Declare cache_mutex
+    ThresholdStats threshold_stats;
 
     std::mt19937& getGen() {
         return getThreadLocalRNG();  // Use the global initialization function
@@ -2226,13 +3160,23 @@ private:
             return std::numeric_limits<float>::max();
         }
 
-        // First calculate norms for normalization
+        // Calculate Euclidean distance component
+        float euclidean_dist = 0.0f;
+        for (size_t i = 0; i < v1.size(); ++i) {
+            float diff = v1[i] - v2[i];
+            euclidean_dist += diff * diff;
+        }
+        euclidean_dist = std::sqrt(euclidean_dist);
+
+        // Calculate normalized cosine similarity component
         float norm1 = 0.0f;
         float norm2 = 0.0f;
+        float dot_product = 0.0f;
         
         for (size_t i = 0; i < v1.size(); ++i) {
             norm1 += v1[i] * v1[i];
             norm2 += v2[i] * v2[i];
+            dot_product += v1[i] * v2[i];
         }
 
         // Add small epsilon to prevent division by zero
@@ -2240,28 +3184,27 @@ private:
         norm1 = std::sqrt(norm1 + epsilon);
         norm2 = std::sqrt(norm2 + epsilon);
 
-        // Calculate dot product with normalized vectors
-        float dot_product = 0.0f;
-        for (size_t i = 0; i < v1.size(); ++i) {
-            // Normalize each component as we compute dot product
-            float v1_normalized = v1[i] / norm1;
-            float v2_normalized = v2[i] / norm2;
-            dot_product += v1_normalized * v2_normalized;
-        }
+        float cosine_similarity = dot_product / (norm1 * norm2);
+        
+        // Clamp similarity to [-1, 1] range
+        cosine_similarity = std::max(-1.0f, std::min(1.0f, cosine_similarity));
+        
+        // Convert similarity to distance (1 - similarity) and scale it
+        float cosine_distance = (1.0f - cosine_similarity);
 
-        // Clamp similarity to [-1, 1] range to handle numerical instability
-        float similarity = std::max(-1.0f, std::min(1.0f, dot_product));
+        // Combine distances with exponential scaling to increase separation
+        float combined_distance = 0.5f * euclidean_dist + 0.5f * std::exp(cosine_distance) - 1.0f;
         
-        // Convert similarity to distance (1 - similarity)
-        float distance = 1.0f - similarity;
-        
+        // Apply sigmoid transformation to squash extreme values and increase separation
+        float scaled_distance = 1.0f / (1.0f + std::exp(-2.0f * (combined_distance - 0.5f)));
+
         // Check for NaN or inf
-        if (std::isnan(distance) || std::isinf(distance)) {
+        if (std::isnan(scaled_distance) || std::isinf(scaled_distance)) {
             std::cerr << "Warning: Invalid distance calculated" << std::endl;
             return std::numeric_limits<float>::max();
         }
-        
-        return distance;
+
+        return scaled_distance;
     }
 
     float calculateAccuracy(const Individual& ind, const std::vector<DataPoint>& data) {
@@ -2270,78 +3213,117 @@ private:
             return 0.0f;
         }
 
-        int true_positives = 0;
-        int true_negatives = 0;
-        int total_positives = 0;
-        int total_negatives = 0;
+        std::atomic<int> true_positives{0};
+        std::atomic<int> true_negatives{0};
+        std::atomic<int> total_positives{0};
+        std::atomic<int> total_negatives{0};
         
         const size_t SAFE_BATCH_SIZE = 32;
-        size_t processed = 0;
+        std::atomic<size_t> processed{0};
         
-        try {
-            for (size_t i = 0; i < data.size(); i += SAFE_BATCH_SIZE) {
-                size_t batch_end = std::min(i + SAFE_BATCH_SIZE, data.size());
-                
-                for (size_t j = i; j < batch_end; ++j) {
-                    const auto& point = data[j];
+        std::vector<std::future<void>> futures;
+        const size_t num_threads = config.num_workers;
+        std::vector<std::vector<std::pair<float, bool>>> thread_distances(num_threads);
+        
+        for (size_t thread_id = 0; thread_id < num_threads; ++thread_id) {
+            futures.push_back(std::async(std::launch::async, [&, thread_id]() {
+                try {
+                    size_t start = (data.size() * thread_id) / num_threads;
+                    size_t end = (data.size() * (thread_id + 1)) / num_threads;
                     
-                    // Input validation
-                    if (point.anchor.empty() || point.compare.empty()) {
-                        std::cerr << "Skipping invalid data point at index " << j << std::endl;
-                        continue;
+                    for (size_t i = start; i < end; i += SAFE_BATCH_SIZE) {
+                        size_t batch_end = std::min(i + SAFE_BATCH_SIZE, end);
+                        
+                        for (size_t j = i; j < batch_end; ++j) {
+                            const auto& point = data[j];
+                            
+                            if (point.anchor.empty() || point.compare.empty()) {
+                                continue;
+                            }
+                            
+                            try {
+                                std::vector<float> anchor_output = ind.evaluate(point.anchor);
+                                std::vector<float> compare_output = ind.evaluate(point.compare);
+                                
+                                if (anchor_output.empty() || compare_output.empty()) {
+                                    continue;
+                                }
+
+                                float distance = calculateDistance(anchor_output, compare_output);
+                                
+                                if (!std::isfinite(distance)) {
+                                    continue;
+                                }
+
+                                thread_distances[thread_id].emplace_back(
+                                    distance, point.label > 0.5f);
+                                
+                                float current_threshold = threshold_stats.getAdaptiveThreshold();
+                                bool prediction = (distance < current_threshold);
+                                bool is_same_class = (point.label > 0.5f);
+                                
+                                if (is_same_class) {
+                                    ++total_positives;
+                                    if (prediction) ++true_positives;
+                                } else {
+                                    ++total_negatives;
+                                    if (!prediction) ++true_negatives;
+                                }
+                                
+                                ++processed;
+                                
+                            } catch (const std::exception& e) {
+                                continue;
+                            }
+                        }
                     }
-                    
-                    try {
-                        // Transform both anchor and compare through our trees
-                        std::vector<float> anchor_output = ind.evaluate(point.anchor);
-                        std::vector<float> compare_output = ind.evaluate(point.compare);
-                        
-                        if (anchor_output.empty() || compare_output.empty()) {
-                            continue;
-                        }
-
-                        float distance = calculateDistance(anchor_output, compare_output);
-
-                        if (!std::isfinite(distance)) {
-                            continue;
-                        }
-
-                        bool prediction = (distance < config.distance_threshold);
-                        
-                        if (point.label > 0.5f) {  // Same class
-                            total_positives++;
-                            if (prediction) true_positives++;
-                        } else {  // Different class
-                            total_negatives++;
-                            if (!prediction) true_negatives++;
-                        }
-                        
-                        processed++;
-                    } catch (const std::exception& e) {
-                        std::cerr << "Error processing point " << j << ": " << e.what() << std::endl;
-                        continue;
-                    }
+                } catch (const std::exception& e) {
+                    std::cerr << "Thread " << thread_id << " error: " 
+                            << e.what() << std::endl;
+                }
+            }));
+        }
+        
+        for (auto& future : futures) {
+            if (future.valid()) {
+                try {
+                    future.get();
+                } catch (...) {
+                    continue;
                 }
             }
-            
-            if (processed == 0) {
-                std::cerr << "No valid points processed" << std::endl;
-                return 0.0f;
+        }
+        
+        // Update threshold statistics with collected distances
+        for (const auto& thread_dist : thread_distances) {
+            for (const auto& [distance, is_same_class] : thread_dist) {
+                threshold_stats.updateStats(distance, is_same_class);
             }
-
-            // Calculate balanced accuracy
-            float sensitivity = total_positives > 0 ? 
-                static_cast<float>(true_positives) / total_positives : 0.0f;
-            float specificity = total_negatives > 0 ? 
-                static_cast<float>(true_negatives) / total_negatives : 0.0f;
-            
-            return (sensitivity + specificity) / 2.0f;
-            
-        } catch (const std::exception& e) {
-            std::cerr << "Fatal error in calculateAccuracy: " << e.what() << std::endl;
+        }
+        
+        if (processed == 0) {
             return 0.0f;
         }
-    } 
+
+        float sensitivity = total_positives > 0 ? 
+            static_cast<float>(true_positives) / total_positives : 0.0f;
+        float specificity = total_negatives > 0 ? 
+            static_cast<float>(true_negatives) / total_negatives : 0.0f;
+        
+        float balanced_accuracy = (sensitivity + specificity) / 2.0f;
+        
+        // Log stats every N generations or when in validation
+        if (!ops->isTraining() || (processed % 1000) == 0) {
+            std::cout << "Current threshold: " << threshold_stats.getAdaptiveThreshold()
+                    << "\nPositive mean distance: " << threshold_stats.positive_mean
+                    << "\nNegative mean distance: " << threshold_stats.negative_mean
+                    << "\nSensitivity: " << (sensitivity * 100.0f) << "%"
+                    << "\nSpecificity: " << (specificity * 100.0f) << "%"
+                    << std::endl;
+        }
+        
+        return balanced_accuracy;
+    }
     
     Individual& runTournament(const std::vector<size_t>& available_indices) {
         if (available_indices.empty()) {
@@ -2402,7 +3384,7 @@ private:
     
     float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
         try {
-            // Check cache first with proper locking
+            // Check cache first
             float cached_fitness;
             {
                 std::lock_guard<std::mutex> lock(cache_mutex);
@@ -2411,38 +3393,15 @@ private:
                 }
             }
 
-            // Calculate accuracy
-            float balanced_accuracy;
-            try {
-                balanced_accuracy = calculateAccuracy(ind, data);
-            } catch (const std::exception& e) {
-                std::cerr << "Error calculating accuracy: " << e.what() << std::endl;
-                return std::numeric_limits<float>::max();
-            }
-
+            float balanced_accuracy = calculateAccuracy(ind, data);
+            
             if (!std::isfinite(balanced_accuracy)) {
                 return std::numeric_limits<float>::max();
             }
 
-            // Calculate complexity penalty
-            float complexity_penalty;
-            try {
-                complexity_penalty = config.parsimony_coeff * ind.totalSize();
-            } catch (const std::exception& e) {
-                std::cerr << "Error calculating complexity: " << e.what() << std::endl;
-                return std::numeric_limits<float>::max();
-            }
+            float complexity_penalty = config.parsimony_coeff * ind.totalSize();
+            float fitness = (1.0f - balanced_accuracy) * config.fitness_alpha + complexity_penalty;
 
-            // Calculate final fitness with safety checks
-            float fitness;
-            if (balanced_accuracy >= 0.0f && balanced_accuracy <= 1.0f) {
-                fitness = (1.0f - balanced_accuracy) * config.fitness_alpha + complexity_penalty;
-            } else {
-                std::cerr << "Invalid accuracy value: " << balanced_accuracy << std::endl;
-                return std::numeric_limits<float>::max();
-            }
-
-            // Store in cache if valid
             if (std::isfinite(fitness)) {
                 std::lock_guard<std::mutex> lock(cache_mutex);
                 fitness_cache.put(ind, fitness);
@@ -2455,7 +3414,6 @@ private:
             return std::numeric_limits<float>::max();
         }
     }
-
 
     void evaluatePopulation(const std::vector<DataPoint>& trainData) {
         if (population.empty() || trainData.empty()) {
@@ -2630,7 +3588,8 @@ public:
     ContrastiveGP(const GPConfig& cfg) 
         : config(cfg)
         , ops(std::make_shared<GPOperations>(
-            cfg.dropout_prob, cfg.bn_momentum, cfg.bn_epsilon))
+            cfg.dropout_prob, cfg.bn_momentum, cfg.bn_epsilon)),
+        threshold_stats(cfg.initial_distance_threshold)
     {
         population.reserve(config.population_size);
         for (int i = 0; i < config.population_size; ++i) {
@@ -3076,15 +4035,19 @@ int main() {
     std::cout << "Using " << config.num_workers << " worker threads" << std::endl;
     
     // Create and initialize model
-    ContrastiveGP model(config);
+    // ContrastiveGP model(config);
+    auto ops = std::make_shared<GPOperations>(
+            config.dropout_prob, config.bn_momentum, config.bn_epsilon);
+
+    BinaryClassifier model(config, ops);
     
     // Read and process data
     ExcelProcessor processor;
     try {
 
         std::cout << "Reading the Excel file" << std::endl;
-        // auto filePath = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx";
-        auto filePath = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx";
+        auto filePath = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx";
+        // auto filePath = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx";
         auto allData = processor.readExcel(filePath, "All data no QC filtering");
         auto [trainData, valData] = processor.splitTrainVal(allData);
         
