@@ -24,7 +24,7 @@ struct GPConfig {
     int n_features = 2080;
     int num_trees = 20;                   // Increased from 20 to 30 for better ensemble
     int population_size = 100;            // Doubled population size for more diversity
-    int generations = 100;                // Doubled to allow more evolution time
+    int generations = 1000;                // Doubled to allow more evolution time
     int elite_size = 10;                  // Increased to preserve good solutions
     float crossover_prob = 0.8f;         // Slightly increased for more genetic material exchange
     float mutation_prob = 0.2f;          // Increased for better exploration
@@ -701,68 +701,99 @@ namespace vec_ops {
 
 class BatchNorm {
 private:
-    float momentum;
-    float epsilon;
-    float running_mean;
-    float running_var;
+    const float momentum;
+    const float epsilon;
+    std::atomic<float> running_mean;
+    std::atomic<float> running_var;
     bool training;
+    mutable std::mutex stats_mutex;
+    static constexpr size_t MIN_BATCH_SIZE = 32;
 
 public:
-    BatchNorm(float m = 0.1f, float e = 1e-5f)
-        : momentum(m), epsilon(e), running_mean(0.0f), running_var(1.0f), training(true) {
-    }
+    BatchNorm(float m = 0.001f, float e = 1e-6f)  
+        : momentum(m)
+        , epsilon(e)
+        , running_mean(0.0f)
+        , running_var(1.0f)
+        , training(true) 
+    {}
 
-    void setTraining(bool mode) { training = mode; }
+    void setTraining(bool mode) { 
+        training = mode; 
+    }
 
     std::vector<float> operator()(const std::vector<float>& x) {
         if (x.empty()) {
-            std::cout << "BatchNorm: Empty input" << std::endl;
             return x;
         }
 
-        // For single values, just do basic standardization
-        if (x.size() == 1) {
-            float value = x[0];
-            if (training) {
-                running_mean = (1 - momentum) * running_mean + momentum * value;
-                running_var = (1 - momentum) * running_var + 
-                            momentum * (value - running_mean) * (value - running_mean);
-            }
-            
-            // Use a larger epsilon for numerical stability
-            float std_dev = std::sqrt(running_var + 0.1f);  // Increased epsilon
-            float normalized = (value - running_mean) / std_dev;
-            
-            return std::vector<float>{normalized};
+        // For very small inputs, just do simple standardization
+        if (x.size() < MIN_BATCH_SIZE) {
+            return normalizeSmallBatch(x);
         }
-
-        // For vectors, compute proper batch statistics
-        float batch_mean = 0.0f;
-        for (float val : x) {
-            batch_mean += val;
-        }
-        batch_mean /= x.size();
-
-        float batch_var = 0.0f;
-        for (float val : x) {
-            float diff = val - batch_mean;
-            batch_var += diff * diff;
-        }
-        batch_var = batch_var / x.size() + epsilon;
 
         if (training) {
-            running_mean = (1 - momentum) * running_mean + momentum * batch_mean;
-            running_var = (1 - momentum) * running_var + momentum * batch_var;
+            return normalizeTraining(x);
+        } else {
+            return normalizeInference(x);
+        }
+    }
+
+private:
+    std::vector<float> normalizeSmallBatch(const std::vector<float>& x) const {
+        std::vector<float> result(x.size());
+        float curr_mean = running_mean.load();
+        float curr_var = running_var.load();
+        
+        float std_dev = std::sqrt(curr_var + epsilon);
+        for (size_t i = 0; i < x.size(); ++i) {
+            result[i] = (x[i] - curr_mean) / std_dev;
+        }
+        return result;
+    }
+
+    std::vector<float> normalizeTraining(const std::vector<float>& x) {
+        // Use vec_ops to calculate batch statistics
+        float batch_mean = vec_ops::mean(x);
+        float batch_var = vec_ops::variance(x, batch_mean);
+
+        // Update running statistics thread-safely
+        {
+            std::lock_guard<std::mutex> lock(stats_mutex);
+            float current_mean = running_mean.load();
+            float current_var = running_var.load();
+            
+            // Exponential moving average update
+            float new_mean = (1.0f - momentum) * current_mean + momentum * batch_mean;
+            float new_var = (1.0f - momentum) * current_var + momentum * batch_var;
+            
+            running_mean.store(new_mean);
+            running_var.store(new_var);
         }
 
+        // Normalize using batch statistics
         std::vector<float> result(x.size());
-        float std_dev = std::sqrt(training ? batch_var : running_var + epsilon);
-        float mean = training ? batch_mean : running_mean;
+        float std_dev = std::sqrt(batch_var + epsilon);
+        
+        for (size_t i = 0; i < x.size(); ++i) {
+            result[i] = (x[i] - batch_mean) / std_dev;
+        }
+        
+        return result;
+    }
 
+    std::vector<float> normalizeInference(const std::vector<float>& x) const {
+        std::vector<float> result(x.size());
+        
+        // Use running statistics for normalization
+        float mean = running_mean.load();
+        float var = running_var.load();
+        float std_dev = std::sqrt(var + epsilon);
+        
         for (size_t i = 0; i < x.size(); ++i) {
             result[i] = (x[i] - mean) / std_dev;
         }
-
+        
         return result;
     }
 };
@@ -771,22 +802,49 @@ class GPOperations {
 public:
     // Constructor
     GPOperations(float dropout_probability = 0.0f,
-                float batch_norm_momentum = 0.01f,
-                float batch_norm_epsilon = 0.1f)
+                float batch_norm_momentum = 0.001f,
+                float batch_norm_epsilon = 1e-6f)
         : dropout_prob(dropout_probability)
         , training(true)
         , current_eval_id(0)
     {
         operations = {
-            {"add", [this](const auto& inputs, size_t id) { return vec_ops::add(inputs[0], inputs[1]); }},
-            {"sub", [this](const auto& inputs, size_t id) { return vec_ops::subtract(inputs[0], inputs[1]); }},
-            {"mul", [this](const auto& inputs, size_t id) { return vec_ops::multiply(inputs[0], inputs[1]); }},
-            {"div", [this](const auto& inputs, size_t id) { return protectedDiv(inputs[0], inputs[1]);}},
-            {"sin", [this](const auto& inputs, size_t id) { return applySin(inputs[0]); }},
-            {"cos", [this](const auto& inputs, size_t id) { return applyCos(inputs[0]); }},
-            {"neg", [this](const auto& inputs, size_t id) { return applyNeg(inputs[0]); }}
+            {"add", [this](const auto& inputs, size_t id) { 
+                auto result = vec_ops::add(inputs[0], inputs[1]); 
+                result = normalizeBatchIfNeeded(result, "add");
+                return applyDropout(result, id);
+            }},
+            {"sub", [this](const auto& inputs, size_t id) { 
+                auto result = vec_ops::subtract(inputs[0], inputs[1]); 
+                result = normalizeBatchIfNeeded(result, "sub");
+                return applyDropout(result, id);
+            }},
+            {"mul", [this](const auto& inputs, size_t id) { 
+                auto result = vec_ops::multiply(inputs[0], inputs[1]); 
+                result = normalizeBatchIfNeeded(result, "mul");
+                return applyDropout(result, id);
+            }},
+            {"div", [this](const auto& inputs, size_t id) { 
+                auto result = vec_ops::divide(inputs[0], inputs[1]);
+                result = normalizeBatchIfNeeded(result, "div");
+                return applyDropout(result, id);
+            }},
+            {"sin", [this](const auto& inputs, size_t id) { 
+                auto result = applySin(inputs[0]); 
+                result = normalizeBatchIfNeeded(result, "sin");
+                return applyDropout(result, id);
+            }},
+            {"cos", [this](const auto& inputs, size_t id) { 
+                auto result = applyCos(inputs[0]); 
+                result = normalizeBatchIfNeeded(result, "cos");
+                return applyDropout(result, id);
+            }},
+            {"neg", [this](const auto& inputs, size_t id) { 
+                auto result = applyNeg(inputs[0]); 
+                result = normalizeBatchIfNeeded(result, "neg");
+                return applyDropout(result, id);
+            }}
         };
-        // Initialize batch normalizations for each operation type
         initializeBatchNorms(batch_norm_momentum, batch_norm_epsilon);
     }
 
@@ -843,29 +901,6 @@ public:
                 return std::vector<float>{0.0f};
             }
 
-            // Apply batch normalization
-            auto bn_it = batch_norms.find(op_name);
-            if (bn_it != batch_norms.end() && bn_it->second) {
-                try {
-                    result = bn_it->second->operator()(result);
-                } catch (const std::exception& e) {
-                    std::cerr << "BatchNorm error: " << e.what() << std::endl;
-                    // Continue with unnormalized result if BatchNorm fails
-                }
-            }
-
-            // Apply dropout if enabled
-            if (training && dropout_prob > 0.0f) {
-                static thread_local std::mt19937 gen(std::random_device{}());
-                std::bernoulli_distribution dropout(dropout_prob);
-                
-                for (auto& val : result) {
-                    if (dropout(gen)) {
-                        val = 0.0f;
-                    }
-                }
-            }
-
             return result;
 
         } catch (...) {
@@ -880,13 +915,19 @@ public:
         for (auto& [_, bn] : batch_norms) {
             bn->setTraining(mode);
         }
+        dropout_mask.clear();  // Clear dropout mask when switching modes
     }
 
-    // Start new evaluation cycle
-    void startNewEvaluation() {
+    // Start new evaluation cycle with a specific seed
+    void startNewEvaluation(size_t eval_id) {
         std::lock_guard<std::mutex> lock(mutex);
-        ++current_eval_id;
+        current_eval_id = eval_id;
         dropout_mask.clear();
+        
+        // Use eval_id as part of the seed for reproducible dropout
+        std::seed_seq seed{static_cast<int>(eval_id), 
+                          static_cast<int>(eval_id >> 32)};
+        dropout_rng.seed(seed);
     }
 
 private:
@@ -900,6 +941,37 @@ private:
     static thread_local std::mt19937 rng;
     std::unordered_map<std::string, std::function<std::vector<float>(const std::vector<std::vector<float>>&, size_t)>> operations;
     std::mutex op_mutex; // Add this line to declare the mutex
+    mutable std::mt19937 dropout_rng;  // Dedicated RNG for dropout
+
+    // Apply dropout in a deterministic way based on node_id
+    std::vector<float> applyDropout(const std::vector<float>& input, size_t node_id) {
+        if (!training || dropout_prob <= 0.0f) {
+            return input;
+        }
+
+        auto dropout_key = node_id;
+        auto it = dropout_mask.find(dropout_key);
+        if (it == dropout_mask.end()) {
+            // Generate deterministic dropout decision
+            std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+            bool should_drop = dist(dropout_rng) < dropout_prob;
+            dropout_mask[dropout_key] = should_drop;
+            it = dropout_mask.find(dropout_key);
+        }
+
+        if (it->second) {
+            // Apply dropout - zero out the input
+            return std::vector<float>(input.size(), 0.0f);
+        }
+
+        // Scale the output by 1/(1-p) during training to maintain expected value
+        float scale = 1.0f / (1.0f - dropout_prob);
+        std::vector<float> output = input;
+        for (auto& val : output) {
+            val *= scale;
+        }
+        return output;
+    }
 
     // Initialize batch normalizations
     void initializeBatchNorms(float momentum, float epsilon) {
@@ -911,59 +983,17 @@ private:
         }
     }
 
-    // Dropout check
-    bool shouldDropNode(size_t node_id) {
-        if (!training || dropout_prob <= 0.0f) {
-            return false;
+    // Helper method to apply batch normalization if needed
+    std::vector<float> normalizeBatchIfNeeded(const std::vector<float>& x, const std::string& op_name) {
+        if (!training) {
+            return x;  // Skip batch norm during inference
         }
 
-        size_t mask_key = (current_eval_id << 32) | node_id;
-        if (dropout_mask.find(mask_key) == dropout_mask.end()) {
-            std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-            dropout_mask[mask_key] = dist(rng) < dropout_prob;
+        auto bn_it = batch_norms.find(op_name);
+        if (bn_it != batch_norms.end() && bn_it->second) {
+            return bn_it->second->operator()(x);
         }
-        return dropout_mask[mask_key];
-    }
-
-    std::vector<float> safeAdd(const std::vector<float>& x, const std::vector<float>& y) {
-        auto a = x;
-        auto b = y;
-        if (y.size() > 1) {
-            b = {y[0]};
-        }
-        return vec_ops::add(a,b);
-    }
-
-    std::vector<float> safeSubtract(const std::vector<float>& x, const std::vector<float>& y) {
-        auto a = x;
-        auto b = y;
-        if (y.size() > 1) {
-            b = {y[0]};
-        }
-        return vec_ops::subtract(a,b);
-    }
-
-    std::vector<float> safeMultiply(const std::vector<float>& x, const std::vector<float>& y) {
-        auto a = x;
-        auto b = y;
-        if (y.size() > 1) {
-            b = {y[0]};
-        }
-        return vec_ops::multiply(a,b);
-    }
-
-    std::vector<float> protectedDiv(const std::vector<float>& x,
-                                  const std::vector<float>& y) {
-        std::vector<float> result(x.size());
-        for (size_t i = 0; i < x.size(); ++i) {
-            if (std::isinf(x[i]) || std::isinf(y[i]) || std::isnan(x[i]) || std::isnan(y[i])) {
-                std::cerr << "Overflow/Underflow detected in division" << std::endl;
-                return std::vector<float>{0.0f}; // Handle overflow/underflow
-            }
-            result[i] = std::abs(y[i]) < 1e-10f ? 
-                       x[i] : x[i] / (y[i] + 1e-10f);
-        }
-        return result;
+        return x;
     }
 
     std::vector<float> applySin(const std::vector<float>& x) {
@@ -2715,24 +2745,36 @@ public:
         float best_train_accuracy = 0.0f;
         int epochs_without_improvement = 0;
         auto best_trees = cloneTrees();
+        int current_eval = 0;
 
-        // Create fixed validation set
+        // Create fixed training and validation set
+        auto batch = createBalancedBatch(trainData, trainData.size());
         auto validation_batch = createBalancedBatch(valData, std::min(valData.size(), size_t(1000)));
 
+        // Progress bar for training epochs
         ProgressBar progress(max_epochs, 50, "Training Progress");
 
         // Training loop
         for (int epoch = 0; epoch < max_epochs; ++epoch) {
+            // Update the progress bar.
+            progress.update();
+            current_eval = 0;
             // Keep dropout enabled for training fitness evaluation
             std::vector<std::pair<float, size_t>> fitness_scores;
             fitness_scores.reserve(pop_size);
 
-            // Create balanced batch for training
-            auto batch = createBalancedBatch(trainData, 1000);
+            // Progress bar for population evaluation
+            ProgressBar populationProgress(max_epochs, 50, "Population Progress");
 
             for (size_t i = 0; i < population.size(); ++i) {
+                // Update progress bar
+                populationProgress.update();
+
                 auto backup_trees = cloneTrees();
                 trees = std::move(population[i]);
+
+                // Increase evaluation count for dropout.
+                ops->startNewEvaluation(current_eval++);
 
                 auto stats = evaluateBatch(batch);  // With dropout
                 float fitness = (stats.sensitivity + stats.specificity) / 2.0f;
@@ -2813,7 +2855,6 @@ public:
 
             // Replace population
             population = std::move(new_population);
-            progress.update();
         }
 
         // Final evaluation with best model and no dropout
@@ -3818,8 +3859,8 @@ int main() {
     try {
 
         std::cout << "Reading the Excel file" << std::endl;
-        auto filePath = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx";
-        // auto filePath = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx";
+        // auto filePath = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx";
+        auto filePath = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx";
         auto allData = processor.readExcel(filePath, "All data no QC filtering");
         auto [trainData, valData] = processor.splitTrainVal(allData);
         
