@@ -26,20 +26,20 @@ struct GPConfig {
     int population_size = 100;            // Doubled population size for more diversity
     int generations = 100;                // Doubled to allow more evolution time
     int elite_size = 10;                  // Increased to preserve good solutions
-    float crossover_prob = 0.8f;          // Slightly increased for more genetic material exchange
-    float mutation_prob = 0.2f;           // Increased for better exploration
-    int tournament_size = 7;              // Increased for stronger selection pressure
-    int classifier_trees = 20;            // Number of trees for voting
-    float decision_threshold = 0.5f;      // Classification threshold
-    float feature_scale = 0.01f;          // Scale factor for feature normalization
-    int min_votes = 5;                    // Minimum votes for positive classification
+    float crossover_prob = 0.8f;         // Slightly increased for more genetic material exchange
+    float mutation_prob = 0.2f;          // Increased for better exploration
+    int tournament_size = 7;             // Increased for stronger selection pressure
+    int classifier_trees = 20;     // Number of trees for voting
+    float decision_threshold = 0.5f;  // Classification threshold
+    float feature_scale = 0.01f;   // Scale factor for feature normalization
+    int min_votes = 5;           // Minimum votes for positive classification
     float distance_threshold = 1.0f;      // Reduced to be more selective
     float margin = 1.0f;      
     float initial_distance_threshold = 1.0f;
     float threshold_adaptation_rate = 0.01f;
     float threshold_min = 0.1f;
     float threshold_max = 2.0f;
-    int threshold_window_size = 100;      // Increased margin for better separation
+    int threshold_window_size = 100;             // Increased margin for better separation
     float fitness_alpha = 0.7f;           // Reduced to balance accuracy vs. complexity
     float loss_alpha = 0.3f;              // Increased to focus more on loss reduction
     float parsimony_coeff = 0.0005f;      // Reduced to allow more complex solutions
@@ -47,15 +47,9 @@ struct GPConfig {
     int min_tree_depth = 3;               // Kept the same
     int batch_size = 32;                  // Reduced for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
-    float dropout_prob = 0.1f;            // Increased for stronger regularization
-    float bn_momentum = 0.001f;           // Reduced  faster adaptation
+    float dropout_prob = 0.1f;           // Increased for stronger regularization
+    float bn_momentum = 0.001f;            // Reduced  faster adaptation
     float bn_epsilon = 1e-6f;             // Reduced for more precise normalization
-    int boosting_rounds = 5;              // Number of boosting rounds
-    float learning_rate = 0.1f;           // Learning rate for boosting
-    int max_features = 2080;              // Maximum features to consider per tree
-    float feature_sampling_ratio = 0.7f;  // Ratio of features to sample
-    float instance_sampling_ratio = 0.8f; // Ratio of instances to sample
-    bool use_feature_importance = true;   // Use feature importance for sampling
 };
 
 inline std::mt19937& getThreadLocalRNG() {
@@ -2322,8 +2316,6 @@ private:
     const GPConfig& config;
     std::shared_ptr<GPOperations> ops;
     mutable std::mutex predict_mutex;
-    std::vector<float> feature_importance;
-    std::vector<float> sample_weights;
 
     struct TrainingStats {
         float accuracy = 0.0f;
@@ -2472,63 +2464,7 @@ private:
         return normalized;
     }
 
-    // Updated feature sampling method to respect bounds
-    std::vector<int> sampleFeatures() const {
-        // Number of base features
-        const size_t base_features = config.n_features;
-        
-        // Calculate features per type (anchor, compare, diff, prod, max, min)
-        const size_t features_to_sample = std::min(
-            static_cast<size_t>(base_features * config.feature_sampling_ratio),
-            static_cast<size_t>(config.max_features)
-        );
-
-        std::vector<int> selected_features;
-        selected_features.reserve(features_to_sample * 6);  // Space for all types
-
-        // Sample for each feature type
-        for (int type = 0; type < 6; ++type) {
-            if (feature_importance.empty() || !config.use_feature_importance) {
-                // Uniform sampling within base feature range
-                std::vector<int> type_features(base_features);
-                std::iota(type_features.begin(), type_features.end(), 0);
-                std::shuffle(type_features.begin(), type_features.end(), getThreadLocalRNG());
-                
-                // Take subset and add type offset
-                for (size_t i = 0; i < features_to_sample && i < type_features.size(); ++i) {
-                    selected_features.push_back(type_features[i] + type * base_features);
-                }
-            } else {
-                // Importance-based sampling within current type's range
-                std::vector<float> type_importance(
-                    feature_importance.begin() + type * base_features,
-                    feature_importance.begin() + (type + 1) * base_features
-                );
-                
-                std::discrete_distribution<int> dist(
-                    type_importance.begin(), type_importance.end());
-                
-                std::unordered_set<int> type_features;
-                while (type_features.size() < features_to_sample) {
-                    int base_idx = dist(getThreadLocalRNG());
-                    type_features.insert(base_idx + type * base_features);
-                }
-                
-                selected_features.insert(
-                    selected_features.end(),
-                    type_features.begin(),
-                    type_features.end()
-                );
-            }
-        }
-
-        // Final shuffle of all selected features
-        std::shuffle(selected_features.begin(), selected_features.end(), getThreadLocalRNG());
-        
-        return selected_features;
-    }
-
-    // Updated feature combination method
+    // Helper to combine features with various operations
     std::vector<float> combineFeatures(
         const std::vector<float>& anchor, 
         const std::vector<float>& compare
@@ -2536,311 +2472,36 @@ private:
         if (anchor.empty() || compare.empty() || anchor.size() != compare.size()) {
             return {};
         }
-
-        // Get sampled feature indices
-        auto selected_features = sampleFeatures();
         
-        // Create combined feature vector
+        // Output will contain: [anchor, compare, diff, product, max, min]
         std::vector<float> combined;
-        combined.reserve(selected_features.size());
-
-        const size_t base_features = config.n_features;
+        combined.reserve(anchor.size() * 6);
         
-        for (int idx : selected_features) {
-            // Determine feature type and base index
-            const int feature_type = idx / base_features;
-            const int base_idx = idx % base_features;
-            
-            // Skip if base index is out of bounds
-            if (base_idx >= anchor.size()) continue;
-            
-            // Add appropriate feature based on type
-            switch (feature_type) {
-                case 0: // Original anchor features
-                    combined.push_back(anchor[base_idx]);
-                    break;
-                case 1: // Original compare features
-                    combined.push_back(compare[base_idx]);
-                    break;
-                case 2: // Difference features
-                    combined.push_back(anchor[base_idx] - compare[base_idx]);
-                    break;
-                case 3: // Product features
-                    combined.push_back(anchor[base_idx] * compare[base_idx]);
-                    break;
-                case 4: // Max features
-                    combined.push_back(std::max(anchor[base_idx], compare[base_idx]));
-                    break;
-                case 5: // Min features
-                    combined.push_back(std::min(anchor[base_idx], compare[base_idx]));
-                    break;
-            }
+        // Add original features
+        combined.insert(combined.end(), anchor.begin(), anchor.end());
+        combined.insert(combined.end(), compare.begin(), compare.end());
+        
+        // Add difference features
+        for (size_t i = 0; i < anchor.size(); ++i) {
+            combined.push_back(anchor[i] - compare[i]);
         }
-
+        
+        // Add product features
+        for (size_t i = 0; i < anchor.size(); ++i) {
+            combined.push_back(anchor[i] * compare[i]);
+        }
+        
+        // Add max features
+        for (size_t i = 0; i < anchor.size(); ++i) {
+            combined.push_back(std::max(anchor[i], compare[i]));
+        }
+        
+        // Add min features
+        for (size_t i = 0; i < anchor.size(); ++i) {
+            combined.push_back(std::min(anchor[i], compare[i]));
+        }
+        
         return normalizeFeatures(combined);
-    }
-
-    // Improved training with boosting
-    void trainBoostedEnsemble(
-        const std::vector<DataPoint>& trainData,
-        const std::vector<DataPoint>& valData,
-        int max_epochs
-    ) {
-        // Initialize sample weights
-        sample_weights.assign(trainData.size(), 1.0f / trainData.size());
-        
-        // Initialize feature importance
-        feature_importance.assign(config.n_features * 6, 1.0f);
-        
-        float best_accuracy = 0.0f;
-        std::vector<std::unique_ptr<GPNode>> best_trees;
-        
-        for (int boost_round = 0; boost_round < config.boosting_rounds; ++boost_round) {
-            std::cout << "\nBoosting Round " << boost_round + 1 << std::endl;
-            
-            // Train base model
-            trainBaseModel(trainData, valData, max_epochs);
-            
-            // Evaluate current ensemble
-            auto train_stats = evaluateEnsemble(trainData);
-            auto val_stats = evaluateEnsemble(valData);
-            
-            // Update best model if improved
-            if (val_stats.accuracy > best_accuracy) {
-                best_accuracy = val_stats.accuracy;
-                best_trees = cloneTrees();
-            }
-            
-            // Update sample weights based on errors
-            updateSampleWeights(trainData);
-            
-            // Update feature importance
-            updateFeatureImportance(trainData);
-            
-            // Print progress
-            std::cout << "Training Accuracy: " << (train_stats.accuracy * 100.0f) << "%"
-                     << "\nValidation Accuracy: " << (val_stats.accuracy * 100.0f) << "%"
-                     << "\nBest Accuracy: " << (best_accuracy * 100.0f) << "%" << std::endl;
-        }
-        
-        // Restore best trees
-        trees = std::move(best_trees);
-    }
-
-    void updateSampleWeights(const std::vector<DataPoint>& data) {
-        float total_weight = 0.0f;
-        
-        #pragma omp parallel for reduction(+:total_weight)
-        for (size_t i = 0; i < data.size(); ++i) {
-            float pred = predict(data[i].anchor, data[i].compare);
-            float error = std::abs(pred - (data[i].label > 0.5f ? 1.0f : 0.0f));
-            
-            // Increase weights for misclassified samples
-            sample_weights[i] *= std::exp(config.learning_rate * error);
-            total_weight += sample_weights[i];
-        }
-        
-        // Normalize weights
-        if (total_weight > 0.0f) {
-            #pragma omp parallel for
-            for (size_t i = 0; i < sample_weights.size(); ++i) {
-                sample_weights[i] /= total_weight;
-            }
-        }
-    }
-
-    void updateFeatureImportance(const std::vector<DataPoint>& data) {
-        std::vector<float> importance_delta(feature_importance.size(), 0.0f);
-        std::vector<float> feature_errors(feature_importance.size(), 0.0f);
-        
-        // Calculate feature-wise errors
-        #pragma omp parallel for
-        for (size_t i = 0; i < data.size(); ++i) {
-            auto selected_features = sampleFeatures();
-            float pred = predict(data[i].anchor, data[i].compare);
-            float error = std::abs(pred - (data[i].label > 0.5f ? 1.0f : 0.0f));
-            
-            for (int feat_idx : selected_features) {
-                #pragma omp atomic
-                feature_errors[feat_idx] += error * sample_weights[i];
-            }
-        }
-        
-        // Update importance scores
-        float total_importance = 0.0f;
-        for (size_t i = 0; i < feature_importance.size(); ++i) {
-            feature_importance[i] *= std::exp(-config.learning_rate * feature_errors[i]);
-            total_importance += feature_importance[i];
-        }
-        
-        // Normalize importance scores
-        if (total_importance > 0.0f) {
-            for (auto& imp : feature_importance) {
-                imp /= total_importance;
-            }
-        }
-    }
-
-    TrainingStats evaluateEnsemble(const std::vector<DataPoint>& data) const {
-        int tp = 0, tn = 0, fp = 0, fn = 0;
-        
-        #pragma omp parallel for reduction(+:tp,tn,fp,fn)
-        for (size_t i = 0; i < data.size(); ++i) {
-            const auto& point = data[i];
-            float prediction = predict(point.anchor, point.compare);
-            bool predicted_same = prediction >= config.decision_threshold;
-            bool actually_same = point.label > 0.5f;
-
-            if (actually_same) {
-                if (predicted_same) ++tp;
-                else ++fn;
-            } else {
-                if (predicted_same) ++fp;
-                else ++tn;
-            }
-        }
-
-        TrainingStats stats;
-        stats.true_positives = tp;
-        stats.true_negatives = tn;
-        stats.false_positives = fp;
-        stats.false_negatives = fn;
-
-        float total_positive = stats.true_positives + stats.false_negatives;
-        float total_negative = stats.true_negatives + stats.false_positives;
-        float total = total_positive + total_negative;
-
-        stats.sensitivity = total_positive > 0 ? 
-            static_cast<float>(stats.true_positives) / total_positive : 0.0f;
-        stats.specificity = total_negative > 0 ? 
-            static_cast<float>(stats.true_negatives) / total_negative : 0.0f;
-        stats.accuracy = total > 0 ? 
-            static_cast<float>(stats.true_positives + stats.true_negatives) / total : 0.0f;
-
-        return stats;
-    }
-
-    // Train base model method
-    void trainBaseModel(const std::vector<DataPoint>& trainData,
-                       const std::vector<DataPoint>& valData,
-                       int max_epochs) {
-        std::cout << "\nTraining base model:" << std::endl;
-        ProgressBar epoch_progress(max_epochs, 50, "Epochs");
-
-        // Population of trees
-        std::vector<std::vector<std::unique_ptr<GPNode>>> population;
-        const size_t pop_size = config.population_size;
-        const size_t elite_size = config.elite_size;
-
-        // Initialize population
-        population.reserve(pop_size);
-        for (size_t i = 0; i < pop_size; ++i) {
-            std::vector<std::unique_ptr<GPNode>> new_trees;
-            new_trees.reserve(config.classifier_trees);
-            for (int j = 0; j < config.classifier_trees; ++j) {
-                new_trees.push_back(createRandomTree(config.min_tree_depth, config.max_tree_depth));
-            }
-            population.push_back(std::move(new_trees));
-        }
-
-        float best_val_accuracy = 0.0f;
-        int epochs_without_improvement = 0;
-        auto best_trees = cloneTrees();
-
-        // Training loop
-        for (int epoch = 0; epoch < max_epochs; ++epoch) {
-            // Update progress 
-            epoch_progress.update();
-
-            // Create weighted batch
-            auto batch = createWeightedBatch(trainData, config.batch_size);
-            
-            // Evaluate population
-            std::vector<std::pair<float, size_t>> fitness_scores;
-            fitness_scores.reserve(pop_size);
-
-            for (size_t i = 0; i < population.size(); ++i) {
-                auto backup_trees = cloneTrees();
-                trees = std::move(population[i]);
-
-                auto stats = evaluateEnsemble(batch);
-                float fitness = stats.accuracy;
-
-                fitness_scores.emplace_back(fitness, i);
-
-                population[i] = cloneTrees();
-                trees = std::move(backup_trees);
-            }
-
-            std::sort(fitness_scores.begin(), fitness_scores.end(),
-                     std::greater<std::pair<float, size_t>>());
-
-            // Create new population with elitism
-            std::vector<std::vector<std::unique_ptr<GPNode>>> new_population;
-            new_population.reserve(pop_size);
-
-            // Add elite individuals
-            for (size_t i = 0; i < elite_size && i < fitness_scores.size(); ++i) {
-                new_population.push_back(cloneTreeVector(population[fitness_scores[i].second]));
-            }
-
-            // Fill rest with tournament selection and variation
-            while (new_population.size() < pop_size) {
-                size_t parent1_idx = tournamentSelect(fitness_scores);
-                size_t parent2_idx = tournamentSelect(fitness_scores);
-
-                auto offspring = createOffspring(population[parent1_idx], population[parent2_idx]);
-
-                if (std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
-                    config.mutation_prob) {
-                    mutateTreeVector(offspring);
-                }
-
-                new_population.push_back(std::move(offspring));
-            }
-
-            // Evaluate best individual
-            trees = cloneTreeVector(population[fitness_scores[0].second]);
-            auto val_stats = evaluateEnsemble(valData);
-
-            if (val_stats.accuracy > best_val_accuracy) {
-                best_val_accuracy = val_stats.accuracy;
-                best_trees = cloneTrees();
-                epochs_without_improvement = 0;
-            } else {
-                epochs_without_improvement++;
-            }
-
-            if (epochs_without_improvement >= 10) {
-                break;
-            }
-
-            population = std::move(new_population);
-        }
-
-        trees = std::move(best_trees);
-    }
-
-    // Create weighted batch based on sample weights
-    std::vector<DataPoint> createWeightedBatch(
-        const std::vector<DataPoint>& data,
-        size_t batch_size
-    ) const {
-        if (data.empty() || batch_size == 0) return {};
-
-        // Create distribution based on sample weights
-        std::discrete_distribution<size_t> dist(sample_weights.begin(), sample_weights.end());
-
-        std::vector<DataPoint> batch;
-        batch.reserve(batch_size);
-
-        // Sample instances based on weights
-        for (size_t i = 0; i < batch_size; ++i) {
-            size_t idx = dist(getThreadLocalRNG());
-            batch.push_back(data[idx]);
-        }
-
-        return batch;
     }
 
 public:
@@ -2867,30 +2528,18 @@ public:
     // Create a random tree with specific depth constraints
     std::unique_ptr<GPNode> createRandomTree(int min_depth, int max_depth) {
         std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
-        
-        // Important: Base feature index should be within original feature count
-        std::uniform_int_distribution<int> feature_dist(0, config.n_features - 1);
+        std::uniform_int_distribution<int> feature_dist(0, config.n_features * 6 - 1);  // 6x features
         
         // Helper function to create tree recursively
         std::function<std::unique_ptr<GPNode>(int, int)> buildTree = 
             [&](int depth, int max_allowed) -> std::unique_ptr<GPNode> {
             
             if (depth >= max_allowed) {
-                // When creating a feature node, generate both feature type and index
-                std::uniform_int_distribution<int> type_dist(0, 5);  // 6 feature types
-                int feature_type = type_dist(getThreadLocalRNG());
-                int base_feature = feature_dist(getThreadLocalRNG());
-                
-                return std::make_unique<FeatureNode>(base_feature);
+                return std::make_unique<FeatureNode>(feature_dist(getThreadLocalRNG()));
             }
             
             if (depth >= min_depth && prob_dist(getThreadLocalRNG()) < 0.3f) {
-                // Same as above for leaf nodes
-                std::uniform_int_distribution<int> type_dist(0, 5);
-                int feature_type = type_dist(getThreadLocalRNG());
-                int base_feature = feature_dist(getThreadLocalRNG());
-                
-                return std::make_unique<FeatureNode>(base_feature);
+                return std::make_unique<FeatureNode>(feature_dist(getThreadLocalRNG()));
             }
             
             // Create operator node
@@ -3047,14 +2696,119 @@ public:
             return;
         }
 
-        // Initialize weights and importance scores
-        sample_weights.assign(trainData.size(), 1.0f / trainData.size());
-        feature_importance.assign(config.n_features * 6, 1.0f / (config.n_features * 6));
+        // Population of trees
+        std::vector<std::vector<std::unique_ptr<GPNode>>> population;
+        const size_t pop_size = config.population_size;  // Population size
+        const size_t elite_size = config.elite_size;  // Number of elite individuals to preserve
 
-        // Train boosted ensemble
-        trainBoostedEnsemble(trainData, valData, max_epochs);
+        // Initialize population
+        population.reserve(pop_size);
+        for (size_t i = 0; i < pop_size; ++i) {
+            std::vector<std::unique_ptr<GPNode>> new_trees;
+            new_trees.reserve(config.classifier_trees);
+            for (int j = 0; j < config.classifier_trees; ++j) {
+                new_trees.push_back(createRandomTree(config.min_tree_depth, config.max_tree_depth));
+            }
+            population.push_back(std::move(new_trees));
+        }
+
+        float best_val_accuracy = 0.0f;
+        int epochs_without_improvement = 0;
+        auto best_trees = cloneTrees();
+
+        ProgressBar progress(max_epochs, 50, "Training Progress");
+
+        // Training loop
+        for (int epoch = 0; epoch < max_epochs; ++epoch) {
+            std::cout << "\nEpoch " << epoch + 1 << ":" << std::endl;
+
+            // Update the progress bar.
+            progress.update();
+
+            // Evaluate all individuals in population
+            std::vector<std::pair<float, size_t>> fitness_scores;
+            fitness_scores.reserve(pop_size);
+
+            for (size_t i = 0; i < population.size(); ++i) {
+                // Temporarily set trees to evaluate this individual
+                auto backup_trees = cloneTrees();
+                trees = std::move(population[i]);
+
+                // Evaluate on a batch
+                auto batch = createBalancedBatch(trainData, batch_size);
+                auto stats = evaluateBatch(batch);
+                float fitness = (stats.sensitivity + stats.specificity) / 2.0f;
+
+                fitness_scores.emplace_back(fitness, i);
+
+                // Restore trees
+                population[i] = cloneTrees();
+                trees = std::move(backup_trees);
+            }
+
+            // Sort by fitness
+            std::sort(fitness_scores.begin(), fitness_scores.end(),
+                     std::greater<std::pair<float, size_t>>());
+
+            // Create new population with elitism
+            std::vector<std::vector<std::unique_ptr<GPNode>>> new_population;
+            new_population.reserve(pop_size);
+
+            // Add elite individuals
+            for (size_t i = 0; i < elite_size && i < fitness_scores.size(); ++i) {
+                new_population.push_back(cloneTreeVector(population[fitness_scores[i].second]));
+            }
+
+            // Fill rest of population through tournament selection and variation
+            while (new_population.size() < pop_size) {
+                // Tournament selection
+                size_t parent1_idx = tournamentSelect(fitness_scores);
+                size_t parent2_idx = tournamentSelect(fitness_scores);
+
+                // Create offspring through crossover
+                auto offspring = createOffspring(population[parent1_idx], population[parent2_idx]);
+
+                // Apply mutation
+                if (std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
+                    config.mutation_prob) {
+                    mutateTreeVector(offspring);
+                }
+
+                new_population.push_back(std::move(offspring));
+            }
+
+            // Evaluate best individual on validation set
+            trees = cloneTreeVector(population[fitness_scores[0].second]);
+            auto val_stats = evaluateBatch(createBalancedBatch(valData, batch_size));
+            float val_accuracy = (val_stats.sensitivity + val_stats.specificity) / 2.0f;
+
+            // Track best model
+            if (val_accuracy > best_val_accuracy) {
+                best_val_accuracy = val_accuracy;
+                best_trees = cloneTrees();
+                epochs_without_improvement = 0;
+            } else {
+                epochs_without_improvement++;
+            }
+
+            // Print progress
+            std::cout << "\nBest Training Fitness: " << fitness_scores[0].first * 100.0f << "%"
+                     << "\nValidation Accuracy: " << val_accuracy * 100.0f << "%"
+                     << "\nEpochs without improvement: " << epochs_without_improvement << std::endl;
+
+            // Early stopping
+            if (epochs_without_improvement >= 10) {
+                std::cout << "Early stopping triggered" << std::endl;
+                // break;
+            }
+
+            // Replace population
+            population = std::move(new_population);
+        }
+
+        // Restore best trees
+        trees = std::move(best_trees);
     }
-
 
 private:
     // Helper methods for population management
