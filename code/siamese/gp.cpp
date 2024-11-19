@@ -45,9 +45,9 @@ struct GPConfig {
     float parsimony_coeff = 0.0005f;      // Reduced to allow more complex solutions
     int max_tree_depth = 6;               // Increased for more expressive trees
     int min_tree_depth = 3;               // Kept the same
-    int batch_size = 32;                  // Reduced for more frequent updates
+    int batch_size = 64;                  // Reduced for more frequent updates
     int num_workers = std::thread::hardware_concurrency();
-    float dropout_prob = 0.1f;           // Increased for stronger regularization
+    float dropout_prob = 0.0f;           // Increased for stronger regularization
     float bn_momentum = 0.001f;            // Reduced  faster adaptation
     float bn_epsilon = 1e-6f;             // Reduced for more precise normalization
 };
@@ -2346,6 +2346,190 @@ private:
     const GPConfig& config;
     std::shared_ptr<GPOperations> ops;
     mutable std::mutex predict_mutex;
+    
+    // Add adaptive learning rate
+    float learning_rate = 0.01f;
+    float learning_rate_decay = 0.995f;
+    
+    struct BatchNormStats {
+        std::vector<float> running_mean;
+        std::vector<float> running_var;
+        float momentum = 0.999f;
+        float epsilon = 1e-6f;
+        mutable std::mutex mutex;
+    };
+    mutable BatchNormStats bn_stats;
+
+    std::vector<float> batchNormalize(const std::vector<float>& features, bool update_stats = true) const {
+        if (features.empty()) return {};
+        
+        const size_t num_features = features.size();
+        std::vector<float> normalized(num_features);
+        
+        // Initialize stats if needed
+        {
+            std::lock_guard<std::mutex> lock(bn_stats.mutex);
+            if (bn_stats.running_mean.size() != num_features) {
+                bn_stats.running_mean.resize(num_features, 0.0f);
+                bn_stats.running_var.resize(num_features, 1.0f);
+            }
+        }
+        
+        if (ops->isTraining() && update_stats) {
+            // Compute batch statistics
+            float mean = 0.0f;
+            float var = 0.0f;
+            
+            // Calculate mean
+            for (size_t i = 0; i < num_features; ++i) {
+                mean += features[i];
+            }
+            mean /= num_features;
+            
+            // Calculate variance
+            for (size_t i = 0; i < num_features; ++i) {
+                float diff = features[i] - mean;
+                var += diff * diff;
+            }
+            var /= num_features;
+            
+            // Update running statistics with momentum
+            std::lock_guard<std::mutex> lock(bn_stats.mutex);
+            for (size_t i = 0; i < num_features; ++i) {
+                bn_stats.running_mean[i] = bn_stats.momentum * bn_stats.running_mean[i] + 
+                                         (1.0f - bn_stats.momentum) * mean;
+                bn_stats.running_var[i] = bn_stats.momentum * bn_stats.running_var[i] + 
+                                        (1.0f - bn_stats.momentum) * var;
+            }
+            
+            // Normalize using batch statistics
+            float std_dev = std::sqrt(var + bn_stats.epsilon);
+            for (size_t i = 0; i < num_features; ++i) {
+                normalized[i] = (features[i] - mean) / std_dev;
+            }
+        } else {
+            // Use running statistics for inference
+            std::lock_guard<std::mutex> lock(bn_stats.mutex);
+            for (size_t i = 0; i < num_features; ++i) {
+                float std_dev = std::sqrt(bn_stats.running_var[i] + bn_stats.epsilon);
+                normalized[i] = (features[i] - bn_stats.running_mean[i]) / std_dev;
+            }
+        }
+        
+        return normalized;
+    }
+
+    // Tree ensemble weights for AdaBoost
+    std::vector<float> tree_weights;
+    float min_weight = 1e-5f;  // Minimum weight to prevent numerical issues
+
+    float weightedPredict(const std::vector<float>& anchor, const std::vector<float>& compare) const {
+        if (anchor.empty() || compare.empty() || anchor.size() != compare.size()) {
+            return 0.5f;
+        }
+        
+        // Normalize features
+        auto norm_anchor = batchNormalize(anchor, false);  // Don't update stats during prediction
+        auto norm_compare = batchNormalize(compare, false);
+        
+        // Combined features for prediction
+        auto combined = combineFeatures(norm_anchor, norm_compare);
+        
+        float weighted_sum = 0.0f;
+        float total_weight = 0.0f;
+        std::vector<float> confidences;
+        confidences.reserve(trees.size());
+        
+        // Get predictions from each tree
+        for (size_t i = 0; i < trees.size(); ++i) {
+            if (!trees[i]) continue;
+            
+            try {
+                auto output = trees[i]->evaluate(combined);
+                if (!output.empty() && std::isfinite(output[0])) {
+                    float prediction = sigmoid(output[0] * config.feature_scale);
+                    float confidence = std::abs(prediction - 0.5f) * 2.0f;  // Scale confidence to [0,1]
+                    
+                    // Apply tree weight and confidence
+                    float weight = tree_weights[i] * confidence;
+                    weighted_sum += prediction * weight;
+                    total_weight += weight;
+                }
+            } catch (...) {
+                std::cout << "Error during prediction, skipping tree" << std::endl;
+                continue;
+            }
+        }
+        
+        if (total_weight > 0.0f) {
+            return weighted_sum / total_weight;
+        }
+        
+        return 0.5f;  // Default to uncertain prediction
+    }
+
+    // Update tree weights based on performance
+    void updateTreeWeights(const std::vector<const DataPoint*>& batch) {
+        const size_t num_trees = trees.size();
+        std::vector<float> error_rates(num_trees, 0.0f);
+        std::vector<size_t> predictions(num_trees, 0);
+        
+        // Calculate error rate for each tree
+        for (const auto& point : batch) {
+            auto combined = combineFeatures(
+                batchNormalize(point->anchor, true),
+                batchNormalize(point->compare, true)
+            );
+            
+            // Get predictions from each tree
+            for (size_t i = 0; i < num_trees; ++i) {
+                if (!trees[i]) continue;
+                
+                try {
+                    auto output = trees[i]->evaluate(combined);
+                    if (!output.empty() && std::isfinite(output[0])) {
+                        float prediction = sigmoid(output[0] * config.feature_scale);
+                        bool predicted_same = prediction >= config.decision_threshold;
+                        bool actually_same = point->label > 0.5f;
+                        
+                        if (predicted_same != actually_same) {
+                            error_rates[i] += 1.0f;
+                        }
+                        predictions[i]++;
+                    }
+                } catch (...) {
+                    std::cout << "Error during prediction, skipping tree" << std::endl;
+                    continue;
+                }
+            }
+        }
+        
+        // Update weights using AdaBoost formula
+        for (size_t i = 0; i < num_trees; ++i) {
+            if (predictions[i] > 0) {
+                error_rates[i] /= predictions[i];
+                // Prevent numerical issues
+                error_rates[i] = std::max(min_weight, std::min(1.0f - min_weight, error_rates[i]));
+                
+                // AdaBoost weight update
+                float beta = error_rates[i] / (1.0f - error_rates[i]);
+                tree_weights[i] = std::log(1.0f / beta);
+            } else {
+                tree_weights[i] = min_weight;
+            }
+        }
+        
+        // Normalize weights
+        float total_weight = std::accumulate(tree_weights.begin(), tree_weights.end(), 0.0f);
+        if (total_weight > 0.0f) {
+            for (float& weight : tree_weights) {
+                weight = std::max(min_weight, weight / total_weight);
+            }
+        } else {
+            // Reset to uniform weights if something went wrong
+            std::fill(tree_weights.begin(), tree_weights.end(), 1.0f / num_trees);
+        }
+    }
 
     struct TrainingStats {
         float accuracy = 0.0f;
@@ -2594,65 +2778,33 @@ public:
     float predict(const std::vector<float>& anchor, const std::vector<float>& compare) const {
         std::lock_guard<std::mutex> lock(predict_mutex);
         
-        if (anchor.empty() || compare.empty() || anchor.size() != compare.size()) {
-            return 0.0f;
-        }
+        auto combined = combineFeatures(
+            batchNormalize(anchor, false),
+            batchNormalize(compare, false)
+        );
         
-        // Combine features with various operations
-        std::vector<float> combined = combineFeatures(anchor, compare);
-        if (combined.empty()) return 0.0f;
+        float weighted_sum = 0.0f;
+        float total_weight = 0.0f;
         
-        // Get predictions from each tree
-        std::vector<float> predictions;
-        predictions.reserve(trees.size());
-        
-        for (const auto& tree : trees) {
-            if (!tree) continue;
+        for (size_t i = 0; i < trees.size(); ++i) {
+            if (!trees[i]) continue;
             
             try {
-                auto output = tree->evaluate(combined);
+                auto output = trees[i]->evaluate(combined);
                 if (!output.empty() && std::isfinite(output[0])) {
-                    predictions.push_back(sigmoid(output[0] * config.feature_scale));
+                    float prediction = sigmoid(output[0] * config.feature_scale);
+                    float confidence = std::abs(prediction - 0.5f) * 2.0f;
+                    float weight = tree_weights[i] * confidence;
+                    
+                    weighted_sum += prediction * weight;
+                    total_weight += weight;
                 }
             } catch (...) {
                 continue;
             }
         }
         
-        if (predictions.empty()) return 0.0f;
-        
-        // Sort predictions and remove outliers
-        std::sort(predictions.begin(), predictions.end());
-        if (predictions.size() > 3) {
-            // Remove most extreme predictions
-            predictions.erase(predictions.begin());
-            predictions.pop_back();
-        }
-        
-        // Count strong votes
-        int positive_votes = 0;
-        int negative_votes = 0;
-        float total_confidence = 0.0f;
-        float weighted_sum = 0.0f;
-        
-        for (float pred : predictions) {
-            float confidence = std::abs(pred - 0.5f) * 2.0f;  // Scale to [0,1]
-            total_confidence += confidence;
-            weighted_sum += pred * confidence;
-            
-            if (pred >= 0.5f) {
-                positive_votes++;
-            } else {
-                negative_votes++;
-            }
-        }
-        
-        // Check if we have enough confident votes
-        if (std::max(positive_votes, negative_votes) < config.min_votes) {
-            return 0.5f;  // Not confident enough
-        }
-        // Return confidence-weighted average
-        return total_confidence > 0.0f ? weighted_sum / total_confidence : 0.5f;
+        return total_weight > 0.0f ? weighted_sum / total_weight : 0.5f;
     }
     
     // Function to mutate trees
@@ -2669,25 +2821,49 @@ public:
     }
     
     // Function to perform crossover with another classifier
-    void crossover(const BinaryClassifier& other) {
+    std::vector<std::unique_ptr<GPNode>> crossover(
+        const std::vector<std::unique_ptr<GPNode>>& parent1,
+        const std::vector<std::unique_ptr<GPNode>>& parent2
+    ) {
+        std::vector<std::unique_ptr<GPNode>> offspring;
+        offspring.reserve(config.classifier_trees);
+        
         std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
         
-        for (size_t i = 0; i < trees.size() && i < other.trees.size(); ++i) {
-            if (prob_dist(getThreadLocalRNG()) < config.crossover_prob) {
-                if (trees[i] && other.trees[i]) {
-                    auto new_tree = TreeOperations::multiPointCrossover(
-                        trees[i].get(), 
-                        other.trees[i].get(), 
-                        config, 
-                        ops, 
-                        getThreadLocalRNG()
-                    );
-                    if (new_tree) {
-                        trees[i] = std::move(new_tree);
-                    }
+        for (size_t i = 0; i < config.classifier_trees; ++i) {
+            if (parent1[i] && parent2[i] && prob_dist(getThreadLocalRNG()) < config.crossover_prob) {
+                // Perform crossover
+                auto new_tree = TreeOperations::multiPointCrossover(
+                    parent1[i].get(), 
+                    parent2[i].get(), 
+                    config,
+                    ops,
+                    getThreadLocalRNG()
+                );
+                
+                if (new_tree && new_tree->isValidDepth()) {
+                    offspring.push_back(std::move(new_tree));
+                    continue;
                 }
             }
+            
+            // If crossover fails or isn't chosen, clone from first parent
+            if (parent1[i]) {
+                offspring.push_back(parent1[i]->clone());
+            } else {
+                offspring.push_back(
+                    TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth,
+                        0,
+                        config,
+                        ops,
+                        getThreadLocalRNG()
+                    )
+                );
+            }
         }
+        
+        return offspring;
     }
     
     // Function to get classifier size (total nodes across all trees)
@@ -2718,168 +2894,148 @@ public:
     // Main training method
     void train(const std::vector<DataPoint>& trainData, 
               const std::vector<DataPoint>& valData,
-              int max_epochs = 100,
+              int max_generations = 100,
               size_t batch_size = 64) {
-        if (trainData.empty() || valData.empty()) {
-            std::cerr << "Empty training or validation data" << std::endl;
-            return;
-        }
+        if (trainData.empty() || valData.empty()) return;
 
-        // Population of trees
-        const size_t pop_size = config.population_size;  // Moved up
-        const size_t elite_size = config.elite_size;     // Moved up
         std::vector<std::vector<std::unique_ptr<GPNode>>> population;
-
-        // Initialize population
-        population.reserve(pop_size);
-        for (size_t i = 0; i < pop_size; ++i) {
-            std::vector<std::unique_ptr<GPNode>> new_trees;
-            new_trees.reserve(config.classifier_trees);
+        
+        // Initialize population and weights
+        population.clear();
+        population.reserve(config.population_size);
+        
+        for (size_t i = 0; i < config.population_size; ++i) {
+            std::vector<std::unique_ptr<GPNode>> individual;
             for (int j = 0; j < config.classifier_trees; ++j) {
-                new_trees.push_back(createRandomTree(config.min_tree_depth, config.max_tree_depth));
+                individual.push_back(
+                    TreeOperations::createRandomOperatorNode(
+                        config.max_tree_depth,
+                        0,
+                        config,
+                        ops,
+                        getThreadLocalRNG()
+                    )
+                );
             }
-            population.push_back(std::move(new_trees));
+            population.push_back(std::move(individual));
         }
-
-        float best_val_accuracy = 0.0f;
-        float best_train_accuracy = 0.0f;
-        int epochs_without_improvement = 0;
-        auto best_trees = cloneTrees();
-        int current_eval = 0;
-
-        // Create fixed training and validation set
+        
+        tree_weights.resize(config.classifier_trees, 1.0f / config.classifier_trees);
+        
+        // Create fixed batches for training and validation.
         auto batch = createBalancedBatch(trainData, trainData.size());
         auto validation_batch = createBalancedBatch(valData, std::min(valData.size(), size_t(1000)));
 
-        // Progress bar for training epochs
-        ProgressBar progress(max_epochs, 50, "Training Progress");
+        float best_val_accuracy = 0.0f;
+        std::vector<std::unique_ptr<GPNode>> best_solution;
+        std::vector<float> best_weights;
 
-        // Training loop
-        for (int epoch = 0; epoch < max_epochs; ++epoch) {
+        ProgressBar progress(max_generations, 50, "Training Progress");
+        
+        for (int gen = 0; gen < max_generations; ++gen) {
             // Update the progress bar.
             progress.update();
-            current_eval = 0;
-            // Keep dropout enabled for training fitness evaluation
-            std::vector<std::pair<float, size_t>> fitness_scores;
-            fitness_scores.reserve(pop_size);
-
-            // Progress bar for population evaluation
-            ProgressBar populationProgress(max_epochs, 50, "Population Progress");
-
+            // Evaluate current population
+            std::vector<float> fitness_scores(population.size());
+            
+            ProgressBar populationProgress(population.size(), 50, "Population Progress");
+            // #pragma omp parallel for
             for (size_t i = 0; i < population.size(); ++i) {
-                // Update progress bar
+                // Update the progress bar.
                 populationProgress.update();
-
-                auto backup_trees = cloneTrees();
-                trees = std::move(population[i]);
-
-                // Increase evaluation count for dropout.
-                ops->startNewEvaluation(current_eval++);
-
-                auto stats = evaluateBatch(batch);  // With dropout
-                float fitness = (stats.sensitivity + stats.specificity) / 2.0f;
-
-                fitness_scores.emplace_back(fitness, i);
-
-                population[i] = cloneTrees();
-                trees = std::move(backup_trees);
+                trees = cloneTrees(population[i]);
+                updateTreeWeights(batch);
+                auto stats = evaluateBatch(batch);
+                fitness_scores[i] = (stats.sensitivity + stats.specificity) / 2.0f;
             }
-
-            // Sort by fitness (using dropout-enabled scores)
-            std::sort(fitness_scores.begin(), fitness_scores.end(),
-                     std::greater<std::pair<float, size_t>>());
-
-            // Create new population starting with elites
+            
+            // Create new population
             std::vector<std::vector<std::unique_ptr<GPNode>>> new_population;
-            new_population.reserve(pop_size);
-
-            // Always preserve current best trees
-            new_population.push_back(cloneTreeVector(population[fitness_scores[0].second]));
-
-            // Add remaining elites
-            for (size_t i = 0; i < elite_size - 1 && i < fitness_scores.size(); ++i) {
-                new_population.push_back(cloneTreeVector(population[fitness_scores[i].second]));
+            new_population.reserve(config.population_size);
+            
+            // Elitism
+            std::vector<size_t> elite_indices = getTopIndices(fitness_scores, config.elite_size);
+            for (size_t idx : elite_indices) {
+                new_population.push_back(cloneTrees(population[idx]));
             }
-
-            // Fill rest of population through tournament selection and crossover
-            while (new_population.size() < pop_size) {
-                size_t parent1_idx = tournamentSelect(fitness_scores);
-                size_t parent2_idx = tournamentSelect(fitness_scores);
-
-                auto offspring = createOffspring(population[parent1_idx], population[parent2_idx]);
-
-                if (std::uniform_real_distribution<float>(0.0f, 1.0f)(getThreadLocalRNG()) < 
-                    config.mutation_prob) {
-                    mutateTreeVector(offspring);
-                }
-
+            
+            // Fill rest with crossover and mutation
+            while (new_population.size() < config.population_size) {
+                const auto& parent1 = tournamentSelect(population, fitness_scores);
+                const auto& parent2 = tournamentSelect(population, fitness_scores);
+                
+                auto offspring = crossover(parent1, parent2);
+                mutateOffspring(offspring);
+                
                 new_population.push_back(std::move(offspring));
             }
-
-            // Only disable dropout for final validation metrics
-            trees = cloneTreeVector(population[fitness_scores[0].second]);
             
-            // Get training accuracy with dropout (real training conditions)
-            auto train_stats = evaluateBatch(createBalancedBatch(trainData, 1000));
-            float train_accuracy = (train_stats.sensitivity + train_stats.specificity) / 2.0f;
-
-            // Get validation accuracy without dropout
-            ops->setTraining(false);  // Disable dropout only for validation
+            // Evaluate best current individual
+            trees = cloneTrees(population[elite_indices[0]]);
+            updateTreeWeights(batch);
+            
+            ops->setTraining(false);
             auto val_stats = evaluateBatch(validation_batch);
             float val_accuracy = (val_stats.sensitivity + val_stats.specificity) / 2.0f;
-            ops->setTraining(true);   // Re-enable dropout
-
-            // Track best model based on validation accuracy
+            ops->setTraining(true);
+            
             if (val_accuracy > best_val_accuracy) {
                 best_val_accuracy = val_accuracy;
-                best_train_accuracy = train_accuracy;
-                best_trees = cloneTrees();
-                epochs_without_improvement = 0;
-            } else {
-                epochs_without_improvement++;
+                best_solution = cloneTrees();
+                best_weights = tree_weights;
             }
-
-            // Print progress
-            std::cout << "\nEpoch " << epoch + 1
-                     << "\nTraining Accuracy (with dropout): " << train_accuracy * 100.0f << "%"
-                     << "\nValidation Accuracy: " << val_accuracy * 100.0f << "%"
-                     << "\nBest Training Accuracy: " << best_train_accuracy * 100.0f << "%"
-                     << "\nBest Validation Accuracy: " << best_val_accuracy * 100.0f << "%"
-                     << "\nEpochs without improvement: " << epochs_without_improvement << std::endl;
-
-            // Early stopping check
-            if (epochs_without_improvement >= 10) {
-                std::cout << "Early stopping triggered" << std::endl;
-                // break;
-            }
-
-            // Replace population
+            
+            std::cout << "Generation " << gen 
+                     << "\nTraining Accuracy: " << (fitness_scores[elite_indices[0]] * 100.0f) << "%"
+                     << "\nValidation Accuracy: " << (val_accuracy * 100.0f) << "%"
+                     << "\nBest Validation Accuracy: " << (best_val_accuracy * 100.0f) << "%" 
+                     << std::endl;
+            
             population = std::move(new_population);
         }
-
-        // Final evaluation with best model and no dropout
-        ops->setTraining(false);
-        trees = std::move(best_trees);
         
-        // Final validation score
-        auto final_val_stats = evaluateBatch(validation_batch);
-        std::cout << "\nFinal Model Performance (No Dropout):"
-                  << "\nValidation Accuracy: " << (final_val_stats.accuracy * 100.0f) << "%"
-                  << "\nSensitivity: " << (final_val_stats.sensitivity * 100.0f) << "%"
-                  << "\nSpecificity: " << (final_val_stats.specificity * 100.0f) << "%" << std::endl;
+        if (!best_solution.empty()) {
+            trees = std::move(best_solution);
+            tree_weights = std::move(best_weights);
+        }
     }
 
 private:
-    // Helper methods for population management
-    std::vector<std::unique_ptr<GPNode>> cloneTreeVector(
-        const std::vector<std::unique_ptr<GPNode>>& tree_vec) const {
+    // Get indices of top N individuals by fitness
+    std::vector<size_t> getTopIndices(const std::vector<float>& scores, size_t n) const {
+        if (scores.empty()) return {};
+        
+        // Create index vector
+        std::vector<size_t> indices(scores.size());
+        std::iota(indices.begin(), indices.end(), 0);  // Fill with 0, 1, 2, ...
+        
+        // Sort indices by their corresponding scores (higher scores first)
+        std::partial_sort(
+            indices.begin(),
+            indices.begin() + std::min(n, indices.size()),
+            indices.end(),
+            [&scores](size_t i1, size_t i2) {
+                return scores[i1] > scores[i2];
+            }
+        );
+        
+        // Return only the top n indices
+        indices.resize(std::min(n, indices.size()));
+        return indices;
+    }
+
+    std::vector<std::unique_ptr<GPNode>> cloneTrees(
+        const std::vector<std::unique_ptr<GPNode>>& source
+    ) const {
         std::vector<std::unique_ptr<GPNode>> cloned;
-        cloned.reserve(tree_vec.size());
-        for (const auto& tree : tree_vec) {
+        cloned.reserve(source.size());
+        
+        for (const auto& tree : source) {
             if (tree) {
                 cloned.push_back(tree->clone());
             }
         }
+        
         return cloned;
     }
 
@@ -2892,20 +3048,38 @@ private:
         }
     }
 
-    size_t tournamentSelect(const std::vector<std::pair<float, size_t>>& fitness_scores) {
-        std::uniform_int_distribution<size_t> dist(0, fitness_scores.size() - 1);
+    const std::vector<std::unique_ptr<GPNode>>& tournamentSelect(
+        const std::vector<std::vector<std::unique_ptr<GPNode>>>& pop,
+        const std::vector<float>& fitness_scores
+    ) const {
+        std::uniform_int_distribution<size_t> dist(0, pop.size() - 1);
         size_t best_idx = dist(getThreadLocalRNG());
-        float best_fitness = fitness_scores[best_idx].first;
-
+        float best_fitness = fitness_scores[best_idx];
+        
         for (int i = 1; i < config.tournament_size; ++i) {
             size_t idx = dist(getThreadLocalRNG());
-            if (fitness_scores[idx].first > best_fitness) {
+            if (fitness_scores[idx] > best_fitness) {
                 best_idx = idx;
-                best_fitness = fitness_scores[idx].first;
+                best_fitness = fitness_scores[idx];
             }
         }
+        
+        return pop[best_idx];
+    }
 
-        return fitness_scores[best_idx].second;
+    void mutateOffspring(std::vector<std::unique_ptr<GPNode>>& offspring) {
+        std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+        
+        for (auto& tree : offspring) {
+            if (tree && prob_dist(getThreadLocalRNG()) < config.mutation_prob) {
+                TreeOperations::mutateNode(
+                    tree.get(),
+                    config,
+                    ops,
+                    getThreadLocalRNG()
+                );
+            }
+        }
     }
 
     std::vector<std::unique_ptr<GPNode>> createOffspring(
@@ -2929,915 +3103,916 @@ private:
     }
 };
 
-class ContrastiveGP {
-private:
-    GPConfig config;
-    std::shared_ptr<GPOperations> ops;
-    std::vector<Individual> population;
-    static thread_local std::mt19937 rng;
-    FitnessCache fitness_cache; // Add as class member
-    std::mutex cache_mutex; // Declare cache_mutex
-    ThresholdStats threshold_stats;
+// class ContrastiveGP {
+// private:
+//     GPConfig config;
+//     std::shared_ptr<GPOperations> ops;
+//     std::vector<Individual> population;
+//     static thread_local std::mt19937 rng;
+//     FitnessCache fitness_cache; // Add as class member
+//     std::mutex cache_mutex; // Declare cache_mutex
+//     ThresholdStats threshold_stats;
 
-    std::mt19937& getGen() {
-        return getThreadLocalRNG();  // Use the global initialization function
-    }
+//     std::mt19937& getGen() {
+//         return getThreadLocalRNG();  // Use the global initialization function
+//     }
 
-    Individual createRandomIndividual() {
-        std::vector<std::unique_ptr<GPNode>> trees;
-        trees.reserve(config.num_trees);
+//     Individual createRandomIndividual() {
+//         std::vector<std::unique_ptr<GPNode>> trees;
+//         trees.reserve(config.num_trees);
         
-        for (int i = 0; i < config.num_trees; ++i) {
-            auto tree = TreeOperations::createRandomOperatorNode(
-                config.max_tree_depth, 0, config, ops, getGen());
-            if (!tree) {
-                // If tree creation fails, try again with reduced depth
-                tree = TreeOperations::createRandomOperatorNode(
-                    config.max_tree_depth - 1, 0, config, ops, getGen());
-            }
-            if (!tree) {
-                // If still fails, create minimal valid tree
-                tree = TreeOperations::createRandomOperatorNode(
-                    config.min_tree_depth + 1, 0, config, ops, getGen());
-            }
-            trees.push_back(std::move(tree));
-        }
+//         for (int i = 0; i < config.num_trees; ++i) {
+//             auto tree = TreeOperations::createRandomOperatorNode(
+//                 config.max_tree_depth, 0, config, ops, getGen());
+//             if (!tree) {
+//                 // If tree creation fails, try again with reduced depth
+//                 tree = TreeOperations::createRandomOperatorNode(
+//                     config.max_tree_depth - 1, 0, config, ops, getGen());
+//             }
+//             if (!tree) {
+//                 // If still fails, create minimal valid tree
+//                 tree = TreeOperations::createRandomOperatorNode(
+//                     config.min_tree_depth + 1, 0, config, ops, getGen());
+//             }
+//             trees.push_back(std::move(tree));
+//         }
         
-        return Individual(std::move(trees), ops, config);
-    }
+//         return Individual(std::move(trees), ops, config);
+//     }
 
-    float calculateDistance(const std::vector<float>& v1, const std::vector<float>& v2) {
-        if (v1.empty() || v2.empty() || v1.size() != v2.size()) {
-            std::cerr << "Warning: Empty or mismatched vectors in distance calculation. "
-                    << "Sizes: " << v1.size() << " and " << v2.size() << std::endl;
-            return std::numeric_limits<float>::max();
-        }
+//     float calculateDistance(const std::vector<float>& v1, const std::vector<float>& v2) {
+//         if (v1.empty() || v2.empty() || v1.size() != v2.size()) {
+//             std::cerr << "Warning: Empty or mismatched vectors in distance calculation. "
+//                     << "Sizes: " << v1.size() << " and " << v2.size() << std::endl;
+//             return std::numeric_limits<float>::max();
+//         }
 
-        // Calculate Euclidean distance component
-        float euclidean_dist = 0.0f;
-        for (size_t i = 0; i < v1.size(); ++i) {
-            float diff = v1[i] - v2[i];
-            euclidean_dist += diff * diff;
-        }
-        euclidean_dist = std::sqrt(euclidean_dist);
+//         // Calculate Euclidean distance component
+//         float euclidean_dist = 0.0f;
+//         for (size_t i = 0; i < v1.size(); ++i) {
+//             float diff = v1[i] - v2[i];
+//             euclidean_dist += diff * diff;
+//         }
+//         euclidean_dist = std::sqrt(euclidean_dist);
 
-        // Calculate normalized cosine similarity component
-        float norm1 = 0.0f;
-        float norm2 = 0.0f;
-        float dot_product = 0.0f;
+//         // Calculate normalized cosine similarity component
+//         float norm1 = 0.0f;
+//         float norm2 = 0.0f;
+//         float dot_product = 0.0f;
         
-        for (size_t i = 0; i < v1.size(); ++i) {
-            norm1 += v1[i] * v1[i];
-            norm2 += v2[i] * v2[i];
-            dot_product += v1[i] * v2[i];
-        }
+//         for (size_t i = 0; i < v1.size(); ++i) {
+//             norm1 += v1[i] * v1[i];
+//             norm2 += v2[i] * v2[i];
+//             dot_product += v1[i] * v2[i];
+//         }
 
-        // Add small epsilon to prevent division by zero
-        constexpr float epsilon = 1e-10f;
-        norm1 = std::sqrt(norm1 + epsilon);
-        norm2 = std::sqrt(norm2 + epsilon);
+//         // Add small epsilon to prevent division by zero
+//         constexpr float epsilon = 1e-10f;
+//         norm1 = std::sqrt(norm1 + epsilon);
+//         norm2 = std::sqrt(norm2 + epsilon);
 
-        float cosine_similarity = dot_product / (norm1 * norm2);
+//         float cosine_similarity = dot_product / (norm1 * norm2);
         
-        // Clamp similarity to [-1, 1] range
-        cosine_similarity = std::max(-1.0f, std::min(1.0f, cosine_similarity));
+//         // Clamp similarity to [-1, 1] range
+//         cosine_similarity = std::max(-1.0f, std::min(1.0f, cosine_similarity));
         
-        // Convert similarity to distance (1 - similarity) and scale it
-        float cosine_distance = (1.0f - cosine_similarity);
+//         // Convert similarity to distance (1 - similarity) and scale it
+//         float cosine_distance = (1.0f - cosine_similarity);
 
-        // Combine distances with exponential scaling to increase separation
-        float combined_distance = 0.5f * euclidean_dist + 0.5f * std::exp(cosine_distance) - 1.0f;
+//         // Combine distances with exponential scaling to increase separation
+//         float combined_distance = 0.5f * euclidean_dist + 0.5f * std::exp(cosine_distance) - 1.0f;
         
-        // Apply sigmoid transformation to squash extreme values and increase separation
-        float scaled_distance = 1.0f / (1.0f + std::exp(-2.0f * (combined_distance - 0.5f)));
+//         // Apply sigmoid transformation to squash extreme values and increase separation
+//         float scaled_distance = 1.0f / (1.0f + std::exp(-2.0f * (combined_distance - 0.5f)));
 
-        // Check for NaN or inf
-        if (std::isnan(scaled_distance) || std::isinf(scaled_distance)) {
-            std::cerr << "Warning: Invalid distance calculated" << std::endl;
-            return std::numeric_limits<float>::max();
-        }
+//         // Check for NaN or inf
+//         if (std::isnan(scaled_distance) || std::isinf(scaled_distance)) {
+//             std::cerr << "Warning: Invalid distance calculated" << std::endl;
+//             return std::numeric_limits<float>::max();
+//         }
 
-        return scaled_distance;
-    }
+//         return scaled_distance;
+//     }
 
-    float calculateAccuracy(const Individual& ind, const std::vector<DataPoint>& data) {
-        if (data.empty()) {
-            std::cerr << "Empty dataset provided" << std::endl;
-            return 0.0f;
-        }
+//     float calculateAccuracy(const Individual& ind, const std::vector<DataPoint>& data) {
+//         if (data.empty()) {
+//             std::cerr << "Empty dataset provided" << std::endl;
+//             return 0.0f;
+//         }
 
-        std::atomic<int> true_positives{0};
-        std::atomic<int> true_negatives{0};
-        std::atomic<int> total_positives{0};
-        std::atomic<int> total_negatives{0};
+//         std::atomic<int> true_positives{0};
+//         std::atomic<int> true_negatives{0};
+//         std::atomic<int> total_positives{0};
+//         std::atomic<int> total_negatives{0};
         
-        const size_t SAFE_BATCH_SIZE = 32;
-        std::atomic<size_t> processed{0};
+//         const size_t SAFE_BATCH_SIZE = 32;
+//         std::atomic<size_t> processed{0};
         
-        std::vector<std::future<void>> futures;
-        const size_t num_threads = config.num_workers;
-        std::vector<std::vector<std::pair<float, bool>>> thread_distances(num_threads);
+//         std::vector<std::future<void>> futures;
+//         const size_t num_threads = config.num_workers;
+//         std::vector<std::vector<std::pair<float, bool>>> thread_distances(num_threads);
         
-        for (size_t thread_id = 0; thread_id < num_threads; ++thread_id) {
-            futures.push_back(std::async(std::launch::async, [&, thread_id]() {
-                try {
-                    size_t start = (data.size() * thread_id) / num_threads;
-                    size_t end = (data.size() * (thread_id + 1)) / num_threads;
+//         for (size_t thread_id = 0; thread_id < num_threads; ++thread_id) {
+//             futures.push_back(std::async(std::launch::async, [&, thread_id]() {
+//                 try {
+//                     size_t start = (data.size() * thread_id) / num_threads;
+//                     size_t end = (data.size() * (thread_id + 1)) / num_threads;
                     
-                    for (size_t i = start; i < end; i += SAFE_BATCH_SIZE) {
-                        size_t batch_end = std::min(i + SAFE_BATCH_SIZE, end);
+//                     for (size_t i = start; i < end; i += SAFE_BATCH_SIZE) {
+//                         size_t batch_end = std::min(i + SAFE_BATCH_SIZE, end);
                         
-                        for (size_t j = i; j < batch_end; ++j) {
-                            const auto& point = data[j];
+//                         for (size_t j = i; j < batch_end; ++j) {
+//                             const auto& point = data[j];
                             
-                            if (point.anchor.empty() || point.compare.empty()) {
-                                continue;
-                            }
+//                             if (point.anchor.empty() || point.compare.empty()) {
+//                                 continue;
+//                             }
                             
-                            try {
-                                std::vector<float> anchor_output = ind.evaluate(point.anchor);
-                                std::vector<float> compare_output = ind.evaluate(point.compare);
+//                             try {
+//                                 std::vector<float> anchor_output = ind.evaluate(point.anchor);
+//                                 std::vector<float> compare_output = ind.evaluate(point.compare);
                                 
-                                if (anchor_output.empty() || compare_output.empty()) {
-                                    continue;
-                                }
+//                                 if (anchor_output.empty() || compare_output.empty()) {
+//                                     continue;
+//                                 }
 
-                                float distance = calculateDistance(anchor_output, compare_output);
+//                                 float distance = calculateDistance(anchor_output, compare_output);
                                 
-                                if (!std::isfinite(distance)) {
-                                    continue;
-                                }
+//                                 if (!std::isfinite(distance)) {
+//                                     continue;
+//                                 }
 
-                                thread_distances[thread_id].emplace_back(
-                                    distance, point.label > 0.5f);
+//                                 thread_distances[thread_id].emplace_back(
+//                                     distance, point.label > 0.5f);
                                 
-                                float current_threshold = threshold_stats.getAdaptiveThreshold();
-                                bool prediction = (distance < current_threshold);
-                                bool is_same_class = (point.label > 0.5f);
+//                                 float current_threshold = threshold_stats.getAdaptiveThreshold();
+//                                 bool prediction = (distance < current_threshold);
+//                                 bool is_same_class = (point.label > 0.5f);
                                 
-                                if (is_same_class) {
-                                    ++total_positives;
-                                    if (prediction) ++true_positives;
-                                } else {
-                                    ++total_negatives;
-                                    if (!prediction) ++true_negatives;
-                                }
+//                                 if (is_same_class) {
+//                                     ++total_positives;
+//                                     if (prediction) ++true_positives;
+//                                 } else {
+//                                     ++total_negatives;
+//                                     if (!prediction) ++true_negatives;
+//                                 }
                                 
-                                ++processed;
+//                                 ++processed;
                                 
-                            } catch (const std::exception& e) {
-                                continue;
-                            }
-                        }
-                    }
-                } catch (const std::exception& e) {
-                    std::cerr << "Thread " << thread_id << " error: " 
-                            << e.what() << std::endl;
-                }
-            }));
-        }
+//                             } catch (const std::exception& e) {
+//                                 continue;
+//                             }
+//                         }
+//                     }
+//                 } catch (const std::exception& e) {
+//                     std::cerr << "Thread " << thread_id << " error: " 
+//                             << e.what() << std::endl;
+//                 }
+//             }));
+//         }
         
-        for (auto& future : futures) {
-            if (future.valid()) {
-                try {
-                    future.get();
-                } catch (...) {
-                    continue;
-                }
-            }
-        }
+//         for (auto& future : futures) {
+//             if (future.valid()) {
+//                 try {
+//                     future.get();
+//                 } catch (...) {
+//                     continue;
+//                 }
+//             }
+//         }
         
-        // Update threshold statistics with collected distances
-        for (const auto& thread_dist : thread_distances) {
-            for (const auto& [distance, is_same_class] : thread_dist) {
-                threshold_stats.updateStats(distance, is_same_class);
-            }
-        }
+//         // Update threshold statistics with collected distances
+//         for (const auto& thread_dist : thread_distances) {
+//             for (const auto& [distance, is_same_class] : thread_dist) {
+//                 threshold_stats.updateStats(distance, is_same_class);
+//             }
+//         }
         
-        if (processed == 0) {
-            return 0.0f;
-        }
+//         if (processed == 0) {
+//             return 0.0f;
+//         }
 
-        float sensitivity = total_positives > 0 ? 
-            static_cast<float>(true_positives) / total_positives : 0.0f;
-        float specificity = total_negatives > 0 ? 
-            static_cast<float>(true_negatives) / total_negatives : 0.0f;
+//         float sensitivity = total_positives > 0 ? 
+//             static_cast<float>(true_positives) / total_positives : 0.0f;
+//         float specificity = total_negatives > 0 ? 
+//             static_cast<float>(true_negatives) / total_negatives : 0.0f;
         
-        float balanced_accuracy = (sensitivity + specificity) / 2.0f;
+//         float balanced_accuracy = (sensitivity + specificity) / 2.0f;
         
-        // Log stats every N generations or when in validation
-        if (!ops->isTraining() || (processed % 1000) == 0) {
-            std::cout << "Current threshold: " << threshold_stats.getAdaptiveThreshold()
-                    << "\nPositive mean distance: " << threshold_stats.positive_mean
-                    << "\nNegative mean distance: " << threshold_stats.negative_mean
-                    << "\nSensitivity: " << (sensitivity * 100.0f) << "%"
-                    << "\nSpecificity: " << (specificity * 100.0f) << "%"
-                    << std::endl;
-        }
+//         // Log stats every N generations or when in validation
+//         if (!ops->isTraining() || (processed % 1000) == 0) {
+//             std::cout << "Current threshold: " << threshold_stats.getAdaptiveThreshold()
+//                     << "\nPositive mean distance: " << threshold_stats.positive_mean
+//                     << "\nNegative mean distance: " << threshold_stats.negative_mean
+//                     << "\nSensitivity: " << (sensitivity * 100.0f) << "%"
+//                     << "\nSpecificity: " << (specificity * 100.0f) << "%"
+//                     << std::endl;
+//         }
         
-        return balanced_accuracy;
-    }
+//         return balanced_accuracy;
+//     }
     
-    Individual& runTournament(const std::vector<size_t>& available_indices) {
-        if (available_indices.empty()) {
-            throw std::runtime_error("No individuals available for tournament");
-        }
+//     Individual& runTournament(const std::vector<size_t>& available_indices) {
+//         if (available_indices.empty()) {
+//             throw std::runtime_error("No individuals available for tournament");
+//         }
 
-        // Create a temporary vector for tournament candidates
-        std::vector<size_t> tournament_candidates;
-        tournament_candidates.reserve(std::min((size_t)config.tournament_size, available_indices.size()));
+//         // Create a temporary vector for tournament candidates
+//         std::vector<size_t> tournament_candidates;
+//         tournament_candidates.reserve(std::min((size_t)config.tournament_size, available_indices.size()));
 
-        // Create a copy of available indices to avoid modifying the original
-        std::vector<size_t> available_copy = available_indices;
+//         // Create a copy of available indices to avoid modifying the original
+//         std::vector<size_t> available_copy = available_indices;
         
-        // Use local RNG
-        auto& local_gen = getGen();
+//         // Use local RNG
+//         auto& local_gen = getGen();
 
-        // Fill tournament pool without replacement
-        while (tournament_candidates.size() < config.tournament_size && !available_copy.empty()) {
-            std::uniform_int_distribution<size_t> idx_dist(0, available_copy.size() - 1);
-            size_t random_idx = idx_dist(local_gen);
+//         // Fill tournament pool without replacement
+//         while (tournament_candidates.size() < config.tournament_size && !available_copy.empty()) {
+//             std::uniform_int_distribution<size_t> idx_dist(0, available_copy.size() - 1);
+//             size_t random_idx = idx_dist(local_gen);
             
-            // Add the selected index to tournament candidates
-            tournament_candidates.push_back(available_copy[random_idx]);
+//             // Add the selected index to tournament candidates
+//             tournament_candidates.push_back(available_copy[random_idx]);
             
-            // Remove the selected index from available_copy
-            std::swap(available_copy[random_idx], available_copy.back());
-            available_copy.pop_back();
-        }
+//             // Remove the selected index from available_copy
+//             std::swap(available_copy[random_idx], available_copy.back());
+//             available_copy.pop_back();
+//         }
 
-        if (tournament_candidates.empty()) {
-            throw std::runtime_error("Failed to select tournament candidates");
-        }
+//         if (tournament_candidates.empty()) {
+//             throw std::runtime_error("Failed to select tournament candidates");
+//         }
 
-        // Find the best individual in the tournament
-        size_t best_idx = tournament_candidates[0];
-        float best_fitness = std::numeric_limits<float>::max();
+//         // Find the best individual in the tournament
+//         size_t best_idx = tournament_candidates[0];
+//         float best_fitness = std::numeric_limits<float>::max();
 
-        // Safely find the best individual
-        for (size_t idx : tournament_candidates) {
-            if (idx < population.size()) {  // Bounds check
-                float current_fitness = population[idx].getFitness();
-                if (std::isfinite(current_fitness) && current_fitness < best_fitness) {
-                    best_fitness = current_fitness;
-                    best_idx = idx;
-                }
-            }
-        }
+//         // Safely find the best individual
+//         for (size_t idx : tournament_candidates) {
+//             if (idx < population.size()) {  // Bounds check
+//                 float current_fitness = population[idx].getFitness();
+//                 if (std::isfinite(current_fitness) && current_fitness < best_fitness) {
+//                     best_fitness = current_fitness;
+//                     best_idx = idx;
+//                 }
+//             }
+//         }
 
-        // Final safety check
-        if (best_idx >= population.size()) {
-            std::cerr << "Warning: Invalid best index " << best_idx 
-                    << ", falling back to first individual" << std::endl;
-            return population[0];  // Fallback to first individual
-        }
+//         // Final safety check
+//         if (best_idx >= population.size()) {
+//             std::cerr << "Warning: Invalid best index " << best_idx 
+//                     << ", falling back to first individual" << std::endl;
+//             return population[0];  // Fallback to first individual
+//         }
 
-        return population[best_idx];
-    }
+//         return population[best_idx];
+//     }
     
-    float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
-        try {
-            // Check cache first
-            float cached_fitness;
-            {
-                std::lock_guard<std::mutex> lock(cache_mutex);
-                if (auto cached = fitness_cache.get(ind)) {
-                    return *cached;
-                }
-            }
+//     float evaluateIndividual(const Individual& ind, const std::vector<DataPoint>& data) {
+//         try {
+//             // Check cache first
+//             float cached_fitness;
+//             {
+//                 std::lock_guard<std::mutex> lock(cache_mutex);
+//                 if (auto cached = fitness_cache.get(ind)) {
+//                     return *cached;
+//                 }
+//             }
 
-            float balanced_accuracy = calculateAccuracy(ind, data);
+//             float balanced_accuracy = calculateAccuracy(ind, data);
             
-            if (!std::isfinite(balanced_accuracy)) {
-                return std::numeric_limits<float>::max();
-            }
+//             if (!std::isfinite(balanced_accuracy)) {
+//                 return std::numeric_limits<float>::max();
+//             }
 
-            float complexity_penalty = config.parsimony_coeff * ind.totalSize();
-            float fitness = (1.0f - balanced_accuracy) * config.fitness_alpha + complexity_penalty;
+//             float complexity_penalty = config.parsimony_coeff * ind.totalSize();
+//             float fitness = (1.0f - balanced_accuracy) * config.fitness_alpha + complexity_penalty;
 
-            if (std::isfinite(fitness)) {
-                std::lock_guard<std::mutex> lock(cache_mutex);
-                fitness_cache.put(ind, fitness);
-            }
+//             if (std::isfinite(fitness)) {
+//                 std::lock_guard<std::mutex> lock(cache_mutex);
+//                 fitness_cache.put(ind, fitness);
+//             }
 
-            return fitness;
+//             return fitness;
 
-        } catch (const std::exception& e) {
-            std::cerr << "Unexpected error in evaluateIndividual: " << e.what() << std::endl;
-            return std::numeric_limits<float>::max();
-        }
-    }
+//         } catch (const std::exception& e) {
+//             std::cerr << "Unexpected error in evaluateIndividual: " << e.what() << std::endl;
+//             return std::numeric_limits<float>::max();
+//         }
+//     }
 
-    void evaluatePopulation(const std::vector<DataPoint>& trainData) {
-        if (population.empty() || trainData.empty()) {
-            std::cerr << "Empty population or training data" << std::endl;
-            return;
-        }
+//     void evaluatePopulation(const std::vector<DataPoint>& trainData) {
+//         if (population.empty() || trainData.empty()) {
+//             std::cerr << "Empty population or training data" << std::endl;
+//             return;
+//         }
 
-        // Create vectors to store results safely
-        std::vector<float> fitnesses(population.size(), std::numeric_limits<float>::max());
-        std::vector<std::mutex> individual_mutexes(population.size());
-        std::mutex global_mutex;
+//         // Create vectors to store results safely
+//         std::vector<float> fitnesses(population.size(), std::numeric_limits<float>::max());
+//         std::vector<std::mutex> individual_mutexes(population.size());
+//         std::mutex global_mutex;
 
-        // Process individuals in chunks
-        const size_t chunk_size = std::max(size_t(1), population.size() / config.num_workers);
-        std::vector<std::future<void>> futures;
+//         // Process individuals in chunks
+//         const size_t chunk_size = std::max(size_t(1), population.size() / config.num_workers);
+//         std::vector<std::future<void>> futures;
 
-        for (size_t start = 0; start < population.size(); start += chunk_size) {
-            size_t end = std::min(start + chunk_size, population.size());
+//         for (size_t start = 0; start < population.size(); start += chunk_size) {
+//             size_t end = std::min(start + chunk_size, population.size());
             
-            futures.push_back(std::async(std::launch::async, [&, start, end]() {
-                try {
-                    for (size_t i = start; i < end; ++i) {
-                        if (i >= population.size()) break;  // Safety check
+//             futures.push_back(std::async(std::launch::async, [&, start, end]() {
+//                 try {
+//                     for (size_t i = start; i < end; ++i) {
+//                         if (i >= population.size()) break;  // Safety check
 
-                        // Evaluate individual
-                        float fitness;
-                        try {
-                            {
-                                std::lock_guard<std::mutex> lock(individual_mutexes[i]);
-                                fitness = evaluateIndividual(population[i], trainData);
-                            }
-                        } catch (const std::exception& e) {
-                            std::cerr << "Error evaluating individual " << i << ": " << e.what() << std::endl;
-                            continue;
-                        }
+//                         // Evaluate individual
+//                         float fitness;
+//                         try {
+//                             {
+//                                 std::lock_guard<std::mutex> lock(individual_mutexes[i]);
+//                                 fitness = evaluateIndividual(population[i], trainData);
+//                             }
+//                         } catch (const std::exception& e) {
+//                             std::cerr << "Error evaluating individual " << i << ": " << e.what() << std::endl;
+//                             continue;
+//                         }
 
-                        // Store result if valid
-                        if (std::isfinite(fitness)) {
-                            std::lock_guard<std::mutex> lock(individual_mutexes[i]);
-                            fitnesses[i] = fitness;
-                        }
-                    }
-                } catch (const std::exception& e) {
-                    std::cerr << "Worker thread error: " << e.what() << std::endl;
-                }
-            }));
-        }
+//                         // Store result if valid
+//                         if (std::isfinite(fitness)) {
+//                             std::lock_guard<std::mutex> lock(individual_mutexes[i]);
+//                             fitnesses[i] = fitness;
+//                         }
+//                     }
+//                 } catch (const std::exception& e) {
+//                     std::cerr << "Worker thread error: " << e.what() << std::endl;
+//                 }
+//             }));
+//         }
 
-        // Wait for all evaluations to complete
-        for (auto& future : futures) {
-            if (future.valid()) {
-                try {
-                    future.get();
-                } catch (const std::exception& e) {
-                    std::cerr << "Error waiting for future: " << e.what() << std::endl;
-                }
-            }
-        }
+//         // Wait for all evaluations to complete
+//         for (auto& future : futures) {
+//             if (future.valid()) {
+//                 try {
+//                     future.get();
+//                 } catch (const std::exception& e) {
+//                     std::cerr << "Error waiting for future: " << e.what() << std::endl;
+//                 }
+//             }
+//         }
 
-        // Update population fitnesses and track best individual
-        float best_fitness = std::numeric_limits<float>::max();
-        size_t best_idx = 0;
+//         // Update population fitnesses and track best individual
+//         float best_fitness = std::numeric_limits<float>::max();
+//         size_t best_idx = 0;
 
-        {
-            std::lock_guard<std::mutex> lock(global_mutex);
-            for (size_t i = 0; i < population.size(); ++i) {
-                std::lock_guard<std::mutex> indiv_lock(individual_mutexes[i]);
-                float current_fitness = fitnesses[i];
+//         {
+//             std::lock_guard<std::mutex> lock(global_mutex);
+//             for (size_t i = 0; i < population.size(); ++i) {
+//                 std::lock_guard<std::mutex> indiv_lock(individual_mutexes[i]);
+//                 float current_fitness = fitnesses[i];
                 
-                try {
-                    population[i].setFitness(current_fitness);
+//                 try {
+//                     population[i].setFitness(current_fitness);
                     
-                    if (current_fitness < best_fitness) {
-                        best_fitness = current_fitness;
-                        best_idx = i;
-                    }
-                } catch (const std::exception& e) {
-                    std::cerr << "Error updating fitness for individual " << i << ": " << e.what() << std::endl;
-                }
-            }
-        }
+//                     if (current_fitness < best_fitness) {
+//                         best_fitness = current_fitness;
+//                         best_idx = i;
+//                     }
+//                 } catch (const std::exception& e) {
+//                     std::cerr << "Error updating fitness for individual " << i << ": " << e.what() << std::endl;
+//                 }
+//             }
+//         }
 
-        // Preserve best individual
-        try {
-            if (best_idx < population.size()) {
-                std::lock_guard<std::mutex> lock(global_mutex);
-                std::lock_guard<std::mutex> indiv_lock(individual_mutexes[best_idx]);
-                Individual best_copy(population[best_idx]);  // Create copy of best individual
-                population[0] = std::move(best_copy);       // Place at front of population
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "Error preserving best individual: " << e.what() << std::endl;
-        }
-    }
+//         // Preserve best individual
+//         try {
+//             if (best_idx < population.size()) {
+//                 std::lock_guard<std::mutex> lock(global_mutex);
+//                 std::lock_guard<std::mutex> indiv_lock(individual_mutexes[best_idx]);
+//                 Individual best_copy(population[best_idx]);  // Create copy of best individual
+//                 population[0] = std::move(best_copy);       // Place at front of population
+//             }
+//         } catch (const std::exception& e) {
+//             std::cerr << "Error preserving best individual: " << e.what() << std::endl;
+//         }
+//     }
 
-    std::vector<DataPoint> createStratifiedMinibatch(
-        const std::vector<DataPoint>& trainData,
-        size_t batch_size,
-        std::mt19937& gen
-    ) {
-        // Separate positive and negative examples
-        std::vector<const DataPoint*> positives;
-        std::vector<const DataPoint*> negatives;
+//     std::vector<DataPoint> createStratifiedMinibatch(
+//         const std::vector<DataPoint>& trainData,
+//         size_t batch_size,
+//         std::mt19937& gen
+//     ) {
+//         // Separate positive and negative examples
+//         std::vector<const DataPoint*> positives;
+//         std::vector<const DataPoint*> negatives;
         
-        for (const auto& point : trainData) {
-            if (point.label > 0.5f) {
-                positives.push_back(&point);
-            } else {
-                negatives.push_back(&point);
-            }
-        }
+//         for (const auto& point : trainData) {
+//             if (point.label > 0.5f) {
+//                 positives.push_back(&point);
+//             } else {
+//                 negatives.push_back(&point);
+//             }
+//         }
         
-        // Calculate number of samples to take from each class
-        // Try to maintain original class distribution but ensure at least 25% of minority class
-        float pos_ratio = static_cast<float>(positives.size()) / trainData.size();
-        pos_ratio = std::max(0.25f, std::min(0.75f, pos_ratio));  // Clamp between 25% and 75%
+//         // Calculate number of samples to take from each class
+//         // Try to maintain original class distribution but ensure at least 25% of minority class
+//         float pos_ratio = static_cast<float>(positives.size()) / trainData.size();
+//         pos_ratio = std::max(0.25f, std::min(0.75f, pos_ratio));  // Clamp between 25% and 75%
         
-        size_t num_pos = static_cast<size_t>(batch_size * pos_ratio);
-        size_t num_neg = batch_size - num_pos;
+//         size_t num_pos = static_cast<size_t>(batch_size * pos_ratio);
+//         size_t num_neg = batch_size - num_pos;
         
-        // Adjust if we need more samples than available
-        if (num_pos > positives.size()) {
-            size_t diff = num_pos - positives.size();
-            num_pos = positives.size();
-            num_neg = std::min(negatives.size(), num_neg + diff);
-        }
-        if (num_neg > negatives.size()) {
-            size_t diff = num_neg - negatives.size();
-            num_neg = negatives.size();
-            num_pos = std::min(positives.size(), num_pos + diff);
-        }
+//         // Adjust if we need more samples than available
+//         if (num_pos > positives.size()) {
+//             size_t diff = num_pos - positives.size();
+//             num_pos = positives.size();
+//             num_neg = std::min(negatives.size(), num_neg + diff);
+//         }
+//         if (num_neg > negatives.size()) {
+//             size_t diff = num_neg - negatives.size();
+//             num_neg = negatives.size();
+//             num_pos = std::min(positives.size(), num_pos + diff);
+//         }
         
-        // Create minibatch with stratified sampling
-        std::vector<DataPoint> batch;
-        batch.reserve(num_pos + num_neg);
+//         // Create minibatch with stratified sampling
+//         std::vector<DataPoint> batch;
+//         batch.reserve(num_pos + num_neg);
         
-        // Sample positive examples
-        if (!positives.empty()) {
-            std::shuffle(positives.begin(), positives.end(), gen);
-            for (size_t i = 0; i < num_pos; ++i) {
-                batch.push_back(*positives[i % positives.size()]);
-            }
-        }
+//         // Sample positive examples
+//         if (!positives.empty()) {
+//             std::shuffle(positives.begin(), positives.end(), gen);
+//             for (size_t i = 0; i < num_pos; ++i) {
+//                 batch.push_back(*positives[i % positives.size()]);
+//             }
+//         }
         
-        // Sample negative examples
-        if (!negatives.empty()) {
-            std::shuffle(negatives.begin(), negatives.end(), gen);
-            for (size_t i = 0; i < num_neg; ++i) {
-                batch.push_back(*negatives[i % negatives.size()]);
-            }
-        }
+//         // Sample negative examples
+//         if (!negatives.empty()) {
+//             std::shuffle(negatives.begin(), negatives.end(), gen);
+//             for (size_t i = 0; i < num_neg; ++i) {
+//                 batch.push_back(*negatives[i % negatives.size()]);
+//             }
+//         }
         
-        // Final shuffle of the batch
-        std::shuffle(batch.begin(), batch.end(), gen);
+//         // Final shuffle of the batch
+//         std::shuffle(batch.begin(), batch.end(), gen);
         
-        // Log class distribution in batch
-        size_t batch_pos = std::count_if(batch.begin(), batch.end(), 
-            [](const DataPoint& p) { return p.label > 0.5f; });
-        float batch_pos_ratio = static_cast<float>(batch_pos) / batch.size();
+//         // Log class distribution in batch
+//         size_t batch_pos = std::count_if(batch.begin(), batch.end(), 
+//             [](const DataPoint& p) { return p.label > 0.5f; });
+//         float batch_pos_ratio = static_cast<float>(batch_pos) / batch.size();
         
-        std::cout << "Minibatch class distribution:"
-                << "\n  Total size: " << batch.size()
-                << "\n  Positives: " << batch_pos 
-                << " (" << (100.0f * batch_pos_ratio) << "%)"
-                << "\n  Negatives: " << (batch.size() - batch_pos)
-                << " (" << (100.0f * (1.0f - batch_pos_ratio)) << "%)" << std::endl;
+//         std::cout << "Minibatch class distribution:"
+//                 << "\n  Total size: " << batch.size()
+//                 << "\n  Positives: " << batch_pos 
+//                 << " (" << (100.0f * batch_pos_ratio) << "%)"
+//                 << "\n  Negatives: " << (batch.size() - batch_pos)
+//                 << " (" << (100.0f * (1.0f - batch_pos_ratio)) << "%)" << std::endl;
         
-        return batch;
-    }
+//         return batch;
+//     }
     
-public:
-    ContrastiveGP(const GPConfig& cfg) 
-        : config(cfg)
-        , ops(std::make_shared<GPOperations>(
-            cfg.dropout_prob, cfg.bn_momentum, cfg.bn_epsilon)),
-        threshold_stats(cfg.initial_distance_threshold)
-    {
-        population.reserve(config.population_size);
-        for (int i = 0; i < config.population_size; ++i) {
-            population.push_back(createRandomIndividual());
-        }
-    }
+// public:
+//     ContrastiveGP(const GPConfig& cfg) 
+//         : config(cfg)
+//         , ops(std::make_shared<GPOperations>(
+//             cfg.dropout_prob, cfg.bn_momentum, cfg.bn_epsilon)),
+//         threshold_stats(cfg.initial_distance_threshold)
+//     {
+//         population.reserve(config.population_size);
+//         for (int i = 0; i < config.population_size; ++i) {
+//             population.push_back(createRandomIndividual());
+//         }
+//     }
 
-    // Method to select multiple parents using tournament selection
-    std::vector<std::pair<Individual*, Individual*>> selectParents(size_t num_pairs_needed) {
-        std::vector<std::pair<Individual*, Individual*>> selected_pairs;
-        selected_pairs.reserve(num_pairs_needed);
+//     // Method to select multiple parents using tournament selection
+//     std::vector<std::pair<Individual*, Individual*>> selectParents(size_t num_pairs_needed) {
+//         std::vector<std::pair<Individual*, Individual*>> selected_pairs;
+//         selected_pairs.reserve(num_pairs_needed);
         
-        // Create indices for available individuals
-        std::vector<size_t> available_indices(population.size());
-        std::iota(available_indices.begin(), available_indices.end(), 0);
+//         // Create indices for available individuals
+//         std::vector<size_t> available_indices(population.size());
+//         std::iota(available_indices.begin(), available_indices.end(), 0);
 
-        // Create batches for parallel processing
-        const size_t num_workers = std::min((size_t)config.num_workers, num_pairs_needed);
-        const size_t pairs_per_worker = (num_pairs_needed + num_workers - 1) / num_workers;
+//         // Create batches for parallel processing
+//         const size_t num_workers = std::min((size_t)config.num_workers, num_pairs_needed);
+//         const size_t pairs_per_worker = (num_pairs_needed + num_workers - 1) / num_workers;
         
-        std::vector<std::future<std::vector<std::pair<Individual*, Individual*>>>> futures;
-        std::mutex selection_mutex;  // For thread-safe access to shared resources
+//         std::vector<std::future<std::vector<std::pair<Individual*, Individual*>>>> futures;
+//         std::mutex selection_mutex;  // For thread-safe access to shared resources
 
-        // Launch parallel tournament selections
-        for (size_t worker = 0; worker < num_workers; ++worker) {
-            size_t start_pair = worker * pairs_per_worker;
-            size_t end_pair = std::min(start_pair + pairs_per_worker, num_pairs_needed);
+//         // Launch parallel tournament selections
+//         for (size_t worker = 0; worker < num_workers; ++worker) {
+//             size_t start_pair = worker * pairs_per_worker;
+//             size_t end_pair = std::min(start_pair + pairs_per_worker, num_pairs_needed);
             
-            if (start_pair >= end_pair) break;
+//             if (start_pair >= end_pair) break;
 
-            futures.push_back(std::async(std::launch::async, [this, start_pair, end_pair, &available_indices, &selection_mutex]() {
-                std::vector<std::pair<Individual*, Individual*>> worker_pairs;
-                worker_pairs.reserve(end_pair - start_pair);
+//             futures.push_back(std::async(std::launch::async, [this, start_pair, end_pair, &available_indices, &selection_mutex]() {
+//                 std::vector<std::pair<Individual*, Individual*>> worker_pairs;
+//                 worker_pairs.reserve(end_pair - start_pair);
                 
-                auto& local_gen = getGen();  // Thread-local RNG
+//                 auto& local_gen = getGen();  // Thread-local RNG
                 
-                for (size_t i = start_pair; i < end_pair; ++i) {
-                    std::lock_guard<std::mutex> lock(selection_mutex);
+//                 for (size_t i = start_pair; i < end_pair; ++i) {
+//                     std::lock_guard<std::mutex> lock(selection_mutex);
                     
-                    // Run tournaments to select two parents
-                    Individual& parent1 = runTournament(available_indices);
-                    Individual& parent2 = runTournament(available_indices);
+//                     // Run tournaments to select two parents
+//                     Individual& parent1 = runTournament(available_indices);
+//                     Individual& parent2 = runTournament(available_indices);
                     
-                    // Add selected pair
-                    worker_pairs.emplace_back(&parent1, &parent2);
-                }
+//                     // Add selected pair
+//                     worker_pairs.emplace_back(&parent1, &parent2);
+//                 }
                 
-                return worker_pairs;
-            }));
-        }
+//                 return worker_pairs;
+//             }));
+//         }
 
-        // Collect results from all workers
-        for (auto& future : futures) {
-            auto worker_results = future.get();
-            selected_pairs.insert(selected_pairs.end(), 
-                                worker_results.begin(), 
-                                worker_results.end());
-        }
+//         // Collect results from all workers
+//         for (auto& future : futures) {
+//             auto worker_results = future.get();
+//             selected_pairs.insert(selected_pairs.end(), 
+//                                 worker_results.begin(), 
+//                                 worker_results.end());
+//         }
 
-        return selected_pairs;
-    }
+//         return selected_pairs;
+//     }
 
-    // In ContrastiveGP class, modify train() method:
-    void train(const std::vector<DataPoint>& trainData, const std::vector<DataPoint>& valData) {
-        if (trainData.empty() || valData.empty()) {
-            return;
-        }
+//     // In ContrastiveGP class, modify train() method:
+//     void train(const std::vector<DataPoint>& trainData, const std::vector<DataPoint>& valData) {
+//         if (trainData.empty() || valData.empty()) {
+//             return;
+//         }
 
-        std::cout << "I get here I" << std::endl;
+//         std::cout << "I get here I" << std::endl;
 
-        // Use smaller batch size for faster iterations and more exploration
-        // const size_t EVAL_SUBSET_SIZE = std::min(trainData.size(), trainData.size());
-        const size_t EVAL_SUBSET_SIZE = std::min((size_t)1000, trainData.size());
-        auto subset_gen = std::mt19937{std::random_device{}()};
-        std::vector<size_t> tournament_indices(population.size());
+//         // Use smaller batch size for faster iterations and more exploration
+//         // const size_t EVAL_SUBSET_SIZE = std::min(trainData.size(), trainData.size());
+//         const size_t EVAL_SUBSET_SIZE = std::min((size_t)1000, trainData.size());
+//         auto subset_gen = std::mt19937{std::random_device{}()};
+//         std::vector<size_t> tournament_indices(population.size());
 
-        for (int generation = 0; generation < config.generations; ++generation) {
-            std::vector<Individual> new_population;
-            new_population.reserve(config.population_size);
+//         for (int generation = 0; generation < config.generations; ++generation) {
+//             std::vector<Individual> new_population;
+//             new_population.reserve(config.population_size);
 
-            std::cout << "I get here II" << std::endl;
+//             std::cout << "I get here II" << std::endl;
 
-            try {
-                // Create stratified training subset
-                std::vector<DataPoint> train_subset = createStratifiedMinibatch(
-                    trainData, EVAL_SUBSET_SIZE, subset_gen);
+//             try {
+//                 // Create stratified training subset
+//                 std::vector<DataPoint> train_subset = createStratifiedMinibatch(
+//                     trainData, EVAL_SUBSET_SIZE, subset_gen);
 
-                // Evaluate current population
-                if (!population.empty()) {
-                    evaluatePopulation(train_subset);
-                }
+//                 // Evaluate current population
+//                 if (!population.empty()) {
+//                     evaluatePopulation(train_subset);
+//                 }
 
-                std::cout << "I get here III" << std::endl;
+//                 std::cout << "I get here III" << std::endl;
 
-                // Initialize tournament indices
-                std::iota(tournament_indices.begin(), tournament_indices.end(), 0);
+//                 // Initialize tournament indices
+//                 std::iota(tournament_indices.begin(), tournament_indices.end(), 0);
 
-                // Add elite individuals first
-                {
-                    std::vector<std::pair<float, size_t>> sorted_indices;
-                    sorted_indices.reserve(population.size());
+//                 // Add elite individuals first
+//                 {
+//                     std::vector<std::pair<float, size_t>> sorted_indices;
+//                     sorted_indices.reserve(population.size());
                     
-                    for (size_t i = 0; i < population.size(); ++i) {
-                        sorted_indices.emplace_back(population[i].getFitness(), i);
-                    }
+//                     for (size_t i = 0; i < population.size(); ++i) {
+//                         sorted_indices.emplace_back(population[i].getFitness(), i);
+//                     }
                     
-                    std::sort(sorted_indices.begin(), sorted_indices.end());
+//                     std::sort(sorted_indices.begin(), sorted_indices.end());
                     
-                    for (size_t i = 0; i < config.elite_size && i < sorted_indices.size(); ++i) {
-                        try {
-                            size_t idx = sorted_indices[i].second;
-                            if (idx < population.size()) {
-                                new_population.push_back(Individual(population[idx]));
-                            }
-                        } catch (...) {
-                            std::cout << "Error in elistim" << std::endl;
-                            continue;
-                        }
-                    }
-                }
+//                     for (size_t i = 0; i < config.elite_size && i < sorted_indices.size(); ++i) {
+//                         try {
+//                             size_t idx = sorted_indices[i].second;
+//                             if (idx < population.size()) {
+//                                 new_population.push_back(Individual(population[idx]));
+//                             }
+//                         } catch (...) {
+//                             std::cout << "Error in elistim" << std::endl;
+//                             continue;
+//                         }
+//                     }
+//                 }
 
-                std::cout << "I get here IV" << std::endl;
+//                 std::cout << "I get here IV" << std::endl;
 
-                // Fill rest with tournament selection and crossover
-                while (new_population.size() < config.population_size) {
-                    try {
-                        if (population.empty()) {
-                            new_population.push_back(createRandomIndividual());
-                            continue;
-                        }
+//                 // Fill rest with tournament selection and crossover
+//                 while (new_population.size() < config.population_size) {
+//                     try {
+//                         if (population.empty()) {
+//                             new_population.push_back(createRandomIndividual());
+//                             continue;
+//                         }
 
-                        int num_parents = 2;
-                        auto parents = selectParents(num_parents);
-                        for (const auto& parent_pair : parents) {
-                            Individual& parent1 = *parent_pair.first;
-                            Individual& parent2 = *parent_pair.second;
+//                         int num_parents = 2;
+//                         auto parents = selectParents(num_parents);
+//                         for (const auto& parent_pair : parents) {
+//                             Individual& parent1 = *parent_pair.first;
+//                             Individual& parent2 = *parent_pair.second;
                             
-                            Individual offspring = crossover(parent1, parent2);
+//                             Individual offspring = crossover(parent1, parent2);
 
-                            bool valid = true;
-                            for (int i = 0; i < config.num_trees; i++) {
-                                if (!offspring.getTree(i)) {
-                                    valid = false;
-                                    break;
-                                }
-                            }
+//                             bool valid = true;
+//                             for (int i = 0; i < config.num_trees; i++) {
+//                                 if (!offspring.getTree(i)) {
+//                                     valid = false;
+//                                     break;
+//                                 }
+//                             }
                             
-                            if (!valid) {
-                                std::cout << "Invalid offspring created, using random individual instead" << std::endl;
-                                offspring = createRandomIndividual();
-                            }
+//                             if (!valid) {
+//                                 std::cout << "Invalid offspring created, using random individual instead" << std::endl;
+//                                 offspring = createRandomIndividual();
+//                             }
                             
-                            // Apply mutation with probability
-                            if (std::uniform_real_distribution<float>{0.0f, 1.0f}(getGen()) < config.mutation_prob) {
-                                offspring.mutate(getGen());
-                            }
+//                             // Apply mutation with probability
+//                             if (std::uniform_real_distribution<float>{0.0f, 1.0f}(getGen()) < config.mutation_prob) {
+//                                 offspring.mutate(getGen());
+//                             }
                             
-                            new_population.push_back(std::move(offspring));
-                        }
-                    } catch (...) {
-                        std::cout << "Error in crossover and mutation" << std::endl;
-                        try {
-                            new_population.push_back(createRandomIndividual());
-                        } catch (...) {
-                            continue;
-                        }
-                    }
-                }
+//                             new_population.push_back(std::move(offspring));
+//                         }
+//                     } catch (...) {
+//                         std::cout << "Error in crossover and mutation" << std::endl;
+//                         try {
+//                             new_population.push_back(createRandomIndividual());
+//                         } catch (...) {
+//                             continue;
+//                         }
+//                     }
+//                 }
 
-                std::cout << "I get here V" << std::endl;
+//                 std::cout << "I get here V" << std::endl;
 
-                // Calculate statistics before population swap
-                float gen_best_fitness = std::numeric_limits<float>::max();
-                float train_acc = 0.0f;
-                float val_acc = 0.0f;
-                size_t best_idx = 0;
+//                 // Calculate statistics before population swap
+//                 float gen_best_fitness = std::numeric_limits<float>::max();
+//                 float train_acc = 0.0f;
+//                 float val_acc = 0.0f;
+//                 size_t best_idx = 0;
                 
-                // Find best individual and calculate accuracies
-                if (!new_population.empty()) {
-                    try {
-                        for (size_t i = 0; i < new_population.size(); ++i) {
-                            float fitness = new_population[i].getFitness();
-                            if (fitness < gen_best_fitness) {
-                                gen_best_fitness = fitness;
-                                best_idx = i;
-                            }
-                        }
+//                 // Find best individual and calculate accuracies
+//                 if (!new_population.empty()) {
+//                     try {
+//                         for (size_t i = 0; i < new_population.size(); ++i) {
+//                             float fitness = new_population[i].getFitness();
+//                             if (fitness < gen_best_fitness) {
+//                                 gen_best_fitness = fitness;
+//                                 best_idx = i;
+//                             }
+//                         }
 
-                        if (best_idx < new_population.size()) {
-                            // Calculate accuracies on full 
-                            if (!new_population[best_idx].getTree(0)) {
-                                std::cerr << "Best individual is invalid" << std::endl;
-                                continue;
-                            }
+//                         if (best_idx < new_population.size()) {
+//                             // Calculate accuracies on full 
+//                             if (!new_population[best_idx].getTree(0)) {
+//                                 std::cerr << "Best individual is invalid" << std::endl;
+//                                 continue;
+//                             }
 
-                            // Calculate accuracies on full datasets
-                            if (trainData.empty()) {
-                                std::cerr << "Training data is empty" << std::endl;
-                                continue;
-                            }
-                            std::cout << "Evaluating training accuracy" << std::endl;
-                            train_acc = calculateAccuracy(new_population[best_idx], trainData);
-                            ops->setTraining(false);
-                            std::cout << "Evaluating test accuracy" << std::endl;
-                            val_acc = calculateAccuracy(new_population[best_idx], valData);
-                            ops->setTraining(true);
-                        }
-                    } catch (...) {
-                        // If statistics calculation fails, use default values
-                    }
-                }
+//                             // Calculate accuracies on full datasets
+//                             if (trainData.empty()) {
+//                                 std::cerr << "Training data is empty" << std::endl;
+//                                 continue;
+//                             }
+//                             std::cout << "Evaluating training accuracy" << std::endl;
+//                             train_acc = calculateAccuracy(new_population[best_idx], trainData);
+//                             ops->setTraining(false);
+//                             std::cout << "Evaluating test accuracy" << std::endl;
+//                             val_acc = calculateAccuracy(new_population[best_idx], valData);
+//                             ops->setTraining(true);
+//                         }
+//                     } catch (...) {
+//                         // If statistics calculation fails, use default values
+//                     }
+//                 }
 
-                std::cout << "I get here VI" << std::endl;
+//                 std::cout << "I get here VI" << std::endl;
 
-                // Safely swap populations
-                if (!new_population.empty()) {
-                    population = std::move(new_population);
-                }
+//                 // Safely swap populations
+//                 if (!new_population.empty()) {
+//                     population = std::move(new_population);
+//                 }
 
-                // Print statistics
-                std::cout << "Generation " << generation 
-                        << "\n  Best Fitness: " << gen_best_fitness
-                        << "\n  Train Accuracy: " << train_acc * 100.0f << "%"
-                        << "\n  Val Accuracy: " << val_acc * 100.0f << "%"
-                        << std::endl;
+//                 // Print statistics
+//                 std::cout << "Generation " << generation 
+//                         << "\n  Best Fitness: " << gen_best_fitness
+//                         << "\n  Train Accuracy: " << train_acc * 100.0f << "%"
+//                         << "\n  Val Accuracy: " << val_acc * 100.0f << "%"
+//                         << std::endl;
 
-                printTreeDepthStats(population);
+//                 printTreeDepthStats(population);
 
-                // Clear cache periodically
-                if (generation % 10 == 0) {
-                    fitness_cache.clear();
-                }
+//                 // Clear cache periodically
+//                 if (generation % 10 == 0) {
+//                     fitness_cache.clear();
+//                 }
 
-            } catch (...) {
-                continue;
-            }
+//             } catch (...) {
+//                 continue;
+//             }
 
-            std::cout << "I get here VII" << std::endl;
-        }
-    }   
+//             std::cout << "I get here VII" << std::endl;
+//         }
+//     }   
     
-    Individual crossover(const Individual& parent1, const Individual& parent2) {
-        // Create trees vector for offspring
-        std::vector<std::unique_ptr<GPNode>> offspring_trees;
-        offspring_trees.reserve(config.num_trees);
+//     Individual crossover(const Individual& parent1, const Individual& parent2) {
+//         // Create trees vector for offspring
+//         std::vector<std::unique_ptr<GPNode>> offspring_trees;
+//         offspring_trees.reserve(config.num_trees);
         
-        int crossovers_performed = 0;
-        int mutations_performed = 0;
+//         int crossovers_performed = 0;
+//         int mutations_performed = 0;
         
-        static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
+//         static thread_local std::uniform_real_distribution<float> prob_dist(0.0f, 1.0f);
         
-        // Process each tree position
-        for (int i = 0; i < config.num_trees; ++i) {
-            try {
-                // Get parent trees with safety checks
-                auto* parent1_tree = parent1.getTree(i).get();
-                auto* parent2_tree = parent2.getTree(i).get();
+//         // Process each tree position
+//         for (int i = 0; i < config.num_trees; ++i) {
+//             try {
+//                 // Get parent trees with safety checks
+//                 auto* parent1_tree = parent1.getTree(i).get();
+//                 auto* parent2_tree = parent2.getTree(i).get();
                 
-                if (!parent1_tree || !parent2_tree) {
-                    // If either parent tree is invalid, create a new random tree
-                    offspring_trees.push_back(
-                        TreeOperations::createRandomOperatorNode(
-                            config.max_tree_depth - 1, 0, config, ops, getGen()
-                        )
-                    );
-                    continue;
-                }
+//                 if (!parent1_tree || !parent2_tree) {
+//                     // If either parent tree is invalid, create a new random tree
+//                     offspring_trees.push_back(
+//                         TreeOperations::createRandomOperatorNode(
+//                             config.max_tree_depth - 1, 0, config, ops, getGen()
+//                         )
+//                     );
+//                     continue;
+//                 }
                 
-                // Decide whether to perform crossover
-                bool should_crossover = prob_dist(getGen()) < config.crossover_prob;
+//                 // Decide whether to perform crossover
+//                 bool should_crossover = prob_dist(getGen()) < config.crossover_prob;
                 
-                if (should_crossover && 
-                    parent1_tree->isValidDepth() && 
-                    parent2_tree->isValidDepth()) {
+//                 if (should_crossover && 
+//                     parent1_tree->isValidDepth() && 
+//                     parent2_tree->isValidDepth()) {
                     
-                    // Attempt crossover
-                    auto new_tree = TreeOperations::multiPointCrossover(
-                        parent1_tree, parent2_tree, config, ops, getGen()
-                    );
+//                     // Attempt crossover
+//                     auto new_tree = TreeOperations::multiPointCrossover(
+//                         parent1_tree, parent2_tree, config, ops, getGen()
+//                     );
                     
-                    // Validate result
-                    if (new_tree && new_tree->isValidDepth()) {
-                        offspring_trees.push_back(std::move(new_tree));
-                        crossovers_performed++;
-                        continue;
-                    }
-                }
+//                     // Validate result
+//                     if (new_tree && new_tree->isValidDepth()) {
+//                         offspring_trees.push_back(std::move(new_tree));
+//                         crossovers_performed++;
+//                         continue;
+//                     }
+//                 }
                 
-                // If crossover fails or isn't chosen, try mutation
-                if (auto new_tree = parent1_tree->clone()) {
-                    TreeOperations::mutateNode(new_tree.get(), config, ops, getGen());
-                    if (new_tree->isValidDepth()) {
-                        offspring_trees.push_back(std::move(new_tree));
-                        mutations_performed++;
-                        continue;
-                    }
-                }
+//                 // If crossover fails or isn't chosen, try mutation
+//                 if (auto new_tree = parent1_tree->clone()) {
+//                     TreeOperations::mutateNode(new_tree.get(), config, ops, getGen());
+//                     if (new_tree->isValidDepth()) {
+//                         offspring_trees.push_back(std::move(new_tree));
+//                         mutations_performed++;
+//                         continue;
+//                     }
+//                 }
                 
-                // If all else fails, create random tree
-                offspring_trees.push_back(
-                    TreeOperations::createRandomOperatorNode(
-                        config.max_tree_depth - 1, 0, config, ops, getGen()
-                    )
-                );
+//                 // If all else fails, create random tree
+//                 offspring_trees.push_back(
+//                     TreeOperations::createRandomOperatorNode(
+//                         config.max_tree_depth - 1, 0, config, ops, getGen()
+//                     )
+//                 );
                 
-            } catch (...) {
-                std::cout << "Error creating offspring tree" << std::endl;
-                // On any error, add a random tree
-                offspring_trees.push_back(
-                    TreeOperations::createRandomOperatorNode(
-                        config.max_tree_depth - 1, 0, config, ops, getGen()
-                    )
-                );
-            }
-        }
+//             } catch (...) {
+//                 std::cout << "Error creating offspring tree" << std::endl;
+//                 // On any error, add a random tree
+//                 offspring_trees.push_back(
+//                     TreeOperations::createRandomOperatorNode(
+//                         config.max_tree_depth - 1, 0, config, ops, getGen()
+//                     )
+//                 );
+//             }
+//         }
         
-        // Create new individual with safety check
-        try {
-            return Individual(std::move(offspring_trees), ops, config);
-        } catch (...) {
-            std::cout << "Error creating offspring individual" << std::endl;
-            // If individual creation fails, create a completely new random individual
-            std::vector<std::unique_ptr<GPNode>> random_trees;
-            random_trees.reserve(config.num_trees);
+//         // Create new individual with safety check
+//         try {
+//             return Individual(std::move(offspring_trees), ops, config);
+//         } catch (...) {
+//             std::cout << "Error creating offspring individual" << std::endl;
+//             // If individual creation fails, create a completely new random individual
+//             std::vector<std::unique_ptr<GPNode>> random_trees;
+//             random_trees.reserve(config.num_trees);
             
-            for (int i = 0; i < config.num_trees; ++i) {
-                random_trees.push_back(
-                    TreeOperations::createRandomOperatorNode(
-                        config.max_tree_depth - 1, 0, config, ops, getGen()
-                    )
-                );
-            }
+//             for (int i = 0; i < config.num_trees; ++i) {
+//                 random_trees.push_back(
+//                     TreeOperations::createRandomOperatorNode(
+//                         config.max_tree_depth - 1, 0, config, ops, getGen()
+//                     )
+//                 );
+//             }
             
-            return Individual(std::move(random_trees), ops, config);
-        }
-    }
+//             return Individual(std::move(random_trees), ops, config);
+//         }
+//     }
 
-    void printTreeDepthStats(const std::vector<Individual>& pop) {
-        if (pop.empty()) {
-            std::cout << "  Tree Depth Stats: No valid population" << std::endl;
-            return;
-        }
+//     void printTreeDepthStats(const std::vector<Individual>& pop) {
+//         if (pop.empty()) {
+//             std::cout << "  Tree Depth Stats: No valid population" << std::endl;
+//             return;
+//         }
 
-        try {
-            struct DepthStats {
-                int min_depth = std::numeric_limits<int>::max();
-                int max_depth = 0;
-                double avg_depth = 0.0;
-                double std_dev = 0.0;
-                std::vector<int> all_depths;  // Store all depths for variance calculation
-            };
+//         try {
+//             struct DepthStats {
+//                 int min_depth = std::numeric_limits<int>::max();
+//                 int max_depth = 0;
+//                 double avg_depth = 0.0;
+//                 double std_dev = 0.0;
+//                 std::vector<int> all_depths;  // Store all depths for variance calculation
+//             };
 
-            // Calculate stats per tree position
-            std::vector<DepthStats> stats_per_position(config.num_trees);
+//             // Calculate stats per tree position
+//             std::vector<DepthStats> stats_per_position(config.num_trees);
             
-            // Overall stats across all trees
-            DepthStats overall_stats;
+//             // Overall stats across all trees
+//             DepthStats overall_stats;
             
-            // Collect depths
-            for (const auto& ind : pop) {
-                for (int i = 0; i < config.num_trees; ++i) {
-                    const auto& tree = ind.getTree(i);
-                    if (tree) {
-                        int depth = tree->depth();
-                        if (depth > 0 && depth < 1000) {  // Sanity check
-                            // Update per-position stats
-                            stats_per_position[i].min_depth = std::min(stats_per_position[i].min_depth, depth);
-                            stats_per_position[i].max_depth = std::max(stats_per_position[i].max_depth, depth);
-                            stats_per_position[i].all_depths.push_back(depth);
+//             // Collect depths
+//             for (const auto& ind : pop) {
+//                 for (int i = 0; i < config.num_trees; ++i) {
+//                     const auto& tree = ind.getTree(i);
+//                     if (tree) {
+//                         int depth = tree->depth();
+//                         if (depth > 0 && depth < 1000) {  // Sanity check
+//                             // Update per-position stats
+//                             stats_per_position[i].min_depth = std::min(stats_per_position[i].min_depth, depth);
+//                             stats_per_position[i].max_depth = std::max(stats_per_position[i].max_depth, depth);
+//                             stats_per_position[i].all_depths.push_back(depth);
                             
-                            // Update overall stats
-                            overall_stats.min_depth = std::min(overall_stats.min_depth, depth);
-                            overall_stats.max_depth = std::max(overall_stats.max_depth, depth);
-                            overall_stats.all_depths.push_back(depth);
-                        }
-                    }
-                }
-            }
+//                             // Update overall stats
+//                             overall_stats.min_depth = std::min(overall_stats.min_depth, depth);
+//                             overall_stats.max_depth = std::max(overall_stats.max_depth, depth);
+//                             overall_stats.all_depths.push_back(depth);
+//                         }
+//                     }
+//                 }
+//             }
 
-            // Calculate averages and variances
-            auto calculate_stats = [](DepthStats& stats) {
-                if (stats.all_depths.empty()) return;
+//             // Calculate averages and variances
+//             auto calculate_stats = [](DepthStats& stats) {
+//                 if (stats.all_depths.empty()) return;
                 
-                // Calculate mean
-                double sum = std::accumulate(stats.all_depths.begin(), stats.all_depths.end(), 0.0);
-                stats.avg_depth = sum / stats.all_depths.size();
+//                 // Calculate mean
+//                 double sum = std::accumulate(stats.all_depths.begin(), stats.all_depths.end(), 0.0);
+//                 stats.avg_depth = sum / stats.all_depths.size();
                 
-                // Calculate variance
-                double variance = 0.0;
-                for (int depth : stats.all_depths) {
-                    double diff = depth - stats.avg_depth;
-                    variance += diff * diff;
-                }
-                variance /= stats.all_depths.size();
+//                 // Calculate variance
+//                 double variance = 0.0;
+//                 for (int depth : stats.all_depths) {
+//                     double diff = depth - stats.avg_depth;
+//                     variance += diff * diff;
+//                 }
+//                 variance /= stats.all_depths.size();
                 
-                // Store standard deviation with the stats
-                stats.std_dev = std::sqrt(variance);
-            };
+//                 // Store standard deviation with the stats
+//                 stats.std_dev = std::sqrt(variance);
+//             };
 
-            // Calculate stats for each position and overall
-            for (auto& stats : stats_per_position) {
-                calculate_stats(stats);
-            }
-            calculate_stats(overall_stats);
+//             // Calculate stats for each position and overall
+//             for (auto& stats : stats_per_position) {
+//                 calculate_stats(stats);
+//             }
+//             calculate_stats(overall_stats);
 
-            // Print statistics
-            std::cout << "\nTree Depth Statistics:"
-                    << "\n  Overall:"
-                    << "\n    Min: " << overall_stats.min_depth
-                    << "\n    Max: " << overall_stats.max_depth
-                    << "\n    Avg: " << std::fixed << std::setprecision(2) << overall_stats.avg_depth
-                    << "\n    Std: " << std::fixed << std::setprecision(2) << overall_stats.std_dev;
+//             // Print statistics
+//             std::cout << "\nTree Depth Statistics:"
+//                     << "\n  Overall:"
+//                     << "\n    Min: " << overall_stats.min_depth
+//                     << "\n    Max: " << overall_stats.max_depth
+//                     << "\n    Avg: " << std::fixed << std::setprecision(2) << overall_stats.avg_depth
+//                     << "\n    Std: " << std::fixed << std::setprecision(2) << overall_stats.std_dev;
 
-            // Print per-position statistics
-            std::cout << "\n  Per Tree Position:";
-            for (size_t i = 0; i < stats_per_position.size(); ++i) {
-                const auto& stats = stats_per_position[i];
-                if (!stats.all_depths.empty()) {
-                    std::cout << "\n    Tree " << i << ":"
-                            << " Min=" << stats.min_depth
-                            << " Max=" << stats.max_depth
-                            << " Avg=" << std::fixed << std::setprecision(2) << stats.avg_depth
-                            << " Std=" << std::fixed << std::setprecision(2) << stats.std_dev;
-                }
-            }
-            std::cout << std::endl;
+//             // Print per-position statistics
+//             std::cout << "\n  Per Tree Position:";
+//             for (size_t i = 0; i < stats_per_position.size(); ++i) {
+//                 const auto& stats = stats_per_position[i];
+//                 if (!stats.all_depths.empty()) {
+//                     std::cout << "\n    Tree " << i << ":"
+//                             << " Min=" << stats.min_depth
+//                             << " Max=" << stats.max_depth
+//                             << " Avg=" << std::fixed << std::setprecision(2) << stats.avg_depth
+//                             << " Std=" << std::fixed << std::setprecision(2) << stats.std_dev;
+//                 }
+//             }
+//             std::cout << std::endl;
 
-        } catch (const std::exception& e) {
-            std::cout << "Error calculating tree depth stats: " << e.what() << std::endl;
-        }
-    }
-};
+//         } catch (const std::exception& e) {
+//             std::cout << "Error calculating tree depth stats: " << e.what() << std::endl;
+//         }
+//     }
+// };
+
+// thread_local std::mt19937 ContrastiveGP::rng = getThreadLocalRNG();
 
 thread_local std::mt19937 GPOperations::rng = getThreadLocalRNG();
-thread_local std::mt19937 ContrastiveGP::rng = getThreadLocalRNG();
 size_t OperatorNode::next_node_id = 0;
 
 // Example usage:
@@ -3866,7 +4041,7 @@ int main() {
         
         // Train 
         std::cout << "Training" << std::endl;
-        model.train(trainData, valData);
+        model.train(trainData, valData, config.generations, config.batch_size);
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
