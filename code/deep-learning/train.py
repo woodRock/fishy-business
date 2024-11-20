@@ -19,11 +19,11 @@ from sklearn.metrics import (
 )
 from transformer import Transformer
 from vae import VAE
+from util import DataAugmenter, AugmentationConfig
 from plot import plot_accuracy, plot_confusion_matrix
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List]
-
 
 def train_model(
     model: nn.Module,
@@ -33,6 +33,7 @@ def train_model(
     num_epochs: int = 100,
     patience: int = 10,
     n_splits: int = 5,
+    is_augmented: bool = False,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> nn.Module:
     """Train a model using k-fold cross-validation with early stopping.
@@ -45,6 +46,7 @@ def train_model(
         num_epochs: Maximum number of training epochs
         patience: Number of epochs to wait before early stopping
         n_splits: Number of folds for cross-validation
+        is_augmented: Whether to apply data augmentation
         device: Device to train on ('cuda' or 'cpu')
 
     Returns:
@@ -56,10 +58,10 @@ def train_model(
     model_copy = copy.deepcopy(model)
     dataset = train_loader.dataset
 
-    # Extract labels for stratification
+    # Extract labels for stratification.
     all_labels = _extract_labels(dataset)
 
-    # Initialize cross-validation
+    # Initialize cross-validation.
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     # Metrics storage
@@ -73,19 +75,36 @@ def train_model(
     best_model_state = None
     best_overall_accuracy = float("-inf")
 
-    # Perform k-fold cross-validation
+    # Perform k-fold cross-validation.
     for fold, (train_idx, val_idx) in enumerate(
         skf.split(np.zeros(len(dataset)), all_labels), 1
     ):
         logger.info(f"\nStarting Fold {fold}/{n_splits}")
 
-        # Setup fold-specific data and model
+        # Setup fold-specific data and model.
         model = copy.deepcopy(model_copy).to(device)
         fold_train_loader, fold_val_loader = _create_fold_loaders(
             dataset, train_idx, val_idx, train_loader.batch_size
         )
 
-        # Create fold-specific optimizer
+        # Apply data augmentation if enabled.
+        if is_augmented:
+            aug_config = AugmentationConfig(
+                enabled=True,
+                num_augmentations= 5,
+                noise_enabled=True,
+                shift_enabled=False,
+                scale_enabled=False,
+                noise_level=0.1,
+                shift_range=0.1,
+                scale_range=0.1,
+            )
+
+            # Augment the training set only.
+            train_data_augmenter = DataAugmenter(aug_config)
+            fold_train_loader = train_data_augmenter.augment(fold_train_loader)
+
+        # Create fold-specific optimizer.
         fold_optimizer = type(optimizer)(model.parameters(), **optimizer.defaults)
 
         # Train the fold
@@ -101,7 +120,7 @@ def train_model(
             logger=logger,
         )
 
-        # Update best model if this fold performed better
+        # Update best model if this fold performed better.
         if fold_results["best_accuracy"] > best_overall_accuracy:
             best_overall_accuracy = fold_results["best_accuracy"]
             best_model_state = copy.deepcopy(fold_results["best_model_state"])
@@ -109,17 +128,17 @@ def train_model(
                 f"\nNew best overall accuracy: {best_overall_accuracy:.4f} (Fold {fold})"
             )
 
-        # Store fold metrics
+        # Store fold metrics.
         fold_metrics = _update_fold_metrics(fold_metrics, fold_results["epoch_metrics"])
         best_val_metrics.append(fold_results["best_fold_metrics"])
 
-    # Print final metrics
+    # Print final metrics.
     _print_final_metrics(best_val_metrics, logger)
     logger.info(
         f"\nTraining completed. Best overall accuracy: {best_overall_accuracy:.4f}"
     )
 
-    # Load the best model state
+    # Load the best model state.
     model = model_copy.to(device)
     model.load_state_dict(best_model_state)
 
@@ -238,6 +257,7 @@ def _extract_labels(dataset: Dataset) -> np.ndarray:
                 all_labels.append(np.argmax(labels))
         else:
             all_labels.append(labels)
+    print(f"all_labels: {np.unique(all_labels)}")
     return np.array(all_labels)
 
 
@@ -293,37 +313,37 @@ def _train_fold(
     }
 
     for epoch in tqdm(range(num_epochs), desc="Training"):
-        # Training phase
+        # Training phase.
         model.train()
         train_results = _run_epoch(
             model, train_loader, criterion, optimizer, device, True
         )
 
-        # Validation phase
+        # Validation phase.
         model.eval()
         with torch.no_grad():
             val_results = _run_epoch(
                 model, val_loader, criterion, optimizer, device, False
             )
 
-        # Store metrics for current epoch
+        # Store metrics for current epoch.
         _update_epoch_metrics(epoch_metrics, train_results, val_results)
 
         current_val_accuracy = val_results["metrics"]["balanced_accuracy"]
 
-        # Update best model if improved
+        # Update best model if improved.
         if current_val_accuracy > best_val_accuracy:
             best_val_accuracy = current_val_accuracy
             best_model_state = copy.deepcopy(model.state_dict())
             best_fold_metrics = copy.deepcopy(val_results["metrics"])
             epochs_without_improvement = 0
 
-            # Log when we find a better model
+            # Log when we find a better model.
             logger.info(
                 f"Epoch {epoch + 1}: New best validation accuracy: {best_val_accuracy:.4f}"
             )
 
-            # Log all metrics if we achieve perfect accuracy
+            # Log all metrics if we achieve perfect accuracy.
             if current_val_accuracy >= 1.0:
                 logger.info("Achieved perfect validation accuracy!")
                 logger.info("Current metrics:")
@@ -337,7 +357,7 @@ def _train_fold(
                 # DEBUG
                 # break
 
-        # Log progress every few epochs
+        # Log progress every few epochs.
         if (epoch + 1) % 5 == 0:
             logger.info(f"Epoch {epoch + 1}")
             logger.info(f"Train Loss: {train_results['loss']:.4f}")
@@ -345,7 +365,7 @@ def _train_fold(
             logger.info(f"Current Val Accuracy: {current_val_accuracy:.4f}")
             logger.info(f"Best Val Accuracy: {best_val_accuracy:.4f}")
 
-    # Ensure we return the best metrics we found
+    # Ensure we return the best metrics we found.
     return {
         "best_accuracy": best_val_accuracy,
         "best_model_state": best_model_state,
@@ -465,7 +485,7 @@ def _print_final_metrics(
         for metric, value in metrics.items():
             logger.info(f"{metric}: {value:.4f}")
 
-    # Calculate and print average metrics across folds
+    # Calculate and print average metrics across folds.
     avg_metrics = {}
     for metric in best_val_metrics[0].keys():
         avg_metrics[metric] = np.mean([fold[metric] for fold in best_val_metrics])
@@ -474,7 +494,7 @@ def _print_final_metrics(
     for metric, value in avg_metrics.items():
         logger.info(f"Average {metric}: {value:.4f}")
 
-    # Calculate and print standard deviation of metrics
+    # Calculate and print standard deviation of metrics.
     std_metrics = {}
     for metric in best_val_metrics[0].keys():
         std_metrics[metric] = np.std([fold[metric] for fold in best_val_metrics])

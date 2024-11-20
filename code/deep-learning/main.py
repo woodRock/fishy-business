@@ -228,11 +228,13 @@ class ModelTrainer:
         )
         optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
-        # Train model
+        # Record analytics for time taken to train.
         start_time = time.time()
 
         # Note: not enough of each class for k=5 for cross-fold validation.
         n_splits = 3 if self.config.dataset == "part" else 5
+
+        # Train the model with cross-validation.
         model = train_model(
             model,
             train_loader,
@@ -241,6 +243,7 @@ class ModelTrainer:
             n_splits=n_splits,
             num_epochs=self.config.epochs,
             patience=self.config.early_stopping,
+            is_augmented=self.config.data_augmentation,
         )
         self.logger.info(f"Training time: {time.time() - start_time:.2f}s")
 
@@ -479,7 +482,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-l",
         "--num-layers",
-        type=float,
+        type=int,
         default=4,
         help="Number of transformer layers. Defaults to 4.",
     )
