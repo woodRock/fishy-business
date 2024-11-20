@@ -151,36 +151,43 @@ class SiameseDataset(BaseDataset):
 
 
 class DataAugmenter:
-    """Handles data augmentation operations."""
+    """Handles data augmentation operations on DataLoader inputs."""
 
     def __init__(self, config: AugmentationConfig):
         """Initialize augmenter with configuration."""
         self.config = config
 
-    def augment(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Perform data augmentation on the dataset.
+    def augment(self, dataloader: DataLoader) -> DataLoader:
+        """Perform data augmentation on batched data from a DataLoader.
 
         Args:
-            X: Input features of shape (n_samples, n_features)
-            y: Target labels
+            dataloader: Input DataLoader containing (features, labels) pairs
 
         Returns:
-            Tuple of (augmented_features, augmented_labels)
+            New DataLoader with augmented data
         """
         if not self.config.enabled:
-            return X, y
+            return dataloader
 
         logger.info(
             f"Starting data augmentation with {self.config.num_augmentations} augmentations per sample"
         )
 
-        # Initialize arrays to store augmented data
-        n_samples, n_features = X.shape
-        total_samples = n_samples * (
-            self.config.num_augmentations + 1
-        )  # +1 for original samples
+        # Extract all data from dataloader
+        all_samples = []
+        all_labels = []
+        for samples, labels in tqdm(dataloader, desc="Collecting data from loader"):
+            all_samples.append(samples.numpy())
+            all_labels.append(labels.numpy())
+        
+        X = np.vstack(all_samples)
+        y = np.vstack(all_labels)
 
-        # Pre-allocate arrays for efficiency
+        # Initialize arrays for augmented data
+        n_samples = len(X)
+        n_features = X.shape[1]
+        total_samples = n_samples * (self.config.num_augmentations + 1)
+
         X_augmented = np.zeros((total_samples, n_features))
         y_augmented = np.zeros((total_samples,) + y.shape[1:])
 
@@ -192,9 +199,8 @@ class DataAugmenter:
         for i in tqdm(range(n_samples), desc="Augmenting data"):
             x, y_sample = X[i], y[i]
 
-            # Generate augmentations for each sample
             for j in range(self.config.num_augmentations):
-                idx = n_samples * (j + 1) + i  # Calculate position in augmented array
+                idx = n_samples * (j + 1) + i
                 augmented = x.copy()
 
                 # Apply noise augmentation
@@ -209,10 +215,8 @@ class DataAugmenter:
                 # Apply shift augmentation
                 if self.config.shift_enabled:
                     shift_amount = int(
-                        len(augmented)
-                        * np.random.uniform(
-                            -self.config.shift_range, self.config.shift_range
-                        )
+                        len(augmented) 
+                        * np.random.uniform(-self.config.shift_range, self.config.shift_range)
                     )
                     augmented = np.roll(augmented, shift_amount)
 
@@ -223,7 +227,6 @@ class DataAugmenter:
                     )
                     augmented *= scale_factor
 
-                # Store augmented sample and label
                 X_augmented[idx] = augmented
                 y_augmented[idx] = y_sample
 
@@ -246,7 +249,17 @@ class DataAugmenter:
         X_augmented = X_augmented[shuffle_idx]
         y_augmented = y_augmented[shuffle_idx]
 
-        return X_augmented, y_augmented
+        # Create new dataset and dataloader with augmented data
+        augmented_dataset = CustomDataset(X_augmented, y_augmented)
+        augmented_dataloader = DataLoader(
+            augmented_dataset,
+            batch_size=dataloader.batch_size,
+            shuffle=True,
+            num_workers=dataloader.num_workers,
+            pin_memory=dataloader.pin_memory
+        )
+
+        return augmented_dataloader
 
 
 class DataProcessor:
@@ -255,7 +268,6 @@ class DataProcessor:
     def __init__(
         self,
         dataset_type: Union[str, DatasetType],
-        augmentation_config: Optional[AugmentationConfig] = None,
         batch_size: int = 64,
         train_split: float = 0.8,
     ):
@@ -272,10 +284,8 @@ class DataProcessor:
             if isinstance(dataset_type, str)
             else dataset_type
         )
-        self.augmentation_config = augmentation_config or AugmentationConfig()
         self.batch_size = batch_size
         self.train_split = train_split
-        self.augmenter = DataAugmenter(self.augmentation_config)
 
     def load_data(self, file_path: Union[str, Path, List[str]]) -> pd.DataFrame:
         """Load data from file.
@@ -352,6 +362,19 @@ class DataProcessor:
             filtered = filtered[~filtered["m/z"].str.contains("MO")]
 
         if self.dataset_type in [
+            DatasetType.PART,
+        ]:
+            filtered = filtered[
+                filtered['m/z']
+                .str
+                .contains(
+                    "fillet|frames|gonads|livers|skins|guts|frame|heads", 
+                    case=False, 
+                    na=False
+                )
+            ]
+
+        if self.dataset_type in [
             DatasetType.OIL
         ]:
             filtered = filtered[filtered['m/z'].str.contains('MO', na=False)]
@@ -397,6 +420,8 @@ class DataProcessor:
         # Convert labels first
         y_series = data["m/z"].apply(self._get_label_encoder())
 
+        print(f"Class labels: {np.unique(y_series)}")
+
         # Filter out None values
         valid_mask = y_series.notna()
         filtered_data = data[valid_mask]
@@ -415,7 +440,7 @@ class DataProcessor:
         elif self.dataset_type == DatasetType.PART:
 
             def encode_part(x):
-                if "Fillet" in x:
+                if "Fillets" in x:
                     return [1, 0, 0, 0, 0, 0, 0]
                 if "Heads" in x:
                     return [0, 1, 0, 0, 0, 0, 0]
@@ -476,25 +501,18 @@ class DataProcessor:
 
 def preprocess_dataset(
     dataset: str = "species",
-    is_data_augmentation: bool = True,
     batch_size: int = 64,
     is_pre_train: bool = False,
-    augmentation_config: Optional[AugmentationConfig] = None,
 ) -> Tuple[DataLoader, pd.DataFrame]:
     """Preprocess dataset for training or pre-training."""
     # Use provided config or create default
-    if augmentation_config is None:
-        aug_config = AugmentationConfig(enabled=is_data_augmentation)
-    else:
-        aug_config = augmentation_config
-
-    processor = DataProcessor(dataset, aug_config, batch_size)
+    processor = DataProcessor(dataset, batch_size)
 
     try:
         # Load and process data
         logger.info(f"Loading dataset: {dataset}")
-        # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
-        file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
+        file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
+        # file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
         data = processor.load_data(file_path)
 
         # Filter data based on pre-training flag
@@ -504,17 +522,6 @@ def preprocess_dataset(
         # Encode labels and prepare features
         X, y = processor.encode_labels(filtered_data)
         logger.info(f"Features shape: {X.shape}, Labels shape: {y.shape}")
-
-        # Apply data augmentation if enabled
-        original_size = len(X)
-        if aug_config.enabled:
-            logger.info(
-                f"Applying data augmentation with {aug_config.num_augmentations} augmentations per sample..."
-            )
-            X, y = processor.augmenter.augment(X, y)
-            logger.info(
-                f"Dataset size increased from {original_size} to {len(X)} samples"
-            )
 
         # Create dataset instance
         dataset_class = (
@@ -540,28 +547,11 @@ def preprocess_dataset(
             pin_memory=True,
         )
 
-        # Verify dataset size
-        if aug_config.enabled:
-            expected_size = original_size * (aug_config.num_augmentations + 1)
-            actual_size = len(train_dataset)
-            logger.info(f"Dataset size verification:")
-            logger.info(f"  Original size: {original_size}")
-            logger.info(f"  Expected size: {expected_size}")
-            logger.info(f"  Actual size: {actual_size}")
-
-            if actual_size != expected_size:
-                logger.warning(
-                    f"Unexpected dataset size. Expected {expected_size} samples "
-                    f"(original {original_size} × {aug_config.num_augmentations + 1}), "
-                    f"but got {actual_size}"
-                )
-
         return train_loader, data
 
     except Exception as e:
         logger.error(f"Error during preprocessing: {str(e)}")
         raise
-
 
 class DataModule:
     """High-level interface for data management."""
@@ -570,25 +560,19 @@ class DataModule:
         self,
         dataset_name: str,
         batch_size: int = 64,
-        augmentation_config: Optional[AugmentationConfig] = None,
         is_pre_train: bool = False,
     ):
         self.dataset_name = dataset_name
         self.batch_size = batch_size
-        self.augmentation_config = augmentation_config
         self.is_pre_train = is_pre_train
-        self.processor = DataProcessor(dataset_name, augmentation_config, batch_size)
+        self.processor = DataProcessor(dataset_name, batch_size)
 
     def setup(self) -> Tuple[DataLoader, pd.DataFrame]:
         """Set up data processing pipeline."""
         return preprocess_dataset(
             dataset=self.dataset_name,
-            is_data_augmentation=self.augmentation_config.enabled
-            if self.augmentation_config
-            else False,
             batch_size=self.batch_size,
             is_pre_train=self.is_pre_train,
-            augmentation_config=self.augmentation_config,
         )
 
     @staticmethod
@@ -618,7 +602,6 @@ class DataModule:
 def create_data_module(
     dataset_name: str,
     batch_size: int = 64,
-    augmentation_enabled: bool = True,
     is_pre_train: bool = False,
     **augmentation_kwargs,
 ) -> DataModule:
@@ -634,33 +617,13 @@ def create_data_module(
     Returns:
         Configured DataModule instance
     """
-    logger.info(
-        f"Creating DataModule with augmentation parameters: {augmentation_kwargs}"
-    )
 
-    # Create augmentation config with all parameters
-    aug_config = AugmentationConfig(
-        enabled=augmentation_enabled,
-        num_augmentations=augmentation_kwargs.get("num_augmentations", 5),
-        noise_enabled=augmentation_kwargs.get("noise_enabled", True),
-        shift_enabled=augmentation_kwargs.get("shift_enabled", False),
-        scale_enabled=augmentation_kwargs.get("scale_enabled", False),
-        noise_level=augmentation_kwargs.get("noise_level", 0.1),
-        shift_range=augmentation_kwargs.get("shift_range", 0.1),
-        scale_range=augmentation_kwargs.get("scale_range", 0.1),
-    )
-
-    logger.info(
-        f"Created augmentation config with {aug_config.num_augmentations} augmentations"
-    )
 
     return DataModule(
         dataset_name=dataset_name,
         batch_size=batch_size,
-        augmentation_config=aug_config,
         is_pre_train=is_pre_train,
     )
-
 
 # Usage example:
 if __name__ == "__main__":
@@ -672,7 +635,7 @@ if __name__ == "__main__":
 
     # Example usage with DataModule
     data_module = create_data_module(
-        dataset_name="species",
+        dataset_name="part",
         batch_size=64,
         augmentation_enabled=True,
         num_augmentations=3,
