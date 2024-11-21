@@ -7206,3 +7206,14 @@ Notes:
 Related:
     * Pyramid Stereo Monitoring Network (PSMNet) :ref:`(Chang 2018) <chang2018pyramid>`
     * Neural Radiance Fields (NeRF) :ref:`(Mildenhall 2021) <mildenhall2021nerf>`
+
+2024-11-21 - Weekly 
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00 **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen 
+
+Notes:
+    * Need to subtmit my PhD candidate devleopment plan. It was due last week but will submit this week. 
+    * Need to revise my AJCAI paper, with the stuff from the journal paper. 
+    * 27 months of enrollment from March 2022, don't need to submit my PhD in the next 6 months. Aim to submit my thesis by the end of 2025. 
+    * Open source journal - Intelligent Marine Technology and Systems. 
+    * Conference - IEEE CEC 2025 - double column format, 8 pages including references. 

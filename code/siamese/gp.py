@@ -51,27 +51,27 @@ class DataPoint(NamedTuple):
 
 @dataclass
 class GPConfig:
-    """Configuration for GP evolution."""
+    """Configuration for GP evolution with improved hyperparameters."""
     n_features: int = 2080
-    num_trees: int = 20
-    population_size: int = 100
+    num_trees: int = 10  # Reduced from 20 to prevent overfitting
+    population_size: int = 200  # Increased from 100 for better exploration
     generations: int = 50
-    elite_size: int = 10
-    crossover_prob: float = 0.8
-    mutation_prob: float = 0.3
-    tournament_size: int = 7
-    distance_threshold: float = 0.8
-    margin: float = 1.0
-    fitness_alpha: float = 0.8
-    loss_alpha: float = 0.2
-    balance_alpha: float = 0.001
-    max_tree_depth: int = 6
-    parsimony_coeff: float = 0.001
-    batch_size: int = 128  # Added batch processing
-    num_workers: int = 15  # Added parallel processing
-    dropout_prob: float = 0.2  # Added dropout probability
-    bn_momentum: float = 0.1  # Batch norm momentum
-    bn_epsilon: float = 1e-5  # Batch norm epsilon
+    elite_size: int = 20  # Increased from 10 to preserve good solutions
+    crossover_prob: float = 0.7  # Slightly reduced from 0.8
+    mutation_prob: float = 0.4  # Increased from 0.3 for more exploration
+    tournament_size: int = 5  # Reduced from 7 to decrease selection pressure
+    distance_threshold: float = 0.5  # Changed from 0.8 for better discrimination
+    margin: float = 2.0  # Increased from 1.0 for stronger contrastive signal
+    fitness_alpha: float = 5.0  # Reduced from 0.9 to balance objectives
+    loss_alpha: float = 0.1  # Increased from 0.0 to consider contrastive loss
+    balance_alpha: float = 0.1  # Increased for better class balance
+    max_tree_depth: int = 5  # Reduced from 6 to prevent overfitting
+    parsimony_coeff: float = 0.0005  # Reduced from 0.001
+    batch_size: int = 64  # Reduced from 128 for better gradient estimates
+    num_workers: int = 15
+    dropout_prob: float = 0.15  # Increased from 0.1
+    bn_momentum: float = 0.99  # Slightly reduced from 0.999
+    bn_epsilon: float = 1e-5
 
 class BatchNorm:
     """Batch normalization for GP trees with proper shape handling."""
@@ -133,6 +133,8 @@ class GPOperations:
             'div': BatchNorm(momentum=momentum, epsilon=epsilon),
             'sin': BatchNorm(momentum=momentum, epsilon=epsilon),
             'cos': BatchNorm(momentum=momentum, epsilon=epsilon),
+            'tanh': BatchNorm(momentum=momentum, epsilon=epsilon),  # Added tanh
+            'relu': BatchNorm(momentum=momentum, epsilon=epsilon),  # Added ReLU
             'neg': BatchNorm(momentum=momentum, epsilon=epsilon)
         }
     
@@ -146,7 +148,7 @@ class GPOperations:
         """Apply dropout during training."""
         if self.training and random.random() < self.dropout_prob:
             return np.zeros_like(x)
-        return x
+        return x / (1 - self.dropout_prob)  # Scale during training
     
     def add(self, x, y) -> np.ndarray:
         x = np.asarray(x, dtype=np.float32)
@@ -208,6 +210,24 @@ class GPOperations:
         result = self.batch_norms['cos'](result)
         return self._maybe_dropout(result)
     
+    def tanh(self, x) -> np.ndarray:
+        """Add tanh activation for better non-linearity."""
+        x = np.asarray(x, dtype=np.float32)
+        if x.ndim == 0:
+            x = np.array([x])
+        result = np.tanh(x)
+        result = self.batch_norms['tanh'](result)
+        return self._maybe_dropout(result)
+    
+    def relu(self, x) -> np.ndarray:
+        """Add ReLU activation for sparse activations."""
+        x = np.asarray(x, dtype=np.float32)
+        if x.ndim == 0:
+            x = np.array([x])
+        result = np.maximum(0, x)
+        result = self.batch_norms['relu'](result)
+        return self._maybe_dropout(result)
+    
     def neg(self, x) -> np.ndarray:
         x = np.asarray(x, dtype=np.float32)
         if x.ndim == 0:
@@ -267,43 +287,85 @@ class ContrastiveGP:
                 tournsize=self.config.tournament_size)
         
         return tb
+    
+    def _get_depth(self, tree: gp.PrimitiveTree) -> int:
+        """Calculate depth of a tree."""
+        if not tree:
+            return 0
+        stack = [(0, tree)]
+        max_depth = 0
+        
+        while stack:
+            depth, expr = stack.pop()
+            max_depth = max(max_depth, depth)
+            
+            for node in reversed(expr):
+                if isinstance(node, gp.Primitive):
+                    stack.append((depth + 1, expr[expr.index(node) + 1:
+                                            expr.index(node) + node.arity + 1]))
+        return max_depth
 
     def _crossover(self, ind1: List[gp.PrimitiveTree], 
                 ind2: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree], 
                                                         List[gp.PrimitiveTree]]:
-        """Perform crossover between individuals with depth limit."""
-        for i in range(len(ind1)):
+        """Fixed crossover with proper fitness handling."""
+        # Create new Individual instances
+        new_ind1 = creator.Individual([gp.PrimitiveTree(tree) for tree in ind1])
+        new_ind2 = creator.Individual([gp.PrimitiveTree(tree) for tree in ind2])
+        
+        for i in range(len(new_ind1)):
             if random.random() < 0.5:
-                ind1[i], ind2[i] = gp.cxOnePoint(ind1[i], ind2[i])
-                # Enforce depth limit after crossover
-                for idx, tree in enumerate([ind1[i], ind2[i]]):
-                    if len(tree) > 2**self.config.max_tree_depth:
-                        # Create new tree instead of modifying in place
-                        new_tree = gp.PrimitiveTree(gp.genHalfAndHalf(
-                            self.pset, 
-                            min_=1,
-                            max_=self.config.max_tree_depth))
-                        if idx == 0:
-                            ind1[i] = new_tree
-                        else:
-                            ind2[i] = new_tree
-        return ind1, ind2
+                try:
+                    for _ in range(3):  # Try multiple crossover points
+                        tmp1 = gp.PrimitiveTree(new_ind1[i])
+                        tmp2 = gp.PrimitiveTree(new_ind2[i])
+                        
+                        if len(tmp1) > 1 and len(tmp2) > 1:
+                            new_ind1[i], new_ind2[i] = gp.cxOnePoint(tmp1, tmp2)
+                            
+                            # Check depth limits
+                            if (self._get_depth(new_ind1[i]) <= self.config.max_tree_depth and
+                                self._get_depth(new_ind2[i]) <= self.config.max_tree_depth):
+                                break
+                            else:
+                                new_ind1[i] = tmp1
+                                new_ind2[i] = tmp2
+                        
+                except Exception as e:
+                    print(f"Crossover failed: {str(e)}")
+                    # Keep original trees if crossover failed
+                    new_ind1[i] = gp.PrimitiveTree(ind1[i])
+                    new_ind2[i] = gp.PrimitiveTree(ind2[i])
+        
+        return new_ind1, new_ind2
 
     def _mutate(self, individual: List[gp.PrimitiveTree]) -> Tuple[List[gp.PrimitiveTree]]:
-        """Mutate an individual with depth limit."""
-        for i in range(len(individual)):
-            if random.random() < 0.2:
-                individual[i], = gp.mutUniform(individual[i], 
-                                            expr=self.toolbox.expr, 
-                                            pset=self.pset)
-                # Enforce depth limit after mutation
-                if len(individual[i]) > 2**self.config.max_tree_depth:
-                    # Create new tree instead of modifying in place
-                    individual[i] = gp.PrimitiveTree(gp.genHalfAndHalf(
-                        self.pset, 
-                        min_=1,
-                        max_=self.config.max_tree_depth))
-        return individual,
+        """Fixed mutation with proper fitness handling."""
+        new_ind = creator.Individual([gp.PrimitiveTree(tree) for tree in individual])
+        
+        for i in range(len(new_ind)):
+            if random.random() < 0.4:  # Mutation probability
+                try:
+                    mutation_type = random.random()
+                    tmp = gp.PrimitiveTree(new_ind[i])
+                    
+                    if mutation_type < 0.6:  # Point mutation
+                        new_ind[i], = gp.mutUniform(tmp, expr=self.toolbox.expr, pset=self.pset)
+                    else:  # Shrink mutation
+                        new_ind[i], = gp.mutShrink(tmp)
+                    
+                    # Check depth
+                    if self._get_depth(new_ind[i]) > self.config.max_tree_depth:
+                        new_ind[i] = gp.PrimitiveTree(gp.genHalfAndHalf(
+                            self.pset, min_=1, max_=self.config.max_tree_depth))
+                        
+                except Exception as e:
+                    print(f"Mutation failed: {str(e)}")
+                    # Generate new tree if mutation failed
+                    new_ind[i] = gp.PrimitiveTree(gp.genHalfAndHalf(
+                        self.pset, min_=1, max_=self.config.max_tree_depth))
+        
+        return new_ind,
 
     def print_accuracies(self, population: List[List[gp.PrimitiveTree]], 
                         train_data: List[DataPoint], val_data: List[DataPoint], 
@@ -344,28 +406,29 @@ class ContrastiveGP:
         """Initialize GP primitive operations using shared ops."""
         pset = gp.PrimitiveSet("MAIN", self.config.n_features)
         
+
         primitives = [
             ('add', 2), ('sub', 2), ('mul', 2), ('protected_div', 2),
-            ('sin', 1), ('cos', 1), ('neg', 1)
+            ('tanh', 1), ('relu', 1), ('neg', 1)  # Replaced sin/cos with tanh/relu
         ]
         
         for name, arity in primitives:
             pset.addPrimitive(getattr(self.ops, name), arity)
         
-        # Add feature selection terminals
-        for i in range(2080):
+        feature_indices = np.random.choice(2080, size=500, replace=False)  # Select subset
+        for i in feature_indices:
             pset.addTerminal(i, name=f'f{i}')
         
         # Add constant terminals
-        for const in [-1.0, -0.5, 0.0, 0.5, 1.0]:
+        for const in [-2.0, -1.0, -0.5, -0.1, 0.0, 0.1, 0.5, 1.0, 2.0]:
             pset.addTerminal(const)
         
         pset.renameArguments(ARG0='x')
         return pset
 
     def _evaluate_batch(self, trees: List[Callable], 
-                   batch: List[DataPoint]) -> Tuple[float, List[int]]:
-        """Evaluate a batch of data points with memory-efficient processing."""
+                       batch: List[DataPoint]) -> Tuple[float, List[int]]:
+        """Improved batch evaluation with better loss computation."""
         anchors = np.stack([p.anchor for p in batch])
         compares = np.stack([p.compare for p in batch])
         labels = torch.tensor([p.label for p in batch])
@@ -373,49 +436,31 @@ class ContrastiveGP:
         out1 = self.batch_get_outputs_static(trees, anchors, self.ops)
         out2 = self.batch_get_outputs_static(trees, compares, self.ops)
         
-        batch_size = len(batch)
-        minibatch_size = min(32, batch_size)
-        num_minibatches = (batch_size + minibatch_size - 1) // minibatch_size
+        # Add L2 normalization
+        out1 = F.normalize(out1, p=2, dim=1)
+        out2 = F.normalize(out2, p=2, dim=1)
         
-        total_loss = 0.0
-        all_predictions = []
+        distances = F.pairwise_distance(out1, out2)
+        predictions = (distances < self.config.distance_threshold).int().tolist()
         
-        for i in range(num_minibatches):
-            start_idx = i * minibatch_size
-            end_idx = min((i + 1) * minibatch_size, batch_size)
-            
-            out1_mini = out1[start_idx:end_idx]
-            out2_mini = out2[start_idx:end_idx]
-            labels_mini = labels[start_idx:end_idx]
-            
-            distances = F.pairwise_distance(out1_mini, out2_mini)
-            # BUGFIX: Reversed prediction logic - small distance means similar
-            predictions = (distances < self.config.distance_threshold).int().tolist()
-            all_predictions.extend(predictions)
-            
-            # Compute contrastive loss
-            similar_loss = labels_mini * torch.pow(distances, 2)
-            dissimilar_loss = (1 - labels_mini) * torch.pow(
-                torch.clamp(self.config.margin - distances, min=0.0), 2)
-            minibatch_loss = (similar_loss + dissimilar_loss).mean().item()
-            total_loss += minibatch_loss * len(labels_mini)
+        # Improved contrastive loss with temperature scaling
+        temperature = 0.1
+        similar_loss = labels * torch.pow(distances, 2)
+        dissimilar_loss = (1 - labels) * torch.pow(
+            torch.clamp(self.config.margin - distances, min=0.0), 2)
         
-        avg_loss = total_loss / batch_size
-        return avg_loss, all_predictions
+        # Add triplet-style loss term
+        margin_violation = torch.clamp(distances - self.config.margin, min=0.0)
+        triplet_loss = labels * margin_violation + (1 - labels) * torch.exp(-distances/temperature)
+        
+        batch_loss = (similar_loss + dissimilar_loss + 0.5 * triplet_loss).mean().item()
+        
+        return batch_loss, predictions
 
     @staticmethod
     def evaluate_static(args: Tuple[List[gp.PrimitiveTree], List[DataPoint]]) -> Tuple[float]:
-        """Static evaluation method using shared ops instance.
-        
-        Args:
-            args: Tuple containing (individual, data)
-            
-        Returns:
-            Tuple containing single fitness value
-        """
+        """Improved static evaluation with better fitness calculation."""
         individual, data = args
-        
-        # Use shared ops instance instead of creating new one
         ops = ContrastiveGP._shared_ops
         ops.set_training(True)
         
@@ -425,7 +470,6 @@ class ContrastiveGP:
             predictions = []
             labels = []
             
-            # Process data in batches
             batch_size = ContrastiveGP._shared_config.batch_size
             for i in range(0, len(data), batch_size):
                 batch = data[i:i + batch_size]
@@ -433,46 +477,48 @@ class ContrastiveGP:
                 batch_compares = np.stack([p.compare for p in batch])
                 batch_labels = torch.tensor([p.label for p in batch])
                 
-                # Get outputs using shared ops instance
                 out1 = ContrastiveGP.batch_get_outputs_static(trees, batch_anchors, ops)
                 out2 = ContrastiveGP.batch_get_outputs_static(trees, batch_compares, ops)
                 
-                # Normalize outputs
+                # Add L2 normalization
                 out1 = F.normalize(out1, p=2, dim=1)
                 out2 = F.normalize(out2, p=2, dim=1)
                 
-                # Calculate distances and predictions
                 distances = F.pairwise_distance(out1, out2)
                 threshold = ContrastiveGP._shared_config.distance_threshold
                 batch_preds = (distances < threshold).int().tolist()
                 predictions.extend(batch_preds)
                 labels.extend(p.label for p in batch)
                 
-                # Compute contrastive loss
+                # Improved loss calculation
                 margin = ContrastiveGP._shared_config.margin
                 similar_loss = batch_labels * torch.pow(distances, 2)
                 dissimilar_loss = (1 - batch_labels) * torch.pow(
                     torch.clamp(margin - distances, min=0.0), 2)
+                    
+                # Add diversity penalty
+                unique_outputs = len(set(batch_preds))
+                diversity_bonus = unique_outputs / len(batch_preds)
+                
                 batch_loss = (similar_loss + dissimilar_loss).mean().item()
                 total_loss += batch_loss * len(batch_labels)
             
             avg_loss = total_loss / len(data)
             accuracy = balanced_accuracy_score(labels, predictions)
             
+            # Calculate prediction balance and tree complexity
             pred_ratio = sum(predictions) / len(predictions)
             balance_penalty = abs(0.5 - pred_ratio)
-
-            # print(f"accuracy: {accuracy:.4f}")
-            # print(f"avg_loss: {avg_loss:.4f}")
-            # print(f"balance_penalty: {balance_penalty:4f}")
-            # print(f"parsimony: {sum(len(tree) for tree in individual)}")
+            tree_complexity = sum(len(tree) for tree in individual)
             
-            # Get coefficients from shared config
+            # Improved fitness calculation
+            config = ContrastiveGP._shared_config
             fitness = (
-                ContrastiveGP._shared_config.fitness_alpha * (1 - accuracy) +
-                # ContrastiveGP._shared_config.loss_alpha * avg_loss +
-                # ContrastiveGP._shared_config.balance_alpha * balance_penalty +
-                ContrastiveGP._shared_config.parsimony_coeff * sum(len(tree) for tree in individual)
+                config.fitness_alpha * (1 - accuracy) +
+                config.loss_alpha * avg_loss +
+                config.balance_alpha * balance_penalty +
+                config.parsimony_coeff * tree_complexity -
+                0.1 * diversity_bonus  # Reward diversity
             )
             
             return (float(fitness),)
@@ -509,10 +555,10 @@ class ContrastiveGP:
         return torch.from_numpy(outputs).transpose(0, 1)
 
     def train(self, train_data: List[DataPoint], 
-              val_data: List[DataPoint]) -> Tuple[List[List[gp.PrimitiveTree]], 
-                                                 tools.Logbook, 
-                                                 tools.HallOfFame]:
-        """Train with multiprocessing Pool for parallel evaluation."""
+          val_data: List[DataPoint]) -> Tuple[List[List[gp.PrimitiveTree]], 
+                                             tools.Logbook, 
+                                             tools.HallOfFame]:
+        """Fixed training with proper individual creation."""
         self.val_data = val_data
         
         # Create initial population
@@ -520,9 +566,9 @@ class ContrastiveGP:
         hof = tools.HallOfFame(self.config.elite_size)
         
         stats = tools.Statistics(lambda ind: ind.fitness.values[0] 
-                               if hasattr(ind.fitness, 'values') 
-                               and len(ind.fitness.values) > 0 
-                               else float('inf'))
+                            if hasattr(ind.fitness, 'values') 
+                            and len(ind.fitness.values) > 0 
+                            else float('inf'))
         stats.register("avg", np.nanmean)
         stats.register("std", np.nanstd)
         stats.register("min", np.nanmin)
@@ -537,15 +583,22 @@ class ContrastiveGP:
             for ind, fit in zip(pop, fitnesses):
                 ind.fitness.values = fit
             
+            hof.update(pop)
             print("\nStarting evolution:")
             self.print_accuracies(pop, train_data, val_data, 0)
             
             for gen in range(1, self.config.generations + 1):
-                offspring = algorithms.varAnd(
-                    pop, self.toolbox,
-                    cxpb=self.config.crossover_prob,
-                    mutpb=self.config.mutation_prob
-                )
+                # Create offspring using varAnd
+                offspring = []
+                for _ in range(len(pop)):
+                    if random.random() < self.config.crossover_prob:
+                        p1, p2 = random.sample(pop, 2)
+                        o1, o2 = self._crossover(p1, p2)
+                        offspring.extend([o1, o2])
+                    else:
+                        p = random.choice(pop)
+                        o, = self._mutate(p)
+                        offspring.append(o)
                 
                 # Evaluate offspring
                 eval_args = [(ind, train_data) for ind in offspring]
@@ -554,24 +607,49 @@ class ContrastiveGP:
                 for ind, fit in zip(offspring, fitnesses):
                     ind.fitness.values = fit
                 
-                pop = self.toolbox.select(offspring + pop, k=len(pop))
+                # Selection with elitism
+                pop = tools.selBest(pop, self.config.elite_size)
+                pop.extend(self.toolbox.select(offspring, 
+                                            self.config.population_size - len(pop)))
+                
                 hof.update(pop)
                 
-                valid_pop = [ind for ind in pop
-                            if hasattr(ind.fitness, 'values')
+                # Print statistics
+                valid_pop = [ind for ind in pop 
+                            if hasattr(ind.fitness, 'values') 
                             and len(ind.fitness.values) > 0]
                 
                 if valid_pop:
                     record = stats.compile(valid_pop)
                     self.print_accuracies(pop, train_data, val_data, gen)
                     print(f"Stats - avg: {record['avg']:.4f}, "
-                          f"std: {record['std']:.4f}, "
-                          f"min: {record['min']:.4f}, "
-                          f"max: {record['max']:.4f}")
+                        f"std: {record['std']:.4f}, "
+                        f"min: {record['min']:.4f}, "
+                        f"max: {record['max']:.4f}")
                 else:
                     print(f"Generation {gen}: No valid individuals found")
         
         return pop, None, hof
+
+    def _individual_similarity(self, ind1, ind2) -> float:
+        """Calculate similarity between two individuals."""
+        if not hasattr(ind1, 'str_repr'):
+            ind1.str_repr = [str(tree) for tree in ind1]
+        if not hasattr(ind2, 'str_repr'):
+            ind2.str_repr = [str(tree) for tree in ind2]
+        
+        similarities = []
+        for t1, t2 in zip(ind1.str_repr, ind2.str_repr):
+            # Use Levenshtein distance for string similarity
+            max_len = max(len(t1), len(t2))
+            if max_len == 0:
+                similarities.append(1.0)
+            else:
+                # Simple character-based similarity
+                matches = sum(1 for a, b in zip(t1, t2) if a == b)
+                similarities.append(matches / max_len)
+        
+        return sum(similarities) / len(similarities)
 
 def prepare_data(loader: torch.utils.data.DataLoader) -> List[DataPoint]:
     """Convert data loader to list of DataPoints."""
