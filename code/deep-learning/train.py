@@ -92,10 +92,10 @@ def train_model(
         if is_augmented:
             aug_config = AugmentationConfig(
                 enabled=True,
-                num_augmentations= 5,
+                num_augmentations=5,
                 noise_enabled=True,
-                shift_enabled=False,
-                scale_enabled=False,
+                shift_enabled=True,
+                scale_enabled=True,
                 noise_level=0.1,
                 shift_range=0.1,
                 scale_range=0.1,
