@@ -394,7 +394,6 @@ class DataProcessor:
             ]
 
         logger.info(f"Filtered data shape: {filtered.shape}")
-        print(f"filtered: {np.unique(filtered['m/z'])}")
         return filtered
 
     def encode_labels(self, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
@@ -420,8 +419,6 @@ class DataProcessor:
         # Convert labels first
         y_series = data["m/z"].apply(self._get_label_encoder())
 
-        print(f"Class labels: {np.unique(y_series)}")
-
         # Filter out None values
         valid_mask = y_series.notna()
         filtered_data = data[valid_mask]
@@ -440,7 +437,7 @@ class DataProcessor:
         elif self.dataset_type == DatasetType.PART:
 
             def encode_part(x):
-                if "Fillets" in x:
+                if "Fillet" in x:
                     return [1, 0, 0, 0, 0, 0, 0]
                 if "Heads" in x:
                     return [0, 1, 0, 0, 0, 0, 0]
@@ -513,6 +510,7 @@ def preprocess_dataset(
         logger.info(f"Loading dataset: {dataset}")
         file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
         # file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
+        # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS_data.xlsx"
         data = processor.load_data(file_path)
 
         # Filter data based on pre-training flag

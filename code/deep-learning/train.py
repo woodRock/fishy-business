@@ -82,6 +82,7 @@ def train_model(
         logger.info(f"\nStarting Fold {fold}/{n_splits}")
 
         # Setup fold-specific data and model.
+        # Reset the model each fold.
         model = copy.deepcopy(model_copy).to(device)
         fold_train_loader, fold_val_loader = _create_fold_loaders(
             dataset, train_idx, val_idx, train_loader.batch_size
@@ -257,7 +258,7 @@ def _extract_labels(dataset: Dataset) -> np.ndarray:
                 all_labels.append(np.argmax(labels))
         else:
             all_labels.append(labels)
-    print(f"all_labels: {np.unique(all_labels)}")
+            
     return np.array(all_labels)
 
 

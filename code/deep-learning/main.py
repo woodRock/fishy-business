@@ -114,7 +114,7 @@ class ModelTrainer:
             raise ValueError(f"Invalid dataset: {config.dataset}")
 
         self.n_classes = self.N_CLASSES_PER_DATASET[config.dataset]
-        self.n_features = 2080  # Could be made configurable if needed
+        self.n_features = 2080 # Could be made configurable if needed
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging configuration."""
@@ -224,7 +224,8 @@ class ModelTrainer:
 
         # Setup training
         criterion = nn.CrossEntropyLoss(
-            weight=class_weights, label_smoothing=self.config.label_smoothing
+            # weight=class_weights, 
+            label_smoothing=self.config.label_smoothing
         )
         optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
@@ -466,11 +467,11 @@ def parse_arguments() -> argparse.Namespace:
         "-lr",
         "--learning-rate",
         type=float,
-        default=1e-5,
+        default=1e-3,
         help="Learning rate. Defaults to 1e-5.",
     )
     parser.add_argument(
-        "-bs", "--batch-size", type=int, default=64, help="Batch size. Defaults to 64."
+        "-bs", "--batch-size", type=int, default=128, help="Batch size. Defaults to 64."
     )
     parser.add_argument(
         "-hd",
