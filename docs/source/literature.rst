@@ -681,6 +681,15 @@ Results:
     * Requires re-training for each new problem.
     * GP approaches are competitive with DRL approaches.
 
+chen2024multi
+-------------
+Multi-Agent Swarm Optimization With Adaptive Internal and External Learning for Complex Consensus-Based Distributed Optimization}
+
+Available: https://ieeexplore.ieee.org/abstract/document/10477458
+
+Related: 
+    * Author discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
+
 chevalier2018babyai
 -------------------
     * Babyai: A platform to study the sample efficiency of grounded language learning
@@ -2112,10 +2121,19 @@ Zero-Shot Neural Architecture Search: Challenges, Solutions, and Opportunities
 
 (Li 2024) propose zero shot NAS.
 
+Available: https://ieeexplore.ieee.org/abstract/document/10516268
+
 Related: 
     * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
 
-Available: https://ieeexplore.ieee.org/abstract/document/10516268
+liao2023uncertain
+-----------------
+Uncertain commuters assignment through genetic programming hyper-heuristic
+
+Available: https://ieeexplore.ieee.org/abstract/document/10106053
+
+Related:
+    * Author discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
 
 lin2017feature
 --------------
@@ -3450,6 +3468,15 @@ Related:
     * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
     * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper.
 
+wang2024population
+------------------
+Population-Level Hybridization between Roulette Wheel Selection and Tournament Selection for Particle Swarm Optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/10751699
+
+Related:
+    * Author discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
+
 watkins1992q
 ------------
 Q-learning
@@ -3467,6 +3494,15 @@ Unsupervised Predictive Memory in a Goal-Directed Agent
 
 Related:
     * See 2022-12-05 - AJCAI #01 
+
+wei2024crowdec
+--------------
+CrowdEC: Crowdsourcing-based Evolutionary Computation for Distributed Optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/10618890
+
+Related:   
+    * Mentioned in :ref:`2024-11-28 - FASLIP  <2024-11-28 - FASLIP>`
 
 weinstein2022hunter 
 -------------------
@@ -3681,6 +3717,15 @@ Related:
     * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
     * See :ref:`(Ho 2020) <ho2020denoising>` for more on diffusion models.
     * See :ref:`(Song 2020) <song2020denoising>` for more on diffusion models.
+
+zhang2023individual
+-------------------
+An individual evolutionary game model guided by global evolutionary optimization for vehicle energy station distribution
+
+Available: https://ieeexplore.ieee.org/abstract/document/10025665
+
+Related: 
+    * Discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
 
 zhao2017pyramid
 ---------------

@@ -126,20 +126,62 @@ class ModelWrapper:
         self.model = model.to(device)
         self.device = device
         self.model.eval()
+        self.scaler = StandardScaler()
+
+    def normalize_intensities(self, x: np.ndarray) -> np.ndarray:
+        """
+        Normalize mass spec intensities to range [0,1]
+        
+        Parameters:
+        -----------
+        x : np.ndarray
+            Input spectral data
+            
+        Returns:
+        --------
+        np.ndarray
+            Normalized spectral data with intensities between 0 and 1
+        """
+        # Handle edge case where all values are the same
+        if np.all(x == x[0]):
+            return np.zeros_like(x)
+            
+        # Min-max normalization for each spectrum
+        x_norm = np.zeros_like(x)
+        for i in range(len(x)):
+            spectrum = x[i]
+            min_val = np.min(spectrum)
+            max_val = np.max(spectrum)
+            
+            # Avoid division by zero
+            if max_val - min_val > 0:
+                x_norm[i] = (spectrum - min_val) / (max_val - min_val)
+            else:
+                x_norm[i] = np.zeros_like(spectrum)
+                
+        return x_norm
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
-        """Get probability predictions from model."""
+        """Get probability predictions from model with normalized intensities."""
         try:
-            x = torch.tensor(x, dtype=torch.float32).to(self.device)
+            # Normalize intensities to [0,1] range
+            x_normalized = self.normalize_intensities(x)
+            
+            # Convert to tensor and move to device
+            x_tensor = torch.tensor(x_normalized, dtype=torch.float32).to(self.device)
+            
             with torch.no_grad():
                 if isinstance(self.model, VAE):
-                    _, _, _, logits = self.model(x)
+                    _, _, _, logits = self.model(x_tensor)
                 else:
-                    logits = self.model(x, x) if isinstance(self.model, Transformer) else self.model(x)
+                    logits = self.model(x_tensor, x_tensor) if isinstance(self.model, Transformer) else self.model(x_tensor)
+                
                 return F.softmax(logits, dim=-1).cpu().numpy()
+                
         except Exception as e:
             logger.error(f"Error in predict_proba: {str(e)}")
             raise
+        
 
 class ModelExplainer:
     """Explains predictions of neural network models using LIME."""
@@ -237,7 +279,6 @@ def explain_predictions(
         train_loader, data = preprocess_dataset(
             dataset=dataset_name,
             batch_size=train_config.batch_size,
-            is_data_augmentation=False,
             is_pre_train=False
         )
         
@@ -278,7 +319,7 @@ if __name__ == "__main__":
     # Example usage
     model_config = ModelConfig(
         input_dim=2080,
-        output_dim=3,
+        output_dim=7,
         num_heads=4
     )
     
@@ -286,11 +327,11 @@ if __name__ == "__main__":
     explainer_config = ExplainerConfig()
     
     explain_predictions(
-        dataset_name="cross-species",
+        dataset_name="part",
         model_name="transformer",
         model_config=model_config,
         train_config=train_config,
         explainer_config=explainer_config,
-        instance_name="hoki-mackerel",
-        target_label=[0, 0, 1]
+        instance_name="gonads",
+        target_label=[0, 0, 0, 0, 0, 1, 0]
     )
