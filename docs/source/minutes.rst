@@ -7217,3 +7217,39 @@ Notes:
     * 27 months of enrollment from March 2022, don't need to submit my PhD in the next 6 months. Aim to submit my thesis by the end of 2025. 
     * Open source journal - Intelligent Marine Technology and Systems. 
     * Conference - IEEE CEC 2025 - double column format, 8 pages including references. 
+
+2024-11-28 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+
+Distributed Evolutionary Compuation for Multi-agent Systems
+
+Notes:
+    - Swarm intelligence - algorithms that imitate swarm intelligence to cooperatively solve large scale complex problems.
+    - Algorithms 
+        - Ant Colony Optimization (Dorigo 1992)
+        - Particle Swarm Optimization (Kennedy 1995)
+    - Social animals - simulated behaviour of social animals. 
+    - Predictable, Guidable, Expandable 
+    - Predictable - Evolutionary transfer opimization theory - transfer knowledge to new tasks. 
+    - Guidable - Network optimization evolutionary methods 
+    - Expandable - Edge-cloud cooperative decision making for distributed swarm intelligence. 
+    - Distributed multi-agent opimization - hetergenous, partial data, conflicting objectives. 
+    - Privacy preserving mechanisms. 
+    - Federated learning - build local model, send parameters to global sever. 
+
+Related: 
+    * :ref:`(Wei 2024) <wei2024crowdec>`
+    * :ref:`(Wang 2024) <wang2024population>`
+    * :ref:`(Chen 2024) <chen2024multi>`
+    * :ref:`(Liao 2023) <liao2023uncertain>`
+    * :ref:`(Zhang 2023) <zhang2023individual>`
+
+2024-11-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00 **Attendees:** Bing Xue, Bach Hoai Nguyen 
+
+Notes: 
+    - conference paper - submit a draft of my paer. Need to fix the parts diagram for gonads. 
+    - update: send an update by email next week. Bing will be away. 
+    - Data - don't need to attend meeting with Daniel. 
+    - Domian knowledge - domain knowledge from Daniel on important features identified by LIME explanations. 
