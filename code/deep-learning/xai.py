@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union, Type
+from typing import Dict, List, Optional, Tuple
 import logging
 import torch
 import torch.nn as nn
@@ -9,8 +9,6 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import numpy as np
 from lime.lime_tabular import LimeTabularExplainer
-from sklearn.preprocessing import StandardScaler
-from torch.utils.data import DataLoader
 
 from lstm import LSTM
 from transformer import Transformer
@@ -126,7 +124,6 @@ class ModelWrapper:
         self.model = model.to(device)
         self.device = device
         self.model.eval()
-        self.scaler = StandardScaler()
 
     def normalize_intensities(self, x: np.ndarray) -> np.ndarray:
         """
@@ -181,7 +178,6 @@ class ModelWrapper:
         except Exception as e:
             logger.error(f"Error in predict_proba: {str(e)}")
             raise
-        
 
 class ModelExplainer:
     """Explains predictions of neural network models using LIME."""
@@ -201,7 +197,40 @@ class ModelExplainer:
         self.device = config.device
         self.model_wrapper = ModelWrapper(model, config.device)
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def normalize_features(self, features: torch.Tensor) -> np.ndarray:
+        """
+        Normalize features to [0,1] range before LIME explanation.
         
+        Parameters:
+        -----------
+        features : torch.Tensor
+            Input features to normalize
+            
+        Returns:
+        --------
+        np.ndarray
+            Normalized features array
+        """
+        # Convert to numpy and ensure 2D
+        features_np = features.cpu().numpy()
+        if features_np.ndim == 1:
+            features_np = features_np.reshape(1, -1)
+            
+        # Apply min-max normalization per spectrum
+        normalized = np.zeros_like(features_np, dtype=np.float32)
+        for i in range(len(features_np)):
+            spectrum = features_np[i]
+            min_val = np.min(spectrum)
+            max_val = np.max(spectrum)
+            
+            if max_val - min_val > 1e-8:  # Avoid division by zero
+                normalized[i] = (spectrum - min_val) / (max_val - min_val)
+            else:
+                normalized[i] = np.zeros_like(spectrum)
+                
+        return normalized
+    
     def setup_explainer(self, dataset_name: str, features: torch.Tensor, 
                        labels: torch.Tensor, feature_names: List[str]) -> LimeTabularExplainer:
         """Set up LIME explainer for the model."""
@@ -209,11 +238,11 @@ class ModelExplainer:
             raise ValueError(f"Unknown dataset: {dataset_name}")
             
         try:
-            scaler = StandardScaler()
-            standardized_features = scaler.fit_transform(features.cpu().numpy())
+            # Use normalized features directly
+            normalized_features = self.normalize_features(features)
             
             return LimeTabularExplainer(
-                training_data=standardized_features,
+                training_data=normalized_features,
                 training_labels=labels.cpu().numpy(),
                 feature_names=feature_names,
                 class_names=self.DATASET_LABELS[dataset_name],
@@ -242,20 +271,37 @@ class ModelExplainer:
                 output_path: Path) -> None:
         """Generate and save LIME explanation."""
         try:
+            # Generate LIME explanation
+            normalized_instance = self.normalize_features(instance)
             explanation = explainer.explain_instance(
-                instance.cpu().numpy(),
+                normalized_instance.flatten(),
                 self.model_wrapper.predict_proba,
                 num_features=self.config.num_features,
                 num_samples=self.config.num_samples
             )
 
+            # Create figure and customize appearance
             fig = explanation.as_pyplot_figure()
             fig.set_size_inches(10, 8)
-            plt.tight_layout()
             
-            fig.savefig(output_path)
+            # Get current axes and customize appearance
+            ax = plt.gca()
+            
+            # Set grey background only for plot area
+            ax.set_facecolor('#E6E6E6')  # Light grey background
+            fig.patch.set_facecolor('white')  # Keep surrounding area white
+            
+            # Add white grid lines
+            ax.grid(True, color='white', linestyle='-', linewidth=1.0, alpha=1.0, zorder=0)
+            ax.set_axisbelow(True)  # Ensure grid stays behind the bars
+            
+            # Save figure with high quality
+            plt.tight_layout()
+            fig.savefig(output_path, dpi=300, bbox_inches='tight')
             plt.close(fig)
+            
             logger.info(f"Saved explanation to {output_path}")
+            
         except Exception as e:
             logger.error(f"Failed to generate explanation: {e}")
             raise
@@ -307,6 +353,7 @@ def explain_predictions(
         
         if instance is not None:
             output_path = explainer_config.output_dir / dataset_name / f"lime_{model_name}_{dataset_name}_{instance_name}.png"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
             explainer.explain(instance, lime_explainer, output_path)
         else:
             logger.warning(f"No instance found with label {target_label}")
