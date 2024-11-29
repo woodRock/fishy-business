@@ -7238,11 +7238,16 @@ Notes:
     - Federated learning - build local model, send parameters to global sever. 
 
 Related: 
-    * :ref:`(Wei 2024) <wei2024crowdec>`
-    * :ref:`(Wang 2024) <wang2024population>`
-    * :ref:`(Chen 2024) <chen2024multi>`
-    * :ref:`(Liao 2023) <liao2023uncertain>`
-    * :ref:`(Zhang 2023) <zhang2023individual>`
+    * CrowdEC: Crowdsourcing-based Evolutionary Computation for Distributed Optimization
+ :ref:`(Wei 2024) <wei2024crowdec>`
+    * Population-Level Hybridization between Roulette Wheel Selection and Tournament Selection for Particle Swarm Optimization
+ :ref:`(Wang 2024) <wang2024population>`
+    * Multi-Agent Swarm Optimization With Adaptive Internal and External Learning for Complex Consensus-Based Distributed Optimization}
+ :ref:`(Chen 2024) <chen2024multi>`
+    * Uncertain commuters assignment through genetic programming hyper-heuristic
+ :ref:`(Liao 2023) <liao2023uncertain>`
+    * An individual evolutionary game model guided by global evolutionary optimization for vehicle energy station distribution
+ :ref:`(Zhang 2023) <zhang2023individual>`
 
 2024-11-28 - Weekly 
 ~~~~~~~~~~~~~~~~~~~
