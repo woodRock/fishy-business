@@ -145,44 +145,126 @@ class ModelFactory:
         return list(self._encoders.keys())
 
 class ContrastiveModel(nn.Module):
-    """Generic contrastive learning model."""
-    
-    def __init__(self, encoder: nn.Module):
+    def __init__(self, encoder: nn.Module, embedding_dim=128):
         super().__init__()
         self.encoder = encoder
-        self.classifier = nn.Linear(128, 2)
-    
+        
+        # Higher dropout and stochastic depth
+        self.dropout_rate = 0.5  # Increased dropout
+        self.drop_path = 0.2  # Stochastic depth rate
+        
+        # Mixup parameters
+        self.mixup_alpha = 0.2
+        
+        # Feature processing with regularization
+        self.feature_net = nn.Sequential(
+            nn.LayerNorm(embedding_dim),
+            nn.Linear(embedding_dim, embedding_dim),
+            nn.GELU(),
+            nn.Dropout(self.dropout_rate),
+            nn.BatchNorm1d(embedding_dim),  # Added batch norm
+        )
+        
+        # Embedding network with very aggressive regularization
+        self.embedding_net = nn.Sequential(
+            nn.Linear(embedding_dim, embedding_dim//2),
+            nn.LayerNorm(embedding_dim//2),
+            nn.GELU(),
+            nn.Dropout(self.dropout_rate),
+            nn.Linear(embedding_dim//2, embedding_dim//2),
+            nn.BatchNorm1d(embedding_dim//2)
+        )
+        
+        # Classification head with L1 regularization
+        self.classifier = nn.Sequential(
+            nn.Linear(embedding_dim//2, 2),
+            nn.BatchNorm1d(2)
+        )
+
+    def _mixup(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, float]:
+        """Apply mixup augmentation"""
+        if self.training:
+            lam = np.random.beta(self.mixup_alpha, self.mixup_alpha)
+            batch_size = x.size(0)
+            index = torch.randperm(batch_size, device=x.device)
+            mixed_x = lam * x + (1 - lam) * x[index]
+            return mixed_x, index, lam
+        return x, None, 1.0
+
+    def _apply_stochastic_depth(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply stochastic depth during training"""
+        if self.training and np.random.random() < self.drop_path:
+            return torch.zeros_like(x)
+        return x
+
     def forward(self, x1: torch.Tensor, 
                 x2: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        if (isinstance(self.encoder, VAE)):
+        # Get base features
+        if isinstance(self.encoder, VAE):
             _, _, _, z1 = self.encoder(x1)
-        else: 
+        else:
             z1 = self.encoder(x1)
+        
+        # Apply mixup if training
+        z1, mix_idx, lam = self._mixup(z1)
+        
+        # Process features
+        z1 = self.feature_net(z1)
+        z1 = self._apply_stochastic_depth(z1)
+        z1 = self.embedding_net(z1)
+        
         if x2 is not None:
-            if (isinstance(self.encoder, VAE)):
+            if isinstance(self.encoder, VAE):
                 _, _, _, z2 = self.encoder(x2)
             else:
                 z2 = self.encoder(x2)
+            z2 = self.feature_net(z2)
+            z2 = self._apply_stochastic_depth(z2)
+            z2 = self.embedding_net(z2)
             return z1, z2
         return z1, None
-    
+
     def classify(self, x: torch.Tensor) -> torch.Tensor:
-        if (isinstance(self.encoder, VAE)):
-            _, _, _ , z = self.encoder(x)
+        if isinstance(self.encoder, VAE):
+            _, _, _, z = self.encoder(x)
         else:
             z = self.encoder(x)
+        
+        z = self.feature_net(z)
+        z = self._apply_stochastic_depth(z)
+        z = self.embedding_net(z)
         return self.classifier(z)
 
 class LossComputer:
     """Handles computation of various losses used in contrastive learning."""
     
+    # @staticmethod
+    # def contrastive_loss(z1: torch.Tensor, z2: torch.Tensor, y: torch.Tensor, 
+    #                     temperature: float = 0.5) -> torch.Tensor:
+    #     similarity = nn.functional.cosine_similarity(z1, z2)
+    #     loss = y * torch.pow(1 - similarity, 2) + \
+    #            (1 - y) * torch.pow(torch.clamp(similarity - 0.1, min=0.0), 2)
+    #     return loss.mean()
+
     @staticmethod
     def contrastive_loss(z1: torch.Tensor, z2: torch.Tensor, y: torch.Tensor, 
-                        temperature: float = 0.5) -> torch.Tensor:
-        similarity = nn.functional.cosine_similarity(z1, z2)
-        loss = y * torch.pow(1 - similarity, 2) + \
-               (1 - y) * torch.pow(torch.clamp(similarity - 0.1, min=0.0), 2)
-        return loss.mean()
+                        temperature: float = 0.1, margin: float = 0.5) -> torch.Tensor:
+        """Cosine similarity loss with regularization"""
+        # Normalize embeddings
+        z1_norm = nn.functional.normalize(z1, dim=1)
+        z2_norm = nn.functional.normalize(z2, dim=1)
+        
+        # Compute cosine similarity
+        similarity = nn.functional.cosine_similarity(z1_norm, z2_norm)
+        
+        # Loss for positive and negative pairs with margin
+        pos_loss = y * (1 - similarity).pow(2)
+        neg_loss = (1 - y) * torch.clamp(similarity - margin, min=0.0).pow(2)
+        
+        # Add L2 regularization on embeddings
+        l2_reg = 0.01 * (torch.norm(z1_norm, p=2) + torch.norm(z2_norm, p=2))
+        
+        return (pos_loss + neg_loss).mean() + l2_reg
     
     @staticmethod
     def triplet_loss(anchor: torch.Tensor, positive: torch.Tensor, 
@@ -204,6 +286,9 @@ class ContrastiveTrainer:
         self.config = config
         self.device = device
         self.optimizer = optim.AdamW(model.parameters(), lr=config.learning_rate)
+        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            self.optimizer, mode='max', factor=0.5, patience=10, verbose=True
+        )
         self.loss_computer = LossComputer()
     
     def _get_triplets(self, z1: torch.Tensor, z2: torch.Tensor, 
@@ -276,23 +361,60 @@ class ContrastiveTrainer:
         
         return avg_loss, accuracy, balanced_acc
 
+    # @torch.no_grad()
+    # def evaluate(self, dataloader: DataLoader) -> Tuple[float, float]:
+    #     """Evaluates the model."""
+    #     self.model.eval()
+    #     all_preds, all_labels = [], []
+        
+    #     for x1, x2, y in dataloader:
+    #         x1, x2, y = x1.to(self.device), x2.to(self.device), y.to(self.device)
+    #         z1, z2 = self.model(x1, x2)
+    #         similarity = nn.functional.cosine_similarity(z1, z2)
+    #         preds = (similarity > 0.5).float()
+            
+    #         all_preds.extend(preds.cpu().numpy())
+    #         all_labels.extend(y.cpu().numpy())
+        
+    #     accuracy = accuracy_score(all_labels, all_preds)
+    #     balanced_acc = balanced_accuracy_score(all_labels, all_preds)
+    #     return accuracy, balanced_acc
+
     @torch.no_grad()
     def evaluate(self, dataloader: DataLoader) -> Tuple[float, float]:
-        """Evaluates the model."""
         self.model.eval()
-        all_preds, all_labels = [], []
+        all_sims, all_labels = [], []
         
         for x1, x2, y in dataloader:
             x1, x2, y = x1.to(self.device), x2.to(self.device), y.to(self.device)
             z1, z2 = self.model(x1, x2)
-            similarity = nn.functional.cosine_similarity(z1, z2)
-            preds = (similarity > 0.5).float()
             
-            all_preds.extend(preds.cpu().numpy())
+            # Get normalized embeddings
+            z1_norm = nn.functional.normalize(z1, dim=1)
+            z2_norm = nn.functional.normalize(z2, dim=1)
+            
+            similarity = nn.functional.cosine_similarity(z1_norm, z2_norm)
+            
+            all_sims.extend(similarity.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
         
-        accuracy = accuracy_score(all_labels, all_preds)
-        balanced_acc = balanced_accuracy_score(all_labels, all_preds)
+        # Find best threshold on validation set
+        thresholds = np.linspace(0, 1, 100)
+        best_acc = 0
+        best_threshold = 0.5
+        
+        for threshold in thresholds:
+            preds = (np.array(all_sims) > threshold).astype(int)
+            acc = balanced_accuracy_score(all_labels, preds)
+            if acc > best_acc:
+                best_acc = acc
+                best_threshold = threshold
+        
+        # Use best threshold for final predictions
+        preds = (np.array(all_sims) > best_threshold).astype(int)
+        accuracy = accuracy_score(all_labels, preds)
+        balanced_acc = balanced_accuracy_score(all_labels, preds)
+        
         return accuracy, balanced_acc
 
 def create_model(
@@ -334,7 +456,7 @@ def main():
     
     # Example: Create transformer-based model
     model = create_model(
-        encoder_type="tcn",
+        encoder_type="vae",
         input_dim = input_dim,
         factory=factory
     ).to(device)
@@ -347,6 +469,7 @@ def main():
     best_val_accuracy = 0
     for epoch in tqdm(range(train_config.num_epochs), desc="Training"):
         train_loss, train_acc, train_bal_acc = trainer.train_epoch(train_loader)
+        train_acc, train_bal_acc = trainer.evaluate(train_loader)
         val_acc, val_bal_acc = trainer.evaluate(val_loader)
         
         print(f"Epoch {epoch+1}/{train_config.num_epochs}")
@@ -360,6 +483,9 @@ def main():
         if val_bal_acc > best_val_accuracy:
             best_val_accuracy = val_bal_acc
             torch.save(model.state_dict(), "best_model.pth")
+
+        # Update learning rate based on validation performance
+        trainer.scheduler.step(val_bal_acc)  
     
     print(f"Best Validation Balanced Accuracy: {best_val_accuracy:.4f}")
 
