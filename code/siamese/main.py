@@ -463,11 +463,11 @@ def main():
 
     # Create factory and model
     factory = ModelFactory()
-    input_dim = next(iter(train_loader))[0].shape[1]
+    input_dim = 2080
     
     # Example: Create transformer-based model
     model = create_model(
-        encoder_type="moe",
+        encoder_type="transformer",
         input_dim = input_dim,
         factory=factory
     ).to(device)

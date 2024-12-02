@@ -56,57 +56,46 @@ class DataConfig:
 
 
 class SiameseDataset(Dataset):
-    """Generate paired instances for contrastive learning."""
-    
-    def __init__(self, features: np.ndarray, labels: np.ndarray, pairs_per_sample: int = 50):
-        self.features = torch.tensor(features, dtype=torch.float32)
-        self.labels = torch.from_numpy(np.vstack(labels).astype(float))
-        self.pairs_per_sample = pairs_per_sample
-        self.features = F.normalize(self.features, dim=1)
-        self.class_indices = self._create_class_indices()
-        self.pairs, self.pair_labels = self._generate_pairs()
-    
-    def _create_class_indices(self) -> Dict[tuple, List[int]]:
-        class_indices = {}
-        for idx, label in enumerate(self.labels):
-            label_tuple = tuple(label.tolist())
-            if label_tuple not in class_indices:
-                class_indices[label_tuple] = []
-            class_indices[label_tuple].append(idx)
-        return class_indices
-    
-    def _generate_pairs(self) -> Tuple[List[Tuple[torch.Tensor, torch.Tensor]], List[torch.Tensor]]:
+    """Dataset for contrastive learning with all possible pairs."""
+    def __init__(self, samples: np.ndarray, labels: np.ndarray):
+        """Initialize Siamese dataset.
+        Args:
+            samples: Input features
+            labels: Target labels
+        """
+        super().__init__()
+        self.samples = samples 
+        self.labels = labels
+        self.samples, self.labels = self._generate_pairs()
+
+    def _generate_pairs(self) -> Tuple[List[torch.Tensor], np.ndarray]:
+        """Generate all possible pairs for contrastive learning."""
         pairs = []
         labels = []
+        n_samples = len(self.samples)
         
-        for idx1, label1 in enumerate(self.labels):
-            feat1 = self.features[idx1]
-            label1_tuple = tuple(label1.tolist())
-            
-            for _ in range(self.pairs_per_sample):
-                if torch.rand(1) < 0.5:
-                    same_class_indices = self.class_indices[label1_tuple]
-                    if len(same_class_indices) > 1:
-                        idx2 = np.random.choice([i for i in same_class_indices if i != idx1])
-                    else:
-                        idx2 = np.random.choice(len(self.features))
-                else:
-                    idx2 = np.random.choice(len(self.features))
-                
-                feat2 = self.features[idx2]
-                label2 = self.labels[idx2]
-                pair_label = torch.tensor([float(torch.all(label1 == label2))])
-                
-                pairs.append((feat1, feat2))
-                labels.append(pair_label)
+        # Generate all possible pairs
+        for i in range(n_samples):
+            for j in range(n_samples):
+                if i != j:  # Exclude self-pairs
+                    X1, y1 = self.samples[i], self.labels[i]
+                    X2, y2 = self.samples[j], self.labels[j]
+                    
+                    difference = X1 - X2
+                    pair_label = (y1 == y2).all()
+                    
+                    pairs.append(difference)
+                    labels.append(pair_label)
         
-        return pairs, labels
+        labels = np.asarray(labels, dtype=int)
+        n_classes = len(np.unique(labels))
+        return pairs, np.eye(n_classes)[labels].squeeze()
     
     def __len__(self) -> int:
-        return len(self.pairs)
+        return len(self.samples)
     
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        return self.pairs[idx][0], self.pairs[idx][1], self.pair_labels[idx]
+        return self.samples[idx][0], self.samples[idx][1], self.labels[idx]
 
 class DataPreprocessor:
     """Handle data loading and preprocessing for Siamese networks."""
@@ -191,8 +180,8 @@ def prepare_dataset(config: DataConfig) -> Tuple[DataLoader, DataLoader]:
         shuffle=True
     )
     
-    train_dataset = SiameseDataset(X_train, y_train, config.pairs_per_sample)
-    val_dataset = SiameseDataset(X_val, y_val, config.pairs_per_sample)
+    train_dataset = SiameseDataset(X_train, y_train)
+    val_dataset = SiameseDataset(X_val, y_val)
     
     train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=config.batch_size, shuffle=False)
