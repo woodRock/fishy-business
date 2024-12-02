@@ -22,6 +22,7 @@ from rwkv import RWKV
 from ode import ODE
 from dense import Dense
 from tcn import TCN
+from MOE import MOE
 
 @dataclass
 class BaseConfig:
@@ -93,6 +94,15 @@ class TCNConfig(BaseConfig):
     dropout: float = 0.3
 
 @dataclass
+class MOEConfig(BaseConfig):
+    num_heads: int = 4
+    hidden_dim: int = 128
+    num_layers: int = 1
+    num_experts: int = 4
+    k: int = 2
+    dropout: float = 0.1
+
+@dataclass
 class TrainConfig:
     """Configuration for training parameters."""
     learning_rate: float = 1e-5
@@ -124,6 +134,7 @@ class ModelFactory:
         self.register_encoder("ode", ODE, ODEConfig)
         self.register_encoder("dense", Dense, DenseConfig)
         self.register_encoder("tcn", TCN, TCNConfig)
+        self.register_encoder("moe", MOE, MOEConfig)
     
     def register_encoder(self, 
                         name: str, 
@@ -456,7 +467,7 @@ def main():
     
     # Example: Create transformer-based model
     model = create_model(
-        encoder_type="vae",
+        encoder_type="moe",
         input_dim = input_dim,
         factory=factory
     ).to(device)
