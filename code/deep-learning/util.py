@@ -93,58 +93,35 @@ class CustomDataset(BaseDataset):
 
 
 class SiameseDataset(BaseDataset):
-    """Dataset for contrastive learning with paired instances."""
-
-    def __init__(
-        self, samples: np.ndarray, labels: np.ndarray, pairs_per_sample: int = 50
-    ):
+    """Dataset for contrastive learning with all possible pairs."""
+    def __init__(self, samples: np.ndarray, labels: np.ndarray):
         """Initialize Siamese dataset.
-
         Args:
             samples: Input features
             labels: Target labels
-            pairs_per_sample: Number of pairs to generate per sample
         """
         super().__init__(samples, labels)
-        self.pairs_per_sample = pairs_per_sample
-        self.class_indices = self._create_class_indices()
         self.samples, self.labels = self._generate_pairs()
 
-    def _create_class_indices(self) -> Dict[tuple, List[int]]:
-        """Create mapping from class labels to sample indices."""
-        class_indices = {}
-        for idx, label in enumerate(self.labels):
-            label_tuple = tuple(label.tolist())
-            if label_tuple not in class_indices:
-                class_indices[label_tuple] = []
-            class_indices[label_tuple].append(idx)
-        return class_indices
-
     def _generate_pairs(self) -> Tuple[List[torch.Tensor], np.ndarray]:
-        """Generate pairs for contrastive learning."""
+        """Generate all possible pairs for contrastive learning."""
         pairs = []
         labels = []
-
-        for sample_idx, (X1, y1) in enumerate(zip(self.samples, self.labels)):
-            for _ in range(self.pairs_per_sample):
-                # Choose same class with 50% probability
-                if np.random.random() < 0.5:
-                    same_class_indices = self.class_indices[tuple(y1.tolist())]
-                    idx2 = np.random.choice(
-                        [i for i in same_class_indices if i != sample_idx]
-                        if len(same_class_indices) > 1
-                        else range(len(self.samples))
-                    )
-                else:
-                    idx2 = np.random.choice(len(self.samples))
-
-                X2, y2 = self.samples[idx2], self.labels[idx2]
-                difference = X1 - X2
-                pair_label = torch.FloatTensor([int(torch.all(y1 == y2))])
-
-                pairs.append(difference)
-                labels.append(pair_label)
-
+        n_samples = len(self.samples)
+        
+        # Generate all possible pairs
+        for i in range(n_samples):
+            for j in range(n_samples):
+                if i != j:  # Exclude self-pairs
+                    X1, y1 = self.samples[i], self.labels[i]
+                    X2, y2 = self.samples[j], self.labels[j]
+                    
+                    difference = X1 - X2
+                    pair_label = torch.FloatTensor([int(torch.all(y1 == y2))])
+                    
+                    pairs.append(difference)
+                    labels.append(pair_label)
+        
         labels = np.asarray(labels, dtype=int)
         n_classes = len(np.unique(labels))
         return pairs, np.eye(n_classes)[labels].squeeze()
@@ -530,9 +507,6 @@ def preprocess_dataset(
         train_dataset = dataset_class(X, y)
 
         if isinstance(train_dataset, SiameseDataset):
-            logger.info(
-                f"Applying siamese dataset with {train_dataset.pairs_per_sample} pairs per sample..."
-            )
             logger.info(
                 f"Dataset size increased from {original_size} to {len(train_dataset.samples)} samples"
             )
