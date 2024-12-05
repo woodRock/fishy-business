@@ -37,99 +37,126 @@ def setup_logger(name: str) -> logging.Logger:
 logger = setup_logger(__name__)
 
 class EncoderNetwork(nn.Module):
-    """Encoder network for mass spectrometry data"""
-    def __init__(self, input_dim, hidden_dims=[512, 256, 128], embedding_dim=64):
+    def __init__(self, input_dim, hidden_dims=[512, 256, 128], embedding_dim=128):
         super().__init__()
         
-        # Encoder layers
         layers = []
         prev_dim = input_dim
+        
         for dim in hidden_dims:
             layers.extend([
-                nn.Linear(prev_dim, dim, dtype=torch.float32),
+                nn.Linear(prev_dim, dim),
                 nn.BatchNorm1d(dim),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=True),
+                nn.Dropout(0.3)  # Increased dropout
             ])
             prev_dim = dim
         
         self.encoder = nn.Sequential(*layers)
-        self.embedding = nn.Linear(hidden_dims[-1], embedding_dim, dtype=torch.float32)
+        
+        # Simplified projection head to reduce overfitting
+        self.projection = nn.Sequential(
+            nn.Linear(hidden_dims[-1], embedding_dim),
+            nn.BatchNorm1d(embedding_dim)  # Added batch norm
+        )
 
     def forward(self, x):
         x = x.float()
         h = self.encoder(x)
-        z = self.embedding(h)
+        z = self.projection(h)
         return F.normalize(z, dim=1)
 
 class SupervisedContrastiveLoss(nn.Module):
-    """Contrastive loss for one-hot encoded labels"""
-    def __init__(self, temperature=0.5):
+    def __init__(self, temperature=0.1, pos_weight=0.985, neg_weight=0.015):
         super().__init__()
         self.temperature = temperature
-        
+        self.pos_weight = pos_weight
+        self.neg_weight = neg_weight
+    
     def forward(self, z1, z2, labels):
-        """
-        Args:
-            z1: First set of embeddings (batch_size, embedding_dim)
-            z2: Second set of embeddings (batch_size, embedding_dim)
-            labels: One-hot encoded labels (batch_size, num_classes)
-        """
-        # Concatenate embeddings from both views
-        embeddings = torch.cat([z1, z2], dim=0)  # (2*batch_size, embedding_dim)
+        batch_size = z1.shape[0]
         
-        # Duplicate labels for both views
-        labels_duplicated = torch.cat([labels, labels], dim=0)  # (2*batch_size, num_classes)
+        # Safe normalization
+        z1_norm = torch.norm(z1, p=2, dim=1, keepdim=True).clamp(min=1e-8)
+        z2_norm = torch.norm(z2, p=2, dim=1, keepdim=True).clamp(min=1e-8)
+        z1 = z1 / z1_norm
+        z2 = z2 / z2_norm
+        
+        # Get class indices
+        label_indices = torch.argmax(labels, dim=1)
         
         # Compute similarity matrix
-        similarity_matrix = torch.matmul(embeddings, embeddings.T)  # (2*batch_size, 2*batch_size)
+        similarity = torch.matmul(z1, z2.T) / self.temperature
+        similarity = similarity.clamp(min=-1e2, max=1e2)
         
-        # Scale similarities by temperature
-        similarity_matrix = similarity_matrix / self.temperature
+        # Create mask for similar pairs (same class)
+        pos_mask = (label_indices.unsqueeze(0) == label_indices.unsqueeze(1)).float()
+        neg_mask = 1 - pos_mask
         
-        # Compute label similarity matrix (indicates which pairs have the same label)
-        label_similarity = torch.matmul(labels_duplicated, labels_duplicated.T)  # (2*batch_size, 2*batch_size)
+        # Apply inverse class weights
+        pos_weight = torch.where(label_indices == 1, 
+                               torch.tensor(self.neg_weight, device=z1.device),
+                               torch.tensor(self.pos_weight, device=z1.device))
         
-        # Remove self-similarities
-        mask_self = ~torch.eye(similarity_matrix.shape[0], dtype=bool, device=embeddings.device)
+        # Weight the positive and negative contributions
+        weighted_pos = pos_mask * pos_weight.unsqueeze(1)
+        weighted_neg = neg_mask * pos_weight.unsqueeze(1)
         
-        # Apply mask to remove self-similarities
-        similarity_matrix = similarity_matrix[mask_self].view(similarity_matrix.shape[0], -1)
-        label_similarity = label_similarity[mask_self].view(label_similarity.shape[0], -1)
+        # Compute weighted contrastive loss
+        exp_sim = torch.exp(similarity)
+        log_prob = similarity - torch.log(exp_sim.sum(dim=1, keepdim=True))
         
-        # Compute log probabilities
-        log_prob = similarity_matrix - torch.logsumexp(similarity_matrix, dim=1, keepdim=True)
+        pos_loss = -weighted_pos * log_prob
+        neg_loss = -weighted_neg * log_prob
         
-        # Compute mean of positive similarities
-        mean_log_prob_pos = (label_similarity * log_prob).sum(1) / label_similarity.sum(1).clamp(min=1e-8)
+        # Combine losses with class balancing
+        loss = (pos_loss.sum() + neg_loss.sum()) / (weighted_pos.sum() + weighted_neg.sum() + 1e-8)
         
-        return -mean_log_prob_pos.mean()
-
+        return loss
+    
 def compute_accuracy(embeddings_1, embeddings_2, labels):
     """
     Compute balanced classification accuracy based on embedding similarity.
-    Args:
-        embeddings_1: First set of embeddings (n_samples, embedding_dim)
-        embeddings_2: Second set of embeddings (n_samples, embedding_dim)
-        labels: One-hot encoded labels (n_samples, n_classes)
-    Returns:
-        float: Balanced classification accuracy
     """
     # Convert one-hot labels to class indices
     labels = torch.argmax(labels, dim=1).cpu().numpy()
     
-    # Compute cosine similarity between pairs
-    similarity = F.cosine_similarity(embeddings_1, embeddings_2)
+    # Normalize embeddings
+    z1 = F.normalize(embeddings_1, dim=1)
+    z2 = F.normalize(embeddings_2, dim=1)
+    similarity = F.cosine_similarity(z1, z2).cpu().numpy()
     
-    # Convert similarities to binary predictions (1 if similar, 0 if different)
-    predictions = (similarity > 0).cpu().numpy()
+    # Debug embeddings and similarities
+    print("\nEmbedding Statistics:")
+    print(f"Embedding 1 mean: {embeddings_1.mean().item():.3f}, std: {embeddings_1.std().item():.3f}")
+    print(f"Embedding 2 mean: {embeddings_2.mean().item():.3f}, std: {embeddings_2.std().item():.3f}")
     
-    # Convert to same/different class labels
-    true_labels = (labels == labels).astype(int)
+    # Get unique labels and their counts
+    unique_labels, label_counts = np.unique(labels, return_counts=True)
+    print(f"\nLabel distribution: {list(zip(unique_labels, label_counts))}")
     
-    # Ensure predictions and true_labels have the same shape
-    assert len(predictions) == len(true_labels), f"Predictions shape {predictions.shape} != True labels shape {true_labels.shape}"
+    # Create true labels for pairs (same or different class)
+    true_labels = labels.astype(int)
     
-    # Compute balanced accuracy
+    # Analyze similarity distribution
+    sim_mean = similarity.mean()
+    sim_std = similarity.std()
+    print("\nSimilarity Statistics:")
+    print(f"Overall similarity: mean={sim_mean:.3f}, std={sim_std:.3f}")
+    print(f"Similarity range: [{similarity.min():.3f}, {similarity.max():.3f}]")
+    
+    # Use adaptive threshold
+    threshold = sim_mean
+    predictions = (similarity > threshold).astype(int)
+    
+    print(f"\nPrediction Statistics:")
+    print(f"Threshold: {threshold:.3f}")
+    pred_unique, pred_counts = np.unique(predictions, return_counts=True)
+    print(f"Prediction distribution: {list(zip(pred_unique, pred_counts))}")
+    
+    true_unique, true_counts = np.unique(true_labels, return_counts=True)
+    print(f"True label distribution: {list(zip(true_unique, true_counts))}")
+    
     return balanced_accuracy_score(true_labels, predictions)
 
 def evaluate_model(model, loader, device):
@@ -179,11 +206,11 @@ def train_contrastive_model(train_loader: DataLoader,
                           val_loader: DataLoader,
                           input_dim: int,
                           device: str = 'cuda',
-                          hidden_dims: list = [512, 256, 128],
-                          embedding_dim: int = 64,
-                          temperature: float = 0.5,
+                          hidden_dims: list = [512, 256, 128],  # Smaller network
+                          embedding_dim: int = 64,  # Smaller embedding
+                          temperature: float = 0.1,  
                           epochs: int = 100,
-                          learning_rate: float = 1e-3) -> EncoderNetwork:
+                          learning_rate: float = 1e-4) -> EncoderNetwork:
     """
     Train contrastive learning model using provided data loaders.
     """
@@ -203,7 +230,8 @@ def train_contrastive_model(train_loader: DataLoader,
     ).to(device)
     
     criterion = SupervisedContrastiveLoss(temperature=temperature)
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
     
     # Training loop
     best_val_loss = float('inf')
@@ -258,6 +286,9 @@ def train_contrastive_model(train_loader: DataLoader,
             best_val_loss = avg_val_loss
             best_state = model.state_dict()
             logger.info(f"New best validation accuracy: {best_val_acc:.4f}")
+
+        # Update learning rate
+        scheduler.step()
     
     # Load best model
     model.load_state_dict(best_state)

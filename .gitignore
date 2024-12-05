@@ -13,6 +13,7 @@ data
 # Transformer checkpoints are too big.
 code/transformer/checkpoints/*
 code/transformer/transformer_checkpoint.pth
+code/siamese/*
 
 # Cache for python
 code/evotorch/__pycache__
