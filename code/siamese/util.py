@@ -51,8 +51,8 @@ class DataConfig:
     
     def __post_init__(self):
         if self.data_path is None:
-            # self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
-            self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
+            self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
+            # self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
 
 
 class SiameseDataset(Dataset):
@@ -81,15 +81,19 @@ class SiameseDataset(Dataset):
                     X1, y1 = self.samples[i], self.labels[i]
                     X2, y2 = self.samples[j], self.labels[j]
                     
-                    difference = X1 - X2
+                    pair_feature = (X1, X2)
                     pair_label = (y1 == y2).all()
                     
-                    pairs.append(difference)
+                    pairs.append(pair_feature)
                     labels.append(pair_label)
         
         labels = np.asarray(labels, dtype=int)
-        n_classes = len(np.unique(labels))
-        return pairs, np.eye(n_classes)[labels].squeeze()
+        print(f"unique labels: {np.unique(labels)}")
+        n_classes = len(np.unique(labels, return_counts=True))
+        one_hot_labels = np.eye(n_classes)[labels]
+        print(f"unique onehot labels: {np.unique(one_hot_labels, axis=0, return_counts=True)}")
+
+        return pairs, one_hot_labels
     
     def __len__(self) -> int:
         return len(self.samples)
