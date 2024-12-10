@@ -2,12 +2,13 @@ import logging
 import sys
 from pathlib import Path
 from dataclasses import dataclass
-from typing import List, Tuple, Dict, Union, Any
+from typing import List, Tuple, Optional, Iterator, Union
+
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, Sampler
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
@@ -51,8 +52,8 @@ class DataConfig:
     
     def __post_init__(self):
         if self.data_path is None:
-            self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
-            # self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
+            # self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
+            self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
 
 
 class SiameseDataset(Dataset):
@@ -100,6 +101,107 @@ class SiameseDataset(Dataset):
     
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         return self.samples[idx][0], self.samples[idx][1], self.labels[idx]
+
+class ContrastiveBalancedSampler(Sampler):
+    """
+    Balanced sampler for contrastive learning that ensures equal class representation
+    in each batch. Works with both numpy arrays and PyTorch tensors, one-hot encoded
+    or class indices.
+    
+    Args:
+        labels: One-hot encoded labels or class indices (numpy array or torch.Tensor)
+        batch_size: Size of each batch
+        num_samples_per_class: Number of samples to draw per class in each batch.
+                             If None, will be calculated from batch_size
+        drop_last: If True, drop the last incomplete batch
+    """
+    def __init__(
+        self,
+        labels: Union[np.ndarray, torch.Tensor],
+        batch_size: int,
+        num_samples_per_class: Optional[int] = None,
+        drop_last: bool = False
+    ):
+        # Convert to numpy array if tensor
+        if isinstance(labels, torch.Tensor):
+            labels = labels.cpu().numpy()
+            
+        # Convert one-hot labels to class indices if necessary
+        if len(labels.shape) > 1:
+            self.labels = np.argmax(labels, axis=1)
+        else:
+            self.labels = labels
+            
+        self.num_classes = len(np.unique(self.labels))
+        self.class_indices = [
+            np.where(self.labels == i)[0] 
+            for i in range(self.num_classes)
+        ]
+        
+        # Calculate samples per class if not provided
+        if num_samples_per_class is None:
+            self.samples_per_class = batch_size // self.num_classes
+        else:
+            self.samples_per_class = num_samples_per_class
+            
+        self.batch_size = self.samples_per_class * self.num_classes
+        self.drop_last = drop_last
+        
+        # Calculate number of batches
+        min_class_size = min(len(indices) for indices in self.class_indices)
+        self.num_batches = min_class_size // self.samples_per_class
+        if not self.drop_last and min_class_size % self.samples_per_class != 0:
+            self.num_batches += 1
+            
+        # Print class distribution info
+        for i in range(self.num_classes):
+            print(f"Class {i}: {len(self.class_indices[i])} samples")
+        print(f"Samples per class per batch: {self.samples_per_class}")
+        print(f"Total batch size: {self.batch_size}")
+        print(f"Number of batches: {self.num_batches}")
+    
+    def __iter__(self) -> Iterator[List[int]]:
+        # Create a copy of class indices to avoid modifying original
+        class_indices = [indices.copy() for indices in self.class_indices]
+        
+        # Shuffle indices for each class
+        for indices in class_indices:
+            np.random.shuffle(indices)
+        
+        # Keep track of current position in each class
+        class_positions = [0] * self.num_classes
+        
+        # Generate batches
+        for _ in range(self.num_batches):
+            batch_indices = []
+            
+            # Sample from each class
+            for class_idx in range(self.num_classes):
+                start_idx = class_positions[class_idx]
+                end_idx = start_idx + self.samples_per_class
+                
+                # If we need more samples than available, reshuffle and reset
+                if end_idx > len(class_indices[class_idx]):
+                    if self.drop_last:
+                        continue
+                    # Reshuffle class indices
+                    np.random.shuffle(class_indices[class_idx])
+                    class_positions[class_idx] = 0
+                    start_idx = 0
+                    end_idx = self.samples_per_class
+                
+                # Add indices to batch
+                batch_indices.extend(
+                    class_indices[class_idx][start_idx:end_idx].tolist()
+                )
+                class_positions[class_idx] = end_idx
+            
+            if len(batch_indices) == self.batch_size or not self.drop_last:
+                # Yield the entire batch as a list
+                yield batch_indices
+    
+    def __len__(self) -> int:
+        return self.num_batches
 
 class DataPreprocessor:
     """Handle data loading and preprocessing for Siamese networks."""
@@ -186,9 +288,32 @@ def prepare_dataset(config: DataConfig) -> Tuple[DataLoader, DataLoader]:
     
     train_dataset = SiameseDataset(X_train, y_train)
     val_dataset = SiameseDataset(X_val, y_val)
-    
-    train_loader = DataLoader(train_dataset, batch_size=config.batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=config.batch_size, shuffle=False)
+
+    # Create a balanced sampler for contrastive learning.
+    train_sampler = ContrastiveBalancedSampler(
+        labels=train_dataset.labels,  # Your dataset's labels
+        batch_size=32,         # Desired batch size
+        drop_last=True         # Whether to drop incomplete batches
+    )
+
+    val_sampler = ContrastiveBalancedSampler(
+        labels=val_dataset.labels,  # Your dataset's labels
+        batch_size=32,         # Desired batch size
+        drop_last=True         # Whether to drop incomplete batches
+    )
+        
+    train_loader = DataLoader(
+        train_dataset, 
+        batch_sampler=train_sampler,
+        # batch_size=64,
+        # shuffle=True,
+    )
+    val_loader = DataLoader(
+        val_dataset, 
+        batch_sampler=val_sampler,
+        # batch_size=64,
+        # shuffle=True,
+    )
     
     return train_loader, val_loader
 
