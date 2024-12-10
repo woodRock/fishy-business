@@ -24,7 +24,7 @@ class SimCLRConfig:
     learning_rate: float = 1e-3
     weight_decay: float = 1e-6
     batch_size: int = 32
-    num_epochs: int = 100
+    num_epochs: int = 1000
     input_dim: int = 2080
     num_heads: int = 4
     hidden_dim: int = 256
@@ -36,6 +36,7 @@ class ProjectionHead(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int, output_dim: int):
         super().__init__()
         self.net = nn.Sequential(
+            nn.LayerNorm(input_dim),
             nn.Linear(input_dim, hidden_dim),
             nn.BatchNorm1d(hidden_dim),
             nn.ReLU(inplace=True),
@@ -59,12 +60,6 @@ class SimCLRModel(nn.Module):
             hidden_dim=config.embedding_dim,
             output_dim=config.projection_dim
         )
-        self.classifier = nn.Sequential(
-            nn.Linear(config.projection_dim, config.embedding_dim),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(config.embedding_dim, 2)
-        )
     
     def forward(self, x1: torch.Tensor, x2: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         # Reshape inputs for transformer: [batch_size, features] -> [batch_size, 1, features]
@@ -83,51 +78,43 @@ class SimCLRModel(nn.Module):
             return h1, h2
         
         return h1, None
-    
-    def classify(self, x: torch.Tensor) -> torch.Tensor:
-        if len(x.shape) == 2:
-            x = x.unsqueeze(1)
-        z = self.encoder(x)
-        h = self.projector(z)
-        return self.classifier(h)
 
 class SimCLRLoss(nn.Module):
-    def __init__(self, temperature: float = 0.5):
+    def __init__(self, threshold=0.5):
         super().__init__()
-        self.temperature = temperature
-        
-    def forward(self, z1: torch.Tensor, z2: torch.Tensor) -> torch.Tensor:
-        batch_size = z1.shape[0]
-        features = torch.cat([z1, z2], dim=0)  # 2N x D
-        
-        # Compute similarity matrix
-        sim = torch.matmul(features, features.T)  # 2N x 2N
-        sim = sim / self.temperature
-        
-        # Create mask for positive pairs
-        pos_mask = torch.zeros((2 * batch_size, 2 * batch_size), device=z1.device)
-        # Mark positive pairs (i, i+N) and (i+N, i)
-        pos_mask[torch.arange(batch_size), torch.arange(batch_size, 2*batch_size)] = 1
-        pos_mask[torch.arange(batch_size, 2*batch_size), torch.arange(batch_size)] = 1
-        
-        # Remove diagonal (self-similarity)
-        mask_no_diag = ~torch.eye(2 * batch_size, dtype=bool, device=z1.device)
-        
-        # Get positive similarities
-        sim_pos = sim[pos_mask.bool()].view(2 * batch_size, 1)
-        
-        # Get negative similarities (excluding self-similarity)
-        sim_neg = sim[mask_no_diag].view(2 * batch_size, -1)
-        
-        # Concatenate positive and negative similarities
-        logits = torch.cat([sim_pos, sim_neg], dim=1)
-        
-        # Labels: positive pair is the first element (index 0)
-        labels = torch.zeros(2 * batch_size, dtype=torch.long, device=z1.device)
-        
-        # Compute cross entropy loss
-        return F.cross_entropy(logits, labels)
+        self.threshold = threshold
     
+    def forward(self, z1, z2, labels):
+        z1 = F.normalize(z1 + 1e-8, dim=1)
+        z2 = F.normalize(z2 + 1e-8, dim=1)
+        
+        similarities = F.cosine_similarity(z1, z2)
+        label_pairs = torch.argmax(labels, dim=1)
+        
+        # Scale similarities more aggressively
+        probs = torch.clamp((similarities + 1) / 2, min=1e-6, max=1-1e-6)
+        
+        # Remove label smoothing to allow perfect classification
+        loss = F.binary_cross_entropy(probs, label_pairs.float())
+        
+        return loss
+    
+def compute_accuracy(embeddings_1, embeddings_2, labels):
+    """Basic accuracy computation"""
+    with torch.no_grad():  # Ensure no gradients are computed
+        z1 = F.normalize(embeddings_1, dim=1)
+        z2 = F.normalize(embeddings_2, dim=1)
+        labels = torch.argmax(labels, dim=1).cpu().numpy()
+        
+        # Use cosine similarity and detach tensors
+        similarity = F.cosine_similarity(z1.detach(), z2.detach()).cpu().numpy()
+        
+        # Simple threshold at mean
+        threshold = np.mean(similarity)
+        predictions = (similarity > threshold).astype(int)
+        
+        return balanced_accuracy_score(labels, predictions)
+        
 class SimCLRTrainer:
     def __init__(
         self,
@@ -142,25 +129,22 @@ class SimCLRTrainer:
         self.optimizer = optim.AdamW([
             {'params': model.encoder.parameters(), 'lr': config.learning_rate},
             {'params': model.projector.parameters(), 'lr': config.learning_rate},
-            {'params': model.classifier.parameters(), 'lr': config.learning_rate * 10}
         ], weight_decay=config.weight_decay)
         
         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
             self.optimizer, T_max=config.num_epochs
         )
         
-        self.contrastive_loss = SimCLRLoss(temperature=config.temperature)
+        self.contrastive_loss = SimCLRLoss()
         self.ce_loss = nn.CrossEntropyLoss()
-    
-    def process_labels(self, one_hot_labels: torch.Tensor) -> torch.Tensor:
-        """Convert one-hot encoded labels to class indices."""
-        return torch.argmax(one_hot_labels, dim=1)
     
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
         self.model.train()
         total_loss = 0
-        correct = 0
-        total = 0
+
+        all_embeddings_1 = []
+        all_embeddings_2 = []
+        all_labels = []
         
         for batch_idx, (x1, x2, labels) in enumerate(train_loader):
             # Move to device and ensure float32
@@ -168,40 +152,36 @@ class SimCLRTrainer:
             x2 = x2.float().to(self.device)
             labels = labels.float().to(self.device)
             
-            # Convert one-hot labels to indices
-            label_indices = torch.argmax(labels, dim=1)
-            
             # Forward pass and get projections
             z1, z2 = self.model(x1, x2)
             
             # Compute contrastive loss
-            contrastive_loss = self.contrastive_loss(z1, z2)
-            
-            # Get classifier predictions (if needed)
-            logits = self.model.classify(x1)
-            classification_loss = self.ce_loss(logits, label_indices)
-            
-            # Combine losses (you can adjust the weights)
-            loss = contrastive_loss + 0.1 * classification_loss
-            
+            contrastive_loss = self.contrastive_loss(z1, z2, labels)
+            loss = contrastive_loss
+
             # Backward pass
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+
+            # Store embeddings and labels for accuracy computation
+            all_embeddings_1.append(z1)
+            all_embeddings_2.append(z2)
+            all_labels.append(labels)
             
-            # Compute accuracy
-            _, predicted = logits.max(1)
-            total += labels.size(0)
-            correct += predicted.eq(label_indices).sum().item()
             total_loss += loss.item()
             
             if batch_idx % 10 == 0:
                 print(f'Batch [{batch_idx}/{len(train_loader)}], '
                     f'Loss: {loss.item():.4f}, '
-                    f'Contrastive: {contrastive_loss.item():.4f}, '
-                    f'Classification: {classification_loss.item():.4f}')
+                    f'Contrastive: {contrastive_loss.item():.4f}, ')
+
+        # Concatenate all batches
+        embeddings_1 = torch.cat(all_embeddings_1)
+        embeddings_2 = torch.cat(all_embeddings_2)
+        labels = torch.cat(all_labels)
         
-        accuracy = 100. * correct / total
+        accuracy = compute_accuracy(embeddings_1, embeddings_2, labels)
         avg_loss = total_loss / len(train_loader)
     
         return avg_loss, accuracy
@@ -217,28 +197,20 @@ class SimCLRTrainer:
         Returns:
             float: Balanced classification accuracy
         """
-        # Convert one-hot labels to class indices
-        labels = torch.argmax(labels, dim=1).cpu().numpy()
-        
-        # Compute cosine similarity between pairs
-        similarity = F.cosine_similarity(embeddings_1, embeddings_2)
-        
-        # Convert similarities to binary predictions (1 if similar, 0 if different)
-        predictions = (similarity > 0).cpu().numpy()
-        
-        # For each pair, check if they're from the same class
-        true_labels = labels.astype(int)  # Changed this line
-        
-        print(f"Predictions: {np.unique(predictions, return_counts=True)}")
-        print(f"True labels: {np.unique(true_labels, return_counts=True)}")
-        print(f"Similarities range: [{similarity.min().item():.3f}, {similarity.max().item():.3f}]")
-        
-        # Ensure predictions and true_labels have the same shape
-        assert len(predictions) == len(true_labels), f"Predictions shape {predictions.shape} != True labels shape {true_labels.shape}"
-        
-        # Compute balanced accuracy
-        return balanced_accuracy_score(true_labels, predictions)
-
+        """Basic accuracy computation"""
+        with torch.no_grad():  # Ensure no gradients are computed
+            z1 = F.normalize(embeddings_1, dim=1)
+            z2 = F.normalize(embeddings_2, dim=1)
+            labels = torch.argmax(labels, dim=1).cpu().numpy()
+            
+            # Use cosine similarity and detach tensors
+            similarity = F.cosine_similarity(z1.detach(), z2.detach()).cpu().numpy()
+            
+            # Simple threshold at mean
+            threshold = np.mean(similarity)
+            predictions = (similarity > threshold).astype(int)
+            
+            return balanced_accuracy_score(labels, predictions)
 
     def evaluate_model(self, model: SimCLRModel, loader: DataLoader, device: str) -> Tuple[float, float]:
         """
@@ -274,7 +246,7 @@ class SimCLRTrainer:
                 all_labels.append(labels)
                 
                 # Compute contrastive loss
-                loss = criterion(z1, z2)
+                loss = criterion(z1, z2, labels)
                 total_loss += loss.item()
         
         # Concatenate all batches
@@ -307,16 +279,8 @@ def main():
     
     # Create data loaders
     train_loader, val_loader = prepare_dataset(DataConfig())
-
-    # Debug: Check first batch
-    first_batch = next(iter(train_loader))
-    print("\nFirst batch info:")
-    print(f"x1 shape: {first_batch[0].shape}")
-    print(f"x2 shape: {first_batch[1].shape}")
-    print(f"labels shape: {first_batch[2].shape}")
-    print(f"unique labels: {torch.unique(first_batch[2])}")
     
-    # Input dimension is the number of features.
+    # Input dimension is the number of features
     input_dim = 2080
     
     # Create configs
@@ -329,10 +293,8 @@ def main():
         num_layers=4
     )
     
-    # Create encoder
+    # Create encoder and model
     encoder = create_transformer(simclr_config)
-    
-    # Create SimCLR model
     model = SimCLRModel(
         encoder=encoder,
         config=simclr_config
@@ -343,25 +305,56 @@ def main():
     
     # Training loop
     print("\nStarting training...")
-    best_acc = 0
+    best_val_acc = 0
+    best_model_state = None
+    best_epoch = 0
+    best_train_acc = 0
+    best_metrics = None
+    
     for epoch in range(simclr_config.num_epochs):
+        # Training
         train_loss, train_acc = trainer.train_epoch(train_loader)
+        
+        # Evaluation
+        train_acc, train_loss = trainer.evaluate_model(model, train_loader, device)
+        val_acc, val_loss = trainer.evaluate_model(model, val_loader, device)
+        
         print(f"Epoch {epoch+1}/{simclr_config.num_epochs}")
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
-        train_acc, _ = trainer.evaluate_model(model, train_loader, device)
-        val_acc, _ = trainer.evaluate_model(model, val_loader, device)
-        print(f"Train Acc: {train_acc:.2f}%, Val Acc: {val_acc:.2f}%")
+        print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
         
-        if train_acc > best_acc:
-            best_acc = train_acc
-            torch.save({
+        # Save best model based on validation accuracy
+        if val_acc > best_val_acc:
+            best_val_acc = val_acc
+            best_train_acc = train_acc
+            best_epoch = epoch
+            best_model_state = {
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': trainer.optimizer.state_dict(),
-                'accuracy': train_acc,
-            }, "best_model.pth")
-            print(f"New best model saved with accuracy: {train_acc:.2f}%")
+            }
+            best_metrics = {
+                'train_accuracy': train_acc,
+                'val_accuracy': val_acc,
+                'train_loss': train_loss,
+                'val_loss': val_loss
+            }
+            torch.save(best_model_state, "best_model.pth")
+            print(f"New best model saved! Validation accuracy: {val_acc:.2f}%")
         print("-" * 50)
+    
+    # Load best model and do final evaluation
+    print(f"\nLoading best model from epoch {best_epoch+1}...")
+    model.load_state_dict(best_model_state['model_state_dict'])
+    
+    print("\nFinal Results (Best Model):")
+    print(f"Best Epoch: {best_epoch+1}")
+    print(f"Train Accuracy: {best_metrics['train_accuracy']:.2f}%")
+    print(f"Train Loss: {best_metrics['train_loss']:.4f}")
+    print(f"Validation Accuracy: {best_metrics['val_accuracy']:.2f}%")
+    print(f"Validation Loss: {best_metrics['val_loss']:.4f}")
+    
+    return model, best_model_state, best_metrics
 
 if __name__ == "__main__":
-    main()
+    best_model, best_state, best_metrics = main()
