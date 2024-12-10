@@ -13,6 +13,7 @@ from sklearn.metrics import balanced_accuracy_score
 from transformer import Transformer
 from lstm import LSTM
 from cnn import CNN
+from rcnn import RCNN
 from util import prepare_dataset, DataConfig
 
 @dataclass
@@ -272,6 +273,24 @@ def create_transformer(config: SimCLRConfig) -> nn.Module:
         dropout=config.dropout
     )
 
+def create_cnn(config: SimCLRConfig) -> nn.Module:
+    """Creates a cnn encoder"""
+    return CNN (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        d_model=128,
+        input_channels=1,
+        dropout=config.dropout,
+    )
+
+def create_rcnn(config: SimCLRConfig) -> nn.Module:
+    """Creates a rcnn encoder"""
+    return RCNN (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        dropout=config.dropout,
+    )
+
 def main():
     # Setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -294,7 +313,7 @@ def main():
     )
     
     # Create encoder and model
-    encoder = create_transformer(simclr_config)
+    encoder = create_rcnn(simclr_config)
     model = SimCLRModel(
         encoder=encoder,
         config=simclr_config
