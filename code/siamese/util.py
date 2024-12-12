@@ -293,13 +293,13 @@ def prepare_dataset(config: DataConfig) -> Tuple[DataLoader, DataLoader]:
     train_sampler = ContrastiveBalancedSampler(
         labels=train_dataset.labels,  # Your dataset's labels
         batch_size=32,         # Desired batch size
-        drop_last=True         # Whether to drop incomplete batches
+        drop_last=False         # Whether to drop incomplete batches
     )
 
     val_sampler = ContrastiveBalancedSampler(
         labels=val_dataset.labels,  # Your dataset's labels
         batch_size=32,         # Desired batch size
-        drop_last=True         # Whether to drop incomplete batches
+        drop_last=False         # Whether to drop incomplete batches
     )
         
     train_loader = DataLoader(
