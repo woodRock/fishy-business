@@ -288,7 +288,7 @@ def create_encoder(config: SimCLRConfig, encoder_type: str) -> nn.Module:
     
     return encoder_mapping[encoder_type]()
 
-def train_simclr(config: SimCLRConfig, encoder_type: str = 'rcnn') -> Tuple[SimCLRModel, Dict, Dict]:
+def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tuple[SimCLRModel, Dict, Dict]:
     """Main training function for SimCLR."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
