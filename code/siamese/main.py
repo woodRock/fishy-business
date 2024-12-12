@@ -1,7 +1,5 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import List, Optional, Tuple, Dict, Type
-from abc import ABC, abstractmethod
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -27,7 +25,7 @@ from util import prepare_dataset, DataConfig
 
 @dataclass
 class SimCLRConfig:
-    """Configuration for SimCLR model"""
+    """Configuration for SimCLR model with default values."""
     temperature: float = 0.5
     projection_dim: int = 128
     embedding_dim: int = 256
@@ -42,7 +40,8 @@ class SimCLRConfig:
     dropout: float = 0.1
 
 class ProjectionHead(nn.Module):
-    """Non-linear projection head for SimCLR"""
+    """Non-linear projection head for SimCLR."""
+    
     def __init__(self, input_dim: int, hidden_dim: int, output_dim: int):
         super().__init__()
         self.net = nn.Sequential(
@@ -57,12 +56,9 @@ class ProjectionHead(nn.Module):
         return F.normalize(self.net(x), dim=1)
 
 class SimCLRModel(nn.Module):
-    """SimCLR model with flexible encoder and projection head"""
-    def __init__(
-        self, 
-        encoder: nn.Module,
-        config: SimCLRConfig
-    ):
+    """SimCLR model combining encoder and projection head."""
+    
+    def __init__(self, encoder: nn.Module, config: SimCLRConfig):
         super().__init__()
         self.encoder = encoder
         self.projector = ProjectionHead(
@@ -72,13 +68,6 @@ class SimCLRModel(nn.Module):
         )
     
     def forward(self, x1: torch.Tensor, x2: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        # Reshape inputs for transformer: [batch_size, features] -> [batch_size, 1, features]
-        # if len(x1.shape) == 2:
-        #     x1 = x1.unsqueeze(1)  # [B, F] -> [B, 1, F]
-        # if x2 is not None and len(x2.shape) == 2:
-        #     x2 = x2.unsqueeze(1)  # [B, F] -> [B, 1, F]   
-
-        # Get representations
         z1 = self.encoder(x1)
         h1 = self.projector(z1)
         
@@ -90,48 +79,28 @@ class SimCLRModel(nn.Module):
         return h1, None
 
 class SimCLRLoss(nn.Module):
-    def __init__(self, threshold=0.5):
+    """Loss function for SimCLR training."""
+    
+    def __init__(self, threshold: float = 0.5):
         super().__init__()
         self.threshold = threshold
     
-    def forward(self, z1, z2, labels):
+    def forward(self, z1: torch.Tensor, z2: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
         z1 = F.normalize(z1 + 1e-8, dim=1)
         z2 = F.normalize(z2 + 1e-8, dim=1)
         
         similarities = F.cosine_similarity(z1, z2)
         label_pairs = torch.argmax(labels, dim=1)
         
-        # Scale similarities more aggressively
         probs = torch.clamp((similarities + 1) / 2, min=1e-6, max=1-1e-6)
-        
-        # Remove label smoothing to allow perfect classification
         loss = F.binary_cross_entropy(probs, label_pairs.float())
         
         return loss
-    
-def compute_accuracy(embeddings_1, embeddings_2, labels):
-    """Basic accuracy computation"""
-    with torch.no_grad():  # Ensure no gradients are computed
-        z1 = F.normalize(embeddings_1, dim=1)
-        z2 = F.normalize(embeddings_2, dim=1)
-        labels = torch.argmax(labels, dim=1).cpu().numpy()
-        
-        # Use cosine similarity and detach tensors
-        similarity = F.cosine_similarity(z1.detach(), z2.detach()).cpu().numpy()
-        
-        # Simple threshold at mean
-        threshold = np.mean(similarity)
-        predictions = (similarity > threshold).astype(int)
-        
-        return balanced_accuracy_score(labels, predictions)
-        
+
 class SimCLRTrainer:
-    def __init__(
-        self,
-        model: SimCLRModel,
-        config: SimCLRConfig,
-        device: torch.device
-    ):
+    """Trainer class for SimCLR model."""
+    
+    def __init__(self, model: SimCLRModel, config: SimCLRConfig, device: torch.device):
         self.model = model
         self.config = config
         self.device = device
@@ -146,311 +115,205 @@ class SimCLRTrainer:
         )
         
         self.contrastive_loss = SimCLRLoss()
-        self.ce_loss = nn.CrossEntropyLoss()
     
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
+        """Train the model for one epoch."""
         self.model.train()
         total_loss = 0
-
-        all_embeddings_1 = []
-        all_embeddings_2 = []
-        all_labels = []
+        all_embeddings_1, all_embeddings_2, all_labels = [], [], []
         
         for batch_idx, (x1, x2, labels) in enumerate(train_loader):
-            # Move to device and ensure float32
-            x1 = x1.float().to(self.device)
-            x2 = x2.float().to(self.device)
+            x1, x2 = x1.float().to(self.device), x2.float().to(self.device)
             labels = labels.float().to(self.device)
             
-            # Forward pass and get projections
             z1, z2 = self.model(x1, x2)
+            loss = self.contrastive_loss(z1, z2, labels)
             
-            # Compute contrastive loss
-            contrastive_loss = self.contrastive_loss(z1, z2, labels)
-            loss = contrastive_loss
-
-            # Backward pass
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-
-            # Store embeddings and labels for accuracy computation
+            
             all_embeddings_1.append(z1)
             all_embeddings_2.append(z2)
             all_labels.append(labels)
-            
             total_loss += loss.item()
             
             if batch_idx % 10 == 0:
-                print(f'Batch [{batch_idx}/{len(train_loader)}], '
-                    f'Loss: {loss.item():.4f}, '
-                    f'Contrastive: {contrastive_loss.item():.4f}, ')
-
-        # Concatenate all batches
+                print(f'Batch [{batch_idx}/{len(train_loader)}], Loss: {loss.item():.4f}')
+        
         embeddings_1 = torch.cat(all_embeddings_1)
         embeddings_2 = torch.cat(all_embeddings_2)
         labels = torch.cat(all_labels)
         
-        accuracy = compute_accuracy(embeddings_1, embeddings_2, labels)
+        accuracy = self._compute_accuracy(embeddings_1, embeddings_2, labels)
         avg_loss = total_loss / len(train_loader)
-    
+        
         return avg_loss, accuracy
     
-
-    def compute_accuracy(self, embeddings_1, embeddings_2, labels):
-        """
-        Compute balanced classification accuracy based on embedding similarity.
-        Args:
-            embeddings_1: First set of embeddings (n_samples, embedding_dim)
-            embeddings_2: Second set of embeddings (n_samples, embedding_dim)
-            labels: One-hot encoded labels (n_samples, n_classes)
-        Returns:
-            float: Balanced classification accuracy
-        """
-        """Basic accuracy computation"""
-        with torch.no_grad():  # Ensure no gradients are computed
+    def evaluate_model(self, loader: DataLoader) -> Tuple[float, float]:
+        """Evaluate the model on given data loader."""
+        self.model.eval()
+        total_loss = 0
+        all_embeddings_1, all_embeddings_2, all_labels = [], [], []
+        
+        with torch.no_grad():
+            for x1, x2, labels in loader:
+                x1, x2 = x1.float().to(self.device), x2.float().to(self.device)
+                labels = labels.float().to(self.device)
+                
+                z1, z2 = self.model(x1, x2)
+                loss = self.contrastive_loss(z1, z2, labels)
+                
+                all_embeddings_1.append(z1)
+                all_embeddings_2.append(z2)
+                all_labels.append(labels)
+                total_loss += loss.item()
+        
+        embeddings_1 = torch.cat(all_embeddings_1)
+        embeddings_2 = torch.cat(all_embeddings_2)
+        labels = torch.cat(all_labels)
+        
+        accuracy = self._compute_accuracy(embeddings_1, embeddings_2, labels)
+        avg_loss = total_loss / len(loader)
+        
+        return accuracy, avg_loss
+    
+    @staticmethod
+    def _compute_accuracy(embeddings_1: torch.Tensor, embeddings_2: torch.Tensor, 
+                         labels: torch.Tensor) -> float:
+        """Compute balanced classification accuracy based on embedding similarity."""
+        with torch.no_grad():
             z1 = F.normalize(embeddings_1, dim=1)
             z2 = F.normalize(embeddings_2, dim=1)
             labels = torch.argmax(labels, dim=1).cpu().numpy()
             
-            # Use cosine similarity and detach tensors
-            similarity = F.cosine_similarity(z1.detach(), z2.detach()).cpu().numpy()
-            
-            # Simple threshold at mean
+            similarity = F.cosine_similarity(z1, z2).cpu().numpy()
             threshold = np.mean(similarity)
             predictions = (similarity > threshold).astype(int)
             
             return balanced_accuracy_score(labels, predictions)
 
-    def evaluate_model(self, model: SimCLRModel, loader: DataLoader, device: str) -> Tuple[float, float]:
-        """
-        Evaluate model on a data loader using balanced similarity-based metrics.
-        Args:
-            model: SimCLR model with encoder and projection head
-            loader: DataLoader containing validation/test data
-            device: Device to run evaluation on
-        Returns:
-            tuple: (balanced_accuracy, average_loss)
-        """
-        model.eval()
-        total_loss = 0
-        all_embeddings_1 = []
-        all_embeddings_2 = []
-        all_labels = []
-        
-        criterion = SimCLRLoss()
-        
-        with torch.no_grad():
-            for spec1, spec2, labels in loader:
-                # Move data to device
-                spec1 = spec1.float().to(device)
-                spec2 = spec2.float().to(device)
-                labels = labels.float().to(device)
-                
-                # Get embeddings through model
-                z1, z2 = model(spec1, spec2)
-                
-                # Store embeddings and labels for accuracy computation
-                all_embeddings_1.append(z1)
-                all_embeddings_2.append(z2)
-                all_labels.append(labels)
-                
-                # Compute contrastive loss
-                loss = criterion(z1, z2, labels)
-                total_loss += loss.item()
-        
-        # Concatenate all batches
-        embeddings_1 = torch.cat(all_embeddings_1)
-        embeddings_2 = torch.cat(all_embeddings_2)
-        labels = torch.cat(all_labels)
-        
-        accuracy = self.compute_accuracy(embeddings_1, embeddings_2, labels)
-        
-        # Compute average loss
-        avg_loss = total_loss / len(loader)
-        
-        return accuracy, avg_loss
+def create_encoder(config: SimCLRConfig, encoder_type: str) -> nn.Module:
+    """Factory function to create encoder based on type with appropriate parameters."""
+    encoder_mapping = {
+        'transformer': lambda: Transformer(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            num_heads=config.num_heads,
+            hidden_dim=config.hidden_dim,
+            num_layers=config.num_layers,
+            dropout=config.dropout
+        ),
+        'cnn': lambda: CNN(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            d_model=128,
+            input_channels=1,
+            dropout=config.dropout,
+        ),
+        'rcnn': lambda: RCNN(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            dropout=config.dropout,
+        ),
+        'lstm': lambda: LSTM(
+            input_dim=config.input_dim,
+            hidden_dim=config.hidden_dim,
+            output_dim=config.embedding_dim,
+            num_layers=config.num_layers,
+            dropout=config.dropout,
+        ),
+        'mamba': lambda: Mamba(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            d_state=config.hidden_dim,
+            num_layers=config.num_layers,
+            dropout=config.dropout,
+        ),
+        'kan': lambda: KAN(
+            input_dim=config.input_dim,
+            hidden_dim=config.hidden_dim,
+            output_dim=config.embedding_dim,
+            num_inner_functions=10,
+            dropout=config.dropout,
+            num_layers=config.num_layers,
+        ),
+        'vae': lambda: VAE(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            hidden_dim=config.hidden_dim,
+            latent_dim=config.hidden_dim,
+            dropout=config.dropout,
+        ),
+        'moe': lambda: MOE(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            num_heads=config.num_heads,
+            hidden_dim=config.hidden_dim,
+            num_layers=config.num_layers,
+            num_experts=4,
+            k=2,
+            dropout=config.dropout,
+        ),
+        'dense': lambda: Dense(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            dropout=config.dropout,
+        ),
+        'ode': lambda: ODE(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            dropout=config.dropout,
+        ),
+        'rwkv': lambda: RWKV(
+            input_dim=config.input_dim,
+            hidden_dim=config.hidden_dim,
+            output_dim=config.embedding_dim,
+            dropout=config.dropout,
+        ),
+        'tcn': lambda: TCN(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            dropout=config.dropout,
+        ),
+        'wavenet': lambda: WaveNet(
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
+            dropout=config.dropout,
+        ),
+    }
+    
+    if encoder_type not in encoder_mapping:
+        raise ValueError(f"Unsupported encoder type: {encoder_type}")
+    
+    return encoder_mapping[encoder_type]()
 
-def create_transformer(config: SimCLRConfig) -> nn.Module:
-    """Creates a transformer encoder with proper configuration"""
-    return Transformer(
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        num_heads=config.num_heads,
-        hidden_dim=config.hidden_dim,
-        num_layers=config.num_layers,
-        dropout=config.dropout
-    )
-
-def create_cnn(config: SimCLRConfig) -> nn.Module:
-    """Creates a cnn encoder"""
-    return CNN (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        d_model=128,
-        input_channels=1,
-        dropout=config.dropout,
-    )
-
-def create_rcnn(config: SimCLRConfig) -> nn.Module:
-    """Creates a rcnn encoder"""
-    return RCNN (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        dropout=config.dropout,
-    )
-
-def create_lstm(config: SimCLRConfig) -> nn.Module:
-    """Creates an lstm encoder"""
-    return LSTM (
-        input_dim=config.input_dim,
-        hidden_dim=config.hidden_dim,
-        output_dim=config.embedding_dim,
-        num_layers=config.num_layers,
-        dropout=config.dropout,
-    )
-
-def create_mamba(config: SimCLRConfig) -> nn.Module:
-    """Creates a mamba encoder"""
-    return Mamba (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        d_state=config.hidden_dim,
-        num_layers=config.num_layers,
-        dropout=config.dropout,
-    )
-
-def create_kan(config: SimCLRConfig) -> nn.Module:
-    """Creates a kan encoder"""
-    return KAN (
-        input_dim=config.input_dim,
-        hidden_dim=config.hidden_dim,
-        output_dim=config.embedding_dim,
-        num_inner_functions=10,
-        dropout=config.dropout,
-        num_layers=config.num_layers,
-    )
-
-def create_vae(config: SimCLRConfig) -> nn.Module:
-    """Creates a vae encoder"""
-    return VAE (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        hidden_dim=config.hidden_dim,
-        latent_dim=config.hidden_dim,
-        dropout=config.dropout,
-    )
-
-def create_moe(config: SimCLRConfig) -> nn.Module:
-    """Creates a moe encoder"""
-    return MOE (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        num_heads=config.num_heads,
-        hidden_dim=config.hidden_dim,
-        num_layers=config.num_layers,
-        num_experts=4,
-        k=2,
-        dropout=config.dropout,
-    )
-
-def create_dense(config: SimCLRConfig) -> nn.Module:
-    """Creates a dense encoder"""
-    return Dense (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        dropout=config.dropout,
-    )
-
-def create_ode(config: SimCLRConfig) -> nn.Module:
-    """Creates a ode encoder"""
-    return ODE (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        dropout=config.dropout,
-    )
-
-def create_rwkv(config: SimCLRConfig) -> nn.Module:
-    """Creates a rwkv encoder"""
-    return RWKV (
-        input_dim=config.input_dim,
-        hidden_dim=config.hidden_dim,
-        output_dim=config.embedding_dim,
-        dropout=config.dropout,
-    )
-
-def create_tcn(config: SimCLRConfig) -> nn.Module:
-    """Creates a tcn encoder"""
-    return TCN (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        dropout=config.dropout,
-    )
-
-def create_wavenet(config: SimCLRConfig) -> nn.Module:
-    """Creates a wavenet encoder"""
-    return WaveNet (
-        input_dim=config.input_dim,
-        output_dim=config.embedding_dim,
-        dropout=config.dropout,
-    )
-
-def main():
-    # Setup
+def train_simclr(config: SimCLRConfig, encoder_type: str = 'rcnn') -> Tuple[SimCLRModel, Dict, Dict]:
+    """Main training function for SimCLR."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
-    # Create data loaders
     train_loader, val_loader = prepare_dataset(DataConfig())
     
-    # Input dimension is the number of features
-    input_dim = 2080
+    encoder = create_encoder(config, encoder_type)
+    model = SimCLRModel(encoder=encoder, config=config).to(device)
+    trainer = SimCLRTrainer(model, config, device)
     
-    # Create configs
-    simclr_config = SimCLRConfig(
-        input_dim=input_dim,
-        embedding_dim=256,
-        projection_dim=128,
-        num_heads=4,
-        hidden_dim=256,
-        num_layers=4
-    )
-    
-    # Create encoder and model
-    encoder = create_wavenet(simclr_config)
-    model = SimCLRModel(
-        encoder=encoder,
-        config=simclr_config
-    ).to(device)
-    
-    # Create trainer
-    trainer = SimCLRTrainer(model, simclr_config, device)
-    
-    # Training loop
     print("\nStarting training...")
     best_val_acc = 0
     best_model_state = None
-    best_epoch = 0
-    best_train_acc = 0
     best_metrics = None
     
-    for epoch in range(simclr_config.num_epochs):
-        # Training
+    for epoch in range(config.num_epochs):
         train_loss, train_acc = trainer.train_epoch(train_loader)
+        val_acc, val_loss = trainer.evaluate_model(val_loader)
         
-        # Evaluation
-        train_acc, train_loss = trainer.evaluate_model(model, train_loader, device)
-        val_acc, val_loss = trainer.evaluate_model(model, val_loader, device)
-        
-        print(f"Epoch {epoch+1}/{simclr_config.num_epochs}")
+        print(f"Epoch {epoch+1}/{config.num_epochs}")
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
         print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
         
-        # Save best model based on validation accuracy
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            best_train_acc = train_acc
-            best_epoch = epoch
             best_model_state = {
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -466,18 +329,12 @@ def main():
             print(f"New best model saved! Validation accuracy: {val_acc:.2f}%")
         print("-" * 50)
     
-    # Load best model and do final evaluation
-    print(f"\nLoading best model from epoch {best_epoch+1}...")
-    model.load_state_dict(best_model_state['model_state_dict'])
-    
-    print("\nFinal Results (Best Model):")
-    print(f"Best Epoch: {best_epoch+1}")
-    print(f"Train Accuracy: {best_metrics['train_accuracy']:.2f}%")
-    print(f"Train Loss: {best_metrics['train_loss']:.4f}")
-    print(f"Validation Accuracy: {best_metrics['val_accuracy']:.2f}%")
-    print(f"Validation Loss: {best_metrics['val_loss']:.4f}")
+    print(f"\nFinal Results:")
+    for metric, value in best_metrics.items():
+        print(f"{metric}: {value:.4f}")
     
     return model, best_model_state, best_metrics
 
 if __name__ == "__main__":
-    best_model, best_state, best_metrics = main()
+    config = SimCLRConfig()
+    model, best_state, best_metrics = train_simclr(config)
