@@ -10,10 +10,19 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from sklearn.metrics import balanced_accuracy_score
 
-from transformer import Transformer
 from lstm import LSTM
+from transformer import Transformer
 from cnn import CNN
 from rcnn import RCNN
+from mamba import Mamba
+from kan import KAN
+from vae import VAE
+from MOE import MOE
+from dense import Dense
+from ode import ODE 
+from rwkv import RWKV
+from tcn import TCN
+from wavenet import WaveNet
 from util import prepare_dataset, DataConfig
 
 @dataclass
@@ -64,10 +73,10 @@ class SimCLRModel(nn.Module):
     
     def forward(self, x1: torch.Tensor, x2: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         # Reshape inputs for transformer: [batch_size, features] -> [batch_size, 1, features]
-        if len(x1.shape) == 2:
-            x1 = x1.unsqueeze(1)  # [B, F] -> [B, 1, F]
-        if x2 is not None and len(x2.shape) == 2:
-            x2 = x2.unsqueeze(1)  # [B, F] -> [B, 1, F]   
+        # if len(x1.shape) == 2:
+        #     x1 = x1.unsqueeze(1)  # [B, F] -> [B, 1, F]
+        # if x2 is not None and len(x2.shape) == 2:
+        #     x2 = x2.unsqueeze(1)  # [B, F] -> [B, 1, F]   
 
         # Get representations
         z1 = self.encoder(x1)
@@ -291,6 +300,101 @@ def create_rcnn(config: SimCLRConfig) -> nn.Module:
         dropout=config.dropout,
     )
 
+def create_lstm(config: SimCLRConfig) -> nn.Module:
+    """Creates an lstm encoder"""
+    return LSTM (
+        input_dim=config.input_dim,
+        hidden_dim=config.hidden_dim,
+        output_dim=config.embedding_dim,
+        num_layers=config.num_layers,
+        dropout=config.dropout,
+    )
+
+def create_mamba(config: SimCLRConfig) -> nn.Module:
+    """Creates a mamba encoder"""
+    return Mamba (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        d_state=config.hidden_dim,
+        num_layers=config.num_layers,
+        dropout=config.dropout,
+    )
+
+def create_kan(config: SimCLRConfig) -> nn.Module:
+    """Creates a kan encoder"""
+    return KAN (
+        input_dim=config.input_dim,
+        hidden_dim=config.hidden_dim,
+        output_dim=config.embedding_dim,
+        num_inner_functions=10,
+        dropout=config.dropout,
+        num_layers=config.num_layers,
+    )
+
+def create_vae(config: SimCLRConfig) -> nn.Module:
+    """Creates a vae encoder"""
+    return VAE (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        hidden_dim=config.hidden_dim,
+        latent_dim=config.hidden_dim,
+        dropout=config.dropout,
+    )
+
+def create_moe(config: SimCLRConfig) -> nn.Module:
+    """Creates a moe encoder"""
+    return MOE (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        num_heads=config.num_heads,
+        hidden_dim=config.hidden_dim,
+        num_layers=config.num_layers,
+        num_experts=4,
+        k=2,
+        dropout=config.dropout,
+    )
+
+def create_dense(config: SimCLRConfig) -> nn.Module:
+    """Creates a dense encoder"""
+    return Dense (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        dropout=config.dropout,
+    )
+
+def create_ode(config: SimCLRConfig) -> nn.Module:
+    """Creates a ode encoder"""
+    return ODE (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        dropout=config.dropout,
+    )
+
+def create_rwkv(config: SimCLRConfig) -> nn.Module:
+    """Creates a rwkv encoder"""
+    return RWKV (
+        input_dim=config.input_dim,
+        hidden_dim=config.hidden_dim,
+        output_dim=config.embedding_dim,
+        dropout=config.dropout,
+    )
+
+def create_tcn(config: SimCLRConfig) -> nn.Module:
+    """Creates a tcn encoder"""
+    return TCN (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        dropout=config.dropout,
+    )
+
+def create_wavenet(config: SimCLRConfig) -> nn.Module:
+    """Creates a wavenet encoder"""
+    return WaveNet (
+        input_dim=config.input_dim,
+        output_dim=config.embedding_dim,
+        dropout=config.dropout,
+    )
+
 def main():
     # Setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -313,7 +417,7 @@ def main():
     )
     
     # Create encoder and model
-    encoder = create_rcnn(simclr_config)
+    encoder = create_wavenet(simclr_config)
     model = SimCLRModel(
         encoder=encoder,
         config=simclr_config
