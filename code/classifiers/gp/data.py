@@ -23,9 +23,9 @@ def load_dataset(
     logger = logging.getLogger(__name__)
 
     # Path for university computers
-    # path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
+    path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS_data.xlsx"]
     # Path for home computer
-    path = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
+    # path = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
 
     path = os.path.join(*path)
 
@@ -78,6 +78,27 @@ def load_dataset(
                         else (1 if 'H' in x 
                         else (2 if 'M' in x
                         else None)))
+    elif dataset == "cross-species-hard":
+        # Mutli-label encodings for class labels (1 for Hoki, 2 for Mackeral, 3 for Cross-species)
+        # Cross-species contaminated samples contain 'HM' in their class label.
+        data = data[~data.iloc[:, 0].astype(str).str.contains('QC|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]    
+        y = data['m/z'].apply(lambda x:
+                          0 if 'HM 01' in x
+                    else (1 if 'HM 02' in x
+                    else (2 if 'HM 03' in x
+                    else (3 if 'HM 04' in x
+                    else (4 if 'HM 05' in x
+                    else (5 if 'HM 06' in x
+                    else (6 if 'HM 07' in x
+                    else (7 if 'HM 08' in x  
+                    else (8 if 'HM 09' in x
+                    else (9 if 'HM 10' in x
+                    else (10 if 'HM 11' in x
+                    else (11 if 'HM 12' in x
+                    else (12 if 'HM 13' in x
+                    else (13 if 'HM 14' in x
+                    else (14 if 'HM 15' in x
+                    else None )))))))))))))))
     elif dataset == "instance-recognition":
         data = data[~data.iloc[:, 0].astype(str).str.contains('QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads', case=False, na=False)]    
         X = data.iloc[:, 1:].to_numpy() 

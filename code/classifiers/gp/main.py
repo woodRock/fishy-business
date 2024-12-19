@@ -68,7 +68,7 @@ def main():
     n_features = 1023
     if args.dataset == "instance-recognition":
         n_features = 2046
-    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "instance-recognition": 2}
+    n_classes_per_dataset = {"species": 2, "part": 6, "oil": 7, "cross-species": 3, "cross-species-hard": 15, "instance-recognition": 2}
 
     if args.dataset not in n_classes_per_dataset:
         raise ValueError(f"Invalid dataset: {args.dataset} not in {n_classes_per_dataset.keys()}")
@@ -133,7 +133,8 @@ def main():
     # c - number of classes, r - construction ratio, m - total number of constructed features.
     # m = r * c = 2 ratio * 4 classes = 8 features
 
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    k = 3 if args.dataset == "part" or args.dataset == "cross-species-hard" else 5
+    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
     
     for train_index, test_index in skf.split(X, y):
         X_train, X_test = X[train_index], X[test_index]

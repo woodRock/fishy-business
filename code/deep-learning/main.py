@@ -99,6 +99,7 @@ class ModelTrainer:
         "part": 7,
         "oil": 7,
         "cross-species": 3,
+        "cross-species-hard": 15,
         "instance-recognition": 2,
         "instance-recognition-hard": 24,
     }
@@ -233,7 +234,7 @@ class ModelTrainer:
         start_time = time.time()
 
         # Note: not enough of each class for k=5 for cross-fold validation.
-        n_splits = 3 if self.config.dataset == "part" else 5
+        n_splits = 3 if self.config.dataset == "part" or self.config.dataset == "cross-species-hard" else 5
 
         # Train the model with cross-validation.
         model = train_model(
