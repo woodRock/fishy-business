@@ -269,7 +269,7 @@ class ModelExplainer:
 
     def explain(self, instance: torch.Tensor, explainer: LimeTabularExplainer, 
                 output_path: Path) -> None:
-        """Generate and save LIME explanation."""
+        """Generate and save LIME explanation with improved readability."""
         try:
             # Generate LIME explanation
             normalized_instance = self.normalize_features(instance)
@@ -280,22 +280,34 @@ class ModelExplainer:
                 num_samples=self.config.num_samples
             )
 
-            # Create figure and customize appearance
+            # First get the figure from LIME
             fig = explanation.as_pyplot_figure()
-            fig.set_size_inches(10, 8)
             
-            # Get current axes and customize appearance
+            # Now modify the existing figure
             ax = plt.gca()
             
-            # Set grey background only for plot area
-            ax.set_facecolor('#E6E6E6')  # Light grey background
-            fig.patch.set_facecolor('white')  # Keep surrounding area white
+            # Adjust figure size
+            fig.set_size_inches(8, 6)
             
-            # Add white grid lines
+            # Increase y-axis tick label size
+            ax.tick_params(axis='y', labelsize=12)
+            
+            # Make bars thinner
+            for patch in ax.patches:
+                current_height = patch.get_height()
+                new_height = current_height * 0.7
+                current_y = patch.get_y()
+                adjustment = (current_height - new_height) / 2
+                patch.set_height(new_height)
+                patch.set_y(current_y + adjustment)
+            
+            # Style customization
+            ax.set_facecolor('#E6E6E6')
+            fig.patch.set_facecolor('white')
             ax.grid(True, color='white', linestyle='-', linewidth=1.0, alpha=1.0, zorder=0)
-            ax.set_axisbelow(True)  # Ensure grid stays behind the bars
+            ax.set_axisbelow(True)
             
-            # Save figure with high quality
+            # Adjust layout and save
             plt.tight_layout()
             fig.savefig(output_path, dpi=300, bbox_inches='tight')
             plt.close(fig)
@@ -372,6 +384,9 @@ if __name__ == "__main__":
     
     train_config = TrainConfig()
     explainer_config = ExplainerConfig()
+
+    # "species": ["Hoki", "Mackerel"],
+    # "part": ["Fillet", "Heads", "Livers", "Skins", "Guts", "Gonads", "Frames"],
     
     explain_predictions(
         dataset_name="part",
@@ -379,6 +394,6 @@ if __name__ == "__main__":
         model_config=model_config,
         train_config=train_config,
         explainer_config=explainer_config,
-        instance_name="gonads",
-        target_label=[0, 0, 0, 0, 0, 1, 0]
+        instance_name="frames",
+        target_label=[0,0,0,0,0,0,1]
     )

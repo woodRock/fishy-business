@@ -28,6 +28,7 @@ class DatasetType(Enum):
     OIL_SIMPLE = auto()
     OIL_REGRESSION = auto()
     CROSS_SPECIES = auto()
+    CROSS_SPECIES_HARD = auto()
     INSTANCE_RECOGNITION = auto()
     INSTANCE_RECOGNITION_HARD = auto()
 
@@ -41,6 +42,7 @@ class DatasetType(Enum):
             "oil_simple": cls.OIL_SIMPLE,
             "oil_regression": cls.OIL_REGRESSION,
             "cross-species": cls.CROSS_SPECIES,
+            "cross-species-hard": cls.CROSS_SPECIES_HARD,
             "instance-recognition": cls.INSTANCE_RECOGNITION,
             "instance-recognition-hard": cls.INSTANCE_RECOGNITION_HARD,
         }
@@ -370,6 +372,19 @@ class DataProcessor:
                 )
             ]
 
+        if self.dataset_type in [
+            DatasetType.CROSS_SPECIES_HARD
+        ]:
+            filtered = filtered[
+                ~filtered.iloc[:, 0]
+                .astype(str)
+                .str.contains(
+                    "^H |^M |QC|MO|fillet|frames|gonads|livers|skins|guts|frame|heads",
+                    case=False,
+                    na=False,
+                )
+            ]
+
         logger.info(f"Filtered data shape: {filtered.shape}")
         return filtered
 
@@ -385,6 +400,7 @@ class DataProcessor:
         if self.dataset_type in [
             DatasetType.INSTANCE_RECOGNITION,
             DatasetType.INSTANCE_RECOGNITION_HARD,
+            DatasetType.CROSS_SPECIES_HARD,
         ]:
             X = data.iloc[:, 1:].to_numpy()
             y = data.iloc[:, 0].to_numpy()

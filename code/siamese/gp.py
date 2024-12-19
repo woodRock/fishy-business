@@ -47,7 +47,7 @@ class DataPoint(NamedTuple):
     """Single data point for contrastive learning."""
     anchor: np.ndarray
     compare: np.ndarray
-    label: float
+    label: np.ndarray
 
 @dataclass
 class GPConfig:
@@ -375,6 +375,9 @@ class ContrastiveGP:
         
         train_preds, train_labels = self.get_predictions(best_ind, train_data)
         val_preds, val_labels = self.get_predictions(best_ind, val_data)
+
+        train_labels = torch.argmax(torch.tensor(train_labels), dim=1)
+        val_labels = torch.argmax(torch.tensor(val_labels), dim=1)
         
         train_acc = balanced_accuracy_score(train_labels, train_preds)
         val_acc = balanced_accuracy_score(val_labels, val_preds)
@@ -436,26 +439,23 @@ class ContrastiveGP:
         out1 = self.batch_get_outputs_static(trees, anchors, self.ops)
         out2 = self.batch_get_outputs_static(trees, compares, self.ops)
         
-        # Add L2 normalization
-        out1 = F.normalize(out1, p=2, dim=1)
-        out2 = F.normalize(out2, p=2, dim=1)
+        z1 = F.normalize(out1 + 1e-8, dim=1)
+        z2 = F.normalize(out2 + 1e-8, dim=1)
         
-        distances = F.pairwise_distance(out1, out2)
-        predictions = (distances < self.config.distance_threshold).int().tolist()
+        similarities = F.cosine_similarity(z1, z2)
+        label_pairs = torch.argmax(labels, dim=1)
         
-        # Improved contrastive loss with temperature scaling
-        temperature = 0.1
-        similar_loss = labels * torch.pow(distances, 2)
-        dissimilar_loss = (1 - labels) * torch.pow(
-            torch.clamp(self.config.margin - distances, min=0.0), 2)
+        # Scale similarities more aggressively
+        probs = torch.clamp((similarities + 1) / 2, min=1e-6, max=1-1e-6)
         
-        # Add triplet-style loss term
-        margin_violation = torch.clamp(distances - self.config.margin, min=0.0)
-        triplet_loss = labels * margin_violation + (1 - labels) * torch.exp(-distances/temperature)
+        # Remove label smoothing to allow perfect classification
+        loss = F.binary_cross_entropy(probs, label_pairs.float())
+
+        # Simple threshold at mean
+        threshold = torch.tensor(torch.mean(similarities), dtype=torch.float32)
+        predictions = (similarities > threshold)
         
-        batch_loss = (similar_loss + dissimilar_loss + 0.5 * triplet_loss).mean().item()
-        
-        return batch_loss, predictions
+        return loss, predictions
 
     @staticmethod
     def evaluate_static(args: Tuple[List[gp.PrimitiveTree], List[DataPoint]]) -> Tuple[float]:
@@ -464,70 +464,37 @@ class ContrastiveGP:
         ops = ContrastiveGP._shared_ops
         ops.set_training(True)
         
-        try:
-            trees = [gp.compile(expr, ContrastiveGP._shared_pset) for expr in individual]
-            total_loss = 0.0
-            predictions = []
-            labels = []
+        # try:
+        trees = [gp.compile(expr, ContrastiveGP._shared_pset) for expr in individual]
+        total_loss = 0.0
+        predictions = []
+        labels = []
+        
+        batch_size = ContrastiveGP._shared_config.batch_size
+        for i in range(0, len(data), batch_size):
+            batch = data[i:i + batch_size]
+            batch_anchors = np.stack([p.anchor for p in batch])
+            batch_compares = np.stack([p.compare for p in batch])
+            batch_labels = torch.tensor([p.label for p in batch])
             
-            batch_size = ContrastiveGP._shared_config.batch_size
-            for i in range(0, len(data), batch_size):
-                batch = data[i:i + batch_size]
-                batch_anchors = np.stack([p.anchor for p in batch])
-                batch_compares = np.stack([p.compare for p in batch])
-                batch_labels = torch.tensor([p.label for p in batch])
-                
-                out1 = ContrastiveGP.batch_get_outputs_static(trees, batch_anchors, ops)
-                out2 = ContrastiveGP.batch_get_outputs_static(trees, batch_compares, ops)
-                
-                # Add L2 normalization
-                out1 = F.normalize(out1, p=2, dim=1)
-                out2 = F.normalize(out2, p=2, dim=1)
-                
-                distances = F.pairwise_distance(out1, out2)
-                threshold = ContrastiveGP._shared_config.distance_threshold
-                batch_preds = (distances < threshold).int().tolist()
-                predictions.extend(batch_preds)
-                labels.extend(p.label for p in batch)
-                
-                # Improved loss calculation
-                margin = ContrastiveGP._shared_config.margin
-                similar_loss = batch_labels * torch.pow(distances, 2)
-                dissimilar_loss = (1 - batch_labels) * torch.pow(
-                    torch.clamp(margin - distances, min=0.0), 2)
-                    
-                # Add diversity penalty
-                unique_outputs = len(set(batch_preds))
-                diversity_bonus = unique_outputs / len(batch_preds)
-                
-                batch_loss = (similar_loss + dissimilar_loss).mean().item()
-                total_loss += batch_loss * len(batch_labels)
+            out1 = ContrastiveGP.batch_get_outputs_static(trees, batch_anchors, ops)
+            out2 = ContrastiveGP.batch_get_outputs_static(trees, batch_compares, ops)
             
-            avg_loss = total_loss / len(data)
-            accuracy = balanced_accuracy_score(labels, predictions)
+            z1 = F.normalize(out1 + 1e-8, dim=1)
+            z2 = F.normalize(out2 + 1e-8, dim=1)
             
-            # Calculate prediction balance and tree complexity
-            pred_ratio = sum(predictions) / len(predictions)
-            balance_penalty = abs(0.5 - pred_ratio)
-            tree_complexity = sum(len(tree) for tree in individual)
+            similarities = F.cosine_similarity(z1, z2)
+            label_pairs = torch.argmax(batch_labels, dim=1)
             
-            # Improved fitness calculation
-            config = ContrastiveGP._shared_config
-            fitness = (
-                config.fitness_alpha * (1 - accuracy) +
-                config.loss_alpha * avg_loss +
-                config.balance_alpha * balance_penalty +
-                config.parsimony_coeff * tree_complexity -
-                0.1 * diversity_bonus  # Reward diversity
-            )
+            # Scale similarities more aggressively
+            probs = torch.clamp((similarities + 1) / 2, min=1e-6, max=1-1e-6)
             
-            return (float(fitness),)
-            
-        except Exception as e:
-            print(f"Error in evaluate_static: {str(e)}")
-            return (float('inf'),)
-        finally:
-            ops.set_training(False)
+            # Remove label smoothing to allow perfect classification
+            loss = F.binary_cross_entropy(probs, label_pairs.float())
+            total_loss += loss * len(batch_labels)
+        
+        avg_loss = total_loss / len(data)
+        return (float(avg_loss),)
             
     @staticmethod
     def batch_get_outputs_static(trees: List[Callable], 
@@ -654,7 +621,7 @@ class ContrastiveGP:
 def prepare_data(loader: torch.utils.data.DataLoader) -> List[DataPoint]:
     """Convert data loader to list of DataPoints."""
     return [
-        DataPoint(x1[i].numpy(), x2[i].numpy(), y[i].item())
+        DataPoint(x1[i].numpy(), x2[i].numpy(), y[i].numpy())
         for x1, x2, y in loader
         for i in range(len(y))
     ]
