@@ -501,8 +501,8 @@ def preprocess_dataset(
     try:
         # Load and process data
         logger.info(f"Loading dataset: {dataset}")
-        file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
-        # file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
+        # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
+        file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
         # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS_data.xlsx"
         data = processor.load_data(file_path)
 
