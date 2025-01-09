@@ -1,12 +1,12 @@
-2024-12-19 15:55:22,102 - INFO - Starting training pipeline
-2024-12-19 15:55:22,102 - INFO - Starting main training phase
-2024-12-19 15:55:22,103 - INFO - Loading dataset: cross-species-hard
-2024-12-19 15:55:22,103 - INFO - Loading data from: /vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx
-2024-12-19 15:55:32,013 - INFO - Loaded data with shape: (306, 2081)
-2024-12-19 15:55:32,017 - INFO - Filtered data shape: (45, 2081)
-2024-12-19 15:55:32,017 - INFO - Dataset shape after filtering: (45, 2081)
-2024-12-19 15:55:32,018 - INFO - Features shape: (45, 2080), Labels shape: (45, 15)
-2024-12-19 15:55:32,516 - INFO - Created model: Transformer(
+2025-01-09 19:15:56,324 - INFO - Starting training pipeline
+2025-01-09 19:15:56,325 - INFO - Starting main training phase
+2025-01-09 19:15:56,325 - INFO - Loading dataset: part
+2025-01-09 19:15:56,325 - INFO - Loading data from: /vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx
+2025-01-09 19:16:06,334 - INFO - Loaded data with shape: (306, 2081)
+2025-01-09 19:16:06,340 - INFO - Filtered data shape: (36, 2081)
+2025-01-09 19:16:06,340 - INFO - Dataset shape after filtering: (36, 2081)
+2025-01-09 19:16:06,342 - INFO - Features shape: (36, 2080), Labels shape: (36, 7)
+2025-01-09 19:16:06,707 - INFO - Created model: TestTimeTransformer(
   (attention_layers): ModuleList(
     (0-3): 4 x MultiHeadAttention(
       (qkv): Linear(in_features=2080, out_features=6240, bias=True)
@@ -22,837 +22,959 @@
   (layer_norm1): LayerNorm((2080,), eps=1e-05, elementwise_affine=True)
   (layer_norm2): LayerNorm((2080,), eps=1e-05, elementwise_affine=True)
   (dropout): Dropout(p=0.2, inplace=False)
-  (fc_out): Linear(in_features=2080, out_features=15, bias=True)
+  (fc_out): Linear(in_features=2080, out_features=7, bias=True)
+  (process_reward_model): EnhancedPRM(
+    (input_proj): Linear(in_features=7, out_features=256, bias=True)
+    (dropout): Dropout(p=0.2, inplace=False)
+    (activation): GELU(approximate='none')
+    (blocks): ModuleList(
+      (0-2): 3 x PRMBlock(
+        (layer1): Linear(in_features=256, out_features=256, bias=True)
+        (layer2): Linear(in_features=256, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (activation): GELU(approximate='none')
+        (dropout): Dropout(p=0.2, inplace=False)
+      )
+    )
+    (attention): MultiheadAttention(
+      (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+    )
+    (norm): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+    (out_proj1): Linear(in_features=256, out_features=128, bias=True)
+    (out_proj2): Linear(in_features=128, out_features=64, bias=True)
+    (out_proj3): Linear(in_features=64, out_features=1, bias=True)
+  )
+  (refinement_network): Sequential(
+    (0): Linear(in_features=14, out_features=128, bias=True)
+    (1): GELU(approximate='none')
+    (2): Linear(in_features=128, out_features=7, bias=True)
+  )
 )
-2024-12-19 15:55:32,821 - INFO - Starting k-fold cross validation training
-2024-12-19 15:55:32,827 - INFO - 
+2025-01-09 19:16:07,170 - INFO - Starting k-fold cross validation training
+2025-01-09 19:16:07,179 - INFO - 
 Starting Fold 1/3
-2024-12-19 15:55:33,045 - INFO - Epoch 1: New best validation accuracy: 0.2000
-2024-12-19 15:55:33,292 - INFO - Epoch 5
-2024-12-19 15:55:33,292 - INFO - Train Loss: 8.2959
-2024-12-19 15:55:33,292 - INFO - Val Loss: 32.3234
-2024-12-19 15:55:33,292 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:33,292 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:33,592 - INFO - Epoch 10
-2024-12-19 15:55:33,592 - INFO - Train Loss: 9.1689
-2024-12-19 15:55:33,592 - INFO - Val Loss: 68.1909
-2024-12-19 15:55:33,592 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:33,592 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:33,649 - INFO - Early stopping triggered after 11 epochs
-2024-12-19 15:55:33,649 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:33,711 - INFO - Early stopping triggered after 12 epochs
-2024-12-19 15:55:33,711 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:33,767 - INFO - Early stopping triggered after 13 epochs
-2024-12-19 15:55:33,768 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:33,830 - INFO - Early stopping triggered after 14 epochs
-2024-12-19 15:55:33,830 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:33,887 - INFO - Early stopping triggered after 15 epochs
-2024-12-19 15:55:33,887 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:33,887 - INFO - Epoch 15
-2024-12-19 15:55:33,887 - INFO - Train Loss: 7.2566
-2024-12-19 15:55:33,888 - INFO - Val Loss: 44.7303
-2024-12-19 15:55:33,888 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:33,888 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:33,950 - INFO - Early stopping triggered after 16 epochs
-2024-12-19 15:55:33,950 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,010 - INFO - Early stopping triggered after 17 epochs
-2024-12-19 15:55:34,010 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,072 - INFO - Early stopping triggered after 18 epochs
-2024-12-19 15:55:34,072 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,132 - INFO - Early stopping triggered after 19 epochs
-2024-12-19 15:55:34,132 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,191 - INFO - Early stopping triggered after 20 epochs
-2024-12-19 15:55:34,192 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,192 - INFO - Epoch 20
-2024-12-19 15:55:34,192 - INFO - Train Loss: 7.2269
-2024-12-19 15:55:34,192 - INFO - Val Loss: 38.9939
-2024-12-19 15:55:34,192 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:34,192 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:34,253 - INFO - Early stopping triggered after 21 epochs
-2024-12-19 15:55:34,253 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,310 - INFO - Early stopping triggered after 22 epochs
-2024-12-19 15:55:34,310 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,373 - INFO - Early stopping triggered after 23 epochs
-2024-12-19 15:55:34,373 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,429 - INFO - Early stopping triggered after 24 epochs
-2024-12-19 15:55:34,429 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,491 - INFO - Early stopping triggered after 25 epochs
-2024-12-19 15:55:34,491 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,491 - INFO - Epoch 25
-2024-12-19 15:55:34,491 - INFO - Train Loss: 5.8891
-2024-12-19 15:55:34,491 - INFO - Val Loss: 28.4093
-2024-12-19 15:55:34,491 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:34,491 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:34,549 - INFO - Early stopping triggered after 26 epochs
-2024-12-19 15:55:34,549 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,607 - INFO - Early stopping triggered after 27 epochs
-2024-12-19 15:55:34,607 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,669 - INFO - Early stopping triggered after 28 epochs
-2024-12-19 15:55:34,669 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,726 - INFO - Early stopping triggered after 29 epochs
-2024-12-19 15:55:34,726 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,787 - INFO - Early stopping triggered after 30 epochs
-2024-12-19 15:55:34,788 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,788 - INFO - Epoch 30
-2024-12-19 15:55:34,788 - INFO - Train Loss: 5.4365
-2024-12-19 15:55:34,788 - INFO - Val Loss: 24.0917
-2024-12-19 15:55:34,788 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:34,788 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:34,845 - INFO - Early stopping triggered after 31 epochs
-2024-12-19 15:55:34,845 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,907 - INFO - Early stopping triggered after 32 epochs
-2024-12-19 15:55:34,907 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:34,965 - INFO - Early stopping triggered after 33 epochs
-2024-12-19 15:55:34,965 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,021 - INFO - Early stopping triggered after 34 epochs
-2024-12-19 15:55:35,021 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,083 - INFO - Early stopping triggered after 35 epochs
-2024-12-19 15:55:35,083 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,083 - INFO - Epoch 35
-2024-12-19 15:55:35,083 - INFO - Train Loss: 5.2853
-2024-12-19 15:55:35,083 - INFO - Val Loss: 23.9727
-2024-12-19 15:55:35,083 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:35,083 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:35,139 - INFO - Early stopping triggered after 36 epochs
-2024-12-19 15:55:35,140 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,201 - INFO - Early stopping triggered after 37 epochs
-2024-12-19 15:55:35,201 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,259 - INFO - Early stopping triggered after 38 epochs
-2024-12-19 15:55:35,259 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,315 - INFO - Early stopping triggered after 39 epochs
-2024-12-19 15:55:35,315 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,377 - INFO - Early stopping triggered after 40 epochs
-2024-12-19 15:55:35,377 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,377 - INFO - Epoch 40
-2024-12-19 15:55:35,377 - INFO - Train Loss: 4.1100
-2024-12-19 15:55:35,378 - INFO - Val Loss: 20.4630
-2024-12-19 15:55:35,378 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:35,378 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:35,434 - INFO - Early stopping triggered after 41 epochs
-2024-12-19 15:55:35,434 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,495 - INFO - Early stopping triggered after 42 epochs
-2024-12-19 15:55:35,495 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,553 - INFO - Early stopping triggered after 43 epochs
-2024-12-19 15:55:35,554 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,611 - INFO - Early stopping triggered after 44 epochs
-2024-12-19 15:55:35,611 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,672 - INFO - Early stopping triggered after 45 epochs
-2024-12-19 15:55:35,672 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,672 - INFO - Epoch 45
-2024-12-19 15:55:35,672 - INFO - Train Loss: 3.3280
-2024-12-19 15:55:35,672 - INFO - Val Loss: 20.3090
-2024-12-19 15:55:35,672 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:35,672 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:35,728 - INFO - Early stopping triggered after 46 epochs
-2024-12-19 15:55:35,728 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,789 - INFO - Early stopping triggered after 47 epochs
-2024-12-19 15:55:35,789 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,847 - INFO - Early stopping triggered after 48 epochs
-2024-12-19 15:55:35,847 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,904 - INFO - Early stopping triggered after 49 epochs
-2024-12-19 15:55:35,904 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,965 - INFO - Early stopping triggered after 50 epochs
-2024-12-19 15:55:35,965 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:35,965 - INFO - Epoch 50
-2024-12-19 15:55:35,966 - INFO - Train Loss: 4.5865
-2024-12-19 15:55:35,966 - INFO - Val Loss: 15.8493
-2024-12-19 15:55:35,966 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:35,966 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:36,022 - INFO - Early stopping triggered after 51 epochs
-2024-12-19 15:55:36,022 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,083 - INFO - Early stopping triggered after 52 epochs
-2024-12-19 15:55:36,083 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,141 - INFO - Early stopping triggered after 53 epochs
-2024-12-19 15:55:36,141 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,199 - INFO - Early stopping triggered after 54 epochs
-2024-12-19 15:55:36,199 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,260 - INFO - Early stopping triggered after 55 epochs
-2024-12-19 15:55:36,260 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,260 - INFO - Epoch 55
-2024-12-19 15:55:36,260 - INFO - Train Loss: 3.7548
-2024-12-19 15:55:36,260 - INFO - Val Loss: 18.7687
-2024-12-19 15:55:36,260 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:36,260 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:36,315 - INFO - Early stopping triggered after 56 epochs
-2024-12-19 15:55:36,315 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,377 - INFO - Early stopping triggered after 57 epochs
-2024-12-19 15:55:36,377 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,435 - INFO - Early stopping triggered after 58 epochs
-2024-12-19 15:55:36,435 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,491 - INFO - Early stopping triggered after 59 epochs
-2024-12-19 15:55:36,491 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,553 - INFO - Early stopping triggered after 60 epochs
-2024-12-19 15:55:36,553 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,553 - INFO - Epoch 60
-2024-12-19 15:55:36,553 - INFO - Train Loss: 3.3228
-2024-12-19 15:55:36,553 - INFO - Val Loss: 15.5438
-2024-12-19 15:55:36,553 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:36,553 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:36,610 - INFO - Early stopping triggered after 61 epochs
-2024-12-19 15:55:36,610 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,671 - INFO - Early stopping triggered after 62 epochs
-2024-12-19 15:55:36,671 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,729 - INFO - Early stopping triggered after 63 epochs
-2024-12-19 15:55:36,729 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,785 - INFO - Early stopping triggered after 64 epochs
-2024-12-19 15:55:36,786 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,849 - INFO - Early stopping triggered after 65 epochs
-2024-12-19 15:55:36,849 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,849 - INFO - Epoch 65
-2024-12-19 15:55:36,849 - INFO - Train Loss: 3.3010
-2024-12-19 15:55:36,849 - INFO - Val Loss: 15.3203
-2024-12-19 15:55:36,849 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:36,849 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:36,905 - INFO - Early stopping triggered after 66 epochs
-2024-12-19 15:55:36,905 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:36,970 - INFO - Early stopping triggered after 67 epochs
-2024-12-19 15:55:36,971 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,037 - INFO - Early stopping triggered after 68 epochs
-2024-12-19 15:55:37,037 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,099 - INFO - Early stopping triggered after 69 epochs
-2024-12-19 15:55:37,099 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,156 - INFO - Early stopping triggered after 70 epochs
-2024-12-19 15:55:37,156 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,156 - INFO - Epoch 70
-2024-12-19 15:55:37,156 - INFO - Train Loss: 2.3787
-2024-12-19 15:55:37,156 - INFO - Val Loss: 12.8651
-2024-12-19 15:55:37,156 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:37,156 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:37,220 - INFO - Early stopping triggered after 71 epochs
-2024-12-19 15:55:37,220 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,276 - INFO - Early stopping triggered after 72 epochs
-2024-12-19 15:55:37,276 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,338 - INFO - Early stopping triggered after 73 epochs
-2024-12-19 15:55:37,338 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,395 - INFO - Early stopping triggered after 74 epochs
-2024-12-19 15:55:37,395 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,456 - INFO - Early stopping triggered after 75 epochs
-2024-12-19 15:55:37,456 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,456 - INFO - Epoch 75
-2024-12-19 15:55:37,456 - INFO - Train Loss: 2.3411
-2024-12-19 15:55:37,456 - INFO - Val Loss: 10.3979
-2024-12-19 15:55:37,456 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:37,456 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:37,515 - INFO - Early stopping triggered after 76 epochs
-2024-12-19 15:55:37,515 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,571 - INFO - Early stopping triggered after 77 epochs
-2024-12-19 15:55:37,571 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,634 - INFO - Early stopping triggered after 78 epochs
-2024-12-19 15:55:37,634 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,690 - INFO - Early stopping triggered after 79 epochs
-2024-12-19 15:55:37,690 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,752 - INFO - Early stopping triggered after 80 epochs
-2024-12-19 15:55:37,752 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,752 - INFO - Epoch 80
-2024-12-19 15:55:37,752 - INFO - Train Loss: 1.9699
-2024-12-19 15:55:37,752 - INFO - Val Loss: 10.8921
-2024-12-19 15:55:37,752 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:37,752 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:37,810 - INFO - Early stopping triggered after 81 epochs
-2024-12-19 15:55:37,810 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,867 - INFO - Early stopping triggered after 82 epochs
-2024-12-19 15:55:37,867 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,928 - INFO - Early stopping triggered after 83 epochs
-2024-12-19 15:55:37,928 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:37,984 - INFO - Early stopping triggered after 84 epochs
-2024-12-19 15:55:37,984 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,044 - INFO - Early stopping triggered after 85 epochs
-2024-12-19 15:55:38,045 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,045 - INFO - Epoch 85
-2024-12-19 15:55:38,045 - INFO - Train Loss: 1.8681
-2024-12-19 15:55:38,045 - INFO - Val Loss: 14.0439
-2024-12-19 15:55:38,045 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:38,045 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:38,104 - INFO - Early stopping triggered after 86 epochs
-2024-12-19 15:55:38,104 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,161 - INFO - Early stopping triggered after 87 epochs
-2024-12-19 15:55:38,161 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,223 - INFO - Early stopping triggered after 88 epochs
-2024-12-19 15:55:38,223 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,278 - INFO - Early stopping triggered after 89 epochs
-2024-12-19 15:55:38,278 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,340 - INFO - Early stopping triggered after 90 epochs
-2024-12-19 15:55:38,340 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,340 - INFO - Epoch 90
-2024-12-19 15:55:38,340 - INFO - Train Loss: 1.7115
-2024-12-19 15:55:38,340 - INFO - Val Loss: 10.8303
-2024-12-19 15:55:38,340 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:38,340 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:38,398 - INFO - Early stopping triggered after 91 epochs
-2024-12-19 15:55:38,398 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,454 - INFO - Early stopping triggered after 92 epochs
-2024-12-19 15:55:38,454 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,516 - INFO - Early stopping triggered after 93 epochs
-2024-12-19 15:55:38,516 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,573 - INFO - Early stopping triggered after 94 epochs
-2024-12-19 15:55:38,573 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,634 - INFO - Early stopping triggered after 95 epochs
-2024-12-19 15:55:38,634 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,634 - INFO - Epoch 95
-2024-12-19 15:55:38,634 - INFO - Train Loss: 1.6441
-2024-12-19 15:55:38,634 - INFO - Val Loss: 8.3280
-2024-12-19 15:55:38,634 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:38,634 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:38,693 - INFO - Early stopping triggered after 96 epochs
-2024-12-19 15:55:38,693 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,749 - INFO - Early stopping triggered after 97 epochs
-2024-12-19 15:55:38,749 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,811 - INFO - Early stopping triggered after 98 epochs
-2024-12-19 15:55:38,811 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,867 - INFO - Early stopping triggered after 99 epochs
-2024-12-19 15:55:38,868 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,929 - INFO - Early stopping triggered after 100 epochs
-2024-12-19 15:55:38,929 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:38,929 - INFO - Epoch 100
-2024-12-19 15:55:38,929 - INFO - Train Loss: 1.4954
-2024-12-19 15:55:38,929 - INFO - Val Loss: 8.1863
-2024-12-19 15:55:38,929 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:38,929 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:38,931 - INFO - 
-New best overall accuracy: 0.2000 (Fold 1)
-2024-12-19 15:55:38,931 - INFO - 
+2025-01-09 19:16:07,359 - INFO - Epoch 1: New best validation accuracy: 0.5714
+2025-01-09 19:16:07,507 - INFO - Epoch 5
+2025-01-09 19:16:07,507 - INFO - Train Loss: 13.4127
+2025-01-09 19:16:07,508 - INFO - Val Loss: 13.4650
+2025-01-09 19:16:07,508 - INFO - Current Val Accuracy: 0.2143
+2025-01-09 19:16:07,508 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:07,703 - INFO - Epoch 10
+2025-01-09 19:16:07,703 - INFO - Train Loss: 11.9302
+2025-01-09 19:16:07,703 - INFO - Val Loss: 20.5588
+2025-01-09 19:16:07,704 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:07,704 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:07,743 - INFO - Early stopping triggered after 11 epochs
+2025-01-09 19:16:07,743 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:07,782 - INFO - Early stopping triggered after 12 epochs
+2025-01-09 19:16:07,782 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:07,821 - INFO - Early stopping triggered after 13 epochs
+2025-01-09 19:16:07,821 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:07,860 - INFO - Early stopping triggered after 14 epochs
+2025-01-09 19:16:07,860 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:07,899 - INFO - Early stopping triggered after 15 epochs
+2025-01-09 19:16:07,899 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:07,900 - INFO - Epoch 15
+2025-01-09 19:16:07,900 - INFO - Train Loss: 9.0532
+2025-01-09 19:16:07,900 - INFO - Val Loss: 24.9181
+2025-01-09 19:16:07,900 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:07,900 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:07,939 - INFO - Early stopping triggered after 16 epochs
+2025-01-09 19:16:07,939 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:07,978 - INFO - Early stopping triggered after 17 epochs
+2025-01-09 19:16:07,978 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,017 - INFO - Early stopping triggered after 18 epochs
+2025-01-09 19:16:08,017 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,056 - INFO - Early stopping triggered after 19 epochs
+2025-01-09 19:16:08,056 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,095 - INFO - Early stopping triggered after 20 epochs
+2025-01-09 19:16:08,095 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,095 - INFO - Epoch 20
+2025-01-09 19:16:08,095 - INFO - Train Loss: 7.9383
+2025-01-09 19:16:08,095 - INFO - Val Loss: 27.6984
+2025-01-09 19:16:08,095 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:08,095 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:08,134 - INFO - Early stopping triggered after 21 epochs
+2025-01-09 19:16:08,134 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,173 - INFO - Early stopping triggered after 22 epochs
+2025-01-09 19:16:08,173 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,212 - INFO - Early stopping triggered after 23 epochs
+2025-01-09 19:16:08,212 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,251 - INFO - Early stopping triggered after 24 epochs
+2025-01-09 19:16:08,251 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,290 - INFO - Early stopping triggered after 25 epochs
+2025-01-09 19:16:08,290 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,290 - INFO - Epoch 25
+2025-01-09 19:16:08,290 - INFO - Train Loss: 7.4069
+2025-01-09 19:16:08,290 - INFO - Val Loss: 45.5746
+2025-01-09 19:16:08,290 - INFO - Current Val Accuracy: 0.2143
+2025-01-09 19:16:08,290 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:08,329 - INFO - Early stopping triggered after 26 epochs
+2025-01-09 19:16:08,329 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,368 - INFO - Early stopping triggered after 27 epochs
+2025-01-09 19:16:08,368 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,406 - INFO - Early stopping triggered after 28 epochs
+2025-01-09 19:16:08,407 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,445 - INFO - Early stopping triggered after 29 epochs
+2025-01-09 19:16:08,446 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,484 - INFO - Early stopping triggered after 30 epochs
+2025-01-09 19:16:08,484 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,484 - INFO - Epoch 30
+2025-01-09 19:16:08,484 - INFO - Train Loss: 4.1182
+2025-01-09 19:16:08,484 - INFO - Val Loss: 23.4375
+2025-01-09 19:16:08,484 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:08,484 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:08,523 - INFO - Early stopping triggered after 31 epochs
+2025-01-09 19:16:08,523 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,562 - INFO - Early stopping triggered after 32 epochs
+2025-01-09 19:16:08,562 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,601 - INFO - Early stopping triggered after 33 epochs
+2025-01-09 19:16:08,601 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,640 - INFO - Early stopping triggered after 34 epochs
+2025-01-09 19:16:08,640 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,679 - INFO - Early stopping triggered after 35 epochs
+2025-01-09 19:16:08,679 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,679 - INFO - Epoch 35
+2025-01-09 19:16:08,679 - INFO - Train Loss: 4.3349
+2025-01-09 19:16:08,679 - INFO - Val Loss: 14.5358
+2025-01-09 19:16:08,679 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:08,679 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:08,718 - INFO - Early stopping triggered after 36 epochs
+2025-01-09 19:16:08,718 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,757 - INFO - Early stopping triggered after 37 epochs
+2025-01-09 19:16:08,757 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,796 - INFO - Early stopping triggered after 38 epochs
+2025-01-09 19:16:08,796 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,835 - INFO - Early stopping triggered after 39 epochs
+2025-01-09 19:16:08,835 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,873 - INFO - Early stopping triggered after 40 epochs
+2025-01-09 19:16:08,873 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,873 - INFO - Epoch 40
+2025-01-09 19:16:08,873 - INFO - Train Loss: 3.9175
+2025-01-09 19:16:08,873 - INFO - Val Loss: 6.5732
+2025-01-09 19:16:08,873 - INFO - Current Val Accuracy: 0.1429
+2025-01-09 19:16:08,873 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:08,913 - INFO - Early stopping triggered after 41 epochs
+2025-01-09 19:16:08,913 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,951 - INFO - Early stopping triggered after 42 epochs
+2025-01-09 19:16:08,951 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:08,990 - INFO - Early stopping triggered after 43 epochs
+2025-01-09 19:16:08,990 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,029 - INFO - Early stopping triggered after 44 epochs
+2025-01-09 19:16:09,029 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,068 - INFO - Early stopping triggered after 45 epochs
+2025-01-09 19:16:09,069 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,069 - INFO - Epoch 45
+2025-01-09 19:16:09,069 - INFO - Train Loss: 2.6037
+2025-01-09 19:16:09,069 - INFO - Val Loss: 8.9815
+2025-01-09 19:16:09,069 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:09,069 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:09,108 - INFO - Early stopping triggered after 46 epochs
+2025-01-09 19:16:09,108 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,146 - INFO - Early stopping triggered after 47 epochs
+2025-01-09 19:16:09,147 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,185 - INFO - Early stopping triggered after 48 epochs
+2025-01-09 19:16:09,185 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,224 - INFO - Early stopping triggered after 49 epochs
+2025-01-09 19:16:09,224 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,263 - INFO - Early stopping triggered after 50 epochs
+2025-01-09 19:16:09,263 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,263 - INFO - Epoch 50
+2025-01-09 19:16:09,263 - INFO - Train Loss: 3.1647
+2025-01-09 19:16:09,263 - INFO - Val Loss: 6.5070
+2025-01-09 19:16:09,263 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:09,263 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:09,302 - INFO - Early stopping triggered after 51 epochs
+2025-01-09 19:16:09,302 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,340 - INFO - Early stopping triggered after 52 epochs
+2025-01-09 19:16:09,341 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,380 - INFO - Early stopping triggered after 53 epochs
+2025-01-09 19:16:09,380 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,418 - INFO - Early stopping triggered after 54 epochs
+2025-01-09 19:16:09,419 - INFO - Best validation accuracy: 0.5714
+2025-01-09 19:16:09,461 - INFO - Epoch 55: New best validation accuracy: 0.6429
+2025-01-09 19:16:09,461 - INFO - Epoch 55
+2025-01-09 19:16:09,461 - INFO - Train Loss: 2.9911
+2025-01-09 19:16:09,461 - INFO - Val Loss: 5.9824
+2025-01-09 19:16:09,461 - INFO - Current Val Accuracy: 0.6429
+2025-01-09 19:16:09,461 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:09,659 - INFO - Epoch 60
+2025-01-09 19:16:09,659 - INFO - Train Loss: 2.1927
+2025-01-09 19:16:09,659 - INFO - Val Loss: 10.0403
+2025-01-09 19:16:09,659 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:09,659 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:09,853 - INFO - Early stopping triggered after 65 epochs
+2025-01-09 19:16:09,853 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:09,853 - INFO - Epoch 65
+2025-01-09 19:16:09,853 - INFO - Train Loss: 2.4731
+2025-01-09 19:16:09,853 - INFO - Val Loss: 10.3111
+2025-01-09 19:16:09,853 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:09,853 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:09,892 - INFO - Early stopping triggered after 66 epochs
+2025-01-09 19:16:09,892 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:09,930 - INFO - Early stopping triggered after 67 epochs
+2025-01-09 19:16:09,930 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:09,970 - INFO - Early stopping triggered after 68 epochs
+2025-01-09 19:16:09,970 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,008 - INFO - Early stopping triggered after 69 epochs
+2025-01-09 19:16:10,009 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,048 - INFO - Early stopping triggered after 70 epochs
+2025-01-09 19:16:10,048 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,048 - INFO - Epoch 70
+2025-01-09 19:16:10,048 - INFO - Train Loss: 2.3682
+2025-01-09 19:16:10,048 - INFO - Val Loss: 7.2016
+2025-01-09 19:16:10,048 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:10,048 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:10,087 - INFO - Early stopping triggered after 71 epochs
+2025-01-09 19:16:10,087 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,126 - INFO - Early stopping triggered after 72 epochs
+2025-01-09 19:16:10,126 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,165 - INFO - Early stopping triggered after 73 epochs
+2025-01-09 19:16:10,165 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,203 - INFO - Early stopping triggered after 74 epochs
+2025-01-09 19:16:10,203 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,242 - INFO - Early stopping triggered after 75 epochs
+2025-01-09 19:16:10,242 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,242 - INFO - Epoch 75
+2025-01-09 19:16:10,242 - INFO - Train Loss: 2.1257
+2025-01-09 19:16:10,242 - INFO - Val Loss: 7.6683
+2025-01-09 19:16:10,242 - INFO - Current Val Accuracy: 0.0000
+2025-01-09 19:16:10,242 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:10,281 - INFO - Early stopping triggered after 76 epochs
+2025-01-09 19:16:10,281 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,320 - INFO - Early stopping triggered after 77 epochs
+2025-01-09 19:16:10,320 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,358 - INFO - Early stopping triggered after 78 epochs
+2025-01-09 19:16:10,359 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,397 - INFO - Early stopping triggered after 79 epochs
+2025-01-09 19:16:10,397 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,437 - INFO - Early stopping triggered after 80 epochs
+2025-01-09 19:16:10,437 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,437 - INFO - Epoch 80
+2025-01-09 19:16:10,437 - INFO - Train Loss: 1.5876
+2025-01-09 19:16:10,437 - INFO - Val Loss: 8.8352
+2025-01-09 19:16:10,437 - INFO - Current Val Accuracy: 0.0714
+2025-01-09 19:16:10,437 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:10,475 - INFO - Early stopping triggered after 81 epochs
+2025-01-09 19:16:10,475 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,514 - INFO - Early stopping triggered after 82 epochs
+2025-01-09 19:16:10,514 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,552 - INFO - Early stopping triggered after 83 epochs
+2025-01-09 19:16:10,553 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,591 - INFO - Early stopping triggered after 84 epochs
+2025-01-09 19:16:10,591 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,630 - INFO - Early stopping triggered after 85 epochs
+2025-01-09 19:16:10,630 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,630 - INFO - Epoch 85
+2025-01-09 19:16:10,630 - INFO - Train Loss: 1.5585
+2025-01-09 19:16:10,630 - INFO - Val Loss: 5.4906
+2025-01-09 19:16:10,630 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:10,630 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:10,669 - INFO - Early stopping triggered after 86 epochs
+2025-01-09 19:16:10,669 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,708 - INFO - Early stopping triggered after 87 epochs
+2025-01-09 19:16:10,708 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,747 - INFO - Early stopping triggered after 88 epochs
+2025-01-09 19:16:10,747 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,786 - INFO - Early stopping triggered after 89 epochs
+2025-01-09 19:16:10,786 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,825 - INFO - Early stopping triggered after 90 epochs
+2025-01-09 19:16:10,825 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,825 - INFO - Epoch 90
+2025-01-09 19:16:10,825 - INFO - Train Loss: 1.3516
+2025-01-09 19:16:10,825 - INFO - Val Loss: 6.0460
+2025-01-09 19:16:10,825 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:10,825 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:10,863 - INFO - Early stopping triggered after 91 epochs
+2025-01-09 19:16:10,863 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,902 - INFO - Early stopping triggered after 92 epochs
+2025-01-09 19:16:10,902 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,941 - INFO - Early stopping triggered after 93 epochs
+2025-01-09 19:16:10,941 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:10,980 - INFO - Early stopping triggered after 94 epochs
+2025-01-09 19:16:10,980 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,019 - INFO - Early stopping triggered after 95 epochs
+2025-01-09 19:16:11,019 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,019 - INFO - Epoch 95
+2025-01-09 19:16:11,019 - INFO - Train Loss: 1.3204
+2025-01-09 19:16:11,019 - INFO - Val Loss: 5.5870
+2025-01-09 19:16:11,019 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:11,019 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:11,057 - INFO - Early stopping triggered after 96 epochs
+2025-01-09 19:16:11,058 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,096 - INFO - Early stopping triggered after 97 epochs
+2025-01-09 19:16:11,096 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,135 - INFO - Early stopping triggered after 98 epochs
+2025-01-09 19:16:11,135 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,173 - INFO - Early stopping triggered after 99 epochs
+2025-01-09 19:16:11,174 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,212 - INFO - Early stopping triggered after 100 epochs
+2025-01-09 19:16:11,212 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:11,212 - INFO - Epoch 100
+2025-01-09 19:16:11,212 - INFO - Train Loss: 1.2609
+2025-01-09 19:16:11,212 - INFO - Val Loss: 3.3801
+2025-01-09 19:16:11,212 - INFO - Current Val Accuracy: 0.5000
+2025-01-09 19:16:11,212 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:11,216 - INFO - 
+New best overall accuracy: 0.6429 (Fold 1)
+2025-01-09 19:16:11,216 - INFO - 
 Starting Fold 2/3
-2024-12-19 15:55:38,994 - INFO - Epoch 1: New best validation accuracy: 0.1333
-2024-12-19 15:55:39,235 - INFO - Epoch 5
-2024-12-19 15:55:39,235 - INFO - Train Loss: 10.1361
-2024-12-19 15:55:39,235 - INFO - Val Loss: 32.6242
-2024-12-19 15:55:39,235 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:39,235 - INFO - Best Val Accuracy: 0.1333
-2024-12-19 15:55:39,532 - INFO - Epoch 10
-2024-12-19 15:55:39,532 - INFO - Train Loss: 11.3425
-2024-12-19 15:55:39,532 - INFO - Val Loss: 55.6094
-2024-12-19 15:55:39,532 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:39,532 - INFO - Best Val Accuracy: 0.1333
-2024-12-19 15:55:39,589 - INFO - Early stopping triggered after 11 epochs
-2024-12-19 15:55:39,589 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:39,653 - INFO - Early stopping triggered after 12 epochs
-2024-12-19 15:55:39,653 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:39,710 - INFO - Early stopping triggered after 13 epochs
-2024-12-19 15:55:39,710 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:39,773 - INFO - Early stopping triggered after 14 epochs
-2024-12-19 15:55:39,773 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:39,830 - INFO - Early stopping triggered after 15 epochs
-2024-12-19 15:55:39,830 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:39,830 - INFO - Epoch 15
-2024-12-19 15:55:39,830 - INFO - Train Loss: 9.2743
-2024-12-19 15:55:39,830 - INFO - Val Loss: 47.0860
-2024-12-19 15:55:39,830 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:39,830 - INFO - Best Val Accuracy: 0.1333
-2024-12-19 15:55:39,894 - INFO - Early stopping triggered after 16 epochs
-2024-12-19 15:55:39,894 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:39,950 - INFO - Early stopping triggered after 17 epochs
-2024-12-19 15:55:39,950 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,007 - INFO - Early stopping triggered after 18 epochs
-2024-12-19 15:55:40,007 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,070 - INFO - Early stopping triggered after 19 epochs
-2024-12-19 15:55:40,070 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,126 - INFO - Early stopping triggered after 20 epochs
-2024-12-19 15:55:40,126 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,126 - INFO - Epoch 20
-2024-12-19 15:55:40,126 - INFO - Train Loss: 7.2750
-2024-12-19 15:55:40,126 - INFO - Val Loss: 50.9729
-2024-12-19 15:55:40,126 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:40,126 - INFO - Best Val Accuracy: 0.1333
-2024-12-19 15:55:40,188 - INFO - Early stopping triggered after 21 epochs
-2024-12-19 15:55:40,188 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,246 - INFO - Early stopping triggered after 22 epochs
-2024-12-19 15:55:40,246 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,302 - INFO - Early stopping triggered after 23 epochs
-2024-12-19 15:55:40,302 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,366 - INFO - Early stopping triggered after 24 epochs
-2024-12-19 15:55:40,366 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,422 - INFO - Early stopping triggered after 25 epochs
-2024-12-19 15:55:40,422 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,422 - INFO - Epoch 25
-2024-12-19 15:55:40,422 - INFO - Train Loss: 7.5792
-2024-12-19 15:55:40,422 - INFO - Val Loss: 54.9038
-2024-12-19 15:55:40,422 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:40,422 - INFO - Best Val Accuracy: 0.1333
-2024-12-19 15:55:40,483 - INFO - Early stopping triggered after 26 epochs
-2024-12-19 15:55:40,483 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,541 - INFO - Early stopping triggered after 27 epochs
-2024-12-19 15:55:40,542 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,598 - INFO - Early stopping triggered after 28 epochs
-2024-12-19 15:55:40,598 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,662 - INFO - Early stopping triggered after 29 epochs
-2024-12-19 15:55:40,662 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,717 - INFO - Early stopping triggered after 30 epochs
-2024-12-19 15:55:40,718 - INFO - Best validation accuracy: 0.1333
-2024-12-19 15:55:40,718 - INFO - Epoch 30
-2024-12-19 15:55:40,718 - INFO - Train Loss: 6.5196
-2024-12-19 15:55:40,718 - INFO - Val Loss: 34.0108
-2024-12-19 15:55:40,718 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:40,718 - INFO - Best Val Accuracy: 0.1333
-2024-12-19 15:55:40,782 - INFO - Epoch 31: New best validation accuracy: 0.2000
-2024-12-19 15:55:41,014 - INFO - Epoch 35
-2024-12-19 15:55:41,014 - INFO - Train Loss: 7.0827
-2024-12-19 15:55:41,014 - INFO - Val Loss: 34.1614
-2024-12-19 15:55:41,014 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:41,014 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:41,329 - INFO - Epoch 40
-2024-12-19 15:55:41,329 - INFO - Train Loss: 4.9752
-2024-12-19 15:55:41,329 - INFO - Val Loss: 36.6120
-2024-12-19 15:55:41,329 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:41,329 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:41,388 - INFO - Early stopping triggered after 41 epochs
-2024-12-19 15:55:41,388 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,451 - INFO - Early stopping triggered after 42 epochs
-2024-12-19 15:55:41,451 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,508 - INFO - Early stopping triggered after 43 epochs
-2024-12-19 15:55:41,508 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,571 - INFO - Early stopping triggered after 44 epochs
-2024-12-19 15:55:41,571 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,628 - INFO - Early stopping triggered after 45 epochs
-2024-12-19 15:55:41,628 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,628 - INFO - Epoch 45
-2024-12-19 15:55:41,628 - INFO - Train Loss: 5.0822
-2024-12-19 15:55:41,628 - INFO - Val Loss: 29.1840
-2024-12-19 15:55:41,628 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:41,628 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:41,689 - INFO - Early stopping triggered after 46 epochs
-2024-12-19 15:55:41,690 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,747 - INFO - Early stopping triggered after 47 epochs
-2024-12-19 15:55:41,747 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,804 - INFO - Early stopping triggered after 48 epochs
-2024-12-19 15:55:41,804 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,865 - INFO - Early stopping triggered after 49 epochs
-2024-12-19 15:55:41,865 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,922 - INFO - Early stopping triggered after 50 epochs
-2024-12-19 15:55:41,922 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:41,922 - INFO - Epoch 50
-2024-12-19 15:55:41,922 - INFO - Train Loss: 5.0333
-2024-12-19 15:55:41,922 - INFO - Val Loss: 28.9838
-2024-12-19 15:55:41,922 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:41,922 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:41,984 - INFO - Early stopping triggered after 51 epochs
-2024-12-19 15:55:41,984 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,045 - INFO - Early stopping triggered after 52 epochs
-2024-12-19 15:55:42,045 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,106 - INFO - Early stopping triggered after 53 epochs
-2024-12-19 15:55:42,106 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,165 - INFO - Early stopping triggered after 54 epochs
-2024-12-19 15:55:42,165 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,222 - INFO - Early stopping triggered after 55 epochs
-2024-12-19 15:55:42,222 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,222 - INFO - Epoch 55
-2024-12-19 15:55:42,222 - INFO - Train Loss: 4.7893
-2024-12-19 15:55:42,222 - INFO - Val Loss: 27.7082
-2024-12-19 15:55:42,222 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:42,222 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:42,285 - INFO - Early stopping triggered after 56 epochs
-2024-12-19 15:55:42,285 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,340 - INFO - Early stopping triggered after 57 epochs
-2024-12-19 15:55:42,341 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,402 - INFO - Early stopping triggered after 58 epochs
-2024-12-19 15:55:42,402 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,460 - INFO - Early stopping triggered after 59 epochs
-2024-12-19 15:55:42,460 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,516 - INFO - Early stopping triggered after 60 epochs
-2024-12-19 15:55:42,516 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,516 - INFO - Epoch 60
-2024-12-19 15:55:42,516 - INFO - Train Loss: 3.7738
-2024-12-19 15:55:42,516 - INFO - Val Loss: 21.3239
-2024-12-19 15:55:42,517 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:42,517 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:42,578 - INFO - Early stopping triggered after 61 epochs
-2024-12-19 15:55:42,579 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,635 - INFO - Early stopping triggered after 62 epochs
-2024-12-19 15:55:42,635 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,698 - INFO - Early stopping triggered after 63 epochs
-2024-12-19 15:55:42,698 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,756 - INFO - Early stopping triggered after 64 epochs
-2024-12-19 15:55:42,756 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,812 - INFO - Early stopping triggered after 65 epochs
-2024-12-19 15:55:42,812 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,812 - INFO - Epoch 65
-2024-12-19 15:55:42,812 - INFO - Train Loss: 3.6930
-2024-12-19 15:55:42,812 - INFO - Val Loss: 21.7156
-2024-12-19 15:55:42,812 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:42,812 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:42,876 - INFO - Early stopping triggered after 66 epochs
-2024-12-19 15:55:42,876 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,932 - INFO - Early stopping triggered after 67 epochs
-2024-12-19 15:55:42,932 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:42,993 - INFO - Early stopping triggered after 68 epochs
-2024-12-19 15:55:42,993 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,052 - INFO - Early stopping triggered after 69 epochs
-2024-12-19 15:55:43,052 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,108 - INFO - Early stopping triggered after 70 epochs
-2024-12-19 15:55:43,108 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,108 - INFO - Epoch 70
-2024-12-19 15:55:43,108 - INFO - Train Loss: 3.0023
-2024-12-19 15:55:43,108 - INFO - Val Loss: 17.1351
-2024-12-19 15:55:43,108 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:43,108 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:43,170 - INFO - Early stopping triggered after 71 epochs
-2024-12-19 15:55:43,170 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,227 - INFO - Early stopping triggered after 72 epochs
-2024-12-19 15:55:43,227 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,289 - INFO - Early stopping triggered after 73 epochs
-2024-12-19 15:55:43,289 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,347 - INFO - Early stopping triggered after 74 epochs
-2024-12-19 15:55:43,347 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,404 - INFO - Early stopping triggered after 75 epochs
-2024-12-19 15:55:43,404 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,404 - INFO - Epoch 75
-2024-12-19 15:55:43,404 - INFO - Train Loss: 2.6704
-2024-12-19 15:55:43,404 - INFO - Val Loss: 17.5467
-2024-12-19 15:55:43,404 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:43,404 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:43,466 - INFO - Early stopping triggered after 76 epochs
-2024-12-19 15:55:43,466 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,521 - INFO - Early stopping triggered after 77 epochs
-2024-12-19 15:55:43,521 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,583 - INFO - Early stopping triggered after 78 epochs
-2024-12-19 15:55:43,583 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,641 - INFO - Early stopping triggered after 79 epochs
-2024-12-19 15:55:43,641 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,697 - INFO - Early stopping triggered after 80 epochs
-2024-12-19 15:55:43,697 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:43,697 - INFO - Epoch 80
-2024-12-19 15:55:43,697 - INFO - Train Loss: 2.4223
-2024-12-19 15:55:43,697 - INFO - Val Loss: 12.5862
-2024-12-19 15:55:43,697 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:43,697 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:43,760 - INFO - Epoch 81: New best validation accuracy: 0.2667
-2024-12-19 15:55:43,995 - INFO - Epoch 85
-2024-12-19 15:55:43,995 - INFO - Train Loss: 2.2114
-2024-12-19 15:55:43,995 - INFO - Val Loss: 11.3788
-2024-12-19 15:55:43,995 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:43,995 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:44,289 - INFO - Epoch 90
-2024-12-19 15:55:44,289 - INFO - Train Loss: 1.8862
-2024-12-19 15:55:44,289 - INFO - Val Loss: 11.0813
-2024-12-19 15:55:44,289 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:44,289 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:44,351 - INFO - Early stopping triggered after 91 epochs
-2024-12-19 15:55:44,351 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,407 - INFO - Early stopping triggered after 92 epochs
-2024-12-19 15:55:44,408 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,471 - INFO - Early stopping triggered after 93 epochs
-2024-12-19 15:55:44,471 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,528 - INFO - Early stopping triggered after 94 epochs
-2024-12-19 15:55:44,528 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,592 - INFO - Early stopping triggered after 95 epochs
-2024-12-19 15:55:44,592 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,592 - INFO - Epoch 95
-2024-12-19 15:55:44,592 - INFO - Train Loss: 1.7225
-2024-12-19 15:55:44,592 - INFO - Val Loss: 10.8815
-2024-12-19 15:55:44,592 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:44,592 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:44,649 - INFO - Early stopping triggered after 96 epochs
-2024-12-19 15:55:44,649 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,706 - INFO - Early stopping triggered after 97 epochs
-2024-12-19 15:55:44,706 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,768 - INFO - Early stopping triggered after 98 epochs
-2024-12-19 15:55:44,768 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,823 - INFO - Early stopping triggered after 99 epochs
-2024-12-19 15:55:44,823 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,889 - INFO - Early stopping triggered after 100 epochs
-2024-12-19 15:55:44,889 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:44,889 - INFO - Epoch 100
-2024-12-19 15:55:44,889 - INFO - Train Loss: 1.9062
-2024-12-19 15:55:44,889 - INFO - Val Loss: 12.3691
-2024-12-19 15:55:44,889 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:44,889 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:44,891 - INFO - 
-New best overall accuracy: 0.2667 (Fold 2)
-2024-12-19 15:55:44,891 - INFO - 
+2025-01-09 19:16:11,267 - INFO - Epoch 1: New best validation accuracy: 0.3571
+2025-01-09 19:16:11,310 - INFO - Epoch 2: New best validation accuracy: 0.4286
+2025-01-09 19:16:11,430 - INFO - Epoch 5: New best validation accuracy: 0.5000
+2025-01-09 19:16:11,430 - INFO - Epoch 5
+2025-01-09 19:16:11,430 - INFO - Train Loss: 34.3424
+2025-01-09 19:16:11,430 - INFO - Val Loss: 15.5395
+2025-01-09 19:16:11,430 - INFO - Current Val Accuracy: 0.5000
+2025-01-09 19:16:11,430 - INFO - Best Val Accuracy: 0.5000
+2025-01-09 19:16:11,550 - INFO - Epoch 8: New best validation accuracy: 0.7143
+2025-01-09 19:16:11,628 - INFO - Epoch 10
+2025-01-09 19:16:11,628 - INFO - Train Loss: 12.0649
+2025-01-09 19:16:11,628 - INFO - Val Loss: 58.6607
+2025-01-09 19:16:11,628 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:11,628 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:11,821 - INFO - Epoch 15
+2025-01-09 19:16:11,821 - INFO - Train Loss: 18.7441
+2025-01-09 19:16:11,821 - INFO - Val Loss: 20.0004
+2025-01-09 19:16:11,821 - INFO - Current Val Accuracy: 0.7143
+2025-01-09 19:16:11,821 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:11,937 - INFO - Early stopping triggered after 18 epochs
+2025-01-09 19:16:11,937 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:11,976 - INFO - Early stopping triggered after 19 epochs
+2025-01-09 19:16:11,977 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,015 - INFO - Early stopping triggered after 20 epochs
+2025-01-09 19:16:12,015 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,015 - INFO - Epoch 20
+2025-01-09 19:16:12,015 - INFO - Train Loss: 7.0601
+2025-01-09 19:16:12,015 - INFO - Val Loss: 24.7240
+2025-01-09 19:16:12,015 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:12,015 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:12,054 - INFO - Early stopping triggered after 21 epochs
+2025-01-09 19:16:12,054 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,093 - INFO - Early stopping triggered after 22 epochs
+2025-01-09 19:16:12,093 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,132 - INFO - Early stopping triggered after 23 epochs
+2025-01-09 19:16:12,132 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,170 - INFO - Early stopping triggered after 24 epochs
+2025-01-09 19:16:12,170 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,209 - INFO - Early stopping triggered after 25 epochs
+2025-01-09 19:16:12,209 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,209 - INFO - Epoch 25
+2025-01-09 19:16:12,209 - INFO - Train Loss: 7.3702
+2025-01-09 19:16:12,209 - INFO - Val Loss: 29.0231
+2025-01-09 19:16:12,209 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:12,209 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:12,248 - INFO - Early stopping triggered after 26 epochs
+2025-01-09 19:16:12,248 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,287 - INFO - Early stopping triggered after 27 epochs
+2025-01-09 19:16:12,287 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,326 - INFO - Early stopping triggered after 28 epochs
+2025-01-09 19:16:12,326 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,364 - INFO - Early stopping triggered after 29 epochs
+2025-01-09 19:16:12,365 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,403 - INFO - Early stopping triggered after 30 epochs
+2025-01-09 19:16:12,403 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,403 - INFO - Epoch 30
+2025-01-09 19:16:12,403 - INFO - Train Loss: 5.2840
+2025-01-09 19:16:12,404 - INFO - Val Loss: 29.8622
+2025-01-09 19:16:12,404 - INFO - Current Val Accuracy: 0.2143
+2025-01-09 19:16:12,404 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:12,443 - INFO - Early stopping triggered after 31 epochs
+2025-01-09 19:16:12,443 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,481 - INFO - Early stopping triggered after 32 epochs
+2025-01-09 19:16:12,481 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,520 - INFO - Early stopping triggered after 33 epochs
+2025-01-09 19:16:12,520 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,559 - INFO - Early stopping triggered after 34 epochs
+2025-01-09 19:16:12,559 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,598 - INFO - Early stopping triggered after 35 epochs
+2025-01-09 19:16:12,598 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,598 - INFO - Epoch 35
+2025-01-09 19:16:12,598 - INFO - Train Loss: 4.2031
+2025-01-09 19:16:12,598 - INFO - Val Loss: 17.5215
+2025-01-09 19:16:12,598 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:12,598 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:12,637 - INFO - Early stopping triggered after 36 epochs
+2025-01-09 19:16:12,637 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,675 - INFO - Early stopping triggered after 37 epochs
+2025-01-09 19:16:12,676 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,714 - INFO - Early stopping triggered after 38 epochs
+2025-01-09 19:16:12,714 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,753 - INFO - Early stopping triggered after 39 epochs
+2025-01-09 19:16:12,753 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,792 - INFO - Early stopping triggered after 40 epochs
+2025-01-09 19:16:12,792 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,792 - INFO - Epoch 40
+2025-01-09 19:16:12,792 - INFO - Train Loss: 3.8254
+2025-01-09 19:16:12,792 - INFO - Val Loss: 10.2516
+2025-01-09 19:16:12,792 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:12,792 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:12,831 - INFO - Early stopping triggered after 41 epochs
+2025-01-09 19:16:12,831 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,870 - INFO - Early stopping triggered after 42 epochs
+2025-01-09 19:16:12,870 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,909 - INFO - Early stopping triggered after 43 epochs
+2025-01-09 19:16:12,909 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,947 - INFO - Early stopping triggered after 44 epochs
+2025-01-09 19:16:12,947 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,986 - INFO - Early stopping triggered after 45 epochs
+2025-01-09 19:16:12,986 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:12,986 - INFO - Epoch 45
+2025-01-09 19:16:12,986 - INFO - Train Loss: 2.8925
+2025-01-09 19:16:12,986 - INFO - Val Loss: 10.9345
+2025-01-09 19:16:12,986 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:12,986 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:13,025 - INFO - Early stopping triggered after 46 epochs
+2025-01-09 19:16:13,025 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,064 - INFO - Early stopping triggered after 47 epochs
+2025-01-09 19:16:13,064 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,103 - INFO - Early stopping triggered after 48 epochs
+2025-01-09 19:16:13,103 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,142 - INFO - Early stopping triggered after 49 epochs
+2025-01-09 19:16:13,142 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,181 - INFO - Early stopping triggered after 50 epochs
+2025-01-09 19:16:13,181 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,181 - INFO - Epoch 50
+2025-01-09 19:16:13,181 - INFO - Train Loss: 2.4197
+2025-01-09 19:16:13,181 - INFO - Val Loss: 7.0773
+2025-01-09 19:16:13,181 - INFO - Current Val Accuracy: 0.5000
+2025-01-09 19:16:13,181 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:13,220 - INFO - Early stopping triggered after 51 epochs
+2025-01-09 19:16:13,220 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,258 - INFO - Early stopping triggered after 52 epochs
+2025-01-09 19:16:13,258 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,297 - INFO - Early stopping triggered after 53 epochs
+2025-01-09 19:16:13,297 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,336 - INFO - Early stopping triggered after 54 epochs
+2025-01-09 19:16:13,336 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,375 - INFO - Early stopping triggered after 55 epochs
+2025-01-09 19:16:13,375 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,375 - INFO - Epoch 55
+2025-01-09 19:16:13,375 - INFO - Train Loss: 2.3271
+2025-01-09 19:16:13,376 - INFO - Val Loss: 5.6025
+2025-01-09 19:16:13,376 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:13,376 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:13,414 - INFO - Early stopping triggered after 56 epochs
+2025-01-09 19:16:13,414 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,453 - INFO - Early stopping triggered after 57 epochs
+2025-01-09 19:16:13,453 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,492 - INFO - Early stopping triggered after 58 epochs
+2025-01-09 19:16:13,492 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,531 - INFO - Early stopping triggered after 59 epochs
+2025-01-09 19:16:13,531 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,569 - INFO - Early stopping triggered after 60 epochs
+2025-01-09 19:16:13,569 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,569 - INFO - Epoch 60
+2025-01-09 19:16:13,569 - INFO - Train Loss: 1.6617
+2025-01-09 19:16:13,569 - INFO - Val Loss: 5.9044
+2025-01-09 19:16:13,569 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:13,569 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:13,608 - INFO - Early stopping triggered after 61 epochs
+2025-01-09 19:16:13,608 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,647 - INFO - Early stopping triggered after 62 epochs
+2025-01-09 19:16:13,647 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,686 - INFO - Early stopping triggered after 63 epochs
+2025-01-09 19:16:13,686 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,725 - INFO - Early stopping triggered after 64 epochs
+2025-01-09 19:16:13,725 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,764 - INFO - Early stopping triggered after 65 epochs
+2025-01-09 19:16:13,764 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,764 - INFO - Epoch 65
+2025-01-09 19:16:13,764 - INFO - Train Loss: 1.5327
+2025-01-09 19:16:13,764 - INFO - Val Loss: 7.6468
+2025-01-09 19:16:13,764 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:13,764 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:13,803 - INFO - Early stopping triggered after 66 epochs
+2025-01-09 19:16:13,803 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,842 - INFO - Early stopping triggered after 67 epochs
+2025-01-09 19:16:13,842 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,880 - INFO - Early stopping triggered after 68 epochs
+2025-01-09 19:16:13,881 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,919 - INFO - Early stopping triggered after 69 epochs
+2025-01-09 19:16:13,919 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,958 - INFO - Early stopping triggered after 70 epochs
+2025-01-09 19:16:13,958 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:13,958 - INFO - Epoch 70
+2025-01-09 19:16:13,958 - INFO - Train Loss: 1.4998
+2025-01-09 19:16:13,959 - INFO - Val Loss: 3.6434
+2025-01-09 19:16:13,959 - INFO - Current Val Accuracy: 0.7143
+2025-01-09 19:16:13,959 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:13,998 - INFO - Early stopping triggered after 71 epochs
+2025-01-09 19:16:13,998 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,036 - INFO - Early stopping triggered after 72 epochs
+2025-01-09 19:16:14,037 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,076 - INFO - Early stopping triggered after 73 epochs
+2025-01-09 19:16:14,076 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,115 - INFO - Early stopping triggered after 74 epochs
+2025-01-09 19:16:14,115 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,153 - INFO - Early stopping triggered after 75 epochs
+2025-01-09 19:16:14,153 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,153 - INFO - Epoch 75
+2025-01-09 19:16:14,153 - INFO - Train Loss: 1.7066
+2025-01-09 19:16:14,153 - INFO - Val Loss: 2.1658
+2025-01-09 19:16:14,153 - INFO - Current Val Accuracy: 0.5714
+2025-01-09 19:16:14,153 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:14,192 - INFO - Early stopping triggered after 76 epochs
+2025-01-09 19:16:14,192 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,231 - INFO - Early stopping triggered after 77 epochs
+2025-01-09 19:16:14,231 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,269 - INFO - Early stopping triggered after 78 epochs
+2025-01-09 19:16:14,269 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,308 - INFO - Early stopping triggered after 79 epochs
+2025-01-09 19:16:14,308 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,347 - INFO - Early stopping triggered after 80 epochs
+2025-01-09 19:16:14,347 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,347 - INFO - Epoch 80
+2025-01-09 19:16:14,347 - INFO - Train Loss: 1.3679
+2025-01-09 19:16:14,347 - INFO - Val Loss: 3.5327
+2025-01-09 19:16:14,347 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:14,347 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:14,386 - INFO - Early stopping triggered after 81 epochs
+2025-01-09 19:16:14,386 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,425 - INFO - Early stopping triggered after 82 epochs
+2025-01-09 19:16:14,425 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,464 - INFO - Early stopping triggered after 83 epochs
+2025-01-09 19:16:14,464 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,502 - INFO - Early stopping triggered after 84 epochs
+2025-01-09 19:16:14,502 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,541 - INFO - Early stopping triggered after 85 epochs
+2025-01-09 19:16:14,541 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,541 - INFO - Epoch 85
+2025-01-09 19:16:14,541 - INFO - Train Loss: 1.1755
+2025-01-09 19:16:14,541 - INFO - Val Loss: 3.8365
+2025-01-09 19:16:14,541 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:14,542 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:14,580 - INFO - Early stopping triggered after 86 epochs
+2025-01-09 19:16:14,580 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,619 - INFO - Early stopping triggered after 87 epochs
+2025-01-09 19:16:14,619 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,658 - INFO - Early stopping triggered after 88 epochs
+2025-01-09 19:16:14,658 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,697 - INFO - Early stopping triggered after 89 epochs
+2025-01-09 19:16:14,697 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,736 - INFO - Early stopping triggered after 90 epochs
+2025-01-09 19:16:14,736 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,736 - INFO - Epoch 90
+2025-01-09 19:16:14,736 - INFO - Train Loss: 1.1666
+2025-01-09 19:16:14,736 - INFO - Val Loss: 1.6847
+2025-01-09 19:16:14,736 - INFO - Current Val Accuracy: 0.5714
+2025-01-09 19:16:14,736 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:14,779 - INFO - Early stopping triggered after 91 epochs
+2025-01-09 19:16:14,779 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,818 - INFO - Early stopping triggered after 92 epochs
+2025-01-09 19:16:14,818 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,857 - INFO - Early stopping triggered after 93 epochs
+2025-01-09 19:16:14,857 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,897 - INFO - Early stopping triggered after 94 epochs
+2025-01-09 19:16:14,897 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,935 - INFO - Early stopping triggered after 95 epochs
+2025-01-09 19:16:14,936 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:14,936 - INFO - Epoch 95
+2025-01-09 19:16:14,936 - INFO - Train Loss: 1.1509
+2025-01-09 19:16:14,936 - INFO - Val Loss: 2.5314
+2025-01-09 19:16:14,936 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:14,936 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:14,974 - INFO - Early stopping triggered after 96 epochs
+2025-01-09 19:16:14,975 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:15,014 - INFO - Early stopping triggered after 97 epochs
+2025-01-09 19:16:15,014 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:15,052 - INFO - Early stopping triggered after 98 epochs
+2025-01-09 19:16:15,053 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:15,091 - INFO - Early stopping triggered after 99 epochs
+2025-01-09 19:16:15,091 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:15,130 - INFO - Early stopping triggered after 100 epochs
+2025-01-09 19:16:15,130 - INFO - Best validation accuracy: 0.7143
+2025-01-09 19:16:15,130 - INFO - Epoch 100
+2025-01-09 19:16:15,130 - INFO - Train Loss: 1.1065
+2025-01-09 19:16:15,130 - INFO - Val Loss: 2.7858
+2025-01-09 19:16:15,130 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:15,130 - INFO - Best Val Accuracy: 0.7143
+2025-01-09 19:16:15,134 - INFO - 
+New best overall accuracy: 0.7143 (Fold 2)
+2025-01-09 19:16:15,134 - INFO - 
 Starting Fold 3/3
-2024-12-19 15:55:44,963 - INFO - Epoch 1: New best validation accuracy: 0.1333
-2024-12-19 15:55:45,143 - INFO - Epoch 4: New best validation accuracy: 0.2000
-2024-12-19 15:55:45,200 - INFO - Epoch 5
-2024-12-19 15:55:45,200 - INFO - Train Loss: 10.5478
-2024-12-19 15:55:45,200 - INFO - Val Loss: 26.6712
-2024-12-19 15:55:45,200 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:45,200 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:45,496 - INFO - Epoch 10
-2024-12-19 15:55:45,496 - INFO - Train Loss: 15.3512
-2024-12-19 15:55:45,496 - INFO - Val Loss: 42.4629
-2024-12-19 15:55:45,496 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:45,496 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:45,732 - INFO - Early stopping triggered after 14 epochs
-2024-12-19 15:55:45,732 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:45,788 - INFO - Early stopping triggered after 15 epochs
-2024-12-19 15:55:45,789 - INFO - Best validation accuracy: 0.2000
-2024-12-19 15:55:45,789 - INFO - Epoch 15
-2024-12-19 15:55:45,789 - INFO - Train Loss: 6.4131
-2024-12-19 15:55:45,789 - INFO - Val Loss: 29.1660
-2024-12-19 15:55:45,789 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:45,789 - INFO - Best Val Accuracy: 0.2000
-2024-12-19 15:55:45,853 - INFO - Epoch 16: New best validation accuracy: 0.2667
-2024-12-19 15:55:46,084 - INFO - Epoch 20
-2024-12-19 15:55:46,084 - INFO - Train Loss: 7.3580
-2024-12-19 15:55:46,084 - INFO - Val Loss: 39.6337
-2024-12-19 15:55:46,084 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:46,084 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:46,377 - INFO - Epoch 25
-2024-12-19 15:55:46,377 - INFO - Train Loss: 6.6910
-2024-12-19 15:55:46,377 - INFO - Val Loss: 39.2992
-2024-12-19 15:55:46,377 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:46,377 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:46,441 - INFO - Early stopping triggered after 26 epochs
-2024-12-19 15:55:46,441 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,497 - INFO - Early stopping triggered after 27 epochs
-2024-12-19 15:55:46,497 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,558 - INFO - Early stopping triggered after 28 epochs
-2024-12-19 15:55:46,558 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,616 - INFO - Early stopping triggered after 29 epochs
-2024-12-19 15:55:46,616 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,672 - INFO - Early stopping triggered after 30 epochs
-2024-12-19 15:55:46,672 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,672 - INFO - Epoch 30
-2024-12-19 15:55:46,672 - INFO - Train Loss: 6.8677
-2024-12-19 15:55:46,672 - INFO - Val Loss: 36.0731
-2024-12-19 15:55:46,672 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:46,672 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:46,734 - INFO - Early stopping triggered after 31 epochs
-2024-12-19 15:55:46,734 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,791 - INFO - Early stopping triggered after 32 epochs
-2024-12-19 15:55:46,791 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,852 - INFO - Early stopping triggered after 33 epochs
-2024-12-19 15:55:46,852 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,910 - INFO - Early stopping triggered after 34 epochs
-2024-12-19 15:55:46,910 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,966 - INFO - Early stopping triggered after 35 epochs
-2024-12-19 15:55:46,967 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:46,967 - INFO - Epoch 35
-2024-12-19 15:55:46,967 - INFO - Train Loss: 6.6431
-2024-12-19 15:55:46,967 - INFO - Val Loss: 34.2531
-2024-12-19 15:55:46,967 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:46,967 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:47,030 - INFO - Early stopping triggered after 36 epochs
-2024-12-19 15:55:47,030 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,086 - INFO - Early stopping triggered after 37 epochs
-2024-12-19 15:55:47,086 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,147 - INFO - Early stopping triggered after 38 epochs
-2024-12-19 15:55:47,147 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,205 - INFO - Early stopping triggered after 39 epochs
-2024-12-19 15:55:47,206 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,263 - INFO - Early stopping triggered after 40 epochs
-2024-12-19 15:55:47,263 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,263 - INFO - Epoch 40
-2024-12-19 15:55:47,263 - INFO - Train Loss: 6.6033
-2024-12-19 15:55:47,263 - INFO - Val Loss: 36.8056
-2024-12-19 15:55:47,263 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:47,263 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:47,324 - INFO - Early stopping triggered after 41 epochs
-2024-12-19 15:55:47,325 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,382 - INFO - Early stopping triggered after 42 epochs
-2024-12-19 15:55:47,382 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,443 - INFO - Early stopping triggered after 43 epochs
-2024-12-19 15:55:47,443 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,499 - INFO - Early stopping triggered after 44 epochs
-2024-12-19 15:55:47,499 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,561 - INFO - Early stopping triggered after 45 epochs
-2024-12-19 15:55:47,561 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,561 - INFO - Epoch 45
-2024-12-19 15:55:47,561 - INFO - Train Loss: 5.9769
-2024-12-19 15:55:47,561 - INFO - Val Loss: 35.4140
-2024-12-19 15:55:47,561 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:47,561 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:47,620 - INFO - Early stopping triggered after 46 epochs
-2024-12-19 15:55:47,620 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,678 - INFO - Early stopping triggered after 47 epochs
-2024-12-19 15:55:47,678 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,739 - INFO - Early stopping triggered after 48 epochs
-2024-12-19 15:55:47,739 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,794 - INFO - Early stopping triggered after 49 epochs
-2024-12-19 15:55:47,794 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,856 - INFO - Early stopping triggered after 50 epochs
-2024-12-19 15:55:47,856 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,856 - INFO - Epoch 50
-2024-12-19 15:55:47,856 - INFO - Train Loss: 4.2434
-2024-12-19 15:55:47,856 - INFO - Val Loss: 35.8148
-2024-12-19 15:55:47,856 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:47,856 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:47,914 - INFO - Early stopping triggered after 51 epochs
-2024-12-19 15:55:47,914 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:47,971 - INFO - Early stopping triggered after 52 epochs
-2024-12-19 15:55:47,971 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,034 - INFO - Early stopping triggered after 53 epochs
-2024-12-19 15:55:48,035 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,091 - INFO - Early stopping triggered after 54 epochs
-2024-12-19 15:55:48,091 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,155 - INFO - Early stopping triggered after 55 epochs
-2024-12-19 15:55:48,155 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,155 - INFO - Epoch 55
-2024-12-19 15:55:48,155 - INFO - Train Loss: 4.3294
-2024-12-19 15:55:48,155 - INFO - Val Loss: 28.7728
-2024-12-19 15:55:48,155 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:48,155 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:48,211 - INFO - Early stopping triggered after 56 epochs
-2024-12-19 15:55:48,211 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,272 - INFO - Early stopping triggered after 57 epochs
-2024-12-19 15:55:48,273 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,330 - INFO - Early stopping triggered after 58 epochs
-2024-12-19 15:55:48,331 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,387 - INFO - Early stopping triggered after 59 epochs
-2024-12-19 15:55:48,387 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,450 - INFO - Early stopping triggered after 60 epochs
-2024-12-19 15:55:48,451 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,451 - INFO - Epoch 60
-2024-12-19 15:55:48,451 - INFO - Train Loss: 3.9279
-2024-12-19 15:55:48,451 - INFO - Val Loss: 18.0732
-2024-12-19 15:55:48,451 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:48,451 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:48,506 - INFO - Early stopping triggered after 61 epochs
-2024-12-19 15:55:48,506 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,568 - INFO - Early stopping triggered after 62 epochs
-2024-12-19 15:55:48,568 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,626 - INFO - Early stopping triggered after 63 epochs
-2024-12-19 15:55:48,626 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,682 - INFO - Early stopping triggered after 64 epochs
-2024-12-19 15:55:48,682 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,744 - INFO - Early stopping triggered after 65 epochs
-2024-12-19 15:55:48,744 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,744 - INFO - Epoch 65
-2024-12-19 15:55:48,744 - INFO - Train Loss: 3.5232
-2024-12-19 15:55:48,744 - INFO - Val Loss: 14.7523
-2024-12-19 15:55:48,744 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:48,744 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:48,800 - INFO - Early stopping triggered after 66 epochs
-2024-12-19 15:55:48,801 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,862 - INFO - Early stopping triggered after 67 epochs
-2024-12-19 15:55:48,862 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,920 - INFO - Early stopping triggered after 68 epochs
-2024-12-19 15:55:48,920 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:48,975 - INFO - Early stopping triggered after 69 epochs
-2024-12-19 15:55:48,976 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,045 - INFO - Early stopping triggered after 70 epochs
-2024-12-19 15:55:49,045 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,045 - INFO - Epoch 70
-2024-12-19 15:55:49,045 - INFO - Train Loss: 3.1309
-2024-12-19 15:55:49,045 - INFO - Val Loss: 16.6148
-2024-12-19 15:55:49,045 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:49,045 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:49,106 - INFO - Early stopping triggered after 71 epochs
-2024-12-19 15:55:49,107 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,163 - INFO - Early stopping triggered after 72 epochs
-2024-12-19 15:55:49,163 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,225 - INFO - Early stopping triggered after 73 epochs
-2024-12-19 15:55:49,225 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,283 - INFO - Early stopping triggered after 74 epochs
-2024-12-19 15:55:49,283 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,342 - INFO - Early stopping triggered after 75 epochs
-2024-12-19 15:55:49,342 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,342 - INFO - Epoch 75
-2024-12-19 15:55:49,342 - INFO - Train Loss: 2.5828
-2024-12-19 15:55:49,342 - INFO - Val Loss: 15.5621
-2024-12-19 15:55:49,342 - INFO - Current Val Accuracy: 0.0000
-2024-12-19 15:55:49,342 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:49,404 - INFO - Early stopping triggered after 76 epochs
-2024-12-19 15:55:49,404 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,460 - INFO - Early stopping triggered after 77 epochs
-2024-12-19 15:55:49,460 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,524 - INFO - Early stopping triggered after 78 epochs
-2024-12-19 15:55:49,524 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,579 - INFO - Early stopping triggered after 79 epochs
-2024-12-19 15:55:49,579 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,640 - INFO - Early stopping triggered after 80 epochs
-2024-12-19 15:55:49,640 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,640 - INFO - Epoch 80
-2024-12-19 15:55:49,640 - INFO - Train Loss: 2.6166
-2024-12-19 15:55:49,641 - INFO - Val Loss: 15.3500
-2024-12-19 15:55:49,641 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:49,641 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:49,699 - INFO - Early stopping triggered after 81 epochs
-2024-12-19 15:55:49,699 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,758 - INFO - Early stopping triggered after 82 epochs
-2024-12-19 15:55:49,758 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,819 - INFO - Early stopping triggered after 83 epochs
-2024-12-19 15:55:49,819 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,875 - INFO - Early stopping triggered after 84 epochs
-2024-12-19 15:55:49,875 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,937 - INFO - Early stopping triggered after 85 epochs
-2024-12-19 15:55:49,937 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:49,937 - INFO - Epoch 85
-2024-12-19 15:55:49,937 - INFO - Train Loss: 2.6262
-2024-12-19 15:55:49,937 - INFO - Val Loss: 12.6607
-2024-12-19 15:55:49,937 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:49,937 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:49,994 - INFO - Early stopping triggered after 86 epochs
-2024-12-19 15:55:49,994 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,058 - INFO - Early stopping triggered after 87 epochs
-2024-12-19 15:55:50,058 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,114 - INFO - Early stopping triggered after 88 epochs
-2024-12-19 15:55:50,114 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,171 - INFO - Early stopping triggered after 89 epochs
-2024-12-19 15:55:50,173 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,235 - INFO - Early stopping triggered after 90 epochs
-2024-12-19 15:55:50,236 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,236 - INFO - Epoch 90
-2024-12-19 15:55:50,236 - INFO - Train Loss: 2.6302
-2024-12-19 15:55:50,236 - INFO - Val Loss: 12.4658
-2024-12-19 15:55:50,236 - INFO - Current Val Accuracy: 0.0667
-2024-12-19 15:55:50,236 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:50,292 - INFO - Early stopping triggered after 91 epochs
-2024-12-19 15:55:50,292 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,354 - INFO - Early stopping triggered after 92 epochs
-2024-12-19 15:55:50,354 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,410 - INFO - Early stopping triggered after 93 epochs
-2024-12-19 15:55:50,411 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,466 - INFO - Early stopping triggered after 94 epochs
-2024-12-19 15:55:50,466 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,528 - INFO - Early stopping triggered after 95 epochs
-2024-12-19 15:55:50,528 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,528 - INFO - Epoch 95
-2024-12-19 15:55:50,528 - INFO - Train Loss: 2.0617
-2024-12-19 15:55:50,528 - INFO - Val Loss: 9.5637
-2024-12-19 15:55:50,528 - INFO - Current Val Accuracy: 0.2000
-2024-12-19 15:55:50,528 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:50,585 - INFO - Early stopping triggered after 96 epochs
-2024-12-19 15:55:50,585 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,647 - INFO - Early stopping triggered after 97 epochs
-2024-12-19 15:55:50,647 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,705 - INFO - Early stopping triggered after 98 epochs
-2024-12-19 15:55:50,705 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,767 - INFO - Early stopping triggered after 99 epochs
-2024-12-19 15:55:50,767 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,826 - INFO - Early stopping triggered after 100 epochs
-2024-12-19 15:55:50,826 - INFO - Best validation accuracy: 0.2667
-2024-12-19 15:55:50,826 - INFO - Epoch 100
-2024-12-19 15:55:50,826 - INFO - Train Loss: 2.1732
-2024-12-19 15:55:50,826 - INFO - Val Loss: 7.4496
-2024-12-19 15:55:50,826 - INFO - Current Val Accuracy: 0.1333
-2024-12-19 15:55:50,826 - INFO - Best Val Accuracy: 0.2667
-2024-12-19 15:55:50,827 - INFO - 
+2025-01-09 19:16:15,183 - INFO - Epoch 1: New best validation accuracy: 0.5000
+2025-01-09 19:16:15,338 - INFO - Epoch 5
+2025-01-09 19:16:15,338 - INFO - Train Loss: 18.3725
+2025-01-09 19:16:15,338 - INFO - Val Loss: 21.8466
+2025-01-09 19:16:15,338 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:15,338 - INFO - Best Val Accuracy: 0.5000
+2025-01-09 19:16:15,458 - INFO - Epoch 8: New best validation accuracy: 0.5714
+2025-01-09 19:16:15,535 - INFO - Epoch 10
+2025-01-09 19:16:15,535 - INFO - Train Loss: 23.3375
+2025-01-09 19:16:15,535 - INFO - Val Loss: 18.4356
+2025-01-09 19:16:15,535 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:15,535 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:15,729 - INFO - Epoch 15
+2025-01-09 19:16:15,729 - INFO - Train Loss: 12.4939
+2025-01-09 19:16:15,729 - INFO - Val Loss: 18.0435
+2025-01-09 19:16:15,729 - INFO - Current Val Accuracy: 0.5000
+2025-01-09 19:16:15,729 - INFO - Best Val Accuracy: 0.5714
+2025-01-09 19:16:15,810 - INFO - Epoch 17: New best validation accuracy: 0.6429
+2025-01-09 19:16:15,926 - INFO - Epoch 20
+2025-01-09 19:16:15,926 - INFO - Train Loss: 9.2689
+2025-01-09 19:16:15,926 - INFO - Val Loss: 26.1155
+2025-01-09 19:16:15,927 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:15,927 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:16,120 - INFO - Epoch 25
+2025-01-09 19:16:16,120 - INFO - Train Loss: 9.1780
+2025-01-09 19:16:16,120 - INFO - Val Loss: 33.4230
+2025-01-09 19:16:16,120 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:16,120 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:16,197 - INFO - Early stopping triggered after 27 epochs
+2025-01-09 19:16:16,197 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,236 - INFO - Early stopping triggered after 28 epochs
+2025-01-09 19:16:16,236 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,275 - INFO - Early stopping triggered after 29 epochs
+2025-01-09 19:16:16,275 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,313 - INFO - Early stopping triggered after 30 epochs
+2025-01-09 19:16:16,313 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,313 - INFO - Epoch 30
+2025-01-09 19:16:16,313 - INFO - Train Loss: 8.2507
+2025-01-09 19:16:16,313 - INFO - Val Loss: 23.5796
+2025-01-09 19:16:16,313 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:16,313 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:16,352 - INFO - Early stopping triggered after 31 epochs
+2025-01-09 19:16:16,352 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,391 - INFO - Early stopping triggered after 32 epochs
+2025-01-09 19:16:16,391 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,430 - INFO - Early stopping triggered after 33 epochs
+2025-01-09 19:16:16,430 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,469 - INFO - Early stopping triggered after 34 epochs
+2025-01-09 19:16:16,469 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,507 - INFO - Early stopping triggered after 35 epochs
+2025-01-09 19:16:16,508 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,508 - INFO - Epoch 35
+2025-01-09 19:16:16,508 - INFO - Train Loss: 5.0781
+2025-01-09 19:16:16,508 - INFO - Val Loss: 17.8817
+2025-01-09 19:16:16,508 - INFO - Current Val Accuracy: 0.5000
+2025-01-09 19:16:16,508 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:16,546 - INFO - Early stopping triggered after 36 epochs
+2025-01-09 19:16:16,546 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,585 - INFO - Early stopping triggered after 37 epochs
+2025-01-09 19:16:16,585 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,623 - INFO - Early stopping triggered after 38 epochs
+2025-01-09 19:16:16,623 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,662 - INFO - Early stopping triggered after 39 epochs
+2025-01-09 19:16:16,662 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,701 - INFO - Early stopping triggered after 40 epochs
+2025-01-09 19:16:16,701 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,701 - INFO - Epoch 40
+2025-01-09 19:16:16,701 - INFO - Train Loss: 4.8589
+2025-01-09 19:16:16,701 - INFO - Val Loss: 8.4676
+2025-01-09 19:16:16,701 - INFO - Current Val Accuracy: 0.2143
+2025-01-09 19:16:16,701 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:16,740 - INFO - Early stopping triggered after 41 epochs
+2025-01-09 19:16:16,740 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,778 - INFO - Early stopping triggered after 42 epochs
+2025-01-09 19:16:16,778 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,817 - INFO - Early stopping triggered after 43 epochs
+2025-01-09 19:16:16,818 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,856 - INFO - Early stopping triggered after 44 epochs
+2025-01-09 19:16:16,856 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,895 - INFO - Early stopping triggered after 45 epochs
+2025-01-09 19:16:16,895 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,895 - INFO - Epoch 45
+2025-01-09 19:16:16,895 - INFO - Train Loss: 3.9050
+2025-01-09 19:16:16,895 - INFO - Val Loss: 12.4829
+2025-01-09 19:16:16,895 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:16,895 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:16,933 - INFO - Early stopping triggered after 46 epochs
+2025-01-09 19:16:16,933 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:16,972 - INFO - Early stopping triggered after 47 epochs
+2025-01-09 19:16:16,972 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,011 - INFO - Early stopping triggered after 48 epochs
+2025-01-09 19:16:17,011 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,050 - INFO - Early stopping triggered after 49 epochs
+2025-01-09 19:16:17,050 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,088 - INFO - Early stopping triggered after 50 epochs
+2025-01-09 19:16:17,088 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,088 - INFO - Epoch 50
+2025-01-09 19:16:17,088 - INFO - Train Loss: 4.7353
+2025-01-09 19:16:17,089 - INFO - Val Loss: 10.2714
+2025-01-09 19:16:17,089 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:17,089 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:17,128 - INFO - Early stopping triggered after 51 epochs
+2025-01-09 19:16:17,128 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,167 - INFO - Early stopping triggered after 52 epochs
+2025-01-09 19:16:17,167 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,205 - INFO - Early stopping triggered after 53 epochs
+2025-01-09 19:16:17,206 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,244 - INFO - Early stopping triggered after 54 epochs
+2025-01-09 19:16:17,244 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,282 - INFO - Early stopping triggered after 55 epochs
+2025-01-09 19:16:17,283 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,283 - INFO - Epoch 55
+2025-01-09 19:16:17,283 - INFO - Train Loss: 3.3985
+2025-01-09 19:16:17,283 - INFO - Val Loss: 10.3937
+2025-01-09 19:16:17,283 - INFO - Current Val Accuracy: 0.5714
+2025-01-09 19:16:17,283 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:17,321 - INFO - Early stopping triggered after 56 epochs
+2025-01-09 19:16:17,322 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,360 - INFO - Early stopping triggered after 57 epochs
+2025-01-09 19:16:17,361 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,400 - INFO - Early stopping triggered after 58 epochs
+2025-01-09 19:16:17,400 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,439 - INFO - Early stopping triggered after 59 epochs
+2025-01-09 19:16:17,439 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,477 - INFO - Early stopping triggered after 60 epochs
+2025-01-09 19:16:17,477 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,477 - INFO - Epoch 60
+2025-01-09 19:16:17,477 - INFO - Train Loss: 2.4637
+2025-01-09 19:16:17,477 - INFO - Val Loss: 18.9174
+2025-01-09 19:16:17,477 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:17,477 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:17,516 - INFO - Early stopping triggered after 61 epochs
+2025-01-09 19:16:17,516 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,555 - INFO - Early stopping triggered after 62 epochs
+2025-01-09 19:16:17,555 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,593 - INFO - Early stopping triggered after 63 epochs
+2025-01-09 19:16:17,593 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,632 - INFO - Early stopping triggered after 64 epochs
+2025-01-09 19:16:17,632 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,670 - INFO - Early stopping triggered after 65 epochs
+2025-01-09 19:16:17,670 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,671 - INFO - Epoch 65
+2025-01-09 19:16:17,671 - INFO - Train Loss: 3.3959
+2025-01-09 19:16:17,671 - INFO - Val Loss: 11.3218
+2025-01-09 19:16:17,671 - INFO - Current Val Accuracy: 0.5000
+2025-01-09 19:16:17,671 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:17,709 - INFO - Early stopping triggered after 66 epochs
+2025-01-09 19:16:17,709 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,748 - INFO - Early stopping triggered after 67 epochs
+2025-01-09 19:16:17,749 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,787 - INFO - Early stopping triggered after 68 epochs
+2025-01-09 19:16:17,788 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,826 - INFO - Early stopping triggered after 69 epochs
+2025-01-09 19:16:17,826 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,865 - INFO - Early stopping triggered after 70 epochs
+2025-01-09 19:16:17,865 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,865 - INFO - Epoch 70
+2025-01-09 19:16:17,865 - INFO - Train Loss: 2.6539
+2025-01-09 19:16:17,865 - INFO - Val Loss: 10.1148
+2025-01-09 19:16:17,865 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:17,865 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:17,904 - INFO - Early stopping triggered after 71 epochs
+2025-01-09 19:16:17,904 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,943 - INFO - Early stopping triggered after 72 epochs
+2025-01-09 19:16:17,943 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:17,981 - INFO - Early stopping triggered after 73 epochs
+2025-01-09 19:16:17,981 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,020 - INFO - Early stopping triggered after 74 epochs
+2025-01-09 19:16:18,020 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,059 - INFO - Early stopping triggered after 75 epochs
+2025-01-09 19:16:18,059 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,059 - INFO - Epoch 75
+2025-01-09 19:16:18,059 - INFO - Train Loss: 2.4587
+2025-01-09 19:16:18,059 - INFO - Val Loss: 6.9245
+2025-01-09 19:16:18,059 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:18,059 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:18,098 - INFO - Early stopping triggered after 76 epochs
+2025-01-09 19:16:18,098 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,136 - INFO - Early stopping triggered after 77 epochs
+2025-01-09 19:16:18,137 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,175 - INFO - Early stopping triggered after 78 epochs
+2025-01-09 19:16:18,175 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,214 - INFO - Early stopping triggered after 79 epochs
+2025-01-09 19:16:18,214 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,253 - INFO - Early stopping triggered after 80 epochs
+2025-01-09 19:16:18,253 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,253 - INFO - Epoch 80
+2025-01-09 19:16:18,253 - INFO - Train Loss: 1.9985
+2025-01-09 19:16:18,253 - INFO - Val Loss: 5.8436
+2025-01-09 19:16:18,253 - INFO - Current Val Accuracy: 0.3571
+2025-01-09 19:16:18,253 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:18,292 - INFO - Early stopping triggered after 81 epochs
+2025-01-09 19:16:18,292 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,330 - INFO - Early stopping triggered after 82 epochs
+2025-01-09 19:16:18,331 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,369 - INFO - Early stopping triggered after 83 epochs
+2025-01-09 19:16:18,369 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,407 - INFO - Early stopping triggered after 84 epochs
+2025-01-09 19:16:18,408 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,446 - INFO - Early stopping triggered after 85 epochs
+2025-01-09 19:16:18,446 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,446 - INFO - Epoch 85
+2025-01-09 19:16:18,446 - INFO - Train Loss: 1.4884
+2025-01-09 19:16:18,446 - INFO - Val Loss: 9.4799
+2025-01-09 19:16:18,446 - INFO - Current Val Accuracy: 0.1429
+2025-01-09 19:16:18,446 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:18,485 - INFO - Early stopping triggered after 86 epochs
+2025-01-09 19:16:18,485 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,524 - INFO - Early stopping triggered after 87 epochs
+2025-01-09 19:16:18,524 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,563 - INFO - Early stopping triggered after 88 epochs
+2025-01-09 19:16:18,563 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,602 - INFO - Early stopping triggered after 89 epochs
+2025-01-09 19:16:18,602 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,641 - INFO - Early stopping triggered after 90 epochs
+2025-01-09 19:16:18,641 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,641 - INFO - Epoch 90
+2025-01-09 19:16:18,641 - INFO - Train Loss: 2.3048
+2025-01-09 19:16:18,641 - INFO - Val Loss: 6.6671
+2025-01-09 19:16:18,641 - INFO - Current Val Accuracy: 0.6429
+2025-01-09 19:16:18,641 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:18,679 - INFO - Early stopping triggered after 91 epochs
+2025-01-09 19:16:18,680 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,718 - INFO - Early stopping triggered after 92 epochs
+2025-01-09 19:16:18,718 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,756 - INFO - Early stopping triggered after 93 epochs
+2025-01-09 19:16:18,756 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,795 - INFO - Early stopping triggered after 94 epochs
+2025-01-09 19:16:18,795 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,834 - INFO - Early stopping triggered after 95 epochs
+2025-01-09 19:16:18,834 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,834 - INFO - Epoch 95
+2025-01-09 19:16:18,834 - INFO - Train Loss: 2.1352
+2025-01-09 19:16:18,834 - INFO - Val Loss: 7.0917
+2025-01-09 19:16:18,834 - INFO - Current Val Accuracy: 0.4286
+2025-01-09 19:16:18,834 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:18,873 - INFO - Early stopping triggered after 96 epochs
+2025-01-09 19:16:18,873 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,912 - INFO - Early stopping triggered after 97 epochs
+2025-01-09 19:16:18,912 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,951 - INFO - Early stopping triggered after 98 epochs
+2025-01-09 19:16:18,951 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:18,990 - INFO - Early stopping triggered after 99 epochs
+2025-01-09 19:16:18,990 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:19,028 - INFO - Early stopping triggered after 100 epochs
+2025-01-09 19:16:19,028 - INFO - Best validation accuracy: 0.6429
+2025-01-09 19:16:19,028 - INFO - Epoch 100
+2025-01-09 19:16:19,028 - INFO - Train Loss: 1.5900
+2025-01-09 19:16:19,028 - INFO - Val Loss: 3.4262
+2025-01-09 19:16:19,028 - INFO - Current Val Accuracy: 0.2857
+2025-01-09 19:16:19,028 - INFO - Best Val Accuracy: 0.6429
+2025-01-09 19:16:19,029 - INFO - 
 Best validation metrics for each fold:
-2024-12-19 15:55:50,827 - INFO - 
+2025-01-09 19:16:19,029 - INFO - 
 Fold 1:
-2024-12-19 15:55:50,827 - INFO - balanced_accuracy: 0.2000
-2024-12-19 15:55:50,827 - INFO - precision: 0.0984
-2024-12-19 15:55:50,827 - INFO - recall: 0.2000
-2024-12-19 15:55:50,827 - INFO - f1: 0.1167
-2024-12-19 15:55:50,827 - INFO - auc_roc: 0.6381
-2024-12-19 15:55:50,827 - INFO - 
+2025-01-09 19:16:19,029 - INFO - balanced_accuracy: 0.6429
+2025-01-09 19:16:19,029 - INFO - precision: 0.5833
+2025-01-09 19:16:19,029 - INFO - recall: 0.5833
+2025-01-09 19:16:19,029 - INFO - f1: 0.5556
+2025-01-09 19:16:19,029 - INFO - auc_roc: 0.8571
+2025-01-09 19:16:19,029 - INFO - 
 Fold 2:
-2024-12-19 15:55:50,827 - INFO - balanced_accuracy: 0.2667
-2024-12-19 15:55:50,827 - INFO - precision: 0.1778
-2024-12-19 15:55:50,827 - INFO - recall: 0.2667
-2024-12-19 15:55:50,827 - INFO - f1: 0.1968
-2024-12-19 15:55:50,827 - INFO - auc_roc: 0.5571
-2024-12-19 15:55:50,827 - INFO - 
+2025-01-09 19:16:19,029 - INFO - balanced_accuracy: 0.7143
+2025-01-09 19:16:19,029 - INFO - precision: 0.5000
+2025-01-09 19:16:19,029 - INFO - recall: 0.6667
+2025-01-09 19:16:19,029 - INFO - f1: 0.5556
+2025-01-09 19:16:19,029 - INFO - auc_roc: 0.8714
+2025-01-09 19:16:19,029 - INFO - 
 Fold 3:
-2024-12-19 15:55:50,827 - INFO - balanced_accuracy: 0.2667
-2024-12-19 15:55:50,827 - INFO - precision: 0.1356
-2024-12-19 15:55:50,827 - INFO - recall: 0.2667
-2024-12-19 15:55:50,827 - INFO - f1: 0.1667
-2024-12-19 15:55:50,827 - INFO - auc_roc: 0.6905
-2024-12-19 15:55:50,827 - INFO - 
+2025-01-09 19:16:19,029 - INFO - balanced_accuracy: 0.6429
+2025-01-09 19:16:19,029 - INFO - precision: 0.5278
+2025-01-09 19:16:19,029 - INFO - recall: 0.5833
+2025-01-09 19:16:19,029 - INFO - f1: 0.5500
+2025-01-09 19:16:19,029 - INFO - auc_roc: 0.8464
+2025-01-09 19:16:19,029 - INFO - 
 Average metrics across all folds:
-2024-12-19 15:55:50,827 - INFO - Average balanced_accuracy: 0.2444
-2024-12-19 15:55:50,827 - INFO - Average precision: 0.1372
-2024-12-19 15:55:50,828 - INFO - Average recall: 0.2444
-2024-12-19 15:55:50,828 - INFO - Average f1: 0.1601
-2024-12-19 15:55:50,828 - INFO - Average auc_roc: 0.6286
-2024-12-19 15:55:50,828 - INFO - 
+2025-01-09 19:16:19,029 - INFO - Average balanced_accuracy: 0.6667
+2025-01-09 19:16:19,029 - INFO - Average precision: 0.5370
+2025-01-09 19:16:19,029 - INFO - Average recall: 0.6111
+2025-01-09 19:16:19,029 - INFO - Average f1: 0.5537
+2025-01-09 19:16:19,030 - INFO - Average auc_roc: 0.8583
+2025-01-09 19:16:19,030 - INFO - 
 Metric standard deviations across folds:
-2024-12-19 15:55:50,828 - INFO - balanced_accuracy std: 0.0314
-2024-12-19 15:55:50,828 - INFO - precision std: 0.0324
-2024-12-19 15:55:50,828 - INFO - recall std: 0.0314
-2024-12-19 15:55:50,828 - INFO - f1 std: 0.0331
-2024-12-19 15:55:50,828 - INFO - auc_roc std: 0.0548
-2024-12-19 15:55:50,828 - INFO - 
-Training completed. Best overall accuracy: 0.2667
-2024-12-19 15:55:50,830 - INFO - Training time: 18.01s
+2025-01-09 19:16:19,030 - INFO - balanced_accuracy std: 0.0337
+2025-01-09 19:16:19,030 - INFO - precision std: 0.0346
+2025-01-09 19:16:19,030 - INFO - recall std: 0.0393
+2025-01-09 19:16:19,030 - INFO - f1 std: 0.0026
+2025-01-09 19:16:19,030 - INFO - auc_roc std: 0.0102
+2025-01-09 19:16:19,030 - INFO - 
+Training completed. Best overall accuracy: 0.7143
+2025-01-09 19:16:19,033 - INFO - Base model training time: 11.86s
+2025-01-09 19:16:19,033 - INFO - Training Process Reward Model...
+2025-01-09 19:16:26,627 - INFO - PRM training time: 7.59s
+2025-01-09 19:16:26,627 - INFO - Evaluating model performance...
+2025-01-09 19:16:26,628 - INFO - 
+Evaluating fold 1/3
+2025-01-09 19:16:26,815 - INFO - 
+Fold 1 Standard metrics:
+2025-01-09 19:16:26,815 - INFO - accuracy: 0.5833
+2025-01-09 19:16:26,815 - INFO - precision: 0.5208
+2025-01-09 19:16:26,815 - INFO - recall: 0.5833
+2025-01-09 19:16:26,815 - INFO - f1: 0.5333
+2025-01-09 19:16:26,815 - INFO - 
+Fold 1 Test-time compute metrics (beam search):
+2025-01-09 19:16:26,815 - INFO - accuracy: 0.4167
+2025-01-09 19:16:26,815 - INFO - precision: 0.2738
+2025-01-09 19:16:26,815 - INFO - recall: 0.4167
+2025-01-09 19:16:26,815 - INFO - f1: 0.3167
+2025-01-09 19:16:26,815 - INFO - 
+Fold 1 Test-time compute metrics (genetic programming):
+2025-01-09 19:16:26,815 - INFO - accuracy: 0.4167
+2025-01-09 19:16:26,815 - INFO - precision: 0.2738
+2025-01-09 19:16:26,815 - INFO - recall: 0.4167
+2025-01-09 19:16:26,815 - INFO - f1: 0.3167
+2025-01-09 19:16:26,815 - INFO - 
+Evaluating fold 2/3
+2025-01-09 19:16:26,960 - INFO - 
+Fold 2 Standard metrics:
+2025-01-09 19:16:26,960 - INFO - accuracy: 0.5833
+2025-01-09 19:16:26,960 - INFO - precision: 0.4683
+2025-01-09 19:16:26,960 - INFO - recall: 0.5833
+2025-01-09 19:16:26,960 - INFO - f1: 0.4778
+2025-01-09 19:16:26,960 - INFO - 
+Fold 2 Test-time compute metrics (beam search):
+2025-01-09 19:16:26,960 - INFO - accuracy: 0.0833
+2025-01-09 19:16:26,960 - INFO - precision: 0.0167
+2025-01-09 19:16:26,960 - INFO - recall: 0.0833
+2025-01-09 19:16:26,960 - INFO - f1: 0.0278
+2025-01-09 19:16:26,960 - INFO - 
+Fold 2 Test-time compute metrics (genetic programming):
+2025-01-09 19:16:26,960 - INFO - accuracy: 0.0833
+2025-01-09 19:16:26,960 - INFO - precision: 0.0167
+2025-01-09 19:16:26,960 - INFO - recall: 0.0833
+2025-01-09 19:16:26,960 - INFO - f1: 0.0278
+2025-01-09 19:16:26,961 - INFO - 
+Evaluating fold 3/3
+2025-01-09 19:16:27,009 - INFO - 
+Fold 3 Standard metrics:
+2025-01-09 19:16:27,009 - INFO - accuracy: 0.9167
+2025-01-09 19:16:27,009 - INFO - precision: 0.8611
+2025-01-09 19:16:27,009 - INFO - recall: 0.9167
+2025-01-09 19:16:27,009 - INFO - f1: 0.8833
+2025-01-09 19:16:27,009 - INFO - 
+Fold 3 Test-time compute metrics (beam search):
+2025-01-09 19:16:27,009 - INFO - accuracy: 0.9167
+2025-01-09 19:16:27,009 - INFO - precision: 0.8611
+2025-01-09 19:16:27,009 - INFO - recall: 0.9167
+2025-01-09 19:16:27,009 - INFO - f1: 0.8833
+2025-01-09 19:16:27,009 - INFO - 
+Fold 3 Test-time compute metrics (genetic programming):
+2025-01-09 19:16:27,009 - INFO - accuracy: 0.9167
+2025-01-09 19:16:27,009 - INFO - precision: 0.8611
+2025-01-09 19:16:27,009 - INFO - recall: 0.9167
+2025-01-09 19:16:27,010 - INFO - f1: 0.8833
+2025-01-09 19:16:27,010 - INFO - 
+Final Standard Model Performance (mean ± std):
+2025-01-09 19:16:27,010 - INFO - accuracy: 0.6944 ± 0.1571
+2025-01-09 19:16:27,010 - INFO - precision: 0.6167 ± 0.1741
+2025-01-09 19:16:27,010 - INFO - recall: 0.6944 ± 0.1571
+2025-01-09 19:16:27,010 - INFO - f1: 0.6315 ± 0.1795
+2025-01-09 19:16:27,010 - INFO - 
+Final Test-Time Compute Performance (Beam search) (mean ± std):
+2025-01-09 19:16:27,010 - INFO - accuracy: 0.4722 ± 0.3425
+2025-01-09 19:16:27,010 - INFO - precision: 0.3839 ± 0.3534
+2025-01-09 19:16:27,010 - INFO - recall: 0.4722 ± 0.3425
+2025-01-09 19:16:27,010 - INFO - f1: 0.4093 ± 0.3554
+2025-01-09 19:16:27,010 - INFO - 
+Final Test-Time Compute Performance (Genetic Programming) (mean ± std):
+2025-01-09 19:16:27,010 - INFO - accuracy: 0.4722 ± 0.3425
+2025-01-09 19:16:27,010 - INFO - precision: 0.3839 ± 0.3534
+2025-01-09 19:16:27,010 - INFO - recall: 0.4722 ± 0.3425
+2025-01-09 19:16:27,010 - INFO - f1: 0.4093 ± 0.3554
+2025-01-09 19:16:27,010 - INFO - 
+Relative Improvements with Test-Time Compute (Beam Search):
+2025-01-09 19:16:27,010 - INFO - accuracy: -32.00%
+2025-01-09 19:16:27,010 - INFO - precision: -37.76%
+2025-01-09 19:16:27,010 - INFO - recall: -32.00%
+2025-01-09 19:16:27,010 - INFO - f1: -35.19%
+2025-01-09 19:16:27,010 - INFO - 
+Relative Improvements with Test-Time Compute (Genetic Programming):
+2025-01-09 19:16:27,010 - INFO - accuracy: -32.00%
+2025-01-09 19:16:27,010 - INFO - precision: -37.76%
+2025-01-09 19:16:27,010 - INFO - recall: -32.00%
+2025-01-09 19:16:27,011 - INFO - f1: -35.19%

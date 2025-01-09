@@ -8,6 +8,11 @@ from typing import Dict, Optional, Tuple
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from collections import defaultdict
+from torch.utils.data import DataLoader, Subset, random_split
+from sklearn.model_selection import KFold
+import numpy as np
 
 from plot import plot_attention_map
 from pre_training import PreTrainer, PreTrainingConfig
@@ -24,6 +29,7 @@ from ode import ODE
 from rwkv import RWKV
 from tcn import TCN
 from wavenet import WaveNet
+from test_time_transformer import TestTimeTransformer
 from train import train_model
 from util import preprocess_dataset, create_data_module, AugmentationConfig
 
@@ -202,41 +208,165 @@ class ModelTrainer:
 
         return model
 
+    def _calculate_metrics(self, true_labels, predictions) -> Dict[str, float]:
+        """Calculate evaluation metrics."""
+        accuracy = accuracy_score(true_labels, predictions)
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            true_labels, 
+            predictions, 
+            average='weighted'
+        )
+        
+        return {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1
+        }
+
+    def evaluate_test_time_model(
+        self,
+        model: nn.Module,
+        data_loader: DataLoader,
+        n_splits: int = 5
+    ) -> Tuple[Dict[str, float], Dict[str, float]]:
+        """Evaluate model performance with and without test-time compute using k-fold validation."""
+        model.eval()
+        metrics_standard = defaultdict(list)
+        metrics_ttc = defaultdict(list)
+        metrics_gp = defaultdict(list)
+        
+        # Create k-fold splits
+        kfold = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+        dataset = data_loader.dataset
+        
+        for fold, (train_idx, val_idx) in enumerate(kfold.split(dataset)):
+            self.logger.info(f"\nEvaluating fold {fold + 1}/{n_splits}")
+            
+            # Create validation loader for this fold
+            val_dataset = Subset(dataset, val_idx)
+            val_loader = DataLoader(
+                val_dataset,
+                batch_size=self.config.batch_size,
+                shuffle=False
+            )
+            
+            # Evaluate the fold
+            fold_metrics_std, fold_metrics_ttc, fold_metrics_gp = self._evaluate_fold(model, val_loader)
+            
+            # Store metrics
+            for k, v in fold_metrics_std.items():
+                metrics_standard[k].append(v)
+            for k, v in fold_metrics_ttc.items():
+                metrics_ttc[k].append(v)
+            for k, v in fold_metrics_gp.items():
+                metrics_gp[k].append(v)
+            
+            # Log fold results
+            self.logger.info(f"\nFold {fold + 1} Standard metrics:")
+            for k, v in fold_metrics_std.items():
+                self.logger.info(f"{k}: {v:.4f}")
+            self.logger.info(f"\nFold {fold + 1} Test-time compute metrics (beam search):")
+            for k, v in fold_metrics_ttc.items():
+                self.logger.info(f"{k}: {v:.4f}")
+            self.logger.info(f"\nFold {fold + 1} Test-time compute metrics (genetic programming):")
+            for k, v in fold_metrics_gp.items():
+                self.logger.info(f"{k}: {v:.4f}")
+        
+        # Average metrics across folds
+        final_metrics_std = {k: np.mean(v) for k, v in metrics_standard.items()}
+        final_metrics_ttc = {k: np.mean(v) for k, v in metrics_ttc.items()}
+        final_metrics_gp = {k: np.mean(v) for k, v in metrics_gp.items()}
+        
+        # Calculate standard deviations
+        std_metrics_std = {k: np.std(v) for k, v in metrics_standard.items()}
+        std_metrics_ttc = {k: np.std(v) for k, v in metrics_ttc.items()}
+        std_metrics_gp = {k: np.std(v) for k, v in metrics_gp.items()}
+        
+        # Log final results with standard deviations
+        self.logger.info("\nFinal Standard Model Performance (mean ± std):")
+        for k in final_metrics_std:
+            self.logger.info(f"{k}: {final_metrics_std[k]:.4f} ± {std_metrics_std[k]:.4f}")
+        
+        self.logger.info("\nFinal Test-Time Compute Performance (Beam search) (mean ± std):")
+        for k in final_metrics_ttc:
+            self.logger.info(f"{k}: {final_metrics_ttc[k]:.4f} ± {std_metrics_ttc[k]:.4f}")
+
+        self.logger.info("\nFinal Test-Time Compute Performance (Genetic Programming) (mean ± std):")
+        for k in final_metrics_ttc:
+            self.logger.info(f"{k}: {final_metrics_gp[k]:.4f} ± {std_metrics_gp[k]:.4f}")
+        
+        return final_metrics_std, final_metrics_ttc, final_metrics_gp
+
+    def _evaluate_fold(
+        self, 
+        model: nn.Module, 
+        val_loader: DataLoader
+    ) -> Tuple[Dict[str, float], Dict[str, float]]:
+        """Evaluate a single fold with and without test-time compute."""
+        outputs_standard = []
+        outputs_ttc = []
+        outputs_gp = []
+        labels = []
+        
+        with torch.no_grad():
+            for x, y in val_loader:
+                x, y = x.to(self.device), y.to(self.device)
+                
+                # Standard forward pass
+                out_std = model(x, use_test_time_compute=False)
+                
+                # Test-time compute with forced computation
+                out_ttc = model(x, use_test_time_compute=True, use_beam_search=True)
+
+                # Test-time compute with genetic programming 
+                out_gp = model(x, use_test_time_compute=True, use_beam_search=False)
+                
+                outputs_standard.append(out_std)
+                outputs_ttc.append(out_ttc)
+                outputs_gp.append(out_gp)
+                labels.append(y)
+        
+        # Concatenate all outputs and labels
+        outputs_standard = torch.cat(outputs_standard, dim=0)
+        outputs_ttc = torch.cat(outputs_ttc, dim=0)
+        outputs_gp = torch.cat(outputs_gp, dim=0)
+        labels = torch.cat(labels, dim=0)
+        
+        # Convert to numpy for metric calculation
+        pred_std = outputs_standard.argmax(dim=-1).cpu().numpy()
+        pred_ttc = outputs_ttc.argmax(dim=-1).cpu().numpy()
+        pred_gp =  outputs_gp.argmax(dim=-1).cpu().numpy()
+        true_labels = labels.argmax(dim=-1).cpu().numpy()
+        
+        # Calculate metrics
+        metrics_std = self._calculate_metrics(true_labels, pred_std)
+        metrics_ttc = self._calculate_metrics(true_labels, pred_ttc)
+        metric_gp = self._calculate_metrics(true_labels, pred_gp)
+        
+        return metrics_std, metrics_ttc, metric_gp
+
     def train(self, pre_trained_model: Optional[Transformer] = None) -> Transformer:
-        """Run main training phase."""
+        """Run main training phase with improved PRM training and evaluation."""
         self.logger.info("Starting main training phase")
 
         # Load training data
         train_loader, data = self.data_module.setup()
 
-        # Calculate class weights
-        class_weights = self._calculate_class_weights(train_loader)
-        class_weights = class_weights.to(self.device)
-
-        # Initialize model
+        # Initialize and train base model as before
         model = self._create_model(self.n_features, self.n_classes)
-
-        # Transfer weights if pre-trained
         if pre_trained_model is not None:
             self.logger.info("Transferring pre-trained weights")
             model.load_state_dict(pre_trained_model.state_dict(), strict=False)
-
         model = model.to(self.device)
 
-        # Setup training
-        criterion = nn.CrossEntropyLoss(
-            # weight=class_weights, 
-            label_smoothing=self.config.label_smoothing
-        )
+        criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
         optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
-        # Record analytics for time taken to train.
         start_time = time.time()
-
-        # Note: not enough of each class for k=5 for cross-fold validation.
         n_splits = 3 if self.config.dataset == "part" or self.config.dataset == "cross-species-hard" else 5
 
-        # Train the model with cross-validation.
+        # Train base model
         model = train_model(
             model,
             train_loader,
@@ -247,12 +377,76 @@ class ModelTrainer:
             patience=self.config.early_stopping,
             is_augmented=self.config.data_augmentation,
         )
-        self.logger.info(f"Training time: {time.time() - start_time:.2f}s")
+        self.logger.info(f"Base model training time: {time.time() - start_time:.2f}s")
 
-        if isinstance(model, Transformer):
-            pass
-            # Plot attention maps
-            # self._plot_attention_maps(model, data)
+        # Train PRM if using test-time compute
+        if isinstance(model, TestTimeTransformer):
+            self.logger.info("Training Process Reward Model...")
+            
+            # Create train/val split for PRM training
+            dataset_size = len(train_loader.dataset)
+            train_size = int(0.8 * dataset_size)
+            val_size = dataset_size - train_size
+            
+            prm_train_data, prm_val_data = random_split(
+                train_loader.dataset, 
+                [train_size, val_size],
+                generator=torch.Generator().manual_seed(42)
+            )
+            
+            prm_train_loader = DataLoader(
+                prm_train_data, 
+                batch_size=self.config.batch_size,
+                shuffle=True
+            )
+            prm_val_loader = DataLoader(
+                prm_val_data, 
+                batch_size=self.config.batch_size,
+                shuffle=False
+            )
+            
+            # Train PRM with validation
+            start_time = time.time()
+            model.train_prm(
+                train_loader=prm_train_loader,
+                val_loader=prm_val_loader,
+                task_type='classification',
+                metric_weights={
+                    'accuracy': 0.5,
+                    'f1_score': 0.5
+                },
+                num_epochs=500, 
+                patience=500,
+            )
+            self.logger.info(f"PRM training time: {time.time() - start_time:.2f}s")
+            
+            # Evaluate model performance
+            self.logger.info("Evaluating model performance...")
+            standard_metrics, ttc_metrics, gp_metrics = self.evaluate_test_time_model(
+                model, 
+                train_loader,
+                n_splits=n_splits
+            )
+            
+            # Calculate and log improvements for beam search
+            improvements = {
+                metric: (ttc_metrics[metric] - standard_metrics[metric]) / standard_metrics[metric] * 100
+                for metric in standard_metrics
+            }
+            
+            self.logger.info("\nRelative Improvements with Test-Time Compute (Beam Search):")
+            for metric, improvement in improvements.items():
+                self.logger.info(f"{metric}: {improvement:+.2f}%")
+
+            # Calculate and log improvements for genetic programming
+            gp_improvements = {
+                metric: (gp_metrics[metric] - standard_metrics[metric]) / standard_metrics[metric] * 100
+                for metric in standard_metrics
+            }
+
+            self.logger.info("\nRelative Improvements with Test-Time Compute (Genetic Programming):")
+            for metric, improvement in gp_improvements.items():
+                self.logger.info(f"{metric}: {improvement:+.2f}%")
 
         return model
 
@@ -352,6 +546,20 @@ class ModelTrainer:
                 input_dim=input_dim,
                 output_dim=output_dim,
                 dropout=self.config.dropout,
+            )
+        elif self.model_type == "test-time":
+            model = TestTimeTransformer(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                hidden_dim=self.config.hidden_dimension,
+                num_heads=self.config.num_heads,
+                num_layers=self.config.num_layers,
+                dropout=self.config.dropout,
+                num_iterations=5, # 15
+                beam_width=4, # 8 
+                min_confidence_threshold=0.6, # 0.6
+                max_confidence_threshold=0.95, # 0.9
+                temperature=0.5, # 0.8
             )
         else:
             raise ValueError(f"Invalid model: {self.model_type}")
