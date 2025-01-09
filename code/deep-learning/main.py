@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from collections import defaultdict
 from torch.utils.data import DataLoader, Subset, random_split
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 import numpy as np
 
 from plot import plot_attention_map
@@ -209,7 +209,16 @@ class ModelTrainer:
         return model
 
     def _calculate_metrics(self, true_labels, predictions) -> Dict[str, float]:
-        """Calculate evaluation metrics."""
+        # Ensure inputs are flattened
+        true_labels = np.ravel(true_labels)
+        predictions = np.ravel(predictions)
+        
+        # Debug: Print lengths
+        print(f"True labels length: {len(true_labels)}, Predictions length: {len(predictions)}")
+        
+        if len(true_labels) != len(predictions):
+            raise ValueError(f"Inconsistent number of samples: true_labels={len(true_labels)}, predictions={len(predictions)}")
+        
         accuracy = accuracy_score(true_labels, predictions)
         precision, recall, f1, _ = precision_recall_fscore_support(
             true_labels, 
@@ -237,10 +246,11 @@ class ModelTrainer:
         metrics_gp = defaultdict(list)
         
         # Create k-fold splits
-        kfold = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+        kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
         dataset = data_loader.dataset
-        
-        for fold, (train_idx, val_idx) in enumerate(kfold.split(dataset)):
+        targets = [sample[1].argmax(dim=0) for sample in dataset]  # Assuming dataset returns (data, target) tuples
+
+        for fold, (train_idx, val_idx) in enumerate(kfold.split(dataset, targets)):
             self.logger.info(f"\nEvaluating fold {fold + 1}/{n_splits}")
             
             # Create validation loader for this fold
@@ -299,51 +309,62 @@ class ModelTrainer:
         return final_metrics_std, final_metrics_ttc, final_metrics_gp
 
     def _evaluate_fold(
-        self, 
-        model: nn.Module, 
-        val_loader: DataLoader
+        self, model: nn.Module, val_loader: DataLoader
     ) -> Tuple[Dict[str, float], Dict[str, float]]:
         """Evaluate a single fold with and without test-time compute."""
         outputs_standard = []
         outputs_ttc = []
         outputs_gp = []
         labels = []
-        
+
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(self.device), y.to(self.device)
-                
+
                 # Standard forward pass
                 out_std = model(x, use_test_time_compute=False)
-                
-                # Test-time compute with forced computation
-                out_ttc = model(x, use_test_time_compute=True, use_beam_search=True)
 
-                # Test-time compute with genetic programming 
-                out_gp = model(x, use_test_time_compute=True, use_beam_search=False)
-                
+                # Test-time compute with beam search
+                try:
+                    out_ttc = model(x, use_test_time_compute=True, use_beam_search=True)
+                except RuntimeError as e:
+                    print(f"Error in beam search: {e}")
+                    raise
+
+                # Test-time compute with genetic programming
+                try:
+                    out_gp = model(x, use_test_time_compute=True, use_beam_search=False)
+                except RuntimeError as e:
+                    print(f"Error in genetic programming: {e}")
+                    raise
+
                 outputs_standard.append(out_std)
                 outputs_ttc.append(out_ttc)
                 outputs_gp.append(out_gp)
                 labels.append(y)
-        
+
         # Concatenate all outputs and labels
         outputs_standard = torch.cat(outputs_standard, dim=0)
         outputs_ttc = torch.cat(outputs_ttc, dim=0)
         outputs_gp = torch.cat(outputs_gp, dim=0)
         labels = torch.cat(labels, dim=0)
-        
+
+        # Debug: Check shapes
+        print(
+            f"Outputs shapes: standard={outputs_standard.shape}, ttc={outputs_ttc.shape}, gp={outputs_gp.shape}, labels={labels.shape}"
+        )
+
         # Convert to numpy for metric calculation
         pred_std = outputs_standard.argmax(dim=-1).cpu().numpy()
         pred_ttc = outputs_ttc.argmax(dim=-1).cpu().numpy()
-        pred_gp =  outputs_gp.argmax(dim=-1).cpu().numpy()
+        pred_gp = outputs_gp.argmax(dim=-1).cpu().numpy()
         true_labels = labels.argmax(dim=-1).cpu().numpy()
-        
+
         # Calculate metrics
         metrics_std = self._calculate_metrics(true_labels, pred_std)
         metrics_ttc = self._calculate_metrics(true_labels, pred_ttc)
         metric_gp = self._calculate_metrics(true_labels, pred_gp)
-        
+
         return metrics_std, metrics_ttc, metric_gp
 
     def train(self, pre_trained_model: Optional[Transformer] = None) -> Transformer:
