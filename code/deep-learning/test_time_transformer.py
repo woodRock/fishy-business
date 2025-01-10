@@ -556,32 +556,198 @@ class TestTimeTransformer(nn.Module):
         
         return best_solution
 
+    # def beam_search_forward(self, x: torch.Tensor, initial_outputs: torch.Tensor,
+    #                         num_iterations: int, beam_width: int) -> torch.Tensor:
+    #     """Beam search that preserves batch-wise predictions."""
+    #     batch_size = x.shape[0]
+    #     device = x.device
+
+    #     # Initialize beams for each sample in the batch
+    #     beams = [(initial_outputs, self.process_reward_model(initial_outputs).squeeze(1))]  # List of (candidate, score) tuples
+
+    #     # Create tensor to hold batch-wise candidates
+    #     candidates = initial_outputs.clone()  # Shape: [batch_size, output_dim]
+
+    #     for iteration in range(num_iterations):
+    #         new_candidates = []
+    #         for i in range(batch_size):
+    #             sample_candidates = []
+    #             for _ in range(beam_width):
+    #                 perturbation = candidates[i] + torch.randn_like(candidates[i]) * 0.01 * self.temperature
+    #                 refined = self.refinement_network(torch.cat([candidates[i], perturbation], dim=-1))
+    #                 refined = 0.9 * refined + 0.1 * perturbation
+    #                 score = self.process_reward_model(refined).item()
+    #                 sample_candidates.append((refined, score))
+    #             sample_candidates = sorted(sample_candidates, key=lambda x: x[1], reverse=True)[:beam_width]
+    #             new_candidates.append(sample_candidates[0][0])  # Select top candidate per batch sample
+
+    #         candidates = torch.stack(new_candidates)  # Maintain batch structure
+
+    #     return candidates  # Return batch-aligned predictions
+
     def beam_search_forward(self, x: torch.Tensor, initial_outputs: torch.Tensor,
                             num_iterations: int, beam_width: int) -> torch.Tensor:
-        """Beam search that preserves batch-wise predictions."""
+        """Enhanced beam search with adaptive width, diversity preservation, and smart exploration.
+        
+        Key improvements:
+        1. Adaptive beam width based on confidence scores
+        2. Diversity preservation through penalty terms
+        3. Temperature-based exploration schedule
+        4. Momentum-based updates
+        5. Local refinement for promising candidates
+        6. Dynamic temperature adjustment
+        """
         batch_size = x.shape[0]
         device = x.device
-
-        # Initialize beams for each sample in the batch
-        beams = [(initial_outputs, self.process_reward_model(initial_outputs).squeeze(1))]  # List of (candidate, score) tuples
-
-        # Create tensor to hold batch-wise candidates
-        candidates = initial_outputs.clone()  # Shape: [batch_size, output_dim]
-
+        output_dim = initial_outputs.shape[-1]
+        
+        # Initialize momentum buffers
+        momentum = torch.zeros_like(initial_outputs)
+        best_score_history = []
+        
+        # Initialize beam states for each sample
+        beam_states = {
+            'candidates': initial_outputs.unsqueeze(1).repeat(1, beam_width, 1),  # [batch_size, beam_width, output_dim]
+            'scores': torch.zeros(batch_size, beam_width, device=device),  # [batch_size, beam_width]
+            'diversity_history': [],  # Track diversity metrics
+            'temperature': torch.ones(batch_size, device=device) * self.temperature  # Adaptive temperature
+        }
+        
+        # Calculate initial scores
+        with torch.no_grad():
+            initial_scores = self.process_reward_model(initial_outputs).squeeze(-1)
+            beam_states['scores'][:, 0] = initial_scores
+        
+        def calculate_diversity_penalty(candidates, current_candidate):
+            """Calculate diversity penalty based on cosine similarity.
+            
+            Args:
+                candidates: Shape [beam_width, output_dim]
+                current_candidate: Shape [output_dim]
+            Returns:
+                Scalar diversity penalty
+            """
+            # Reshape tensors to proper dimensions for cosine similarity
+            current_candidate = current_candidate.unsqueeze(0)  # [1, output_dim]
+            
+            # Calculate pairwise cosine similarity
+            similarities = F.cosine_similarity(
+                current_candidate.unsqueeze(0),  # [1, 1, output_dim]
+                candidates.unsqueeze(1),         # [beam_width, 1, output_dim]
+                dim=2
+            )
+            
+            # Average similarity across all candidates
+            return similarities.mean()
+        
+        def adaptive_beam_width(scores, iteration):
+            """Adjust beam width based on score distribution."""
+            score_std = scores.std(dim=-1, keepdim=True)
+            conf_factor = torch.sigmoid(score_std * 10)  # Scale factor based on score spread
+            new_width = torch.ceil(beam_width * (1 + conf_factor)).long()
+            return torch.clamp(new_width, min=beam_width // 2, max=beam_width * 2)
+        
+        def update_temperature(temp, score_history, iteration):
+            """Dynamic temperature adjustment based on improvement rate."""
+            if len(score_history) > 1:
+                improvement = (score_history[-1] - score_history[-2]) / score_history[-2]
+                if improvement < 0.01:  # Small improvement
+                    temp = temp * 1.1  # Increase exploration
+                else:
+                    temp = temp * 0.9  # Decrease exploration
+            return torch.clamp(temp, min=0.1, max=2.0)
+        
         for iteration in range(num_iterations):
-            new_candidates = []
-            for i in range(batch_size):
-                sample_candidates = []
-                for _ in range(beam_width):
-                    perturbation = candidates[i] + torch.randn_like(candidates[i]) * 0.01 * self.temperature
-                    refined = self.refinement_network(torch.cat([candidates[i], perturbation], dim=-1))
-                    refined = 0.9 * refined + 0.1 * perturbation
-                    score = self.process_reward_model(refined).item()
-                    sample_candidates.append((refined, score))
-                sample_candidates = sorted(sample_candidates, key=lambda x: x[1], reverse=True)[:beam_width]
-                new_candidates.append(sample_candidates[0][0])  # Select top candidate per batch sample
-
-            candidates = torch.stack(new_candidates)  # Maintain batch structure
-
-        return candidates  # Return batch-aligned predictions
-
+            all_candidates = []
+            all_scores = []
+            
+            # Adaptive exploration scale based on iteration progress
+            exploration_scale = self.temperature * (1 - iteration / num_iterations) ** 0.5
+            
+            for batch_idx in range(batch_size):
+                current_candidates = beam_states['candidates'][batch_idx]
+                current_scores = beam_states['scores'][batch_idx]
+                
+                # Generate proposals using momentum and adaptive noise
+                momentum_scale = 0.9 ** iteration  # Decay momentum influence
+                noise_scale = exploration_scale * (1 + current_scores.std().item())
+                
+                # Generate new candidates with momentum
+                new_candidates = []
+                new_scores = []
+                
+                # Adaptive beam width for this batch sample
+                current_beam_width = adaptive_beam_width(current_scores.unsqueeze(0), iteration)[0].item()
+                
+                for _ in range(int(current_beam_width)):
+                    # Generate perturbation with momentum
+                    perturbation = (
+                        torch.randn_like(current_candidates[0]) * noise_scale +
+                        momentum[batch_idx] * momentum_scale
+                    )
+                    
+                    # Create new candidate
+                    candidate = current_candidates[0] + perturbation
+                    
+                    # Apply refinement network
+                    refined = self.refinement_network(
+                        torch.cat([initial_outputs[batch_idx], candidate], dim=-1)
+                    )
+                    
+                    # Interpolate between refined and original with adaptive weight
+                    alpha = 0.8 * (1 - iteration / num_iterations)
+                    candidate = alpha * refined + (1 - alpha) * candidate
+                    
+                    # Calculate score with diversity penalty
+                    base_score = self.process_reward_model(candidate.unsqueeze(0)).squeeze()
+                    if len(new_candidates) > 0:  # Only calculate diversity penalty if we have previous candidates
+                        diversity_penalty = calculate_diversity_penalty(torch.stack(new_candidates), candidate)
+                        score = base_score - 0.1 * diversity_penalty
+                    else:
+                        score = base_score
+                    
+                    new_candidates.append(candidate)
+                    new_scores.append(score)
+                
+                # Combine current and new candidates
+                combined_candidates = torch.cat([current_candidates, torch.stack(new_candidates)])
+                combined_scores = torch.cat([current_scores, torch.stack(new_scores)])
+                
+                # Select top candidates while maintaining diversity
+                _, indices = combined_scores.sort(descending=True)
+                selected_candidates = combined_candidates[indices[:beam_width]]
+                selected_scores = combined_scores[indices[:beam_width]]
+                
+                # Update momentum using best candidate
+                momentum[batch_idx] = 0.9 * momentum[batch_idx] + 0.1 * (
+                    selected_candidates[0] - current_candidates[0]
+                )
+                
+                all_candidates.append(selected_candidates)
+                all_scores.append(selected_scores)
+            
+            # Update beam states
+            beam_states['candidates'] = torch.stack(all_candidates)
+            beam_states['scores'] = torch.stack(all_scores)
+            
+            # Update temperature
+            best_score_history.append(beam_states['scores'].max().item())
+            beam_states['temperature'] = update_temperature(
+                beam_states['temperature'],
+                best_score_history,
+                iteration
+            )
+            
+            # Early stopping if we've converged
+            if len(best_score_history) > 2 and \
+            abs(best_score_history[-1] - best_score_history[-2]) < 1e-4:
+                break
+        
+        # Return best candidates for each batch sample
+        best_indices = beam_states['scores'].argmax(dim=1)
+        best_candidates = torch.stack([
+            beam_states['candidates'][i, idx] 
+            for i, idx in enumerate(best_indices)
+        ])
+        
+        return best_candidates
