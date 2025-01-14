@@ -1,13 +1,16 @@
+import random
+import math
+from collections import deque
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import StandardScaler
-import math
-import numpy as np
+
 from typing import Tuple, Optional, List
-from collections import deque
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, input_dim: int, num_heads: int) -> None:
@@ -154,9 +157,9 @@ class TestTimeTransformer(nn.Module):
                         self.genetic_forward(
                             x[i].unsqueeze(0), 
                             initial_output[i].unsqueeze(0), 
-                            5, # generations 
-                            100, # population 
-                            10,  # elite size
+                            10, # generations 
+                            50, # population 
+                            6,  # elite size
                         ).squeeze(0)
                     )
         
@@ -382,146 +385,35 @@ class TestTimeTransformer(nn.Module):
         x = x.mean(dim=1)
         x = self.fc_out(x)
         return x
-    
-    # def genetic_forward(self, x: torch.Tensor, initial_outputs: torch.Tensor,
-    #                     num_generations: int, population_size: int, elite_size: int) -> torch.Tensor:
-    #     """Enhanced genetic programming with adaptive mutation, crossover, and diversity preservation.
-        
-    #     Key improvements:
-    #     1. Adaptive mutation rate based on population diversity
-    #     2. Tournament selection for better parent selection
-    #     3. Crossover operations between good solutions
-    #     4. Diversity preservation through niching
-    #     5. Local search refinement for elite solutions
-    #     6. Dynamic population management
-    #     """
-    #     batch_size = x.shape[0]
-    #     device = x.device
-    #     output_dim = initial_outputs.shape[-1]
-        
-    #     # Initialize population with controlled diversity
-    #     population = [
-    #         initial_outputs.clone() + torch.randn_like(initial_outputs) * (0.01 * (i / population_size))
-    #         for i in range(population_size)
-    #     ]
-        
-    #     # Calculate initial fitness scores
-    #     scores = torch.stack([self.process_reward_model(candidate).squeeze(1) for candidate in population])
-        
-    #     # Track best solution and population statistics
-    #     best_solution = population[0].clone()
-    #     best_score = scores[0].clone()
-    #     stagnation_counter = 0
-        
-    #     # Calculate initial population diversity
-    #     def calculate_diversity(pop):
-    #         pop_tensor = torch.stack(pop)
-    #         centroid = pop_tensor.mean(dim=0)
-    #         distances = torch.norm(pop_tensor - centroid, dim=-1)
-    #         return distances.mean().item()
-        
-    #     def tournament_selection(pop, scores, tournament_size=3):
-    #         indices = torch.randperm(len(pop))[:tournament_size]
-    #         tournament_scores = scores[indices]
-    #         winner_idx = indices[tournament_scores.argmax()]
-    #         return pop[winner_idx]
-        
-    #     def adaptive_crossover(parent1, parent2, diversity):
-    #         # Adaptive crossover rate based on population diversity
-    #         crossover_rate = 0.7 * (1 - math.exp(-diversity))
-    #         mask = torch.rand_like(parent1) < crossover_rate
-    #         child = torch.where(mask, parent1, parent2)
-    #         return child
-        
-    #     def adaptive_mutation(individual, diversity, generation):
-    #         # Adaptive mutation rate and strength
-    #         base_rate = 0.1 * math.exp(-diversity)
-    #         mutation_rate = base_rate * (1 - generation / num_generations)
-    #         mutation_strength = 0.01 * (1 + diversity)
-            
-    #         # Apply mutation with varying strengths
-    #         mask = torch.rand_like(individual) < mutation_rate
-    #         mutation = torch.randn_like(individual) * mutation_strength
-    #         return individual + mask * mutation
-        
-    #     for generation in range(num_generations):
-    #         diversity = calculate_diversity(population)
-    #         new_population = []
-            
-    #         # Elitism - preserve and enhance best solutions
-    #         sorted_indices = torch.argsort(scores, descending=True)
-    #         for i in range(elite_size):
-    #             elite = population[sorted_indices[i]].clone()
-    #             # Local search refinement for elite solutions
-    #             refined = self.refinement_network(torch.cat([initial_outputs, elite], dim=-1))
-    #             elite = 0.9 * refined + 0.1 * elite
-    #             new_population.append(elite)
-            
-    #         # Generate new individuals through selection, crossover, and mutation
-    #         while len(new_population) < population_size:
-    #             # Tournament selection
-    #             parent1 = tournament_selection(population, scores)
-    #             parent2 = tournament_selection(population, scores)
-                
-    #             # Adaptive crossover
-    #             child = adaptive_crossover(parent1, parent2, diversity)
-                
-    #             # Adaptive mutation
-    #             child = adaptive_mutation(child, diversity, generation)
-                
-    #             # Refinement with probability
-    #             if torch.rand(1).item() < 0.3:
-    #                 child = self.refinement_network(torch.cat([initial_outputs, child], dim=-1))
-    #                 child = 0.8 * child + 0.2 * parent1
-                
-    #             new_population.append(child)
-            
-    #         # Update population and calculate new scores
-    #         population = new_population
-    #         scores = torch.stack([self.process_reward_model(candidate).squeeze(1) for candidate in population])
-            
-    #         # Update best solution
-    #         current_best_idx = scores.argmax()
-    #         if scores[current_best_idx] > best_score:
-    #             best_solution = population[current_best_idx].clone()
-    #             best_score = scores[current_best_idx].clone()
-    #             stagnation_counter = 0
-    #         else:
-    #             stagnation_counter += 1
-            
-    #         # Dynamic population management
-    #         if stagnation_counter > 5:
-    #             # Introduce new diversity while preserving elite solutions
-    #             num_new = population_size // 4
-    #             for i in range(elite_size, elite_size + num_new):
-    #                 population[i] = initial_outputs.clone() + torch.randn_like(initial_outputs) * 0.05
-    #             stagnation_counter = 0
-        
-    #     return best_solution
 
     def genetic_forward(self, x: torch.Tensor, initial_outputs: torch.Tensor,
-                        num_generations: int = 5, population_size: int = 20, elite_size: int = 4) -> torch.Tensor:
-        """Genetic algorithm optimized for very fast convergence in just 5 generations.
-        Uses aggressive mutation scales and heavy refinement to quickly improve solutions."""
+                        num_generations: int = 8, population_size: int = 50, elite_size: int = 6) -> torch.Tensor:
+        """Improved genetic algorithm with better exploration-exploitation balance."""
         batch_size = x.shape[0]
         device = x.device
         
-        # Initialize population with more aggressive mutations
+        # Initialize population with wider mutation range
         population = [
-            initial_outputs.clone() + torch.randn_like(initial_outputs) * (0.05 * (1 + i/5))
+            initial_outputs.clone() + torch.randn_like(initial_outputs) * (0.2 * (1 + i/10))
             for i in range(population_size)
         ]
         
-        # Add the initial output to ensure we don't regress
-        population[0] = initial_outputs.clone()
+        # Add initial output with small perturbation
+        population[0] = initial_outputs.clone() + torch.randn_like(initial_outputs) * 0.01
         
-        # Initial scoring
+        # Track best solution and its score
         scores = [self.process_reward_model(candidate).squeeze(1) for candidate in population]
         best_score = max(scores)
         best_solution = population[scores.index(max(scores))].clone()
         
-        # Very quick evolution
+        # Adaptive mutation scale
+        base_mutation_scale = 0.2
+        
         for generation in range(num_generations):
+            # Calculate population statistics for adaptive scaling
+            score_mean = sum(scores) / len(scores)
+            score_std = torch.std(torch.stack([s for s in scores]))
+            
             # Sort and select elite
             sorted_pairs = sorted(zip(population, scores), key=lambda x: x[1], reverse=True)
             elite_population = [ind for ind, score in sorted_pairs[:elite_size]]
@@ -529,61 +421,50 @@ class TestTimeTransformer(nn.Module):
             # Start new population with elites
             new_population = elite_population.copy()
             
-            # Aggressive mutation and refinement for remaining population
-            while len(new_population) < population_size:
-                # Base mutation from best solution with aggressive scale
-                base = elite_population[0].clone()
-                mutation_scale = 0.05 * (1 - generation/num_generations)  # Decreasing scale
-                mutation = torch.randn_like(initial_outputs) * mutation_scale
-                
-                # Create mutated version
-                mutated = base + mutation
-                
-                # Heavy refinement
-                refined = self.refinement_network(torch.cat([initial_outputs, mutated], dim=-1))
-                refined = 0.7 * refined + 0.3 * mutated  # Stronger refinement influence
-                
-                new_population.append(refined)
+            # Adaptive mutation scale based on progress
+            current_mutation_scale = base_mutation_scale * (1 - 0.8 * generation/num_generations)
             
+            # Create new individuals through crossover and mutation
+            while len(new_population) < population_size:
+                # Select parents using tournament selection
+                parent1 = random.choice(elite_population)
+                parent2 = random.choice(elite_population)
+                
+                # Crossover
+                alpha = torch.rand(1, device=device).item()
+                child = alpha * parent1 + (1 - alpha) * parent2
+                
+                # Adaptive mutation based on score distribution
+                mutation_strength = current_mutation_scale * (1 + score_std / (score_mean + 1e-8))
+                mutation = torch.randn_like(child) * mutation_strength
+                
+                # Apply mutation with decreasing probability
+                mutation_prob = 0.8 * (1 - generation/num_generations)
+                if random.random() < mutation_prob:
+                    child = child + mutation
+                
+                # Refinement with adaptive mixing
+                refined = self.refinement_network(torch.cat([initial_outputs, child], dim=-1))
+                mix_ratio = 0.5 * (1 - generation/num_generations)  # Less refinement influence over time
+                child = mix_ratio * refined + (1 - mix_ratio) * child
+                
+                new_population.append(child)
+            
+            # Update population and scores
             population = new_population
             scores = [self.process_reward_model(candidate).squeeze(1) for candidate in population]
             
-            # Update best solution if we found better
+            # Update best solution if improved
             current_best = max(scores)
             if current_best > best_score:
                 best_score = current_best
                 best_solution = population[scores.index(current_best)].clone()
+            
+            # Early stopping if converged
+            if generation > 2 and (current_best - best_score).abs() < 1e-5:
+                break
         
         return best_solution
-
-    # def beam_search_forward(self, x: torch.Tensor, initial_outputs: torch.Tensor,
-    #                         num_iterations: int, beam_width: int) -> torch.Tensor:
-    #     """Beam search that preserves batch-wise predictions."""
-    #     batch_size = x.shape[0]
-    #     device = x.device
-
-    #     # Initialize beams for each sample in the batch
-    #     beams = [(initial_outputs, self.process_reward_model(initial_outputs).squeeze(1))]  # List of (candidate, score) tuples
-
-    #     # Create tensor to hold batch-wise candidates
-    #     candidates = initial_outputs.clone()  # Shape: [batch_size, output_dim]
-
-    #     for iteration in range(num_iterations):
-    #         new_candidates = []
-    #         for i in range(batch_size):
-    #             sample_candidates = []
-    #             for _ in range(beam_width):
-    #                 perturbation = candidates[i] + torch.randn_like(candidates[i]) * 0.01 * self.temperature
-    #                 refined = self.refinement_network(torch.cat([candidates[i], perturbation], dim=-1))
-    #                 refined = 0.9 * refined + 0.1 * perturbation
-    #                 score = self.process_reward_model(refined).item()
-    #                 sample_candidates.append((refined, score))
-    #             sample_candidates = sorted(sample_candidates, key=lambda x: x[1], reverse=True)[:beam_width]
-    #             new_candidates.append(sample_candidates[0][0])  # Select top candidate per batch sample
-
-    #         candidates = torch.stack(new_candidates)  # Maintain batch structure
-
-    #     return candidates  # Return batch-aligned predictions
 
     def beam_search_forward(self, x: torch.Tensor, initial_outputs: torch.Tensor,
                             num_iterations: int, beam_width: int) -> torch.Tensor:
