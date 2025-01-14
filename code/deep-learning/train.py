@@ -37,31 +37,57 @@ def train_model(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> nn.Module:
     """Train a model using k-fold cross-validation with early stopping.
-
-    Args:
-        model: PyTorch model to train
-        train_loader: DataLoader containing training data
-        criterion: Loss function
-        optimizer: Optimizer instance
-        num_epochs: Maximum number of training epochs
-        patience: Number of epochs to wait before early stopping
-        n_splits: Number of folds for cross-validation
-        is_augmented: Whether to apply data augmentation
-        device: Device to train on ('cuda' or 'cpu')
-
-    Returns:
-        Trained model with best performance across all folds
+    When n_splits=1, trains directly on the provided data without cross-validation.
     """
     logger = logging.getLogger(__name__)
+    
+    if n_splits == 1:
+        logger.info("Training model directly (no cross-validation)")
+        
+        model = model.to(device)
+        
+        # Apply data augmentation if enabled
+        if is_augmented:
+            aug_config = AugmentationConfig(
+                enabled=True,
+                num_augmentations=5,
+                noise_enabled=True,
+                shift_enabled=True,
+                scale_enabled=True,
+                noise_level=0.1,
+                shift_range=0.1,
+                scale_range=0.1,
+            )
+            train_data_augmenter = DataAugmenter(aug_config)
+            train_loader = train_data_augmenter.augment(train_loader)
+        
+        # Train the model
+        results = _train_fold(
+            model=model,
+            train_loader=train_loader,
+            val_loader=train_loader,  # Use training data for validation when n_splits=1
+            criterion=criterion,
+            optimizer=optimizer,
+            num_epochs=num_epochs,
+            patience=patience,
+            device=device,
+            logger=logger,
+        )
+        
+        # Load the best model state
+        model.load_state_dict(results["best_model_state"])
+        return model
+        
+    # Original k-fold cross-validation code
     logger.info("Starting k-fold cross validation training")
-
+    
     model_copy = copy.deepcopy(model)
     dataset = train_loader.dataset
 
-    # Extract labels for stratification.
+    # Extract labels for stratification
     all_labels = _extract_labels(dataset)
 
-    # Initialize cross-validation.
+    # Initialize cross-validation
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
 
     # Metrics storage
@@ -75,20 +101,20 @@ def train_model(
     best_model_state = None
     best_overall_accuracy = float("-inf")
 
-    # Perform k-fold cross-validation.
+    # Perform k-fold cross-validation
     for fold, (train_idx, val_idx) in enumerate(
         skf.split(np.zeros(len(dataset)), all_labels), 1
     ):
         logger.info(f"\nStarting Fold {fold}/{n_splits}")
 
-        # Setup fold-specific data and model.
-        # Reset the model each fold.
+        # Setup fold-specific data and model
+        # Reset the model each fold
         model = copy.deepcopy(model_copy).to(device)
         fold_train_loader, fold_val_loader = _create_fold_loaders(
             dataset, train_idx, val_idx, train_loader.batch_size
         )
 
-        # Apply data augmentation if enabled.
+        # Apply data augmentation if enabled
         if is_augmented:
             aug_config = AugmentationConfig(
                 enabled=True,
@@ -100,12 +126,10 @@ def train_model(
                 shift_range=0.1,
                 scale_range=0.1,
             )
-
-            # Augment the training set only.
             train_data_augmenter = DataAugmenter(aug_config)
             fold_train_loader = train_data_augmenter.augment(fold_train_loader)
 
-        # Create fold-specific optimizer.
+        # Create fold-specific optimizer
         fold_optimizer = type(optimizer)(model.parameters(), **optimizer.defaults)
 
         # Train the fold
@@ -121,7 +145,7 @@ def train_model(
             logger=logger,
         )
 
-        # Update best model if this fold performed better.
+        # Update best model if this fold performed better
         if fold_results["best_accuracy"] > best_overall_accuracy:
             best_overall_accuracy = fold_results["best_accuracy"]
             best_model_state = copy.deepcopy(fold_results["best_model_state"])
@@ -129,22 +153,21 @@ def train_model(
                 f"\nNew best overall accuracy: {best_overall_accuracy:.4f} (Fold {fold})"
             )
 
-        # Store fold metrics.
+        # Store fold metrics
         fold_metrics = _update_fold_metrics(fold_metrics, fold_results["epoch_metrics"])
         best_val_metrics.append(fold_results["best_fold_metrics"])
 
-    # Print final metrics.
+    # Print final metrics
     _print_final_metrics(best_val_metrics, logger)
     logger.info(
         f"\nTraining completed. Best overall accuracy: {best_overall_accuracy:.4f}"
     )
 
-    # Load the best model state.
+    # Load the best model state
     model = model_copy.to(device)
     model.load_state_dict(best_model_state)
 
     return model
-
 
 def transfer_learning(
     dataset: str, model: Transformer, file_path: str = "transformer_checkpoint.pth"
