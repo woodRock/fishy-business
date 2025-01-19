@@ -1,6 +1,7 @@
 import argparse
 import logging
 import time
+import traceback
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional, Tuple, List
@@ -310,16 +311,10 @@ class ModelTrainer:
                 self.logger.info(f"Training PRM for fold {fold + 1}")
                 model.train_prm(
                     train_loader=train_loader,
-                    val_loader=None,  # We can use the same data for PRM training
-                    task_type='classification',
-                    metric_weights={
-                        'accuracy': 0.5,
-                        'f1_score': 0.5
-                    },
-                    num_epochs=50,  # Reduced epochs for PRM training
-                    patience=10
+                    val_loader=val_loader,
+                    num_epochs=100,
+                    patience=100,
                 )
-            
             # Evaluate on validation set
             fold_metrics_std, fold_metrics_ttc, fold_metrics_gp = self._evaluate_fold(model, val_loader)
             
@@ -430,6 +425,11 @@ class ModelTrainer:
         outputs_gp = []
         labels = []
 
+        # Evaluate PRM if it's a TestTimeTransformer
+        if isinstance(model, TestTimeTransformer):
+            print("\nEvaluating Process Reward Model:")
+            model.evaluate_prm(val_loader)
+
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -455,6 +455,8 @@ class ModelTrainer:
                     outputs_ttc.append(out_ttc)
                 except RuntimeError as e:
                     print(f"Error in beam search: {e}")
+                    # Print stack trace for debugging. 
+                    print(traceback.format_exc())
                     outputs_ttc.append(out_std)  # Fallback to standard output
 
                 # Test-time compute with genetic programming
@@ -463,6 +465,8 @@ class ModelTrainer:
                     outputs_gp.append(out_gp)
                 except RuntimeError as e:
                     print(f"Error in genetic programming: {e}")
+                    # Print stack trace for debugging. 
+                    print(traceback.format_exc())
                     outputs_gp.append(out_std)  # Fallback to standard output
 
         # Concatenate all outputs and labels
@@ -518,7 +522,7 @@ class ModelTrainer:
             n_splits = 3 if self.config.dataset in ["part", "cross-species-hard"] else 5
             
             # Call evaluate_test_time_model with explicit keyword argument
-            standard_metrics, ttc_metrics, gp_metrics = self.evaluate_test_time_model(
+            metrics = self.evaluate_test_time_model(
                 data_loader=train_loader,
                 n_splits=n_splits
             )

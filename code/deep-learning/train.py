@@ -3,6 +3,7 @@ import logging
 import copy
 import time
 from typing import Dict, List, Tuple, Union, Optional
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -17,6 +18,7 @@ from sklearn.metrics import (
     auc,
     roc_curve,
 )
+
 from transformer import Transformer
 from vae import VAE
 from util import DataAugmenter, AugmentationConfig
@@ -37,16 +39,40 @@ def train_model(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> nn.Module:
     """Train a model using k-fold cross-validation with early stopping.
-    When n_splits=1, trains directly on the provided data without cross-validation.
+    When n_splits=1, trains on 80% and validates on 20% of the data.
     """
     logger = logging.getLogger(__name__)
     
     if n_splits == 1:
-        logger.info("Training model directly (no cross-validation)")
+        logger.info("Training model with single train/val split (80/20)")
         
         model = model.to(device)
+        dataset = train_loader.dataset
         
-        # Apply data augmentation if enabled
+        # Create train/val split while preserving class distribution
+        all_labels = _extract_labels(dataset)
+        skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+        train_idx, val_idx = next(skf.split(np.zeros(len(dataset)), all_labels))
+        
+        # Create separate train and validation loaders
+        train_subset = Subset(dataset, train_idx)
+        val_subset = Subset(dataset, val_idx)
+        
+        train_loader = DataLoader(
+            train_subset,
+            batch_size=train_loader.batch_size,
+            shuffle=True
+        )
+        val_loader = DataLoader(
+            val_subset,
+            batch_size=train_loader.batch_size,
+            shuffle=False
+        )
+        
+        logger.info(f"Training set size: {len(train_subset)}")
+        logger.info(f"Validation set size: {len(val_subset)}")
+        
+        # Apply data augmentation if enabled (only to training data)
         if is_augmented:
             aug_config = AugmentationConfig(
                 enabled=True,
@@ -65,7 +91,7 @@ def train_model(
         results = _train_fold(
             model=model,
             train_loader=train_loader,
-            val_loader=train_loader,  # Use training data for validation when n_splits=1
+            val_loader=val_loader,  # Now using proper validation set
             criterion=criterion,
             optimizer=optimizer,
             num_epochs=num_epochs,
@@ -77,7 +103,7 @@ def train_model(
         # Load the best model state
         model.load_state_dict(results["best_model_state"])
         return model
-        
+                
     # Original k-fold cross-validation code
     logger.info("Starting k-fold cross validation training")
     
