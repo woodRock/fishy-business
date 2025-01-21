@@ -262,6 +262,7 @@ class ModelTrainer:
         metrics_standard = defaultdict(list)
         metrics_ttc = defaultdict(list)
         metrics_gp = defaultdict(list)
+        metrics_mc = defaultdict(list)
         
         # Create k-fold splits
         dataset = data_loader.dataset
@@ -305,18 +306,17 @@ class ModelTrainer:
                 patience=self.config.early_stopping,
                 is_augmented=self.config.data_augmentation
             )
-            
-            # Train PRM on training data
-            if isinstance(model, TestTimeTransformer):
-                self.logger.info(f"Training PRM for fold {fold + 1}")
-                model.train_prm(
-                    train_loader=train_loader,
-                    val_loader=val_loader,
-                    num_epochs=100,
-                    patience=100,
-                )
+
+            # Train the confidence network. This is a separate training loop.
+            model.train_confidence_net(
+                model, 
+                train_loader, 
+                num_epochs=100, 
+                device='cuda'
+            )
+
             # Evaluate on validation set
-            fold_metrics_std, fold_metrics_ttc, fold_metrics_gp = self._evaluate_fold(model, val_loader)
+            fold_metrics_std, fold_metrics_ttc, fold_metrics_gp, fold_metrics_mc = self._evaluate_fold(model, val_loader)
             
             # Store metrics
             for k, v in fold_metrics_std.items():
@@ -325,19 +325,22 @@ class ModelTrainer:
                 metrics_ttc[k].append(v)
             for k, v in fold_metrics_gp.items():
                 metrics_gp[k].append(v)
+            for k, v in fold_metrics_mc.items():
+                metrics_mc[k].append(v)
             
             # Log fold results
-            self._log_fold_results(fold + 1, n_splits, fold_metrics_std, fold_metrics_ttc, fold_metrics_gp)
+            self._log_fold_results(fold + 1, n_splits, fold_metrics_std, fold_metrics_ttc, fold_metrics_gp, fold_metrics_mc)
         
         # Calculate and log final results
-        final_results = self._compute_final_metrics(metrics_standard, metrics_ttc, metrics_gp)
+        final_results = self._compute_final_metrics(metrics_standard, metrics_ttc, metrics_gp, metrics_mc)
         self._log_final_results(final_results)
         
         return final_results
 
     def _log_fold_results(self, current_fold: int, total_folds: int,
                         std_metrics: Dict[str, float], ttc_metrics: Dict[str, float],
-                        gp_metrics: Dict[str, float]) -> None:
+                        gp_metrics: Dict[str, float],
+                        mc_metrics: Dict[str, float]) -> None:
         """Log results for a single fold."""
         self.logger.info(f"\nFold {current_fold}/{total_folds} results:")
         
@@ -353,9 +356,14 @@ class ModelTrainer:
         for k, v in gp_metrics.items():
             self.logger.info(f"{k}: {v:.4f}")
 
+        self.logger.info("\nTest-time compute metrics (monte carlo rollout):")
+        for k, v in mc_metrics.items():
+            self.logger.info(f"{k}: {v:.4f}")
+
     def _compute_final_metrics(self, metrics_std: Dict[str, List[float]],
                             metrics_ttc: Dict[str, List[float]],
-                            metrics_gp: Dict[str, List[float]]) -> Dict[str, Dict[str, Dict[str, float]]]:
+                            metrics_gp: Dict[str, List[float]],
+                            metrics_mc: Dict[str, List[float]]) -> Dict[str, Dict[str, Dict[str, float]]]:
         """Compute final metrics including means and standard deviations."""
         final_metrics = {
             'standard': {
@@ -375,6 +383,12 @@ class ModelTrainer:
                     'mean': np.mean(v),
                     'std': np.std(v)
                 } for k, v in metrics_gp.items()
+            },
+            'mc': {
+                k: {
+                    'mean': np.mean(v),
+                    'std': np.std(v)
+                } for k, v in metrics_mc.items()
             }
         }
         
@@ -387,6 +401,11 @@ class ModelTrainer:
             },
             'gp': {
                 k: (final_metrics['gp'][k]['mean'] - final_metrics['standard'][k]['mean'])
+                / final_metrics['standard'][k]['mean'] * 100
+                for k in metrics_std.keys()
+            },
+            'mc': {
+                k: (final_metrics['mc'][k]['mean'] - final_metrics['standard'][k]['mean'])
                 / final_metrics['standard'][k]['mean'] * 100
                 for k in metrics_std.keys()
             }
@@ -407,6 +426,10 @@ class ModelTrainer:
         self.logger.info("\nFinal Test-Time Compute Performance (Genetic Programming) (mean ± std):")
         for metric, values in final_results['gp'].items():
             self.logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
+
+        self.logger.info("\nFinal Test-Time Compute Performance (Monte Carlo Search) (mean ± std):")
+        for metric, values in final_results['mc'].items():
+            self.logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
         
         self.logger.info("\nRelative Improvements with Test-Time Compute (Beam Search):")
         for metric, improvement in final_results['improvements']['ttc'].items():
@@ -416,6 +439,10 @@ class ModelTrainer:
         for metric, improvement in final_results['improvements']['gp'].items():
             self.logger.info(f"{metric}: {improvement:+.2f}%")
 
+        self.logger.info("\nRelative Improvements with Test-Time Compute (Monte Carlo Search):")
+        for metric, improvement in final_results['improvements']['mc'].items():
+            self.logger.info(f"{metric}: {improvement:+.2f}%")
+
     def _evaluate_fold(
         self, model: nn.Module, val_loader: DataLoader
     ) -> Tuple[Dict[str, float], Dict[str, float], Dict[str, float]]:
@@ -423,19 +450,15 @@ class ModelTrainer:
         outputs_standard = []
         outputs_ttc = []
         outputs_gp = []
+        outputs_mc = []
         labels = []
-
-        # Evaluate PRM if it's a TestTimeTransformer
-        if isinstance(model, TestTimeTransformer):
-            print("\nEvaluating Process Reward Model:")
-            model.evaluate_prm(val_loader)
-
+        
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(self.device), y.to(self.device)
 
                 # Standard forward pass
-                out_std = model(x, use_test_time_compute=False)
+                out_std = model(x)
                 outputs_standard.append(out_std)
                 labels.append(y)  # Only append labels once
 
@@ -457,11 +480,20 @@ class ModelTrainer:
                     print(f"Error in beam search: {e}")
                     # Print stack trace for debugging. 
                     print(traceback.format_exc())
-                    outputs_ttc.append(out_std)  # Fallback to standard output
+                    outputs_ttc.append(out_std)  # Fallback to standard 
+
+                try:
+                    out_mc = model(x, use_test_time_compute=True, use_mc_search=True)
+                    outputs_mc.append(out_mc)
+                except RuntimeError as e:
+                    print(f"Error in monte carlo rollout: {e}")
+                    # Print stack trace for debugging. 
+                    print(traceback.format_exc())
+                    outputs_mc.append(out_std)
 
                 # Test-time compute with genetic programming
                 try:
-                    out_gp = model(x, use_test_time_compute=True, use_beam_search=False)
+                    out_gp = model(x, use_test_time_compute=True, use_genetic_search=True)
                     outputs_gp.append(out_gp)
                 except RuntimeError as e:
                     print(f"Error in genetic programming: {e}")
@@ -473,6 +505,7 @@ class ModelTrainer:
         outputs_standard = torch.cat(outputs_standard, dim=0)
         outputs_ttc = torch.cat(outputs_ttc, dim=0)
         outputs_gp = torch.cat(outputs_gp, dim=0)
+        outputs_mc = torch.cat(outputs_mc, dim=0)
         labels = torch.cat(labels, dim=0)
 
         # Debug: Print unique predictions for each method
@@ -480,6 +513,7 @@ class ModelTrainer:
         print(f"Standard: {np.unique(outputs_standard.argmax(dim=-1).cpu().numpy())}")
         print(f"Beam Search: {np.unique(outputs_ttc.argmax(dim=-1).cpu().numpy())}")
         print(f"Genetic: {np.unique(outputs_gp.argmax(dim=-1).cpu().numpy())}")
+        print(f"Monte Carlo: {np.unique(outputs_mc.argmax(dim=-1).cpu().numpy())}")
 
         # Debug: Print confidence distributions
         print("\nConfidence statistics:")
@@ -493,14 +527,16 @@ class ModelTrainer:
         pred_std = outputs_standard.argmax(dim=-1).cpu().numpy()
         pred_ttc = outputs_ttc.argmax(dim=-1).cpu().numpy()
         pred_gp = outputs_gp.argmax(dim=-1).cpu().numpy()
+        pred_mc = outputs_mc.argmax(dim=-1).cpu().numpy()
         true_labels = labels.argmax(dim=-1).cpu().numpy()
 
         # Calculate metrics
         metrics_std = self._calculate_metrics(true_labels, pred_std)
         metrics_ttc = self._calculate_metrics(true_labels, pred_ttc)
         metrics_gp = self._calculate_metrics(true_labels, pred_gp)
+        metrics_mc = self._calculate_metrics(true_labels, pred_mc)
 
-        return metrics_std, metrics_ttc, metrics_gp
+        return metrics_std, metrics_ttc, metrics_gp, metrics_mc
 
     def train(self, pre_trained_model: Optional[Transformer] = None) -> Transformer:
         """Run main training phase with improved PRM training and evaluation."""
@@ -647,15 +683,11 @@ class ModelTrainer:
             model = TestTimeTransformer(
                 input_dim=input_dim,
                 output_dim=output_dim,
+                num_classes=output_dim,
                 hidden_dim=self.config.hidden_dimension,
                 num_heads=self.config.num_heads,
                 num_layers=self.config.num_layers,
                 dropout=self.config.dropout,
-                num_iterations=8,  # Increased for multi-class
-                beam_width=6,      # Increased for multi-class
-                min_confidence_threshold=0.4,  # Lowered for multi-class
-                max_confidence_threshold=0.8,  # Lowered for multi-class
-                temperature=0.8,   # Increased for multi-class
             )
         else:
             raise ValueError(f"Invalid model: {self.model_type}")
