@@ -310,7 +310,8 @@ class ModelTrainer:
             # Train the confidence network. This is a separate training loop.
             model.train_confidence_net(
                 model, 
-                train_loader, 
+                train_loader,
+                val_loader,
                 num_epochs=100, 
                 device='cuda'
             )
