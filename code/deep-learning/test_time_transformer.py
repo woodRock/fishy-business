@@ -218,42 +218,122 @@ class TestTimeTransformer(nn.Module):
                 'features': features
             }
 
+    def ensemble_rollouts(self, x: torch.Tensor, num_rollouts: int = 16, noise_scales: List[float] = [0.05, 0.1, 0.2]) -> torch.Tensor:
+        """Generate ensemble predictions using multiple rollouts with different noise scales."""
+        all_logits = []
+        all_confidences = []
+
+        for noise_scale in noise_scales:
+            batch_rollouts = []
+            batch_confs = []
+
+            for _ in range(num_rollouts):
+                rollout = self.generate_rollout(x, noise_scale=noise_scale)
+                confidence = self.estimate_step_confidence(rollout['states'], rollout['logits'])
+
+                batch_rollouts.append(rollout['logits'])
+                batch_confs.append(confidence)
+
+            # Stack batch results
+            logits = torch.stack(batch_rollouts)
+            confidences = torch.stack(batch_confs)
+
+            all_logits.append(logits)
+            all_confidences.append(confidences)
+
+        # Combine predictions across noise scales
+        ensemble_logits = torch.stack(all_logits)
+        ensemble_confidences = torch.stack(all_confidences)
+
+        # Weight predictions by confidence
+        weighted_preds = ensemble_logits * ensemble_confidences
+
+        # Average across rollouts and noise scales
+        final_logits = weighted_preds.mean(dim=(0, 1))
+
+        return final_logits
+
     def train_confidence_net(self, model, data_loader, num_epochs=100, device='cuda'):
-        # Example usage
+        """Train confidence net using both standard and rollout data."""
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(model.confidence_net.parameters(), lr=1e-4)
-        model.train()
+
         for epoch in range(num_epochs):
             epoch_loss = 0
             for x, y in data_loader:
                 x, y = x.to(device), y.to(device)
 
-                # Generate rollouts
+                # Generate rollouts with different noise scales
+                rollout_data = []
+                for noise_scale in [0.05, 0.1, 0.2]:
+                    rollout = model.generate_rollout(x, noise_scale=noise_scale)
+                    rollout_data.append(rollout)
+
+                # Standard forward pass
                 logits, states = model.monte_carlo_search(x, return_states=True)
 
-                # Compute confidence
-                confidence_scores = model.estimate_step_confidence(states, logits)
+                # Combine standard and rollout data
+                all_states = [states] + [r['states'] for r in rollout_data]
+                all_logits = [logits] + [r['logits'] for r in rollout_data]
 
-                # Define target confidence (e.g., based on correctness of logits).
-                probs = F.softmax(logits, dim=-1)
-                max_probs, pred_classes = probs.max(dim=-1)
+                # Train on all data points
+                for states_i, logits_i in zip(all_states, all_logits):
+                    confidence_scores = model.estimate_step_confidence(states_i, logits_i)
 
-                # Convert y to class indices if it's one-hot encoded.
-                if y.dim() == 2 and y.size(-1) > 1:
-                    y = y.argmax(dim=-1)
+                    # Compute target confidence
+                    probs = F.softmax(logits_i, dim=-1)
+                    max_probs, pred_classes = probs.max(dim=-1)
 
-                target_confidence = (pred_classes == y).float().unsqueeze(-1) * max_probs.unsqueeze(-1)
+                    if y.dim() == 2 and y.size(-1) > 1:
+                        y = y.argmax(dim=-1)
 
-                # Compute loss
-                loss = criterion(confidence_scores, target_confidence)
-                epoch_loss += loss.item()
+                    target_confidence = (pred_classes == y).float().unsqueeze(-1) * max_probs.unsqueeze(-1)
 
-                # Backpropagation
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+                    loss = criterion(confidence_scores, target_confidence)
+                    epoch_loss += loss.item()
+
+                    optimizer.zero_grad()
+                    loss.backward()
+                    optimizer.step()
 
             print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+
+    # def train_confidence_net(self, model, data_loader, num_epochs=100, device='cuda'):
+    #     # Example usage
+    #     criterion = nn.MSELoss()
+    #     optimizer = torch.optim.Adam(model.confidence_net.parameters(), lr=1e-4)
+    #     model.train()
+    #     for epoch in range(num_epochs):
+    #         epoch_loss = 0
+    #         for x, y in data_loader:
+    #             x, y = x.to(device), y.to(device)
+    #
+    #             # Generate rollouts
+    #             logits, states = model.monte_carlo_search(x, return_states=True)
+    #
+    #             # Compute confidence
+    #             confidence_scores = model.estimate_step_confidence(states, logits)
+    #
+    #             # Define target confidence (e.g., based on correctness of logits).
+    #             probs = F.softmax(logits, dim=-1)
+    #             max_probs, pred_classes = probs.max(dim=-1)
+    #
+    #             # Convert y to class indices if it's one-hot encoded.
+    #             if y.dim() == 2 and y.size(-1) > 1:
+    #                 y = y.argmax(dim=-1)
+    #
+    #             target_confidence = (pred_classes == y).float().unsqueeze(-1) * max_probs.unsqueeze(-1)
+    #
+    #             # Compute loss
+    #             loss = criterion(confidence_scores, target_confidence)
+    #             epoch_loss += loss.item()
+    #
+    #             # Backpropagation
+    #             optimizer.zero_grad()
+    #             loss.backward()
+    #             optimizer.step()
+    #
+    #         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
 
     def monte_carlo_search(
         self, 
