@@ -337,7 +337,10 @@ def load_data(
     return scaled_dataset, targets
 
 def main():
+    # Set dataset and output dimensions
     dataset = "species"
+    # Output dimensions for transformer for each dataset.
+    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
     # Load data
     scaled_dataset, targets = load_data(dataset=dataset)
     
@@ -347,7 +350,6 @@ def main():
     
     # Perform Stratified Cross-Validation
     n_splits = 3 if dataset == "part" else 5 # Not enough classes for 5-fold cross-validation on the "part" dataset.
-    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
     kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     
     for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):

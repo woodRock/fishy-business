@@ -28,7 +28,7 @@ class SimCLRConfig:
     """Configuration for SimCLR model with default values."""
     temperature: float = 0.5
     projection_dim: int = 128
-    embedding_dim: int = 256
+    embedding_dim: int = 512
     learning_rate: float = 1e-3
     weight_decay: float = 1e-6
     batch_size: int = 32
@@ -79,45 +79,62 @@ class SimCLRModel(nn.Module):
         return h1, None
 
 class SimCLRLoss(nn.Module):
-    """Loss function for SimCLR training."""
-    
-    def __init__(self, threshold: float = 0.5):
+    def __init__(self, temperature=0.07):
         super().__init__()
-        self.threshold = threshold
+        self.temperature = temperature
     
-    def forward(self, z1: torch.Tensor, z2: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
-        z1 = F.normalize(z1 + 1e-8, dim=1)
-        z2 = F.normalize(z2 + 1e-8, dim=1)
+    def forward(self, z1, z2, labels):
+        batch_size = z1.shape[0]
+        features = torch.cat([z1, z2], dim=0)
         
-        similarities = F.cosine_similarity(z1, z2)
-        label_pairs = torch.argmax(labels, dim=1)
+        # Compute similarity matrix
+        similarity = torch.matmul(features, features.T) / self.temperature
         
-        probs = torch.clamp((similarities + 1) / 2, min=1e-6, max=1-1e-6)
-        loss = F.binary_cross_entropy(probs, label_pairs.float())
+        # Create mask for positive pairs
+        pos_mask = torch.zeros((2 * batch_size, 2 * batch_size), device=z1.device)
+        pos_mask[:batch_size, batch_size:] = torch.eye(batch_size)
+        pos_mask[batch_size:, :batch_size] = torch.eye(batch_size)
+        
+        # Mask out self-contrast cases
+        mask = torch.eye(2 * batch_size, device=z1.device)
+        mask = 1 - mask
+        
+        # Compute NT-Xent loss
+        exp_sim = torch.exp(similarity) * mask
+        log_prob = similarity - torch.log(exp_sim.sum(dim=1, keepdim=True) + 1e-7)
+        loss = -(pos_mask * log_prob).sum() / (2 * batch_size)
         
         return loss
 
+
 class SimCLRTrainer:
-    """Trainer class for SimCLR model."""
-    
     def __init__(self, model: SimCLRModel, config: SimCLRConfig, device: torch.device):
         self.model = model
         self.config = config
         self.device = device
         
+        # Separate learning rates for encoder and projector
         self.optimizer = optim.AdamW([
             {'params': model.encoder.parameters(), 'lr': config.learning_rate},
-            {'params': model.projector.parameters(), 'lr': config.learning_rate},
+            {'params': model.projector.parameters(), 'lr': config.learning_rate * 10},
         ], weight_decay=config.weight_decay)
         
-        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(
-            self.optimizer, T_max=config.num_epochs
+        # OneCycleLR scheduler with warmup
+        self.scheduler = optim.lr_scheduler.OneCycleLR(
+            self.optimizer,
+            max_lr=[config.learning_rate, config.learning_rate * 10],
+            epochs=config.num_epochs,
+            steps_per_epoch=500,  # Adjust based on your dataset size
+            pct_start=0.1,
+            anneal_strategy='cos',
+            div_factor=25.0,
+            final_div_factor=10000.0
         )
         
         self.contrastive_loss = SimCLRLoss()
-    
+        self.scaler = torch.cuda.amp.GradScaler()
+        
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
-        """Train the model for one epoch."""
         self.model.train()
         total_loss = 0
         all_embeddings_1, all_embeddings_2, all_labels = [], [], []
@@ -126,20 +143,25 @@ class SimCLRTrainer:
             x1, x2 = x1.float().to(self.device), x2.float().to(self.device)
             labels = labels.float().to(self.device)
             
-            z1, z2 = self.model(x1, x2)
-            loss = self.contrastive_loss(z1, z2, labels)
+            with torch.cuda.amp.autocast():
+                z1, z2 = self.model(x1, x2)
+                loss = self.contrastive_loss(z1, z2, labels)
             
             self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            self.scaler.scale(loss).backward()
             
-            all_embeddings_1.append(z1)
-            all_embeddings_2.append(z2)
+            # Gradient clipping
+            self.scaler.unscale_(self.optimizer)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+            
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+            self.scheduler.step()
+            
+            all_embeddings_1.append(z1.detach())
+            all_embeddings_2.append(z2.detach())
             all_labels.append(labels)
             total_loss += loss.item()
-            
-            if batch_idx % 10 == 0:
-                print(f'Batch [{batch_idx}/{len(train_loader)}], Loss: {loss.item():.4f}')
         
         embeddings_1 = torch.cat(all_embeddings_1)
         embeddings_2 = torch.cat(all_embeddings_2)
@@ -288,29 +310,23 @@ def create_encoder(config: SimCLRConfig, encoder_type: str) -> nn.Module:
     
     return encoder_mapping[encoder_type]()
 
-def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tuple[SimCLRModel, Dict, Dict]:
-    """Main training function for SimCLR."""
+def train_simclr(config: SimCLRConfig, encoder_type: str = 'vae') -> Tuple[SimCLRModel, Dict, Dict]:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-    
     train_loader, val_loader = prepare_dataset(DataConfig())
     
     encoder = create_encoder(config, encoder_type)
     model = SimCLRModel(encoder=encoder, config=config).to(device)
     trainer = SimCLRTrainer(model, config, device)
     
-    print("\nStarting training...")
     best_val_acc = 0
     best_model_state = None
     best_metrics = None
+    patience = 1000 # Early stopping disabled.
+    patience_counter = 0
     
     for epoch in range(config.num_epochs):
         train_loss, train_acc = trainer.train_epoch(train_loader)
         val_acc, val_loss = trainer.evaluate_model(val_loader)
-        
-        print(f"Epoch {epoch+1}/{config.num_epochs}")
-        print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
-        print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
         
         if val_acc > best_val_acc:
             best_val_acc = val_acc
@@ -325,16 +341,22 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tup
                 'train_loss': train_loss,
                 'val_loss': val_loss
             }
-            torch.save(best_model_state, "best_model.pth")
-            print(f"New best model saved! Validation accuracy: {val_acc:.2f}%")
-        print("-" * 50)
-    
-    print(f"\nFinal Results:")
-    for metric, value in best_metrics.items():
-        print(f"{metric}: {value:.4f}")
-    
+            patience_counter = 0
+            torch.save(best_model_state, f"best_model_{encoder_type}.pth")
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                print(f"Early stopping triggered at epoch {epoch+1}")
+                break
+                
+        print(f"Epoch {epoch+1}/{config.num_epochs}")
+        print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
+        print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
+        
     return model, best_model_state, best_metrics
 
 if __name__ == "__main__":
     config = SimCLRConfig()
     model, best_state, best_metrics = train_simclr(config)
+    # Print the best metrics.,]
+    print(best_metrics)
