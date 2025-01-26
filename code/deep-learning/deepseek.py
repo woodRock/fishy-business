@@ -1,3 +1,23 @@
+"""
+DeepSeek: Reinforcement Learning for Transformer-based Classification. 
+
+A PyTorch implementation of a vanilla transformer-based classifier (Vaswani et al., 2017) 
+trained using the Generalized Reward-Per-Optimization (GRPO) algorithm (Guo et al., 2025). 
+The model is pre-trained using cross-entropy loss and fine-tuned using GRPO to incentivize reasoning capability in large language models (LLMs). 
+The code is adapted from the AlphaGo Zero algorithm (Silver et al., 2017) and is designed to work with a variety of datasets.
+
+References:
+1. Vaswani, A. (2017). 
+    Attention is all you need. 
+    Advances in Neural Information Processing Systems.
+2. Guo, D., Yang, D., Zhang, H., Song, J., Zhang, R., Xu, R., ... & He, Y. (2025). 
+    DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning. 
+    arXiv preprint arXiv:2501.12948.
+3. Silver, D., Schrittwieser, J., Simonyan, K., Antonoglou, I., Huang, A., Guez, A., ... & Hassabis, D. (2017). 
+    Mastering the game of go without human knowledge. 
+    nature, 550(7676), 354-359.
+"""
+
 import math
 import torch
 import torch.nn as nn
@@ -12,6 +32,18 @@ import numpy as np
 
 class TransformerClassifier(nn.Module):
     def __init__(self, nfeatures, ninp, nhead, nhid, nlayers, nclasses, dropout=0.5):
+        """ 
+        Transformer-based classifier.
+
+        Args:
+            nfeatures (int): The number of input features.
+            ninp (int): The number of expected features in the input.
+            nhead (int): The number of heads in the multiheadattention models.
+            nhid (int): The dimension of the feedforward network model.
+            nlayers (int): The number of sub-encoder-layers in the encoder.
+            nclasses (int): The number of classes in the dataset.
+            dropout (float): The dropout value. Defaults to 0.5.
+        """
         super(TransformerClassifier, self).__init__()
         
         self.encoder = nn.Sequential(
@@ -45,6 +77,15 @@ class TransformerClassifier(nn.Module):
         self.ninp = ninp
 
     def forward(self, src):
+        """ 
+        Forward pass through the model.
+
+        Args: 
+            src (Tensor): The input features.
+
+        Returns: 
+            output (Tensor): The output logits.
+        """
         src = self.encoder(src)
         src = src.unsqueeze(1)
         output = self.transformer(src)
@@ -52,6 +93,18 @@ class TransformerClassifier(nn.Module):
         return output
 
 def compute_rewards(model, src, labels):
+    """ 
+    Compute rewards for the given model and data.
+
+    Args:
+        model (nn.Module): The model to evaluate.
+        src (Tensor): The input features.
+        labels (Tensor): The target labels.
+
+    Returns: 
+        rewards (Tensor): The rewards for the current policy.
+        accuracy (float): The accuracy of the model.
+    """
     with torch.no_grad():
         logits = model(src)  # [batch_size, num_classes]
         probs = F.softmax(logits, dim=-1)
@@ -71,6 +124,18 @@ def compute_rewards(model, src, labels):
     return rewards, accuracy
 
 def grpo_loss(policy, old_policy, rewards, target_kl=0.01):
+    """
+    Compute the Generalized Reward-Per-Optimization (GRPO) loss.
+
+    Args: 
+        policy (Tensor): The current policy.
+        old_policy (Tensor): The policy from the previous iteration.
+        rewards (Tensor): The rewards for the current policy.
+        target_kl (float): The target KL divergence between old and new policies. Defaults to 0.01.
+
+    Returns:
+        loss (Tensor): The GRPO loss.
+    """
     log_probs = F.log_softmax(policy, dim=1)  # [batch_size, num_classes]
     old_log_probs = F.log_softmax(old_policy, dim=1)
     ratios = torch.exp(log_probs - old_log_probs)
@@ -87,6 +152,21 @@ def grpo_loss(policy, old_policy, rewards, target_kl=0.01):
     return policy_loss + target_kl * kl_loss
 
 def train_grpo(model, optimizer, src, old_policy, rewards, max_kl=0.1):
+    """ 
+    Perform a single update step using the Generalized Reward-Per-Optimization (GRPO) algorithm.
+
+    Args:
+        model (nn.Module): The model to train.
+        optimizer (torch.optim.Optimizer): The optimizer to use.
+        src (Tensor): The input features.
+        old_policy (Tensor): The policy from the previous iteration.
+        rewards (Tensor): The rewards for the current policy.
+        max_kl (float): The maximum KL divergence between old and new policies. Defaults to 0.1.
+
+    Returns: 
+        loss (float): The loss value.
+        policy (Tensor): The new policy.
+    """
     loss = torch.tensor(0.0)
     policy = None
     
@@ -104,6 +184,18 @@ def train_grpo(model, optimizer, src, old_policy, rewards, max_kl=0.1):
     return loss.item(), policy
 
 def pretrain(model, train_loader, val_loader, epochs=50):
+    """
+    Pretrain the model using cross-entropy loss. 
+
+    Args: 
+        model (nn.Module): The model to train.
+        train_loader (DataLoader): The training DataLoader.
+        val_loader (DataLoader): The validation DataLoader.
+        epochs (int): The number of epochs to train for.
+
+    Returns: 
+        model (nn.Module): The trained model.
+    """
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, weight_decay=0.01)
     scheduler = ReduceLROnPlateau(optimizer, 'max', patience=5)
@@ -157,6 +249,16 @@ def pretrain(model, train_loader, val_loader, epochs=50):
     return model
 
 def load_data(dataset="species"):
+    """ 
+    Load the specified dataset and scale the features using Standard.
+
+    Args: 
+        dataset (str): The name of the dataset to load. One of ["species", "part", "oil", "cross-species"].
+
+    Returns: 
+        scaled_dataset (TensorDataset): The scaled dataset.
+        targets (list): The target labels.
+    """
     data_module = create_data_module(
         dataset_name=dataset,
         batch_size=32,
