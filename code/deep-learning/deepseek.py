@@ -6,6 +6,28 @@ trained using the Generalized Reward-Per-Optimization (GRPO) algorithm (Guo et a
 The model is pre-trained using cross-entropy loss and fine-tuned using GRPO to incentivize reasoning capability in large language models (LLMs). 
 The code is adapted from the AlphaGo Zero algorithm (Silver et al., 2017) and is designed to work with a variety of datasets.
 
+Results: 
+
+## Species 
+
+Pretrain Validation Accuracy: Mean = 0.935, Std = 0.037
+GRPO Validation Accuracy: Mean = 0.963, Std = 0.034
+
+## Part 
+
+Pretrain Validation Accuracy: Mean = 0.472, Std = 0.104
+GRPO Validation Accuracy: Mean = 0.528, Std = 0.142
+
+## Cross-species 
+
+Pretrain Validation Accuracy: Mean = 0.798, Std = 0.056
+GRPO Validation Accuracy: Mean = 0.817, Std = 0.049
+
+## Oil 
+
+Pretrain Validation Accuracy: Mean = 0.325, Std = 0.068
+GRPO Validation Accuracy: Mean = 0.365, Std = 0.045
+
 References:
 1. Vaswani, A. (2017). 
     Attention is all you need. 
@@ -31,7 +53,16 @@ from util import create_data_module
 import numpy as np
 
 class TransformerClassifier(nn.Module):
-    def __init__(self, nfeatures, ninp, nhead, nhid, nlayers, nclasses, dropout=0.5):
+    def __init__(
+        self, 
+        nfeatures: int = 2080, 
+        ninp: int = 256, 
+        nhead: int = 8, 
+        nhid: int = 512, 
+        nlayers: int = 3, 
+        nclasses: int = 2, 
+        dropout: int = 0.5
+    ) -> None:
         """ 
         Transformer-based classifier.
 
@@ -76,7 +107,10 @@ class TransformerClassifier(nn.Module):
         
         self.ninp = ninp
 
-    def forward(self, src):
+    def forward(
+        self, 
+        src: torch.Tensor
+    ) -> torch.Tensor:
         """ 
         Forward pass through the model.
 
@@ -92,7 +126,11 @@ class TransformerClassifier(nn.Module):
         output = self.decoder(output.squeeze(1))
         return output
 
-def compute_rewards(model, src, labels):
+def compute_rewards(
+        model: nn.Module, 
+        src: torch.Tensor, 
+        labels: torch.Tensor
+    ) -> torch.Tensor:
     """ 
     Compute rewards for the given model and data.
 
@@ -123,7 +161,12 @@ def compute_rewards(model, src, labels):
         
     return rewards, accuracy
 
-def grpo_loss(policy, old_policy, rewards, target_kl=0.01):
+def grpo_loss(
+        policy: torch.Tensor, 
+        old_policy: torch.Tensor, 
+        rewards: torch.Tensor, 
+        target_kl: float = 0.01
+    ) -> torch.Tensor:
     """
     Compute the Generalized Reward-Per-Optimization (GRPO) loss.
 
@@ -151,7 +194,14 @@ def grpo_loss(policy, old_policy, rewards, target_kl=0.01):
     
     return policy_loss + target_kl * kl_loss
 
-def train_grpo(model, optimizer, src, old_policy, rewards, max_kl=0.1):
+def train_grpo(
+    model: nn.Module, 
+    optimizer: torch.optim.Optimizer, 
+    src: torch.Tensor, 
+    old_policy: torch.Tensor, 
+    rewards: torch.Tensor, 
+    max_kl: float = 0.1
+) -> (float, torch.Tensor):
     """ 
     Perform a single update step using the Generalized Reward-Per-Optimization (GRPO) algorithm.
 
@@ -183,7 +233,12 @@ def train_grpo(model, optimizer, src, old_policy, rewards, max_kl=0.1):
     
     return loss.item(), policy
 
-def pretrain(model, train_loader, val_loader, epochs=50):
+def pretrain(
+    model: nn.Module, 
+    train_loader: DataLoader, 
+    val_loader: DataLoader, 
+    epochs: int = 50
+) -> nn.Module:
     """
     Pretrain the model using cross-entropy loss. 
 
@@ -248,7 +303,9 @@ def pretrain(model, train_loader, val_loader, epochs=50):
     
     return model
 
-def load_data(dataset="species"):
+def load_data(
+    dataset: str = "species"
+) -> (TensorDataset, list):
     """ 
     Load the specified dataset and scale the features using Standard.
 
