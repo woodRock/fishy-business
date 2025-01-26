@@ -576,6 +576,7 @@ class ModelTrainer:
                 train_loader,
                 criterion,
                 optimizer,
+                n_splits=1 if self.config.dataset in ["instance-recognition"] else 5,
                 num_epochs=self.config.epochs,
                 patience=self.config.early_stopping,
                 is_augmented=self.config.data_augmentation,
@@ -756,6 +757,7 @@ def parse_arguments() -> argparse.Namespace:
         "--data-augmentation",
         action="store_true",
         help="Enable data augmentation",
+        default=False,
     )
     parser.add_argument(
         "-msm",
@@ -866,6 +868,8 @@ def main() -> None:
         # Initialize trainer
         trainer = ModelTrainer(config)
         trainer.logger.info("Starting training pipeline")
+
+        print(f"config.data_augmentation: {config.data_augmentation}")
 
         # Create augmentation configuration
         aug_config = AugmentationConfig(

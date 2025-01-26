@@ -109,24 +109,35 @@ class EncoderNetwork(nn.Module):
         return F.normalize(z, dim=1)
 
 class ContrastiveLoss(nn.Module):
-    def __init__(self, threshold=0.5):
+    def __init__(self, temperature=0.07):
         super().__init__()
-        self.threshold = threshold
+        self.temperature = temperature
     
     def forward(self, z1, z2, labels):
-        z1 = F.normalize(z1 + 1e-8, dim=1)
-        z2 = F.normalize(z2 + 1e-8, dim=1)
+        # Normalize embeddings
+        z1 = F.normalize(z1, dim=1)
+        z2 = F.normalize(z2, dim=1)
         
-        similarities = F.cosine_similarity(z1, z2)
-        label_pairs = torch.argmax(labels, dim=1)
+        # Compute similarity matrix
+        batch_size = z1.shape[0]
+        features = torch.cat([z1, z2], dim=0)
+        similarity = F.cosine_similarity(features.unsqueeze(1), features.unsqueeze(0), dim=2)
         
-        # Scale similarities more aggressively
-        probs = torch.clamp((similarities + 1) / 2, min=1e-6, max=1-1e-6)
+        # Apply temperature scaling
+        similarity = similarity / self.temperature
         
-        # Remove label smoothing to allow perfect classification
-        loss = F.binary_cross_entropy(probs, label_pairs.float())
+        # Create mask for positive pairs
+        pos_mask = torch.zeros((2 * batch_size, 2 * batch_size), device=z1.device)
+        pos_mask[:batch_size, batch_size:] = torch.eye(batch_size)
+        pos_mask[batch_size:, :batch_size] = torch.eye(batch_size)
+        
+        # Compute InfoNCE loss
+        exp_sim = torch.exp(similarity)
+        log_prob = similarity - torch.log(exp_sim.sum(dim=1, keepdim=True))
+        loss = -(pos_mask * log_prob).sum() / (2 * batch_size)
         
         return loss
+
 
 def compute_accuracy(embeddings_1, embeddings_2, labels):
     """Basic accuracy computation"""
@@ -148,17 +159,30 @@ def train_contrastive_model(train_loader, val_loader, input_dim, device='cuda',
                           hidden_dims=[1024, 512, 256, 128], embedding_dim=128, epochs=1000):
     
     model = EncoderNetwork(input_dim, hidden_dims, embedding_dim).to(device)
-    criterion = ContrastiveLoss()
-    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
+    criterion = ContrastiveLoss(temperature=0.07)
     
-    best_val_acc = 0.0
+    # Use larger batch size if possible
+    # Add weight decay for regularization
+    optimizer = torch.optim.AdamW(model.parameters(), lr=2e-4, weight_decay=0.01)
+    
+    # Cosine learning rate scheduler with warmup
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=2e-4,
+        epochs=epochs,
+        steps_per_epoch=len(train_loader),
+        pct_start=0.1,  # 10% warmup
+        anneal_strategy='cos'
+    )
+    
+    best_val_loss = float('inf')
     best_state = None
+    patience = 1000
+    patience_counter = 0
     
     for epoch in range(epochs):
         # Training
         model.train()
-        train_loss = 0
-
         train_losses = []
         train_accuracies = []
         
@@ -167,26 +191,23 @@ def train_contrastive_model(train_loader, val_loader, input_dim, device='cuda',
             labels = labels.to(device)
             
             optimizer.zero_grad()
+            
+            # Add gradient accumulation for larger effective batch size
             z1 = model(spec1)
             z2 = model(spec2)
             
             loss = criterion(z1, z2, labels)
             loss.backward()
-
-            # Gradient clipping.
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
-
+            
+            # Gradient clipping
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            
             optimizer.step()
-
+            scheduler.step()
+            
             train_acc = compute_accuracy(z1, z2, labels)
-                
             train_losses.append(loss.item())
             train_accuracies.append(train_acc)
-            
-            train_loss += loss.item()
-
-        avg_train_loss = np.mean(train_losses)
-        avg_train_acc = np.mean(train_accuracies)
         
         # Validation
         model.eval()
@@ -207,19 +228,27 @@ def train_contrastive_model(train_loader, val_loader, input_dim, device='cuda',
                 val_losses.append(val_loss.item())
                 val_accuracies.append(val_acc)
         
+        avg_train_loss = np.mean(train_losses)
+        avg_train_acc = np.mean(train_accuracies)
         avg_val_loss = np.mean(val_losses)
         avg_val_acc = np.mean(val_accuracies)
         
+        # Early stopping with patience
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            best_state = model.state_dict()
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                print(f"Early stopping triggered at epoch {epoch+1}")
+                break
+        
         print(f"Epoch [{epoch+1}/{epochs}]: "
-              f"Train Loss = {train_loss/len(train_loader):.4f}, "
+              f"Train Loss = {avg_train_loss:.4f}, "
               f"Train Acc = {avg_train_acc:.4f}, "
               f"Val Loss = {avg_val_loss:.4f}, "
               f"Val Acc = {avg_val_acc:.4f}")
-        
-        # Save best model
-        if avg_val_acc > best_val_acc:
-            best_val_acc = avg_val_acc
-            best_state = model.state_dict()
     
     if best_state is not None:
         model.load_state_dict(best_state)

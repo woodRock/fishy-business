@@ -47,14 +47,13 @@ class DataConfig:
     dataset_name: str = "instance-recognition"
     batch_size: int = 64
     pairs_per_sample: int = 50
-    test_size: float = 0.5
+    test_size: float = 0.4
     data_path: List[str] = None
     
     def __post_init__(self):
         if self.data_path is None:
-            # self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
-            self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
-
+            self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
+            # self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
 
 class SiameseDataset(Dataset):
     """Dataset for contrastive learning with all possible pairs."""
@@ -222,7 +221,7 @@ class DataPreprocessor:
             data = data[~data['m/z'].str.contains('MO', case=False, na=False)]
             
         if dataset == "instance-recognition":
-            pattern = r'QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads'
+            pattern = r"QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads"
             data = data[~data.iloc[:, 0].astype(str).str.contains(pattern, case=False, na=False)]
             
         if len(data) == 0:
