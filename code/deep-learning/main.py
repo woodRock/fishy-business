@@ -308,7 +308,7 @@ class ModelTrainer:
             )
 
             # Train the confidence network. This is a separate training loop.
-            model.train_confidence_net(
+            model.train_prm(
                 model, 
                 train_loader,
                 val_loader,

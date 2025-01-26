@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Dict, List, Tuple, Optional, Union
 import random
+from collections import defaultdict
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, input_dim: int, num_heads: int) -> None:
@@ -35,6 +36,53 @@ class MultiHeadAttention(nn.Module):
         x = (attn @ v).transpose(1, 2).reshape(batch_size, -1, self.input_dim)
         x = self.fc_out(x)
         return x
+
+class ProcessRewardModel(nn.Module):
+    def __init__(self, input_dim: int, hidden_dim: int = 512):
+        super().__init__()
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.GELU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.GELU(),
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.GELU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, 1),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        input_shape = x.shape
+        
+        if len(input_shape) == 4:  # [batch, num_layers, seq_len, hidden_dim]
+            batch_size, num_layers, seq_len, hidden_dim = input_shape
+            x = x.reshape(-1, hidden_dim)
+        elif len(input_shape) == 3:  # [batch, seq_len, hidden_dim]
+            batch_size, seq_len, hidden_dim = input_shape
+            x = x.reshape(-1, hidden_dim)
+        else:
+            raise ValueError(f"Unexpected input shape: {input_shape}")
+        
+        encoded = self.encoder(x)
+        scores = self.classifier(encoded)
+        
+        if len(input_shape) == 4:
+            scores = scores.reshape(batch_size, num_layers, seq_len).mean(dim=-1)
+        else:
+            scores = scores.reshape(batch_size, seq_len).mean(dim=-1)
+            
+        return scores
 
 class TestTimeTransformer(nn.Module):
     def __init__(
@@ -95,24 +143,7 @@ class TestTimeTransformer(nn.Module):
         self.fc_out = nn.Linear(hidden_dim, num_classes)
         
         # Process Reward Model components
-        self.prm_encoder = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim * 2),
-            nn.LayerNorm(hidden_dim * 2),
-            nn.GELU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim * 2, hidden_dim),
-            nn.LayerNorm(hidden_dim),
-            nn.GELU()
-        )
-        
-        self.confidence_net = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.LayerNorm(hidden_dim),
-            nn.GELU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim, 1),
-            nn.Sigmoid()
-        )
+        self.prm = ProcessRewardModel(input_dim=hidden_dim, hidden_dim=hidden_dim)
 
     def _process_step(self, x: torch.Tensor, layer_idx: int) -> torch.Tensor:
         """Process input through a single transformer layer."""
@@ -165,56 +196,45 @@ class TestTimeTransformer(nn.Module):
 
     def estimate_step_confidence(
         self,
-        states: List[torch.Tensor],
-        logits: torch.Tensor
+        states: Union[List[torch.Tensor], torch.Tensor],
+        logits: torch.Tensor,
     ) -> torch.Tensor:
-        """Estimate confidence using process rewards."""
-        # Encode states
-        encoded_states = [self.prm_encoder(s.mean(dim=1)) for s in states]
-        state_features = torch.stack(encoded_states).mean(dim=0)
-        
-        # Get prediction info
-        probs = F.softmax(logits, dim=-1)
-        max_probs, pred_classes = probs.max(dim=-1)
-        
-        # Compute margins
-        sorted_probs, _ = probs.sort(dim=-1, descending=True)
-        margin = sorted_probs[:, 0] - sorted_probs[:, 1]
-        
-        # Initialize rewards
-        batch_size = logits.size(0)
-        rewards = torch.zeros_like(margin)  # Use margin shape for consistency
-        
-        # Calculate improvements state by state
-        for i in range(1, len(states)):
-            prev_states = states[i-1].mean(dim=1)  # [batch_size, hidden_dim]
-            curr_states = states[i].mean(dim=1)    # [batch_size, hidden_dim]
-            
-            # Handle single example case (genetic search)
-            if prev_states.dim() == 1:
-                prev_states = prev_states.unsqueeze(0)
-                curr_states = curr_states.unsqueeze(0)
-            
-            # Calculate cosine similarity for batch
-            improvements = F.cosine_similarity(curr_states, prev_states, dim=1)
-            rewards = rewards + improvements
-        
-        process_reward = torch.sigmoid(rewards / len(states))
-        
-        # Combine confidence factors
-        margin_factor = margin.unsqueeze(-1)
-        reward_factor = process_reward.unsqueeze(-1)
-        confidence = self.confidence_net(state_features) * (
-            0.4 + 0.3 * margin_factor + 0.3 * reward_factor
-        )
-        
-        # Clamp confidence
-        confidence = torch.clamp(confidence, self.min_confidence, self.max_confidence)
-        confidence = torch.min(confidence, max_probs.unsqueeze(-1))
-        
-        return confidence
+        if isinstance(states, torch.Tensor):
+            states = [states]
 
-    def train_confidence_net(
+        step_scores = []
+        for state in states:
+            if state.dim() == 2:
+                state = state.unsqueeze(0)
+            scores = self.prm(state)
+            step_scores.append(scores)
+
+        confidence = torch.stack(step_scores).mean(dim=0)
+        return confidence
+        
+    def evaluate_step_correctness(
+        self,
+        states: List[torch.Tensor],
+        labels: torch.Tensor
+    ) -> List[int]:
+        """
+        Evaluate the correctness of each step using the ground-truth labels.
+        Args:
+            states: List of intermediate states (steps) from the model.
+            labels: Ground-truth labels for each step.
+        Returns:
+            step_labels: List of correctness labels for each step.
+        """
+        step_labels = []
+        for state in states:
+            # Ensure the state has the correct shape (seq_len, hidden_dim)
+            if state.dim() == 2:
+                state = state.unsqueeze(0)
+            scores = self.prm(state)  # (seq_len,)
+            step_labels.extend((scores > 0.5).int().cpu().numpy().tolist())
+        return step_labels
+
+    def train_prm(
         self,
         model,
         train_loader,
@@ -222,73 +242,97 @@ class TestTimeTransformer(nn.Module):
         num_epochs: int = 100,
         patience: int = 10,
         min_delta: float = 1e-4,
-        device: str = 'cuda'
+        device: str = "cuda",
     ) -> Dict[str, List[float]]:
-        """Train confidence network using Monte Carlo rollouts with on-policy rewards."""
-        criterion = nn.MSELoss()
-        optimizer = torch.optim.Adam(model.confidence_net.parameters(), lr=1e-4)
-        
-        # Track metrics
-        history = {'train_losses': [], 'val_losses': []}
-        best_val_loss = float('inf')
+        criterion = nn.BCELoss()
+        optimizer = torch.optim.AdamW(model.prm.parameters(), lr=1e-5, weight_decay=0.01)
+        history = {"train_losses": [], "val_losses": []}
+        best_val_loss = float("inf")
         epochs_no_improve = 0
-        
+
+        model.to(device)
         for epoch in range(num_epochs):
             model.train()
             epoch_train_loss = 0
             num_train_batches = 0
-            
+
             for x, y in train_loader:
                 x, y = x.to(device), y.to(device)
                 optimizer.zero_grad()
 
-                # Generate Monte Carlo rollouts
-                num_rollouts = 16
-                all_logits = []
-                all_states = []
-                correct_counts = torch.zeros(x.size(0)).to(device)
+                # Generate intermediate states using Monte Carlo search
+                _, states = model.monte_carlo_search(x, return_states=True)
+                states_tensor = torch.stack(states).transpose(0, 1).contiguous()  # [batch, num_layers, seq_len, hidden_dim]
                 
-                # Do multiple rollouts per sample
-                for _ in range(num_rollouts):
-                    logits, states = model.monte_carlo_search(x, return_states=True)
-                    all_logits.append(logits)
-                    all_states.append(states)
-                    
-                    # Track prediction correctness
-                    preds = logits.argmax(dim=-1)
-                    correct_counts += (preds == y.argmax(dim=-1)).float()
+                # Get model predictions for the final output
+                final_output = model.forward_pass(x)['logits']
+                preds = torch.argmax(final_output, dim=-1)  # Predicted class 
+                y = torch.argmax(y, dim=-1) if y.dim() > 1 else y  # Handle both one-hot and index labels
+
+                # Create step labels based on correctness of predictions
+                correct_preds = (preds == y).float()  # [batch]
+                step_labels = correct_preds.unsqueeze(1).expand(-1, states_tensor.size(1))  # [batch, num_layers]
                 
-                # Compute average correctness as target confidence 
-                target_confidence = (correct_counts / num_rollouts).unsqueeze(-1)
+                # Forward pass through PRM
+                step_scores = model.prm(states_tensor)
                 
-                # Get average predictions and states
-                avg_logits = torch.stack(all_logits).mean(dim=0)
-                avg_states = [torch.stack([s[i] for s in all_states]).mean(dim=0) 
-                            for i in range(len(all_states[0]))]
-                
-                # Compute confidence scores
-                confidence_scores = model.estimate_step_confidence(avg_states, avg_logits)
-                
-                # Compute loss and update
-                loss = criterion(confidence_scores, target_confidence)
+                # Compute loss and backpropagate
+                loss = criterion(step_scores, step_labels)
                 loss.backward()
-                optimizer.step()
                 
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                optimizer.step()
+
                 epoch_train_loss += loss.item()
                 num_train_batches += 1
 
-            # Validation loop similar to training but without gradients
-            # Rest of the validation and early stopping code...
+            model.eval()
+            epoch_val_loss = 0
+            num_val_batches = 0
 
-    def _get_adaptive_temperature(self, confidence: torch.Tensor) -> float:
-        """Get adaptive temperature based on confidence."""
-        confidence_val = confidence.mean().item()
-        if confidence_val > 0.8:
-            return self.temperature * 0.5  # More conservative for high confidence
-        elif confidence_val > 0.6:
-            return self.temperature
-        else:
-            return self.temperature * 1.5  # More exploration for low confidence
+            with torch.no_grad():
+                for x, y in val_loader:
+                    x, y = x.to(device), y.to(device)
+                    _, states = model.monte_carlo_search(x, return_states=True)
+                    states_tensor = torch.stack(states).transpose(0, 1).contiguous()
+                    
+                    # Get model predictions for the final output
+                    final_output = model.forward_pass(x)['logits']
+                    preds = torch.argmax(final_output, dim=-1)  # Predicted class 
+                    y = torch.argmax(y, dim=-1) if y.dim() > 1 else y  # Handle both one-hot and index labels
+
+                    # Create step labels based on correctness of predictions
+                    correct_preds = (preds == y).float()  # [batch]
+                    step_labels = correct_preds.unsqueeze(1).expand(-1, states_tensor.size(1))  # [batch, num_layers]
+                    
+                    # Forward pass through PRM
+                    step_scores = model.prm(states_tensor)
+                    
+                    # Compute validation loss
+                    val_loss = criterion(step_scores, step_labels)
+                    
+                    epoch_val_loss += val_loss.item()
+                    num_val_batches += 1
+
+            avg_train_loss = epoch_train_loss / num_train_batches
+            avg_val_loss = epoch_val_loss / num_val_batches
+            
+            history["train_losses"].append(avg_train_loss)
+            history["val_losses"].append(avg_val_loss)
+            
+            print(f"Epoch {epoch + 1}/{num_epochs}")
+            print(f"Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+
+            if avg_val_loss < best_val_loss - min_delta:
+                best_val_loss = avg_val_loss
+                epochs_no_improve = 0
+            else:
+                epochs_no_improve += 1
+                if epochs_no_improve >= patience:
+                    print(f"Early stopping triggered after {epoch + 1} epochs")
+                    break
+
+        return history
 
     def monte_carlo_search(
         self, 
@@ -300,9 +344,6 @@ class TestTimeTransformer(nn.Module):
         best_confidence = -float('inf')
         best_output = None
         best_states = None
-
-        # Get adaptive temperature
-        # temperature = self._get_adaptive_temperature(initial_confidence) if initial_confidence is not None else self.temperature
         
         with torch.no_grad():
             for _ in range(self.num_mc_rollouts):
@@ -368,66 +409,53 @@ class TestTimeTransformer(nn.Module):
         self,
         x: torch.Tensor,
         beam_width: int = 4,
-        num_iterations: int = 10
+        num_iterations: int = 10,
     ) -> Tuple[torch.Tensor, List[torch.Tensor]]:
-        """Perform beam search over intermediate states."""
         with torch.no_grad():
-            # Initial forward pass
+            # Initial spectral embedding
+            features = self.spectral_embedding(x)
+            if features.dim() == 2:
+                features = features.unsqueeze(1)
+                
+            curr_states = []
             outputs = self.forward_pass(x)
             curr_states = outputs['intermediate_states']
             curr_logits = outputs['logits']
-            
-            # Initialize beam with first states
+
             beam = [{
                 'states': curr_states,
                 'logits': curr_logits,
                 'score': self.estimate_step_confidence(curr_states, curr_logits).mean().item()
             }]
-            
+
             for _ in range(num_iterations):
                 candidates = []
-                
-                # Expand each beam
                 for candidate in beam:
-                    # Generate variations
                     for _ in range(beam_width):
-                        # Add noise to states and recompute through transformer layers
-                        features = x
-                        noisy_states = []
-                        
-                        # First pass through spectral embedding
-                        features = self.spectral_embedding(features)
+                        features = self.spectral_embedding(x)
                         if features.dim() == 2:
                             features = features.unsqueeze(1)
-                        
-                        # Process through each transformer layer with noise
+                        noisy_states = []
+
                         for layer_idx in range(len(self.attention_layers)):
-                            # Add noise to current state
                             noise = torch.randn_like(features) * 0.1
                             features = features + noise
-                            
-                            # Process through layer
                             features = self._process_step(features, layer_idx)
                             noisy_states.append(features)
-                        
-                        # Generate logits from final features
+
                         final_features = features.mean(dim=1)
                         logits = self.fc_out(final_features)
-                        
-                        # Score candidate
                         score = self.estimate_step_confidence(noisy_states, logits).mean().item()
-                        
+
                         candidates.append({
                             'states': noisy_states,
                             'logits': logits,
                             'score': score
                         })
-                
-                # Select top candidates
+
                 candidates.sort(key=lambda x: x['score'], reverse=True)
                 beam = candidates[:beam_width]
-            
-            # Return best candidate
+
             best = max(beam, key=lambda x: x['score'])
             return best['logits'], best['states']
 
