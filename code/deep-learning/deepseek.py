@@ -40,6 +40,7 @@ References:
     nature, 550(7676), 354-359.
 """
 
+import copy
 import math
 import torch
 import torch.nn as nn
@@ -257,7 +258,8 @@ def pretrain(
     
     # Early stopping parameters
     best_val_acc = 0.0
-    patience = 50  # Number of epochs to wait for improvement before stopping
+    best_model = None
+    patience = epochs  # Number of epochs to wait for improvement before stopping
     patience_counter = 0
     
     for epoch in range(epochs):
@@ -293,6 +295,7 @@ def pretrain(
         # Early stopping logic
         if val_acc_mean > best_val_acc:
             best_val_acc = val_acc_mean
+            best_model = copy.deepcopy(model)
             patience_counter = 0
         else:
             patience_counter += 1
@@ -300,7 +303,9 @@ def pretrain(
         if patience_counter >= patience:
             print(f'Early stopping at epoch {epoch} (best Val Accuracy: {best_val_acc:.3f})')
             break
-    
+    if best_model is not None:
+        model = best_model
+
     return model
 
 def load_data(
@@ -338,113 +343,143 @@ def load_data(
 
 def main():
     # Set dataset and output dimensions
-    dataset = "species"
+    dataset = "oil"
     # Output dimensions for transformer for each dataset.
     n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
-    # Load data
-    scaled_dataset, targets = load_data(dataset=dataset)
     
-    # Initialize lists to store results
-    pretrain_results = []
-    grpo_results = []
+    # Initialize lists to store results across all runs
+    all_pretrain_results = []
+    all_grpo_results = []
     
-    # Perform Stratified Cross-Validation
-    n_splits = 3 if dataset == "part" else 5 # Not enough classes for 5-fold cross-validation on the "part" dataset.
-    kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-    
-    for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):
-        print(f"\nFold {fold + 1}/{n_splits}")
+    # Perform 30 independent runs
+    num_runs = 30
+    for run in range(num_runs):
+        print(f"\nRun {run + 1}/{num_runs}")
         
-        # Create train/val datasets for this fold
-        train_dataset = Subset(scaled_dataset, train_idx)
-        val_dataset = Subset(scaled_dataset, val_idx)
+        # Set a different random seed for each run
+        torch.manual_seed(run)
+        np.random.seed(run)
         
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+        # Load data
+        scaled_dataset, targets = load_data(dataset=dataset)
         
-        # Initialize model
-        model = TransformerClassifier(
-            nfeatures=2080, 
-            ninp=256, 
-            nhead=8, 
-            nhid=512, 
-            nlayers=3, 
-            nclasses=n_classes[dataset], 
-            dropout=0.3
-        )
+        # Initialize lists to store results for this run
+        pretrain_results = []
+        grpo_results = []
         
-        # Step 1: Pretrain with cross-entropy
-        print("Pretraining with cross-entropy...")
-        model = pretrain(model, train_loader, val_loader, epochs=50)
+        # Perform Stratified Cross-Validation
+        n_splits = 3 if dataset == "part" else 5  # Not enough classes for 5-fold cross-validation on the "part" dataset.
+        kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)  # Use run as the random seed
         
-        # Evaluate pretrained model
-        model.eval()
-        val_accuracies = []
-        with torch.no_grad():
-            for src, labels in val_loader:
-                rewards, acc = compute_rewards(model, src, labels)
-                val_accuracies.append(acc.item())
-        
-        pretrain_val_acc = sum(val_accuracies)/len(val_accuracies)
-        pretrain_results.append(pretrain_val_acc)
-        print(f'Pretrain Validation Accuracy: {pretrain_val_acc:.3f}')
-        
-        # Step 2: Fine-tune with GRPO
-        print("\nFine-tuning with GRPO...")
-        optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
-        scheduler = ReduceLROnPlateau(optimizer, mode='max', patience=5)
-        
-        # Early stopping parameters
-        best_val_acc = 0.0
-        patience = 50 # Perform full training, even if early stopping is triggered
-        patience_counter = 0
-        
-        for epoch in range(50):
-            train_accuracies = []
-            for src, labels in train_loader:
-                with torch.no_grad():
-                    old_policy = model(src)
-                rewards, acc = compute_rewards(model, src, labels)
-                train_accuracies.append(acc.item())
-                loss, new_policy = train_grpo(model, optimizer, src, old_policy, rewards)
+        for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):
+            print(f"\nFold {fold + 1}/{n_splits}")
             
-            val_accuracies = []
+            # Create train/val datasets for this fold
+            train_dataset = Subset(scaled_dataset, train_idx)
+            val_dataset = Subset(scaled_dataset, val_idx)
+            
+            train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+            val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
+            
+            # Initialize model
+            model = TransformerClassifier(
+                nfeatures=2080, 
+                ninp=256, 
+                nhead=8, 
+                nhid=512, 
+                nlayers=3, 
+                nclasses=n_classes[dataset], 
+                dropout=0.3
+            )
+            
+            # Step 1: Pretrain with cross-entropy
+            print("Pretraining with cross-entropy...")
+            model = pretrain(model, train_loader, val_loader, epochs=100)
+            
+            # Evaluate pretrained model
             model.eval()
+            val_accuracies = []
             with torch.no_grad():
                 for src, labels in val_loader:
                     rewards, acc = compute_rewards(model, src, labels)
                     val_accuracies.append(acc.item())
             
-            val_acc = sum(val_accuracies)/len(val_accuracies)
-            scheduler.step(val_acc)
+            pretrain_val_acc = sum(val_accuracies) / len(val_accuracies)
+            pretrain_results.append(pretrain_val_acc)
+            print(f'Pretrain Validation Accuracy: {pretrain_val_acc:.3f}')
             
-            print(f'Epoch {epoch}:')
-            print(f'  Train Accuracy: {sum(train_accuracies)/len(train_accuracies):.3f}')
-            print(f'  Val Accuracy: {val_acc:.3f}')
+            # # Step 2: Fine-tune with GRPO
+            # print("\nFine-tuning with GRPO...")
+            # optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5, weight_decay=0.01)
+            # scheduler = ReduceLROnPlateau(optimizer, mode='max', patience=5)
             
-            # Early stopping logic
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
-                patience_counter = 0
-            else:
-                patience_counter += 1
+            # # Early stopping parameters
+            # best_val_acc = 0.0
+            # best_model = copy.deepcopy(model)
+            # patience = 50  # Perform full training, even if early stopping is triggered
+            # patience_counter = 0
             
-            if patience_counter >= patience:
-                print(f'Early stopping at epoch {epoch} (best Val Accuracy: {best_val_acc:.3f})')
-                break
+            # for epoch in range(50):
+            #     train_accuracies = []
+            #     for src, labels in train_loader:
+            #         with torch.no_grad():
+            #             old_policy = model(src)
+            #         rewards, acc = compute_rewards(model, src, labels)
+            #         train_accuracies.append(acc.item())
+            #         loss, new_policy = train_grpo(model, optimizer, src, old_policy, rewards)
+                
+            #     val_accuracies = []
+            #     model.eval()
+            #     with torch.no_grad():
+            #         for src, labels in val_loader:
+            #             rewards, acc = compute_rewards(model, src, labels)
+            #             val_accuracies.append(acc.item())
+                
+            #     val_acc = sum(val_accuracies) / len(val_accuracies)
+            #     scheduler.step(val_acc)
+                
+            #     print(f'Epoch {epoch}:')
+            #     print(f'  Train Accuracy: {sum(train_accuracies) / len(train_accuracies):.3f}')
+            #     print(f'  Val Accuracy: {val_acc:.3f}')
+                
+            #     # Early stopping logic
+            #     if val_acc > best_val_acc:
+            #         best_val_acc = val_acc
+            #         best_model = copy.deepcopy(model)
+            #         patience_counter = 0
+            #     else:
+            #         patience_counter += 1
+                
+            #     if patience_counter >= patience:
+            #         print(f'Early stopping at epoch {epoch} (best Val Accuracy: {best_val_acc:.3f})')
+            #         break
+            
+            # grpo_results.append(best_val_acc)
+            # print(f'GRPO Validation Accuracy: {best_val_acc:.3f}')
+            
+            # if best_model is not None:
+            #     model = best_model
         
-        grpo_results.append(best_val_acc)
-        print(f'GRPO Validation Accuracy: {best_val_acc:.3f}')
+        # Store results for this run
+        all_pretrain_results.append(pretrain_results)
+        # all_grpo_results.append(grpo_results)
+        
+        print(f"\nRun {run + 1} Results:")
+        print(f'Pretrain Validation Accuracy: Mean = {np.mean(pretrain_results):.3f}, Std = {np.std(pretrain_results):.3f}')
+        # print(f'GRPO Validation Accuracy: Mean = {np.mean(grpo_results):.3f}, Std = {np.std(grpo_results):.3f}')
     
-    # Report mean and standard deviation of results
-    pretrain_mean = np.mean(pretrain_results)
-    pretrain_std = np.std(pretrain_results)
-    grpo_mean = np.mean(grpo_results)
-    grpo_std = np.std(grpo_results)
+    # Compute overall mean and standard deviation across all runs
+    all_pretrain_results = np.array(all_pretrain_results)
+    # all_grpo_results = np.array(all_grpo_results)
     
-    print("\nFinal Results:")
-    print(f'Pretrain Validation Accuracy: Mean = {pretrain_mean:.3f}, Std = {pretrain_std:.3f}')
-    print(f'GRPO Validation Accuracy: Mean = {grpo_mean:.3f}, Std = {grpo_std:.3f}')
+    overall_pretrain_mean = np.mean(all_pretrain_results)
+    overall_pretrain_std = np.std(all_pretrain_results)
+    # overall_grpo_mean = np.mean(all_grpo_results)
+    # overall_grpo_std = np.std(all_grpo_results)
+    
+    print("\nFinal Results Across All Runs:")
+    print(f'Pretrain Validation Accuracy: Mean = {overall_pretrain_mean:.3f}, Std = {overall_pretrain_std:.3f}')
+    # print(f'GRPO Validation Accuracy: Mean = {overall_grpo_mean:.3f}, Std = {overall_grpo_std:.3f}')
 
 if __name__ == "__main__":
     main()
