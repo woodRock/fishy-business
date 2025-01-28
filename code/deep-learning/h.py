@@ -253,6 +253,202 @@ class TransformerWithHeuristics(nn.Module):
             # Final classification
             output = self.classifier(best_state)
             return output, best_metrics, best_score / len(self.layers)  # Normalize by number of layers
+
+    def genetic_search(self, x: torch.Tensor):
+        """
+        Perform genetic algorithm search during transformer inference.
+        Returns output logits, metrics for each layer, and average quality score.
+        """
+        # Initialize parameters
+        population_size = 20
+        num_generations = 10
+        mutation_rate = 0.1
+        elite_size = 2
+    
+        def mutate(state):
+            """Apply random mutations to the state"""
+            mutation_mask = torch.rand_like(state, device=state.device) < mutation_rate
+            mutations = torch.randn_like(state, device=state.device) * 0.1
+            return torch.where(mutation_mask, state + mutations, state)
+        
+        def crossover(parent1, parent2):
+            """Perform crossover between two parent states"""
+            mask = torch.rand_like(parent1, device=parent1.device) > 0.5
+            child1 = torch.where(mask, parent1, parent2)
+            child2 = torch.where(mask, parent2, parent1)
+            return child1, child2
+
+        def compute_heuristics(state, previous_state, logits, layer_idx):
+            """Compute heuristics without requiring gradients"""
+            with torch.no_grad():
+                clarity = self.heuristics.representation_clarity(state).mean()
+                info_gain = self.heuristics.information_gain(state, previous_state).mean()
+                confidence = self.heuristics.decision_confidence(logits).mean()
+                interactions = self.heuristics.feature_interactions(state).mean()
+                progress = self.heuristics.reasoning_progress(
+                    state, 
+                    previous_state, 
+                    len(self.layers)
+                ).mean()
+                
+                return clarity, info_gain, confidence, interactions, progress
+        
+        def evaluate_fitness(state, previous_state, layer_idx):
+            """Calculate fitness score using heuristics"""
+            try:
+                # Create computation graph
+                with torch.enable_grad():
+                    state = state.detach().requires_grad_()
+                    
+                    # Forward pass
+                    intermediate = layer(state.unsqueeze(1)).squeeze(1)
+                    logits = self.classifier(intermediate)
+                    
+                    # Compute pseudo-labels
+                    pseudo_labels = torch.argmax(logits.detach(), dim=1)
+                    
+                    # Compute cross entropy loss
+                    loss = F.cross_entropy(logits, pseudo_labels)
+                    
+                    # Compute gradients
+                    loss.backward()
+                    
+                    if state.grad is None:
+                        return -float('inf'), None
+                    
+                    # Feature attribution
+                    feature_attr = torch.abs(state.grad * state).mean()
+                    
+                    # Compute other heuristics
+                    clarity, info_gain, confidence, interactions, progress = compute_heuristics(
+                        state, previous_state, logits, layer_idx
+                    )
+                    
+                    # Combine heuristics
+                    fitness = (feature_attr + clarity + info_gain + 
+                            confidence + interactions + progress) / 6
+                    
+                    metrics = {
+                        'layer': layer_idx,
+                        'feature_attribution': feature_attr.item(),
+                        'clarity': clarity.item(),
+                        'info_gain': info_gain.item(),
+                        'confidence': confidence.item(),
+                        'interactions': interactions.item(),
+                        'progress': progress.item(),
+                        'quality_score': fitness.item()
+                    }
+                    
+                    return fitness.item(), metrics
+                    
+            except Exception as e:
+                print(f"Error in fitness evaluation: {str(e)}")
+                return -float('inf'), None
+            
+            finally:
+                # Clean up gradients
+                if state.grad is not None:
+                    state.grad.zero_()
+        
+        def tournament_select(population, fitness_scores):
+            """Select parent using tournament selection"""
+            idx = np.random.choice(len(population), 3, replace=False)
+            tournament_fitness = [fitness_scores[i] for i in idx]
+            winner_idx = idx[np.argmax(tournament_fitness)]
+            return population[winner_idx]
+        
+        # Move input to correct device and initial projection
+        device = next(self.parameters()).device
+        x = x.to(device)
+        current = self.input_proj(x)
+        all_metrics = []
+        
+        # Process through transformer layers
+        for layer_idx, layer in enumerate(self.layers):
+            # Initialize population with mutations of current state
+            population = [mutate(current.clone()) for _ in range(population_size)]
+            best_fitness = float('-inf')
+            best_state = None
+            best_state_metrics = None
+            
+            # Evolution loop
+            for generation in range(num_generations):
+                fitness_scores = []
+                generation_metrics = []
+                
+                # Evaluate fitness for each individual
+                for state in population:
+                    # Calculate fitness and metrics
+                    fitness, metrics = evaluate_fitness(
+                        state, 
+                        current, 
+                        layer_idx
+                    )
+                    
+                    if metrics is not None:
+                        fitness_scores.append(fitness)
+                        generation_metrics.append(metrics)
+                        
+                        # Track best individual
+                        if fitness > best_fitness:
+                            best_fitness = fitness
+                            best_state = state.clone().detach()
+                            best_state_metrics = metrics
+                
+                if not fitness_scores:
+                    continue
+                    
+                # Sort population by fitness
+                sorted_indices = np.argsort(fitness_scores)[::-1]
+                population = [population[i].clone().detach() for i in sorted_indices]
+                fitness_scores = [fitness_scores[i] for i in sorted_indices]
+                
+                # Keep elite individuals
+                new_population = population[:elite_size]
+                
+                # Create offspring
+                while len(new_population) < population_size:
+                    # Select parents using tournament selection
+                    parent1 = tournament_select(population, fitness_scores)
+                    parent2 = tournament_select(population, fitness_scores)
+                    
+                    # Create and mutate offspring
+                    child1, child2 = crossover(parent1, parent2)
+                    child1, child2 = mutate(child1), mutate(child2)
+                    
+                    new_population.extend([child1, child2])
+                
+                # Update population
+                population = new_population[:population_size]
+            
+            # Process layer output
+            if best_state is not None:
+                # Use best found solution
+                with torch.no_grad():
+                    current = layer(best_state.unsqueeze(1)).squeeze(1)
+                all_metrics.append(best_state_metrics)
+            else:
+                # Fallback to standard forward pass
+                with torch.no_grad():
+                    current = layer(current.unsqueeze(1)).squeeze(1)
+                # Add placeholder metrics
+                all_metrics.append({
+                    'layer': layer_idx,
+                    'feature_attribution': 0.0,
+                    'clarity': 0.0,
+                    'info_gain': 0.0,
+                    'confidence': 0.0,
+                    'interactions': 0.0,
+                    'progress': 0.0,
+                    'quality_score': 0.0
+                })
+        
+        # Final classification
+        with torch.no_grad():
+            output = self.classifier(current)
+            avg_quality = sum(m['quality_score'] for m in all_metrics) / len(self.layers)
+        
+        return output, all_metrics, avg_quality          
     
     def forward(self, x: torch.Tensor, label: torch.Tensor = None):
         """
@@ -268,7 +464,8 @@ class TransformerWithHeuristics(nn.Module):
             return self.classifier(current)
         else:
             # Beam search during inference
-            return self.beam_search(x)
+            # return self.beam_search(x)
+            return self.genetic_search(x)
 
 def load_data(
     dataset: str = "species"
