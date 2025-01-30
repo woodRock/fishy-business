@@ -11,21 +11,25 @@ Results:
 
 Vanilla Validation Accuracy: Mean = 0.969, Std = 0.037
 Beam Search Validation Accuracy: Mean = 0.97772, Std = 0.03070
+Genetic Algorithm Validation Accuracy: Mean = 0.98078, Std = 0.02862
 
 ## Part 
 
 Vanilla Validation Accuracy: Mean = 0.558, Std = 0.091
 Beam Search Validation Accuracy: Mean = 0.67593, Std = 0.08374
+Genetic Algorithm Validation Accuracy: Mean = 0.67222, Std = 0.07638
 
 ## Cross-species 
 
 Vanilla Validation Accuracy: Mean = 0.883, Std = 0.072
 Beam Search Validation Accuracy: Mean = 0.88568, Std = 0.04620
+Genetic Search Validation Accuracy: Mean = 0.88413, Std = 0.04853
 
 ## Oil 
 
 Vanilla Validation Accuracy: Mean = 0.422, Std = 0.074
 Beam Search Validation Accuracy: Mean = 0.45404, Std = 0.06590
+Genetic Algorithm Validation Accuracy: Mean = 0.45533, Std = 0.06860
 
 References: 
 1.  Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.
@@ -620,7 +624,7 @@ def analyze_reasoning(model: TransformerWithHeuristics, x: torch.Tensor, y: torc
 
 def main():
     # Set dataset and output dimensions
-    dataset = "oil"
+    dataset = "species"
     n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
