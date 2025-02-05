@@ -68,29 +68,34 @@ class ReasoningHeuristics:
     @staticmethod
     def feature_attribution(
         intermediate: torch.Tensor,
-        label: torch.Tensor,
+        zero_baseline: torch.Tensor,
         layer_output: torch.Tensor
     ) -> torch.Tensor:
         """
-        Measure how much each intermediate feature contributes to final prediction.
-        Higher scores mean features are more relevant to prediction.
+        Measure feature importance by comparing to zero baseline.
+        Higher scores mean features contribute more to the difference from baseline.
+        
+        Args:
+            intermediate: Current intermediate representation
+            zero_baseline: Zero tensor of same shape as layer_output
+            layer_output: Output from current layer
         """
         # Ensure intermediate tensor requires gradients
         intermediate = intermediate.requires_grad_(True)
-        
-        # Ensure gradients are retained for the intermediate tensor
         intermediate.retain_grad()
         
-        # Compute loss and backpropagate
-        loss = F.cross_entropy(layer_output, label)
-        loss.backward(retain_graph=True)
+        # Compute distance from zero baseline
+        distance = F.mse_loss(layer_output, zero_baseline)
         
-        # Feature importance = gradient * activation
+        # Backpropagate
+        distance.backward(retain_graph=True)
+        
         if intermediate.grad is None:
-            raise RuntimeError("Gradients for intermediate tensor are not available. Ensure retain_grad() is called.")
-        
-        importance = torch.abs(intermediate.grad * intermediate)
-        return importance.mean(dim=-1)  # Average over feature dimension
+            raise RuntimeError("Gradients not available")
+            
+        # Feature importance = gradient * activation (comparing to zero baseline)
+        importance = torch.abs(intermediate.grad * intermediate) 
+        return importance.mean(dim=-1)
 
 
     @staticmethod  
@@ -468,8 +473,8 @@ class TransformerWithHeuristics(nn.Module):
             return self.classifier(current)
         else:
             # Beam search during inference
-            # return self.beam_search(x)
-            return self.genetic_search(x)
+            return self.beam_search(x)
+            # return self.genetic_search(x)
 
 def load_data(
     dataset: str = "species"

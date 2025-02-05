@@ -571,7 +571,7 @@ class ModelTrainer:
             optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
             # Train base model
-            model = train_model(
+            model , _ = train_model(
                 model,
                 train_loader,
                 criterion,
@@ -857,7 +857,6 @@ def parse_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
-
 def main() -> None:
     """Main execution function."""
     try:
@@ -939,8 +938,7 @@ def main() -> None:
 
     except Exception as e:
         logging.error(f"Error in training pipeline: {str(e)}", exc_info=True)
-        raise
-
+        raise e
 
 if __name__ == "__main__":
     main()
