@@ -27,7 +27,7 @@ class VAEEncoder(nn.Module):
         h = self.encoder(x)
         mu = self.fc_mu(h)
         logvar = self.fc_logvar(h)
-        return mu logvar
+        return mu, logvar
 
 class VAEDecoder(nn.Module):
     def __init__(self, latent_dim, hidden_dim, output_dim):
