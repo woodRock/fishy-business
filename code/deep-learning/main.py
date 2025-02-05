@@ -31,11 +31,10 @@ from kan import KAN
 from vae import VAE
 from MOE import MOE
 from dense import Dense
-from ode import ODE 
+from ode import ODE
 from rwkv import RWKV
 from tcn import TCN
 from wavenet import WaveNet
-from test_time_transformer import TestTimeTransformer
 from train import train_model
 from util import preprocess_dataset, create_data_module, AugmentationConfig
 
@@ -178,10 +177,17 @@ class ModelTrainer:
 
         # Masked Spectra Modelling
         if self.config.masked_spectra_modelling:
-            self.logger.info("Starting Masked Spectra Modelling")
-            start_time = time.time()
-            model = pre_trainer.pre_train_masked_spectra(train_loader)
-            self.logger.info(f"MSM training time: {time.time() - start_time:.2f}s")
+            # self.logger.info("Starting Masked Spectra Modelling")
+            # start_time = time.time()
+            # model = pre_trainer.pre_train_masked_spectra(train_loader)
+            # self.logger.info(f"MSM training time: {time.time() - start_time:.2f}s")
+
+            self.logger.info("Starting Peak Prediction")
+            model = pre_trainer.pre_train_peak_prediction(
+                train_loader,
+                peak_threshold=0.1,  # Adjust based on your data
+                window_size=5        # Adjust based on peak width
+            )
 
         # Next Spectra Prediction
         if self.config.next_spectra_prediction:
@@ -219,25 +225,25 @@ class ModelTrainer:
         # Ensure inputs are numpy arrays
         true_labels = np.asarray(true_labels)
         predictions = np.asarray(predictions)
-        
+
         if len(true_labels) != len(predictions):
             raise ValueError(f"Inconsistent number of samples: true_labels={len(true_labels)}, predictions={len(predictions)}")
-        
+
         # Calculate metrics with proper multi-class handling
         accuracy = accuracy_score(true_labels, predictions)
         precision = precision_score(true_labels, predictions, average='macro', zero_division=0)
         recall = recall_score(true_labels, predictions, average='macro', zero_division=0)
         f1 = f1_score(true_labels, predictions, average='macro', zero_division=0)
-        
+
         # Add per-class metrics for debugging
         class_precisions = precision_score(true_labels, predictions, average=None, zero_division=0)
         class_recalls = recall_score(true_labels, predictions, average=None, zero_division=0)
         class_f1s = f1_score(true_labels, predictions, average=None, zero_division=0)
-        
+
         # Calculate class distribution
         class_dist = np.bincount(true_labels, minlength=self.n_classes)
         pred_dist = np.bincount(predictions, minlength=self.n_classes)
-        
+
         print("\nPer-class metrics:")
         for i in range(self.n_classes):
             print(f"Class {i}:")
@@ -245,204 +251,13 @@ class ModelTrainer:
             print(f"  Precision: {class_precisions[i]:.4f}")
             print(f"  Recall: {class_recalls[i]:.4f}")
             print(f"  F1: {class_f1s[i]:.4f}")
-        
+
         return {
             'accuracy': accuracy,
             'precision': precision,
             'recall': recall,
             'f1': f1
         }
-
-    def evaluate_test_time_model(
-        self,
-        data_loader: DataLoader,
-        n_splits: int = 5
-    ) -> Tuple[Dict[str, float], Dict[str, float], Dict[str, float]]:
-        """Evaluate model performance with properly isolated folds."""
-        metrics_standard = defaultdict(list)
-        metrics_ttc = defaultdict(list)
-        metrics_gp = defaultdict(list)
-        metrics_mc = defaultdict(list)
-        
-        # Create k-fold splits
-        dataset = data_loader.dataset
-        targets = [sample[1].argmax(dim=0) for sample in dataset]
-        kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-        
-        for fold, (train_idx, val_idx) in enumerate(kfold.split(dataset, targets)):
-            self.logger.info(f"\nProcessing fold {fold + 1}/{n_splits}")
-            
-            # Create train/val loaders for this fold
-            train_dataset = Subset(dataset, train_idx)
-            val_dataset = Subset(dataset, val_idx)
-            
-            train_loader = DataLoader(
-                train_dataset,
-                batch_size=self.config.batch_size,
-                shuffle=True
-            )
-            val_loader = DataLoader(
-                val_dataset,
-                batch_size=self.config.batch_size,
-                shuffle=False
-            )
-            
-            # Initialize a fresh model for this fold
-            model = self._create_model(self.n_features, self.n_classes)
-            model = model.to(self.device)
-            
-            # Train the base model on this fold
-            criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-            optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
-            
-            self.logger.info(f"Training base model for fold {fold + 1}")
-            model = train_model(
-                model,
-                train_loader,
-                criterion,
-                optimizer,
-                n_splits=1,  # No inner fold splitting needed
-                num_epochs=self.config.epochs,
-                patience=self.config.early_stopping,
-                is_augmented=self.config.data_augmentation
-            )
-
-            # Train the confidence network. This is a separate training loop.
-            model.train_prm(
-                model, 
-                train_loader,
-                val_loader,
-                num_epochs=100, 
-                device='cuda'
-            )
-
-            # Evaluate on validation set
-            fold_metrics_std, fold_metrics_ttc, fold_metrics_gp, fold_metrics_mc = self._evaluate_fold(model, val_loader)
-            
-            # Store metrics
-            for k, v in fold_metrics_std.items():
-                metrics_standard[k].append(v)
-            for k, v in fold_metrics_ttc.items():
-                metrics_ttc[k].append(v)
-            for k, v in fold_metrics_gp.items():
-                metrics_gp[k].append(v)
-            for k, v in fold_metrics_mc.items():
-                metrics_mc[k].append(v)
-            
-            # Log fold results
-            self._log_fold_results(fold + 1, n_splits, fold_metrics_std, fold_metrics_ttc, fold_metrics_gp, fold_metrics_mc)
-        
-        # Calculate and log final results
-        final_results = self._compute_final_metrics(metrics_standard, metrics_ttc, metrics_gp, metrics_mc)
-        self._log_final_results(final_results)
-        
-        return final_results
-
-    def _log_fold_results(self, current_fold: int, total_folds: int,
-                        std_metrics: Dict[str, float], ttc_metrics: Dict[str, float],
-                        gp_metrics: Dict[str, float],
-                        mc_metrics: Dict[str, float]) -> None:
-        """Log results for a single fold."""
-        self.logger.info(f"\nFold {current_fold}/{total_folds} results:")
-        
-        self.logger.info("Standard model metrics:")
-        for k, v in std_metrics.items():
-            self.logger.info(f"{k}: {v:.4f}")
-        
-        self.logger.info("\nTest-time compute metrics (beam search):")
-        for k, v in ttc_metrics.items():
-            self.logger.info(f"{k}: {v:.4f}")
-        
-        self.logger.info("\nTest-time compute metrics (genetic programming):")
-        for k, v in gp_metrics.items():
-            self.logger.info(f"{k}: {v:.4f}")
-
-        self.logger.info("\nTest-time compute metrics (monte carlo rollout):")
-        for k, v in mc_metrics.items():
-            self.logger.info(f"{k}: {v:.4f}")
-
-    def _compute_final_metrics(self, metrics_std: Dict[str, List[float]],
-                            metrics_ttc: Dict[str, List[float]],
-                            metrics_gp: Dict[str, List[float]],
-                            metrics_mc: Dict[str, List[float]]) -> Dict[str, Dict[str, Dict[str, float]]]:
-        """Compute final metrics including means and standard deviations."""
-        final_metrics = {
-            'standard': {
-                k: {
-                    'mean': np.mean(v),
-                    'std': np.std(v)
-                } for k, v in metrics_std.items()
-            },
-            'ttc': {
-                k: {
-                    'mean': np.mean(v),
-                    'std': np.std(v)
-                } for k, v in metrics_ttc.items()
-            },
-            'gp': {
-                k: {
-                    'mean': np.mean(v),
-                    'std': np.std(v)
-                } for k, v in metrics_gp.items()
-            },
-            'mc': {
-                k: {
-                    'mean': np.mean(v),
-                    'std': np.std(v)
-                } for k, v in metrics_mc.items()
-            }
-        }
-        
-        # Calculate relative improvements
-        final_metrics['improvements'] = {
-            'ttc': {
-                k: (final_metrics['ttc'][k]['mean'] - final_metrics['standard'][k]['mean']) 
-                / final_metrics['standard'][k]['mean'] * 100
-                for k in metrics_std.keys()
-            },
-            'gp': {
-                k: (final_metrics['gp'][k]['mean'] - final_metrics['standard'][k]['mean'])
-                / final_metrics['standard'][k]['mean'] * 100
-                for k in metrics_std.keys()
-            },
-            'mc': {
-                k: (final_metrics['mc'][k]['mean'] - final_metrics['standard'][k]['mean'])
-                / final_metrics['standard'][k]['mean'] * 100
-                for k in metrics_std.keys()
-            }
-        }
-        
-        return final_metrics
-
-    def _log_final_results(self, final_results: Dict[str, Dict[str, Dict[str, float]]]) -> None:
-        """Log final results with proper formatting."""
-        self.logger.info("\nFinal Standard Model Performance (mean ± std):")
-        for metric, values in final_results['standard'].items():
-            self.logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
-        
-        self.logger.info("\nFinal Test-Time Compute Performance (Beam Search) (mean ± std):")
-        for metric, values in final_results['ttc'].items():
-            self.logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
-            
-        self.logger.info("\nFinal Test-Time Compute Performance (Genetic Programming) (mean ± std):")
-        for metric, values in final_results['gp'].items():
-            self.logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
-
-        self.logger.info("\nFinal Test-Time Compute Performance (Monte Carlo Search) (mean ± std):")
-        for metric, values in final_results['mc'].items():
-            self.logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
-        
-        self.logger.info("\nRelative Improvements with Test-Time Compute (Beam Search):")
-        for metric, improvement in final_results['improvements']['ttc'].items():
-            self.logger.info(f"{metric}: {improvement:+.2f}%")
-            
-        self.logger.info("\nRelative Improvements with Test-Time Compute (Genetic Programming):")
-        for metric, improvement in final_results['improvements']['gp'].items():
-            self.logger.info(f"{metric}: {improvement:+.2f}%")
-
-        self.logger.info("\nRelative Improvements with Test-Time Compute (Monte Carlo Search):")
-        for metric, improvement in final_results['improvements']['mc'].items():
-            self.logger.info(f"{metric}: {improvement:+.2f}%")
 
     def _evaluate_fold(
         self, model: nn.Module, val_loader: DataLoader
@@ -453,7 +268,7 @@ class ModelTrainer:
         outputs_gp = []
         outputs_mc = []
         labels = []
-        
+
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -463,44 +278,8 @@ class ModelTrainer:
                 outputs_standard.append(out_std)
                 labels.append(y)  # Only append labels once
 
-                # Skip test-time compute if model doesn't support it
-                if not isinstance(model, TestTimeTransformer):
-                    outputs_ttc.append(out_std)  # Use standard output
-                    outputs_gp.append(out_std)   # Use standard output
-                    continue
-
-                # Ensure PRM is in eval mode
-                if hasattr(model, 'process_reward_model'):
-                    model.process_reward_model.eval()
-
-                # Test-time compute with beam search
-                try:
-                    out_ttc = model(x, use_test_time_compute=True, use_beam_search=True)
-                    outputs_ttc.append(out_ttc)
-                except RuntimeError as e:
-                    print(f"Error in beam search: {e}")
-                    # Print stack trace for debugging. 
-                    print(traceback.format_exc())
-                    outputs_ttc.append(out_std)  # Fallback to standard 
-
-                try:
-                    out_mc = model(x, use_test_time_compute=True, use_mc_search=True)
-                    outputs_mc.append(out_mc)
-                except RuntimeError as e:
-                    print(f"Error in monte carlo rollout: {e}")
-                    # Print stack trace for debugging. 
-                    print(traceback.format_exc())
-                    outputs_mc.append(out_std)
-
-                # Test-time compute with genetic programming
-                try:
-                    out_gp = model(x, use_test_time_compute=True, use_genetic_search=True)
-                    outputs_gp.append(out_gp)
-                except RuntimeError as e:
-                    print(f"Error in genetic programming: {e}")
-                    # Print stack trace for debugging. 
-                    print(traceback.format_exc())
-                    outputs_gp.append(out_std)  # Fallback to standard output
+                outputs_ttc.append(out_std)  # Use standard output
+                outputs_gp.append(out_std)   # Use standard output
 
         # Concatenate all outputs and labels
         outputs_standard = torch.cat(outputs_standard, dim=0)
@@ -542,47 +321,46 @@ class ModelTrainer:
     def train(self, pre_trained_model: Optional[Transformer] = None) -> Transformer:
         """Run main training phase with improved PRM training and evaluation."""
         self.logger.info("Starting main training phase")
-        
+
         # Load training data
         train_loader, data = self.data_module.setup()
-        
+
         # Initialize model
         model = self._create_model(self.n_features, self.n_classes)
         if pre_trained_model is not None:
             self.logger.info("Transferring pre-trained weights")
-            model.load_state_dict(pre_trained_model.state_dict(), strict=False)
+
+            # Get the checkpoint from the pretrained model.
+            checkpoint = pre_trained_model.state_dict()
+
+            print(f"checkpoint keys: {checkpoint.keys()}")
+
+            # Adjust the weights and bias for the final layer.
+            checkpoint["fc_out.weight"] = checkpoint["fc_out.weight"][:self.n_classes]
+            checkpoint["fc_out.bias"] = checkpoint["fc_out.bias"][:self.n_classes]
+
+            # Load the pre-trained model into the model.
+            model.load_state_dict(checkpoint, strict=False)
+
         model = model.to(self.device)
 
-        # Check if we're using test-time compute
-        if self.model_type == "test-time":
-            self.logger.info("Evaluating test-time compute performance...")
-            n_splits = 3 if self.config.dataset in ["part", "cross-species-hard"] else 5
-            
-            # Call evaluate_test_time_model with explicit keyword argument
-            metrics = self.evaluate_test_time_model(
-                data_loader=train_loader,
-                n_splits=n_splits
-            )
-            
-            return model
-        else:
-            # Train base model without test-time compute
-            criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-            optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
+        # Train base model without test-time compute
+        criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
-            # Train base model
-            model , _ = train_model(
-                model,
-                train_loader,
-                criterion,
-                optimizer,
-                n_splits=1 if self.config.dataset in ["instance-recognition"] else 5,
-                num_epochs=self.config.epochs,
-                patience=self.config.early_stopping,
-                is_augmented=self.config.data_augmentation,
-            )
-            
-            return model
+        # Train base model
+        model = train_model(
+            model,
+            train_loader,
+            criterion,
+            optimizer,
+            n_splits=1 if self.config.dataset in ["instance-recognition"] else 5,
+            num_epochs=self.config.epochs,
+            patience=self.config.early_stopping,
+            is_augmented=self.config.data_augmentation,
+        )
+
+        return model
 
     def _create_model(self, input_dim: int, output_dim: int) -> nn.Module:
         """Create a new transformer model instance."""
@@ -679,16 +457,6 @@ class ModelTrainer:
             model = WaveNet(
                 input_dim=input_dim,
                 output_dim=output_dim,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "test-time":
-            model = TestTimeTransformer(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                num_classes=output_dim,
-                hidden_dim=self.config.hidden_dimension,
-                num_heads=self.config.num_heads,
-                num_layers=self.config.num_layers,
                 dropout=self.config.dropout,
             )
         else:
@@ -857,6 +625,7 @@ def parse_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
 def main() -> None:
     """Main execution function."""
     try:
@@ -938,7 +707,8 @@ def main() -> None:
 
     except Exception as e:
         logging.error(f"Error in training pipeline: {str(e)}", exc_info=True)
-        raise e
+        raise
+
 
 if __name__ == "__main__":
     main()
