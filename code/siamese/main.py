@@ -26,18 +26,18 @@ from util import prepare_dataset, DataConfig
 @dataclass
 class SimCLRConfig:
     """Configuration for SimCLR model with default values."""
-    temperature: float = 0.5
-    projection_dim: int = 128
+    projection_dim: int = 256
     embedding_dim: int = 512
-    learning_rate: float = 1e-3
+    learning_rate: float = 1e-5
     weight_decay: float = 1e-6
-    batch_size: int = 32
-    num_epochs: int = 1000
+    batch_size: int = 16
+    num_epochs: int = 200
     input_dim: int = 2080
     num_heads: int = 4
     hidden_dim: int = 256
     num_layers: int = 4
-    dropout: float = 0.1
+    dropout: float = 0.2
+    temperature: float = 0.07
 
 class ProjectionHead(nn.Module):
     """Non-linear projection head for SimCLR."""
@@ -131,7 +131,7 @@ class SimCLRTrainer:
             final_div_factor=10000.0
         )
         
-        self.contrastive_loss = SimCLRLoss()
+        self.contrastive_loss = SimCLRLoss(temperature=config.temperature)
         self.scaler = torch.cuda.amp.GradScaler()
         
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
@@ -310,9 +310,10 @@ def create_encoder(config: SimCLRConfig, encoder_type: str) -> nn.Module:
     
     return encoder_mapping[encoder_type]()
 
-def train_simclr(config: SimCLRConfig, encoder_type: str = 'vae') -> Tuple[SimCLRModel, Dict, Dict]:
+def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tuple[SimCLRModel, Dict, Dict]:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_loader, val_loader = prepare_dataset(DataConfig())
+    data_config = DataConfig(batch_size=config.batch_size)
+    train_loader, val_loader = prepare_dataset(data_config)
     
     encoder = create_encoder(config, encoder_type)
     model = SimCLRModel(encoder=encoder, config=config).to(device)
@@ -358,5 +359,4 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'vae') -> Tuple[SimCL
 if __name__ == "__main__":
     config = SimCLRConfig()
     model, best_state, best_metrics = train_simclr(config)
-    # Print the best metrics.,]
     print(best_metrics)

@@ -336,3 +336,28 @@ if __name__ == "__main__":
     config = DataConfig()
     train_loader, val_loader = prepare_dataset(config)
     inspect_dataloaders(train_loader, val_loader)
+
+    # Graph the mass spectrograph for the first instance in the train loader. 
+    # This is a 1D array with 2080 features. 
+    import matplotlib.pyplot as plt
+    plt.plot(train_loader.dataset.samples[0][0])
+
+    # Set the title and x-axis label
+    plt.title("Mass Spectrograph")
+
+    # Set the x-axis label
+    plt.xlabel("Mass-to-charge ratio")
+    
+    # Make the x-ticks go from (77.04-999.32 m/z), with 2080 ticks. 
+    # Define the tick locations and labels
+    tick_locations = np.arange(0, 2080, step=500)
+    tick_labels = np.linspace(77.04, 999.32, num=len(tick_locations))
+
+    # Set the tick locations and labels
+    plt.xticks(tick_locations, labels=np.round(tick_labels, 2))
+
+    # Set the y-axis label
+    plt.ylabel("Intensity")
+
+    # Save the figure    
+    plt.savefig("figures/mass_spectrograph.png")
