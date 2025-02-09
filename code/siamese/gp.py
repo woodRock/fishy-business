@@ -28,166 +28,17 @@ References:
     International Journal of Applied Engineering and Technology, 5(3), 38-41.
 """
 
-import numpy as np
-import torch
-import torch.nn as nn
+import traceback
+import torch 
+import torch.nn as nn 
 import torch.nn.functional as F
-from dataclasses import dataclass
+import numpy as np
 import random
+from deap import base, creator, gp, tools, algorithms
 from sklearn.metrics import balanced_accuracy_score
-from typing import List, Tuple, Optional
-import copy
+from typing import List, Tuple
 
 from util import prepare_dataset, DataConfig
-
-@dataclass
-class GPConfig:
-    population_size: int = 200
-    gene_length: int = 1028
-    projection_dim: int = 256  # Dimension of final projection head output
-    generations: int = 100
-    mutation_rate: float = 0.3
-    tournament_size: int = 8
-    hall_of_fame_size: int = 10
-    temperature: float = 0.07
-    l2_regularization: float = 0.001
-    dropout: float = 0.1
-
-class ProjectionHead(nn.Module):
-    def __init__(self, input_dim, hidden_dim=512, output_dim=128, dropout=0.1):
-        super().__init__()
-        self.layer1 = nn.Linear(input_dim, hidden_dim)
-        self.bn1 = nn.BatchNorm1d(hidden_dim)
-        self.dropout = nn.Dropout(dropout)
-        self.layer2 = nn.Linear(hidden_dim, output_dim)
-
-        # Initialize weights properly
-        nn.init.xavier_uniform_(self.layer1.weight)
-        nn.init.xavier_uniform_(self.layer2.weight)
-        nn.init.zeros_(self.layer1.bias)
-        nn.init.zeros_(self.layer2.bias)
-
-        # Enable gradients
-        for param in self.parameters():
-            param.requires_grad = True
-
-    def forward(self, x):
-        x = self.layer1(x)
-        x = self.bn1(x)
-        x = F.relu(x)
-        x = self.dropout(x)
-        x = self.layer2(x)
-        return x
-
-class Individual:
-    def __init__(self, gene_length: int, projection_dim: int):
-        # Initialize genetic projection matrix
-        self.projection = np.random.randn(2080, gene_length) / np.sqrt(gene_length)
-        self.projection = F.normalize(torch.from_numpy(self.projection), dim=1).numpy()
-        self.projection = self.projection.astype(np.float32)
-
-        # Initialize SimCLR projection head
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.projection_head = ProjectionHead(gene_length, hidden_dim=512, output_dim=projection_dim)
-        self.projection_head = self.projection_head.to(device)
-
-        # Ensure parameters require gradients
-        for param in self.projection_head.parameters():
-            param.requires_grad = True
-
-        self.optimizer = torch.optim.AdamW(self.projection_head.parameters(), lr=0.001)
-        self.fitness = None
-
-    def train_projection_head(self, z_i: torch.Tensor, z_j: torch.Tensor, labels: torch.Tensor, temperature: float):
-        """Train the projection head for a few steps on the current batch"""
-        self.projection_head.train()
-        labels = labels.float() if not labels.dtype.is_floating_point else labels
-
-        # Convert labels to target similarities: 1 for positive pairs, -1 for negative
-        target_sims = 2 * labels - 1  # Maps 0->-1 and 1->1
-
-        for _ in range(3):
-            self.optimizer.zero_grad()
-
-            # Forward pass with proper tensor conversion
-            with torch.set_grad_enabled(True):
-                # Convert inputs properly
-                z_i_tensor = z_i.clone().detach().requires_grad_(True)
-                z_j_tensor = z_j.clone().detach().requires_grad_(True)
-
-                p_i = self.projection_head(z_i_tensor)
-                p_j = self.projection_head(z_j_tensor)
-
-                p_i = F.normalize(p_i, dim=1)
-                p_j = F.normalize(p_j, dim=1)
-
-                # Calculate cosine similarity
-                sim = F.cosine_similarity(p_i, p_j)
-
-                # Direct similarity optimization with MSE loss
-                pos_weight = (1 - labels).sum() / (labels.sum() + 1e-6)
-                weights = torch.where(labels == 1, pos_weight, 1.0)
-                loss = (weights * (sim - target_sims) ** 2).mean()
-
-            # Backward pass
-            loss.backward()
-
-            # Step optimizer
-            self.optimizer.step()
-
-    def project(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dtype != torch.float32:
-            x = x.float()
-        projection_tensor = torch.from_numpy(self.projection).to(x.device)
-        z = torch.matmul(x, projection_tensor)
-        return z
-
-    def forward(self, x: torch.Tensor, train: bool = False) -> torch.Tensor:
-        # First genetic projection
-        z = self.project(x)
-
-        # Then through SimCLR projection head
-        self.projection_head.train(train)
-        if train:
-            p = self.projection_head(z)
-        else:
-            with torch.no_grad():
-                p = self.projection_head(z)
-
-        return p
-
-    def mutate(self, mutation_rate: float = 0.3):
-        # Mutate genetic projection
-        num_groups = 20
-        group_size = 2080 // num_groups
-        for i in range(num_groups):
-            if random.random() < mutation_rate:
-                start_idx = i * group_size
-                end_idx = start_idx + group_size
-                noise = np.random.randn(group_size, self.projection.shape[1]) * 0.3
-                self.projection[start_idx:end_idx] += noise
-
-        self.projection = F.normalize(torch.from_numpy(self.projection), dim=1).numpy()
-        self.projection = self.projection.astype(np.float32)
-
-        # Mutate projection head with small noise
-        with torch.no_grad():
-            for param in self.projection_head.parameters():
-                noise = torch.randn_like(param) * 0.1 * mutation_rate
-                mask = torch.rand_like(param) < mutation_rate
-                param.data += noise * mask
-
-class ContrastiveDataset(torch.utils.data.Dataset):
-    def __init__(self, features1, features2, labels):
-        self.features1 = F.normalize(features1.float(), dim=1)
-        self.features2 = F.normalize(features2.float(), dim=1)
-        self.labels = labels
-
-    def __len__(self):
-        return len(self.labels)
-
-    def __getitem__(self, idx):
-        return (self.features1[idx], self.features2[idx], self.labels[idx])
 
 def prepare_data(data_loader) -> List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
     data = []
@@ -198,238 +49,441 @@ def prepare_data(data_loader) -> List[Tuple[torch.Tensor, torch.Tensor, torch.Te
         data.extend(list(zip(sample1, sample2, labels)))
     return data
 
-class ContrastiveGP:
-    def __init__(self, config: GPConfig):
-        self.config = config
-        self.population = [Individual(config.gene_length, config.projection_dim)
-                         for _ in range(config.population_size)]
-        self.hall_of_fame = []
-        self.best_fitness = 0
-        self.generations_without_improvement = 0
+class Modi:
+    """Container for associated output index, returns value of its argument on call."""
+    def __init__(self, index: int):
+        self.index = index
 
-    def evaluate_individual(self, individual: Individual,
-                          data: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]) -> float:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        total_loss = 0
-        num_batches = 0
-        all_predictions = []
-        all_labels = []
+    def __call__(self, x):
+        return x
 
-        for i in range(0, len(data), 32):
-            batch = data[i:i + 32]
-            samples1, samples2, labels = zip(*batch)
+    def __str__(self):
+        return f"modi{self.index}"
 
-            with torch.no_grad():
-                samples1 = torch.stack(samples1).float().to(device)
-                samples2 = torch.stack(samples2).float().to(device)
-                labels = torch.stack([label.to(device) for label in labels])
-                if labels.dim() > 1:  # If labels are one-hot
-                    labels = labels[:, 0]
-                labels = labels.float()
 
-                # Get intermediate representations for training
-                z_i = individual.project(samples1)
-                z_j = individual.project(samples2)
+class MultiOutputTree(gp.PrimitiveTree):
+    """Implementation of multiple-output genetic programming tree."""
+    num_outputs = None
 
-            # Train projection head with gradient tracking
-            individual.train_projection_head(z_i, z_j, labels, self.config.temperature)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.num_outputs is None:
+            raise Exception("Please initialize class attribute num_outputs")
 
-            with torch.no_grad():
-                # Get final projections for evaluation
-                p_i = individual.forward(samples1, train=False)
-                p_j = individual.forward(samples2, train=False)
+    def __str__(self):
+        """Return the expression in a human-readable string.
+        """
+        string_outputs = [""] * self.num_outputs
+        stack = []
+        for node in self:
+            stack.append((node, []))
+            while len(stack[-1][1]) == stack[-1][0].arity:
+                prim, args = stack.pop()
+                string = prim.format(*args)
+                if prim.name[:4] == "modi":
+                    index = int(prim.name[4:])
+                    if string_outputs[index] != "":
+                        string_outputs[index] += "+"
+                    string_outputs[index] += string
+                if len(stack) == 0:
+                    break  # If stack is empty, all nodes should have been seen
+                stack[-1][1].append(string)
 
-                sim = F.cosine_similarity(p_i, p_j)
+        string_outputs = [output if output else "0" for output in string_outputs]
+        return "[" + ",".join(string_outputs) + "]"
 
-                # Calculate loss (MSE against target similarities)
-                target_sims = 2 * labels - 1
-                pos_weight = (1 - labels).sum() / (labels.sum() + 1e-6)
-                weights = torch.where(labels == 1, pos_weight, 1.0)
-                loss = (weights * (sim - target_sims) ** 2).mean()
+def setup_primitives(n_inputs: int, n_outputs: int) -> gp.PrimitiveSet:
+    """Set up the primitive set with basic arithmetic operations and Modi nodes."""
+    pset = gp.PrimitiveSet("MAIN", n_inputs)
+    
+    # Add basic arithmetic operations with vector support
+    pset.addPrimitive(np.add, 2, name="vadd")
+    pset.addPrimitive(np.multiply, 2, name="vmul")
+    pset.addPrimitive(np.subtract, 2, name="vsub")
+    pset.addPrimitive(lambda x, y: x / (1 + abs(y)), 2, name="vdiv")
+    
+    # Add more sophisticated activation functions
+    pset.addPrimitive(lambda x: np.tanh(x), 1, name="tanh")
+    pset.addPrimitive(lambda x: 1 / (1 + np.exp(-x)), 1, name="sigmoid")
+    pset.addPrimitive(lambda x: np.maximum(0, x), 1, name="relu")  # Added ReLU
+    pset.addPrimitive(lambda x: x / (1 + np.abs(x)), 1, name="softsign")  # Added Softsign
+    
+    # Add statistical operations
+    pset.addPrimitive(lambda x: x - np.mean(x), 1, name="center")  # Feature centering
+    pset.addPrimitive(lambda x: (x - np.mean(x)) / (np.std(x) + 1e-8), 1, name="standardize")  # Standardization
+    
+    # Add more varied constants
+    pset.addEphemeralConstant("rand_normal", lambda: random.gauss(0, 0.5))  # Normal distribution
+    pset.addEphemeralConstant("rand_small", lambda: random.uniform(-0.1, 0.1))  # Small uniform
+    pset.addEphemeralConstant("rand_large", lambda: random.uniform(-2, 2))  # Large uniform
+    
+    # Add Modi primitives for each output
+    for i in range(n_outputs):
+        modi_i = Modi(i)
+        pset.addPrimitive(modi_i, 1, name=str(modi_i))
+        pset.addTerminal(f"out_{i}", name=f"OUT_{i}")
+    
+    return pset
 
-                # Use fixed decision boundary at 0
-                predictions = (sim > 0).float()
+def setup_toolbox(pset: gp.PrimitiveSet, min_depth: int, max_depth: int, train_data, val_data) -> base.Toolbox:
+    """Set up the DEAP toolbox with genetic operators."""
+    toolbox = base.Toolbox()
+    
+    # Modified tree generation to ensure better output distribution
+    def protected_expr():
+        tree = gp.genHalfAndHalf(pset=pset, min_=min_depth, max_=max_depth)
+        # Ensure at least one Modi node for each output
+        outputs_used = set()
+        for node in tree:
+            if isinstance(node.name, str) and node.name.startswith('modi'):
+                outputs_used.add(int(node.name[4:]))
+        
+        # Add missing outputs
+        if len(outputs_used) < MultiOutputTree.num_outputs:
+            for i in range(MultiOutputTree.num_outputs):
+                if i not in outputs_used:
+                    # Find the modi primitive for this output
+                    modi_primitive = None
+                    for prim in pset.primitives[pset.ret]:
+                        if prim.name == f"modi{i}":
+                            modi_primitive = prim
+                            break
+                    
+                    if modi_primitive is None:
+                        continue
+                        
+                    # Add a simple expression for unused outputs
+                    tree.insert(random.randint(0, len(tree)), modi_primitive)
+                    # Add a random terminal
+                    terminal = random.choice(pset.terminals[pset.ret])
+                    tree.insert(random.randint(0, len(tree)), terminal)
+        return tree
+    
+    toolbox.register("expr", protected_expr)
+    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    
+    # Register genetic operators
+    toolbox.register("select", tools.selTournament, tournsize=7)
 
-                total_loss += loss.item()
-                num_batches += 1
+    # Replace the mate registration with a protected version
+    def protected_crossover(ind1, ind2):
+        try:
+            # Make copies to avoid modifying originals if crossover fails
+            ind1_copy = gp.PrimitiveTree(ind1)
+            ind2_copy = gp.PrimitiveTree(ind2)
+            
+            # Attempt crossover
+            gp.cxOnePoint(ind1_copy, ind2_copy)
+            
+            # Validate the resulting trees
+            if len(ind1_copy) == 0 or len(ind2_copy) == 0:
+                return ind1, ind2
+                
+            # If successful, update the original individuals
+            ind1[:] = ind1_copy
+            ind2[:] = ind2_copy
+            
+            return ind1, ind2
+        except (IndexError, ValueError, TypeError):
+            # Return unchanged individuals if crossover fails
+            return ind1, ind2
+    
+    # Register the protected crossover instead of the default one
+    toolbox.register("mate", protected_crossover)
+    
+    toolbox.register("expr_mut", gp.genFull, min_=0, max_=3)
+    
+    # Add a protected mutation operator
+    def protected_mutation(individual, expr, pset):
+        try:
+            # Make a copy of the individual
+            ind_copy = gp.PrimitiveTree(individual)
+            
+            # Attempt mutation
+            gp.mutUniform(ind_copy, expr=expr, pset=pset)
+            
+            # Validate the resulting tree
+            if len(ind_copy) == 0:
+                return individual,
+                
+            # If successful, update the original individual
+            individual[:] = ind_copy
+            return individual,
+        except (IndexError, ValueError, TypeError):
+            # Return unchanged individual if mutation fails
+            return individual,
+    
+    toolbox.register("mutate", protected_mutation, expr=toolbox.expr_mut, pset=pset)
+    
+    toolbox.register("compile", gp.compile, pset=pset)
+    
+    # Register evaluation function
+    toolbox.register("evaluate", dummy_evaluate, data=train_data, val_data=val_data, toolbox=toolbox)
+    
+    return toolbox
 
-                all_predictions.extend(predictions.cpu().numpy())
-                all_labels.extend(labels.cpu().numpy())
+def dummy_evaluate(individual, data=None, val_data=None, toolbox=None):
+    """
+    Evaluation function using balanced accuracy and NT-Xent loss as fitness metrics.
+    """
+    try:
+        compiled_func = toolbox.compile(expr=individual)
 
-        avg_loss = total_loss / num_batches
-        balanced_acc = balanced_accuracy_score(all_labels, all_predictions)
+        def safe_wrapper(*args):
+            try:
+                result = compiled_func(*args)
+                # Convert result to float array and ensure correct shape
+                if isinstance(result, (list, tuple)):
+                    result = [float(x) if isinstance(x, str) else x for x in result]
+                result = np.array(result, dtype=np.float32).reshape(-1)
+                if len(result) != MultiOutputTree.num_outputs:
+                    return np.zeros(MultiOutputTree.num_outputs, dtype=np.float32)
+                return result
+            except (TypeError, IndexError, ValueError, AttributeError) as e:
+                return np.zeros(MultiOutputTree.num_outputs, dtype=np.float32)
 
-        # Add L2 regularization loss - Fixed to use individual's projection head
-        l2_loss = sum(p.pow(2).sum() for p in individual.projection_head.parameters())
-        l2_loss = self.config.l2_regularization * l2_loss
-        avg_loss += l2_loss.item()
+        def nt_xent_loss(outputs1, outputs2, labels, temperature=0.07):  # Reduced temperature
+            try:
+                outputs1 = np.array(outputs1, dtype=np.float32)
+                outputs2 = np.array(outputs2, dtype=np.float32)
+                labels = np.array(labels, dtype=np.int32)
+                batch_size = len(outputs1)
+                
+                # Enhanced normalization with epsilon
+                outputs1 = outputs1 / (np.linalg.norm(outputs1, axis=1, keepdims=True) + 1e-8)
+                outputs2 = outputs2 / (np.linalg.norm(outputs2, axis=1, keepdims=True) + 1e-8)
+                
+                all_outputs = np.concatenate([outputs1, outputs2], axis=0)
+                
+                # Use cosine similarity with temperature scaling
+                sim_matrix = np.dot(all_outputs, all_outputs.T) / temperature
+                
+                all_labels = np.concatenate([labels, labels])
+                
+                pos_mask = (all_labels.reshape(-1, 1) == all_labels.reshape(1, -1)).astype(np.float32)
+                neg_mask = (all_labels.reshape(-1, 1) != all_labels.reshape(1, -1)).astype(np.float32)
+                
+                # Remove self-similarity
+                pos_mask = pos_mask - np.eye(2 * batch_size)
+                
+                # Calculate positive and negative scores with improved numerical stability
+                pos_scores = (sim_matrix * pos_mask).sum(axis=1) / (pos_mask.sum(axis=1) + 1e-8)
+                neg_scores = (sim_matrix * neg_mask).sum(axis=1) / (neg_mask.sum(axis=1) + 1e-8)
+                
+                # Adaptive margin based on label distribution
+                unique_labels = len(np.unique(labels))
+                margin = 0.2 + 0.1 * (unique_labels / batch_size)  # Adaptive margin
+                
+                loss = np.mean(np.maximum(0, neg_scores - pos_scores + margin))
+                return loss
+                
+            except Exception as e:
+                print(f"Error in NT-Xent loss calculation: {e}")
+                traceback.print_exc()
+                return 1.0
 
-        # Higher weight on accuracy vs loss
-        return 0.3 * (1.0 / (1.0 + avg_loss)) + 0.7 * balanced_acc
+        # Process training data
+        outputs1_train = []
+        outputs2_train = []
+        y_true = []
+        
+        for sample1, sample2, label in data:
+            label = label.argmax(dim=0)
+            sample1 = sample1.detach().cpu().numpy()
+            sample2 = sample2.detach().cpu().numpy()
+            
+            output1 = safe_wrapper(*sample1)
+            output2 = safe_wrapper(*sample2)
+            
+            outputs1_train.append(output1)
+            outputs2_train.append(output2)
+            y_true.append(label.item() if torch.is_tensor(label) else label)
 
-    def evaluate_population(self, data: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]):
-        for individual in self.population:
-            individual.fitness = self.evaluate_individual(individual, data)
+        # Calculate cosine similarities instead of distances
+        outputs1_train = np.array(outputs1_train)
+        outputs2_train = np.array(outputs2_train)
+        similarities = np.sum(outputs1_train * outputs2_train, axis=1) / (
+            np.linalg.norm(outputs1_train, axis=1) * np.linalg.norm(outputs2_train, axis=1) + 1e-8
+        )
+        labels = np.array(y_true)
+        
+        # Find optimal threshold using training data
+        sorted_sims = np.sort(similarities)
+        best_threshold = sorted_sims[0]
+        best_accuracy = 0
+        
+        for threshold in sorted_sims:
+            y_pred = (similarities > threshold).astype(int)  # Note: changed to > for similarities
+            accuracy = balanced_accuracy_score(labels, y_pred)
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_threshold = threshold
+        
+        train_accuracy = best_accuracy
+        train_contrastive_loss = nt_xent_loss(outputs1_train, outputs2_train, y_true)
 
-    def select_parents(self) -> Tuple[Individual, Individual]:
-        def tournament():
-            candidates = np.random.choice(self.population, self.config.tournament_size)
-            best_candidate = max(candidates, key=lambda x: x.fitness)
-            return best_candidate
-
-        parent1 = tournament()
-        parent2 = tournament()
-        return parent1, parent2
-
-    def crossover(self, parent1: Individual, parent2: Individual) -> Individual:
-        child = Individual(self.config.gene_length, self.config.projection_dim)
-
-        # Block crossover for genetic projection
-        num_blocks = 10
-        block_size = 2080 // num_blocks
-        for i in range(num_blocks):
-            if random.random() < 0.5:
-                start_idx = i * block_size
-                end_idx = start_idx + block_size
-                child.projection[start_idx:end_idx] = parent1.projection[start_idx:end_idx]
-            else:
-                start_idx = i * block_size
-                end_idx = start_idx + block_size
-                child.projection[start_idx:end_idx] = parent2.projection[start_idx:end_idx]
-
-        child.projection = F.normalize(torch.from_numpy(child.projection), dim=1).numpy()
-        child.projection = child.projection.astype(np.float32)
-
-        # Interpolate projection head parameters
-        alpha = random.random()
-        with torch.no_grad():
-            for c_param, p1_param, p2_param in zip(
-                child.projection_head.parameters(),
-                parent1.projection_head.parameters(),
-                parent2.projection_head.parameters()
-            ):
-                c_param.data.copy_(alpha * p1_param.data + (1 - alpha) * p2_param.data)
-
-        return child
-
-    def update_hall_of_fame(self):
-        combined = self.hall_of_fame + self.population
-        combined.sort(key=lambda x: x.fitness, reverse=True)
-        self.hall_of_fame = combined[:self.config.hall_of_fame_size]
-
-    def get_predictions(self, individual: Individual,
-                       data: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]) -> Tuple[np.ndarray, np.ndarray]:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        predictions = []
-        true_labels = []
-
-        with torch.no_grad():
-            for i in range(0, len(data), 32):
-                batch = data[i:i + 32]
-                samples1, samples2, labels = zip(*batch)
-
-                samples1 = torch.stack(samples1).float().to(device)
-                samples2 = torch.stack(samples2).float().to(device)
-                labels = torch.stack([label.to(device) for label in labels])
-                if labels.dim() > 1:  # If labels are one-hot
-                    labels = labels[:, 0]
-                true_batch_labels = labels.cpu().numpy()
-
-                p_i = individual.forward(samples1, train=False)
-                p_j = individual.forward(samples2, train=False)
-
-                sim = F.cosine_similarity(p_i, p_j)
-                pred = (sim > 0).cpu().numpy()  # Fixed decision boundary at 0
-
-                predictions.extend(pred)
-                true_labels.extend(true_batch_labels)
-
-        return np.array(predictions), np.array(true_labels)
-
-    def train(self, train_data: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]],
-              val_data: List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]):
-        for gen in range(self.config.generations):
-            self.evaluate_population(train_data)
-            self.population.sort(key=lambda x: x.fitness, reverse=True)
-            self.update_hall_of_fame()
-
-            best_individual = self.population[0]
-            train_preds, train_labels = self.get_predictions(best_individual, train_data)
-            val_preds, val_labels = self.get_predictions(best_individual, val_data)
-
-            train_acc = balanced_accuracy_score(train_labels, train_preds)
-            val_acc = balanced_accuracy_score(val_labels, val_preds)
-            current_fitness = best_individual.fitness
-            avg_fitness = np.mean([ind.fitness for ind in self.population])
-
-            # Adaptive mutation rate based on improvement
-            if current_fitness > self.best_fitness:
-                self.best_fitness = current_fitness
-                self.generations_without_improvement = 0
-                self.config.mutation_rate = max(0.1, self.config.mutation_rate * 0.9)
-            else:
-                self.generations_without_improvement += 1
-                if self.generations_without_improvement > 5:
-                    self.config.mutation_rate = min(0.5, self.config.mutation_rate * 1.1)
-
-            print(f"Generation {gen}:")
-            print(f"  Best Fitness = {current_fitness:.4f}")
-            print(f"  Avg Fitness = {avg_fitness:.4f}")
-            print(f"  Train Balanced Accuracy = {train_acc:.4f}")
-            print(f"  Val Balanced Accuracy = {val_acc:.4f}")
-            print(f"  Mutation Rate = {self.config.mutation_rate:.4f}")
-
-            # Create new population with increased diversity
-            new_population = []
-            elite_size = max(1, self.config.population_size // 20)
-            new_population.extend([copy.deepcopy(ind) for ind in self.population[:elite_size]])
-
-            # Add some random individuals for diversity
-            num_random = max(1, self.config.population_size // 10)
-            new_population.extend([
-                Individual(self.config.gene_length, self.config.projection_dim)
-                for _ in range(num_random)
-            ])
-
-            # Fill rest with crossover and mutation
-            while len(new_population) < self.config.population_size:
-                parent1, parent2 = self.select_parents()
-                child = self.crossover(parent1, parent2)
-                child.mutate(self.config.mutation_rate)
-                new_population.append(child)
-
-            self.population = new_population
-
-        return self.population, None, self.hall_of_fame
+        # Process validation data
+        if val_data:
+            val_y_true = []
+            val_y_pred = []
+            outputs1_val = []
+            outputs2_val = []
+            
+            for sample1, sample2, label in val_data:
+                label = label.argmax(dim=0)
+                sample1 = sample1.detach().cpu().numpy()
+                sample2 = sample2.detach().cpu().numpy()
+                
+                output1 = safe_wrapper(*sample1)
+                output2 = safe_wrapper(*sample2)
+                
+                outputs1_val.append(output1)
+                outputs2_val.append(output2)
+                
+                # Calculate cosine similarity
+                similarity = np.dot(output1, output2) / (
+                    np.linalg.norm(output1) * np.linalg.norm(output2) + 1e-8
+                )
+                
+                val_y_true.append(label.item() if torch.is_tensor(label) else label)
+                val_y_pred.append(1 if similarity > best_threshold else 0)
+            
+            val_accuracy = balanced_accuracy_score(val_y_true, val_y_pred)
+            val_contrastive_loss = nt_xent_loss(
+                np.array(outputs1_val), 
+                np.array(outputs2_val), 
+                val_y_true
+            )
+            
+            # Modified fitness calculation with stronger emphasis on accuracy
+            train_component = train_accuracy * (1 - 0.3 * train_contrastive_loss)  # Less weight on contrastive loss
+            val_component = val_accuracy * (1 - 0.3 * val_contrastive_loss)
+            
+            # Enhanced diversity bonus
+            unique_ops = len(set(str(node) for node in individual))
+            total_ops = len(individual)
+            diversity_bonus = (unique_ops / total_ops) * (1 - np.exp(-total_ops/50))  # Scaled diversity bonus
+            
+            # Adjusted fitness components
+            fitness = (0.7 * train_component + 
+                      0.1 * val_component + 
+                      0.2 * diversity_bonus)
+        else:
+            train_component = train_accuracy * (1 - 0.3 * train_contrastive_loss)
+            diversity_bonus = (len(set(str(node) for node in individual)) / len(individual))
+            fitness = 0.8 * train_component + 0.2 * diversity_bonus
+            val_accuracy = 0.0
+        
+        # Dynamic parsimony pressure
+        base_parsimony = 0.003  # Reduced base coefficient
+        tree_size = len(individual)
+        
+        # Adaptive parsimony pressure based on accuracy and tree size
+        if train_accuracy > 0.8:
+            parsimony_coeff = base_parsimony * (tree_size / 50)  # Increased pressure for larger trees
+        else:
+            parsimony_coeff = base_parsimony * 0.5  # Reduced pressure for less accurate solutions
+        
+        size_penalty = parsimony_coeff * tree_size / 100
+        
+        # Only apply size penalty for sufficiently accurate solutions
+        if train_accuracy > 0.75:
+            fitness -= size_penalty
+        
+        return fitness, train_accuracy, val_accuracy
+    
+    except Exception as e:
+        print(f"Evaluation error: {e}")
+        traceback.print_exc()
+        return 0.0, 0.0, 0.0
 
 def main():
+    # Adjusted parameters for better exploration
+    N_INPUTS = 2080
+    N_OUTPUTS = 128
+    POP_SIZE = 300  # Increased population size
+    N_GENERATIONS = 50
+    MIN_DEPTH = 2
+    MAX_DEPTH = 7  # Slightly increased max depth
+    ELITE_SIZE = 15  # Increased elite size
+
     torch.manual_seed(42)
     np.random.seed(42)
     random.seed(42)
-
-    gp_config = GPConfig()
 
     print("\nPreparing datasets...")
     train_loader, val_loader = prepare_dataset(DataConfig())
     train_data = prepare_data(train_loader)
     val_data = prepare_data(val_loader)
     print(f"Prepared {len(train_data)} training samples and {len(val_data)} validation samples")
+    
+    # Setup MultiOutputTree
+    MultiOutputTree.num_outputs = N_OUTPUTS
+    
+    # Create fitness and individual types
+    creator.create("FitnessMax", base.Fitness, weights=(1.0, 0.01, 0.01))
+    creator.create("Individual", MultiOutputTree, num_outputs=N_OUTPUTS, fitness=creator.FitnessMax)
+    
+    # Setup primitives and toolbox
+    pset = setup_primitives(N_INPUTS, N_OUTPUTS)
+    toolbox = setup_toolbox(pset, MIN_DEPTH, MAX_DEPTH, train_data, val_data)
+    
+    # Initialize population and hall of fame
+    pop = toolbox.population(n=POP_SIZE)
+    hof = tools.HallOfFame(5)
+    
+    # Statistics setup
+    stats = tools.Statistics(lambda ind: ind.fitness.values[0] if ind.fitness.valid else 0)
+    stats.register("avg", np.mean)
+    stats.register("std", np.std)
+    stats.register("min", np.min)
+    stats.register("max", np.max)
 
-    print("\nInitializing ContrastiveGP model...")
-    model = ContrastiveGP(gp_config)
-    print("\nStarting training...")
-    final_pop, _, hall_of_fame = model.train(train_data, val_data)
+    # Custom elitist evolution
+    for gen in range(N_GENERATIONS):
+        # Evaluate the entire population
+        fitnesses = list(map(toolbox.evaluate, pop))
+        for ind, fit in zip(pop, fitnesses):
+            ind.fitness.values = fit
 
-    if hall_of_fame:
-        best_individual = hall_of_fame[0]
-        train_preds, train_labels = model.get_predictions(best_individual, train_data)
-        val_preds, val_labels = model.get_predictions(best_individual, val_data)
-        final_train_acc = balanced_accuracy_score(train_labels, train_preds)
-        final_val_acc = balanced_accuracy_score(val_labels, val_preds)
-        print("\nFinal Results:")
-        print(f"Best Training Accuracy: {final_train_acc:.4f}")
-        print(f"Best Validation Accuracy: {final_val_acc:.4f}")
-        print(f"Best Fitness: {best_individual.fitness:.4f}")
+        # Update hall of fame
+        hof.update(pop)
+
+        # Get best accuracies
+        best_ind = max(pop, key=lambda x: x.fitness.values[0])
+        _, best_train_acc, best_val_acc = best_ind.fitness.values
+
+        # Select elite individuals
+        pop.sort(key=lambda x: x.fitness.values[0], reverse=True)
+        elites = pop[:ELITE_SIZE]
+
+        # Select and clone the next generation individuals
+        offspring = toolbox.select(pop, len(pop) - ELITE_SIZE)
+        offspring = list(map(toolbox.clone, offspring))
+
+        # Apply crossover and mutation
+        for i in range(1, len(offspring), 2):
+            if random.random() < 0.8:  # crossover probability
+                if i < len(offspring) - 1:  # Make sure we have a pair
+                    toolbox.mate(offspring[i-1], offspring[i])
+                    del offspring[i-1].fitness.values
+                    del offspring[i].fitness.values
+
+        for i in range(len(offspring)):
+            if random.random() < 0.4:  # mutation probability
+                toolbox.mutate(offspring[i])
+                del offspring[i].fitness.values
+
+        # The elite individuals pass directly to the next generation
+        pop = elites + offspring
+
+        # Compile stats
+        record = stats.compile(pop)
+        print(f"Generation {gen}: Max = {record['max']:.3f}, Avg = {record['avg']:.3f}, "
+              f"Best Train Acc = {best_train_acc:.3f}, Best Val Acc = {best_val_acc:.3f}")
+
+    return pop, hof
 
 if __name__ == "__main__":
     main()
