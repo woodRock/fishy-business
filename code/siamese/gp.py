@@ -9,6 +9,9 @@ import random
 from deap import base, creator, gp, tools
 from sklearn.metrics import balanced_accuracy_score
 from typing import List, Tuple
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+import os
 
 def prepare_data(data_loader) -> List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
     """Convert data loader into list of (sample1, sample2, label) tuples."""
@@ -75,8 +78,11 @@ def setup_primitives(n_inputs: int, n_outputs: int) -> gp.PrimitiveSet:
     # Add more activation functions for non-linearity
     pset.addPrimitive(np.tanh, 1, name="tanh")
     pset.addPrimitive(lambda x: np.maximum(x, 0), 1, name="relu")  # Add ReLU
-    # Protected sigmoid to handle overflow
-    pset.addPrimitive(lambda x: 1/(1 + np.exp(-np.clip(x, -100, 100))), 1, name="sigmoid")  # Add sigmoid
+    # Protected sigmoid with better numerical stability
+    pset.addPrimitive(lambda x: np.where(x >= 0, 
+                                        1 / (1 + np.exp(np.clip(-x, -88.0, 88.0))),
+                                        np.exp(np.clip(x, -88.0, 88.0)) / (1 + np.exp(np.clip(x, -88.0, 88.0)))), 
+                      1, name="sigmoid")
     
     # Add more diverse constants
     pset.addTerminal(1.0)
@@ -140,22 +146,114 @@ def evaluate(individual, data, toolbox):
         similarities = np.sum(outputs1 * outputs2, axis=1)
         similarities = np.clip((similarities + 1) / 2, 0, 1)  # Scale to [0,1] and clip
         
-        # Simple threshold at 0.5
-        predictions = (similarities > 0.5).astype(int)
-        accuracy = balanced_accuracy_score(labels, predictions)
+        # Find best threshold
+        best_threshold = 0.5
+        best_accuracy = 0.0
+
+        for threshold in np.linspace(0, 1, 100):
+            predictions = (similarities > threshold).astype(int)
+            accuracy = balanced_accuracy_score(labels, predictions)
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_threshold = threshold
         
-        return accuracy,
+        return best_accuracy,
         
     except Exception as e:
         return 0.0,
 
+def visualize_contrastive_pairs(data, func, save_path="figures/contrastive_pairs.png"):
+    """Visualize the cosine similarities between positive pairs colored by class."""
+    import os
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
+    # Create figures directory if it doesn't exist
+    os.makedirs("figures", exist_ok=True)
+    
+    similarities = []
+    labels = []
+    
+    # Collect embeddings and compute similarities
+    for sample1, sample2, label in data:
+        sample1 = sample1.numpy()
+        sample2 = sample2.numpy()
+        label = label.argmax().item()
+        
+        # Get embeddings
+        out1 = func(*sample1)
+        out2 = func(*sample2)
+        
+        # Convert to numpy arrays if they aren't already
+        if not isinstance(out1, np.ndarray):
+            out1 = np.array(out1)
+        if not isinstance(out2, np.ndarray):
+            out2 = np.array(out2)
+            
+        # Normalize embeddings
+        norm1 = np.sqrt(np.sum(out1 * out1))
+        norm2 = np.sqrt(np.sum(out2 * out2))
+        
+        eps = 1e-10
+        norm1 = max(norm1, eps)
+        norm2 = max(norm2, eps)
+        
+        out1 = out1 / norm1
+        out2 = out2 / norm2
+        
+        # Compute cosine similarity
+        sim = np.sum(out1 * out2)
+        sim = (sim + 1) / 2  # Scale to [0,1]
+        
+        similarities.append(sim)
+        labels.append(label)
+    
+    similarities = np.array(similarities)
+    labels = np.array(labels)
+    
+    # Create visualization
+    plt.figure(figsize=(10, 6))
+    
+    # Create scatter plot
+    unique_labels = np.unique(labels)
+    for label in unique_labels:
+        mask = labels == label
+        plt.scatter(np.random.normal(0, 0.1, size=mask.sum()), 
+                   similarities[mask],
+                   alpha=0.6,
+                   label=f'Class {label}')
+    
+    plt.axhline(y=similarities.mean(), color='r', linestyle='--', 
+                label=f'Mean similarity: {similarities.mean():.3f}')
+    
+    plt.ylabel('Cosine Similarity')
+    plt.xlabel('Jittered x-axis (for visualization)')
+    plt.title('Cosine Similarities Between Positive Pairs')
+    plt.legend()
+    
+    # Add text with statistics
+    stats_text = (f'Mean: {similarities.mean():.3f}\n'
+                 f'Std: {similarities.std():.3f}\n'
+                 f'Min: {similarities.min():.3f}\n'
+                 f'Max: {similarities.max():.3f}')
+    plt.text(0.02, 0.98, stats_text,
+             transform=plt.gca().transAxes,
+             verticalalignment='top',
+             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+    
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+    
+    return similarities.mean(), similarities.std()
+
 def main():
     # Adjust parameters for better exploration
     N_INPUTS = 2080
-    N_OUTPUTS = 2
-    POP_SIZE = 200  # Increase population size
-    N_GENERATIONS = 100 # Increase number of generations
-    N_ELITE = 1  # Number of elite individuals to preserve
+    N_OUTPUTS = 32 # The size of the embedding vector
+    POP_SIZE = 200 # Increase population size
+    N_GENERATIONS = 50 # Increase number of generations
+    N_ELITE = 5 # Number of elite individuals to preserve
     
     # Load and prepare data
     from util import prepare_dataset, DataConfig
@@ -175,11 +273,11 @@ def main():
     toolbox = base.Toolbox()
     
     # Modify genetic operators for better exploration
-    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=2, max_=4)
+    toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=2, max_=6)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("select", tools.selTournament, tournsize=5)
-    toolbox.register("mate", gp.cxOnePointLeafBiased, termpb=0.1)
+    toolbox.register("mate", gp.cxOnePoint)
     toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr, pset=pset)
     
     # Register genetic operators
@@ -239,6 +337,19 @@ def main():
 
         # Replace population with elite + offspring
         pop[:] = elite + offspring
+
+    # Plot the learned representation for the best individual.
+    # Get the best individual
+    best_ind = tools.selBest(pop, 1)[0]
+    func = toolbox.compile(expr=best_ind)
+
+    # Visualize contrastive pairs for train and test
+    train_sim_mean, train_sim_std = visualize_contrastive_pairs(train_data, func, 
+                                                            save_path="figures/gp_train_contrastive_pairs.png")
+    test_sim_mean, test_sim_std = visualize_contrastive_pairs(test_data, func,
+                                                            save_path="figures/gp_test_contrastive_pairs.png")
+    print(f"Train similarities - Mean: {train_sim_mean:.3f}, Std: {train_sim_std:.3f}")
+    print(f"Test similarities - Mean: {test_sim_mean:.3f}, Std: {test_sim_std:.3f}")
 
 if __name__ == "__main__":
     main()
