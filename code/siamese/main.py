@@ -28,16 +28,16 @@ class SimCLRConfig:
     """Configuration for SimCLR model with default values."""
     projection_dim: int = 256
     embedding_dim: int = 512
-    learning_rate: float = 1e-5
-    weight_decay: float = 1e-6
-    batch_size: int = 16
-    num_epochs: int = 200
+    learning_rate: float = 3e-4
+    weight_decay: float = 1e-4
+    batch_size: int = 256
+    num_epochs: int = 500
     input_dim: int = 2080
-    num_heads: int = 4
+    num_heads: int = 8
     hidden_dim: int = 256
     num_layers: int = 4
     dropout: float = 0.2
-    temperature: float = 0.07
+    temperature: float = 0.5
 
 class ProjectionHead(nn.Module):
     """Non-linear projection head for SimCLR."""
@@ -353,8 +353,91 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tup
         print(f"Epoch {epoch+1}/{config.num_epochs}")
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
         print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
+
+    print(f"Best model: {best_metrics}")
+
+    # Visualize contrastive pairs
+    visualize_batch_thresholds(model, train_loader, device, save_path="figures/train_contrastive_pairs.png")
+    visualize_batch_thresholds(model, val_loader, device, save_path="figures/val_contrastive_pairs.png")
         
     return model, best_model_state, best_metrics
+
+def visualize_batch_thresholds(model, loader, device, save_path="figures/batch_thresholds.png"):
+    """Visualize all batches with their individual thresholds."""
+    import os
+    import matplotlib.pyplot as plt
+    import math
+    
+    # Create figures directory if it doesn't exist
+    os.makedirs("figures", exist_ok=True)
+    
+    model.eval()
+    
+    # First pass to count batches
+    num_batches = len(loader)
+    
+    # Calculate grid dimensions
+    grid_size = math.ceil(math.sqrt(num_batches))
+    
+    # Create a grid of subplots
+    fig, axes = plt.subplots(grid_size, grid_size, figsize=(4*grid_size, 4*grid_size))
+    axes = axes.ravel()
+    
+    with torch.no_grad():
+        for batch_idx, (x1, x2, label) in enumerate(loader):
+            x1, x2 = x1.float().to(device), x2.float().to(device)
+            
+            # Get projected embeddings (like in training)
+            h1, h2 = model(x1, x2)  # Get projector outputs
+            
+            # Compute cosine similarity
+            similarities = F.cosine_similarity(h1, h2).cpu().numpy()
+            labels = torch.argmax(label, dim=1).cpu().numpy()
+            
+            # Compute batch threshold
+            threshold = np.mean(similarities)
+            predictions = (similarities > threshold).astype(int)
+            accuracy = balanced_accuracy_score(labels, predictions)
+            
+            # Plot for this batch
+            ax = axes[batch_idx]
+            
+            # Create scatter plot for this batch
+            unique_labels = np.unique(labels)
+            for label in unique_labels:
+                mask = labels == label
+                ax.scatter(np.random.normal(0, 0.1, size=mask.sum()), 
+                         similarities[mask],
+                         alpha=0.6,
+                         label=f'Class {label}')
+            
+            # Plot threshold
+            ax.axhline(y=threshold, color='r', linestyle='--', 
+                      label=f'Threshold: {threshold:.3f}')
+            
+            ax.set_ylabel('Cosine Similarity')
+            ax.set_xlabel('Jittered x-axis')
+            ax.set_title(f'Batch {batch_idx+1}\nAccuracy: {accuracy:.3f}')
+            
+            # Add stats text
+            stats_text = (f'Mean: {np.mean(similarities):.3f}\n'
+                         f'Std: {np.std(similarities):.3f}\n'
+                         f'Threshold: {threshold:.3f}')
+            ax.text(0.02, 0.98, stats_text,
+                   transform=ax.transAxes,
+                   verticalalignment='top',
+                   bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+            
+            ax.legend()
+    
+    # Remove empty subplots
+    for idx in range(batch_idx + 1, len(axes)):
+        fig.delaxes(axes[idx])
+    
+    plt.suptitle('Cosine Similarities and Thresholds per Batch', fontsize=16)
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
 
 if __name__ == "__main__":
     config = SimCLRConfig()
