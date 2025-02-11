@@ -26,30 +26,33 @@ from util import prepare_dataset, DataConfig
 @dataclass
 class SimCLRConfig:
     """Configuration for SimCLR model with default values."""
-    projection_dim: int = 256
+    temperature: float = 0.5
+    projection_dim: int = 128
     embedding_dim: int = 512
-    learning_rate: float = 3e-4
-    weight_decay: float = 1e-4
-    batch_size: int = 256
-    num_epochs: int = 500
+    learning_rate: float = 1e-3
+    weight_decay: float = 1e-6
+    batch_size: int = 32
+    num_epochs: int = 1000
     input_dim: int = 2080
-    num_heads: int = 8
+    num_heads: int = 4
     hidden_dim: int = 256
     num_layers: int = 4
-    dropout: float = 0.2
-    temperature: float = 0.5
+    dropout: float = 0.1
+
 
 class ProjectionHead(nn.Module):
     """Non-linear projection head for SimCLR."""
     
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int):
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float):
         super().__init__()
         self.net = nn.Sequential(
             nn.LayerNorm(input_dim),
             nn.Linear(input_dim, hidden_dim),
+            # nn.Dropout(dropout),
             nn.BatchNorm1d(hidden_dim),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden_dim, output_dim)
+            nn.Linear(hidden_dim, output_dim),
+            # nn.Dropout(dropout),
         )
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -64,7 +67,8 @@ class SimCLRModel(nn.Module):
         self.projector = ProjectionHead(
             input_dim=config.embedding_dim,
             hidden_dim=config.embedding_dim,
-            output_dim=config.projection_dim
+            output_dim=config.projection_dim,
+            dropout=config.dropout
         )
     
     def forward(self, x1: torch.Tensor, x2: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
@@ -90,7 +94,7 @@ class SimCLRLoss(nn.Module):
         # Compute similarity matrix
         similarity = torch.matmul(features, features.T) / self.temperature
         
-        # Create mask for positive pairs
+        # Create mask for positive pairs 
         pos_mask = torch.zeros((2 * batch_size, 2 * batch_size), device=z1.device)
         pos_mask[:batch_size, batch_size:] = torch.eye(batch_size)
         pos_mask[batch_size:, :batch_size] = torch.eye(batch_size)
@@ -356,6 +360,9 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tup
 
     print(f"Best model: {best_metrics}")
 
+    # Load the best model.
+    model.load_state_dict(best_model_state['model_state_dict'])
+
     # Visualize contrastive pairs
     visualize_batch_thresholds(model, train_loader, device, save_path="figures/train_contrastive_pairs.png")
     visualize_batch_thresholds(model, val_loader, device, save_path="figures/val_contrastive_pairs.png")
@@ -381,7 +388,8 @@ def visualize_batch_thresholds(model, loader, device, save_path="figures/batch_t
     
     # Create a grid of subplots
     fig, axes = plt.subplots(grid_size, grid_size, figsize=(4*grid_size, 4*grid_size))
-    axes = axes.ravel()
+    # The validation set is a single batch, so we need to handle that.
+    axes = axes.ravel() if num_batches > 1 else [axes]
     
     with torch.no_grad():
         for batch_idx, (x1, x2, label) in enumerate(loader):
