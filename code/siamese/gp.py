@@ -1,5 +1,8 @@
 """
 A basic multi-tree Genetic Programming (GP) algorithm for learning contrastive representations.
+
+Results:
+Best individual - Train acc: 0.990, Test acc: 0.875
 """
 
 import multiprocessing
