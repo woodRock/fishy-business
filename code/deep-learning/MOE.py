@@ -72,6 +72,7 @@ References:
     arXiv preprint arXiv:1706.05137.
 """
 import math
+import random
 from collections import defaultdict
 
 import torch
@@ -363,7 +364,6 @@ def load_data(
     
     return scaled_dataset, targets
 
-
 def train_model(
     model: nn.Module,
     train_loader: DataLoader,
@@ -457,678 +457,132 @@ def train_model(
 
     return model, best_val_accuracy
 
-def compare_moe_variants(num_runs=5):
-    """Compare original MoE with majority voting MoE across multiple runs using stratified k-fold CV."""
+import optuna
+from optuna.trial import Trial
+import torch
+from torch.utils.data import DataLoader, SubsetRandomSampler
+from sklearn.model_selection import StratifiedKFold
+import numpy as np
+
+def objective(trial: Trial, dataset, targets, device, n_folds=3):
+    """Optuna objective function for hyperparameter optimization."""
     
-    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
+    # Define hyperparameter search space
+    config = {
+        'input_dim': 2080,  # Fixed based on your data
+        'output_dim': 7,   # Fixed for parts dataset
+        'num_heads': trial.suggest_categorical('num_heads', [2, 4, 8, 16]),
+        'hidden_dim': trial.suggest_int('hidden_dim', 128, 512, step=64),
+        'num_layers': trial.suggest_int('num_layers', 1, 4),
+        'num_experts': trial.suggest_int('num_experts', 4, 8),
+        'k': trial.suggest_int('k', 1, 4),
+        'dropout': trial.suggest_float('dropout', 0.1, 0.5),
+        'learning_rate': trial.suggest_float('learning_rate', 1e-4, 1e-2, log=True),
+        'batch_size': trial.suggest_categorical('batch_size', [16, 32, 64, 128])
+    }
+    
+    # Set up k-fold cross validation
+    kfold = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+    cv_scores = []
+    
+    for fold, (train_idx, val_idx) in enumerate(kfold.split(dataset, targets)):
+        # Create data loaders for this fold
+        train_sampler = SubsetRandomSampler(train_idx)
+        val_sampler = SubsetRandomSampler(val_idx)
+        
+        train_loader = DataLoader(
+            dataset, 
+            batch_size=config['batch_size'],
+            sampler=train_sampler
+        )
+        val_loader = DataLoader(
+            dataset,
+            batch_size=config['batch_size'],
+            sampler=val_sampler
+        )
+        
+        # Initialize model with trial hyperparameters
+        model = MOE(
+            input_dim=config['input_dim'],
+            output_dim=config['output_dim'],
+            num_heads=config['num_heads'],
+            hidden_dim=config['hidden_dim'],
+            num_layers=config['num_layers'],
+            num_experts=config['num_experts'],
+            k=config['k'],
+            dropout=config['dropout']
+        )
+        
+        # Train model
+        trained_model, val_accuracy = train_model(
+            model=model,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            num_epochs=20,  # Fixed number of epochs for tuning
+            learning_rate=config['learning_rate'],
+            device=device
+        )
+        
+        cv_scores.append(val_accuracy)
+        
+        # Report intermediate value
+        trial.report(val_accuracy, fold)
+        
+        # Handle pruning
+        if trial.should_prune():
+            raise optuna.TrialPruned()
+    
+    return np.mean(cv_scores)
+
+def tune_hyperparameters(dataset, targets, device, n_trials=100):
+    """Run hyperparameter optimization using Optuna."""
+    
+    # Create study object
+    study = optuna.create_study(
+        direction="maximize",
+        pruner=optuna.pruners.MedianPruner(
+            n_startup_trials=5,
+            n_warmup_steps=5
+        )
+    )
+    
+    # Run optimization
+    study.optimize(
+        lambda trial: objective(trial, dataset, targets, device),
+        n_trials=n_trials,
+        timeout=None  # No timeout
+    )
+    
+    # Print optimization results
+    print("Best trial:")
+    print("  Value: ", study.best_trial.value)
+    print("  Params: ")
+    for key, value in study.best_trial.params.items():
+        print(f"    {key}: {value}")
+    
+    return study.best_trial.params
+
+def main():
+    # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    # Store results for each variant
-    results = {
-        'original': {dataset: [] for dataset in n_classes.keys()},
-        'majority_voting': {dataset: [] for dataset in n_classes.keys()},
-        'expert_utilization': {
-            'original': {dataset: [] for dataset in n_classes.keys()},
-            'majority_voting': {dataset: [] for dataset in n_classes.keys()}
-        }
-    }
+    # Load and prepare data
+    dataset, targets = load_data(dataset="part")
     
-    for run in range(num_runs):
-        print(f"\nRun {run + 1}/{num_runs}")
-        
-        # Set random seed for reproducibility
-        torch.manual_seed(run)
-        np.random.seed(run)
-        
-        for dataset in n_classes.keys():
-            print(f"\nProcessing dataset: {dataset}")
-            
-            # Load data
-            scaled_dataset, targets = load_data(dataset=dataset)
-            input_dim = scaled_dataset[0][0].shape[0]
-            
-            # Set number of folds based on dataset
-            n_splits = 3 if dataset == "part" else 5
-            kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)
-            
-            # Store fold results for this run
-            fold_results_original = []
-            fold_results_voting = []
-            fold_expert_util_original = []
-            fold_expert_util_voting = []
-            
-            for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):
-                print(f"Fold {fold + 1}/{n_splits}")
-                
-                # Create train/val datasets for this fold
-                train_dataset = Subset(scaled_dataset, train_idx)
-                val_dataset = Subset(scaled_dataset, val_idx)
-                
-                train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-                val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-                
-                # Train and evaluate original MoE
-                original_model = MOE(
-                    input_dim=input_dim,
-                    output_dim=n_classes[dataset],
-                    num_heads=8,
-                    hidden_dim=128,
-                    num_layers=4,
-                    num_experts=4,
-                    k=2,
-                    use_majority_voting=False
-                )
-                
-                original_model, acc_original = train_model(
-                    original_model,
-                    train_loader,
-                    val_loader,
-                    num_epochs=100,
-                    learning_rate=0.001,
-                    device=device
-                )
-                
-                # Get expert utilization for original model
-                expert_util_original = []
-                for layer in original_model.moe_layers:
-                    expert_util_original.append(layer.get_expert_utilization())
-                avg_util_original = np.mean(expert_util_original, axis=0)
-                
-                # Train and evaluate majority voting MoE
-                voting_model = MOE(
-                    input_dim=input_dim,
-                    output_dim=n_classes[dataset],
-                    num_heads=8,
-                    hidden_dim=128,
-                    num_layers=4,
-                    num_experts=4,
-                    k=2,
-                    use_majority_voting=True
-                )
-                
-                voting_model, acc_voting = train_model(
-                    voting_model,
-                    train_loader,
-                    val_loader,
-                    num_epochs=100,
-                    learning_rate=0.001,
-                    device=device
-                )
-                
-                # Get expert utilization for voting model
-                expert_util_voting = []
-                for layer in voting_model.moe_layers:
-                    expert_util_voting.append(layer.get_expert_utilization())
-                avg_util_voting = np.mean(expert_util_voting, axis=0)
-                
-                # Store fold results
-                fold_results_original.append(acc_original)
-                fold_results_voting.append(acc_voting)
-                fold_expert_util_original.append(avg_util_original)
-                fold_expert_util_voting.append(avg_util_voting)
-                
-                print(f"Fold {fold + 1} Results:")
-                print(f"Original MoE Accuracy: {acc_original:.2f}%")
-                print(f"Majority Voting MoE Accuracy: {acc_voting:.2f}%")
-            
-            # Average results across folds for this run
-            run_acc_original = np.mean(fold_results_original)
-            run_acc_voting = np.mean(fold_results_voting)
-            run_util_original = np.mean(fold_expert_util_original, axis=0)
-            run_util_voting = np.mean(fold_expert_util_voting, axis=0)
-            
-            # Store run results
-            results['original'][dataset].append(run_acc_original)
-            results['majority_voting'][dataset].append(run_acc_voting)
-            results['expert_utilization']['original'][dataset].append(run_util_original)
-            results['expert_utilization']['majority_voting'][dataset].append(run_util_voting)
-            
-            print(f"\nRun {run + 1} Average Results for {dataset}:")
-            print(f"Original MoE Accuracy: {run_acc_original:.2f}%")
-            print(f"Majority Voting MoE Accuracy: {run_acc_voting:.2f}%")
-    
-    # Calculate final statistics
-    final_results = {
-        'original': {},
-        'majority_voting': {},
-        'expert_utilization': {
-            'original': {},
-            'majority_voting': {}
-        }
-    }
-    
-    for dataset in n_classes.keys():
-        # Calculate mean and std of accuracies
-        orig_acc = np.array(results['original'][dataset])
-        vote_acc = np.array(results['majority_voting'][dataset])
-        
-        final_results['original'][dataset] = {
-            'mean': np.mean(orig_acc),
-            'std': np.std(orig_acc)
-        }
-        final_results['majority_voting'][dataset] = {
-            'mean': np.mean(vote_acc),
-            'std': np.std(vote_acc)
-        }
-        
-        # Calculate mean expert utilization
-        orig_util = np.mean(results['expert_utilization']['original'][dataset], axis=0)
-        vote_util = np.mean(results['expert_utilization']['majority_voting'][dataset], axis=0)
-        
-        final_results['expert_utilization']['original'][dataset] = orig_util
-        final_results['expert_utilization']['majority_voting'][dataset] = vote_util
-    
-    print("\nFinal Results Averaged Over All Runs:")
-    for dataset in n_classes.keys():
-        print(f"\n{dataset} Dataset:")
-        print(f"Original MoE: {final_results['original'][dataset]['mean']:.2f}% ± {final_results['original'][dataset]['std']:.2f}%")
-        print(f"Majority Voting MoE: {final_results['majority_voting'][dataset]['mean']:.2f}% ± {final_results['majority_voting'][dataset]['std']:.2f}%")
-        print("\nExpert Utilization:")
-        print("Original:", [f"{x:.3f}" for x in final_results['expert_utilization']['original'][dataset]])
-        print("Majority:", [f"{x:.3f}" for x in final_results['expert_utilization']['majority_voting'][dataset]])
-    
-    return final_results
+    # Run hyperparameter tuning
+    best_params = tune_hyperparameters(
+        dataset=dataset,
+        targets=targets,
+        device=device,
+        n_trials=100
+    )
 
-def compare_expert_counts(num_runs=5):
-    """Compare model performance with different numbers of experts."""
+    print(f"Best parameters: {best_params}")
     
-    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    expert_counts = [2, 4, 8, 16]
+    # Save best parameters
+    # torch.save(best_params, 'best_moe_params.pt')
     
-    # Store results for each expert count
-    results = {
-        count: {dataset: [] for dataset in n_classes.keys()}
-        for count in expert_counts
-    }
-    
-    for run in range(num_runs):
-        print(f"\nRun {run + 1}/{num_runs}")
-        
-        # Set random seed for reproducibility
-        torch.manual_seed(run)
-        np.random.seed(run)
-        
-        for dataset in n_classes.keys():
-            print(f"\nProcessing dataset: {dataset}")
-            
-            # Load data
-            scaled_dataset, targets = load_data(dataset=dataset)
-            input_dim = scaled_dataset[0][0].shape[0]
-            
-            # Set number of folds based on dataset
-            n_splits = 3 if dataset == "part" else 5
-            kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)
-            
-            # Store fold results for this run
-            fold_results = {count: [] for count in expert_counts}
-            
-            for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):
-                print(f"Fold {fold + 1}/{n_splits}")
-                
-                # Create train/val datasets for this fold
-                train_dataset = Subset(scaled_dataset, train_idx)
-                val_dataset = Subset(scaled_dataset, val_idx)
-                
-                train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-                val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-                
-                # Test each expert count
-                for num_experts in expert_counts:
-                    print(f"\nTesting with {num_experts} experts")
-                    
-                    # Initialize model
-                    model = MOE(
-                        input_dim=input_dim,
-                        output_dim=n_classes[dataset],
-                        num_heads=8,
-                        hidden_dim=128,
-                        num_layers=4,
-                        num_experts=num_experts,
-                        k=min(2, num_experts),  # Ensure k doesn't exceed num_experts
-                        use_majority_voting=False
-                    )
-                    
-                    # Train and evaluate
-                    model, accuracy = train_model(
-                        model,
-                        train_loader,
-                        val_loader,
-                        num_epochs=100,
-                        learning_rate=0.001,
-                        device=device
-                    )
-                    
-                    # Store results
-                    fold_results[num_experts].append(accuracy)
-                    print(f"Accuracy with {num_experts} experts: {accuracy:.2f}%")
-            
-            # Average results across folds
-            for num_experts in expert_counts:
-                run_accuracy = np.mean(fold_results[num_experts])
-                results[num_experts][dataset].append(run_accuracy)
-    
-    # Calculate final statistics
-    final_results = {
-        count: {dataset: {'mean': 0.0, 'std': 0.0} for dataset in n_classes.keys()}
-        for count in expert_counts
-    }
-    
-    print("\nFinal Results Averaged Over All Runs:")
-    for dataset in n_classes.keys():
-        print(f"\n{dataset} Dataset:")
-        for num_experts in expert_counts:
-            accuracies = np.array(results[num_experts][dataset])
-            mean_acc = np.mean(accuracies)
-            std_acc = np.std(accuracies)
-            
-            final_results[num_experts][dataset]['mean'] = mean_acc
-            final_results[num_experts][dataset]['std'] = std_acc
-            
-            print(f"{num_experts} experts: {mean_acc:.2f}% ± {std_acc:.2f}%")
-    
-    return final_results
-
-def compare_topk_routing(num_runs=5):
-    """Compare model performance with different numbers of experts."""
-    
-    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    top_k_routings = [1,2,4]
-    
-    # Store results for each expert count
-    results = {
-        count: {dataset: [] for dataset in n_classes.keys()}
-        for count in top_k_routings
-    }
-    
-    for run in range(num_runs):
-        print(f"\nRun {run + 1}/{num_runs}")
-        
-        # Set random seed for reproducibility
-        torch.manual_seed(run)
-        np.random.seed(run)
-        
-        for dataset in n_classes.keys():
-            print(f"\nProcessing dataset: {dataset}")
-            
-            # Load data
-            scaled_dataset, targets = load_data(dataset=dataset)
-            input_dim = scaled_dataset[0][0].shape[0]
-            
-            # Set number of folds based on dataset
-            n_splits = 3 if dataset == "part" else 5
-            kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)
-            
-            # Store fold results for this run
-            fold_results = {count: [] for count in top_k_routings}
-            
-            for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):
-                print(f"Fold {fold + 1}/{n_splits}")
-                
-                # Create train/val datasets for this fold
-                train_dataset = Subset(scaled_dataset, train_idx)
-                val_dataset = Subset(scaled_dataset, val_idx)
-                
-                train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-                val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-                
-                # Test each expert count
-                for k in top_k_routings:
-                    print(f"\nTesting with k={k}")
-                    
-                    # Initialize model
-                    model = MOE(
-                        input_dim=input_dim,
-                        output_dim=n_classes[dataset],
-                        num_heads=8,
-                        hidden_dim=128,
-                        num_layers=4,
-                        num_experts=4,
-                        k=k,  # Ensure k doesn't exceed num_experts
-                        use_majority_voting=False
-                    )
-                    
-                    # Train and evaluate
-                    model, accuracy = train_model(
-                        model,
-                        train_loader,
-                        val_loader,
-                        num_epochs=100,
-                        learning_rate=0.001,
-                        device=device
-                    )
-                    
-                    # Store results
-                    fold_results[k].append(accuracy)
-                    print(f"Accuracy with k={k} {accuracy:.2f}%")
-            
-            # Average results across folds
-            for k in top_k_routings:
-                run_accuracy = np.mean(fold_results[k])
-                results[k][dataset].append(run_accuracy)
-    
-    # Calculate final statistics
-    final_results = {
-        k: {dataset: {'mean': 0.0, 'std': 0.0} for dataset in n_classes.keys()}
-        for k in top_k_routings
-    }
-    
-    print("\nFinal Results Averaged Over All Runs:")
-    for dataset in n_classes.keys():
-        print(f"\n{dataset} Dataset:")
-        for k in top_k_routings:
-            accuracies = np.array(results[k][dataset])
-            mean_acc = np.mean(accuracies)
-            std_acc = np.std(accuracies)
-            
-            final_results[k][dataset]['mean'] = mean_acc
-            final_results[k][dataset]['std'] = std_acc
-            
-            print(f"k={k}: {mean_acc:.2f}% ± {std_acc:.2f}%")
-    
-    return 
-    
-def compare_layer_depths(num_runs=5):
-    """Compare model performance with different numbers of experts."""
-    
-    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    layer_depths = [2,4,8]
-    
-    # Store results for each expert count
-    results = {
-        count: {dataset: [] for dataset in n_classes.keys()}
-        for count in layer_depths
-    }
-    
-    for run in range(num_runs):
-        print(f"\nRun {run + 1}/{num_runs}")
-        
-        # Set random seed for reproducibility
-        torch.manual_seed(run)
-        np.random.seed(run)
-        
-        for dataset in n_classes.keys():
-            print(f"\nProcessing dataset: {dataset}")
-            
-            # Load data
-            scaled_dataset, targets = load_data(dataset=dataset)
-            input_dim = scaled_dataset[0][0].shape[0]
-            
-            # Set number of folds based on dataset
-            n_splits = 3 if dataset == "part" else 5
-            kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)
-            
-            # Store fold results for this run
-            fold_results = {count: [] for count in layer_depths}
-            
-            for fold, (train_idx, val_idx) in enumerate(kfold.split(scaled_dataset, targets)):
-                print(f"Fold {fold + 1}/{n_splits}")
-                
-                # Create train/val datasets for this fold
-                train_dataset = Subset(scaled_dataset, train_idx)
-                val_dataset = Subset(scaled_dataset, val_idx)
-                
-                train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-                val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
-                
-                # Test each expert count
-                for depth in layer_depths:
-                    print(f"\nTesting with depth={depth}")
-                    
-                    # Initialize model
-                    model = MOE(
-                        input_dim=input_dim,
-                        output_dim=n_classes[dataset],
-                        num_heads=8,
-                        hidden_dim=128,
-                        num_layers=depth,
-                        num_experts=4,
-                        k=2,  # Ensure k doesn't exceed num_experts
-                        use_majority_voting=False
-                    )
-                    
-                    # Train and evaluate
-                    model, accuracy = train_model(
-                        model,
-                        train_loader,
-                        val_loader,
-                        num_epochs=100,
-                        learning_rate=0.001,
-                        device=device
-                    )
-                    
-                    # Store results
-                    fold_results[depth].append(accuracy)
-                    print(f"Accuracy with depth={depth} {accuracy:.2f}%")
-            
-            # Average results across folds
-            for depth in layer_depths:
-                run_accuracy = np.mean(fold_results[depth])
-                results[depth][dataset].append(run_accuracy)
-    
-    # Calculate final statistics
-    final_results = {
-        depth: {dataset: {'mean': 0.0, 'std': 0.0} for dataset in n_classes.keys()}
-        for depth in layer_depths
-    }
-    
-    print("\nFinal Results Averaged Over All Runs:")
-    for dataset in n_classes.keys():
-        print(f"\n{dataset} Dataset:")
-        for depth in layer_depths:
-            accuracies = np.array(results[depth][dataset])
-            mean_acc = np.mean(accuracies)
-            std_acc = np.std(accuracies)
-            
-            final_results[depth][dataset]['mean'] = mean_acc
-            final_results[depth][dataset]['std'] = std_acc
-            
-            print(f"depth={depth}: {mean_acc:.2f}% ± {std_acc:.2f}%")
-    
-    return final_results
-
-def transfer_learning_experiment(num_runs=5):
-    """
-    Compare model performance with and without transfer learning.
-    For each target dataset, trains:
-    1. A model from scratch
-    2. A model pre-trained on source dataset
-
-    You should expect larger improvements when:
-
-    1. Source and target tasks are more closely related
-    2. Source dataset is larger than target dataset
-    3. Target task has limited training data
-    4. The underlying chemical signatures share common patterns
-
-    Final Results Averaged Over All Runs:
-
-    species->part:
-    Baseline (No Transfer): 66.67% ± 0.00%
-    With Transfer Learning: 66.67% ± 0.00%
-    Improvement: 0.00%
-
-    species->oil:
-    Baseline (No Transfer): 50.00% ± 0.00%
-    With Transfer Learning: 50.00% ± 0.00%
-    Improvement: 0.00%
-
-    part->cross-species:
-    Baseline (No Transfer): 87.10% ± 0.00%
-    With Transfer Learning: 80.65% ± 0.00%
-    Improvement: -6.45%
-
-    part->oil:
-    Baseline (No Transfer): 46.15% ± 0.00%
-    With Transfer Learning: 50.00% ± 0.00%
-    Improvement: 3.85%
-
-    oil->part:
-    Baseline (No Transfer): 66.67% ± 0.00%
-    With Transfer Learning: 58.33% ± 0.00%
-    Improvement: -8.33%
-
-    oil->cross-species:
-    Baseline (No Transfer): 90.32% ± 0.00%
-    With Transfer Learning: 80.65% ± 0.00%
-    Improvement: -9.68%
-
-    cross-species->part:
-    Baseline (No Transfer): 66.67% ± 0.00%
-    With Transfer Learning: 66.67% ± 0.00%
-    Improvement: 0.00%
-
-    cross-species->oil:
-    Baseline (No Transfer): 57.69% ± 0.00%
-    With Transfer Learning: 42.31% ± 0.00%
-    Improvement: -15.38%
-    """
-    
-    n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    transfer_pairs = [
-        ("species", "oil"),
-        ("species", "part"),
-        ("part", "cross-species"),
-        ("part", "oil"),
-        ("oil", "part"),
-        ("oil", "cross-species"),
-        ("cross-species", "part"),
-        ("cross-species", "oil")
-    ]
-    
-    # Store results for each transfer pair
-    results = {
-        f"{src}->{tgt}": {
-            "target_baseline": [],  # No pre-training
-            "target_transfer": []   # With pre-training
-        }
-        for src, tgt in transfer_pairs
-    }
-    
-    for run in range(num_runs):
-        print(f"\nRun {run + 1}/{num_runs}")
-        torch.manual_seed(run)
-        np.random.seed(run)
-        
-        for src_dataset, tgt_dataset in transfer_pairs:
-            print(f"\nEvaluating: {src_dataset} -> {tgt_dataset}")
-            
-            # Load target dataset
-            tgt_data, tgt_targets = load_data(tgt_dataset)
-            n_splits = 3 if tgt_dataset == "part" else 5
-            kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)
-            
-            train_idx, val_idx = next(kfold.split(tgt_data, tgt_targets))
-            tgt_train = Subset(tgt_data, train_idx)
-            tgt_val = Subset(tgt_data, val_idx)
-            
-            tgt_train_loader = DataLoader(tgt_train, batch_size=32, shuffle=True)
-            tgt_val_loader = DataLoader(tgt_val, batch_size=32, shuffle=False)
-            
-            # 1. Train model from scratch on target dataset (baseline)
-            print("Training baseline model...")
-            baseline_model = MOE(
-                input_dim=2080,
-                output_dim=n_classes[tgt_dataset],
-                num_heads=8,
-                hidden_dim=128,
-                num_layers=4,
-                num_experts=4,
-                k=2
-            ).to(device)
-            
-            _, baseline_accuracy = train_model(
-                baseline_model,
-                tgt_train_loader,
-                tgt_val_loader,
-                num_epochs=100,
-                learning_rate=0.001,
-                device=device
-            )
-            
-            # 2. Train with transfer learning
-            print("Training transfer learning model...")
-            # First, train on source dataset
-            transfer_model = MOE(
-                input_dim=2080,
-                output_dim=n_classes[src_dataset],
-                num_heads=8,
-                hidden_dim=128,
-                num_layers=4,
-                num_experts=4,
-                k=2
-            ).to(device)
-            
-            # Load and prepare source dataset
-            src_data, src_targets = load_data(src_dataset)
-            n_splits_src = 3 if src_dataset == "part" else 5
-            src_kfold = StratifiedKFold(n_splits=n_splits_src, shuffle=True, random_state=run)
-            
-            src_train_idx, src_val_idx = next(src_kfold.split(src_data, src_targets))
-            src_train = Subset(src_data, src_train_idx)
-            src_val = Subset(src_data, src_val_idx)
-            
-            src_train_loader = DataLoader(src_train, batch_size=32, shuffle=True)
-            src_val_loader = DataLoader(src_val, batch_size=32, shuffle=False)
-            
-            # Pre-train on source dataset
-            transfer_model, _ = train_model(
-                transfer_model,
-                src_train_loader,
-                src_val_loader,
-                num_epochs=100,
-                learning_rate=0.001,
-                device=device
-            )
-            
-            # Modify output layer for target dataset
-            transfer_model.fc_out = nn.Linear(
-                transfer_model.fc_out.in_features, 
-                n_classes[tgt_dataset]
-            ).to(device)
-            
-            # Fine-tune on target dataset
-            _, transfer_accuracy = train_model(
-                transfer_model,
-                tgt_train_loader,
-                tgt_val_loader,
-                num_epochs=100,
-                learning_rate=0.0001,  # Lower learning rate for fine-tuning
-                device=device
-            )
-            
-            # Store results
-            pair_key = f"{src_dataset}->{tgt_dataset}"
-            results[pair_key]["target_baseline"].append(baseline_accuracy)
-            results[pair_key]["target_transfer"].append(transfer_accuracy)
-            
-            print(f"Baseline accuracy: {baseline_accuracy:.2f}%")
-            print(f"Transfer learning accuracy: {transfer_accuracy:.2f}%")
-    
-    # Calculate final statistics
-    print("\nFinal Results Averaged Over All Runs:")
-    final_results = {}
-    
-    for pair in transfer_pairs:
-        pair_key = f"{pair[0]}->{pair[1]}"
-        baseline_acc = np.array(results[pair_key]["target_baseline"])
-        transfer_acc = np.array(results[pair_key]["target_transfer"])
-        
-        final_results[pair_key] = {
-            "baseline": {"mean": np.mean(baseline_acc), "std": np.std(baseline_acc)},
-            "transfer": {"mean": np.mean(transfer_acc), "std": np.std(transfer_acc)}
-        }
-        
-        print(f"\n{pair_key}:")
-        print(f"Baseline (No Transfer): {np.mean(baseline_acc):.2f}% ± {np.std(baseline_acc):.2f}%")
-        print(f"With Transfer Learning: {np.mean(transfer_acc):.2f}% ± {np.std(transfer_acc):.2f}%")
-        print(f"Improvement: {np.mean(transfer_acc) - np.mean(baseline_acc):.2f}%")
-    
-    return final_results
+    return best_params
 
 if __name__ == "__main__":
-    final_results = transfer_learning_experiment(num_runs=30)
+    best_params = main()

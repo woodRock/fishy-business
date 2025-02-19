@@ -252,7 +252,7 @@ def main():
     N_INPUTS = 2080
     N_OUTPUTS = 32 # The size of the embedding vector
     POP_SIZE = 200 # Increase population size
-    N_GENERATIONS = 50 # Increase number of generations
+    N_GENERATIONS = 300 # Increase number of generations
     N_ELITE = 5 # Number of elite individuals to preserve
     
     # Load and prepare data
