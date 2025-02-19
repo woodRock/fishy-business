@@ -1,7 +1,11 @@
 """
 A basic multi-tree Genetic Programming (GP) algorithm for learning contrastive representations.
+
+Results:
+Best individual - Train acc: 0.990, Test acc: 0.875
 """
 
+import multiprocessing
 import torch 
 import torch.nn.functional as F
 import numpy as np
@@ -64,103 +68,49 @@ class MultiOutputTree(gp.PrimitiveTree):
         string_outputs = [output if output else "0" for output in string_outputs]
         return "[" + ",".join(string_outputs) + "]"
 
+def protected_div(x, y):
+    """Protected division function"""
+    return np.divide(x, y) if y != 0 else 0
+
+def relu(x):
+    """ReLU activation function"""
+    return np.maximum(x, 0)
+
+def sigmoid(x):
+    """Numerically stable sigmoid function"""
+    return np.where(x >= 0, 
+                   1 / (1 + np.exp(np.clip(-x, -88.0, 88.0))),
+                   np.exp(np.clip(x, -88.0, 88.0)) / (1 + np.exp(np.clip(x, -88.0, 88.0))))
+
+def random_const():
+    """Generate random constant between -1 and 1"""
+    return random.uniform(-1, 1)
+
 def setup_primitives(n_inputs: int, n_outputs: int) -> gp.PrimitiveSet:
     """Set up primitive set with basic operations."""
     pset = gp.PrimitiveSet("MAIN", n_inputs)
     
-    # Add more complex arithmetic operations
+    # Add arithmetic operations
     pset.addPrimitive(np.add, 2, name="add")
     pset.addPrimitive(np.subtract, 2, name="sub")
     pset.addPrimitive(np.multiply, 2, name="mul")
-    # Safe division
-    pset.addPrimitive(lambda x, y: np.divide(x, y) if y != 0 else 0, 2, name="div")  # Add protected division
+    pset.addPrimitive(protected_div, 2, name="div")
     
-    # Add more activation functions for non-linearity
+    # Add activation functions
     pset.addPrimitive(np.tanh, 1, name="tanh")
-    pset.addPrimitive(lambda x: np.maximum(x, 0), 1, name="relu")  # Add ReLU
-    # Protected sigmoid with better numerical stability
-    pset.addPrimitive(lambda x: np.where(x >= 0, 
-                                        1 / (1 + np.exp(np.clip(-x, -88.0, 88.0))),
-                                        np.exp(np.clip(x, -88.0, 88.0)) / (1 + np.exp(np.clip(x, -88.0, 88.0)))), 
-                      1, name="sigmoid")
+    pset.addPrimitive(relu, 1, name="relu")
+    pset.addPrimitive(sigmoid, 1, name="sigmoid")
     
-    # Add more diverse constants
+    # Add constants
     pset.addTerminal(1.0)
     pset.addTerminal(-1.0)
-    pset.addEphemeralConstant("rand", lambda: random.uniform(-1, 1))
+    pset.addEphemeralConstant("rand", random_const)
     
     # Add Modi primitives for each output
     for i in range(n_outputs):
         pset.addPrimitive(Modi(i), 1, name=f"modi{i}")
     
     return pset
-
-def evaluate(individual, data, toolbox):
-    """Basic evaluation using balanced accuracy."""
-    try:
-        func = toolbox.compile(expr=individual)
-        
-        outputs1 = []
-        outputs2 = []
-        labels = []
-        
-        for sample1, sample2, label in data:
-            sample1 = sample1.numpy()
-            sample2 = sample2.numpy()
-            label = label.argmax().item()
-            
-            out1 = func(*sample1)
-            out2 = func(*sample2)
-            
-            # Convert to numpy arrays if they aren't already
-            if not isinstance(out1, np.ndarray):
-                out1 = np.array(out1)
-            if not isinstance(out2, np.ndarray):
-                out2 = np.array(out2)
-            
-            outputs1.append(out1)
-            outputs2.append(out2)
-            labels.append(label)
-        
-        outputs1 = np.array(outputs1)
-        outputs2 = np.array(outputs2)
-        
-        # Replace any NaN or inf values
-        outputs1 = np.nan_to_num(outputs1, nan=0.0, posinf=1.0, neginf=-1.0)
-        outputs2 = np.nan_to_num(outputs2, nan=0.0, posinf=1.0, neginf=-1.0)
-        
-        # Normalize outputs with better numerical stability
-        norms1 = np.sqrt(np.sum(outputs1 * outputs1, axis=1, keepdims=True))
-        norms2 = np.sqrt(np.sum(outputs2 * outputs2, axis=1, keepdims=True))
-        
-        # Handle zero norms with a small epsilon
-        eps = 1e-10
-        norms1 = np.maximum(norms1, eps)
-        norms2 = np.maximum(norms2, eps)
-        
-        # Safe division
-        outputs1 = np.divide(outputs1, norms1, out=np.zeros_like(outputs1), where=norms1>eps)
-        outputs2 = np.divide(outputs2, norms2, out=np.zeros_like(outputs2), where=norms2>eps)
-        
-        # Calculate similarities
-        similarities = np.sum(outputs1 * outputs2, axis=1)
-        similarities = np.clip((similarities + 1) / 2, 0, 1)  # Scale to [0,1] and clip
-        
-        # Find best threshold
-        best_threshold = 0.5
-        best_accuracy = 0.0
-
-        for threshold in np.linspace(0, 1, 100):
-            predictions = (similarities > threshold).astype(int)
-            accuracy = balanced_accuracy_score(labels, predictions)
-            if accuracy > best_accuracy:
-                best_accuracy = accuracy
-                best_threshold = threshold
-        
-        return best_accuracy,
-        
-    except Exception as e:
-        return 0.0,
 
 def visualize_contrastive_pairs(data, func, save_path="figures/contrastive_pairs.png"):
     """Visualize the cosine similarities between positive pairs colored by class."""
@@ -246,14 +196,70 @@ def visualize_contrastive_pairs(data, func, save_path="figures/contrastive_pairs
     plt.close()
     
     return similarities.mean(), similarities.std()
+def evaluate_individual(individual, data, toolbox):
+    """Evaluation function that can be pickled."""
+    return evaluate(individual, data, toolbox)
+
+def evaluate(individual, data, toolbox):
+    """Basic evaluation using balanced accuracy."""
+    try:
+        func = toolbox.compile(expr=individual)
+        
+        outputs1 = []
+        outputs2 = []
+        labels = []
+        
+        for sample1, sample2, label in data:
+            sample1 = sample1.numpy()
+            sample2 = sample2.numpy()
+            label = label.argmax().item()
+            
+            out1 = func(*sample1)
+            out2 = func(*sample2)
+            
+            if not isinstance(out1, np.ndarray):
+                out1 = np.array(out1)
+            if not isinstance(out2, np.ndarray):
+                out2 = np.array(out2)
+            
+            outputs1.append(out1)
+            outputs2.append(out2)
+            labels.append(label)
+        
+        outputs1 = np.array(outputs1)
+        outputs2 = np.array(outputs2)
+        
+        # Handle numerical stability
+        outputs1 = np.nan_to_num(outputs1, nan=0.0, posinf=1.0, neginf=-1.0)
+        outputs2 = np.nan_to_num(outputs2, nan=0.0, posinf=1.0, neginf=-1.0)
+        
+        eps = 1e-10
+        norms1 = np.maximum(np.sqrt(np.sum(outputs1 * outputs1, axis=1, keepdims=True)), eps)
+        norms2 = np.maximum(np.sqrt(np.sum(outputs2 * outputs2, axis=1, keepdims=True)), eps)
+        
+        outputs1 = np.divide(outputs1, norms1, out=np.zeros_like(outputs1), where=norms1>eps)
+        outputs2 = np.divide(outputs2, norms2, out=np.zeros_like(outputs2), where=norms2>eps)
+        
+        similarities = np.sum(outputs1 * outputs2, axis=1)
+        similarities = np.clip((similarities + 1) / 2, 0, 1)
+        
+        # Find best threshold
+        thresholds = np.linspace(0, 1, 100)
+        accuracies = [balanced_accuracy_score(labels, similarities > t) for t in thresholds]
+        best_accuracy = max(accuracies)
+        
+        return best_accuracy,
+        
+    except Exception as e:
+        return 0.0,
 
 def main():
-    # Adjust parameters for better exploration
+    # Parameters
     N_INPUTS = 2080
-    N_OUTPUTS = 32 # The size of the embedding vector
-    POP_SIZE = 200 # Increase population size
-    N_GENERATIONS = 300 # Increase number of generations
-    N_ELITE = 5 # Number of elite individuals to preserve
+    N_OUTPUTS = 32
+    POP_SIZE = 200
+    N_GENERATIONS = 500
+    N_ELITE = 5
     
     # Load and prepare data
     from util import prepare_dataset, DataConfig
@@ -268,88 +274,75 @@ def main():
     creator.create("FitnessMax", base.Fitness, weights=(1.0,))
     creator.create("Individual", MultiOutputTree, fitness=creator.FitnessMax)
     
-    # Setup primitives and toolbox
+    # Setup toolbox
     pset = setup_primitives(N_INPUTS, N_OUTPUTS)
     toolbox = base.Toolbox()
     
-    # Modify genetic operators for better exploration
     toolbox.register("expr", gp.genHalfAndHalf, pset=pset, min_=2, max_=6)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("select", tools.selTournament, tournsize=5)
     toolbox.register("mate", gp.cxOnePoint)
     toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr, pset=pset)
-    
-    # Register genetic operators
     toolbox.register("compile", gp.compile, pset=pset)
-    toolbox.register("evaluate", evaluate, data=train_data, toolbox=toolbox)
     
     # Create initial population
     pop = toolbox.population(n=POP_SIZE)
     
-    # Simple evolution
-    for gen in range(N_GENERATIONS):
-        # Evaluate population
-        fitnesses = list(map(toolbox.evaluate, pop))
-        for ind, fit in zip(pop, fitnesses):
-            if fit[0] is None:
-                ind.fitness.values = (0.0,)
+    # Evolution with process pool
+    with multiprocessing.Pool() as pool:
+        for gen in range(N_GENERATIONS):
+            # Evaluate population using starmap for multiple arguments
+            fitnesses = pool.starmap(evaluate_individual, 
+                                   [(ind, train_data, toolbox) for ind in pop])
+            
+            for ind, fit in zip(pop, fitnesses):
+                ind.fitness.values = fit if fit[0] is not None else (0.0,)
+            
+            # Get statistics
+            best_ind = tools.selBest(pop, 1)[0]
+            train_acc = evaluate(best_ind, train_data, toolbox)[0]
+            test_acc = evaluate(best_ind, test_data, toolbox)[0]
+            
+            fits = [ind.fitness.values[0] for ind in pop if ind.fitness.values]
+            if fits:
+                print(f"Gen {gen}: max={max(fits):.3f}, avg={sum(fits)/len(fits):.3f}")
+                print(f"Best individual - Train acc: {train_acc:.3f}, Test acc: {test_acc:.3f}")
             else:
-                ind.fitness.values = fit
-        
-        # Get best individual
-        best_ind = tools.selBest(pop, 1)[0]
-        train_acc = toolbox.evaluate(best_ind)[0]
-        test_acc = evaluate(best_ind, test_data, toolbox)[0]
-        
-        # Print statistics
-        fits = [ind.fitness.values[0] for ind in pop if ind.fitness.values]
-        if fits:
-            print(f"Gen {gen}: max={max(fits):.3f}, avg={sum(fits)/len(fits):.3f}")
-            print(f"Best individual - Train acc: {train_acc:.3f}, Test acc: {test_acc:.3f}")
-        else:
-            print(f"Gen {gen}: No valid fitness values")
+                print(f"Gen {gen}: No valid fitness values")
 
-        # Break if last generation
-        if gen == N_GENERATIONS - 1:
-            break
+            if gen == N_GENERATIONS - 1:
+                break
 
-        # Select elite individuals
-        elite = tools.selBest(pop, N_ELITE)
-        elite = list(map(toolbox.clone, elite))
+            # Selection and breeding
+            elite = tools.selBest(pop, N_ELITE)
+            elite = list(map(toolbox.clone, elite))
+            
+            offspring = toolbox.select(pop, len(pop) - N_ELITE)
+            offspring = list(map(toolbox.clone, offspring))
 
-        # Select and clone the rest of the offspring
-        offspring = toolbox.select(pop, len(pop) - N_ELITE)
-        offspring = list(map(toolbox.clone, offspring))
+            # Crossover
+            for i in range(1, len(offspring), 2):
+                if random.random() < 0.7:
+                    offspring[i-1], offspring[i] = toolbox.mate(offspring[i-1], offspring[i])
+                    del offspring[i-1].fitness.values
+                    del offspring[i].fitness.values
 
-        # Apply crossover
-        for i in range(1, len(offspring), 2):
-            if random.random() < 0.7:
-                offspring[i-1], offspring[i] = toolbox.mate(offspring[i-1], offspring[i])
-                del offspring[i-1].fitness.values
-                del offspring[i].fitness.values
+            # Mutation
+            for i in range(len(offspring)):
+                if random.random() < 0.3:
+                    offspring[i], = toolbox.mutate(offspring[i])
+                    del offspring[i].fitness.values
 
-        # Apply mutation
-        for i in range(len(offspring)):
-            if random.random() < 0.3:
-                offspring[i], = toolbox.mutate(offspring[i])
-                del offspring[i].fitness.values
+            pop[:] = elite + offspring
 
-        # Replace population with elite + offspring
-        pop[:] = elite + offspring
-
-    # Plot the learned representation for the best individual.
-    # Get the best individual
+    # Visualize best individual
     best_ind = tools.selBest(pop, 1)[0]
     func = toolbox.compile(expr=best_ind)
-
-    # Visualize contrastive pairs for train and test
-    train_sim_mean, train_sim_std = visualize_contrastive_pairs(train_data, func, 
-                                                            save_path="figures/gp_train_contrastive_pairs.png")
-    test_sim_mean, test_sim_std = visualize_contrastive_pairs(test_data, func,
-                                                            save_path="figures/gp_test_contrastive_pairs.png")
-    print(f"Train similarities - Mean: {train_sim_mean:.3f}, Std: {train_sim_std:.3f}")
-    print(f"Test similarities - Mean: {test_sim_mean:.3f}, Std: {test_sim_std:.3f}")
+    
+    os.makedirs("figures", exist_ok=True)
+    visualize_contrastive_pairs(train_data, func, "figures/gp_train_contrastive_pairs.png")
+    visualize_contrastive_pairs(test_data, func, "figures/gp_test_contrastive_pairs.png")
 
 if __name__ == "__main__":
     main()
