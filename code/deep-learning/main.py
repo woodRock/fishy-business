@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import (
-    accuracy_score,
+    balanced_accuracy_score,
     precision_score,
     recall_score,
     f1_score
@@ -35,9 +35,10 @@ from ode import ODE
 from rwkv import RWKV
 from tcn import TCN
 from wavenet import WaveNet
+from ensemble import Ensemble
+
 from train import train_model
 from util import preprocess_dataset, create_data_module, AugmentationConfig
-
 
 @dataclass
 class TrainingConfig:
@@ -230,7 +231,7 @@ class ModelTrainer:
             raise ValueError(f"Inconsistent number of samples: true_labels={len(true_labels)}, predictions={len(predictions)}")
 
         # Calculate metrics with proper multi-class handling
-        accuracy = accuracy_score(true_labels, predictions)
+        accuracy = balanced_accuracy_score(true_labels, predictions)
         precision = precision_score(true_labels, predictions, average='macro', zero_division=0)
         recall = recall_score(true_labels, predictions, average='macro', zero_division=0)
         f1 = f1_score(true_labels, predictions, average='macro', zero_division=0)
@@ -354,7 +355,7 @@ class ModelTrainer:
             train_loader,
             criterion,
             optimizer,
-            n_splits=1 if self.config.dataset in ["instance-recognition"] else 5,
+            n_splits=1 if self.config.dataset in ["instance-recognition"] else (3 if self.config.dataset in ["part"] else 5),
             num_epochs=self.config.epochs,
             patience=self.config.early_stopping,
             is_augmented=self.config.data_augmentation,
@@ -456,6 +457,13 @@ class ModelTrainer:
         elif self.model_type == "wavenet":
             model = WaveNet(
                 input_dim=input_dim,
+                output_dim=output_dim,
+                dropout=self.config.dropout,
+            )
+        elif self.model_type == "ensemble":
+            model = Ensemble(
+                input_dim=input_dim,
+                hidden_dim=self.config.hidden_dimension,
                 output_dim=output_dim,
                 dropout=self.config.dropout,
             )
