@@ -18,15 +18,24 @@ class Ensemble(nn.Module):
         self.device = device
         
         # Base models
-        self.lstm = LSTM(
-            input_size=input_dim, 
-            hidden_size=hidden_dim,
-            num_layers=4,
-            output_size=output_dim,
+        # self.lstm = LSTM(
+        #     input_size=input_dim, 
+        #     hidden_size=hidden_dim,
+        #     num_layers=4,
+        #     output_size=output_dim,
+        #     dropout=dropout,
+        # )
+
+        self.t1 = Transformer(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            num_heads=2,
+            hidden_dim=hidden_dim,
+            num_layers=2,
             dropout=dropout,
         )
         
-        self.transformer = Transformer(
+        self.t2 = Transformer(
             input_dim=input_dim,
             output_dim=output_dim,
             num_heads=4,
@@ -34,16 +43,25 @@ class Ensemble(nn.Module):
             num_layers=4,
             dropout=dropout,
         )
-        
-        self.mamba = Mamba(
-            d_model=input_dim,
-            d_state=hidden_dim,
-            d_conv=4,
-            expand=2,
-            depth=4,
-            n_classes=output_dim,
+
+        self.t3 = Transformer(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            num_heads=8,
+            hidden_dim=hidden_dim,
+            num_layers=8,
             dropout=dropout,
         )
+        
+        # self.mamba = Mamba(
+        #     d_model=input_dim,
+        #     d_state=hidden_dim,
+        #     d_conv=4,
+        #     expand=2,
+        #     depth=4,
+        #     n_classes=output_dim,
+        #     dropout=dropout,
+        # )
         
         # Voting weights
         self.voting_weights = nn.Parameter(torch.ones(3) / 3)
@@ -56,15 +74,15 @@ class Ensemble(nn.Module):
         x = x.to(self.device)
         
         # Get predictions from each model
-        lstm_out = self.lstm(x)
-        transformer_out = self.transformer(x)
-        mamba_out = self.mamba(x)
+        t1 = self.t1(x)
+        t2 = self.t2(x)
+        t3 = self.t3(x)
         
         # Weighted voting
         weighted_sum = (
-            self.voting_weights[0] * lstm_out +
-            self.voting_weights[1] * transformer_out +
-            self.voting_weights[2] * mamba_out
+            self.voting_weights[0] * t1 +
+            self.voting_weights[1] * t2 +
+            self.voting_weights[2] * t3
         )
         
         return weighted_sum

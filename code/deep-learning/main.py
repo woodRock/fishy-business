@@ -356,6 +356,7 @@ class ModelTrainer:
             criterion,
             optimizer,
             n_splits=1 if self.config.dataset in ["instance-recognition"] else (3 if self.config.dataset in ["part"] else 5),
+            n_runs=30,
             num_epochs=self.config.epochs,
             patience=self.config.early_stopping,
             is_augmented=self.config.data_augmentation,

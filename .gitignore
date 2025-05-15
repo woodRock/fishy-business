@@ -19,3 +19,7 @@ code/siamese/*
 code/evotorch/__pycache__
 code/gp/__pycache__
 code/transformer/__pycache__
+
+# Model weights for pytorch
+*.pth 
+*.pt 
