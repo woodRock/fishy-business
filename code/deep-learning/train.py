@@ -40,7 +40,7 @@ def train_model(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> Tuple[nn.Module, Dict]:  # Modified return type to include metrics
     """Train a model using k-fold cross-validation with early stopping, averaged over multiple runs.
-    When n_splits=1, trains on 80% and validates on 20% of the data.
+    When n_splits=1, trains on 80% and validates on 20% of the data, repeated n_runs times.
     When n_splits>1, performs n_runs independent runs of k-fold cross-validation.
 
     Returns:
@@ -61,6 +61,7 @@ def train_model(
             is_augmented=is_augmented,
             device=device,
             logger=logger,
+            n_runs=n_runs,  # Pass n_runs to _train_single_split
         )
     
     # Initialize storage for multiple runs
@@ -209,78 +210,122 @@ def _train_single_split(
     is_augmented: bool,
     device: str,
     logger: logging.Logger,
+    n_runs: int = 30,  # Now we use the n_runs parameter here
 ) -> Tuple[nn.Module, Dict]:
-    """Handle the case of training with a single train/val split."""
-    model = model.to(device)
-    dataset = train_loader.dataset
+    """Handle the case of training with a single train/val split, run multiple times.
     
-    # Create train/val split while preserving class distribution
-    all_labels = _extract_labels(dataset)
-    skf = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
-    train_idx, val_idx = next(skf.split(np.zeros(len(dataset)), all_labels))
+    Args:
+        model: PyTorch model to train
+        train_loader: Training data loader
+        criterion: Loss function
+        optimizer: Optimizer instance
+        num_epochs: Maximum number of epochs
+        patience: Early stopping patience
+        is_augmented: Whether to use data augmentation
+        device: Device to train on
+        logger: Logger instance
+        n_runs: Number of independent runs to perform
+        
+    Returns:
+        Tuple containing:
+            - The best performing model across all runs
+            - Dictionary containing averaged metrics and their standard deviations
+    """
+    # Initialize storage for multiple runs
+    all_runs_metrics = []
+    best_overall_accuracy = float("-inf")
+    best_overall_model_state = None
     
-    # Create separate train and validation loaders
-    train_subset = Subset(dataset, train_idx)
-    val_subset = Subset(dataset, val_idx)
+    # Create a clean copy of the model to reset for each run
+    model_copy = copy.deepcopy(model)
     
-    train_loader = DataLoader(
-        train_subset,
-        batch_size=train_loader.batch_size,
-        shuffle=True
-    )
-    val_loader = DataLoader(
-        val_subset,
-        batch_size=train_loader.batch_size,
-        shuffle=False
-    )
+    logger.info(f"Starting {n_runs} independent runs for single split training")
     
-    logger.info(f"Training set size: {len(train_subset)}")
-    logger.info(f"Validation set size: {len(val_subset)}")
-    
-    # Apply data augmentation if enabled
-    if is_augmented:
-        aug_config = AugmentationConfig(
-            enabled=True,
-            num_augmentations=5,
-            noise_enabled=True,
-            shift_enabled=True,
-            scale_enabled=True,
-            noise_level=0.1,
-            shift_range=0.1,
-            scale_range=0.1,
+    for run in range(n_runs):
+        logger.info(f"\nStarting Run {run + 1}/{n_runs}")
+        
+        # Reset the model for each run
+        model = copy.deepcopy(model_copy).to(device)
+        dataset = train_loader.dataset
+        
+        # Create train/val split while preserving class distribution
+        all_labels = _extract_labels(dataset)
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=run)  # Different seed for each run
+        train_idx, val_idx = next(skf.split(np.zeros(len(dataset)), all_labels))
+        
+        # Create separate train and validation loaders
+        train_subset = Subset(dataset, train_idx)
+        val_subset = Subset(dataset, val_idx)
+        
+        run_train_loader = DataLoader(
+            train_subset,
+            batch_size=train_loader.batch_size,
+            shuffle=True
         )
-        train_data_augmenter = DataAugmenter(aug_config)
-        train_loader = train_data_augmenter.augment(train_loader)
+        val_loader = DataLoader(
+            val_subset,
+            batch_size=train_loader.batch_size,
+            shuffle=False
+        )
+        
+        if run == 0:  # Only log sizes for the first run to avoid log clutter
+            logger.info(f"Training set size: {len(train_subset)}")
+            logger.info(f"Validation set size: {len(val_subset)}")
+        
+        # Apply data augmentation if enabled
+        if is_augmented:
+            aug_config = AugmentationConfig(
+                enabled=True,
+                num_augmentations=5,
+                noise_enabled=True,
+                shift_enabled=True,
+                scale_enabled=True,
+                noise_level=0.1,
+                shift_range=0.1,
+                scale_range=0.1,
+            )
+            train_data_augmenter = DataAugmenter(aug_config)
+            run_train_loader = train_data_augmenter.augment(run_train_loader)
+        
+        # Create run-specific optimizer
+        run_optimizer = type(optimizer)(model.parameters(), **optimizer.defaults)
+        
+        # Train the model for this run
+        results = _train_fold(
+            model=model,
+            train_loader=run_train_loader,
+            val_loader=val_loader,
+            criterion=criterion,
+            optimizer=run_optimizer,
+            num_epochs=num_epochs,
+            patience=patience,
+            device=device,
+            logger=logger,
+        )
+        
+        # Store this run's results
+        run_best_accuracy = results["best_accuracy"]
+        run_best_metrics = results["best_fold_metrics"]
+        
+        all_runs_metrics.append({
+            "best_accuracy": run_best_accuracy,
+            "best_val_metrics": [run_best_metrics]  # Wrap in list to match k-fold format
+        })
+        
+        # Update overall best model if this run performed better
+        if run_best_accuracy > best_overall_accuracy:
+            best_overall_accuracy = run_best_accuracy
+            best_overall_model_state = copy.deepcopy(results["best_model_state"])
+            logger.info(f"New best overall accuracy: {best_overall_accuracy:.4f} (Run {run + 1})")
     
-    # Train the model
-    results = _train_fold(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        criterion=criterion,
-        optimizer=optimizer,
-        num_epochs=num_epochs,
-        patience=patience,
-        device=device,
-        logger=logger,
-    )
+    # Calculate and print averaged metrics across all runs
+    averaged_metrics = _calculate_averaged_metrics(all_runs_metrics, logger)
     
-    # Load the best model state
-    model.load_state_dict(results["best_model_state"])
+    # Load the best overall model state
+    model = model_copy.to(device)
+    model.load_state_dict(best_overall_model_state)
     
-    # Create metrics summary for consistency with multi-run output
-    metrics_summary = {
-        "runs_summary": {
-            "accuracy_mean": results["best_accuracy"],
-            "accuracy_std": 0.0,  # Single run, so no std
-        },
-        "metrics_summary": {
-            metric: {"mean": value, "std": 0.0}
-            for metric, value in results["best_fold_metrics"].items()
-        }
-    }
-    
-    return model, metrics_summary
+    return model, averaged_metrics
     
 def transfer_learning(
     dataset: str, model: Transformer, file_path: str = "transformer_checkpoint.pth"

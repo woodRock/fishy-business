@@ -64,27 +64,34 @@ def run_experiments(datasets, runs=30, k=3):
         class_weights = calculate_class_weights(y)
 
         models = {
-            'knn': knn(class_weights=class_weights),
-            'dt': dt(class_weight=class_weights),
-            'lor': lor(class_weight=class_weights, max_iter=2_000),
+            # 'knn': knn(class_weights=class_weights),
+            # 'dt': dt(class_weight=class_weights),
+            'lor': lor(
+                C= 0.1,
+                l1_ratio=0.5,
+                penalty='elasticnet',
+                solver='saga',
+                class_weight=class_weights, 
+                max_iter=2_000
+            ),
             # 'lda': lda(class_weights=class_weights),
-            'lda': lda(),
-            'nb': nb(class_weights=class_weights),
-            'rf': rf(class_weight=class_weights),
-            'svm': svm(kernel='linear', class_weight=class_weights, probability=True),
-            'ensemble': VotingClassifier(
-                estimators=[
-                    ('knn', knn(class_weights=class_weights)),
-                    ('dt', dt(class_weight=class_weights)),
-                    ('lor', lor(class_weight=class_weights, max_iter=2_000)),
+            # 'lda': lda(),
+            # 'nb': nb(class_weights=class_weights),
+            # 'rf': rf(class_weight=class_weights),
+            # 'svm': svm(kernel='linear', class_weight=class_weights, probability=True),
+            # 'ensemble': VotingClassifier(
+                # estimators=[
+                    # ('knn', knn(class_weights=class_weights)),
+                    # ('dt', dt(class_weight=class_weights)),
+                    # ('lor', lor(class_weight=class_weights, max_iter=2_000)),
                     # ('lda', lda(class_weights=class_weights)),
-                    ('lda', lda()),
-                    ('nb', nb(class_weights=class_weights)),
-                    ('rf', rf(class_weight=class_weights)),
-                    ('svm', svm(kernel='linear', class_weight=class_weights,  probability=True))
-                ],
-                voting='soft'
-            )
+                    # ('lda', lda()),
+                    # ('nb', nb(class_weights=class_weights)),
+                    # ('rf', rf(class_weight=class_weights)),
+                    # ('svm', svm(kernel='linear', class_weight=class_weights,  probability=True))
+                # ],
+                # voting='soft'
+            # )
         }
 
         dataset_results = {}
@@ -204,8 +211,8 @@ def run_experiments(datasets, runs=30, k=3):
     return results
 
 if __name__ == "__main__":
-    # datasets = ["species", "part", "oil", "cross-species"]
-    datasets = ["species"]
+    datasets = ["species", "part", "oil", "cross-species"]
+    # datasets = ["species"]
     results = run_experiments(datasets)
 
     # Print results (for verification)

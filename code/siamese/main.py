@@ -23,6 +23,12 @@ from tcn import TCN
 from wavenet import WaveNet
 from util import prepare_dataset, DataConfig
 
+import copy
+import logging
+import matplotlib.pyplot as plt
+import os
+import math
+
 @dataclass
 class SimCLRConfig:
     """Configuration for SimCLR model with default values."""
@@ -38,6 +44,7 @@ class SimCLRConfig:
     hidden_dim: int = 256
     num_layers: int = 4
     dropout: float = 0.1
+    num_runs: int = 30  # Number of independent runs
 
 
 class ProjectionHead(nn.Module):
@@ -314,19 +321,21 @@ def create_encoder(config: SimCLRConfig, encoder_type: str) -> nn.Module:
     
     return encoder_mapping[encoder_type]()
 
-def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tuple[SimCLRModel, Dict, Dict]:
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_config = DataConfig(batch_size=config.batch_size)
-    train_loader, val_loader = prepare_dataset(data_config)
+def train_simclr_single_run(config: SimCLRConfig, encoder_type: str, run_id: int, device: torch.device, 
+                           train_loader: DataLoader, val_loader: DataLoader, 
+                           base_model_copy: nn.Module) -> Tuple[nn.Module, Dict]:
+    """Train SimCLR model for a single run."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting run {run_id + 1}/{config.num_runs}")
     
-    encoder = create_encoder(config, encoder_type)
-    model = SimCLRModel(encoder=encoder, config=config).to(device)
+    # Create a new model from the base copy for this run
+    model = copy.deepcopy(base_model_copy).to(device)
     trainer = SimCLRTrainer(model, config, device)
     
     best_val_acc = 0
     best_model_state = None
     best_metrics = None
-    patience = 1000 # Early stopping disabled.
+    patience = 1000  # Early stopping disabled
     patience_counter = 0
     
     for epoch in range(config.num_epochs):
@@ -337,8 +346,8 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tup
             best_val_acc = val_acc
             best_model_state = {
                 'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': trainer.optimizer.state_dict(),
+                'model_state_dict': copy.deepcopy(model.state_dict()),
+                'optimizer_state_dict': copy.deepcopy(trainer.optimizer.state_dict()),
             }
             best_metrics = {
                 'train_accuracy': train_acc,
@@ -347,27 +356,127 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tup
                 'val_loss': val_loss
             }
             patience_counter = 0
-            torch.save(best_model_state, f"best_model_{encoder_type}.pth")
+            # Save only the best overall model from all runs
+            if run_id == 0 or val_acc > best_val_acc:
+                torch.save(best_model_state, f"best_model_{encoder_type}_run_{run_id}.pth")
         else:
             patience_counter += 1
             if patience_counter >= patience:
-                print(f"Early stopping triggered at epoch {epoch+1}")
+                logger.info(f"Early stopping triggered at epoch {epoch+1}")
                 break
                 
-        print(f"Epoch {epoch+1}/{config.num_epochs}")
-        print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
-        print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
-
-    print(f"Best model: {best_metrics}")
-
-    # Load the best model.
+        # Log progress every 10 epochs to avoid excessive output
+        if (epoch + 1) % 10 == 0:
+            logger.info(f"Run {run_id + 1}, Epoch {epoch+1}/{config.num_epochs}")
+            logger.info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
+            logger.info(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
+    
+    # Load the best model state for this run
     model.load_state_dict(best_model_state['model_state_dict'])
+    
+    logger.info(f"Run {run_id + 1} completed. Best val accuracy: {best_val_acc:.4f}")
+    
+    return model, best_metrics
 
-    # Visualize contrastive pairs
-    visualize_batch_thresholds(model, train_loader, device, save_path="figures/train_contrastive_pairs.png")
-    visualize_batch_thresholds(model, val_loader, device, save_path="figures/val_contrastive_pairs.png")
+def calculate_stats(metrics_list: List[Dict]) -> Dict:
+    """Calculate mean and standard deviation for each metric across runs."""
+    all_metrics = {}
+    
+    # Initialize with first run's metrics
+    for key in metrics_list[0].keys():
+        all_metrics[key] = []
+    
+    # Collect metrics from all runs
+    for run_metrics in metrics_list:
+        for key, value in run_metrics.items():
+            all_metrics[key].append(value)
+    
+    # Calculate mean and std for each metric
+    stats = {}
+    for key, values in all_metrics.items():
+        stats[key] = {
+            'mean': np.mean(values),
+            'std': np.std(values)
+        }
+    
+    return stats
+
+def train_simclr(config: SimCLRConfig, encoder_type: str = 'rcnn') -> Tuple[SimCLRModel, Dict, Dict]:
+    """Train SimCLR model with multiple independent runs for statistical evaluation."""
+    # Setup logging
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.INFO)
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Using device: {device}")
+    
+    # Prepare dataset
+    data_config = DataConfig(batch_size=config.batch_size)
+    train_loader, val_loader = prepare_dataset(data_config)
+    
+    # Create base model to be copied for each run
+    encoder = create_encoder(config, encoder_type)
+    base_model = SimCLRModel(encoder=encoder, config=config)
+    base_model_copy = copy.deepcopy(base_model)
+    
+    # Create a directory for saving models and visualizations
+    os.makedirs("results", exist_ok=True)
+    os.makedirs("figures", exist_ok=True)
+    
+    # Storage for all runs
+    all_runs_metrics = []
+    best_overall_model = None
+    best_overall_val_acc = float('-inf')
+    
+    logger.info(f"Starting {config.num_runs} independent runs")
+    
+    # Perform independent runs
+    for run_id in range(config.num_runs):
+        model, run_metrics = train_simclr_single_run(
+            config=config,
+            encoder_type=encoder_type,
+            run_id=run_id,
+            device=device,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            base_model_copy=base_model_copy
+        )
         
-    return model, best_model_state, best_metrics
+        all_runs_metrics.append(run_metrics)
+        
+        # Update best overall model if this run performed better
+        if run_metrics['val_accuracy'] > best_overall_val_acc:
+            best_overall_val_acc = run_metrics['val_accuracy']
+            best_overall_model = copy.deepcopy(model)
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'run_id': run_id,
+                'val_accuracy': best_overall_val_acc
+            }, f"best_model_{encoder_type}_overall.pth")
+            logger.info(f"New best overall model from run {run_id + 1} with val accuracy: {best_overall_val_acc:.4f}")
+    
+    # Calculate statistics across all runs
+    stats = calculate_stats(all_runs_metrics)
+    
+    # Print overall statistics
+    logger.info("\nStatistics across all runs:")
+    for metric, values in stats.items():
+        logger.info(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
+    
+    # Save statistics to file
+    import json
+    with open(f"results/stats_{encoder_type}.json", 'w') as f:
+        json.dump(stats, f, indent=4)
+    
+    # Create visualization for the best model
+    logger.info("Creating visualizations for the best model")
+    visualize_batch_thresholds(best_overall_model, train_loader, device, save_path=f"figures/train_contrastive_pairs_{encoder_type}.png")
+    visualize_batch_thresholds(best_overall_model, val_loader, device, save_path=f"figures/val_contrastive_pairs_{encoder_type}.png")
+    
+    # Create box plots of metrics across runs
+    plot_runs_metrics(all_runs_metrics, save_path=f"figures/runs_metrics_{encoder_type}.png")
+    
+    return best_overall_model, stats, all_runs_metrics
 
 def visualize_batch_thresholds(model, loader, device, save_path="figures/batch_thresholds.png"):
     """Visualize all batches with their individual thresholds."""
@@ -447,7 +556,45 @@ def visualize_batch_thresholds(model, loader, device, save_path="figures/batch_t
     plt.savefig(save_path)
     plt.close()
 
+def plot_runs_metrics(all_runs_metrics, save_path="figures/runs_metrics.png"):
+    """Create box plots of metrics across runs."""
+    import matplotlib.pyplot as plt
+    
+    # Extract metrics
+    metrics = {}
+    for key in all_runs_metrics[0].keys():
+        metrics[key] = [run[key] for run in all_runs_metrics]
+    
+    # Create figure
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    axes = axes.flatten()
+    
+    # Plot each metric
+    for i, (metric, values) in enumerate(metrics.items()):
+        axes[i].boxplot(values)
+        axes[i].set_title(f'{metric} across {len(all_runs_metrics)} runs')
+        axes[i].grid(True, linestyle='--', alpha=0.7)
+        
+        # Add individual points
+        x = np.random.normal(1, 0.1, size=len(values))
+        axes[i].scatter(x, values, alpha=0.6, c='r')
+        
+        # Add mean and std annotation
+        mean_val = np.mean(values)
+        std_val = np.std(values)
+        axes[i].axhline(y=mean_val, color='g', linestyle='-', alpha=0.8)
+        axes[i].text(0.05, 0.95, f'Mean: {mean_val:.4f}\nStd: {std_val:.4f}',
+                   transform=axes[i].transAxes, verticalalignment='top',
+                   bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+    
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+
 if __name__ == "__main__":
     config = SimCLRConfig()
-    model, best_state, best_metrics = train_simclr(config)
-    print(best_metrics)
+    model, stats, all_runs_metrics = train_simclr(config)
+    
+    print("\nFinal Statistics:")
+    for metric, values in stats.items():
+        print(f"{metric}: {values['mean']:.4f} ± {values['std']:.4f}")
