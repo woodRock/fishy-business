@@ -143,7 +143,7 @@ class SimCLRTrainer:
         )
         
         self.contrastive_loss = SimCLRLoss(temperature=config.temperature)
-        self.scaler = torch.cuda.amp.GradScaler()
+        self.scaler = torch.amp.GradScaler()
         
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
         self.model.train()
@@ -154,7 +154,7 @@ class SimCLRTrainer:
             x1, x2 = x1.float().to(self.device), x2.float().to(self.device)
             labels = labels.float().to(self.device)
             
-            with torch.cuda.amp.autocast():
+            with torch.amp.autocast(self.device.type):
                 z1, z2 = self.model(x1, x2)
                 loss = self.contrastive_loss(z1, z2, labels)
             
@@ -401,7 +401,7 @@ def calculate_stats(metrics_list: List[Dict]) -> Dict:
     
     return stats
 
-def train_simclr(config: SimCLRConfig, encoder_type: str = 'rcnn') -> Tuple[SimCLRModel, Dict, Dict]:
+def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tuple[SimCLRModel, Dict, Dict]:
     """Train SimCLR model with multiple independent runs for statistical evaluation."""
     # Setup logging
     logger = logging.getLogger(__name__)
