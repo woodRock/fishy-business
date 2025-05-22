@@ -52,8 +52,8 @@ class DataConfig:
     
     def __post_init__(self):
         if self.data_path is None:
-            self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
-            # self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
+            # self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
+            self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
             
 class SiameseDataset(Dataset):
     """Dataset for contrastive learning with all possible pairs."""

@@ -291,35 +291,3 @@ class MOE(nn.Module):
         x = x.mean(dim=1)  # Global average pooling
         x = self.fc_out(x)
         return x
-
-
-# Example usage:
-if __name__ == "__main__":
-    # Model parameters
-    input_dim = 512
-    output_dim = 10
-    num_heads = 8
-    hidden_dim = 2048
-    num_layers = 2
-    num_experts = 4
-    k = 2
-    
-    # Create model
-    model = MOE(
-        input_dim=input_dim,
-        output_dim=output_dim,
-        num_heads=num_heads,
-        hidden_dim=hidden_dim,
-        num_layers=num_layers,
-        num_experts=num_experts,
-        k=k
-    )
-    
-    # Example input
-    batch_size = 32
-    seq_length = 16
-    x = torch.randn(batch_size, seq_length, input_dim)
-    
-    # Forward pass
-    output = model(x)
-    print(f"Output shape: {output.shape}")  # Should be [batch_size, output_dim]

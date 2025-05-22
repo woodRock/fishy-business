@@ -36,6 +36,7 @@ from rwkv import RWKV
 from tcn import TCN
 from wavenet import WaveNet
 from ensemble import Ensemble
+from diffusion import Diffusion
 
 from train import train_model
 from util import preprocess_dataset, create_data_module, AugmentationConfig
@@ -467,6 +468,14 @@ class ModelTrainer:
                 hidden_dim=self.config.hidden_dimension,
                 output_dim=output_dim,
                 dropout=self.config.dropout,
+            )
+        elif self.model_type == "diffusion":
+            model = Diffusion(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                hidden_dim=self.config.hidden_dimension,
+                time_dim=64,
+                num_timesteps=1000,
             )
         else:
             raise ValueError(f"Invalid model: {self.model_type}")

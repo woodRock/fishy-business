@@ -32,18 +32,31 @@ import math
 @dataclass
 class SimCLRConfig:
     """Configuration for SimCLR model with default values."""
-    temperature: float = 0.5
-    projection_dim: int = 128
-    embedding_dim: int = 512
-    learning_rate: float = 1e-3
+    # Optuna hyperparameters
+    # {
+    # 'learning_rate': 3.523812306701682e-05, 
+    # 'weight_decay': 5.279302459232037e-05, 
+    # 'temperature': 0.5497380139231042, 
+    # 'projection_dim': 256, 
+    # 'embedding_dim': 256, 
+    # 'hidden_dim': 256, 
+    # 'num_layers': 6, 
+    # 'dropout': 0.17848238562756857, 
+    # 'batch_size': 32, 
+    # 'num_heads': 8, 
+    # }
+    temperature: float = 0.5497380139231042
+    projection_dim: int = 256
+    embedding_dim: int = 256
+    learning_rate: float = 3.523812306701682e-05
     weight_decay: float = 1e-6
     batch_size: int = 32
     num_epochs: int = 1000
     input_dim: int = 2080
-    num_heads: int = 4
+    num_heads: int = 8
     hidden_dim: int = 256
-    num_layers: int = 4
-    dropout: float = 0.1
+    num_layers: int = 6
+    dropout: float = 0.17848238562756857
     num_runs: int = 30  # Number of independent runs
 
 
@@ -344,11 +357,16 @@ def train_simclr_single_run(config: SimCLRConfig, encoder_type: str, run_id: int
         
         if val_acc > best_val_acc:
             best_val_acc = val_acc
+    
+            # Save the best model state
+            torch.save(model.state_dict(), f"model_{encoder_type}_run_{run_id}.pth")
+
             best_model_state = {
                 'epoch': epoch,
-                'model_state_dict': copy.deepcopy(model.state_dict()),
-                'optimizer_state_dict': copy.deepcopy(trainer.optimizer.state_dict()),
+                'filename': f"model_{encoder_type}_run_{run_id}.pth",
+                # 'optimizer_state_dict': copy.deepcopy(trainer.optimizer.state_dict()),
             }
+            
             best_metrics = {
                 'train_accuracy': train_acc,
                 'val_accuracy': val_acc,
@@ -358,7 +376,8 @@ def train_simclr_single_run(config: SimCLRConfig, encoder_type: str, run_id: int
             patience_counter = 0
             # Save only the best overall model from all runs
             if run_id == 0 or val_acc > best_val_acc:
-                torch.save(best_model_state, f"best_model_{encoder_type}_run_{run_id}.pth")
+                # torch.save(best_model_state, f"best_model_{encoder_type}_run_{run_id}.pth")
+                pass 
         else:
             patience_counter += 1
             if patience_counter >= patience:
@@ -371,8 +390,12 @@ def train_simclr_single_run(config: SimCLRConfig, encoder_type: str, run_id: int
             logger.info(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
             logger.info(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
     
-    # Load the best model state for this run
-    model.load_state_dict(best_model_state['model_state_dict'])
+    # Load the best model from the filepath saved during training
+    if best_model_state:
+        model.load_state_dict(torch.load(best_model_state['filename']))
+        logger.info(f"Loaded best model from epoch {best_model_state['epoch'] + 1}")
+    else:   
+        logger.warning("No best model found during training.")
     
     logger.info(f"Run {run_id + 1} completed. Best val accuracy: {best_val_acc:.4f}")
     

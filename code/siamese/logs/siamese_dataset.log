@@ -16,3 +16,31 @@
 2025-02-06 02:13:05,887 - __main__ - INFO - Validation Set - Class distribution: {0: 26, 1: 26} | Feature mean range: [8.070, 7960.585] | Feature std range: [4.382, 4768.090]
 2025-02-06 02:13:48,845 - __main__ - INFO - Training Set - Class distribution: {0: 96, 1: 96} | Feature mean range: [9.847, 8210.809] | Feature std range: [8.496, 4622.880]
 2025-02-06 02:13:48,847 - __main__ - INFO - Validation Set - Class distribution: {0: 26, 1: 26} | Feature mean range: [8.226, 7714.810] | Feature std range: [5.281, 3592.048]
+2025-05-22 15:06:38,505 - __main__ - INFO - Training Set - Class distribution: {0: 96, 1: 96} | Feature mean range: [8.716, 7631.020] | Feature std range: [6.903, 3609.780]
+2025-05-22 15:06:38,507 - __main__ - INFO - Validation Set - Class distribution: {0: 26, 1: 26} | Feature mean range: [9.671, 8330.680] | Feature std range: [6.589, 4348.218]
+2025-05-22 15:06:39,240 - simclr_optuna_study - INFO - Using device: cpu for Optuna study with encoder: transformer
+2025-05-22 15:06:39,851 - simclr_optuna_study - INFO - Starting Optuna study 'simclr-transformer-study' for encoder 'transformer'.
+2025-05-22 15:06:39,851 - simclr_optuna_study - INFO - Number of trials: 50, Epochs per trial: 100.
+2025-05-22 15:07:36,065 - __main__ - INFO - Training Set - Class distribution: {0: 96, 1: 96} | Feature mean range: [10.068, 7971.709] | Feature std range: [7.631, 4881.626]
+2025-05-22 15:07:36,067 - __main__ - INFO - Validation Set - Class distribution: {0: 26, 1: 26} | Feature mean range: [7.952, 7753.870] | Feature std range: [4.378, 3320.027]
+2025-05-22 15:07:38,287 - simclr_optuna_study - INFO - Using device: cuda for Optuna study with encoder: transformer
+2025-05-22 15:07:38,864 - simclr_optuna_study - INFO - Starting Optuna study 'simclr-transformer-study' for encoder 'transformer'.
+2025-05-22 15:07:38,864 - simclr_optuna_study - INFO - Number of trials: 50, Epochs per trial: 100.
+2025-05-22 15:08:20,098 - __main__ - INFO - Trial 1 completed. Best Val Acc: 0.9375 (Last epoch Val Acc: 0.8375).
+2025-05-22 15:09:01,689 - __main__ - INFO - Trial 2 completed. Best Val Acc: 0.8750 (Last epoch Val Acc: 0.4813).
+2025-05-22 15:09:41,013 - __main__ - INFO - Trial 3 completed. Best Val Acc: 0.9062 (Last epoch Val Acc: 0.6438).
+2025-05-22 15:10:20,447 - __main__ - INFO - Trial 4 completed. Best Val Acc: 0.9062 (Last epoch Val Acc: 0.6750).
+2025-05-22 15:10:57,685 - __main__ - INFO - Trial 5 completed. Best Val Acc: 0.9375 (Last epoch Val Acc: 0.7375).
+2025-05-22 15:11:34,028 - __main__ - INFO - Trial 6 completed. Best Val Acc: 0.9062 (Last epoch Val Acc: 0.8063).
+2025-05-22 15:12:18,259 - __main__ - INFO - Trial 7 completed. Best Val Acc: 1.0000 (Last epoch Val Acc: 0.8125).
+2025-05-22 15:12:56,840 - __main__ - INFO - Trial 8 completed. Best Val Acc: 0.9688 (Last epoch Val Acc: 0.8063).
+2025-05-22 15:13:33,144 - __main__ - INFO - Trial 9 completed. Best Val Acc: 0.9688 (Last epoch Val Acc: 0.7750).
+2025-05-22 15:14:14,213 - __main__ - INFO - Trial 10 completed. Best Val Acc: 0.9375 (Last epoch Val Acc: 0.8438).
+2025-05-22 15:14:59,353 - __main__ - INFO - Trial 11 completed. Best Val Acc: 0.9062 (Last epoch Val Acc: 0.7750).
+2025-05-22 15:15:32,888 - __main__ - INFO - Trial 12 completed. Best Val Acc: 1.0000 (Last epoch Val Acc: 0.9375).
+2025-05-22 15:16:17,948 - __main__ - INFO - Trial 13 completed. Best Val Acc: 0.9688 (Last epoch Val Acc: 0.7125).
+2025-05-22 15:16:52,704 - __main__ - INFO - Trial 14 completed. Best Val Acc: 1.0000 (Last epoch Val Acc: 0.8750).
+2025-05-22 15:17:33,918 - __main__ - INFO - Trial 15 completed. Best Val Acc: 0.9688 (Last epoch Val Acc: 0.8125).
+2025-05-22 15:18:05,960 - __main__ - INFO - Trial 16 completed. Best Val Acc: 0.9062 (Last epoch Val Acc: 0.5125).
+2025-05-22 15:18:50,598 - __main__ - INFO - Trial 17 completed. Best Val Acc: 0.9062 (Last epoch Val Acc: 0.8063).
+2025-05-22 15:19:26,170 - __main__ - INFO - Trial 18 completed. Best Val Acc: 1.0000 (Last epoch Val Acc: 0.9688).
