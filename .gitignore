@@ -16,6 +16,7 @@ code/transformer/transformer_checkpoint.pth
 code/siamese/*
 
 # Cache for python
+*/__pycache__
 code/evotorch/__pycache__
 code/gp/__pycache__
 code/transformer/__pycache__
