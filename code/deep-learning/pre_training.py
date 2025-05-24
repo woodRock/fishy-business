@@ -1,442 +1,510 @@
 """
-Pre-training transformers for few-shot classification.
+Pre-training strategies for models on mass spectrometry data.
 
-This work investigates pre-training strategies for transformer models applied to mass spectrometry data classification,
-drawing inspiration from BERT's masked language modeling approach (Devlin et al., 2018) and the transformer architecture
-(Vaswani et al., 2017). Two pre-training tasks are explored: masked spectra modeling and peak detection.
-The masked spectra modeling approach progressively masks portions of the input spectra and trains the model to reconstruct them.
-The results show substantial improvements across all classification tasks, with particularly strong performance on species classification
-(99.62%) and part classification (83.94%).
-
-The peak detection pre-training approach, drawing from domain-specific mass spectrometry analysis techniques, shows different performance characteristics.
-While achieving perfect accuracy (100%) on species classification, it demonstrates more modest improvements on part classification (68.10%)
-compared to masked spectra modeling. Both pre-training strategies show improvements over the baseline transformer across all tasks,
-with masked spectra modeling generally outperforming peak detection pre-training, suggesting that self-supervised pre-training tasks
-that preserve global spectral relationships may be more effective than those focused on local features.
-
-Results:
-
-# Masked Spectra Modelling
-
-## Species
-
-Vanilla Validation Accuracy: Mean = 0.969, Std = 0.037
-Masked Spectra Modelling Accuracy: Mean = 0.9962, Std = 0.0115
-
-## Part
-
-Vanilla Validation Accuracy: Mean = 0.558, Std = 0.091
-Masked Spectra Modelling Accuracy: Mean 0.8394, Std = 0.0712
-
-## Cross-species
-
-Vanilla Validation Accuracy: Mean = 0.883, Std = 0.072
-Masked Spectra Modelling Accuracy: Mean = 0.9197, Std = 0.455
-
-## Oil
-
-Vanilla Validation Accuracy: Mean = 0.422, Std = 0.074
-Masked Spectra Modelling Accuracy: Mean: 0.4857, Std = 0.0507
-
-# Peak Detection
-
-## Species
-
-Vanilla Validation Accuracy: Mean = 0.969, Std = 0.037
-Peak Detection Validation Accuracy: Mean = , Std =
-
-## Part
-
-Vanilla Validation Accuracy: Mean = 0.558, Std = 0.091
-Peak Detection Validation Accuracy: Mean = 0.6810, Std = 0.1143
-
-## Cross-species
-
-Vanilla Validation Accuracy: Mean = 0.883, Std = 0.072
-Peak Detection Validation Accuracy: Mean = , Std =
-
-## Oil
-
-Vanilla Validation Accuracy: Mean = 0.422, Std = 0.074
-Peak Detection Validation Accuracy: Mean = , Std =
-
-References:
-1.  Devlin, J. (2018).
-    Bert: Pre-training of deep bidirectional transformers for language understanding.
-    arXiv preprint arXiv:1810.04805.
-2.  Vaswani, A. (2017).
-    Attention is all you need.
-    arXiv preprint arXiv:1706.03762.
-
+This module implements various pre-training tasks such as masked spectra modeling,
+next spectra prediction, peak detection, denoising autoencoding, peak parameter
+regression, segment reordering, and contrastive invariance learning. These tasks
+are designed to leverage unlabeled or semi-labeled mass spectrometry data to
+learn useful representations for downstream tasks.
 """
-
 from dataclasses import dataclass
 import logging
 import random
-from typing import List, Tuple, Union, Optional, TypeVar
+from typing import List, Tuple, Union, Optional, TypeVar, Callable, Dict, Any
 
+import numpy as np
 import torch
-from torch.nn import CrossEntropyLoss
+import torch.nn as nn
+from torch.nn import functional as F
+# from torch.nn import CrossEntropyLoss # Used directly
 from torch.optim import AdamW
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader # TensorDataset not used directly in this snippet
 from tqdm import tqdm
 
-from transformer import Transformer
+from transformer import Transformer # Assuming this is your base model for some tasks
 
 # Type aliases
-T = TypeVar("T", bound=torch.Tensor)
-TensorPair = Tuple[torch.Tensor, torch.Tensor]
+T_Tensor = TypeVar("T_Tensor", bound=torch.Tensor) # Renamed for clarity
+TensorPair = Tuple[T_Tensor, T_Tensor]
 Device = Union[str, torch.device]
 
 
 @dataclass
 class PreTrainingConfig:
     """Configuration for pre-training tasks."""
-
     num_epochs: int = 100
-    file_path: str = "transformer_checkpoint.pth"
+    file_path: str = "transformer_checkpoint.pth" # Base path, tasks might append suffixes
     n_features: int = 2080
-    chunk_size: int = 50
+    chunk_size: int = 50 # For Masked Spectra Modelling
     device: Device = "cuda" if torch.cuda.is_available() else "cpu"
+    learning_rate: float = 1e-4 # Added for default optimizer
 
-
-def mask_spectra_side(input_spectra: T, side: str = "left") -> T:
-    """Mask either left or right side of the input spectra.
-
-    Args:
-        input_spectra: Input spectra tensor of shape (batch_size, n_features)
-        side: Which side to mask ('left' or 'right')
-
-    Returns:
-        Masked spectra tensor
-
-    Raises:
-        ValueError: If side is not 'left' or 'right'
-    """
+def mask_spectra_side(input_spectra: T_Tensor, side: str = "left") -> T_Tensor:
+    """Masks either the left or right side of the input spectra."""
     if side not in ["left", "right"]:
-        raise ValueError("side must be either 'left' or 'right'")
-
-    split_index = input_spectra.shape[0] // 2
+        raise ValueError("Side must be either 'left' or 'right'")
+    split_index = input_spectra.shape[0] // 2 # Assumes input_spectra is a single spectrum
     masked_spectra = input_spectra.clone()
-
     if side == "left":
         masked_spectra[:split_index] = 0
     else:
         masked_spectra[split_index:] = 0
-
     return masked_spectra
 
-
 class PreTrainer:
-    """Handles pre-training tasks for transformer models."""
-
     def __init__(
         self,
-        model: Transformer,
+        model: nn.Module,
         config: PreTrainingConfig,
-        criterion: Optional[CrossEntropyLoss] = None,
-        optimizer: Optional[AdamW] = None,
+        optimizer: Optional[torch.optim.Optimizer] = None,
+        logger: Optional[logging.Logger] = None,
     ):
-        """Initialize pre-trainer with model and configuration.
-
-        Args:
-            model: Transformer model to pre-train
-            config: Pre-training configuration
-            criterion: Loss function (defaults to CrossEntropyLoss)
-            optimizer: Optimizer (defaults to AdamW)
-        """
-        self.model = model
+        self.model = model.to(config.device)
         self.config = config
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger if logger else logging.getLogger(__name__)
+        self.optimizer = optimizer if optimizer else AdamW(model.parameters(), lr=config.learning_rate)
 
-        if criterion is None:
-            criterion = CrossEntropyLoss()
-        if optimizer is None:
-            optimizer = AdamW(model.parameters())
-
-        self.criterion = criterion
-        self.optimizer = optimizer
-
-    def pre_train_masked_spectra(self, train_loader: DataLoader) -> Transformer:
-        """Pre-train using masked spectra modeling with progressive masking.
-
-        Args:
-            train_loader: DataLoader containing training data
-
-        Returns:
-            Pre-trained transformer model
-        """
-        for epoch in tqdm(
-            range(self.config.num_epochs), desc="Pre-training: Masked Spectra"
-        ):
-            total_loss = 0.0
+    def _perform_epoch_loop(
+        self,
+        task_name: str,
+        train_loader: DataLoader,
+        train_step_fn: Callable[[Any], float], # Takes batch, returns loss
+        val_loader: Optional[DataLoader] = None,
+        val_step_fn: Optional[Callable[[Any], float]] = None, # Takes batch, returns loss/metric
+        checkpoint_suffix: str = ""
+    ) -> nn.Module:
+        """Generic epoch loop for a pre-training task."""
+        for epoch in range(self.config.num_epochs):
             self.model.train()
+            total_train_loss = 0.0
+            for batch_data in tqdm(train_loader, desc=f"{task_name} Epoch {epoch+1} [Train]", leave=False):
+                loss = train_step_fn(batch_data)
+                total_train_loss += loss
+            avg_train_loss = total_train_loss / len(train_loader)
+            log_msg = f"{task_name} Epoch [{epoch+1}/{self.config.num_epochs}], Train Loss: {avg_train_loss:.4f}"
 
-            for x, _ in train_loader:
-                x = x.to(self.config.device)
-                batch_size = x.shape[0]
+            if val_loader and val_step_fn:
+                self.model.eval()
+                total_val_loss = 0.0
+                with torch.no_grad():
+                    for batch_data_val in val_loader:
+                        val_metric = val_step_fn(batch_data_val) # Can be loss or other metric
+                        total_val_loss += val_metric
+                avg_val_metric = total_val_loss / len(val_loader) # Assuming it's loss for now
+                log_msg += f", Val Loss: {avg_val_metric:.4f}" # Adjust if val_step_fn returns other metrics
+            self.logger.info(log_msg)
 
-                # Process features in chunks to manage memory
-                for start_idx in range(
-                    1, self.config.n_features, self.config.chunk_size
-                ):
-                    end_idx = min(
-                        start_idx + self.config.chunk_size, self.config.n_features
-                    )
-
-                    # Create and apply mask
-                    mask = torch.zeros(
-                        batch_size, self.config.n_features, dtype=torch.bool
-                    )
-                    mask = mask.to(self.config.device)
-                    mask[:, start_idx:end_idx] = True
-
-                    masked_x = x.clone()
-                    masked_x[mask] = 0
-
-                    # Forward pass
-                    self.optimizer.zero_grad()
-                    outputs = self.model(masked_x, masked_x)
-                    target = x[:, start_idx:end_idx]
-
-                    # Calculate loss and update
-                    loss = self.criterion(outputs[:, start_idx:end_idx], target)
-                    loss.backward()
-                    self.optimizer.step()
-                    total_loss += loss.item()
-
-            avg_loss = total_loss / (len(train_loader) * (self.config.n_features - 1))
-            self.logger.info(
-                f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}"
-            )
-
-        torch.save(self.model.state_dict(), self.config.file_path)
+        model_save_path = f"{self.config.file_path}{checkpoint_suffix}.pth"
+        torch.save(self.model.state_dict(), model_save_path)
+        self.logger.info(f"{task_name} pre-training finished. Model saved to {model_save_path}")
         return self.model
 
-    def pre_train_next_spectra(
-        self, train_loader: DataLoader, val_loader: DataLoader
-    ) -> Transformer:
-        """Pre-train using Next Spectra Prediction (NSP).
+    def pre_train_masked_spectra(self, train_loader: DataLoader) -> nn.Module:
+        criterion = nn.MSELoss()
+        self.logger.info("Starting Masked Spectra Modelling pre-training...")
 
-        Args:
-            train_loader: Training data loader
-            val_loader: Validation data loader
+        def train_step(batch_data):
+            x, _ = batch_data
+            x = x.to(self.config.device)
+            batch_size, n_features = x.shape
+            step_loss = 0.0
+            num_chunks = 0
 
-        Returns:
-            Pre-trained transformer model
-        """
-        # Generate contrastive pairs
-        train_pairs = self._generate_contrastive_pairs(train_loader)
-        val_pairs = self._generate_contrastive_pairs(val_loader)
+            for start_idx in range(1, n_features, self.config.chunk_size):
+                end_idx = min(start_idx + self.config.chunk_size, n_features)
+                if start_idx >= end_idx: continue # Should not happen with start_idx=1
 
-        for epoch in tqdm(
-            range(self.config.num_epochs), desc="Pre-training: Next Spectra"
-        ):
-            # Training phase
-            train_loss = self._run_epoch(train_pairs, training=True)
+                mask = torch.zeros(batch_size, n_features, dtype=torch.bool, device=self.config.device)
+                mask[:, start_idx:end_idx] = True
+                masked_x = x.clone()
+                masked_x[mask] = 0
 
-            # Validation phase
-            self.model.eval()
-            with torch.no_grad():
-                val_loss = self._run_epoch(val_pairs, training=False)
+                self.optimizer.zero_grad()
+                # Assuming model output is (batch, n_features) for this task
+                outputs = self.model(masked_x, masked_x) # Or self.model(masked_x) if model API expects that
+                target = x[:, start_idx:end_idx]
+                
+                loss = criterion(outputs[:, start_idx:end_idx], target)
+                loss.backward()
+                self.optimizer.step()
+                step_loss += loss.item()
+                num_chunks +=1
+            return step_loss / num_chunks if num_chunks > 0 else 0.0
 
-            self.logger.info(
-                f"Epoch {epoch + 1}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}"
-            )
+        return self._perform_epoch_loop("MSM", train_loader, train_step, checkpoint_suffix="_msm")
 
-        torch.save(self.model.state_dict(), self.config.file_path)
-        return self.model
-
-    def _generate_contrastive_pairs(
-        self, data_loader: DataLoader
-    ) -> List[Tuple[TensorPair, List[float]]]:
-        """Generate contrastive pairs for NSP training.
-
-        Args:
-            data_loader: Input data loader
-
-        Returns:
-            List of (input_pair, label) tuples
-        """
+    def _generate_contrastive_pairs_nsp(self, data_loader: DataLoader) -> List[Tuple[TensorPair, List[float]]]:
+        # Note: Materializing all pairs can be memory intensive for large datasets.
         pairs = []
+        all_x_batches = [x_batch for x_batch, _ in data_loader]
+        if not all_x_batches: return []
+        all_x = torch.cat(all_x_batches, dim=0) # Concatenate all data first
+        num_samples = all_x.shape[0]
+        if num_samples == 0: return []
 
-        for x, _ in data_loader:
-            for i in range(len(x)):
-                if random.random() < 0.5 and i < len(x) - 1:
-                    # Same sequence pairs
-                    left = mask_spectra_side(x[i], "right")
-                    right = mask_spectra_side(x[i], "left")
-                    pairs.append(((left, right), [1, 0]))
-                else:
-                    # Different sequence pairs
-                    j = random.choice([k for k in range(len(x)) if k != i])
-                    left = mask_spectra_side(x[i], "right")
-                    right = mask_spectra_side(x[j], "left")
-                    pairs.append(((left, right), [0, 1]))
-
+        for i in range(num_samples):
+            # Use a single spectrum as input to mask_spectra_side
+            if random.random() < 0.5 and i < num_samples - 1: # Positive pair
+                left = mask_spectra_side(all_x[i], "right")
+                right = mask_spectra_side(all_x[i], "left")
+                pairs.append(((left, right), [1.0, 0.0])) # Use float for labels
+            elif num_samples > 1: # Negative pair only if more than one sample
+                j = random.choice([k for k in range(num_samples) if k != i])
+                left = mask_spectra_side(all_x[i], "right")
+                right = mask_spectra_side(all_x[j], "left")
+                pairs.append(((left, right), [0.0, 1.0]))
+            # If only one sample, cannot make a negative pair this way
         return pairs
 
-    def _run_epoch(
-        self, pairs: List[Tuple[TensorPair, List[float]]], training: bool = True
-    ) -> float:
-        """Run a single epoch of training or validation.
+    def pre_train_next_spectra(self, train_loader: DataLoader, val_loader: DataLoader) -> nn.Module:
+        self.logger.info("Starting Next Spectra Prediction (NSP) pre-training...")
+        # Model output for NSP is typically (batch, 2) for binary classification
+        # Ensure self.model's output layer is adapted for this, e.g. nn.Linear(..., 2)
+        # This adaptation logic might need to be more explicit here or before calling.
 
-        Args:
-            pairs: List of (input_pair, label) tuples
-            training: Whether this is a training epoch
+        train_pairs = self._generate_contrastive_pairs_nsp(train_loader)
+        val_pairs = self._generate_contrastive_pairs_nsp(val_loader)
+        
+        # Convert pairs to DataLoaders for batching if not already batched by _generate_contrastive_pairs_nsp
+        # For simplicity, assuming _run_epoch_nsp iterates through the list of pairs.
+        # A more robust NSP would use a custom Dataset/DataLoader that yields these pairs.
+        if not train_pairs:
+            self.logger.warning("NSP: No training pairs generated. Skipping training.")
+            return self.model
 
-        Returns:
-            Average loss for the epoch
-        """
-        total_loss = 0.0
+        criterion = nn.BCEWithLogitsLoss()
 
-        for (left, right), label in pairs:
-            left = left.to(self.config.device)
-            right = right.to(self.config.device)
-            label = torch.tensor(label, dtype=torch.float).to(self.config.device)
+        def _run_single_nsp_epoch(pair_list, is_training):
+            if is_training: self.model.train()
+            else: self.model.eval()
+            
+            epoch_loss = 0.0
+            if not pair_list: return 0.0
+            
+            # Simple iteration for now, no batching of pairs here.
+            # For larger pair_lists, batching would be needed.
+            for (left, right), label_list in pair_list:
+                left_dev, right_dev = left.to(self.config.device), right.to(self.config.device)
+                label = torch.tensor(label_list, dtype=torch.float, device=self.config.device)
 
-            if training:
-                self.optimizer.zero_grad()
+                if is_training: self.optimizer.zero_grad()
+                # Model expects (batch, n_features), so unsqueeze
+                output = self.model(left_dev.unsqueeze(0), right_dev.unsqueeze(0)) # Batch of 1 pair
+                loss = criterion(output, label.unsqueeze(0))
+                if is_training:
+                    loss.backward()
+                    self.optimizer.step()
+                epoch_loss += loss.item()
+            return epoch_loss / len(pair_list)
 
-            output = self.model(left.unsqueeze(0), right.unsqueeze(0))
-            loss = self.criterion(output, label.unsqueeze(0))
-
-            if training:
-                loss.backward()
-                self.optimizer.step()
-
-            total_loss += loss.item()
-
-        return total_loss / len(pairs)
-
-    def pre_train_peak_prediction(
-        self,
-        train_loader: DataLoader,
-        val_loader: Optional[DataLoader] = None,
-        peak_threshold: float = 0.1,
-        window_size: int = 5,
-    ) -> Transformer:
-        """Pre-train the model to predict peak locations in mass spectra.
-
-        Args:
-            train_loader: DataLoader containing training spectra
-            val_loader: Optional DataLoader for validation
-            peak_threshold: Relative intensity threshold for peak detection
-            window_size: Size of window for local maxima detection
-
-        Returns:
-            Pre-trained transformer model
-        """
-        def detect_peaks(spectra: torch.Tensor) -> torch.Tensor:
-            """Detect peaks in spectra using local maxima detection."""
-            batch_size = spectra.shape[0]
-            peak_labels = torch.zeros_like(spectra)
-
-            for i in range(batch_size):
-                # Reshape to 2D for padding (add channel dimension)
-                spectrum = spectra[i].unsqueeze(0)
-
-                # Pad the spectrum for window operations (pad only last dimension)
-                padded = torch.nn.functional.pad(
-                    spectrum,
-                    (window_size//2, window_size//2),
-                    mode='replicate'  # Use replicate instead of reflect for stability
-                )
-
-                # Remove the channel dimension
-                padded = padded.squeeze(0)
-                spectrum = spectrum.squeeze(0)
-
-                # Find peaks
-                for j in range(len(spectrum)):
-                    window = padded[j:j + window_size]
-                    center_val = spectrum[j]
-
-                    # Check if center point is local maximum and above threshold
-                    is_peak = (center_val == torch.max(window) and
-                            center_val > peak_threshold * torch.max(spectrum))
-
-                    peak_labels[i, j] = float(is_peak)
-
-            return peak_labels
-
-        for epoch in tqdm(range(self.config.num_epochs), desc="Pre-training: Peak Prediction"):
-            # Training phase
-            self.model.train()
-            train_loss = 0.0
-
-            for spectra, _ in train_loader:
-                spectra = spectra.to(self.config.device)
-                peak_labels = detect_peaks(spectra).to(self.config.device)
-
-                self.optimizer.zero_grad()
-
-                # Forward pass with the same input for source and target
-                predictions = self.model(spectra, spectra)
-
-                # Calculate binary cross-entropy loss for peak prediction
-                loss = torch.nn.functional.binary_cross_entropy_with_logits(
-                    predictions, peak_labels
-                )
-
-                loss.backward()
-                self.optimizer.step()
-                train_loss += loss.item()
-
-            avg_train_loss = train_loss / len(train_loader)
-
-            # Validation phase
-            if val_loader is not None:
-                self.model.eval()
-                val_loss = 0.0
-
+        for epoch in range(self.config.num_epochs):
+            train_loss = _run_single_nsp_epoch(train_pairs, is_training=True)
+            val_loss = 0.0
+            if val_pairs:
                 with torch.no_grad():
-                    for spectra, _ in val_loader:
-                        spectra = spectra.to(self.config.device)
-                        peak_labels = detect_peaks(spectra).to(self.config.device)
+                    val_loss = _run_single_nsp_epoch(val_pairs, is_training=False)
+            self.logger.info(f"NSP Epoch [{epoch+1}/{self.config.num_epochs}], Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
 
-                        predictions = self.model(spectra, spectra)
-                        loss = torch.nn.functional.binary_cross_entropy_with_logits(
-                            predictions, peak_labels
-                        )
-                        val_loss += loss.item()
-
-                avg_val_loss = val_loss / len(val_loader)
-                self.logger.info(
-                    f"Epoch [{epoch+1}/{self.config.num_epochs}], "
-                    f"Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}"
-                )
-            else:
-                self.logger.info(
-                    f"Epoch [{epoch+1}/{self.config.num_epochs}], "
-                    f"Train Loss: {avg_train_loss:.4f}"
-                )
-
-        # Save the pre-trained model
-        torch.save(self.model.state_dict(), self.config.file_path)
+        model_save_path = f"{self.config.file_path}_nsp.pth"
+        torch.save(self.model.state_dict(), model_save_path)
+        self.logger.info(f"NSP pre-training finished. Model saved to {model_save_path}")
         return self.model
 
+    def _detect_peaks(self, spectra: T_Tensor, peak_threshold: float, window_size: int) -> T_Tensor:
+        batch_size, n_features = spectra.shape
+        peak_labels = torch.zeros_like(spectra, dtype=torch.bool, device=spectra.device)
+        for i in range(batch_size):
+            spectrum_i = spectra[i]
+            padded = F.pad(spectrum_i.unsqueeze(0).unsqueeze(0), (window_size // 2, window_size // 2), mode='replicate').squeeze()
+            max_intensity_spectrum = torch.max(spectrum_i)
+            if max_intensity_spectrum == 0: continue
+            for j in range(n_features):
+                window = padded[j : j + window_size]
+                center_val = spectrum_i[j]
+                if (center_val == torch.max(window)) and (center_val > peak_threshold * max_intensity_spectrum):
+                    peak_labels[i, j] = True
+        return peak_labels
 
-def load_pretrained_weights(
-    model: Transformer,
-    file_path: str = "transformer_checkpoint.pth",
-    output_dim: int = 2,
-) -> Transformer:
-    """Load pre-trained weights and adjust output dimension.
+    def pre_train_peak_prediction(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None,
+                                  peak_threshold: float = 0.1, window_size: int = 5) -> nn.Module:
+        self.logger.info("Starting Peak Prediction pre-training...")
+        # Model output for this task is (batch, n_features) with logits for binary classification per point.
 
-    Args:
-        model: Target transformer model
-        file_path: Path to checkpoint file
-        output_dim: Number of output classes
+        def train_step(batch_data):
+            spectra, _ = batch_data
+            spectra = spectra.to(self.config.device)
+            peak_targets = self._detect_peaks(spectra, peak_threshold, window_size).float() # BCEWithLogitsLoss expects float targets
 
-    Returns:
-        Model with loaded pre-trained weights
-    """
-    checkpoint = torch.load(file_path)
+            self.optimizer.zero_grad()
+            predictions = self.model(spectra, spectra) # Or self.model(spectra)
+            loss = F.binary_cross_entropy_with_logits(predictions, peak_targets)
+            loss.backward()
+            self.optimizer.step()
+            return loss.item()
 
-    # Adjust final layer dimensions
-    checkpoint["fc.weight"] = checkpoint["fc.weight"][:output_dim]
-    checkpoint["fc.bias"] = checkpoint["fc.bias"][:output_dim]
+        def val_step(batch_data):
+            spectra, _ = batch_data
+            spectra = spectra.to(self.config.device)
+            peak_targets = self._detect_peaks(spectra, peak_threshold, window_size).float()
+            predictions = self.model(spectra, spectra) # Or self.model(spectra)
+            loss = F.binary_cross_entropy_with_logits(predictions, peak_targets)
+            return loss.item()
 
-    model.load_state_dict(checkpoint, strict=False)
-    return model
+        return self._perform_epoch_loop("PeakPred", train_loader, train_step, val_loader, val_step, checkpoint_suffix="_peak_pred")
+
+    def _add_gaussian_noise(self, spectra: T_Tensor, std_dev: float = 0.1) -> T_Tensor:
+        return torch.clamp(spectra + torch.randn_like(spectra) * std_dev, 0, 1)
+
+    def _random_mask_points(self, spectra: T_Tensor, mask_prob: float = 0.05) -> T_Tensor:
+        noisy_spectra = spectra.clone()
+        noisy_spectra[torch.rand_like(spectra) < mask_prob] = 0
+        return noisy_spectra
+
+    def pre_train_denoising_autoencoder(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None,
+                                        noise_std_dev: float = 0.1, mask_point_prob: float = 0.05) -> nn.Module:
+        self.logger.info("Starting Spectrum Denoising Autoencoding (SDA) pre-training...")
+        criterion = nn.MSELoss()
+        # Ensure model's output layer matches n_features for reconstruction.
+
+        def train_step(batch_data):
+            spectra, _ = batch_data
+            clean_spectra = spectra.to(self.config.device)
+            noisy_spectra = self._add_gaussian_noise(clean_spectra.clone(), std_dev=noise_std_dev)
+            noisy_spectra = self._random_mask_points(noisy_spectra, mask_prob=mask_point_prob)
+
+            self.optimizer.zero_grad()
+            predictions = self.model(noisy_spectra, noisy_spectra) # Or self.model(noisy_spectra)
+            loss = criterion(predictions, clean_spectra)
+            loss.backward()
+            self.optimizer.step()
+            return loss.item()
+
+        def val_step(batch_data):
+            spectra, _ = batch_data
+            clean_spectra = spectra.to(self.config.device)
+            noisy_spectra = self._add_gaussian_noise(clean_spectra.clone(), std_dev=noise_std_dev)
+            noisy_spectra = self._random_mask_points(noisy_spectra, mask_prob=mask_point_prob)
+            predictions = self.model(noisy_spectra, noisy_spectra) # Or self.model(noisy_spectra)
+            return criterion(predictions, clean_spectra).item()
+
+        return self._perform_epoch_loop("SDA", train_loader, train_step, val_loader, val_step, checkpoint_suffix="_sda")
+
+    def pre_train_peak_parameter_regression(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None,
+                                            peak_detection_threshold: float = 0.1, peak_window_size: int = 5,
+                                            mask_value: float = 0.0) -> nn.Module:
+        self.logger.info("Starting Peak Parameter Regression (PPR) pre-training...")
+        criterion = nn.MSELoss()
+        # Ensure model's output matches n_features.
+
+        def train_step(batch_data):
+            spectra, _ = batch_data
+            spectra = spectra.to(self.config.device)
+            peak_indices = self._detect_peaks(spectra, peak_detection_threshold, peak_window_size)
+            if not peak_indices.any(): return 0.0
+
+            actual_peak_intensities = spectra[peak_indices]
+            spectra_masked_peaks = spectra.clone()
+            spectra_masked_peaks[peak_indices] = mask_value
+
+            self.optimizer.zero_grad()
+            predictions_full = self.model(spectra_masked_peaks, spectra_masked_peaks) # Or self.model(spectra_masked_peaks)
+            predicted_peak_intensities = predictions_full[peak_indices]
+            
+            if actual_peak_intensities.numel() == 0: return 0.0
+            loss = criterion(predicted_peak_intensities, actual_peak_intensities)
+            loss.backward()
+            self.optimizer.step()
+            # Return loss weighted by number of peaks to correctly average later
+            return loss.item() * actual_peak_intensities.numel(), actual_peak_intensities.numel()
+
+        # Custom loop needed if train_step returns (weighted_loss, count)
+        for epoch in range(self.config.num_epochs):
+            self.model.train()
+            total_train_loss, total_train_peaks = 0.0, 0
+            for batch in tqdm(train_loader, desc=f"PPR Epoch {epoch+1} [Train]", leave=False):
+                weighted_loss, num_peaks = train_step(batch)
+                total_train_loss += weighted_loss
+                total_train_peaks += num_peaks
+            avg_train_loss = total_train_loss / total_train_peaks if total_train_peaks > 0 else 0.0
+            log_msg = f"PPR Epoch [{epoch+1}/{self.config.num_epochs}], Train Loss: {avg_train_loss:.4f}"
+
+            if val_loader:
+                self.model.eval()
+                total_val_loss, total_val_peaks = 0.0, 0
+                with torch.no_grad():
+                    for batch_val in val_loader:
+                        # Simplified val_step for PPR, assuming it mirrors train_step's return needs
+                        spectra_v, _ = batch_val
+                        spectra_v = spectra_v.to(self.config.device)
+                        peak_indices_v = self._detect_peaks(spectra_v, peak_detection_threshold, peak_window_size)
+                        if not peak_indices_v.any(): continue
+                        actual_intensities_v = spectra_v[peak_indices_v]
+                        masked_spectra_v = spectra_v.clone(); masked_spectra_v[peak_indices_v] = mask_value
+                        preds_full_v = self.model(masked_spectra_v, masked_spectra_v)
+                        pred_intensities_v = preds_full_v[peak_indices_v]
+                        if actual_intensities_v.numel() == 0: continue
+                        val_loss_item = criterion(pred_intensities_v, actual_intensities_v).item()
+                        total_val_loss += val_loss_item * actual_intensities_v.numel()
+                        total_val_peaks += actual_intensities_v.numel()
+                avg_val_loss = total_val_loss / total_val_peaks if total_val_peaks > 0 else 0.0
+                log_msg += f", Val Loss: {avg_val_loss:.4f}"
+            self.logger.info(log_msg)
+        
+        model_save_path = f"{self.config.file_path}_ppr.pth"
+        torch.save(self.model.state_dict(), model_save_path)
+        self.logger.info(f"PPR pre-training finished. Model saved to {model_save_path}")
+        return self.model
+
+    def _segment_and_shuffle_spectra(self, spectra: T_Tensor, num_segments: int) -> Tuple[T_Tensor, T_Tensor]:
+        batch_size, n_features = spectra.shape
+        if n_features % num_segments != 0:
+            self.logger.warning(f"Features {n_features} not divisible by {num_segments}. Truncating/Padding needed or error.")
+            # For this example, let's assume it's divisible or handled by data prep
+            segment_len = n_features // num_segments 
+            spectra = spectra[:, :num_segments * segment_len] # Ensure divisibility by truncating
+            n_features = spectra.shape[1]
+        else:
+            segment_len = n_features // num_segments
+            
+        segmented = spectra.reshape(batch_size, num_segments, segment_len)
+        shuffled_list, target_indices_list = [], []
+        for i in range(batch_size):
+            permutation = torch.randperm(num_segments, device=spectra.device)
+            shuffled_list.append(segmented[i][permutation].flatten())
+            target_indices_list.append(permutation) # Original index of segment now at this position
+        return torch.stack(shuffled_list), torch.stack(target_indices_list)
+
+    def pre_train_spectrum_segment_reordering(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None,
+                                            num_segments: int = 4) -> nn.Module:
+        self.logger.info("Starting Spectrum Segment Reordering (SSR) pre-training...")
+        criterion = nn.CrossEntropyLoss()
+        # Model's final layer must output (num_segments * num_segments) for this task.
+        # Store original fc to restore later, if applicable and it's a simple nn.Linear
+        original_fc_config = None
+        if hasattr(self.model, 'fc') and isinstance(self.model.fc, nn.Linear):
+            original_fc_config = (self.model.fc.in_features, self.model.fc.out_features)
+            if self.model.fc.out_features != num_segments * num_segments:
+                self.logger.info(f"SSR: Adapting model.fc for {num_segments*num_segments} outputs.")
+                self.model.fc = nn.Linear(original_fc_config[0], num_segments * num_segments).to(self.config.device)
+                self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+        else:
+            self.logger.warning("SSR: Model does not have 'fc: nn.Linear'. Ensure output is configured correctly.")
+
+        def ssr_step(batch_data, is_training):
+            spectra, _ = batch_data
+            spectra = spectra.to(self.config.device)
+            batch_size_eff = spectra.shape[0]
+            shuffled_spectra, target_indices = self._segment_and_shuffle_spectra(spectra, num_segments)
+
+            if is_training: self.optimizer.zero_grad()
+            predictions = self.model(shuffled_spectra, shuffled_spectra) # Or self.model(shuffled_spectra)
+            pred_reshaped = predictions.view(batch_size_eff, num_segments, num_segments)
+            
+            loss = criterion(pred_reshaped.reshape(-1, num_segments), target_indices.reshape(-1))
+            if is_training:
+                loss.backward(); self.optimizer.step()
+            
+            # Calculate accuracy for logging (optional, can make step fn complex)
+            _, pred_labels = torch.max(pred_reshaped, 2)
+            correct = (pred_labels == target_indices).sum().item()
+            total_elements = target_indices.numel()
+            return loss.item(), correct, total_elements
+
+        # Custom loop for SSR to handle accuracy reporting
+        for epoch in range(self.config.num_epochs):
+            self.model.train()
+            total_train_loss, correct_train, total_train = 0.0, 0, 0
+            for batch in tqdm(train_loader, desc=f"SSR Epoch {epoch+1} [Train]", leave=False):
+                loss_item, correct_item, total_item = ssr_step(batch, is_training=True)
+                total_train_loss += loss_item * (total_item / num_segments) # Avg loss per sample
+                correct_train += correct_item
+                total_train += total_item
+            avg_train_loss = total_train_loss / len(train_loader) if len(train_loader) > 0 else 0
+            train_acc = correct_train / total_train * 100 if total_train > 0 else 0
+            log_msg = f"SSR Epoch [{epoch+1}/{self.config.num_epochs}], Train Loss: {avg_train_loss:.4f}, Acc: {train_acc:.2f}%"
+
+            if val_loader:
+                self.model.eval()
+                total_val_loss, correct_val, total_val = 0.0, 0, 0
+                with torch.no_grad():
+                    for batch_val in val_loader:
+                        loss_item_v, correct_item_v, total_item_v = ssr_step(batch_val, is_training=False)
+                        total_val_loss += loss_item_v * (total_item_v / num_segments)
+                        correct_val += correct_item_v
+                        total_val += total_item_v
+                avg_val_loss = total_val_loss / len(val_loader) if len(val_loader) > 0 else 0
+                val_acc = correct_val / total_val * 100 if total_val > 0 else 0
+                log_msg += f", Val Loss: {avg_val_loss:.4f}, Acc: {val_acc:.2f}%"
+            self.logger.info(log_msg)
+
+        if original_fc_config: # Restore original fc
+            self.logger.info(f"SSR: Restoring model.fc to output {original_fc_config[1]} features.")
+            self.model.fc = nn.Linear(original_fc_config[0], original_fc_config[1]).to(self.config.device)
+            self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+        
+        model_save_path = f"{self.config.file_path}_ssr.pth"
+        torch.save(self.model.state_dict(), model_save_path)
+        self.logger.info(f"SSR pre-training finished. Model saved to {model_save_path}")
+        return self.model
+
+    def _intensity_scaling(self, spectra: T_Tensor, scale_min: float=0.7, scale_max: float=1.3) -> T_Tensor:
+        scales = torch.rand(spectra.shape[0], 1, device=spectra.device) * (scale_max - scale_min) + scale_min
+        return torch.clamp(spectra * scales, 0, 1)
+
+    def _nt_xent_loss(self, z_i: T_Tensor, z_j: T_Tensor, temperature: float = 0.1) -> T_Tensor:
+        batch_size = z_i.shape[0]
+        z = F.normalize(torch.cat([z_i, z_j], dim=0), p=2, dim=1)
+        sim_matrix = torch.matmul(z, z.T) / temperature
+        labels = (torch.arange(2 * batch_size, device=z_i.device) + batch_size) % (2 * batch_size)
+        sim_matrix_masked = sim_matrix.masked_fill(torch.eye(2*batch_size, dtype=torch.bool, device=z_i.device), float('-inf'))
+        return F.cross_entropy(sim_matrix_masked, labels)
+
+    def pre_train_contrastive_invariance(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None,
+                                         temperature: float = 0.1, embedding_dim: int = 128) -> nn.Module:
+        self.logger.info("Starting Contrastive Transformation Invariance Learning (CTIL) pre-training...")
+        # This task requires model to output embeddings of `embedding_dim`.
+        # Adaptation logic for `self.model.fc` or using `model.get_embedding()` + `model.projection_head()`
+        original_fc_config, using_proj_head = None, False
+        if hasattr(self.model, 'get_embedding') and hasattr(self.model, 'projection_head'):
+            self.logger.info("CTIL: Using model.get_embedding() and model.projection_head().")
+            if isinstance(self.model.projection_head, nn.Linear) and self.model.projection_head.out_features != embedding_dim:
+                self.logger.info(f"CTIL: Adapting projection_head for {embedding_dim} outputs.")
+                proj_in_feat = self.model.projection_head.in_features
+                self.model.projection_head = nn.Linear(proj_in_feat, embedding_dim).to(self.config.device)
+                self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+            using_proj_head = True
+        elif hasattr(self.model, 'fc') and isinstance(self.model.fc, nn.Linear):
+            original_fc_config = (self.model.fc.in_features, self.model.fc.out_features)
+            if self.model.fc.out_features != embedding_dim:
+                self.logger.info(f"CTIL: Adapting model.fc for {embedding_dim} outputs.")
+                self.model.fc = nn.Linear(original_fc_config[0], embedding_dim).to(self.config.device)
+                self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+        else:
+            self.logger.error("CTIL: Model cannot be adapted for specified embedding_dim. Ensure 'get_embedding'/'projection_head' or 'fc' layer.")
+
+        def ctil_step(batch_data):
+            spectra_anchor, _ = batch_data
+            spectra_anchor = spectra_anchor.to(self.config.device)
+            view1 = self._add_gaussian_noise(self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05)
+            view2 = self._add_gaussian_noise(self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05)
+
+            self.optimizer.zero_grad()
+            if using_proj_head: # Assumes get_embedding returns features for projection_head
+                emb1 = self.model.projection_head(self.model.get_embedding(view1))
+                emb2 = self.model.projection_head(self.model.get_embedding(view2))
+            else: # Assumes model's main output (after fc adaptation) is the embedding
+                emb1 = self.model(view1, view1) # Or self.model(view1)
+                emb2 = self.model(view2, view2) # Or self.model(view2)
+            
+            loss = self._nt_xent_loss(emb1, emb2, temperature)
+            loss.backward()
+            self.optimizer.step()
+            return loss.item()
+
+        self._perform_epoch_loop("CTIL", train_loader, ctil_step, val_loader, ctil_step, checkpoint_suffix="_ctil")
+
+        if not using_proj_head and original_fc_config: # Restore original fc if it was adapted
+            self.logger.info(f"CTIL: Restoring model.fc to output {original_fc_config[1]} features.")
+            self.model.fc = nn.Linear(original_fc_config[0], original_fc_config[1]).to(self.config.device)
+            self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+        return self.model

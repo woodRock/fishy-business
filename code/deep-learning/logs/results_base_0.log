@@ -1,0 +1,24 @@
+2025-05-24 21:17:41,954 - util - INFO - Loading data from: /home/woodj/Desktop/fishy-business/data/REIMS.xlsx
+2025-05-24 21:17:48,039 - util - INFO - Loaded data with shape: (306, 2081)
+2025-05-24 21:17:48,045 - util - INFO - Filtered data shape: (36, 2081)
+2025-05-24 21:17:50,111 - train - INFO - Starting 30 independent runs of 3-fold cross validation
+2025-05-24 21:17:50,112 - train - INFO - 
+Starting Run 1/30
+2025-05-24 21:17:50,119 - train - INFO - Run 1, Fold 1/3
+2025-05-24 21:17:52,563 - train - INFO - E10 TL:0.590 VL:2.435 VAcur:0.357 BestVAcur:0.714
+2025-05-24 21:17:54,296 - train - INFO - E20 TL:0.513 VL:1.480 VAcur:0.643 BestVAcur:0.714
+2025-05-24 21:17:55,168 - train - INFO - Early stopping: E25, Best val_acc: 0.7143
+2025-05-24 21:17:55,168 - train - INFO - Run 1, Fold 2/3
+2025-05-24 21:17:57,216 - train - INFO - E10 TL:0.588 VL:2.683 VAcur:0.643 BestVAcur:0.714
+2025-05-24 21:18:00,480 - train - INFO - E20 TL:0.515 VL:2.253 VAcur:0.643 BestVAcur:0.714
+2025-05-24 21:18:00,681 - train - INFO - Early stopping: E21, Best val_acc: 0.7143
+2025-05-24 21:18:00,681 - train - INFO - Run 1, Fold 3/3
+2025-05-24 21:18:03,019 - train - INFO - E10 TL:0.541 VL:1.731 VAcur:0.643 BestVAcur:0.643
+2025-05-24 21:18:05,137 - train - INFO - E20 TL:0.508 VL:1.465 VAcur:0.571 BestVAcur:0.714
+2025-05-24 21:18:07,194 - train - INFO - E30 TL:0.468 VL:1.346 VAcur:0.571 BestVAcur:0.714
+2025-05-24 21:18:07,599 - train - INFO - Early stopping: E32, Best val_acc: 0.7143
+2025-05-24 21:18:07,601 - train - INFO - New best overall accuracy: 0.7143 (Run 1)
+2025-05-24 21:18:07,601 - train - INFO - 
+Starting Run 2/30
+2025-05-24 21:18:07,602 - train - INFO - Run 2, Fold 1/3
+2025-05-24 21:18:09,790 - train - INFO - E10 TL:0.527 VL:1.834 VAcur:0.643 BestVAcur:0.714
