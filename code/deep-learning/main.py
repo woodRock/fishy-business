@@ -21,27 +21,10 @@ from torch.utils.data import DataLoader
 
 import numpy as np
 
-# Assuming these imports point to your project's modules
-from plot import plot_attention_map # If used
-from pre_training import PreTrainer, PreTrainingConfig
-from lstm import LSTM
-from transformer import Transformer
-from cnn import CNN
-from rcnn import RCNN
-from mamba import Mamba
-from kan import KAN
-from vae import VAE
-from MOE import MOE # Assuming MOE.py
-from dense import Dense # Assuming dense.py
-from ode import ODE # Assuming ode.py
-from rwkv import RWKV # Assuming rwkv.py
-from tcn import TCN # Assuming tcn.py
-from wavenet import WaveNet # Assuming wavenet.py
-from ensemble import Ensemble # Assuming ensemble.py
-from diffusion import Diffusion # Assuming diffusion.py
-
-from train import train_model # Your refactored train_model script
-from util import preprocess_data_pipeline, create_data_module, AugmentationConfig
+from models import * # Import all models from models/__init__.py
+from .pre_training import PreTrainer, PreTrainingConfig
+from .train import train_model # Your refactored train_model script
+from .util import preprocess_data_pipeline, create_data_module, AugmentationConfig
 
 
 @dataclass

@@ -1,6 +1,0 @@
-2024-11-02 20:59:14,702 - INFO - Loading dataset: instance-recognition
-2024-11-02 20:59:20,790 - INFO - Initializing GP model
-2024-11-02 20:59:20,793 - INFO - Starting training
-2024-11-02 21:01:44,420 - INFO - Gen 1: Best Fitness = 0.3418, Train Acc = 0.5521, Val Acc = 0.4989
-2024-11-02 21:02:50,651 - INFO - Gen 2: Best Fitness = 0.3232, Train Acc = 0.5682, Val Acc = 0.4880
-2024-11-02 21:04:01,483 - INFO - Gen 3: Best Fitness = 0.3068, Train Acc = 0.5694, Val Acc = 0.5156

@@ -445,6 +445,13 @@ class DataModule:
             augmentation_cfg=self.augmentation_config,
         )
 
+    def get_train_dataframe(self) -> pd.DataFrame:
+        """Returns the raw DataFrame used to create the DataLoader."""
+        if self.raw_data is None:
+            logger.warning("Raw DataFrame not set up. Call setup() first.")
+            return pd.DataFrame()
+        return self.raw_data
+
     def get_train_dataloader(self) -> DataLoader:
         if self.train_loader is None:
             logger.warning("Train DataLoader not set up. Call setup() first.")

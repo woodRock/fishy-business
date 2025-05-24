@@ -8,7 +8,9 @@ import time
 import os
 
 # Import your original Transformer and MultiHeadAttention implementations
-from transformer import Transformer, MultiHeadAttention
+from models import Transformer, MultiHeadAttention
+# Import your data loading utility
+from .util import create_data_module
 
 class GradCAM:
     """
@@ -473,17 +475,18 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
-    # Import your data loading utility
-    from util import create_data_module
-    
     # Create data module and load dataset
     data_module = create_data_module(
+        file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
+        # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx" # Example server path
         dataset_name="part",  # Use your desired dataset
         batch_size=32
     )
     
     # Setup the data loader
-    data_loader, _ = data_module.setup()
+    data_module.setup()
+
+    data_loader = data_module.get_train_dataloader()
     
     # Split data into train, validation, and test sets
     train_loader, val_loader, test_loader = prepare_data_loaders(
