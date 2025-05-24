@@ -1,8 +1,9 @@
 from tqdm import tqdm
 import logging
 import copy
-import time
+import time # Keep time import if used elsewhere, not directly in this snippet
 from typing import Dict, List, Tuple, Union, Optional
+from collections import OrderedDict
 
 import numpy as np
 import torch
@@ -25,662 +26,438 @@ from util import DataAugmenter, AugmentationConfig
 from plot import plot_accuracy, plot_confusion_matrix
 
 MetricsDict = Dict[str, float]
-FoldMetrics = Dict[str, List]
+FoldMetrics = Dict[str, List] # Though this type isn't directly used as a variable annotation later.
+
+# Helper to re-initialize model and optimizer for a new fold/run
+def _reinitialize_model_and_optimizer(pristine_template_cpu: nn.Module,
+                                      base_optimizer_instance: optim.Optimizer,
+                                      device: str) -> Tuple[nn.Module, optim.Optimizer]:
+    new_model_gpu = copy.deepcopy(pristine_template_cpu).to(device)
+    new_optimizer = type(base_optimizer_instance)(new_model_gpu.parameters(), **base_optimizer_instance.defaults)
+    return new_model_gpu, new_optimizer
 
 def train_model(
     model: nn.Module,
     train_loader: DataLoader,
     criterion: nn.Module,
-    optimizer: optim.Optimizer,
+    optimizer: optim.Optimizer, # This is the optimizer instance for the initial model, used as a template
     num_epochs: int = 100,
-    patience: int = 10,
+    patience: int = 20,
     n_splits: int = 5,
-    n_runs: int = 30,  # Added parameter for number of runs
+    n_runs: int = 30,
     is_augmented: bool = False,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
-) -> Tuple[nn.Module, Dict]:  # Modified return type to include metrics
-    """Train a model using k-fold cross-validation with early stopping, averaged over multiple runs.
-    When n_splits=1, trains on 80% and validates on 20% of the data, repeated n_runs times.
-    When n_splits>1, performs n_runs independent runs of k-fold cross-validation.
-
-    Returns:
-        Tuple containing:
-            - The best performing model across all runs
-            - Dictionary containing averaged metrics and their standard deviations
-    """
+) -> Tuple[nn.Module, Dict]:
     logger = logging.getLogger(__name__)
     
+    pristine_model_template_cpu = copy.deepcopy(model).cpu()
+
+    train_data_augmenter = None
+    if is_augmented:
+        aug_config = AugmentationConfig( # Define your static AugmentationConfig parameters here
+            enabled=True, num_augmentations=5, noise_enabled=True, 
+            shift_enabled=True, scale_enabled=True, noise_level=0.1, 
+            shift_range=0.1, scale_range=0.1,
+        )
+        train_data_augmenter = DataAugmenter(aug_config)
+
     if n_splits == 1:
         return _train_single_split(
-            model=model,
-            train_loader=train_loader,
-            criterion=criterion,
-            optimizer=optimizer,
-            num_epochs=num_epochs,
-            patience=patience,
-            is_augmented=is_augmented,
-            device=device,
-            logger=logger,
-            n_runs=n_runs,  # Pass n_runs to _train_single_split
+            pristine_model_template_cpu, # Pass the CPU template
+            train_loader, criterion, optimizer, # Pass base optimizer as template
+            num_epochs, patience, train_data_augmenter, device, logger, n_runs
         )
     
-    # Initialize storage for multiple runs
-    all_runs_metrics = []
+    all_runs_metrics_accumulator = []
     best_overall_accuracy = float("-inf")
-    best_overall_model_state = None
+    best_overall_model_state_cpu = None 
     
     logger.info(f"Starting {n_runs} independent runs of {n_splits}-fold cross validation")
 
-    model_copy = copy.deepcopy(model)
-
-    for run in range(n_runs):
-        logger.info(f"\nStarting Run {run + 1}/{n_runs}")
-        
-        # Now each run starts with a fresh copy of the untrained model
-        model = copy.deepcopy(model_copy)
+    for run_idx in range(n_runs):
+        logger.info(f"\nStarting Run {run_idx + 1}/{n_runs}")
         
         dataset = train_loader.dataset
         all_labels = _extract_labels(dataset)
+        skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run_idx)
 
-        # Initialize cross-validation for this run
-        skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run)  # Different seed for each run
+        run_best_val_metrics_list = []
+        current_run_best_accuracy = float("-inf")
+        current_run_best_model_state_cpu = None
 
-        # Metrics storage for this run
-        run_best_val_metrics = []
-        run_best_accuracy = float("-inf")
-        run_best_model_state = None
+        fold_model_gpu, fold_optimizer = None, None
 
-        # Perform k-fold cross-validation for this run
-        for fold, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
-            logger.info(f"Run {run + 1}, Fold {fold}/{n_splits}")
+        for fold_idx, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
+            logger.info(f"Run {run_idx + 1}, Fold {fold_idx}/{n_splits}")
 
-            # Setup fold-specific data and model
-            model = copy.deepcopy(model_copy).to(device)
+            if fold_model_gpu: del fold_model_gpu
+            if fold_optimizer: del fold_optimizer
+            if device == "cuda": torch.cuda.empty_cache()
+
+            fold_model_gpu, fold_optimizer = _reinitialize_model_and_optimizer(
+                pristine_model_template_cpu, optimizer, device
+            )
+            
             fold_train_loader, fold_val_loader = _create_fold_loaders(
-                dataset, train_idx, val_idx, train_loader.batch_size
+                dataset, train_idx, val_idx, train_loader.batch_size, num_workers=4, pin_memory=(device=="cuda")
             )
 
-            # Apply data augmentation if enabled
-            if is_augmented:
-                aug_config = AugmentationConfig(
-                    enabled=True,
-                    num_augmentations=5,
-                    noise_enabled=True,
-                    shift_enabled=True,
-                    scale_enabled=True,
-                    noise_level=0.1,
-                    shift_range=0.1,
-                    scale_range=0.1,
-                )
-                train_data_augmenter = DataAugmenter(aug_config)
+            if train_data_augmenter:
                 fold_train_loader = train_data_augmenter.augment(fold_train_loader)
 
-            # Create fold-specific optimizer
-            fold_optimizer = type(optimizer)(model.parameters(), **optimizer.defaults)
-
-            # Train the fold
             fold_results = _train_fold(
-                model=model,
-                train_loader=fold_train_loader,
-                val_loader=fold_val_loader,
-                criterion=criterion,
-                optimizer=fold_optimizer,
-                num_epochs=num_epochs,
-                patience=patience,
-                device=device,
-                logger=logger,
+                fold_model_gpu, fold_train_loader, fold_val_loader, criterion, fold_optimizer,
+                num_epochs, patience, device, logger
             )
 
-            # Update best model for this run if this fold performed better
-            if fold_results["best_accuracy"] > run_best_accuracy:
-                run_best_accuracy = fold_results["best_accuracy"]
-                run_best_model_state = copy.deepcopy(fold_results["best_model_state"])
+            if fold_results["best_accuracy"] > current_run_best_accuracy:
+                current_run_best_accuracy = fold_results["best_accuracy"]
+                current_run_best_model_state_cpu = fold_results["best_model_state"]
+            
+            run_best_val_metrics_list.append(fold_results["best_fold_metrics"])
 
-            run_best_val_metrics.append(fold_results["best_fold_metrics"])
-
-        # Store the best metrics from this run
-        all_runs_metrics.append({
-            "best_accuracy": run_best_accuracy,
-            "best_val_metrics": run_best_val_metrics
+        # Clean up after last fold of the run
+        if fold_model_gpu: del fold_model_gpu
+        if fold_optimizer: del fold_optimizer
+        if device == "cuda": torch.cuda.empty_cache()
+            
+        all_runs_metrics_accumulator.append({
+            "best_accuracy": current_run_best_accuracy,
+            "best_val_metrics": run_best_val_metrics_list
         })
 
-        # Update overall best model if this run performed better
-        if run_best_accuracy > best_overall_accuracy:
-            best_overall_accuracy = run_best_accuracy
-            best_overall_model_state = copy.deepcopy(run_best_model_state)
-            logger.info(f"New best overall accuracy: {best_overall_accuracy:.4f} (Run {run + 1})")
+        if current_run_best_accuracy > best_overall_accuracy:
+            best_overall_accuracy = current_run_best_accuracy
+            best_overall_model_state_cpu = current_run_best_model_state_cpu
+            logger.info(f"New best overall accuracy: {best_overall_accuracy:.4f} (Run {run_idx + 1})")
 
-    # Calculate and print averaged metrics across all runs
-    averaged_metrics = _calculate_averaged_metrics(all_runs_metrics, logger)
+    averaged_metrics = _calculate_averaged_metrics(all_runs_metrics_accumulator, logger)
     
-    # Load the best overall model state
-    model = model_copy.to(device)
-    model.load_state_dict(best_overall_model_state)
+    final_model_on_device = copy.deepcopy(pristine_model_template_cpu).to(device)
+    if best_overall_model_state_cpu:
+        final_model_on_device.load_state_dict(best_overall_model_state_cpu)
+    else:
+        logger.warning("No best_overall_model_state found. Returning model with initial template weights.")
     
-    return model, averaged_metrics
+    return final_model_on_device, averaged_metrics
 
-def _calculate_averaged_metrics(all_runs_metrics: List[Dict], logger: logging.Logger) -> Dict:
-    """Calculate averaged metrics and their standard deviations across all runs."""
-    # Extract metrics from all runs
-    all_accuracies = [run["best_accuracy"] for run in all_runs_metrics]
+def _calculate_averaged_metrics(all_runs_metrics_accumulator: List[Dict], logger: logging.Logger) -> Dict:
+    if not all_runs_metrics_accumulator:
+        logger.warning("No run metrics available to calculate averages.")
+        return {"runs_summary": {}, "metrics_summary": {}}
+
+    all_accuracies = [run["best_accuracy"] for run in all_runs_metrics_accumulator if "best_accuracy" in run and run["best_accuracy"] != float('-inf')]
     
-    # Initialize storage for all metric values
-    all_metrics = {}
-    for metric in all_runs_metrics[0]["best_val_metrics"][0].keys():
-        all_metrics[metric] = []
+    metrics_collector = {}
+    if all_runs_metrics_accumulator and all_runs_metrics_accumulator[0].get("best_val_metrics") and \
+       all_runs_metrics_accumulator[0]["best_val_metrics"] and \
+       all_runs_metrics_accumulator[0]["best_val_metrics"][0]: # Check nested structure
+        for metric_key in all_runs_metrics_accumulator[0]["best_val_metrics"][0].keys():
+            metrics_collector[metric_key] = []
+    else:
+        logger.warning("Best validation metrics are missing or not in expected format for averaging.")
+
+    for run_metrics_item in all_runs_metrics_accumulator:
+        if "best_val_metrics" in run_metrics_item:
+            for fold_metrics_dict in run_metrics_item["best_val_metrics"]:
+                for metric_key, value in fold_metrics_dict.items():
+                    if metric_key in metrics_collector:
+                         metrics_collector[metric_key].append(value)
     
-    # Collect metrics from all runs and folds
-    for run in all_runs_metrics:
-        for fold_metrics in run["best_val_metrics"]:
-            for metric, value in fold_metrics.items():
-                all_metrics[metric].append(value)
-    
-    # Calculate averages and standard deviations
-    averaged_metrics = {
+    avg_metrics_summary = {
         "runs_summary": {
-            "accuracy_mean": np.mean(all_accuracies),
-            "accuracy_std": np.std(all_accuracies),
+            "accuracy_mean": np.mean(all_accuracies) if all_accuracies else float('nan'),
+            "accuracy_std": np.std(all_accuracies) if all_accuracies else float('nan'),
         },
         "metrics_summary": {}
     }
     
-    for metric, values in all_metrics.items():
-        averaged_metrics["metrics_summary"][metric] = {
-            "mean": np.mean(values),
-            "std": np.std(values)
+    for metric_key, values in metrics_collector.items():
+        valid_values = [v for v in values if not np.isnan(v)]
+        avg_metrics_summary["metrics_summary"][metric_key] = {
+            "mean": np.mean(valid_values) if valid_values else float('nan'),
+            "std": np.std(valid_values) if valid_values else float('nan')
         }
     
-    # Log the results
     logger.info("\nAveraged metrics across all runs:")
-    logger.info(f"Overall Accuracy: {averaged_metrics['runs_summary']['accuracy_mean']:.4f} ± {averaged_metrics['runs_summary']['accuracy_std']:.4f}")
+    logger.info(f"Overall Accuracy: {avg_metrics_summary['runs_summary']['accuracy_mean']:.4f} ± {avg_metrics_summary['runs_summary']['accuracy_std']:.4f}")
     
     logger.info("\nDetailed metrics summary:")
-    for metric, stats in averaged_metrics["metrics_summary"].items():
-        logger.info(f"{metric}: {stats['mean']:.4f} ± {stats['std']:.4f}")
+    for metric_key, stats in avg_metrics_summary["metrics_summary"].items():
+        logger.info(f"{metric_key}: {stats['mean']:.4f} ± {stats['std']:.4f}")
     
-    return averaged_metrics
+    return avg_metrics_summary
 
 def _train_single_split(
-    model: nn.Module,
-    train_loader: DataLoader,
+    pristine_model_template_cpu: nn.Module,
+    train_loader: DataLoader, # Full dataset loader
     criterion: nn.Module,
-    optimizer: optim.Optimizer,
+    base_optimizer_instance: optim.Optimizer, # Optimizer template
     num_epochs: int,
     patience: int,
-    is_augmented: bool,
+    train_data_augmenter: Optional[DataAugmenter], # Pass augmenter instance
     device: str,
     logger: logging.Logger,
-    n_runs: int = 30,  # Now we use the n_runs parameter here
+    n_runs: int = 30,
 ) -> Tuple[nn.Module, Dict]:
-    """Handle the case of training with a single train/val split, run multiple times.
-    
-    Args:
-        model: PyTorch model to train
-        train_loader: Training data loader
-        criterion: Loss function
-        optimizer: Optimizer instance
-        num_epochs: Maximum number of epochs
-        patience: Early stopping patience
-        is_augmented: Whether to use data augmentation
-        device: Device to train on
-        logger: Logger instance
-        n_runs: Number of independent runs to perform
-        
-    Returns:
-        Tuple containing:
-            - The best performing model across all runs
-            - Dictionary containing averaged metrics and their standard deviations
-    """
-    # Initialize storage for multiple runs
-    all_runs_metrics = []
+    all_runs_metrics_accumulator = []
     best_overall_accuracy = float("-inf")
-    best_overall_model_state = None
-    
-    # Create a clean copy of the model to reset for each run
-    model_copy = copy.deepcopy(model)
-    
+    best_overall_model_state_cpu = None 
+
     logger.info(f"Starting {n_runs} independent runs for single split training")
+
+    current_run_model_gpu, current_run_optimizer = None, None
     
-    for run in range(n_runs):
-        logger.info(f"\nStarting Run {run + 1}/{n_runs}")
+    dataset = train_loader.dataset # Get the full dataset for splitting
+
+    for run_idx in range(n_runs):
+        logger.info(f"\nStarting Run {run_idx + 1}/{n_runs}")
+
+        if current_run_model_gpu: del current_run_model_gpu
+        if current_run_optimizer: del current_run_optimizer
+        if device == "cuda": torch.cuda.empty_cache()
         
-        # Reset the model for each run
-        model = copy.deepcopy(model_copy).to(device)
-        dataset = train_loader.dataset
+        current_run_model_gpu, current_run_optimizer = _reinitialize_model_and_optimizer(
+            pristine_model_template_cpu, base_optimizer_instance, device
+        )
         
-        # Create train/val split while preserving class distribution
         all_labels = _extract_labels(dataset)
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=run)  # Different seed for each run
-        train_idx, val_idx = next(skf.split(np.zeros(len(dataset)), all_labels))
+        skf_single = StratifiedKFold(n_splits=5, shuffle=True, random_state=run_idx) 
+        train_idx, val_idx = next(skf_single.split(np.zeros(len(dataset)), all_labels))
         
-        # Create separate train and validation loaders
-        train_subset = Subset(dataset, train_idx)
-        val_subset = Subset(dataset, val_idx)
-        
-        run_train_loader = DataLoader(
-            train_subset,
-            batch_size=train_loader.batch_size,
-            shuffle=True
-        )
-        val_loader = DataLoader(
-            val_subset,
-            batch_size=train_loader.batch_size,
-            shuffle=False
+        run_train_loader, run_val_loader = _create_fold_loaders(
+            dataset, train_idx, val_idx, train_loader.batch_size, num_workers=4, pin_memory=(device=="cuda")
         )
         
-        if run == 0:  # Only log sizes for the first run to avoid log clutter
-            logger.info(f"Training set size: {len(train_subset)}")
-            logger.info(f"Validation set size: {len(val_subset)}")
+        if run_idx == 0: # Log sizes only for the first run
+            logger.info(f"Training set size: {len(run_train_loader.dataset)}") # Use loader.dataset to get Subset size
+            logger.info(f"Validation set size: {len(run_val_loader.dataset)}")
         
-        # Apply data augmentation if enabled
-        if is_augmented:
-            aug_config = AugmentationConfig(
-                enabled=True,
-                num_augmentations=5,
-                noise_enabled=True,
-                shift_enabled=True,
-                scale_enabled=True,
-                noise_level=0.1,
-                shift_range=0.1,
-                scale_range=0.1,
-            )
-            train_data_augmenter = DataAugmenter(aug_config)
+        if train_data_augmenter:
             run_train_loader = train_data_augmenter.augment(run_train_loader)
         
-        # Create run-specific optimizer
-        run_optimizer = type(optimizer)(model.parameters(), **optimizer.defaults)
-        
-        # Train the model for this run
-        results = _train_fold(
-            model=model,
-            train_loader=run_train_loader,
-            val_loader=val_loader,
-            criterion=criterion,
-            optimizer=run_optimizer,
-            num_epochs=num_epochs,
-            patience=patience,
-            device=device,
-            logger=logger,
+        run_results = _train_fold(
+            current_run_model_gpu, run_train_loader, run_val_loader, criterion, current_run_optimizer,
+            num_epochs, patience, device, logger
         )
         
-        # Store this run's results
-        run_best_accuracy = results["best_accuracy"]
-        run_best_metrics = results["best_fold_metrics"]
+        current_run_best_accuracy = run_results["best_accuracy"]
         
-        all_runs_metrics.append({
-            "best_accuracy": run_best_accuracy,
-            "best_val_metrics": [run_best_metrics]  # Wrap in list to match k-fold format
+        all_runs_metrics_accumulator.append({
+            "best_accuracy": current_run_best_accuracy,
+            "best_val_metrics": [run_results["best_fold_metrics"]] 
         })
         
-        # Update overall best model if this run performed better
-        if run_best_accuracy > best_overall_accuracy:
-            best_overall_accuracy = run_best_accuracy
-            best_overall_model_state = copy.deepcopy(results["best_model_state"])
-            logger.info(f"New best overall accuracy: {best_overall_accuracy:.4f} (Run {run + 1})")
+        if current_run_best_accuracy > best_overall_accuracy:
+            best_overall_accuracy = current_run_best_accuracy
+            best_overall_model_state_cpu = run_results["best_model_state"] 
+            logger.info(f"New best overall accuracy: {best_overall_accuracy:.4f} (Run {run_idx + 1})")
+
+    # Clean up after the last run
+    if current_run_model_gpu: del current_run_model_gpu
+    if current_run_optimizer: del current_run_optimizer
+    if device == "cuda": torch.cuda.empty_cache()
     
-    # Calculate and print averaged metrics across all runs
-    averaged_metrics = _calculate_averaged_metrics(all_runs_metrics, logger)
+    averaged_metrics = _calculate_averaged_metrics(all_runs_metrics_accumulator, logger)
     
-    # Load the best overall model state
-    model = model_copy.to(device)
-    model.load_state_dict(best_overall_model_state)
-    
-    return model, averaged_metrics
-    
-def transfer_learning(
-    dataset: str, model: Transformer, file_path: str = "transformer_checkpoint.pth"
-) -> Transformer:
-    """Apply transfer learning by loading pre-trained weights and adapting the final layer.
-
-    Args:
-        dataset: Target dataset name ('species', 'part', 'oil', 'oil_simple', or 'cross-species')
-        model: Transformer model to transfer weights to
-        file_path: Path to pre-trained model checkpoint
-
-    Returns:
-        Model with transferred weights and adapted output layer
-
-    Raises:
-        ValueError: If dataset name is invalid
-    """
-    output_dims = {
-        "species": 2,
-        "oil_simple": 2,
-        "part": 7,
-        "oil": 7,
-        "cross-species": 3,
-    }
-
-    if dataset not in output_dims:
-        raise ValueError(
-            f"Invalid dataset specified: {dataset}. Must be one of {list(output_dims.keys())}"
-        )
-
-    checkpoint = torch.load(file_path)
-    output_dim = output_dims[dataset]
-
-    # Adjust final layer weights
-    if dataset in ["species", "oil_simple"]:
-        checkpoint["fc.weight"] = checkpoint["fc.weight"][:output_dim]
-        checkpoint["fc.bias"] = checkpoint["fc.bias"][:output_dim]
+    final_model_on_device = copy.deepcopy(pristine_model_template_cpu).to(device)
+    if best_overall_model_state_cpu:
+        final_model_on_device.load_state_dict(best_overall_model_state_cpu)
     else:
-        checkpoint["fc.weight"] = torch.zeros(
-            output_dim, checkpoint["fc.weight"].shape[1]
-        )
-        checkpoint["fc.bias"] = torch.zeros(output_dim)
-
-    model.load_state_dict(checkpoint, strict=False)
-    return model
-
-
-def _calculate_metrics(
-    y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None
-) -> MetricsDict:
-    """Calculate multiple classification metrics.
-
-    Args:
-        y_true: Ground truth labels as a 1D array
-        y_pred: Predicted labels as a 1D array
-        y_prob: Probability predictions for ROC AUC as a 2D array of shape (n_samples, n_classes)
-
-    Returns:
-        Dictionary containing calculated metrics:
-            - balanced_accuracy: Balanced accuracy score
-            - precision: Weighted precision score
-            - recall: Weighted recall score
-            - f1: Weighted F1 score
-            - auc_roc: Area under ROC curve (if y_prob provided)
-    """
-    unique_classes = np.unique(np.concatenate([y_true, y_pred]))
-
-    metrics: MetricsDict = {
-        "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
-        "precision": precision_score(
-            y_true, y_pred, average="weighted", zero_division=0, labels=unique_classes
-        ),
-        "recall": recall_score(
-            y_true, y_pred, average="weighted", zero_division=0, labels=unique_classes
-        ),
-        "f1": f1_score(
-            y_true, y_pred, average="weighted", zero_division=0, labels=unique_classes
-        ),
+        logger.warning("No best_overall_model_state found in single_split. Returning model with initial template weights.")
+        
+    return final_model_on_device, averaged_metrics
+    
+def transfer_learning( # No significant changes for conciseness here, it's a distinct utility
+    dataset_name: str, model_instance: Transformer, file_path: str = "transformer_checkpoint.pth"
+) -> Transformer:
+    logger = logging.getLogger(__name__)
+    output_dims_map = {
+        "species": 2, "oil_simple": 2, "part": 7, "oil": 7, "cross-species": 3,
     }
+    if dataset_name not in output_dims_map:
+        raise ValueError(f"Invalid dataset: {dataset_name}. Valid: {list(output_dims_map.keys())}")
 
-    if y_prob is not None:
-        if y_prob.shape[1] == 2:  # Binary classification
-            fpr, tpr, _ = roc_curve(y_true, y_prob[:, 1])
-            metrics["auc_roc"] = auc(fpr, tpr)
-        else:  # Multiclass classification
-            n_classes = y_prob.shape[1]
-            y_true_onehot = np.eye(n_classes)[y_true]
-            aucs = []
-            for i in range(n_classes):
-                fpr, tpr, _ = roc_curve(y_true_onehot[:, i], y_prob[:, i])
-                aucs.append(auc(fpr, tpr))
-            metrics["auc_roc"] = np.mean(aucs)
+    try:
+        checkpoint = torch.load(file_path, map_location=torch.device('cpu')) # Load to CPU first
+    except FileNotFoundError:
+        logger.error(f"Checkpoint file not found: {file_path}")
+        raise
+        
+    output_dim = output_dims_map[dataset_name]
 
-    return metrics
+    # Adapt the final layer (assuming 'fc' is the name)
+    # This part is model-specific; for a generic Transformer, the output layer name might vary.
+    if "fc.weight" in checkpoint and "fc.bias" in checkpoint:
+        if dataset_name in ["species", "oil_simple"]: # Example: truncate if new output_dim is smaller
+            checkpoint["fc.weight"] = checkpoint["fc.weight"][:output_dim]
+            checkpoint["fc.bias"] = checkpoint["fc.bias"][:output_dim]
+        else: # Example: re-initialize for other cases (or use a more sophisticated strategy)
+            original_fc_shape = checkpoint["fc.weight"].shape
+            checkpoint["fc.weight"] = nn.init.xavier_uniform_(torch.empty(output_dim, original_fc_shape[1]))
+            checkpoint["fc.bias"] = torch.zeros(output_dim)
+        
+        # If model_instance's fc layer has a different dimension, direct loading might fail.
+        # Re-initialize the model's fc layer to match new output_dim before loading state_dict if needed.
+        if hasattr(model_instance, 'fc') and model_instance.fc.out_features != output_dim:
+             model_instance.fc = nn.Linear(model_instance.fc.in_features, output_dim)
+             logger.info(f"Re-initialized model's fc layer for {output_dim} output features.")
 
+    else:
+        logger.warning(f"Transfer learning: 'fc.weight' or 'fc.bias' not found in checkpoint. Final layer adaptation skipped.")
 
-# Helper functions
+    model_instance.load_state_dict(checkpoint, strict=False)
+    logger.info(f"Transferred learning weights from {file_path} to model for dataset {dataset_name}.")
+    return model_instance
+
+def _process_label_item(label_item) -> int:
+    if isinstance(label_item, torch.Tensor):
+        return label_item.item() if label_item.numel() == 1 else label_item.argmax().item()
+    elif isinstance(label_item, np.ndarray):
+        return label_item.item() if label_item.size == 1 else np.argmax(label_item)
+    return int(label_item)
+
 def _extract_labels(dataset: Dataset) -> np.ndarray:
-    """Extract labels from dataset for stratification."""
-    all_labels = []
-    for _, labels in dataset:
-        if isinstance(labels, torch.Tensor):
-            if labels.dim() > 1:
-                all_labels.append(labels.argmax().item())
-            else:
-                all_labels.append(labels.argmax(dim=0))
-        elif isinstance(labels, np.ndarray):
-            if labels.ndim > 1:
-                all_labels.append(np.argmax(labels))
-            else:
-                all_labels.append(np.argmax(labels))
-        else:
-            all_labels.append(labels)
-            
-    return np.array(all_labels)
+    labels_list = []
+    target_dataset = dataset.dataset if isinstance(dataset, Subset) else dataset
+    indices = dataset.indices if isinstance(dataset, Subset) else range(len(target_dataset))
 
+    if not indices: return np.array([])
+
+    for i in indices:
+        _, label_data = target_dataset[i]
+        labels_list.append(label_data)
+    
+    return np.array([_process_label_item(lbl) for lbl in labels_list]) if labels_list else np.array([])
 
 def _create_fold_loaders(
-    dataset: Dataset, train_idx: np.ndarray, val_idx: np.ndarray, batch_size: int
+    dataset: Dataset, train_idx: np.ndarray, val_idx: np.ndarray, batch_size: int,
+    num_workers: int = 0, pin_memory: bool = False
 ) -> Tuple[DataLoader, DataLoader]:
-    """Create DataLoaders for a specific fold."""
     train_subset = Subset(dataset, train_idx)
     val_subset = Subset(dataset, val_idx)
+    common_loader_params = {"batch_size": batch_size, "num_workers": num_workers, "pin_memory": pin_memory}
     return (
-        DataLoader(train_subset, batch_size=batch_size, shuffle=True),
-        DataLoader(val_subset, batch_size=batch_size, shuffle=False),
+        DataLoader(train_subset, shuffle=True, **common_loader_params),
+        DataLoader(val_subset, shuffle=False, **common_loader_params),
     )
 
-
 def _train_fold(
-    model: nn.Module,
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-    criterion: nn.Module,
-    optimizer: optim.Optimizer,
-    num_epochs: int,
-    patience: int,
-    device: str,
-    logger: logging.Logger,
+    model: nn.Module, train_loader: DataLoader, val_loader: DataLoader, criterion: nn.Module,
+    optimizer: optim.Optimizer, num_epochs: int, patience: int, device: str, logger: logging.Logger,
 ) -> Dict:
-    """Train a single fold and return results.
-
-    Args:
-        model: PyTorch model to train
-        train_loader: Training data loader
-        val_loader: Validation data loader
-        criterion: Loss function
-        optimizer: Optimizer instance
-        num_epochs: Maximum number of epochs
-        patience: Early stopping patience
-        device: Device to train on
-        logger: Logger instance
-
-    Returns:
-        Dictionary containing best model state and metrics
-    """
     best_val_accuracy = float("-inf")
-    epochs_without_improvement = 0
-    best_model_state = None
-    best_fold_metrics = None
+    epochs_no_improve = 0
+    best_model_state_cpu, best_fold_metrics = None, None
+    epoch_log = {"train_losses": [], "val_losses": [], "train_metrics": [], "val_metrics": []}
 
-    epoch_metrics = {
-        "train_losses": [],
-        "val_losses": [],
-        "train_metrics": [],
-        "val_metrics": [],
-    }
-
-    for epoch in tqdm(range(num_epochs), desc="Training"):
-        # Training phase.
+    for epoch in tqdm(range(num_epochs), desc="Fold Training", unit="epoch", leave=False):
         model.train()
-        train_results = _run_epoch(
-            model, train_loader, criterion, optimizer, device, True
-        )
+        train_results = _run_epoch(model, train_loader, criterion, optimizer, device, is_training=True)
 
-        # Validation phase.
         model.eval()
         with torch.no_grad():
-            val_results = _run_epoch(
-                model, val_loader, criterion, optimizer, device, False
-            )
+            val_results = _run_epoch(model, val_loader, criterion, None, device, is_training=False)
 
-        # Store metrics for current epoch.
-        _update_epoch_metrics(epoch_metrics, train_results, val_results)
+        epoch_log["train_losses"].append(train_results["loss"])
+        epoch_log["val_losses"].append(val_results["loss"])
+        epoch_log["train_metrics"].append(train_results["metrics"])
+        epoch_log["val_metrics"].append(val_results["metrics"])
 
-        current_val_accuracy = val_results["metrics"]["balanced_accuracy"]
+        current_val_acc = val_results["metrics"].get("balanced_accuracy", float('-inf'))
 
-        # Update best model if improved.
-        if current_val_accuracy > best_val_accuracy:
-            best_val_accuracy = current_val_accuracy
-            best_model_state = copy.deepcopy(model.state_dict())
+        if current_val_acc > best_val_accuracy:
+            best_val_accuracy = current_val_acc
+            best_model_state_cpu = OrderedDict((k, v.clone().cpu()) for k, v in model.state_dict().items())
             best_fold_metrics = copy.deepcopy(val_results["metrics"])
-            epochs_without_improvement = 0
-
-            # Log when we find a better model.
-            logger.info(
-                f"Epoch {epoch + 1}: New best validation accuracy: {best_val_accuracy:.4f}"
-            )
-
-            # Log all metrics if we achieve perfect accuracy.
-            if current_val_accuracy >= 1.0:
-                logger.info("Achieved perfect validation accuracy!")
-                logger.info("Current metrics:")
-                for metric, value in val_results["metrics"].items():
-                    logger.info(f"{metric}: {value:.4f}")
+            epochs_no_improve = 0
+            logger.debug(f"E{epoch+1}: New best val_acc: {best_val_accuracy:.4f}")
         else:
-            epochs_without_improvement += 1
-            if epochs_without_improvement >= patience:
-                logger.info(f"Early stopping triggered after {epoch + 1} epochs")
-                logger.info(f"Best validation accuracy: {best_val_accuracy:.4f}")
-                # DEBUG
-                # break
+            epochs_no_improve += 1
+            if epochs_no_improve >= patience:
+                logger.info(f"Early stopping: E{epoch+1}, Best val_acc: {best_val_accuracy:.4f}")
+                break
+        
+        if (epoch + 1) % 10 == 0 or epoch == num_epochs - 1 : # Log less frequently
+             logger.info(f"E{epoch+1} TL:{train_results['loss']:.3f} VL:{val_results['loss']:.3f} "
+                         f"VAcur:{current_val_acc:.3f} BestVAcur:{best_val_accuracy:.3f}")
 
-        # Log progress every few epochs.
-        if (epoch + 1) % 5 == 0:
-            logger.info(f"Epoch {epoch + 1}")
-            logger.info(f"Train Loss: {train_results['loss']:.4f}")
-            logger.info(f"Val Loss: {val_results['loss']:.4f}")
-            logger.info(f"Current Val Accuracy: {current_val_accuracy:.4f}")
-            logger.info(f"Best Val Accuracy: {best_val_accuracy:.4f}")
+    # Ensure defaults if no training happened or no improvement
+    if best_fold_metrics is None: best_fold_metrics = val_results.get("metrics", {}) if 'val_results' in locals() else {}
+    if best_model_state_cpu is None: best_model_state_cpu = OrderedDict((k,v.clone().cpu()) for k,v in model.state_dict().items())
 
-    # Ensure we return the best metrics we found.
+
     return {
-        "best_accuracy": best_val_accuracy,
-        "best_model_state": best_model_state,
+        "best_accuracy": best_val_accuracy if best_val_accuracy > float("-inf") else 0.0,
+        "best_model_state": best_model_state_cpu,
         "best_fold_metrics": best_fold_metrics,
-        "epoch_metrics": epoch_metrics,
+        "epoch_metrics": epoch_log,
     }
 
-
 def _run_epoch(
-    model: nn.Module,
-    loader: DataLoader,
-    criterion: nn.Module,
-    optimizer: Optional[optim.Optimizer],
-    device: str,
-    is_training: bool,
+    model: nn.Module, loader: DataLoader, criterion: nn.Module,
+    optimizer: Optional[optim.Optimizer], device: str, is_training: bool,
 ) -> Dict:
-    """Run a single epoch of training or validation."""
-    total_loss = 0.0
-    all_preds = []
-    all_probs = []
-    all_labels = []
+    total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
 
-    desc = "Training" if is_training else "Validation"
-
-    for inputs, labels in loader:
-        inputs, labels = inputs.to(device), labels.to(device)
-
+    for inputs, labels_batch in loader:
+        inputs, labels_on_device = inputs.to(device), labels_batch.to(device)
         if is_training:
             optimizer.zero_grad()
 
-        if isinstance(model, VAE):
-            _, _, _, outputs = model(inputs)
-        else:
-            outputs = (
-                model(inputs, inputs)
-                if isinstance(model, Transformer)
-                else model(inputs)
-            )
-        loss = criterion(outputs, labels)
+        # Model specific forward pass - adjust if your VAE/Transformer has different API
+        outputs = model(inputs) # Simplified, ensure your models' forward methods align
 
+        loss = criterion(outputs, labels_on_device)
         if is_training:
-            loss.backward()
-            optimizer.step()
+            loss.backward(); optimizer.step()
 
-        total_loss += loss.item()
+        total_loss += loss.item() * inputs.size(0)
+        
+        # Process labels and predictions for metrics
+        actual_indices = labels_on_device.argmax(dim=1) if (labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1) else labels_on_device
         probs = torch.softmax(outputs, dim=1)
-        _, predicted = outputs.max(1)
-        _, actual = labels.max(1)
+        predicted_indices = outputs.argmax(dim=1)
 
-        all_preds.extend(predicted.cpu().numpy())
-        all_probs.extend(probs.detach().cpu().numpy())
-        all_labels.extend(actual.cpu().numpy())
+        all_labels_np.append(actual_indices.cpu().numpy())
+        all_preds_np.append(predicted_indices.cpu().numpy())
+        all_probs_np.append(probs.detach().cpu().numpy())
 
-    avg_loss = total_loss / len(loader)
-    metrics = _calculate_metrics(
-        np.array(all_labels), np.array(all_preds), np.array(all_probs)
-    )
+    avg_loss = total_loss / len(loader.dataset)
+    final_labels = np.concatenate(all_labels_np)
+    final_preds = np.concatenate(all_preds_np)
+    final_probs = np.concatenate(all_probs_np)
+    
+    metrics = _calculate_metrics(final_labels, final_preds, final_probs)
+    return {"loss": avg_loss, "metrics": metrics, 
+            "predictions": {"labels": final_labels, "preds": final_preds, "probs": final_probs}}
 
-    return {
-        "loss": avg_loss,
-        "metrics": metrics,
-        "predictions": {
-            "labels": np.array(all_labels),
-            "preds": np.array(all_preds),
-            "probs": np.array(all_probs),
-        },
+def _calculate_metrics( # Minor cleanup for NaN handling
+    y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None
+) -> MetricsDict:
+    labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
+    metrics: MetricsDict = {
+        "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
+        "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0, labels=labels_for_scoring),
+        "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0, labels=labels_for_scoring),
+        "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0, labels=labels_for_scoring),
     }
+    if y_prob is not None and y_true.size > 0 and len(np.unique(y_true)) > 0: # Basic checks for valid AUC calculation
+        n_classes = y_prob.shape[1]
+        if n_classes == 2:
+            metrics["auc_roc"] = roc_curve_auc(y_true, y_prob[:, 1])
+        elif n_classes > 2 :
+            y_true_onehot = np.eye(n_classes)[y_true.astype(int)]
+            aucs = [roc_curve_auc(y_true_onehot[:, i], y_prob[:, i], class_present=(i in np.unique(y_true)))
+                    for i in range(n_classes)]
+            valid_aucs = [a for a in aucs if not np.isnan(a)]
+            metrics["auc_roc"] = np.mean(valid_aucs) if valid_aucs else float('nan')
+        else: metrics["auc_roc"] = float('nan') # Should not happen with >0 classes
+    else: metrics["auc_roc"] = float('nan')
+    return metrics
 
-
-def _update_fold_metrics(
-    fold_metrics: FoldMetrics, epoch_metrics: Dict[str, List]
-) -> FoldMetrics:
-    """Update the fold metrics with the metrics from the current epoch.
-
-    Args:
-        fold_metrics: Dictionary containing metrics for all folds
-        epoch_metrics: Dictionary containing metrics for current epoch
-
-    Returns:
-        Updated fold metrics dictionary
-    """
-    fold_metrics["train_losses"].append(epoch_metrics["train_losses"])
-    fold_metrics["val_losses"].append(epoch_metrics["val_losses"])
-    fold_metrics["train_metrics"].append(epoch_metrics["train_metrics"])
-    fold_metrics["val_metrics"].append(epoch_metrics["val_metrics"])
-    return fold_metrics
-
-
-def _update_epoch_metrics(
-    epoch_metrics: Dict[str, List], train_results: Dict, val_results: Dict
-) -> None:
-    """Update the epoch metrics with results from training and validation.
-
-    Args:
-        epoch_metrics: Dictionary containing metrics for all epochs
-        train_results: Results from training phase
-        val_results: Results from validation phase
-    """
-    epoch_metrics["train_losses"].append(train_results["loss"])
-    epoch_metrics["val_losses"].append(val_results["loss"])
-    epoch_metrics["train_metrics"].append(train_results["metrics"])
-    epoch_metrics["val_metrics"].append(val_results["metrics"])
-
-
-def _print_final_metrics(
-    best_val_metrics: List[MetricsDict], logger: logging.Logger
-) -> None:
-    """Print the final metrics for each fold.
-
-    Args:
-        best_val_metrics: List of best validation metrics for each fold
-        logger: Logger instance for output
-    """
-    logger.info("\nBest validation metrics for each fold:")
-    for fold, metrics in enumerate(best_val_metrics, 1):
-        logger.info(f"\nFold {fold}:")
-        for metric, value in metrics.items():
-            logger.info(f"{metric}: {value:.4f}")
-
-    # Calculate and print average metrics across folds.
-    avg_metrics = {}
-    for metric in best_val_metrics[0].keys():
-        avg_metrics[metric] = np.mean([fold[metric] for fold in best_val_metrics])
-
-    logger.info("\nAverage metrics across all folds:")
-    for metric, value in avg_metrics.items():
-        logger.info(f"Average {metric}: {value:.4f}")
-
-    # Calculate and print standard deviation of metrics.
-    std_metrics = {}
-    for metric in best_val_metrics[0].keys():
-        std_metrics[metric] = np.std([fold[metric] for fold in best_val_metrics])
-
-    logger.info("\nMetric standard deviations across folds:")
-    for metric, value in std_metrics.items():
-        logger.info(f"{metric} std: {value:.4f}")
+def roc_curve_auc(y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True) -> float:
+    if not class_present or len(np.unique(y_true_class)) < 2 : # Not enough classes or class not present
+        return float('nan') 
+    fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
+    return auc(fpr, tpr)

@@ -1,32 +1,30 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields as dataclass_fields # For AugmentationConfig
 from enum import Enum, auto
 import logging
-import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Callable, Any
 
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
-from sklearn.model_selection import train_test_split
+# train_test_split is imported but not used in the provided snippet
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
-from transformer import Transformer
+# Assuming transformer.py exists and Transformer is defined
+# from transformer import Transformer
 
 logger = logging.getLogger(__name__)
 
 
 class DatasetType(Enum):
-    """Enumeration of available dataset types."""
-
     SPECIES = auto()
     PART = auto()
     OIL = auto()
     OIL_SIMPLE = auto()
-    OIL_REGRESSION = auto()
+    OIL_REGRESSION = auto() # Not used in filtering/encoding logic provided
     CROSS_SPECIES = auto()
     CROSS_SPECIES_HARD = auto()
     INSTANCE_RECOGNITION = auto()
@@ -34,8 +32,11 @@ class DatasetType(Enum):
 
     @classmethod
     def from_string(cls, name: str) -> "DatasetType":
-        """Convert string to DatasetType enum."""
-        mapping = {
+        # Create a mapping from lowercase string to enum member
+        # Handles names with hyphens by replacing them with underscores for enum member lookup
+        normalized_name_map = {key.lower().replace("_", "-"): member for key, member in cls.__members__.items()}
+        # Add direct aliases for the provided strings if they don't match normalized enum names
+        alias_map = {
             "species": cls.SPECIES,
             "part": cls.PART,
             "oil": cls.OIL,
@@ -46,594 +47,543 @@ class DatasetType(Enum):
             "instance-recognition": cls.INSTANCE_RECOGNITION,
             "instance-recognition-hard": cls.INSTANCE_RECOGNITION_HARD,
         }
-        if name.lower() not in mapping:
-            raise ValueError(
-                f"Invalid dataset name: {name}. Must be one of {list(mapping.keys())}"
-            )
-        return mapping[name.lower()]
+        # Prefer alias map, then normalized enum names
+        target_name = name.lower()
+        if target_name in alias_map:
+            return alias_map[target_name]
+        if target_name in normalized_name_map: # e.g. if user typed "species_type" and an enum SPECIES_TYPE existed
+            return normalized_name_map[target_name]
+
+        raise ValueError(
+            f"Invalid dataset name: {name}. Must be one of {list(alias_map.keys())}"
+        )
 
 
 @dataclass
 class AugmentationConfig:
-    """Configuration for data augmentation."""
-
     enabled: bool = False
-    num_augmentations: int = 5
+    num_augmentations: int = 5 # Number of *additional* augmented versions per sample
     noise_enabled: bool = True
     shift_enabled: bool = False
     scale_enabled: bool = False
-    noise_level: float = 0.1
-    shift_range: float = 0.1
-    scale_range: float = 0.1
+    noise_level: float = 0.1   # Can be absolute or relative (see DataAugmenter)
+    shift_range: float = 0.1   # Proportion of total length
+    scale_range: float = 0.1   # Range around 1.0 (e.g., 0.1 means 0.9 to 1.1)
 
 
 class BaseDataset(Dataset):
-    """Base dataset class with common functionality."""
-
     def __init__(self, samples: np.ndarray, labels: np.ndarray):
-        """Initialize dataset with samples and labels.
-
-        Args:
-            samples: Input features
-            labels: Target labels
-        """
         self.samples = torch.tensor(samples, dtype=torch.float32)
-        self.labels = torch.from_numpy(np.vstack(labels).astype(float))
-        self.samples = F.normalize(self.samples, dim=0)
+        self.labels = torch.tensor(np.array(labels), dtype=torch.float32) # Ensure labels are also float32
+        
+        # Normalize features (dim=0 normalizes each feature across samples)
+        # Ensure there's more than one sample to avoid NaN with std=0 if only one sample.
+        if self.samples.ndim > 1 and self.samples.shape[0] > 1:
+            self.samples = F.normalize(self.samples, p=2, dim=0)
+        elif self.samples.ndim == 1 and self.samples.numel() > 0 : # Single sample
+             self.samples = F.normalize(self.samples, p=2, dim=0)
+
 
     def __len__(self) -> int:
-        return len(self.samples)
+        return self.samples.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.samples[idx], self.labels[idx]
 
 
 class CustomDataset(BaseDataset):
-    """Dataset for standard classification tasks."""
-
+    """Standard dataset, inherits all from BaseDataset."""
     pass
 
 
 class SiameseDataset(BaseDataset):
-    """Dataset for contrastive learning with all possible pairs."""
+    """Dataset for contrastive learning, generating pairs of samples."""
     def __init__(self, samples: np.ndarray, labels: np.ndarray):
-        """Initialize Siamese dataset.
-        Args:
-            samples: Input features
-            labels: Target labels
-        """
+        # Initialize with original data to allow BaseDataset to convert them to tensors
         super().__init__(samples, labels)
-        self.samples, self.labels = self._generate_pairs()
+        # Now self.samples and self.labels are tensors. Generate pairs from these.
+        self.paired_samples, self.paired_labels = self._generate_pairs_vectorized(
+            self.samples, self.labels
+        )
 
-    def _generate_pairs(self) -> Tuple[List[torch.Tensor], np.ndarray]:
-        """Generate all possible pairs for contrastive learning."""
-        pairs = []
-        labels = []
-        n_samples = len(self.samples)
+    def _generate_pairs_vectorized(self, 
+                                   original_samples: torch.Tensor, 
+                                   original_labels: torch.Tensor
+                                   ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """Generates differing pairs for contrastive learning in a vectorized way."""
+        n_samples = original_samples.shape[0]
+        if n_samples < 2:
+            return torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype), \
+                   torch.empty((0,1), dtype=torch.float32)
+
+        # Create all possible (i, j) indices where i != j
+        indices_i = torch.arange(n_samples).unsqueeze(1).expand(-1, n_samples).flatten()
+        indices_j = torch.arange(n_samples).unsqueeze(0).expand(n_samples, -1).flatten()
         
-        # Generate all possible pairs
-        for i in range(n_samples):
-            for j in range(n_samples):
-                if i != j:  # Exclude self-pairs
-                    X1, y1 = self.samples[i], self.labels[i]
-                    X2, y2 = self.samples[j], self.labels[j]
-                    
-                    difference = X1 - X2
-                    pair_label = torch.FloatTensor([int(torch.all(y1 == y2))])
-                    
-                    pairs.append(difference)
-                    labels.append(pair_label)
+        mask = indices_i != indices_j
+        indices_i, indices_j = indices_i[mask], indices_j[mask]
+
+        X1, X2 = original_samples[indices_i], original_samples[indices_j]
+        y1, y2 = original_labels[indices_i], original_labels[indices_j]
         
-        labels = np.asarray(labels, dtype=int)
-        n_classes = len(np.unique(labels))
-        return pairs, np.eye(n_classes)[labels].squeeze()
+        # Input for the model: element-wise difference (can be changed to concatenation or other)
+        # paired_samples_tensor = torch.abs(X1 - X2) # Or just X1-X2, or torch.cat((X1,X2), dim=1)
+        paired_samples_tensor = X1 - X2
+
+
+        # Determine if labels are identical. Handles multi-class (one-hot) or single-class index labels.
+        if y1.ndim > 1 and y1.shape[1] > 1:  # Assumed one-hot encoded
+            same_label_mask = torch.all(y1 == y2, dim=1)
+        else:  # Assumed class indices
+            same_label_mask = (y1.squeeze() == y2.squeeze())
+        
+        # Labels for pairs: 1.0 if same class, 0.0 if different
+        # Shape: (num_pairs, 1) for compatibility with BCEWithLogitsLoss
+        pair_labels_tensor = same_label_mask.to(torch.float32).unsqueeze(1)
+        
+        return paired_samples_tensor, pair_labels_tensor
+
+    def __len__(self) -> int:
+        return self.paired_samples.shape[0]
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        return self.paired_samples[idx], self.paired_labels[idx]
 
 
 class DataAugmenter:
-    """Handles data augmentation operations on DataLoader inputs."""
-
+    """
+    Handles data augmentation. 
+    NOTE: The current approach of extracting all data from a DataLoader,
+    augmenting in NumPy, then creating a new DataLoader is highly inefficient
+    and not recommended for large datasets or performance-critical applications.
+    Augmentation is typically done on-the-fly within the Dataset.__getitem__ method.
+    This refactoring makes the existing logic more concise but doesn't change the approach.
+    """
     def __init__(self, config: AugmentationConfig):
-        """Initialize augmenter with configuration."""
         self.config = config
 
+    def _apply_augmentations_to_batch(self, X_batch: np.ndarray) -> np.ndarray:
+        """Applies configured augmentations to a batch of samples."""
+        X_augmented_batch = X_batch.copy() # Augment from fresh copies
+        n_samples, n_features = X_augmented_batch.shape
+
+        if self.config.noise_enabled:
+            # Assuming noise_level is a fraction of std dev of each feature if not absolute
+            # For simplicity, using a global noise level relative to overall data std or a fixed value
+            # noise_std = self.config.noise_level * np.std(X_batch) # Global std based noise
+            # Or interpret noise_level as an absolute standard deviation
+            noise = np.random.normal(loc=0, scale=self.config.noise_level, size=X_augmented_batch.shape)
+            X_augmented_batch += noise
+
+        if self.config.shift_enabled:
+            for k in range(n_samples): # Shift must be per-sample
+                shift_amount = int(n_features * np.random.uniform(-self.config.shift_range, self.config.shift_range))
+                if n_features > 0: # Avoid error on empty features
+                    X_augmented_batch[k] = np.roll(X_augmented_batch[k], shift_amount)
+        
+        if self.config.scale_enabled:
+            for k in range(n_samples): # Scale per-sample
+                scale_factor = np.random.uniform(1 - self.config.scale_range, 1 + self.config.scale_range)
+                X_augmented_batch[k] *= scale_factor
+        return X_augmented_batch
+
     def augment(self, dataloader: DataLoader) -> DataLoader:
-        """Perform data augmentation on batched data from a DataLoader.
-
-        Args:
-            dataloader: Input DataLoader containing (features, labels) pairs
-
-        Returns:
-            New DataLoader with augmented data
-        """
-        if not self.config.enabled:
+        if not self.config.enabled or self.config.num_augmentations == 0:
             return dataloader
 
-        logger.info(
-            f"Starting data augmentation with {self.config.num_augmentations} augmentations per sample"
-        )
-
-        # Extract all data from dataloader
-        all_samples = []
-        all_labels = []
-        for samples, labels in tqdm(dataloader, desc="Collecting data from loader"):
-            all_samples.append(samples.numpy())
-            all_labels.append(labels.numpy())
+        logger.info(f"DataAugmenter: Applying {self.config.num_augmentations} augmentations per sample.")
         
-        X = np.vstack(all_samples)
-        y = np.vstack(all_labels)
+        original_X_list, original_y_list = [], []
+        for samples, labels in tqdm(dataloader, desc="Collecting data for augmentation"):
+            original_X_list.append(samples.cpu().numpy())
+            original_y_list.append(labels.cpu().numpy())
 
-        # Initialize arrays for augmented data
-        n_samples = len(X)
-        n_features = X.shape[1]
-        total_samples = n_samples * (self.config.num_augmentations + 1)
+        if not original_X_list:
+            logger.warning("DataAugmenter: No data to augment.")
+            return dataloader
 
-        X_augmented = np.zeros((total_samples, n_features))
-        y_augmented = np.zeros((total_samples,) + y.shape[1:])
+        X_original = np.concatenate(original_X_list, axis=0)
+        y_original = np.concatenate(original_y_list, axis=0)
+        
+        all_X_augmented = [X_original]
+        all_y_augmented = [y_original]
 
-        # Copy original data
-        X_augmented[:n_samples] = X
-        y_augmented[:n_samples] = y
+        for _ in tqdm(range(self.config.num_augmentations), desc="Generating augmentations"):
+            all_X_augmented.append(self._apply_augmentations_to_batch(X_original))
+            all_y_augmented.append(y_original.copy()) # Labels remain the same
 
-        # Create augmented samples
-        for i in tqdm(range(n_samples), desc="Augmenting data"):
-            x, y_sample = X[i], y[i]
+        X_final = np.concatenate(all_X_augmented, axis=0)
+        y_final = np.concatenate(all_y_augmented, axis=0)
+        
+        logger.info(f"Augmentation complete. Dataset size: {len(X_final)} samples.")
 
-            for j in range(self.config.num_augmentations):
-                idx = n_samples * (j + 1) + i
-                augmented = x.copy()
+        # Shuffle the entire augmented dataset
+        shuffle_idx = np.random.permutation(len(X_final))
+        X_final, y_final = X_final[shuffle_idx], y_final[shuffle_idx]
+        
+        # Reuse the original dataset's class if possible, otherwise default to CustomDataset
+        dataset_class = dataloader.dataset.__class__ if hasattr(dataloader.dataset, '__class__') else CustomDataset
+        try: # Ensure dataset_class can be initialized with X, y
+            augmented_dataset = dataset_class(X_final, y_final)
+        except TypeError: # Fallback if original class cannot be simply instantiated
+            logger.warning(f"Could not use original dataset class {dataset_class}. Falling back to CustomDataset for augmented data.")
+            augmented_dataset = CustomDataset(X_final, y_final)
 
-                # Apply noise augmentation
-                if self.config.noise_enabled:
-                    noise = np.random.normal(
-                        loc=0,
-                        scale=self.config.noise_level * np.std(augmented),
-                        size=augmented.shape,
-                    )
-                    augmented += noise
 
-                # Apply shift augmentation
-                if self.config.shift_enabled:
-                    shift_amount = int(
-                        len(augmented) 
-                        * np.random.uniform(-self.config.shift_range, self.config.shift_range)
-                    )
-                    augmented = np.roll(augmented, shift_amount)
-
-                # Apply scale augmentation
-                if self.config.scale_enabled:
-                    scale_factor = np.random.uniform(
-                        1 - self.config.scale_range, 1 + self.config.scale_range
-                    )
-                    augmented *= scale_factor
-
-                X_augmented[idx] = augmented
-                y_augmented[idx] = y_sample
-
-        # Verify augmentation results
-        actual_samples = len(X_augmented)
-        expected_samples = n_samples * (self.config.num_augmentations + 1)
-
-        if actual_samples != expected_samples:
-            logger.warning(
-                f"Mismatch in augmented samples. Expected {expected_samples}, got {actual_samples}"
-            )
-
-        logger.info(
-            f"Augmentation complete. Dataset size increased from {n_samples} "
-            f"to {actual_samples} samples"
+        return DataLoader(
+            augmented_dataset, batch_size=dataloader.batch_size, shuffle=False, # Data is already shuffled
+            num_workers=dataloader.num_workers, pin_memory=dataloader.pin_memory
         )
-
-        # Shuffle the augmented dataset
-        shuffle_idx = np.random.permutation(len(X_augmented))
-        X_augmented = X_augmented[shuffle_idx]
-        y_augmented = y_augmented[shuffle_idx]
-
-        # Create new dataset and dataloader with augmented data
-        augmented_dataset = CustomDataset(X_augmented, y_augmented)
-        augmented_dataloader = DataLoader(
-            augmented_dataset,
-            batch_size=dataloader.batch_size,
-            shuffle=True,
-            num_workers=dataloader.num_workers,
-            pin_memory=dataloader.pin_memory
-        )
-
-        return augmented_dataloader
 
 
 class DataProcessor:
-    """Handles data loading and preprocessing."""
-
-    def __init__(
-        self,
-        dataset_type: Union[str, DatasetType],
-        batch_size: int = 64,
-        train_split: float = 0.8,
-    ):
-        """Initialize data processor.
-
-        Args:
-            dataset_type: Type of dataset to process
-            augmentation_config: Configuration for data augmentation
-            batch_size: Batch size for DataLoader
-            train_split: Proportion of data to use for training
-        """
-        self.dataset_type = (
-            DatasetType.from_string(dataset_type)
-            if isinstance(dataset_type, str)
-            else dataset_type
-        )
+    def __init__(self, dataset_type: DatasetType, batch_size: int = 64): # Removed train_split as it's not used
+        self.dataset_type = dataset_type
         self.batch_size = batch_size
-        self.train_split = train_split
+        self.label_encoder_ = None # To store fitted LabelEncoder if used
 
-    def load_data(self, file_path: Union[str, Path, List[str]]) -> pd.DataFrame:
-        """Load data from file.
+        # --- Configuration for filtering and label encoding ---
+        self._PART_CATEGORIES = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Gonads", "Frames"]
+        self._OIL_CATEGORIES = ["MO 50", "MO 25", "MO 10", "MO 05", "MO 01", "MO 0.1", "MO 0"] # "MO 0" should be specific enough
 
-        Args:
-            file_path: Path to data file. Can be string, Path, or list of path components
+        self._FILTER_RULES = {
+            # Common exclusions from 'm/z' based on substring
+            (DatasetType.SPECIES, DatasetType.PART, DatasetType.OIL): {"exclude_mz": ["HM"]},
+            (DatasetType.SPECIES, DatasetType.PART, DatasetType.CROSS_SPECIES): {"exclude_mz": ["MO"]},
+            # Specific inclusions/exclusions (can be combined)
+            DatasetType.PART: {"include_mz_pattern": "|".join(self._PART_CATEGORIES)},
+            DatasetType.OIL: {"include_mz_pattern": "MO"}, # Ensure 'MO' (oil) samples are kept
+            # Exclusions from the first column (instance name)
+            (DatasetType.INSTANCE_RECOGNITION, DatasetType.INSTANCE_RECOGNITION_HARD): 
+                {"exclude_instance_pattern": f"QC|HM|MO|{'|'.join(self._PART_CATEGORIES)}"},
+            DatasetType.CROSS_SPECIES_HARD: 
+                {"exclude_instance_pattern": f"^H |^M |QC|HM|MO|{'|'.join(self._PART_CATEGORIES)}"},
+        }
+        self._LABEL_ENCODERS_MAP = {
+            DatasetType.SPECIES: lambda x: [0.0, 1.0] if "H" in x else ([1.0, 0.0] if "M" in x else None),
+            DatasetType.PART: self._create_one_hot_encoder(self._PART_CATEGORIES),
+            DatasetType.OIL: self._create_one_hot_encoder(self._OIL_CATEGORIES),
+            DatasetType.OIL_SIMPLE: lambda x: [1.0, 0.0] if "MO" in x else ([0.0, 1.0] if x.strip() else None), # Crude check for non-MO
+            DatasetType.CROSS_SPECIES: lambda x: (
+                [1.0,0.0,0.0] if "HM" in x else 
+                ([0.0,1.0,0.0] if "H" in x else 
+                ([0.0,0.0,1.0] if "M" in x else None))
+            ),
+            DatasetType.INSTANCE_RECOGNITION: 'use_sklearn_label_encoder',
+            DatasetType.INSTANCE_RECOGNITION_HARD: 'use_sklearn_label_encoder',
+            DatasetType.CROSS_SPECIES_HARD: 'use_sklearn_label_encoder',
+        }
+    
+    def _create_one_hot_encoder(self, categories: List[str]) -> Callable[[str], Optional[List[float]]]:
+        cat_to_idx = {cat.lower(): i for i, cat in enumerate(categories)}
+        num_cat = len(categories)
+        def encoder(x_str: str) -> Optional[List[float]]:
+            x_str_lower = x_str.lower()
+            for cat_name_lower, idx in cat_to_idx.items():
+                if cat_name_lower in x_str_lower:
+                    one_hot = [0.0] * num_cat
+                    one_hot[idx] = 1.0
+                    return one_hot
+            return None
+        return encoder
 
-        Returns:
-            Loaded DataFrame
+    def load_data(self, file_path: Union[str, Path]) -> pd.DataFrame:
+        path = Path(file_path)
+        logger.info(f"Loading data from: {path}")
+        if not path.exists():
+            raise FileNotFoundError(f"Data file not found: {path}")
 
-        Raises:
-            FileNotFoundError: If the data file doesn't exist
-            ValueError: If the file format is not supported
-        """
-        try:
-            # Convert path components to Path object
-            if isinstance(file_path, (str, Path)):
-                path = Path(file_path)
-            else:
-                path = Path(os.path.join(*file_path))
+        if path.suffix.lower() == ".xlsx":
+            data = pd.read_excel(path)
+        elif path.suffix.lower() == ".csv":
+            data = pd.read_csv(path)
+        else:
+            raise ValueError(f"Unsupported file format: {path.suffix}")
+        logger.info(f"Loaded data with shape: {data.shape}")
+        return data
 
-            logger.info(f"Loading data from: {path}")
-
-            # Check if file exists
-            if not path.exists():
-                raise FileNotFoundError(f"Data file not found: {path}")
-
-            # Load based on file extension
-            if path.suffix.lower() == ".xlsx":
-                data = pd.read_excel(path)
-            elif path.suffix.lower() == ".csv":
-                data = pd.read_csv(path)
-            else:
-                raise ValueError(f"Unsupported file format: {path.suffix}")
-
-            logger.info(f"Loaded data with shape: {data.shape}")
-            return data
-
-        except Exception as e:
-            logger.error(f"Error loading data: {str(e)}")
-            raise
-
-    def filter_data(
-        self, data: pd.DataFrame, is_pre_train: bool = False
-    ) -> pd.DataFrame:
-        """Filter dataset based on type and training mode.
-
-        Args:
-            data: Input DataFrame
-            is_pre_train: Whether filtering is for pre-training
-
-        Returns:
-            Filtered DataFrame
-        """
+    def filter_data(self, data: pd.DataFrame, is_pre_train: bool = False) -> pd.DataFrame:
         if is_pre_train:
             return data
+        
+        df = data.copy()
+        # Always exclude QC samples from 'm/z' or the first column (more robust)
+        # Assuming 'm/z' is the primary identifier column for these QC tags
+        qc_pattern = "QC"
+        df = df[~df["m/z"].astype(str).str.contains(qc_pattern, case=False, na=False)]
+        # Also check first column if 'm/z' might not be it, or if QC pattern applies elsewhere
+        if data.columns[0] != "m/z":
+             df = df[~df.iloc[:, 0].astype(str).str.contains(qc_pattern, case=False, na=False)]
 
-        # Remove quality control samples
-        filtered = data[~data["m/z"].str.contains("QC")]
 
-        # Dataset-specific filtering
-        if self.dataset_type in [
-            DatasetType.SPECIES,
-            DatasetType.PART,
-            DatasetType.OIL,
-        ]:
-            filtered = filtered[~filtered["m/z"].str.contains("HM")]
-
-        if self.dataset_type in [
-            DatasetType.SPECIES,
-            DatasetType.PART,
-            DatasetType.CROSS_SPECIES,
-        ]:
-            filtered = filtered[~filtered["m/z"].str.contains("MO")]
-
-        if self.dataset_type in [
-            DatasetType.PART,
-        ]:
-            filtered = filtered[
-                filtered['m/z']
-                .str
-                .contains(
-                    "fillet|frames|gonads|livers|skins|guts|frame|heads", 
-                    case=False, 
-                    na=False
-                )
-            ]
-
-        if self.dataset_type in [
-            DatasetType.OIL
-        ]:
-            filtered = filtered[filtered['m/z'].str.contains('MO', na=False)]
-
-        if self.dataset_type in [
-            DatasetType.INSTANCE_RECOGNITION,
-            DatasetType.INSTANCE_RECOGNITION_HARD,
-        ]:
-            filtered = filtered[
-                ~filtered.iloc[:, 0]
-                .astype(str)
-                .str.contains(
-                    "QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads",
-                    case=False,
-                    na=False,
-                )
-            ]
-
-        if self.dataset_type in [
-            DatasetType.CROSS_SPECIES_HARD
-        ]:
-            filtered = filtered[
-                ~filtered.iloc[:, 0]
-                .astype(str)
-                .str.contains(
-                    "^H |^M |QC|MO|fillet|frames|gonads|livers|skins|guts|frame|heads",
-                    case=False,
-                    na=False,
-                )
-            ]
-
-        logger.info(f"Filtered data shape: {filtered.shape}")
-        return filtered
+        for key_tuple, rules in self._FILTER_RULES.items():
+            dataset_types_in_rule = key_tuple if isinstance(key_tuple, tuple) else (key_tuple,)
+            if self.dataset_type in dataset_types_in_rule:
+                if "exclude_mz" in rules:
+                    for pattern in rules["exclude_mz"]:
+                        df = df[~df["m/z"].astype(str).str.contains(pattern, case=False, na=False)]
+                if "include_mz_pattern" in rules:
+                    df = df[df["m/z"].astype(str).str.contains(rules["include_mz_pattern"], case=False, na=False)]
+                if "exclude_instance_pattern" in rules: # Assumes first column is instance identifier
+                    df = df[~df.iloc[:, 0].astype(str).str.contains(rules["exclude_instance_pattern"], case=False, na=False)]
+        
+        logger.info(f"Filtered data shape: {df.shape}")
+        return df
 
     def encode_labels(self, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-        """Encode labels based on dataset type.
+        label_action = self._LABEL_ENCODERS_MAP.get(self.dataset_type)
 
-        Args:
-            data: Input DataFrame
+        if data.empty:
+            logger.warning(f"Cannot encode labels for empty DataFrame (dataset type: {self.dataset_type.name}).")
+            # Infer feature dimension if possible, otherwise a generic empty array
+            num_features = data.shape[1] -1 if data.shape[1] > 1 and "m/z" in data.columns else 0
+            num_features = data.shape[1] if data.shape[1] > 0 and "m/z" not in data.columns and label_action == 'use_sklearn_label_encoder' else num_features
+            return np.empty((0, num_features)), np.empty((0,0))
 
-        Returns:
-            Tuple of (features, labels) as numpy arrays
-        """
-        if self.dataset_type in [
-            DatasetType.INSTANCE_RECOGNITION,
-            DatasetType.INSTANCE_RECOGNITION_HARD,
-            DatasetType.CROSS_SPECIES_HARD,
-        ]:
-            X = data.iloc[:, 1:].to_numpy()
-            y = data.iloc[:, 0].to_numpy()
-            le = LabelEncoder()
-            y = le.fit_transform(y)
-            n_classes = len(np.unique(y))
-            return X, np.eye(n_classes)[y]
 
-        # Convert labels first
-        y_series = data["m/z"].apply(self._get_label_encoder())
+        if label_action == 'use_sklearn_label_encoder':
+            # Assumes labels are in the first column, features are the rest
+            X = data.iloc[:, 1:].to_numpy(dtype=np.float32)
+            y_raw = data.iloc[:, 0].astype(str).to_numpy() # Ensure string type for LabelEncoder
+            
+            self.label_encoder_ = LabelEncoder() # Store for potential inverse transform or class inspection
+            y_indices = self.label_encoder_.fit_transform(y_raw)
+            y = np.eye(len(self.label_encoder_.classes_), dtype=np.float32)[y_indices]
+        elif callable(label_action):
+            # Assumes labels derived from 'm/z', features are other columns
+            if "m/z" not in data.columns:
+                 raise ValueError("Column 'm/z' not found for label encoding when expected.")
+            y_series = data["m/z"].astype(str).apply(label_action)
+            valid_mask = y_series.notna()
+            
+            if not valid_mask.any():
+                logger.warning(f"No valid labels produced by encoder for {self.dataset_type.name} from 'm/z' column.")
+                return data.drop("m/z", axis=1, errors='ignore').to_numpy(dtype=np.float32), np.empty((0,0))
 
-        # Filter out None values
-        valid_mask = y_series.notna()
-        filtered_data = data[valid_mask]
 
-        # Get features and labels
-        X = filtered_data.drop("m/z", axis=1).to_numpy()
-        y = np.array(y_series[valid_mask].tolist())
+            X = data[valid_mask].drop("m/z", axis=1).to_numpy(dtype=np.float32)
+            y = np.array(y_series[valid_mask].tolist(), dtype=np.float32)
+        else:
+            raise ValueError(f"No label encoding action defined for dataset type: {self.dataset_type.name}")
+        
+        if y.ndim == 1: # Ensure labels are at least 2D (N, num_classes)
+            y = y[:, np.newaxis]
 
         return X, y
 
-    def _get_label_encoder(self):
-        """Get appropriate label encoding function based on dataset type."""
-        if self.dataset_type == DatasetType.SPECIES:
-            return lambda x: [0, 1] if "H" in x else [1, 0]
 
-        elif self.dataset_type == DatasetType.PART:
-
-            def encode_part(x):
-                if "Fillet" in x:
-                    return [1, 0, 0, 0, 0, 0, 0]
-                if "Heads" in x:
-                    return [0, 1, 0, 0, 0, 0, 0]
-                if "Livers" in x:
-                    return [0, 0, 1, 0, 0, 0, 0]
-                if "Skins" in x:
-                    return [0, 0, 0, 1, 0, 0, 0]
-                if "Guts" in x:
-                    return [0, 0, 0, 0, 1, 0, 0]
-                if "Gonads" in x:
-                    return [0, 0, 0, 0, 0, 1, 0]
-                if "Frames" in x:
-                    return [0, 0, 0, 0, 0, 0, 1]
-                return None
-
-            return encode_part
-
-        elif self.dataset_type == DatasetType.OIL:
-
-            def encode_oil(x):
-                if "MO 50" in x:
-                    return [1, 0, 0, 0, 0, 0, 0]
-                if "MO 25" in x:
-                    return [0, 1, 0, 0, 0, 0, 0]
-                if "MO 10" in x:
-                    return [0, 0, 1, 0, 0, 0, 0]
-                if "MO 05" in x:
-                    return [0, 0, 0, 1, 0, 0, 0]
-                if "MO 01" in x:
-                    return [0, 0, 0, 0, 1, 0, 0]
-                if "MO 0.1" in x:
-                    return [0, 0, 0, 0, 0, 1, 0]
-                if "MO 0" in x:
-                    return [0, 0, 0, 0, 0, 0, 1]
-                return None
-
-            return encode_oil
-
-        elif self.dataset_type == DatasetType.OIL_SIMPLE:
-            return lambda x: [1, 0] if "MO" in x else [0, 1]
-
-        elif self.dataset_type == DatasetType.CROSS_SPECIES:
-
-            def encode_cross_species(x):
-                if "HM" in x:
-                    return [1, 0, 0]
-                if "H" in x:
-                    return [0, 1, 0]
-                if "M" in x:
-                    return [0, 0, 1]
-                return None
-
-            return encode_cross_species
-
-        else:
-            raise ValueError(f"Unsupported dataset type: {self.dataset_type}")
-
-
-def preprocess_dataset(
-    dataset: str = "species",
-    batch_size: int = 64,
+def preprocess_data_pipeline( # Renamed from preprocess_dataset to avoid conflict with torch.utils.data.Dataset
+    data_processor: DataProcessor,
+    file_path: Union[str, Path],
     is_pre_train: bool = False,
+    augmentation_cfg: Optional[AugmentationConfig] = None
 ) -> Tuple[DataLoader, pd.DataFrame]:
-    """Preprocess dataset for training or pre-training."""
-    # Use provided config or create default
-    processor = DataProcessor(dataset, batch_size)
+    
+    raw_df = data_processor.load_data(file_path)
+    filtered_df = data_processor.filter_data(raw_df, is_pre_train)
 
-    try:
-        # Load and process data
-        logger.info(f"Loading dataset: {dataset}")
-        file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
-        # file_path = "/home/woodj/Desktop/fishy-business/data/REIMS.xlsx"
-        # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS_data.xlsx"
-        data = processor.load_data(file_path)
+    if filtered_df.empty:
+        logger.error(f"Dataframe is empty after filtering for {data_processor.dataset_type.name}. No DataLoader created.")
+        # Return an empty DataLoader and the raw (unfiltered) DataFrame
+        empty_torch_dataset = CustomDataset(np.array([]), np.array([]))
+        return DataLoader(empty_torch_dataset, batch_size=data_processor.batch_size), raw_df
 
-        # Filter data based on pre-training flag
-        filtered_data = processor.filter_data(data, is_pre_train)
-        logger.info(f"Dataset shape after filtering: {filtered_data.shape}")
+    X, y = data_processor.encode_labels(filtered_df)
 
-        # Encode labels and prepare features
-        X, y = processor.encode_labels(filtered_data)
-        logger.info(f"Features shape: {X.shape}, Labels shape: {y.shape}")
+    if X.size == 0: # Could happen if all labels were None or invalid
+        logger.error(f"No features remain after label encoding for {data_processor.dataset_type.name}. No DataLoader created.")
+        empty_torch_dataset = CustomDataset(np.array([]), np.array([])) # X and y must be np.ndarray
+        return DataLoader(empty_torch_dataset, batch_size=data_processor.batch_size), raw_df
 
-        original_size = len(X)
 
-        # Create dataset instance
-        dataset_class = (
-            SiameseDataset if dataset == "instance-recognition" else CustomDataset
-        )
-        train_dataset = dataset_class(X, y)
+    # Determine dataset class (e.g. Siamese for instance recognition)
+    dataset_name_str = data_processor.dataset_type.name.lower().replace("_", "-")
+    dataset_class = SiameseDataset if "instance-recognition" in dataset_name_str else CustomDataset
+    
+    torch_dataset = dataset_class(X, y)
+    
+    data_loader = DataLoader(
+        torch_dataset, batch_size=data_processor.batch_size, shuffle=True,
+        num_workers=0, pin_memory=True # num_workers=0 for simplicity, can be configured
+    )
 
-        if isinstance(train_dataset, SiameseDataset):
-            logger.info(
-                f"Dataset size increased from {original_size} to {len(train_dataset.samples)} samples"
-            )
+    if augmentation_cfg and augmentation_cfg.enabled:
+        augmenter = DataAugmenter(augmentation_cfg)
+        data_loader = augmenter.augment(data_loader) # Returns a new DataLoader
 
-        # Create DataLoader
-        train_loader = DataLoader(
-            train_dataset,
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=0,
-            pin_memory=True,
-        )
+    return data_loader, raw_df
 
-        return train_loader, data
-
-    except Exception as e:
-        logger.error(f"Error during preprocessing: {str(e)}")
-        raise
 
 class DataModule:
     """High-level interface for data management."""
-
     def __init__(
         self,
-        dataset_name: str,
+        dataset_name: str,        # String name, e.g., "species"
+        file_path: Union[str, Path],
         batch_size: int = 64,
         is_pre_train: bool = False,
+        augmentation_config: Optional[AugmentationConfig] = None,
     ):
-        self.dataset_name = dataset_name
+        self.dataset_name_str = dataset_name # Store original string for convenience (e.g. get_num_classes)
+        self.file_path = file_path
         self.batch_size = batch_size
         self.is_pre_train = is_pre_train
-        self.processor = DataProcessor(dataset_name, batch_size)
+        self.augmentation_config = augmentation_config
+        
+        dataset_type_enum = DatasetType.from_string(dataset_name)
+        self.processor = DataProcessor(dataset_type_enum, batch_size)
+        self.train_loader: Optional[DataLoader] = None
+        self.raw_data: Optional[pd.DataFrame] = None
 
-    def setup(self) -> Tuple[DataLoader, pd.DataFrame]:
-        """Set up data processing pipeline."""
-        return preprocess_dataset(
-            dataset=self.dataset_name,
-            batch_size=self.batch_size,
+
+    def setup(self) -> None: # Changed to not return, but set attributes
+        """Loads and preprocesses data, setting up DataLoaders."""
+        self.train_loader, self.raw_data = preprocess_data_pipeline(
+            data_processor=self.processor,
+            file_path=self.file_path,
             is_pre_train=self.is_pre_train,
+            augmentation_cfg=self.augmentation_config,
         )
 
+    def get_train_dataloader(self) -> DataLoader:
+        if self.train_loader is None:
+            logger.warning("Train DataLoader not set up. Call setup() first.")
+            # Return an empty loader to prevent None errors downstream
+            empty_dataset = CustomDataset(np.array([]), np.array([]))
+            return DataLoader(empty_dataset, batch_size=self.batch_size)
+        return self.train_loader
+
     @staticmethod
-    def get_num_classes(dataset_name: str) -> int:
-        """Get number of classes for a dataset.
-
-        Args:
-            dataset_name: Name of dataset
-
-        Returns:
-            Number of classes in dataset
+    def get_num_output_features(dataset_name_str: str, data_processor: Optional[DataProcessor] = None) -> int:
         """
-        class_counts = {
-            "species": 2,
-            "part": 7,
-            "oil": 7,
-            "oil_simple": 2,
-            "cross-species": 3,
-            "instance-recognition": 2,
-            "instance-recognition-hard": 24,
+        Get number of output features (classes) for a dataset.
+        For 'use_sklearn_label_encoder' types, it's dynamic if a processor is available.
+        """
+        dt = DatasetType.from_string(dataset_name_str)
+        # This static map defines the *expected* output dimension for models.
+        # It might not always match the number of unique raw labels for 'use_sklearn_label_encoder'
+        # if the model is fixed for a certain number of classes (e.g. Siamese binary output).
+        static_class_counts = {
+            DatasetType.SPECIES: 2,
+            DatasetType.PART: 7,
+            DatasetType.OIL: 7,
+            DatasetType.OIL_SIMPLE: 2,
+            DatasetType.CROSS_SPECIES: 3,
+            DatasetType.INSTANCE_RECOGNITION: 1, # Binary output (0 or 1) for Siamese pairs (usually for BCEWithLogitsLoss)
+                                                 # The original Siamese created (N,1) labels
         }
-        if dataset_name not in class_counts:
-            raise ValueError(f"Unknown dataset: {dataset_name}")
-        return class_counts[dataset_name]
+        if dt in static_class_counts:
+            return static_class_counts[dt]
+        
+        # For types that use sklearn.preprocessing.LabelEncoder
+        if data_processor and data_processor.label_encoder_ and \
+           dt in {DatasetType.INSTANCE_RECOGNITION_HARD, DatasetType.CROSS_SPECIES_HARD}:
+            return len(data_processor.label_encoder_.classes_)
+        
+        # Fallback/default for unmapped or dynamic types where processor isn't available/fitted
+        # These were hardcoded to 24 in the original, which is risky if data changes.
+        # It's better to raise an error or have a clear policy.
+        if dt == DatasetType.INSTANCE_RECOGNITION_HARD:
+             logger.warning(f"Num classes for {dt.name} is dynamic. Using fallback 24. Fit DataProcessor or provide static map.")
+             return 24 
+        if dt == DatasetType.CROSS_SPECIES_HARD:
+             logger.warning(f"Num classes for {dt.name} is dynamic. Using fallback 24. Fit DataProcessor or provide static map.")
+             return 24
+
+        raise ValueError(f"Number of output features for dataset '{dataset_name_str}' is not defined or determinable.")
 
 
 def create_data_module(
     dataset_name: str,
+    file_path: Union[str, Path],
     batch_size: int = 64,
     is_pre_train: bool = False,
-    **augmentation_kwargs,
+    augmentation_enabled: bool = False,
+    **kwargs_for_augmentation, # Catch all other kwargs
 ) -> DataModule:
-    """Factory function to create DataModule with configuration.
-
-    Args:
-        dataset_name: Name of dataset to process
-        batch_size: Batch size for DataLoader
-        augmentation_enabled: Whether to enable data augmentation
-        is_pre_train: Whether this is for pre-training
-        **augmentation_kwargs: Additional augmentation parameters
-
-    Returns:
-        Configured DataModule instance
-    """
-
-
+    aug_config = None
+    if augmentation_enabled:
+        # Filter kwargs to only those valid for AugmentationConfig
+        valid_aug_keys = {f.name for f in dataclass_fields(AugmentationConfig)}
+        actual_aug_kwargs = {k: v for k, v in kwargs_for_augmentation.items() if k in valid_aug_keys}
+        aug_config = AugmentationConfig(enabled=True, **actual_aug_kwargs)
+    
     return DataModule(
         dataset_name=dataset_name,
+        file_path=file_path,
         batch_size=batch_size,
         is_pre_train=is_pre_train,
+        augmentation_config=aug_config,
     )
 
 # Usage example:
 if __name__ == "__main__":
-    # Configure logging
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    # Example usage with DataModule
+    # Define file path (ensure this path is correct for your system)
+    # data_file = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx" # Example server path
+    data_file = Path("./REIMS.xlsx") # Local example - create a dummy if needed for testing
+    if not data_file.exists():
+        logger.warning(f"Data file {data_file} not found. Creating a dummy CSV for demonstration.")
+        # Create a dummy CSV file for testing purposes
+        dummy_data = {
+            'm/z': [f'Sample{i} H' if i % 2 == 0 else f'Sample{i} M PartFillet' for i in range(20)],
+            **{f'feature_{j}': np.random.rand(20) for j in range(10)}
+        }
+        pd.DataFrame(dummy_data).to_csv(data_file, index=False)
+
+
     data_module = create_data_module(
-        dataset_name="part",
-        batch_size=64,
+        dataset_name="part", # Try "species", "part", "instance-recognition"
+        file_path=data_file, # Pass the actual file path
+        batch_size=4,      # Smaller batch for testing
         augmentation_enabled=True,
-        num_augmentations=3,
-        noise_level=0.05,
+        num_augmentations=1, # Fewer augmentations for faster testing
+        noise_level=0.02,
+        shift_enabled=True, # Test shift
+        scale_enabled=True  # Test scale
     )
 
-    # Get data loader and original data
-    train_loader, raw_data = data_module.setup()
+    data_module.setup() # Load and process data
+    
+    train_loader = data_module.get_train_dataloader()
 
-    # Print dataset information
-    logger.info(f"Dataset loaded with {len(train_loader.dataset)} samples")
-    logger.info(f"Number of classes: {data_module.get_num_classes('species')}")
+    if train_loader and len(train_loader.dataset) > 0:
+        logger.info(f"Dataset '{data_module.dataset_name_str}' loaded with {len(train_loader.dataset)} samples in DataLoader.")
+        
+        # Inspect a batch
+        try:
+            samples, labels = next(iter(train_loader))
+            logger.info(f"  Sample batch - Samples shape: {samples.shape}, Labels shape: {labels.shape}")
+            logger.info(f"  Sample Pytorch tensor dtype: {samples.dtype}")
+            logger.info(f"  Labels Pytorch tensor dtype: {labels.dtype}")
+
+        except StopIteration:
+            logger.warning("DataLoader is empty, cannot fetch a batch.")
+        
+        num_classes = DataModule.get_num_output_features(data_module.dataset_name_str, data_module.processor)
+        logger.info(f"Number of output features for '{data_module.dataset_name_str}': {num_classes}")
+
+    else:
+        logger.error(f"Failed to load data for {data_module.dataset_name_str}. DataLoader is empty.")
+
+    # Example for instance-recognition
+    logger.info("\n --- Testing instance-recognition ---")
+    data_module_siamese = create_data_module(
+        dataset_name="instance-recognition",
+        file_path=data_file, 
+        batch_size=4
+    )
+    data_module_siamese.setup()
+    siamese_loader = data_module_siamese.get_train_dataloader()
+    if siamese_loader and len(siamese_loader.dataset) > 0:
+        logger.info(f"Dataset 'instance-recognition' loaded with {len(siamese_loader.dataset)} PAIRS in DataLoader.")
+        samples, labels = next(iter(siamese_loader))
+        logger.info(f"  Sample batch - Paired Samples shape: {samples.shape}, Pair Labels shape: {labels.shape}")
+        num_classes = DataModule.get_num_output_features(data_module_siamese.dataset_name_str, data_module_siamese.processor)
+        logger.info(f"Number of output features for 'instance-recognition': {num_classes}") # Should be 1 for BCE
+    else:
+        logger.error(f"Failed to load data for instance-recognition. DataLoader is empty.")

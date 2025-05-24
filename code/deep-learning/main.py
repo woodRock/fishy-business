@@ -2,25 +2,27 @@ import argparse
 import logging
 import time
 import traceback
-from dataclasses import dataclass
+from dataclasses import dataclass, fields as dataclass_fields # For TrainingConfig.from_args (optional conciseness)
 from pathlib import Path
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, Optional, Tuple, List, Any, Callable
 
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from sklearn.metrics import (
-    balanced_accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score
-)
-from collections import defaultdict
-from torch.utils.data import DataLoader, Subset, random_split
-from sklearn.model_selection import StratifiedKFold
+# from sklearn.metrics import ( # These are used in train.py, ensure not needed here directly if already there
+#     balanced_accuracy_score,
+#     precision_score,
+#     recall_score,
+#     f1_score
+# )
+# from collections import defaultdict # Not directly used in this snippet
+# from torch.utils.data import DataLoader, Subset, random_split # Subset/random_split not directly used
+# from sklearn.model_selection import StratifiedKFold # Used in train.py
+
 import numpy as np
 
-from plot import plot_attention_map
+# Assuming these imports point to your project's modules
+from plot import plot_attention_map # If used
 from pre_training import PreTrainer, PreTrainingConfig
 from lstm import LSTM
 from transformer import Transformer
@@ -29,48 +31,44 @@ from rcnn import RCNN
 from mamba import Mamba
 from kan import KAN
 from vae import VAE
-from MOE import MOE
-from dense import Dense
-from ode import ODE
-from rwkv import RWKV
-from tcn import TCN
-from wavenet import WaveNet
-from ensemble import Ensemble
-from diffusion import Diffusion
+from MOE import MOE # Assuming MOE.py
+from dense import Dense # Assuming dense.py
+from ode import ODE # Assuming ode.py
+from rwkv import RWKV # Assuming rwkv.py
+from tcn import TCN # Assuming tcn.py
+from wavenet import WaveNet # Assuming wavenet.py
+from ensemble import Ensemble # Assuming ensemble.py
+from diffusion import Diffusion # Assuming diffusion.py
 
-from train import train_model
-from util import preprocess_dataset, create_data_module, AugmentationConfig
+from train import train_model # Your refactored train_model script
+from util import preprocess_data_pipeline, create_data_module, AugmentationConfig
+
 
 @dataclass
 class TrainingConfig:
     """Configuration for model training."""
-
-    # File and dataset settings
     file_path: str = "transformer_checkpoint.pth"
     model_type: str = "transformer"
     dataset: str = "species"
     run: int = 0
     output: str = "logs/results"
-
-    # Preprocessing flags
     data_augmentation: bool = False
     masked_spectra_modelling: bool = False
     next_spectra_prediction: bool = False
-
-    # Regularization settings
+    next_peak_prediction: bool = False
+    spectrum_denoising_autoencoding: bool = False # Typo: autoencoding
+    peak_parameter_regression: bool = False
+    spectrum_segment_reordering: bool = False
+    contrastive_transformation_invariance_learning: bool = False
     early_stopping: int = 10
     dropout: float = 0.2
     label_smoothing: float = 0.1
-
-    # Training hyperparameters
     epochs: int = 100
     learning_rate: float = 1e-5
     batch_size: int = 64
     hidden_dimension: int = 128
     num_layers: int = 4
     num_heads: int = 4
-
-    # Data augmentation settings
     num_augmentations: int = 5
     noise_level: float = 0.1
     shift_enabled: bool = False
@@ -79,654 +77,415 @@ class TrainingConfig:
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "TrainingConfig":
         """Create configuration from command line arguments."""
+        # Current explicit mapping is clear and robust to naming differences.
+        # For extreme conciseness if field names match argparse dest:
+        # return cls(**{f.name: getattr(args, f.name) for f in dataclass_fields(cls) if hasattr(args, f.name)})
         return cls(
-            file_path=args.file_path,
-            dataset=args.dataset,
-            model_type=args.model,
-            run=args.run,
-            output=args.output,
-            data_augmentation=args.data_augmentation,
+            file_path=args.file_path, dataset=args.dataset, model_type=args.model,
+            run=args.run, output=args.output, data_augmentation=args.data_augmentation,
+            num_augmentations=args.num_augmentations, noise_level=args.noise_level,
+            shift_enabled=args.shift_enabled, scale_enabled=args.scale_enabled,
             masked_spectra_modelling=args.masked_spectra_modelling,
             next_spectra_prediction=args.next_spectra_prediction,
-            early_stopping=args.early_stopping,
-            dropout=args.dropout,
-            label_smoothing=args.label_smoothing,
-            epochs=args.epochs,
-            learning_rate=args.learning_rate,
-            batch_size=args.batch_size,
-            hidden_dimension=args.hidden_dimension,
-            num_layers=args.num_layers,
+            next_peak_prediction=args.next_peak_prediction,
+            spectrum_denoising_autoencoding=args.spectrum_denoising_autoencoding,
+            peak_parameter_regression=args.peak_parameter_regression,
+            spectrum_segment_reordering=args.spectrum_segment_reordering,
+            contrastive_transformation_invariance_learning=args.contrastive_transformation_invariance_learning,
+            early_stopping=args.early_stopping, dropout=args.dropout,
+            label_smoothing=args.label_smoothing, epochs=args.epochs,
+            learning_rate=args.learning_rate, batch_size=args.batch_size,
+            hidden_dimension=args.hidden_dimension, num_layers=args.num_layers,
             num_heads=args.num_heads,
-            num_augmentations=args.num_augmentations,
-            noise_level=args.noise_level,
-            shift_enabled=args.shift_enabled,
-            scale_enabled=args.scale_enabled,
         )
 
-
 class ModelTrainer:
-    """Handles the complete training pipeline including pre-training and fine-tuning."""
-
     N_CLASSES_PER_DATASET = {
-        "species": 2,
-        "part": 7,
-        "oil": 7,
-        "cross-species": 3,
-        "cross-species-hard": 15,
-        "instance-recognition": 2,
+        "species": 2, "part": 7, "oil": 7, "cross-species": 3,
+        "cross-species-hard": 15, "instance-recognition": 2,
         "instance-recognition-hard": 24,
     }
+    # (config_flag_name, output_dim_calculator_fn, pre_trainer_method_name, requires_val_loader, additional_method_kwargs)
+    PRETRAIN_TASK_DEFINITIONS: List[Tuple[str, Callable[["ModelTrainer"], int], str, bool, Dict[str, Any]]] = [
+        ("masked_spectra_modelling", lambda self: self.n_features, "pre_train_masked_spectra", False, {}),
+        ("next_spectra_prediction", lambda self: 2, "pre_train_next_spectra", True, {}),
+        ("next_peak_prediction", lambda self: self.n_features, "pre_train_peak_prediction", False, {"peak_threshold": 0.1, "window_size": 5}),
+        ("spectrum_denoising_autoencoding", lambda self: self.n_features, "pre_train_denoising_autoencoder", False, {}), # Typo: autoencoding
+        ("peak_parameter_regression", lambda self: self.n_features, "pre_train_peak_parameter_regression", False, {}),
+        ("spectrum_segment_reordering", lambda self: 4*4, "pre_train_spectrum_segment_reordering", False, {"num_segments": 4}),
+        ("contrastive_transformation_invariance_learning", lambda self: 128, "pre_train_contrastive_invariance", False, {"embedding_dim": 128}),
+    ]
 
     def __init__(self, config: TrainingConfig):
-        """Initialize trainer with configuration."""
         self.config = config
         self.logger = self._setup_logging()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_type = config.model_type
+        self.data_module = None # Will be set before pre_train or train
 
         if config.dataset not in self.N_CLASSES_PER_DATASET:
             raise ValueError(f"Invalid dataset: {config.dataset}")
-
         self.n_classes = self.N_CLASSES_PER_DATASET[config.dataset]
-        self.n_features = 2080 # Could be made configurable if needed
+        self.n_features = 2080
 
     def _setup_logging(self) -> logging.Logger:
-        """Setup logging configuration."""
-        logger = logging.getLogger(__name__)
-        output = f"{self.config.output}_{self.config.run}.log"
+        log_file = Path(self.config.output).parent / f"{Path(self.config.output).name}_{self.config.run}.log"
+        log_file.parent.mkdir(parents=True, exist_ok=True)
         logging.basicConfig(
-            filename=output,
-            level=logging.INFO,
-            filemode="w",
-            format="%(asctime)s - %(levelname)s - %(message)s",
+            filename=log_file, level=logging.INFO, filemode="w",
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         )
+        # Add console handler to see logs in terminal as well
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+        logger = logging.getLogger(__name__)
+        if not logger.handlers: # Avoid adding handlers multiple times if already configured
+            logger.addHandler(console_handler)
+            # If basicConfig added a FileHandler, it might be duplicated if not careful.
+            # For simplicity, assuming basicConfig is the primary file logger config.
+        logger.propagate = False # Prevent root logger from handling these messages again
         return logger
 
-    def pre_train(self) -> Optional[Transformer]:
-        """Run pre-training if configured."""
-        if not (
-            self.config.masked_spectra_modelling or self.config.next_spectra_prediction
-        ):
+    def _handle_weight_chaining(self, current_model: nn.Module, prev_model: Optional[nn.Module]):
+        if not prev_model:
+            return
+        self.logger.info(f"Attempting to load weights from previous pre-trained model for {self.model_type}")
+        try:
+            prev_state_dict = prev_model.state_dict()
+            current_model_dict = current_model.state_dict()
+            
+            # Filter keys: only load if key exists in current model and shape matches
+            # More sophisticated filtering for final layers might be needed if output_dim changes drastically
+            load_state_dict = {
+                k: v for k, v in prev_state_dict.items()
+                if k in current_model_dict and v.shape == current_model_dict[k].shape
+            }
+            missing_keys, unexpected_keys = current_model.load_state_dict(load_state_dict, strict=False)
+            if missing_keys: self.logger.warning(f"Chaining: Missing keys: {missing_keys}")
+            if unexpected_keys: self.logger.warning(f"Chaining: Unexpected keys: {unexpected_keys}")
+            self.logger.info("Weight chaining: successfully loaded compatible weights.")
+        except Exception as e:
+            self.logger.warning(f"Weight chaining: Could not load weights: {e}. Model will train from scratch or partially loaded state.")
+
+    def _execute_pretrain_task(self, task_name: str, model_to_chain_from: Optional[nn.Module],
+                               train_loader: DataLoader, pre_train_cfg: PreTrainingConfig,
+                               output_dim: int, pre_trainer_method: str,
+                               requires_val: bool, method_kwargs: Dict[str, Any]) -> Optional[nn.Module]:
+        self.logger.info(f"Starting pre-training task: {task_name}")
+        current_model = self._create_model(input_dim=self.n_features, output_dim=output_dim).to(self.device)
+        self._handle_weight_chaining(current_model, model_to_chain_from)
+
+        pre_trainer = PreTrainer(
+            model=current_model, config=pre_train_cfg,
+            optimizer=torch.optim.AdamW(current_model.parameters(), lr=self.config.learning_rate)
+        )
+        
+        call_args = [train_loader]
+        if requires_val:
+            # Assuming data_module (set to pretrain_data_module) can provide a val_loader
+            # This part might need adjustment based on your DataModule's API
+            _, val_loader = self.data_module.setup() # Or a more specific val_loader method
+            if val_loader is None and hasattr(self.data_module, 'setup_val'): # Hypothetical
+                 _, val_loader = self.data_module.setup_val()
+
+            if val_loader is None: self.logger.warning(f"Validation loader for {task_name} not found, passing None.")
+            call_args.append(val_loader)
+        
+        start_time = time.time()
+        trained_model = getattr(pre_trainer, pre_trainer_method)(*call_args, **method_kwargs)
+        self.logger.info(f"{task_name} training time: {time.time() - start_time:.2f}s")
+        return trained_model
+
+    def pre_train(self) -> Optional[nn.Module]:
+        self.logger.info("Evaluating pre-training phase")
+        enabled_task_flags = [task_def[0] for task_def in self.PRETRAIN_TASK_DEFINITIONS if getattr(self.config, task_def[0], False)]
+        if not enabled_task_flags:
+            self.logger.info("No pre-training tasks enabled.")
             return None
 
-        self.logger.info("Starting pre-training phase")
+        self.logger.info(f"Enabled pre-training tasks: {', '.join(enabled_task_flags)}")
+        if self.data_module is None: # Should be set by caller
+            self.logger.error("Pre-training DataModule not set in ModelTrainer.")
+            return None
+        train_loader, _ = self.data_module.setup()
 
-        # Load pre-training data
-        train_loader, data = self.data_module.setup()
-
-        # Initialize model for pre-training
-        model = self._create_model(
-            input_dim=self.n_features, output_dim=self.n_features
+        pre_train_cfg = PreTrainingConfig(
+            num_epochs=self.config.epochs, file_path=self.config.file_path,
+            device=self.device, n_features=self.n_features
         )
-        model = model.to(self.device)
-
-        # Setup pre-training configuration
-        pre_training_config = PreTrainingConfig(
-            num_epochs=self.config.epochs,
-            file_path=self.config.file_path,
-            device=self.device,
-        )
-
-        # Initialize pre-trainer
-        pre_trainer = PreTrainer(
-            model=model,
-            config=pre_training_config,
-            criterion=nn.MSELoss(),
-            optimizer=torch.optim.AdamW(
-                model.parameters(), lr=self.config.learning_rate
-            ),
-        )
-
-        # Masked Spectra Modelling
-        if self.config.masked_spectra_modelling:
-            # self.logger.info("Starting Masked Spectra Modelling")
-            # start_time = time.time()
-            # model = pre_trainer.pre_train_masked_spectra(train_loader)
-            # self.logger.info(f"MSM training time: {time.time() - start_time:.2f}s")
-
-            self.logger.info("Starting Peak Prediction")
-            model = pre_trainer.pre_train_peak_prediction(
-                train_loader,
-                peak_threshold=0.1,  # Adjust based on your data
-                window_size=5        # Adjust based on peak width
-            )
-
-        # Next Spectra Prediction
-        if self.config.next_spectra_prediction:
-            self.logger.info("Starting Next Spectra Prediction")
-            start_time = time.time()
-            # Reinitialize model for NSP if needed
-            if self.config.masked_spectra_modelling:
-                model = self._create_model(
-                    input_dim=self.n_features, output_dim=self.n_features
+        model_after_last_task: Optional[nn.Module] = None
+        for flag, out_dim_fn, method, req_val, kwargs in self.PRETRAIN_TASK_DEFINITIONS:
+            if getattr(self.config, flag, False):
+                output_dim = out_dim_fn(self)
+                model_after_last_task = self._execute_pretrain_task(
+                    flag, model_after_last_task, train_loader, pre_train_cfg,
+                    output_dim, method, req_val, kwargs
                 )
-                pre_trainer = PreTrainer(
-                    model=model,
-                    config=pre_training_config,
-                    criterion=nn.CrossEntropyLoss(
-                        label_smoothing=self.config.label_smoothing
-                    ),
-                    optimizer=torch.optim.AdamW(
-                        model.parameters(), lr=self.config.learning_rate
-                    ),
-                )
+        self.logger.info(f"Pre-training completed. Final model from task: {'Yes' if model_after_last_task else 'No'}")
+        return model_after_last_task
 
-            val_loader, _ = preprocess_dataset(
-                self.config.dataset,
-                self.config.data_augmentation,
-                batch_size=self.config.batch_size,
-                is_pre_train=True,
-            )
-            model = pre_trainer.pre_train_next_spectra(train_loader, val_loader)
-            self.logger.info(f"NSP training time: {time.time() - start_time:.2f}s")
-
-        return model
-
-    def _calculate_metrics(self, true_labels, predictions) -> Dict[str, float]:
-        """Calculate metrics with proper multi-class handling."""
-        # Ensure inputs are numpy arrays
-        true_labels = np.asarray(true_labels)
-        predictions = np.asarray(predictions)
-
-        if len(true_labels) != len(predictions):
-            raise ValueError(f"Inconsistent number of samples: true_labels={len(true_labels)}, predictions={len(predictions)}")
-
-        # Calculate metrics with proper multi-class handling
-        accuracy = balanced_accuracy_score(true_labels, predictions)
-        precision = precision_score(true_labels, predictions, average='macro', zero_division=0)
-        recall = recall_score(true_labels, predictions, average='macro', zero_division=0)
-        f1 = f1_score(true_labels, predictions, average='macro', zero_division=0)
-
-        # Add per-class metrics for debugging
-        class_precisions = precision_score(true_labels, predictions, average=None, zero_division=0)
-        class_recalls = recall_score(true_labels, predictions, average=None, zero_division=0)
-        class_f1s = f1_score(true_labels, predictions, average=None, zero_division=0)
-
-        # Calculate class distribution
-        class_dist = np.bincount(true_labels, minlength=self.n_classes)
-        pred_dist = np.bincount(predictions, minlength=self.n_classes)
-
-        print("\nPer-class metrics:")
-        for i in range(self.n_classes):
-            print(f"Class {i}:")
-            print(f"  True count: {class_dist[i]}, Predicted count: {pred_dist[i]}")
-            print(f"  Precision: {class_precisions[i]:.4f}")
-            print(f"  Recall: {class_recalls[i]:.4f}")
-            print(f"  F1: {class_f1s[i]:.4f}")
-
-        return {
-            'accuracy': accuracy,
-            'precision': precision,
-            'recall': recall,
-            'f1': f1
+    def _calculate_metrics(self, true_labels: np.ndarray, predictions: np.ndarray) -> Dict[str, float]:
+        metrics = {
+            'accuracy': balanced_accuracy_score(true_labels, predictions),
+            'precision': precision_score(true_labels, predictions, average='macro', zero_division=0),
+            'recall': recall_score(true_labels, predictions, average='macro', zero_division=0),
+            'f1': f1_score(true_labels, predictions, average='macro', zero_division=0)
         }
+        self.logger.debug("Per-class metrics:")
+        for i in range(self.n_classes):
+            class_mask = true_labels == i
+            if np.sum(class_mask) == 0: continue # Skip if class not in true_labels for this batch
+            class_preds = predictions[class_mask]
+            # Log individual class scores if needed, for brevity, macro scores are primary
+            # self.logger.debug(f"Class {i}: True={np.sum(class_mask)}, Pred={np.sum(predictions==i)}")
+        return metrics
 
-    def _evaluate_fold(
-        self, model: nn.Module, val_loader: DataLoader
-    ) -> Tuple[Dict[str, float], Dict[str, float], Dict[str, float]]:
-        """Evaluate a single fold with and without test-time compute."""
-        outputs_standard = []
-        outputs_ttc = []
-        outputs_gp = []
-        outputs_mc = []
-        labels = []
-
+    def _evaluate_fold(self, model: nn.Module, val_loader: DataLoader) -> Dict[str, float]:
+        model.eval()
+        all_outputs, all_true_labels = [], []
         with torch.no_grad():
-            for x, y in val_loader:
-                x, y = x.to(self.device), y.to(self.device)
+            for x, y_labels in val_loader: # Assuming y_labels are class indices or one-hot
+                x = x.to(self.device)
+                all_outputs.append(model(x))
+                all_true_labels.append(y_labels) # Keep on CPU for now, or move to device if y was used there
 
-                # Standard forward pass
-                out_std = model(x)
-                outputs_standard.append(out_std)
-                labels.append(y)  # Only append labels once
+        outputs_tensor = torch.cat(all_outputs, dim=0)
+        labels_tensor = torch.cat(all_true_labels, dim=0) # Assuming labels are batch-consistent
 
-                outputs_ttc.append(out_std)  # Use standard output
-                outputs_gp.append(out_std)   # Use standard output
+        # Convert labels to class indices if they are one-hot
+        if labels_tensor.dim() > 1 and labels_tensor.shape[-1] > 1:
+            true_labels_np = labels_tensor.argmax(dim=-1).cpu().numpy()
+        else: # Assume already class indices
+            true_labels_np = labels_tensor.cpu().numpy()
+        
+        pred_np = outputs_tensor.argmax(dim=-1).cpu().numpy()
+        
+        # Confidence stats
+        probs = torch.softmax(outputs_tensor, dim=-1).max(dim=-1)[0]
+        self.logger.info(f"Val Confidence - Mean: {probs.mean():.3f}, Std: {probs.std():.3f}")
+        
+        return self._calculate_metrics(true_labels_np, pred_np)
 
-        # Concatenate all outputs and labels
-        outputs_standard = torch.cat(outputs_standard, dim=0)
-        outputs_ttc = torch.cat(outputs_ttc, dim=0)
-        outputs_gp = torch.cat(outputs_gp, dim=0)
-        outputs_mc = torch.cat(outputs_mc, dim=0)
-        labels = torch.cat(labels, dim=0)
+    def _get_n_splits_for_finetune(self) -> int:
+        if self.config.dataset == "instance-recognition": return 1
+        if self.config.dataset == "part": return 3
+        return 5 # Default for others like "species", "oil"
 
-        # Debug: Print unique predictions for each method
-        print("\nUnique predictions per method:")
-        print(f"Standard: {np.unique(outputs_standard.argmax(dim=-1).cpu().numpy())}")
-        print(f"Beam Search: {np.unique(outputs_ttc.argmax(dim=-1).cpu().numpy())}")
-        print(f"Genetic: {np.unique(outputs_gp.argmax(dim=-1).cpu().numpy())}")
-        print(f"Monte Carlo: {np.unique(outputs_mc.argmax(dim=-1).cpu().numpy())}")
+    def train(self, pre_trained_model: Optional[nn.Module] = None) -> nn.Module:
+        self.logger.info("Starting main fine-tuning phase")
+        if self.data_module is None: # Should be set by caller
+            self.logger.error("Fine-tuning DataModule not set in ModelTrainer.")
+            return self._create_model(self.n_features, self.n_classes) # Return a fresh model
+            
+        self.data_module.setup() # Load and process data
+    
+        train_loader = self.data_module.get_train_dataloader()
 
-        # Debug: Print confidence distributions
-        print("\nConfidence statistics:")
-        for name, outputs in [('Standard', outputs_standard), ('Beam', outputs_ttc), ('Genetic', outputs_gp)]:
-            probs = torch.softmax(outputs, dim=-1)
-            max_probs = probs.max(dim=-1)[0]
-            print(f"{name} - Mean: {max_probs.mean():.3f}, Std: {max_probs.std():.3f}, "
-                f"Min: {max_probs.min():.3f}, Max: {max_probs.max():.3f}")
+        model_to_finetune = self._create_model(self.n_features, self.n_classes).to(self.device)
+        
+        if pre_trained_model:
+            self.logger.info("Transferring pre-trained weights for fine-tuning")
+            # Adapt final layer of pre_trained_model's state_dict before loading
+            # This logic is highly dependent on your model's output layer name (e.g., "fc_out", "fc")
+            # And assumes pre_trained_model is on CPU or its state_dict is moved to CPU.
+            checkpoint = pre_trained_model.state_dict() 
+            final_layer_name = "fc_out" # Change if your model uses a different name
+            
+            if f"{final_layer_name}.weight" in checkpoint and checkpoint[f"{final_layer_name}.weight"].shape[0] != self.n_classes:
+                self.logger.info(f"Adapting final layer '{final_layer_name}' from pre-trained model for {self.n_classes} classes.")
+                # Simple truncation/padding or re-initialization might be needed.
+                # This is a placeholder for robust adaptation.
+                # For example, if Transformer always has fc_out:
+                # model_to_finetune.fc_out = nn.Linear(model_to_finetune.fc_out.in_features, self.n_classes).to(self.device)
+                # Then load state_dict with strict=False, or adapt checkpoint dict carefully.
+                
+                # A common approach: load all but the final layer, then re-init final layer of model_to_finetune
+                fc_weight_key = f"{final_layer_name}.weight"
+                fc_bias_key = f"{final_layer_name}.bias"
+                if fc_weight_key in checkpoint: del checkpoint[fc_weight_key]
+                if fc_bias_key in checkpoint: del checkpoint[fc_bias_key]
+                model_to_finetune.load_state_dict(checkpoint, strict=False)
+                self.logger.info(f"Loaded backbone weights. Final layer '{final_layer_name}' will be trained from scratch.")
 
-        # Convert to numpy for metric calculation
-        pred_std = outputs_standard.argmax(dim=-1).cpu().numpy()
-        pred_ttc = outputs_ttc.argmax(dim=-1).cpu().numpy()
-        pred_gp = outputs_gp.argmax(dim=-1).cpu().numpy()
-        pred_mc = outputs_mc.argmax(dim=-1).cpu().numpy()
-        true_labels = labels.argmax(dim=-1).cpu().numpy()
-
-        # Calculate metrics
-        metrics_std = self._calculate_metrics(true_labels, pred_std)
-        metrics_ttc = self._calculate_metrics(true_labels, pred_ttc)
-        metrics_gp = self._calculate_metrics(true_labels, pred_gp)
-        metrics_mc = self._calculate_metrics(true_labels, pred_mc)
-
-        return metrics_std, metrics_ttc, metrics_gp, metrics_mc
-
-    def train(self, pre_trained_model: Optional[Transformer] = None) -> Transformer:
-        """Run main training phase with improved PRM training and evaluation."""
-        self.logger.info("Starting main training phase")
-
-        # Load training data
-        train_loader, data = self.data_module.setup()
-
-        # Initialize model
-        model = self._create_model(self.n_features, self.n_classes)
-        if pre_trained_model is not None:
-            self.logger.info("Transferring pre-trained weights")
-
-            # Get the checkpoint from the pretrained model.
-            checkpoint = pre_trained_model.state_dict()
-
-            print(f"checkpoint keys: {checkpoint.keys()}")
-
-            # Adjust the weights and bias for the final layer.
-            checkpoint["fc_out.weight"] = checkpoint["fc_out.weight"][:self.n_classes]
-            checkpoint["fc_out.bias"] = checkpoint["fc_out.bias"][:self.n_classes]
-
-            # Load the pre-trained model into the model.
-            model.load_state_dict(checkpoint, strict=False)
-
-        model = model.to(self.device)
-
-        # Train base model without test-time compute
+            else: # If final layer matches or doesn't exist in checkpoint with that name
+                model_to_finetune.load_state_dict(checkpoint, strict=False)
+        
         criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-        optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
+        optimizer = torch.optim.AdamW(model_to_finetune.parameters(), lr=self.config.learning_rate)
 
-        # Train base model
-        model = train_model(
-            model,
-            train_loader,
-            criterion,
-            optimizer,
-            n_splits=1 if self.config.dataset in ["instance-recognition"] else (3 if self.config.dataset in ["part"] else 5),
-            n_runs=30,
+        # train_model now returns a tuple (trained_model_instance, metrics_dict)
+        # We need the model instance that was actually trained and had its state loaded.
+        trained_model_instance, _ = train_model(
+            model=model_to_finetune, # Pass the model instance that's on the correct device
+            train_loader=train_loader,
+            criterion=criterion,
+            optimizer=optimizer, # This will be used as a template by train_model
+            n_splits=self._get_n_splits_for_finetune(),
+            n_runs=30, # Consider making n_runs configurable via TrainingConfig
             num_epochs=self.config.epochs,
             patience=self.config.early_stopping,
-            is_augmented=self.config.data_augmentation,
+            is_augmented=self.config.data_augmentation, # train_model will handle AugmentationConfig creation
+            device=self.device
         )
-
-        return model
+        self.logger.info("Main fine-tuning finished.")
+        # Optionally save the fine-tuned model here
+        # torch.save(trained_model_instance.state_dict(), Path(self.config.output).parent / f"{self.config.model_type}_{self.config.dataset}_run{self.config.run}_final.pth")
+        return trained_model_instance
 
     def _create_model(self, input_dim: int, output_dim: int) -> nn.Module:
-        """Create a new transformer model instance."""
+        """Create model instance based on self.model_type."""
+        # This long if/elif is kept for clarity due to varying model constructor args.
+        # A dict-based factory is an alternative for fewer lines but more setup.
+        model_args_common = {"dropout": self.config.dropout}
         if self.model_type == "transformer":
-            model = Transformer(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                num_layers=self.config.num_layers,
-                num_heads=self.config.num_heads,
-                hidden_dim=self.config.hidden_dimension,
-                dropout=self.config.dropout,
-            )
+            model = Transformer(input_dim=input_dim, output_dim=output_dim,
+                                num_layers=self.config.num_layers, num_heads=self.config.num_heads,
+                                hidden_dim=self.config.hidden_dimension, **model_args_common)
         elif self.model_type == "lstm":
-            model = LSTM(
-                input_size=input_dim,
-                hidden_size=self.config.hidden_dimension,
-                num_layers=self.config.num_layers,
-                output_size=output_dim,
-                dropout=self.config.dropout,
-            )
+            model = LSTM(input_size=input_dim, output_size=output_dim,
+                         hidden_size=self.config.hidden_dimension, num_layers=self.config.num_layers,
+                         **model_args_common)
         elif self.model_type == "cnn":
-            model = CNN(
-                input_size=input_dim,
-                num_classes=output_dim,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "rcnn":
-            model = RCNN(
-                input_size=input_dim,
-                num_classes=output_dim,
-                dropout=self.config.dropout,
-            )
+            model = CNN(input_size=input_dim, num_classes=output_dim, **model_args_common)
+        elif self.model_type == "rcnn": # Assuming RCNN takes input_size, num_classes
+            model = RCNN(input_size=input_dim, num_classes=output_dim, **model_args_common)
         elif self.model_type == "mamba":
-            model = Mamba(
-                d_model=input_dim,
-                d_state=self.config.hidden_dimension,
-                d_conv=4,
-                expand=2,
-                depth=self.config.num_layers,
-                n_classes=output_dim,
-            )
+            model = Mamba(d_model=input_dim, n_classes=output_dim, d_state=self.config.hidden_dimension,
+                          d_conv=4, expand=2, depth=self.config.num_layers) # Mamba might not use dropout arg directly
         elif self.model_type == "kan":
-            model = KAN(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                hidden_dim=self.config.hidden_dimension,
-                num_inner_functions=10,
-                dropout_rate=self.config.dropout,
-                num_layers=self.config.num_layers,
-            )
+            model = KAN(input_dim=input_dim, output_dim=output_dim, hidden_dim=self.config.hidden_dimension,
+                        num_layers=self.config.num_layers, dropout_rate=self.config.dropout, num_inner_functions=10)
         elif self.model_type == "vae":
-            model = VAE(
-                input_size=input_dim,
-                latent_dim=self.config.hidden_dimension,
-                num_classes=output_dim,
-                dropout=self.config.dropout,
-            )
+            model = VAE(input_size=input_dim, num_classes=output_dim, latent_dim=self.config.hidden_dimension, **model_args_common)
         elif self.model_type == "moe":
-            model = MOE(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                num_heads=self.config.num_heads,
-                num_layers=self.config.num_layers,
-                hidden_dim=self.config.hidden_dimension,
-                num_experts=4,
-                k=2,
-            )
+            model = MOE(input_dim=input_dim, output_dim=output_dim, num_heads=self.config.num_heads,
+                        num_layers=self.config.num_layers, hidden_dim=self.config.hidden_dimension,
+                        num_experts=4, k=2) # MOE specific args
         elif self.model_type == "dense":
-            model = Dense(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "ode":
-            model = ODE(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "rwkv":
-            model = RWKV(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                hidden_dim=self.config.hidden_dimension,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "tcn":
-            model = TCN(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "wavenet":
-            model = WaveNet(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                dropout=self.config.dropout,
-            )
-        elif self.model_type == "ensemble":
-            model = Ensemble(
-                input_dim=input_dim,
-                hidden_dim=self.config.hidden_dimension,
-                output_dim=output_dim,
-                dropout=self.config.dropout,
-            )
+            model = Dense(input_dim=input_dim, output_dim=output_dim, **model_args_common)
+        elif self.model_type == "ode": # Assuming ODE takes these
+            model = ODE(input_dim=input_dim, output_dim=output_dim, **model_args_common)
+        elif self.model_type == "rwkv": # Assuming RWKV takes these
+             model = RWKV(input_dim=input_dim, output_dim=output_dim, hidden_dim=self.config.hidden_dimension, **model_args_common)
+        elif self.model_type == "tcn": # Assuming TCN takes these
+            model = TCN(input_dim=input_dim, output_dim=output_dim, **model_args_common)
+        elif self.model_type == "wavenet": # Assuming WaveNet takes these
+            model = WaveNet(input_dim=input_dim, output_dim=output_dim, **model_args_common)
+        elif self.model_type == "ensemble": # Assuming Ensemble takes these
+            model = Ensemble(input_dim=input_dim, output_dim=output_dim, hidden_dim=self.config.hidden_dimension, **model_args_common)
         elif self.model_type == "diffusion":
-            model = Diffusion(
-                input_dim=input_dim,
-                output_dim=output_dim,
-                hidden_dim=self.config.hidden_dimension,
-                time_dim=64,
-                num_timesteps=1000,
-            )
+            model = Diffusion(input_dim=input_dim, output_dim=output_dim, hidden_dim=self.config.hidden_dimension,
+                              time_dim=64, num_timesteps=1000)
         else:
-            raise ValueError(f"Invalid model: {self.model_type}")
-
-        self.logger.info(f"Created model: {model}")
+            raise ValueError(f"Invalid model type: {self.model_type}")
+        self.logger.info(f"Created model: {self.model_type} instance.")
         return model
 
-    def _calculate_class_weights(self, train_loader: DataLoader) -> torch.Tensor:
-        """Calculate balanced class weights."""
-        class_counts = {}
-        total_samples = 0
+    def _calculate_class_weights(self, train_loader: DataLoader) -> Optional[torch.Tensor]:
+        # This method is not currently called in the flow, but kept for potential use.
+        # Ensure labels are class indices for this calculation.
+        class_counts = torch.zeros(self.n_classes, dtype=torch.float)
+        for _, labels_batch in train_loader: # Assuming labels are class indices
+            if labels_batch.dim() > 1 and labels_batch.shape[-1] > 1: # One-hot
+                labels_batch = labels_batch.argmax(dim=-1)
+            for label_idx in labels_batch:
+                if 0 <= label_idx.item() < self.n_classes:
+                    class_counts[label_idx.item()] += 1
+        
+        if torch.any(class_counts == 0):
+            self.logger.warning("Some classes have zero samples in training data; class weights might be problematic.")
+            # Handle missing classes, e.g., assign a very small count or skip weighting.
+            return None # Or return uniform weights
+            
+        weights = 1.0 / class_counts
+        return (weights / weights.sum() * self.n_classes).to(self.device)
 
-        for _, labels in train_loader:
-            for label in labels:
-                class_label = label.argmax().item()
-                class_counts[class_label] = class_counts.get(class_label, 0) + 1
-                total_samples += 1
-
-        weights = [1.0 / class_counts[i] for i in range(len(class_counts))]
-        weights_tensor = torch.FloatTensor(weights)
-        return weights_tensor / weights_tensor.sum() * len(class_counts)
-
-    def _plot_attention_maps(self, model: Transformer, data) -> None:
-        """Plot attention maps for model analysis."""
-        raise NotImplementedError
-        # i = 10
-        # columns = data.axes[1][1:(i+1)].tolist()
-        # plot_attention_map("encoder", layer_weights, columns, columns)
+    def _plot_attention_maps(self, model: nn.Module, data: Any) -> None: # model type might not be Transformer always
+        self.logger.warning("_plot_attention_maps is not implemented.")
+        # raise NotImplementedError # Original was raise
 
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        prog="Transformer", description="A transformer for fish species classification."
-    )
-
-    # File and dataset settings
-    parser.add_argument(
-        "-f",
-        "--file-path",
-        type=str,
-        default="transformer_checkpoint",
-        help="Filepath for model checkpoints",
-    )
-    parser.add_argument(
-        "-d",
-        "--dataset",
-        type=str,
-        default="species",
-        help="Fish species or part dataset. Defaults to species.",
-    )
-    parser.add_argument(
-        "-m",
-        "--model",
-        type=str,
-        default="transformer",
-        help="Model type to use. Defaults to transformer.",
-    )
-    parser.add_argument("-r", "--run", type=int, default=0)
-    parser.add_argument("-o", "--output", type=str, default="logs/results")
-
-    # Preprocessing flags
-    parser.add_argument(
-        "-da",
-        "--data-augmentation",
-        action="store_true",
-        help="Enable data augmentation",
-        default=False,
-    )
-    parser.add_argument(
-        "-msm",
-        "--masked-spectra-modelling",
-        action="store_true",
-        help="Enable masked spectra modelling",
-    )
-    parser.add_argument(
-        "-nsp",
-        "--next-spectra-prediction",
-        action="store_true",
-        help="Enable next spectra prediction",
-    )
-
-    # Regularization settings
-    parser.add_argument(
-        "-es",
-        "--early-stopping",
-        type=int,
-        default=10,
-        help="Early stopping patience. Defaults to 10.",
-    )
-    parser.add_argument(
-        "-do",
-        "--dropout",
-        type=float,
-        default=0.2,
-        help="Dropout probability. Defaults to 0.2.",
-    )
-    parser.add_argument(
-        "-ls",
-        "--label-smoothing",
-        type=float,
-        default=0.1,
-        help="Label smoothing alpha value. Defaults to 0.1.",
-    )
-
-    # Training hyperparameters
-    parser.add_argument(
-        "-e",
-        "--epochs",
-        type=int,
-        default=100,
-        help="Number of training epochs. Defaults to 100.",
-    )
-    parser.add_argument(
-        "-lr",
-        "--learning-rate",
-        type=float,
-        default=1e-3,
-        help="Learning rate. Defaults to 1e-5.",
-    )
-    parser.add_argument(
-        "-bs", "--batch-size", type=int, default=128, help="Batch size. Defaults to 64."
-    )
-    parser.add_argument(
-        "-hd",
-        "--hidden-dimension",
-        type=int,
-        default=128,
-        help="Hidden dimension size. Defaults to 128.",
-    )
-    parser.add_argument(
-        "-l",
-        "--num-layers",
-        type=int,
-        default=4,
-        help="Number of transformer layers. Defaults to 4.",
-    )
-    parser.add_argument(
-        "-nh",
-        "--num-heads",
-        type=int,
-        default=4,
-        help="Number of attention heads. Defaults to 4.",
-    )
-
-    # Data augmentation parameters
-    parser.add_argument(
-        "--num-augmentations",
-        type=int,
-        default=5,
-        help="Number of augmentations per sample. Defaults to 5.",
-    )
-    parser.add_argument(
-        "--noise-level",
-        type=float,
-        default=0.1,
-        help="Level of noise for augmentation. Defaults to 0.1.",
-    )
-    parser.add_argument(
-        "--shift-enabled", action="store_true", help="Enable shift augmentation"
-    )
-    parser.add_argument(
-        "--scale-enabled", action="store_true", help="Enable scale augmentation"
-    )
-
+    parser = argparse.ArgumentParser(prog="ModelTraining", description="Spectra Model Training Pipeline.")
+    # File/Dataset
+    parser.add_argument("-f", "--file-path", type=str, default="model_checkpoint", help="Base path for model checkpoints")
+    parser.add_argument("-d", "--dataset", type=str, default="species", choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(), help="Dataset name")
+    parser.add_argument("-m", "--model", type=str, default="transformer", help="Model type") # Add choices later if MODEL_REGISTRY is used
+    parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier (for logging/output naming)")
+    parser.add_argument("-o", "--output", type=str, default="logs/results_base", help="Base name for output logs/results")
+    # Augmentation general
+    parser.add_argument("-da", "--data-augmentation", action="store_true", help="Enable data augmentation")
+    # Pre-training Task Flags (iterating PRETRAIN_TASK_DEFINITIONS to create these)
+    for task_flag, _, task_desc_suffix, _, _ in ModelTrainer.PRETRAIN_TASK_DEFINITIONS:
+        parser.add_argument(f"--{task_flag.replace('_', '-')}", action="store_true", help=f"Enable {task_desc_suffix.replace('_', ' ')}")
+    # Regularization
+    parser.add_argument("-es", "--early-stopping", type=int, default=20, help="Early stopping patience")
+    parser.add_argument("-do", "--dropout", type=float, default=0.2, help="Dropout probability")
+    parser.add_argument("-ls", "--label-smoothing", type=float, default=0.1, help="Label smoothing alpha")
+    # Hyperparameters
+    parser.add_argument("-e", "--epochs", type=int, default=100, help="Number of training epochs")
+    parser.add_argument("-lr", "--learning-rate", type=float, default=1e-4, help="Learning rate") # Adjusted default
+    parser.add_argument("-bs", "--batch-size", type=int, default=64, help="Batch size") # Adjusted default
+    parser.add_argument("-hd", "--hidden-dimension", type=int, default=128, help="Hidden dimension size")
+    parser.add_argument("-l", "--num-layers", type=int, default=4, help="Number of layers (model-specific meaning)")
+    parser.add_argument("-nh", "--num-heads", type=int, default=4, help="Number of attention heads (for Transformer)")
+    # Augmentation specific params
+    parser.add_argument("--num-augmentations", type=int, default=5, help="Augmentations per sample")
+    parser.add_argument("--noise-level", type=float, default=0.1, help="Noise level for augmentation")
+    parser.add_argument("--shift-enabled", action="store_true", help="Enable shift augmentation")
+    parser.add_argument("--scale-enabled", action="store_true", help="Enable scale augmentation")
     return parser.parse_args()
-
 
 def main() -> None:
     """Main execution function."""
+    trainer_instance = None # For access in except block
     try:
-        # Parse arguments and create config
         args = parse_arguments()
         config = TrainingConfig.from_args(args)
+        
+        trainer_instance = ModelTrainer(config)
+        logger = trainer_instance.logger # Use instance logger
+        logger.info(f"Training configuration: {config}")
+        logger.info(f"Using device: {trainer_instance.device}")
+        logger.info("Starting training pipeline")
 
-        # Initialize trainer
-        trainer = ModelTrainer(config)
-        trainer.logger.info("Starting training pipeline")
-
-        print(f"config.data_augmentation: {config.data_augmentation}")
-
-        # Create augmentation configuration
-        aug_config = AugmentationConfig(
-            enabled=config.data_augmentation,
-            num_augmentations=config.num_augmentations,
-            noise_enabled=True,  # Always enable noise for augmentation
-            shift_enabled=config.shift_enabled,
-            scale_enabled=config.scale_enabled,
-            noise_level=config.noise_level,
+        any_pretrain_task_enabled = any(
+            getattr(config, task_def[0], False) for task_def in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
         )
-
-        # Create main training data module
-        data_module = create_data_module(
-            dataset_name=config.dataset,
-            batch_size=config.batch_size,
-            augmentation_enabled=config.data_augmentation,
-            is_pre_train=False,
-            **{
-                "num_augmentations": config.num_augmentations,
-                "noise_level": config.noise_level,
-                "shift_enabled": config.shift_enabled,
-                "scale_enabled": config.scale_enabled,
-            },
-        )
-
-        # # Setup main data module to get loaders
-        # train_loader, data = data_module.setup()
-        # trainer.logger.info(f"Main training dataset size: {len(train_loader.dataset)} samples")
-
-        # Run pre-training if enabled
-        pre_trained_model = None
-        if config.masked_spectra_modelling or config.next_spectra_prediction:
-            # Create pre-training data module
+        pre_trained_model_output = None
+        if any_pretrain_task_enabled:
+            logger.info("Pre-training tasks enabled. Setting up pre-training data module.")
+            # Assuming create_data_module can handle TrainingConfig or relevant fields for augmentation
             pretrain_data_module = create_data_module(
-                dataset_name=config.dataset,
-                batch_size=config.batch_size,
-                augmentation_enabled=config.data_augmentation,
-                is_pre_train=True,
-                **{
-                    "num_augmentations": config.num_augmentations,
-                    "noise_level": config.noise_level,
-                    "shift_enabled": config.shift_enabled,
-                    "scale_enabled": config.scale_enabled,
-                },
+                dataset_name=config.dataset, batch_size=config.batch_size,
+                augmentation_config=config, # Pass the whole config or specific aug fields
+                is_pre_train=True
             )
+            trainer_instance.data_module = pretrain_data_module
+            pre_trained_model_output = trainer_instance.pre_train()
+        else:
+            logger.info("No pre-training tasks enabled. Skipping pre-training phase.")
 
-            # Setup pre-training data module
-            pretrain_loader, _ = pretrain_data_module.setup()
-            trainer.logger.info(
-                f"Pre-training dataset size: {len(pretrain_loader.dataset)} samples"
-            )
-
-            # Update trainer's data module for pre-training
-            trainer.data_module = pretrain_data_module
-            pre_trained_model = trainer.pre_train()
-
-            if pre_trained_model is not None:
-                trainer.logger.info("Pre-training completed successfully")
-
-        # Update trainer's data module for main training
-        trainer.data_module = data_module
-
-        # Run main training
-        model = trainer.train(pre_trained_model)
-
-        return model
+        logger.info("Setting up main fine-tuning data module.")
+        main_data_module = create_data_module(
+            file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
+            # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx" # Example server path
+            dataset_name=config.dataset, batch_size=config.batch_size,
+            augmentation_config=config, # Pass the whole config or specific aug fields
+            is_pre_train=False
+        )
+        trainer_instance.data_module = main_data_module
+        
+        final_trained_model = trainer_instance.train(pre_trained_model_output)
+        logger.info(f"Training pipeline completed. Final model type: {type(final_trained_model)}")
 
     except Exception as e:
-        logging.error(f"Error in training pipeline: {str(e)}", exc_info=True)
-        raise
-
+        current_logger = getattr(trainer_instance, 'logger', logging.getLogger(__name__))
+        current_logger.error(f"Critical error in training pipeline: {str(e)}", exc_info=True)
+        # traceback.print_exc() # For console output during dev if logger isn't capturing well
+        # Consider exiting with an error code: sys.exit(1)
+        raise # Re-raise the exception after logging
 
 if __name__ == "__main__":
     main()
