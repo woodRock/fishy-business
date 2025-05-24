@@ -17,20 +17,8 @@ from dataclasses import dataclass
 from typing import List, Optional, Tuple, Dict # Type was unused, but keeping imports as is mostly
 
 # Assuming these local modules are in the same directory or PYTHONPATH
-from lstm import LSTM
-from transformer import Transformer
-from cnn import CNN
-from rcnn import RCNN
-from mamba import Mamba
-from kan import KAN
-from vae import VAE
-from MOE import MOE # Corrected casing if it was 'MOE' in user's files
-from dense import Dense
-from ode import ODE
-from rwkv import RWKV
-from tcn import TCN
-from wavenet import WaveNet
-from util import prepare_dataset, DataConfig
+from models import * # Import all models from models/__init__.py
+from .util import prepare_dataset, DataConfig
 
 # Setup basic logging (can be configured further if needed)
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -21,7 +21,7 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader # TensorDataset not used directly in this snippet
 from tqdm import tqdm
 
-from transformer import Transformer # Assuming this is your base model for some tasks
+from models import Transformer # Assuming this is your base model for some tasks
 
 # Type aliases
 T_Tensor = TypeVar("T_Tensor", bound=torch.Tensor) # Renamed for clarity

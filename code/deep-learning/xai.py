@@ -10,15 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from lime.lime_tabular import LimeTabularExplainer
 
-from lstm import LSTM
-from transformer import Transformer
-from cnn import CNN
-from rcnn import RCNN
-from mamba import Mamba
-from kan import KAN
-from vae import VAE
-from train import train_model
-from util import preprocess_dataset
+from models import * # Import all models
+from .train import train_model
+from .util import create_data_module
 
 logger = logging.getLogger(__name__)
 
@@ -333,23 +327,32 @@ def explain_predictions(
         model = ModelFactory.create(model_name, model_config)
         model.to(train_config.device)
         
-        # Load dataset
-        train_loader, data = preprocess_dataset(
-            dataset=dataset_name,
-            batch_size=train_config.batch_size,
-            is_pre_train=False
+        # Create data module and load dataset
+        data_module = create_data_module(
+            file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
+            # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx" # Example server path
+            dataset_name=dataset_name,  # Use your desired dataset
+            batch_size=32
         )
         
+        # Setup the data loader
+        data_module.setup()
+        train_loader = data_module.get_train_dataloader()
+        data = data_module.get_train_dataframe()
+
         # Train model
         criterion = nn.CrossEntropyLoss(label_smoothing=train_config.label_smoothing)
         optimizer = optim.AdamW(model.parameters(), lr=train_config.learning_rate)
-        model = train_model(
+        
+        model, _ = train_model(
             model=model,
             train_loader=train_loader,
             criterion=criterion,
             optimizer=optimizer,
             num_epochs=train_config.num_epochs,
-            patience=train_config.patience
+            patience=train_config.patience,
+            n_runs=1,
+            n_splits=1,
         )
         
         # Setup explainer

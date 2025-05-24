@@ -20,10 +20,8 @@ from sklearn.metrics import (
     roc_curve,
 )
 
-from transformer import Transformer
-from vae import VAE
-from util import DataAugmenter, AugmentationConfig
-from plot import plot_accuracy, plot_confusion_matrix
+from models import Transformer, VAE 
+from .util import DataAugmenter, AugmentationConfig
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List] # Though this type isn't directly used as a variable annotation later.
