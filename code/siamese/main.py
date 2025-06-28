@@ -385,7 +385,7 @@ def train_simclr(config: SimCLRConfig, encoder_type: str = 'transformer') -> Tup
     logger = logging.getLogger(__name__) # Get logger instance
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s') # Configure logger
     
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     logger.info(f"Using device: {device}")
     
     data_config = DataConfig(batch_size=config.batch_size) # Assuming DataConfig is in util
