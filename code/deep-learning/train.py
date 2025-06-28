@@ -31,7 +31,14 @@ def _reinitialize_model_and_optimizer(pristine_template_cpu: nn.Module,
                                       base_optimizer_instance: optim.Optimizer,
                                       device: str) -> Tuple[nn.Module, optim.Optimizer]:
     new_model_gpu = copy.deepcopy(pristine_template_cpu).to(device)
-    new_optimizer = type(base_optimizer_instance)(new_model_gpu.parameters(), **base_optimizer_instance.defaults)
+    
+    # Filter out problematic parameters that might not be accepted by the optimizer constructor
+    optimizer_defaults = base_optimizer_instance.defaults.copy()
+    # Remove parameters that are typically internal and not constructor arguments
+    problematic_params = {'decoupled_weight_decay', 'step_size', 'gamma'}
+    filtered_defaults = {k: v for k, v in optimizer_defaults.items() if k not in problematic_params}
+    
+    new_optimizer = type(base_optimizer_instance)(new_model_gpu.parameters(), **filtered_defaults)
     return new_model_gpu, new_optimizer
 
 def train_model(
@@ -96,8 +103,10 @@ def train_model(
                 pristine_model_template_cpu, optimizer, device
             )
             
+            # Optimize DataLoader settings based on device
+            num_workers = 0 if device == "mps" else (2 if device == "cuda" else 0)
             fold_train_loader, fold_val_loader = _create_fold_loaders(
-                dataset, train_idx, val_idx, train_loader.batch_size, num_workers=4, pin_memory=(device=="cuda")
+                dataset, train_idx, val_idx, train_loader.batch_size, num_workers=num_workers, pin_memory=(device=="cuda")
             )
 
             if train_data_augmenter:
@@ -219,12 +228,15 @@ def _train_single_split(
             pristine_model_template_cpu, base_optimizer_instance, device
         )
         
+        # Optimize DataLoader settings based on device
+        num_workers = 0 if device == "mps" else (2 if device == "cuda" else 0)
+        
         all_labels = _extract_labels(dataset)
         skf_single = StratifiedKFold(n_splits=5, shuffle=True, random_state=run_idx) 
         train_idx, val_idx = next(skf_single.split(np.zeros(len(dataset)), all_labels))
         
         run_train_loader, run_val_loader = _create_fold_loaders(
-            dataset, train_idx, val_idx, train_loader.batch_size, num_workers=4, pin_memory=(device=="cuda")
+            dataset, train_idx, val_idx, train_loader.batch_size, num_workers=num_workers, pin_memory=(device=="cuda")
         )
         
         if run_idx == 0: # Log sizes only for the first run

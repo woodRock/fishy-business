@@ -102,7 +102,7 @@ class ModelTrainer:
     def __init__(self, config: TrainingConfig):
         self.config = config
         self.logger = self._setup_logging()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
         self.model_type = config.model_type
         self.data_module = None # Will be set before pre_train or train
 
@@ -452,8 +452,9 @@ def main() -> None:
 
         logger.info("Setting up main fine-tuning data module.")
         main_data_module = create_data_module(
-            file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
+            # file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
             # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx" # Example server path
+            file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Example local path
             dataset_name=config.dataset, batch_size=config.batch_size,
             augmentation_config=config, # Pass the whole config or specific aug fields
             is_pre_train=False
