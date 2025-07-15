@@ -5,11 +5,12 @@ from deap import gp
 from deap.gp import PrimitiveSet, genHalfAndHalf
 from typing import Iterable, Union
 
+
 def xmate(
-        ind1: Iterable, 
-        ind2: Iterable,
-    ) -> Union[Iterable, Iterable]:
-    """ Reproduction operator for multi-tree GP, where trees are represented as a list.
+    ind1: Iterable,
+    ind2: Iterable,
+) -> Union[Iterable, Iterable]:
+    """Reproduction operator for multi-tree GP, where trees are represented as a list.
 
     Crossover happens to a subtree that is selected at random.
     Crossover operations are limited to parents from the same tree.
@@ -34,12 +35,8 @@ def xmate(
     return ind1, ind2
 
 
-def xmut(
-        individual: Iterable, 
-        expr: genHalfAndHalf, 
-        pset: PrimitiveSet
-    ) -> Iterable:
-    """ Mutation operator for multi-tree GP, where trees are represented as a list.
+def xmut(individual: Iterable, expr: genHalfAndHalf, pset: PrimitiveSet) -> Iterable:
+    """Mutation operator for multi-tree GP, where trees are represented as a list.
 
     Mutation happens to a tree selected at random, when an individual is selected for crossover.
 
@@ -48,7 +45,7 @@ def xmut(
     Args:
         individual (creator.Invidual): The individual, a list of GP trees.
 
-    Returns: 
+    Returns:
         individual (creator.Invidual): the mutated invidiual.
     """
     n = range(len(individual))
@@ -60,7 +57,8 @@ def xmut(
             individual[tree_idx] = indx[0]
         else:
             individual[tree_idx] = g1
-    return individual,
+    return (individual,)
+
 
 def staticLimit(key, max_value):
     """
@@ -98,5 +96,7 @@ def staticLimit(key, max_value):
                         random_parent = random.choice(keep_inds)
                         new_inds[ind_idx][tree_idx] = random_parent[tree_idx]
             return new_inds
+
         return wrapper
+
     return decorator

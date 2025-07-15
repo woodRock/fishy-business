@@ -128,7 +128,7 @@ def main(dataset="species"):
             "classifier__penalty": ["elasticnet"],
             "classifier__C": [0.01, 0.1, 1, 10, 100],
             "classifier__l1_ratio": [0.2, 0.5, 0.8],  # Only for elasticnet + saga
-        }
+        },
         # Optional: Add other solvers like lbfgs if desired
         # {
         #     'classifier__solver': ['lbfgs'],
