@@ -1,4 +1,4 @@
-""" Package initialization for the 'deep-learning' module.
+"""Package initialization for the 'deep-learning' module.
 
 This module initializes the 'deep-learning' package, allowing for easy import of various deep learning models.
 It includes implementations of different neural network architectures suitable for tasks such as
