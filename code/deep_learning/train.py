@@ -1,4 +1,5 @@
-""" This module implements a training pipeline for deep learning models using PyTorch. """
+"""This module implements a training pipeline for deep learning models using PyTorch."""
+
 from tqdm import tqdm
 import logging
 import copy
@@ -81,21 +82,21 @@ def train_model(
     is_augmented: bool = False,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> Tuple[nn.Module, Dict]:
-    """ Trains a model using k-fold cross-validation with multiple independent runs.
-    
-    Args: 
+    """Trains a model using k-fold cross-validation with multiple independent runs.
+
+    Args:
         model (nn.Module): The model to train.
         train_loader (DataLoader): DataLoader for the training dataset.
         criterion (nn.Module): Loss function to use for training.
         optimizer (optim.Optimizer): Optimizer instance to use for training.
-        num_epochs (int): Number of epochs to train each fold.      
+        num_epochs (int): Number of epochs to train each fold.
         patience (int): Number of epochs with no improvement after which training will be stopped.
         n_splits (int): Number of splits for k-fold cross-validation.
         n_runs (int): Number of independent runs to perform.
         is_augmented (bool): Whether to apply data augmentation during training.
         device (str): Device to use for training ('cuda', 'cpu', 'mps
 
-    Returns: 
+    Returns:
         Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of averaged metrics across all runs.
     """
     logger = logging.getLogger(__name__)
@@ -239,11 +240,11 @@ def train_model(
 def _calculate_averaged_metrics(
     all_runs_metrics_accumulator: List[Dict], logger: logging.Logger
 ) -> Dict:
-    """ Calculates averaged metrics across all runs.
-    
-    Args: 
+    """Calculates averaged metrics across all runs.
+
+    Args:
         all_runs_metrics_accumulator (List[Dict]): List of dictionaries containing metrics from each run
-        logger (logging.Logger): Logger instance for logging information.   
+        logger (logging.Logger): Logger instance for logging information.
 
     Returns:
         Dict: A dictionary containing averaged metrics across all runs, including overall accuracy and detailed metrics.
@@ -320,21 +321,21 @@ def _train_single_split(
     logger: logging.Logger,
     n_runs: int = 30,
 ) -> Tuple[nn.Module, Dict]:
-    """ Trains a model using a single split with multiple independent runs.
-    
-    Args: 
+    """Trains a model using a single split with multiple independent runs.
+
+    Args:
         pristine_model_template_cpu (nn.Module): A copy of the model template in CPU memory.
         train_loader (DataLoader): DataLoader for the full training dataset.
         criterion (nn.Module): Loss function to use for training.
         base_optimizer_instance (optim.Optimizer): Optimizer instance to use as a template.
-        num_epochs (int): Number of epochs to train each fold.      
+        num_epochs (int): Number of epochs to train each fold.
         patience (int): Number of epochs with no improvement after which training will be stopped.
         train_data_augmenter (Optional[DataAugmenter]): Data augmenter instance for training
         device (str): Device to use for training ('cuda', 'cpu', 'mps').
         logger (logging.Logger): Logger instance for logging information.
         n_runs (int): Number of independent runs to perform.
 
-    Returns: 
+    Returns:
         Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of
     """
     all_runs_metrics_accumulator = []
@@ -442,8 +443,8 @@ def transfer_learning(  # No significant changes for conciseness here, it's a di
     model_instance: Transformer,
     file_path: str = "transformer_checkpoint.pth",
 ) -> Transformer:
-    """ Transfers learning weights from a checkpoint to a model instance for a specific dataset.
-    
+    """Transfers learning weights from a checkpoint to a model instance for a specific dataset.
+
     Args:
         dataset_name (str): Name of the dataset for which the model is being adapted.
         model_instance (Transformer): Instance of the Transformer model to adapt.
@@ -515,9 +516,9 @@ def transfer_learning(  # No significant changes for conciseness here, it's a di
 
 
 def _process_label_item(label_item) -> int:
-    """ Processes a label item to ensure it is returned as an integer.
-    
-    Args: 
+    """Processes a label item to ensure it is returned as an integer.
+
+    Args:
         label_item: The label item to process, which can be a tensor, numpy array,
         or a scalar value.
 
@@ -534,8 +535,8 @@ def _process_label_item(label_item) -> int:
 
 
 def _extract_labels(dataset: Dataset) -> np.ndarray:
-    """ Extracts labels from a dataset, handling both Subset and full Dataset cases.
-    
+    """Extracts labels from a dataset, handling both Subset and full Dataset cases.
+
     Args:
         dataset (Dataset): The dataset from which to extract labels, can be a Subset or full Dataset.
 
@@ -570,9 +571,9 @@ def _create_fold_loaders(
     num_workers: int = 0,
     pin_memory: bool = False,
 ) -> Tuple[DataLoader, DataLoader]:
-    """ Creates DataLoaders for training and validation subsets based on provided indices.
-    
-    Args: 
+    """Creates DataLoaders for training and validation subsets based on provided indices.
+
+    Args:
         dataset (Dataset): The full dataset from which to create subsets.
         train_idx (np.ndarray): Indices for the training subset.
         val_idx (np.ndarray): Indices for the validation subset.
@@ -607,9 +608,9 @@ def _train_fold(
     device: str,
     logger: logging.Logger,
 ) -> Dict:
-    """ Trains a model for a single fold of cross-validation.
-    
-    Args: 
+    """Trains a model for a single fold of cross-validation.
+
+    Args:
         model (nn.Module): The model to train.
         train_loader (DataLoader): DataLoader for the training dataset.
         val_loader (DataLoader): DataLoader for the validation dataset.
@@ -705,8 +706,8 @@ def _run_epoch(
     device: str,
     is_training: bool,
 ) -> Dict:
-    """ Runs a single epoch of training or validation.
-    
+    """Runs a single epoch of training or validation.
+
     Args:
         model (nn.Module): The model to train or validate.
         loader (DataLoader): DataLoader for the current epoch's dataset.
@@ -768,12 +769,12 @@ def _run_epoch(
 def _calculate_metrics(  # Minor cleanup for NaN handling
     y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None
 ) -> MetricsDict:
-    """ Calculates various metrics based on true labels, predicted labels, and predicted probabilities.
-    
+    """Calculates various metrics based on true labels, predicted labels, and predicted probabilities.
+
     Args:
         y_true (np.ndarray): True labels.
         y_pred (np.ndarray): Predicted labels.
-        y_prob (Optional[np.ndarray]): Predicted probabilities for each class, if available.    
+        y_prob (Optional[np.ndarray]): Predicted probabilities for each class, if available.
 
     Returns:
         MetricsDict: A dictionary containing calculated metrics such as balanced accuracy, precision, recall, F
@@ -831,9 +832,9 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
 def roc_curve_auc(
     y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True
 ) -> float:
-    """ Calculates the AUC-ROC for a specific class.
-    
-    Args: 
+    """Calculates the AUC-ROC for a specific class.
+
+    Args:
         y_true_class (np.ndarray): True labels for the specific class.
         y_prob_class (np.ndarray): Predicted probabilities for the specific class.
         class_present (bool): Whether the class is present in the true labels.
