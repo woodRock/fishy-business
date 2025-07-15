@@ -1,457 +1,462 @@
-2025-06-28 12:26:45,196 - deep-learning.util - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
-2025-06-28 12:26:49,045 - deep-learning.util - INFO - Loaded data with shape: (306, 2081)
-2025-06-28 12:26:49,048 - deep-learning.util - INFO - Filtered data shape: (36, 2081)
-2025-06-28 12:26:49,904 - deep-learning.train - INFO - Starting 30 independent runs of 3-fold cross validation
-2025-06-28 12:26:49,904 - deep-learning.train - INFO - 
+2025-07-15 12:53:16,733 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
+2025-07-15 12:53:20,777 - INFO - Loaded data with shape: (306, 2081)
+2025-07-15 12:53:20,782 - INFO - Filtered data shape: (36, 2081)
+2025-07-15 12:53:21,876 - INFO - Starting 30 independent runs of 3-fold cross validation
+2025-07-15 12:53:21,877 - INFO - 
 Starting Run 1/30
-2025-06-28 12:26:49,904 - deep-learning.train - INFO - Run 1, Fold 1/3
-2025-06-28 12:26:51,323 - deep-learning.train - INFO - E10 TL:0.683 VL:1.822 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:26:52,413 - deep-learning.train - INFO - E20 TL:0.516 VL:1.387 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:26:52,740 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:26:52,740 - deep-learning.train - INFO - Run 1, Fold 2/3
-2025-06-28 12:26:53,901 - deep-learning.train - INFO - E10 TL:0.556 VL:2.611 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:26:54,986 - deep-learning.train - INFO - E20 TL:0.492 VL:1.630 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:26:55,095 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:26:55,095 - deep-learning.train - INFO - Run 1, Fold 3/3
-2025-06-28 12:26:56,254 - deep-learning.train - INFO - E10 TL:0.561 VL:1.703 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:26:57,337 - deep-learning.train - INFO - E20 TL:0.504 VL:1.558 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:26:57,445 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.6429
-2025-06-28 12:26:57,448 - deep-learning.train - INFO - New best overall accuracy: 0.7143 (Run 1)
-2025-06-28 12:26:57,448 - deep-learning.train - INFO - 
+2025-07-15 12:53:21,880 - INFO - Run 1, Fold 1/3
+2025-07-15 12:53:24,943 - INFO - E10 TL:0.593 VL:1.785 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:53:26,042 - INFO - E20 TL:0.543 VL:1.959 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:53:27,111 - INFO - E30 TL:0.478 VL:1.601 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:53:27,540 - INFO - Early stopping: E34, Best val_acc: 0.7143
+2025-07-15 12:53:27,540 - INFO - Run 1, Fold 2/3
+2025-07-15 12:53:28,833 - INFO - E10 TL:0.548 VL:2.402 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:53:29,898 - INFO - E20 TL:0.485 VL:1.914 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:53:30,218 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:53:30,220 - INFO - Run 1, Fold 3/3
+2025-07-15 12:53:31,442 - INFO - E10 TL:0.543 VL:1.419 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:53:32,546 - INFO - E20 TL:0.504 VL:1.529 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:53:33,614 - INFO - E30 TL:0.478 VL:1.416 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:53:33,721 - INFO - Early stopping: E31, Best val_acc: 0.7857
+2025-07-15 12:53:33,722 - INFO - New best overall accuracy: 0.7857 (Run 1)
+2025-07-15 12:53:33,722 - INFO - 
 Starting Run 2/30
-2025-06-28 12:26:57,449 - deep-learning.train - INFO - Run 2, Fold 1/3
-2025-06-28 12:26:58,604 - deep-learning.train - INFO - E10 TL:0.562 VL:2.106 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:26:59,688 - deep-learning.train - INFO - E20 TL:0.511 VL:1.555 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:26:59,796 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:26:59,799 - deep-learning.train - INFO - Run 2, Fold 2/3
-2025-06-28 12:27:01,046 - deep-learning.train - INFO - E10 TL:0.684 VL:2.731 VAcur:0.357 BestVAcur:0.857
-2025-06-28 12:27:02,130 - deep-learning.train - INFO - E20 TL:0.544 VL:2.264 VAcur:0.357 BestVAcur:0.857
-2025-06-28 12:27:02,673 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.8571
-2025-06-28 12:27:02,675 - deep-learning.train - INFO - Run 2, Fold 3/3
-2025-06-28 12:27:03,869 - deep-learning.train - INFO - E10 TL:0.599 VL:1.505 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:27:04,953 - deep-learning.train - INFO - E20 TL:0.518 VL:1.134 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:27:05,276 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7857
-2025-06-28 12:27:05,278 - deep-learning.train - INFO - New best overall accuracy: 0.8571 (Run 2)
-2025-06-28 12:27:05,278 - deep-learning.train - INFO - 
+2025-07-15 12:53:33,722 - INFO - Run 2, Fold 1/3
+2025-07-15 12:53:34,964 - INFO - E10 TL:0.533 VL:1.831 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:53:36,065 - INFO - E20 TL:0.499 VL:1.443 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:53:37,139 - INFO - E30 TL:0.476 VL:1.314 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:53:37,785 - INFO - Early stopping: E36, Best val_acc: 0.7857
+2025-07-15 12:53:37,790 - INFO - Run 2, Fold 2/3
+2025-07-15 12:53:38,977 - INFO - E10 TL:0.603 VL:2.056 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:53:40,098 - INFO - E20 TL:0.524 VL:1.661 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:53:41,154 - INFO - E30 TL:0.475 VL:1.503 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:53:41,363 - INFO - Early stopping: E32, Best val_acc: 0.7857
+2025-07-15 12:53:41,363 - INFO - Run 2, Fold 3/3
+2025-07-15 12:53:42,585 - INFO - E10 TL:0.583 VL:1.350 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:53:43,661 - INFO - E20 TL:0.517 VL:1.482 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:53:44,399 - INFO - Early stopping: E27, Best val_acc: 0.7857
+2025-07-15 12:53:44,404 - INFO - 
 Starting Run 3/30
-2025-06-28 12:27:05,279 - deep-learning.train - INFO - Run 3, Fold 1/3
-2025-06-28 12:27:06,465 - deep-learning.train - INFO - E10 TL:0.603 VL:2.957 VAcur:0.357 BestVAcur:0.643
-2025-06-28 12:27:07,541 - deep-learning.train - INFO - E20 TL:0.515 VL:1.618 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:27:07,756 - deep-learning.train - INFO - Early stopping: E22, Best val_acc: 0.6429
-2025-06-28 12:27:07,759 - deep-learning.train - INFO - Run 3, Fold 2/3
-2025-06-28 12:27:08,903 - deep-learning.train - INFO - E10 TL:0.611 VL:2.553 VAcur:0.357 BestVAcur:0.643
-2025-06-28 12:27:09,990 - deep-learning.train - INFO - E20 TL:0.517 VL:1.785 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:27:10,096 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.6429
-2025-06-28 12:27:10,097 - deep-learning.train - INFO - Run 3, Fold 3/3
-2025-06-28 12:27:11,235 - deep-learning.train - INFO - E10 TL:0.601 VL:1.642 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:27:12,310 - deep-learning.train - INFO - E20 TL:0.518 VL:1.662 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:27:12,418 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:27:12,424 - deep-learning.train - INFO - 
+2025-07-15 12:53:44,411 - INFO - Run 3, Fold 1/3
+2025-07-15 12:53:45,569 - INFO - E10 TL:0.664 VL:2.715 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:53:46,614 - INFO - E20 TL:0.510 VL:2.097 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:53:46,826 - INFO - Early stopping: E22, Best val_acc: 0.6429
+2025-07-15 12:53:46,830 - INFO - Run 3, Fold 2/3
+2025-07-15 12:53:47,990 - INFO - E10 TL:0.588 VL:2.512 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:53:49,051 - INFO - E20 TL:0.521 VL:1.730 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:53:49,260 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:53:49,264 - INFO - Run 3, Fold 3/3
+2025-07-15 12:53:50,491 - INFO - E10 TL:0.581 VL:1.464 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:53:51,570 - INFO - E20 TL:0.501 VL:1.637 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:53:52,525 - INFO - Early stopping: E29, Best val_acc: 0.7857
+2025-07-15 12:53:52,530 - INFO - 
 Starting Run 4/30
-2025-06-28 12:27:12,424 - deep-learning.train - INFO - Run 4, Fold 1/3
-2025-06-28 12:27:13,683 - deep-learning.train - INFO - E10 TL:0.557 VL:1.314 VAcur:0.857 BestVAcur:0.857
-2025-06-28 12:27:14,756 - deep-learning.train - INFO - E20 TL:0.507 VL:0.990 VAcur:0.786 BestVAcur:0.857
-2025-06-28 12:27:15,839 - deep-learning.train - INFO - Early stopping: E30, Best val_acc: 0.8571
-2025-06-28 12:27:15,842 - deep-learning.train - INFO - Run 4, Fold 2/3
-2025-06-28 12:27:17,060 - deep-learning.train - INFO - E10 TL:0.543 VL:2.528 VAcur:0.357 BestVAcur:0.714
-2025-06-28 12:27:18,150 - deep-learning.train - INFO - E20 TL:0.507 VL:1.829 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:18,474 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:27:18,474 - deep-learning.train - INFO - Run 4, Fold 3/3
-2025-06-28 12:27:19,697 - deep-learning.train - INFO - E10 TL:0.572 VL:2.122 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:27:20,781 - deep-learning.train - INFO - E20 TL:0.498 VL:1.516 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:21,422 - deep-learning.train - INFO - Early stopping: E26, Best val_acc: 0.7143
-2025-06-28 12:27:21,426 - deep-learning.train - INFO - 
+2025-07-15 12:53:52,530 - INFO - Run 4, Fold 1/3
+2025-07-15 12:53:53,742 - INFO - E10 TL:0.598 VL:1.979 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:53:54,894 - INFO - E20 TL:0.508 VL:1.288 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:53:55,960 - INFO - E30 TL:0.478 VL:1.360 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:53:56,704 - INFO - Early stopping: E37, Best val_acc: 0.7857
+2025-07-15 12:53:56,708 - INFO - Run 4, Fold 2/3
+2025-07-15 12:53:57,957 - INFO - E10 TL:0.730 VL:2.056 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:53:59,020 - INFO - E20 TL:0.515 VL:1.724 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:53:59,339 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:53:59,339 - INFO - Run 4, Fold 3/3
+2025-07-15 12:54:00,560 - INFO - E10 TL:0.577 VL:2.341 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:54:01,638 - INFO - E20 TL:0.497 VL:1.811 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:54:02,269 - INFO - Early stopping: E26, Best val_acc: 0.7143
+2025-07-15 12:54:02,273 - INFO - 
 Starting Run 5/30
-2025-06-28 12:27:21,432 - deep-learning.train - INFO - Run 5, Fold 1/3
-2025-06-28 12:27:22,587 - deep-learning.train - INFO - E10 TL:0.607 VL:1.842 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:27:23,677 - deep-learning.train - INFO - E20 TL:0.530 VL:1.543 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:27:23,785 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:27:23,788 - deep-learning.train - INFO - Run 5, Fold 2/3
-2025-06-28 12:27:25,021 - deep-learning.train - INFO - E10 TL:0.667 VL:2.337 VAcur:0.500 BestVAcur:0.857
-2025-06-28 12:27:26,108 - deep-learning.train - INFO - E20 TL:0.507 VL:1.558 VAcur:0.714 BestVAcur:0.857
-2025-06-28 12:27:26,535 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.8571
-2025-06-28 12:27:26,538 - deep-learning.train - INFO - Run 5, Fold 3/3
-2025-06-28 12:27:27,731 - deep-learning.train - INFO - E10 TL:0.556 VL:2.260 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:27:28,853 - deep-learning.train - INFO - E20 TL:0.505 VL:2.212 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:29,971 - deep-learning.train - INFO - E30 TL:0.482 VL:1.977 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:30,297 - deep-learning.train - INFO - Early stopping: E33, Best val_acc: 0.7143
-2025-06-28 12:27:30,297 - deep-learning.train - INFO - 
+2025-07-15 12:54:02,282 - INFO - Run 5, Fold 1/3
+2025-07-15 12:54:03,488 - INFO - E10 TL:0.659 VL:1.830 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:04,557 - INFO - E20 TL:0.530 VL:1.875 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:04,880 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:54:04,885 - INFO - Run 5, Fold 2/3
+2025-07-15 12:54:06,049 - INFO - E10 TL:0.556 VL:2.088 VAcur:0.500 BestVAcur:0.857
+2025-07-15 12:54:07,113 - INFO - E20 TL:0.497 VL:1.416 VAcur:0.786 BestVAcur:0.857
+2025-07-15 12:54:07,324 - INFO - Early stopping: E22, Best val_acc: 0.8571
+2025-07-15 12:54:07,328 - INFO - Run 5, Fold 3/3
+2025-07-15 12:54:08,576 - INFO - E10 TL:0.543 VL:1.878 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:54:09,665 - INFO - E20 TL:0.524 VL:2.886 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:54:10,725 - INFO - E30 TL:0.484 VL:1.866 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:10,934 - INFO - Early stopping: E32, Best val_acc: 0.7857
+2025-07-15 12:54:10,948 - INFO - New best overall accuracy: 0.8571 (Run 5)
+2025-07-15 12:54:10,948 - INFO - 
 Starting Run 6/30
-2025-06-28 12:27:30,301 - deep-learning.train - INFO - Run 6, Fold 1/3
-2025-06-28 12:27:31,577 - deep-learning.train - INFO - E10 TL:0.569 VL:1.983 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:27:32,681 - deep-learning.train - INFO - E20 TL:0.499 VL:1.606 VAcur:0.714 BestVAcur:0.786
-2025-06-28 12:27:33,138 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7857
-2025-06-28 12:27:33,141 - deep-learning.train - INFO - Run 6, Fold 2/3
-2025-06-28 12:27:34,378 - deep-learning.train - INFO - E10 TL:0.596 VL:2.579 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:35,426 - deep-learning.train - INFO - E20 TL:0.511 VL:1.771 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:27:36,036 - deep-learning.train - INFO - Early stopping: E26, Best val_acc: 0.7143
-2025-06-28 12:27:36,036 - deep-learning.train - INFO - Run 6, Fold 3/3
-2025-06-28 12:27:37,197 - deep-learning.train - INFO - E10 TL:0.553 VL:2.861 VAcur:0.357 BestVAcur:0.571
-2025-06-28 12:27:38,294 - deep-learning.train - INFO - E20 TL:0.492 VL:2.779 VAcur:0.429 BestVAcur:0.571
-2025-06-28 12:27:38,408 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.5714
-2025-06-28 12:27:38,412 - deep-learning.train - INFO - 
+2025-07-15 12:54:10,949 - INFO - Run 6, Fold 1/3
+2025-07-15 12:54:12,164 - INFO - E10 TL:0.570 VL:1.997 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:54:13,308 - INFO - E20 TL:0.498 VL:1.713 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:54:14,374 - INFO - E30 TL:0.483 VL:1.640 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:54:15,329 - INFO - Early stopping: E39, Best val_acc: 0.7857
+2025-07-15 12:54:15,333 - INFO - Run 6, Fold 2/3
+2025-07-15 12:54:16,508 - INFO - E10 TL:0.615 VL:2.564 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:54:17,576 - INFO - E20 TL:0.515 VL:1.982 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:54:17,791 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:54:17,792 - INFO - Run 6, Fold 3/3
+2025-07-15 12:54:18,948 - INFO - E10 TL:0.547 VL:3.170 VAcur:0.429 BestVAcur:0.571
+2025-07-15 12:54:20,041 - INFO - E20 TL:0.505 VL:3.106 VAcur:0.500 BestVAcur:0.571
+2025-07-15 12:54:20,254 - INFO - Early stopping: E22, Best val_acc: 0.5714
+2025-07-15 12:54:20,258 - INFO - 
 Starting Run 7/30
-2025-06-28 12:27:38,416 - deep-learning.train - INFO - Run 7, Fold 1/3
-2025-06-28 12:27:39,567 - deep-learning.train - INFO - E10 TL:0.591 VL:2.432 VAcur:0.357 BestVAcur:0.643
-2025-06-28 12:27:40,690 - deep-learning.train - INFO - E20 TL:0.518 VL:1.617 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:27:41,836 - deep-learning.train - INFO - E30 TL:0.485 VL:1.614 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:27:42,939 - deep-learning.train - INFO - E40 TL:0.464 VL:1.612 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:27:43,048 - deep-learning.train - INFO - Early stopping: E41, Best val_acc: 0.7143
-2025-06-28 12:27:43,051 - deep-learning.train - INFO - Run 7, Fold 2/3
-2025-06-28 12:27:44,156 - deep-learning.train - INFO - E10 TL:0.573 VL:2.387 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:27:45,176 - deep-learning.train - INFO - E20 TL:0.499 VL:1.528 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:27:45,277 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:27:45,277 - deep-learning.train - INFO - Run 7, Fold 3/3
-2025-06-28 12:27:46,481 - deep-learning.train - INFO - E10 TL:0.553 VL:2.257 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:27:47,603 - deep-learning.train - INFO - E20 TL:0.513 VL:1.835 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:27:47,939 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:27:47,942 - deep-learning.train - INFO - 
+2025-07-15 12:54:20,265 - INFO - Run 7, Fold 1/3
+2025-07-15 12:54:21,413 - INFO - E10 TL:0.678 VL:2.157 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:54:22,483 - INFO - E20 TL:0.524 VL:2.009 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:54:22,590 - INFO - Early stopping: E21, Best val_acc: 0.6429
+2025-07-15 12:54:22,592 - INFO - Run 7, Fold 2/3
+2025-07-15 12:54:23,831 - INFO - E10 TL:0.553 VL:1.895 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:54:24,930 - INFO - E20 TL:0.502 VL:1.151 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:25,989 - INFO - E30 TL:0.480 VL:1.153 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:26,779 - INFO - Early stopping: E37, Best val_acc: 0.7857
+2025-07-15 12:54:26,782 - INFO - Run 7, Fold 3/3
+2025-07-15 12:54:27,949 - INFO - E10 TL:0.599 VL:1.942 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:54:29,033 - INFO - E20 TL:0.518 VL:1.633 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:54:29,251 - INFO - Early stopping: E22, Best val_acc: 0.6429
+2025-07-15 12:54:29,251 - INFO - 
 Starting Run 8/30
-2025-06-28 12:27:47,950 - deep-learning.train - INFO - Run 8, Fold 1/3
-2025-06-28 12:27:49,096 - deep-learning.train - INFO - E10 TL:0.598 VL:2.337 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:27:50,255 - deep-learning.train - INFO - E20 TL:0.516 VL:2.439 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:50,587 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:27:50,590 - deep-learning.train - INFO - Run 8, Fold 2/3
-2025-06-28 12:27:51,787 - deep-learning.train - INFO - E10 TL:0.604 VL:1.655 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:27:52,942 - deep-learning.train - INFO - E20 TL:0.516 VL:1.317 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:53,054 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:27:53,055 - deep-learning.train - INFO - Run 8, Fold 3/3
-2025-06-28 12:27:54,190 - deep-learning.train - INFO - E10 TL:0.546 VL:2.047 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:27:55,303 - deep-learning.train - INFO - E20 TL:0.524 VL:1.670 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:27:55,411 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:27:55,415 - deep-learning.train - INFO - 
+2025-07-15 12:54:29,255 - INFO - Run 8, Fold 1/3
+2025-07-15 12:54:30,399 - INFO - E10 TL:0.574 VL:2.278 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:54:31,456 - INFO - E20 TL:0.501 VL:2.061 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:54:31,565 - INFO - Early stopping: E21, Best val_acc: 0.6429
+2025-07-15 12:54:31,569 - INFO - Run 8, Fold 2/3
+2025-07-15 12:54:32,801 - INFO - E10 TL:0.573 VL:1.807 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:54:33,922 - INFO - E20 TL:0.524 VL:1.647 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:54:34,983 - INFO - E30 TL:0.476 VL:1.344 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:54:35,302 - INFO - Early stopping: E33, Best val_acc: 0.7857
+2025-07-15 12:54:35,306 - INFO - Run 8, Fold 3/3
+2025-07-15 12:54:36,435 - INFO - E10 TL:0.550 VL:2.008 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:54:37,501 - INFO - E20 TL:0.525 VL:1.673 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:54:37,609 - INFO - Early stopping: E21, Best val_acc: 0.7143
+2025-07-15 12:54:37,609 - INFO - 
 Starting Run 9/30
-2025-06-28 12:27:55,418 - deep-learning.train - INFO - Run 9, Fold 1/3
-2025-06-28 12:27:56,705 - deep-learning.train - INFO - E10 TL:0.602 VL:1.983 VAcur:0.500 BestVAcur:0.786
-2025-06-28 12:27:57,868 - deep-learning.train - INFO - E20 TL:0.506 VL:1.796 VAcur:0.643 BestVAcur:0.857
-2025-06-28 12:27:58,996 - deep-learning.train - INFO - E30 TL:0.478 VL:1.457 VAcur:0.714 BestVAcur:0.857
-2025-06-28 12:27:59,452 - deep-learning.train - INFO - Early stopping: E34, Best val_acc: 0.8571
-2025-06-28 12:27:59,456 - deep-learning.train - INFO - Run 9, Fold 2/3
-2025-06-28 12:28:00,602 - deep-learning.train - INFO - E10 TL:0.560 VL:3.305 VAcur:0.357 BestVAcur:0.571
-2025-06-28 12:28:01,641 - deep-learning.train - INFO - E20 TL:0.501 VL:2.068 VAcur:0.571 BestVAcur:0.571
-2025-06-28 12:28:02,513 - deep-learning.train - INFO - Early stopping: E28, Best val_acc: 0.5714
-2025-06-28 12:28:02,513 - deep-learning.train - INFO - Run 9, Fold 3/3
-2025-06-28 12:28:03,728 - deep-learning.train - INFO - E10 TL:0.545 VL:1.915 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:28:04,865 - deep-learning.train - INFO - E20 TL:0.502 VL:1.812 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:05,415 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.7143
-2025-06-28 12:28:05,420 - deep-learning.train - INFO - 
+2025-07-15 12:54:37,614 - INFO - Run 9, Fold 1/3
+2025-07-15 12:54:38,839 - INFO - E10 TL:0.546 VL:1.737 VAcur:0.857 BestVAcur:0.857
+2025-07-15 12:54:39,927 - INFO - E20 TL:0.494 VL:1.544 VAcur:0.714 BestVAcur:0.857
+2025-07-15 12:54:40,351 - INFO - Early stopping: E24, Best val_acc: 0.8571
+2025-07-15 12:54:40,355 - INFO - Run 9, Fold 2/3
+2025-07-15 12:54:41,535 - INFO - E10 TL:0.606 VL:2.973 VAcur:0.429 BestVAcur:0.500
+2025-07-15 12:54:42,682 - INFO - E20 TL:0.540 VL:2.411 VAcur:0.429 BestVAcur:0.643
+2025-07-15 12:54:43,749 - INFO - E30 TL:0.487 VL:1.862 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:54:44,404 - INFO - Early stopping: E36, Best val_acc: 0.6429
+2025-07-15 12:54:44,405 - INFO - Run 9, Fold 3/3
+2025-07-15 12:54:45,618 - INFO - E10 TL:0.569 VL:1.684 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:54:46,675 - INFO - E20 TL:0.522 VL:1.924 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:54:47,013 - INFO - Early stopping: E23, Best val_acc: 0.6429
+2025-07-15 12:54:47,018 - INFO - 
 Starting Run 10/30
-2025-06-28 12:28:05,427 - deep-learning.train - INFO - Run 10, Fold 1/3
-2025-06-28 12:28:06,543 - deep-learning.train - INFO - E10 TL:0.577 VL:2.124 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:07,670 - deep-learning.train - INFO - E20 TL:0.502 VL:1.401 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:28:08,790 - deep-learning.train - INFO - E30 TL:0.478 VL:1.522 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:28:09,228 - deep-learning.train - INFO - Early stopping: E34, Best val_acc: 0.7857
-2025-06-28 12:28:09,230 - deep-learning.train - INFO - Run 10, Fold 2/3
-2025-06-28 12:28:10,413 - deep-learning.train - INFO - E10 TL:0.630 VL:3.173 VAcur:0.429 BestVAcur:0.786
-2025-06-28 12:28:11,559 - deep-learning.train - INFO - E20 TL:0.511 VL:1.977 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:28:11,902 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7857
-2025-06-28 12:28:11,902 - deep-learning.train - INFO - Run 10, Fold 3/3
-2025-06-28 12:28:13,098 - deep-learning.train - INFO - E10 TL:0.545 VL:1.326 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:28:14,200 - deep-learning.train - INFO - E20 TL:0.479 VL:1.289 VAcur:0.714 BestVAcur:0.786
-2025-06-28 12:28:14,965 - deep-learning.train - INFO - Early stopping: E27, Best val_acc: 0.7857
-2025-06-28 12:28:14,968 - deep-learning.train - INFO - 
+2025-07-15 12:54:47,026 - INFO - Run 10, Fold 1/3
+2025-07-15 12:54:48,199 - INFO - E10 TL:0.595 VL:1.774 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:54:49,300 - INFO - E20 TL:0.498 VL:1.588 VAcur:0.429 BestVAcur:0.786
+2025-07-15 12:54:50,372 - INFO - E30 TL:0.477 VL:1.580 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:50,585 - INFO - Early stopping: E32, Best val_acc: 0.7857
+2025-07-15 12:54:50,589 - INFO - Run 10, Fold 2/3
+2025-07-15 12:54:51,813 - INFO - E10 TL:0.687 VL:3.130 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:54:52,876 - INFO - E20 TL:0.510 VL:2.388 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:54:53,201 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:54:53,201 - INFO - Run 10, Fold 3/3
+2025-07-15 12:54:54,366 - INFO - E10 TL:0.595 VL:1.514 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:54:55,437 - INFO - E20 TL:0.489 VL:1.427 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:54:55,753 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:54:55,757 - INFO - 
 Starting Run 11/30
-2025-06-28 12:28:14,976 - deep-learning.train - INFO - Run 11, Fold 1/3
-2025-06-28 12:28:16,207 - deep-learning.train - INFO - E10 TL:0.613 VL:2.393 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:17,290 - deep-learning.train - INFO - E20 TL:0.516 VL:1.718 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:18,155 - deep-learning.train - INFO - Early stopping: E28, Best val_acc: 0.7143
-2025-06-28 12:28:18,158 - deep-learning.train - INFO - Run 11, Fold 2/3
-2025-06-28 12:28:19,386 - deep-learning.train - INFO - E10 TL:0.539 VL:1.426 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:28:20,498 - deep-learning.train - INFO - E20 TL:0.512 VL:1.396 VAcur:0.643 BestVAcur:0.857
-2025-06-28 12:28:21,575 - deep-learning.train - INFO - E30 TL:0.475 VL:1.079 VAcur:0.714 BestVAcur:0.857
-2025-06-28 12:28:22,221 - deep-learning.train - INFO - Early stopping: E36, Best val_acc: 0.8571
-2025-06-28 12:28:22,225 - deep-learning.train - INFO - Run 11, Fold 3/3
-2025-06-28 12:28:23,444 - deep-learning.train - INFO - E10 TL:0.579 VL:2.204 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:24,526 - deep-learning.train - INFO - E20 TL:0.501 VL:1.643 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:28:24,854 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:28:24,854 - deep-learning.train - INFO - 
+2025-07-15 12:54:55,764 - INFO - Run 11, Fold 1/3
+2025-07-15 12:54:57,019 - INFO - E10 TL:0.670 VL:2.313 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:54:58,103 - INFO - E20 TL:0.517 VL:1.632 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:54:59,069 - INFO - Early stopping: E29, Best val_acc: 0.7143
+2025-07-15 12:54:59,071 - INFO - Run 11, Fold 2/3
+2025-07-15 12:55:00,302 - INFO - E10 TL:0.532 VL:1.313 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:55:01,369 - INFO - E20 TL:0.496 VL:1.206 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:55:02,498 - INFO - E30 TL:0.474 VL:1.136 VAcur:0.714 BestVAcur:0.857
+2025-07-15 12:55:03,567 - INFO - E40 TL:0.473 VL:1.023 VAcur:0.714 BestVAcur:0.857
+2025-07-15 12:55:03,999 - INFO - Early stopping: E44, Best val_acc: 0.8571
+2025-07-15 12:55:04,003 - INFO - Run 11, Fold 3/3
+2025-07-15 12:55:05,220 - INFO - E10 TL:0.585 VL:1.956 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:55:06,292 - INFO - E20 TL:0.520 VL:1.534 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:55:06,615 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:55:06,615 - INFO - 
 Starting Run 12/30
-2025-06-28 12:28:24,858 - deep-learning.train - INFO - Run 12, Fold 1/3
-2025-06-28 12:28:26,052 - deep-learning.train - INFO - E10 TL:0.576 VL:2.153 VAcur:0.500 BestVAcur:0.643
-2025-06-28 12:28:27,145 - deep-learning.train - INFO - E20 TL:0.498 VL:1.992 VAcur:0.429 BestVAcur:0.643
-2025-06-28 12:28:27,798 - deep-learning.train - INFO - Early stopping: E26, Best val_acc: 0.6429
-2025-06-28 12:28:27,802 - deep-learning.train - INFO - Run 12, Fold 2/3
-2025-06-28 12:28:28,954 - deep-learning.train - INFO - E10 TL:0.585 VL:2.385 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:30,053 - deep-learning.train - INFO - E20 TL:0.501 VL:2.061 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:28:30,164 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:28:30,169 - deep-learning.train - INFO - Run 12, Fold 3/3
-2025-06-28 12:28:31,424 - deep-learning.train - INFO - E10 TL:0.592 VL:2.988 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:32,507 - deep-learning.train - INFO - E20 TL:0.507 VL:2.207 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:32,832 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:28:32,832 - deep-learning.train - INFO - 
+2025-07-15 12:55:06,620 - INFO - Run 12, Fold 1/3
+2025-07-15 12:55:07,831 - INFO - E10 TL:0.581 VL:2.592 VAcur:0.357 BestVAcur:0.714
+2025-07-15 12:55:08,907 - INFO - E20 TL:0.508 VL:2.021 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:55:09,229 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:55:09,233 - INFO - Run 12, Fold 2/3
+2025-07-15 12:55:10,391 - INFO - E10 TL:0.531 VL:1.658 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:55:11,497 - INFO - E20 TL:0.493 VL:2.235 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:55:12,560 - INFO - E30 TL:0.478 VL:1.744 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:55:12,984 - INFO - Early stopping: E34, Best val_acc: 0.7857
+2025-07-15 12:55:12,988 - INFO - Run 12, Fold 3/3
+2025-07-15 12:55:14,223 - INFO - E10 TL:0.566 VL:2.379 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:55:15,284 - INFO - E20 TL:0.515 VL:2.294 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:55:15,598 - INFO - Early stopping: E23, Best val_acc: 0.6429
+2025-07-15 12:55:15,599 - INFO - 
 Starting Run 13/30
-2025-06-28 12:28:32,836 - deep-learning.train - INFO - Run 13, Fold 1/3
-2025-06-28 12:28:33,916 - deep-learning.train - INFO - E10 TL:0.593 VL:3.344 VAcur:0.429 BestVAcur:0.571
-2025-06-28 12:28:35,021 - deep-learning.train - INFO - E20 TL:0.502 VL:2.414 VAcur:0.571 BestVAcur:0.571
-2025-06-28 12:28:35,135 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.5714
-2025-06-28 12:28:35,139 - deep-learning.train - INFO - Run 13, Fold 2/3
-2025-06-28 12:28:36,285 - deep-learning.train - INFO - E10 TL:0.556 VL:1.960 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:28:37,363 - deep-learning.train - INFO - E20 TL:0.513 VL:1.597 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:37,470 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:28:37,473 - deep-learning.train - INFO - Run 13, Fold 3/3
-2025-06-28 12:28:38,611 - deep-learning.train - INFO - E10 TL:0.744 VL:2.503 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:28:39,609 - deep-learning.train - INFO - E20 TL:0.504 VL:1.859 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:39,913 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:28:39,913 - deep-learning.train - INFO - 
+2025-07-15 12:55:15,603 - INFO - Run 13, Fold 1/3
+2025-07-15 12:55:16,733 - INFO - E10 TL:0.550 VL:2.684 VAcur:0.357 BestVAcur:0.571
+2025-07-15 12:55:17,836 - INFO - E20 TL:0.499 VL:2.148 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:55:18,898 - INFO - E30 TL:0.486 VL:2.470 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:55:19,531 - INFO - Early stopping: E36, Best val_acc: 0.6429
+2025-07-15 12:55:19,535 - INFO - Run 13, Fold 2/3
+2025-07-15 12:55:20,743 - INFO - E10 TL:0.591 VL:1.646 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:55:21,806 - INFO - E20 TL:0.509 VL:1.610 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:55:22,227 - INFO - Early stopping: E24, Best val_acc: 0.7857
+2025-07-15 12:55:22,232 - INFO - Run 13, Fold 3/3
+2025-07-15 12:55:23,402 - INFO - E10 TL:0.622 VL:2.482 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:55:24,466 - INFO - E20 TL:0.509 VL:2.039 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:55:24,785 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:55:24,785 - INFO - 
 Starting Run 14/30
-2025-06-28 12:28:39,917 - deep-learning.train - INFO - Run 14, Fold 1/3
-2025-06-28 12:28:40,977 - deep-learning.train - INFO - E10 TL:0.569 VL:1.891 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:28:42,128 - deep-learning.train - INFO - E20 TL:0.494 VL:1.496 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:28:43,207 - deep-learning.train - INFO - E30 TL:0.474 VL:1.432 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:28:43,424 - deep-learning.train - INFO - Early stopping: E32, Best val_acc: 0.7857
-2025-06-28 12:28:43,429 - deep-learning.train - INFO - Run 14, Fold 2/3
-2025-06-28 12:28:44,500 - deep-learning.train - INFO - E10 TL:0.541 VL:2.116 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:28:45,536 - deep-learning.train - INFO - E20 TL:0.502 VL:1.582 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:46,571 - deep-learning.train - INFO - E30 TL:0.493 VL:1.454 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:46,897 - deep-learning.train - INFO - Early stopping: E33, Best val_acc: 0.7143
-2025-06-28 12:28:46,897 - deep-learning.train - INFO - Run 14, Fold 3/3
-2025-06-28 12:28:48,009 - deep-learning.train - INFO - E10 TL:0.628 VL:3.255 VAcur:0.357 BestVAcur:0.714
-2025-06-28 12:28:49,029 - deep-learning.train - INFO - E20 TL:0.521 VL:2.074 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:49,530 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.7143
-2025-06-28 12:28:49,533 - deep-learning.train - INFO - 
+2025-07-15 12:55:24,790 - INFO - Run 14, Fold 1/3
+2025-07-15 12:55:25,955 - INFO - E10 TL:0.557 VL:1.753 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:55:27,023 - INFO - E20 TL:0.482 VL:1.403 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:55:27,258 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:55:27,262 - INFO - Run 14, Fold 2/3
+2025-07-15 12:55:28,406 - INFO - E10 TL:0.579 VL:2.196 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:55:29,470 - INFO - E20 TL:0.486 VL:1.523 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:55:29,575 - INFO - Early stopping: E21, Best val_acc: 0.7143
+2025-07-15 12:55:29,576 - INFO - Run 14, Fold 3/3
+2025-07-15 12:55:30,748 - INFO - E10 TL:0.600 VL:2.822 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:55:31,816 - INFO - E20 TL:0.543 VL:2.092 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:55:32,030 - INFO - Early stopping: E22, Best val_acc: 0.6429
+2025-07-15 12:55:32,034 - INFO - 
 Starting Run 15/30
-2025-06-28 12:28:49,540 - deep-learning.train - INFO - Run 15, Fold 1/3
-2025-06-28 12:28:50,645 - deep-learning.train - INFO - E10 TL:0.568 VL:2.390 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:28:51,694 - deep-learning.train - INFO - E20 TL:0.500 VL:1.992 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:52,143 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7143
-2025-06-28 12:28:52,145 - deep-learning.train - INFO - Run 15, Fold 2/3
-2025-06-28 12:28:53,276 - deep-learning.train - INFO - E10 TL:0.541 VL:1.697 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:28:54,297 - deep-learning.train - INFO - E20 TL:0.513 VL:1.661 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:28:54,499 - deep-learning.train - INFO - Early stopping: E22, Best val_acc: 0.7857
-2025-06-28 12:28:54,502 - deep-learning.train - INFO - Run 15, Fold 3/3
-2025-06-28 12:28:55,572 - deep-learning.train - INFO - E10 TL:0.580 VL:2.269 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:28:56,620 - deep-learning.train - INFO - E20 TL:0.505 VL:1.567 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:28:56,728 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.6429
-2025-06-28 12:28:56,728 - deep-learning.train - INFO - 
+2025-07-15 12:55:32,042 - INFO - Run 15, Fold 1/3
+2025-07-15 12:55:33,208 - INFO - E10 TL:0.580 VL:2.902 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:55:34,267 - INFO - E20 TL:0.500 VL:2.100 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:55:34,475 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:55:34,478 - INFO - Run 15, Fold 2/3
+2025-07-15 12:55:35,666 - INFO - E10 TL:0.613 VL:2.175 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:55:36,724 - INFO - E20 TL:0.516 VL:1.441 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:55:37,470 - INFO - Early stopping: E27, Best val_acc: 0.7143
+2025-07-15 12:55:37,470 - INFO - Run 15, Fold 3/3
+2025-07-15 12:55:38,657 - INFO - E10 TL:0.545 VL:1.851 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:55:39,718 - INFO - E20 TL:0.495 VL:1.704 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:55:40,037 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:55:40,041 - INFO - 
 Starting Run 16/30
-2025-06-28 12:28:56,733 - deep-learning.train - INFO - Run 16, Fold 1/3
-2025-06-28 12:28:57,811 - deep-learning.train - INFO - E10 TL:0.640 VL:2.123 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:28:58,872 - deep-learning.train - INFO - E20 TL:0.559 VL:1.447 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:28:58,984 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:28:58,987 - deep-learning.train - INFO - Run 16, Fold 2/3
-2025-06-28 12:29:00,068 - deep-learning.train - INFO - E10 TL:0.534 VL:2.278 VAcur:0.429 BestVAcur:0.571
-2025-06-28 12:29:01,104 - deep-learning.train - INFO - E20 TL:0.496 VL:1.465 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:29:02,189 - deep-learning.train - INFO - E30 TL:0.470 VL:1.524 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:29:02,737 - deep-learning.train - INFO - Early stopping: E35, Best val_acc: 0.6429
-2025-06-28 12:29:02,737 - deep-learning.train - INFO - Run 16, Fold 3/3
-2025-06-28 12:29:03,889 - deep-learning.train - INFO - E10 TL:0.673 VL:2.462 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:29:04,915 - deep-learning.train - INFO - E20 TL:0.527 VL:1.725 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:29:05,321 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7857
-2025-06-28 12:29:05,330 - deep-learning.train - INFO - 
+2025-07-15 12:55:40,049 - INFO - Run 16, Fold 1/3
+2025-07-15 12:55:41,261 - INFO - E10 TL:0.612 VL:2.165 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:55:42,408 - INFO - E20 TL:0.512 VL:1.607 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:55:43,469 - INFO - E30 TL:0.475 VL:1.369 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:55:44,113 - INFO - Early stopping: E36, Best val_acc: 0.7857
+2025-07-15 12:55:44,115 - INFO - Run 16, Fold 2/3
+2025-07-15 12:55:45,253 - INFO - E10 TL:0.533 VL:2.311 VAcur:0.357 BestVAcur:0.571
+2025-07-15 12:55:46,310 - INFO - E20 TL:0.497 VL:1.837 VAcur:0.500 BestVAcur:0.571
+2025-07-15 12:55:47,411 - INFO - E30 TL:0.473 VL:1.422 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:55:48,470 - INFO - E40 TL:0.463 VL:1.717 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:55:48,581 - INFO - Early stopping: E41, Best val_acc: 0.6429
+2025-07-15 12:55:48,581 - INFO - Run 16, Fold 3/3
+2025-07-15 12:55:49,744 - INFO - E10 TL:0.562 VL:2.153 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:55:50,801 - INFO - E20 TL:0.509 VL:1.583 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:55:51,013 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:55:51,018 - INFO - 
 Starting Run 17/30
-2025-06-28 12:29:05,330 - deep-learning.train - INFO - Run 17, Fold 1/3
-2025-06-28 12:29:06,484 - deep-learning.train - INFO - E10 TL:0.599 VL:1.795 VAcur:0.429 BestVAcur:0.786
-2025-06-28 12:29:07,579 - deep-learning.train - INFO - E20 TL:0.501 VL:1.288 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:29:08,125 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.7857
-2025-06-28 12:29:08,128 - deep-learning.train - INFO - Run 17, Fold 2/3
-2025-06-28 12:29:09,286 - deep-learning.train - INFO - E10 TL:0.570 VL:2.831 VAcur:0.429 BestVAcur:0.571
-2025-06-28 12:29:10,420 - deep-learning.train - INFO - E20 TL:0.504 VL:1.789 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:29:11,511 - deep-learning.train - INFO - E30 TL:0.468 VL:1.554 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:29:12,306 - deep-learning.train - INFO - Early stopping: E37, Best val_acc: 0.6429
-2025-06-28 12:29:12,306 - deep-learning.train - INFO - Run 17, Fold 3/3
-2025-06-28 12:29:13,436 - deep-learning.train - INFO - E10 TL:0.771 VL:1.915 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:29:14,518 - deep-learning.train - INFO - E20 TL:0.549 VL:1.971 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:29:14,626 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:29:14,630 - deep-learning.train - INFO - 
+2025-07-15 12:55:51,025 - INFO - Run 17, Fold 1/3
+2025-07-15 12:55:52,235 - INFO - E10 TL:0.659 VL:1.768 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:55:53,311 - INFO - E20 TL:0.511 VL:1.445 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:55:54,036 - INFO - Early stopping: E27, Best val_acc: 0.7143
+2025-07-15 12:55:54,038 - INFO - Run 17, Fold 2/3
+2025-07-15 12:55:55,185 - INFO - E10 TL:0.569 VL:2.646 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:55:56,288 - INFO - E20 TL:0.503 VL:1.999 VAcur:0.429 BestVAcur:0.643
+2025-07-15 12:55:56,393 - INFO - Early stopping: E21, Best val_acc: 0.6429
+2025-07-15 12:55:56,394 - INFO - Run 17, Fold 3/3
+2025-07-15 12:55:57,571 - INFO - E10 TL:0.555 VL:2.210 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:55:58,639 - INFO - E20 TL:0.491 VL:1.617 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:55:58,849 - INFO - Early stopping: E22, Best val_acc: 0.7857
+2025-07-15 12:55:58,860 - INFO - 
 Starting Run 18/30
-2025-06-28 12:29:14,635 - deep-learning.train - INFO - Run 18, Fold 1/3
-2025-06-28 12:29:15,838 - deep-learning.train - INFO - E10 TL:0.579 VL:1.830 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:29:16,921 - deep-learning.train - INFO - E20 TL:0.500 VL:1.636 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:29:18,044 - deep-learning.train - INFO - E30 TL:0.481 VL:1.244 VAcur:0.714 BestVAcur:0.857
-2025-06-28 12:29:19,041 - deep-learning.train - INFO - E40 TL:0.463 VL:1.242 VAcur:0.643 BestVAcur:0.857
-2025-06-28 12:29:19,739 - deep-learning.train - INFO - Early stopping: E47, Best val_acc: 0.8571
-2025-06-28 12:29:19,741 - deep-learning.train - INFO - Run 18, Fold 2/3
-2025-06-28 12:29:20,839 - deep-learning.train - INFO - E10 TL:0.556 VL:2.421 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:29:21,902 - deep-learning.train - INFO - E20 TL:0.515 VL:1.993 VAcur:0.500 BestVAcur:0.643
-2025-06-28 12:29:22,661 - deep-learning.train - INFO - Early stopping: E27, Best val_acc: 0.6429
-2025-06-28 12:29:22,661 - deep-learning.train - INFO - Run 18, Fold 3/3
-2025-06-28 12:29:23,761 - deep-learning.train - INFO - E10 TL:0.635 VL:2.813 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:29:24,787 - deep-learning.train - INFO - E20 TL:0.516 VL:2.291 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:29:25,099 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:29:25,103 - deep-learning.train - INFO - 
+2025-07-15 12:55:58,860 - INFO - Run 18, Fold 1/3
+2025-07-15 12:56:00,079 - INFO - E10 TL:0.515 VL:1.878 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:56:01,142 - INFO - E20 TL:0.495 VL:1.476 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:01,777 - INFO - Early stopping: E26, Best val_acc: 0.7143
+2025-07-15 12:56:01,779 - INFO - Run 18, Fold 2/3
+2025-07-15 12:56:02,986 - INFO - E10 TL:0.561 VL:2.230 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:56:04,052 - INFO - E20 TL:0.501 VL:2.005 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:56:05,037 - INFO - Early stopping: E29, Best val_acc: 0.6429
+2025-07-15 12:56:05,037 - INFO - Run 18, Fold 3/3
+2025-07-15 12:56:06,176 - INFO - E10 TL:0.596 VL:2.501 VAcur:0.357 BestVAcur:0.714
+2025-07-15 12:56:07,255 - INFO - E20 TL:0.522 VL:2.031 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:07,364 - INFO - Early stopping: E21, Best val_acc: 0.7143
+2025-07-15 12:56:07,369 - INFO - 
 Starting Run 19/30
-2025-06-28 12:29:25,110 - deep-learning.train - INFO - Run 19, Fold 1/3
-2025-06-28 12:29:26,235 - deep-learning.train - INFO - E10 TL:0.582 VL:1.868 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:29:27,332 - deep-learning.train - INFO - E20 TL:0.508 VL:1.432 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:29:27,441 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:29:27,443 - deep-learning.train - INFO - Run 19, Fold 2/3
-2025-06-28 12:29:28,598 - deep-learning.train - INFO - E10 TL:0.678 VL:2.559 VAcur:0.500 BestVAcur:0.786
-2025-06-28 12:29:29,618 - deep-learning.train - INFO - E20 TL:0.519 VL:1.542 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:29:30,021 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7857
-2025-06-28 12:29:30,024 - deep-learning.train - INFO - Run 19, Fold 3/3
-2025-06-28 12:29:31,108 - deep-learning.train - INFO - E10 TL:0.622 VL:2.732 VAcur:0.357 BestVAcur:0.571
-2025-06-28 12:29:32,247 - deep-learning.train - INFO - E20 TL:0.512 VL:2.048 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:29:33,325 - deep-learning.train - INFO - E30 TL:0.478 VL:1.610 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:29:33,541 - deep-learning.train - INFO - Early stopping: E32, Best val_acc: 0.6429
-2025-06-28 12:29:33,541 - deep-learning.train - INFO - 
+2025-07-15 12:56:07,373 - INFO - Run 19, Fold 1/3
+2025-07-15 12:56:08,602 - INFO - E10 TL:0.519 VL:1.394 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:56:09,676 - INFO - E20 TL:0.502 VL:1.279 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:56:10,027 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:56:10,030 - INFO - Run 19, Fold 2/3
+2025-07-15 12:56:11,226 - INFO - E10 TL:0.682 VL:2.547 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:56:12,292 - INFO - E20 TL:0.545 VL:1.802 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:12,716 - INFO - Early stopping: E24, Best val_acc: 0.7143
+2025-07-15 12:56:12,717 - INFO - Run 19, Fold 3/3
+2025-07-15 12:56:13,862 - INFO - E10 TL:0.571 VL:2.316 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:56:14,937 - INFO - E20 TL:0.492 VL:1.881 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:56:15,043 - INFO - Early stopping: E21, Best val_acc: 0.6429
+2025-07-15 12:56:15,047 - INFO - 
 Starting Run 20/30
-2025-06-28 12:29:33,546 - deep-learning.train - INFO - Run 20, Fold 1/3
-2025-06-28 12:29:34,689 - deep-learning.train - INFO - E10 TL:0.612 VL:2.036 VAcur:0.357 BestVAcur:0.714
-2025-06-28 12:29:35,731 - deep-learning.train - INFO - E20 TL:0.510 VL:1.456 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:29:36,799 - deep-learning.train - INFO - E30 TL:0.470 VL:1.547 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:29:37,796 - deep-learning.train - INFO - Early stopping: E39, Best val_acc: 0.7857
-2025-06-28 12:29:37,801 - deep-learning.train - INFO - Run 20, Fold 2/3
-2025-06-28 12:29:38,992 - deep-learning.train - INFO - E10 TL:0.571 VL:1.578 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:29:40,030 - deep-learning.train - INFO - E20 TL:0.498 VL:1.209 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:29:40,438 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7143
-2025-06-28 12:29:40,438 - deep-learning.train - INFO - Run 20, Fold 3/3
-2025-06-28 12:29:41,584 - deep-learning.train - INFO - E10 TL:0.550 VL:2.592 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:29:42,674 - deep-learning.train - INFO - E20 TL:0.507 VL:2.000 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:29:43,111 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7143
-2025-06-28 12:29:43,116 - deep-learning.train - INFO - 
+2025-07-15 12:56:15,052 - INFO - Run 20, Fold 1/3
+2025-07-15 12:56:16,306 - INFO - E10 TL:0.537 VL:1.468 VAcur:0.571 BestVAcur:0.929
+2025-07-15 12:56:17,375 - INFO - E20 TL:0.500 VL:1.565 VAcur:0.500 BestVAcur:0.929
+2025-07-15 12:56:17,911 - INFO - Early stopping: E25, Best val_acc: 0.9286
+2025-07-15 12:56:17,914 - INFO - Run 20, Fold 2/3
+2025-07-15 12:56:19,096 - INFO - E10 TL:0.573 VL:1.598 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:56:20,168 - INFO - E20 TL:0.498 VL:1.422 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:20,597 - INFO - Early stopping: E24, Best val_acc: 0.7143
+2025-07-15 12:56:20,597 - INFO - Run 20, Fold 3/3
+2025-07-15 12:56:21,812 - INFO - E10 TL:0.608 VL:2.584 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:22,900 - INFO - E20 TL:0.498 VL:1.892 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:23,333 - INFO - Early stopping: E24, Best val_acc: 0.7143
+2025-07-15 12:56:23,344 - INFO - New best overall accuracy: 0.9286 (Run 20)
+2025-07-15 12:56:23,344 - INFO - 
 Starting Run 21/30
-2025-06-28 12:29:43,124 - deep-learning.train - INFO - Run 21, Fold 1/3
-2025-06-28 12:29:44,307 - deep-learning.train - INFO - E10 TL:0.556 VL:1.699 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:29:45,492 - deep-learning.train - INFO - E20 TL:0.511 VL:1.994 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:29:46,117 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.7143
-2025-06-28 12:29:46,121 - deep-learning.train - INFO - Run 21, Fold 2/3
-2025-06-28 12:29:47,525 - deep-learning.train - INFO - E10 TL:0.559 VL:1.662 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:29:48,663 - deep-learning.train - INFO - E20 TL:0.509 VL:1.506 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:29:49,110 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7143
-2025-06-28 12:29:49,110 - deep-learning.train - INFO - Run 21, Fold 3/3
-2025-06-28 12:29:50,241 - deep-learning.train - INFO - E10 TL:0.774 VL:2.648 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:29:51,323 - deep-learning.train - INFO - E20 TL:0.529 VL:1.775 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:29:51,430 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:29:51,434 - deep-learning.train - INFO - 
+2025-07-15 12:56:23,345 - INFO - Run 21, Fold 1/3
+2025-07-15 12:56:24,571 - INFO - E10 TL:0.566 VL:2.312 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:25,648 - INFO - E20 TL:0.510 VL:2.277 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:56:26,291 - INFO - Early stopping: E26, Best val_acc: 0.7143
+2025-07-15 12:56:26,295 - INFO - Run 21, Fold 2/3
+2025-07-15 12:56:27,524 - INFO - E10 TL:0.527 VL:1.724 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:56:28,603 - INFO - E20 TL:0.502 VL:1.510 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:29,043 - INFO - Early stopping: E24, Best val_acc: 0.7143
+2025-07-15 12:56:29,043 - INFO - Run 21, Fold 3/3
+2025-07-15 12:56:30,225 - INFO - E10 TL:0.566 VL:2.315 VAcur:0.643 BestVAcur:0.786
+2025-07-15 12:56:31,301 - INFO - E20 TL:0.495 VL:1.498 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:56:31,516 - INFO - Early stopping: E22, Best val_acc: 0.7857
+2025-07-15 12:56:31,530 - INFO - 
 Starting Run 22/30
-2025-06-28 12:29:51,439 - deep-learning.train - INFO - Run 22, Fold 1/3
-2025-06-28 12:29:52,535 - deep-learning.train - INFO - E10 TL:0.611 VL:2.749 VAcur:0.500 BestVAcur:0.643
-2025-06-28 12:29:53,648 - deep-learning.train - INFO - E20 TL:0.530 VL:1.256 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:29:54,742 - deep-learning.train - INFO - E30 TL:0.488 VL:1.473 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:29:55,827 - deep-learning.train - INFO - E40 TL:0.462 VL:1.423 VAcur:0.714 BestVAcur:0.786
-2025-06-28 12:29:56,042 - deep-learning.train - INFO - Early stopping: E42, Best val_acc: 0.7857
-2025-06-28 12:29:56,046 - deep-learning.train - INFO - Run 22, Fold 2/3
-2025-06-28 12:29:57,297 - deep-learning.train - INFO - E10 TL:0.568 VL:2.257 VAcur:0.429 BestVAcur:0.786
-2025-06-28 12:29:58,497 - deep-learning.train - INFO - E20 TL:0.515 VL:1.912 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:29:59,545 - deep-learning.train - INFO - Early stopping: E28, Best val_acc: 0.7857
-2025-06-28 12:29:59,545 - deep-learning.train - INFO - Run 22, Fold 3/3
-2025-06-28 12:30:00,765 - deep-learning.train - INFO - E10 TL:0.568 VL:2.011 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:30:01,869 - deep-learning.train - INFO - E20 TL:0.506 VL:1.676 VAcur:0.429 BestVAcur:0.714
-2025-06-28 12:30:02,237 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:30:02,242 - deep-learning.train - INFO - 
+2025-07-15 12:56:31,530 - INFO - Run 22, Fold 1/3
+2025-07-15 12:56:32,758 - INFO - E10 TL:0.699 VL:2.460 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:56:33,840 - INFO - E20 TL:0.533 VL:1.578 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:56:34,942 - INFO - E30 TL:0.476 VL:1.572 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:56:36,005 - INFO - E40 TL:0.473 VL:1.430 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:36,113 - INFO - Early stopping: E41, Best val_acc: 0.7143
+2025-07-15 12:56:36,115 - INFO - Run 22, Fold 2/3
+2025-07-15 12:56:37,299 - INFO - E10 TL:0.534 VL:2.513 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:56:38,366 - INFO - E20 TL:0.529 VL:2.003 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:38,689 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:56:38,689 - INFO - Run 22, Fold 3/3
+2025-07-15 12:56:39,871 - INFO - E10 TL:0.621 VL:2.672 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:56:40,939 - INFO - E20 TL:0.528 VL:1.984 VAcur:0.357 BestVAcur:0.714
+2025-07-15 12:56:41,155 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:56:41,159 - INFO - 
 Starting Run 23/30
-2025-06-28 12:30:02,250 - deep-learning.train - INFO - Run 23, Fold 1/3
-2025-06-28 12:30:03,501 - deep-learning.train - INFO - E10 TL:0.649 VL:2.419 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:30:04,577 - deep-learning.train - INFO - E20 TL:0.508 VL:1.723 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:30:04,897 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:30:04,899 - deep-learning.train - INFO - Run 23, Fold 2/3
-2025-06-28 12:30:06,113 - deep-learning.train - INFO - E10 TL:0.555 VL:2.368 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:30:07,190 - deep-learning.train - INFO - E20 TL:0.504 VL:1.457 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:30:07,721 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.6429
-2025-06-28 12:30:07,721 - deep-learning.train - INFO - Run 23, Fold 3/3
-2025-06-28 12:30:08,941 - deep-learning.train - INFO - E10 TL:0.593 VL:1.056 VAcur:0.857 BestVAcur:0.857
-2025-06-28 12:30:10,000 - deep-learning.train - INFO - E20 TL:0.506 VL:1.469 VAcur:0.643 BestVAcur:0.857
-2025-06-28 12:30:11,055 - deep-learning.train - INFO - Early stopping: E30, Best val_acc: 0.8571
-2025-06-28 12:30:11,067 - deep-learning.train - INFO - 
+2025-07-15 12:56:41,167 - INFO - Run 23, Fold 1/3
+2025-07-15 12:56:42,391 - INFO - E10 TL:0.695 VL:2.474 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:56:43,468 - INFO - E20 TL:0.515 VL:1.847 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:56:43,792 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:56:43,795 - INFO - Run 23, Fold 2/3
+2025-07-15 12:56:45,026 - INFO - E10 TL:0.544 VL:1.887 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:46,110 - INFO - E20 TL:0.493 VL:1.697 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:56:46,435 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:56:46,435 - INFO - Run 23, Fold 3/3
+2025-07-15 12:56:47,581 - INFO - E10 TL:0.617 VL:2.018 VAcur:0.429 BestVAcur:0.643
+2025-07-15 12:56:48,690 - INFO - E20 TL:0.518 VL:1.617 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:56:49,758 - INFO - E30 TL:0.486 VL:1.267 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:50,817 - INFO - Early stopping: E40, Best val_acc: 0.7143
+2025-07-15 12:56:50,821 - INFO - 
 Starting Run 24/30
-2025-06-28 12:30:11,068 - deep-learning.train - INFO - Run 24, Fold 1/3
-2025-06-28 12:30:12,247 - deep-learning.train - INFO - E10 TL:0.609 VL:2.404 VAcur:0.429 BestVAcur:0.643
-2025-06-28 12:30:13,367 - deep-learning.train - INFO - E20 TL:0.514 VL:1.522 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:30:14,444 - deep-learning.train - INFO - E30 TL:0.479 VL:1.904 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:30:15,306 - deep-learning.train - INFO - Early stopping: E38, Best val_acc: 0.7143
-2025-06-28 12:30:15,310 - deep-learning.train - INFO - Run 24, Fold 2/3
-2025-06-28 12:30:16,444 - deep-learning.train - INFO - E10 TL:0.548 VL:2.467 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:30:17,526 - deep-learning.train - INFO - E20 TL:0.506 VL:1.346 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:30:17,851 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:30:17,852 - deep-learning.train - INFO - Run 24, Fold 3/3
-2025-06-28 12:30:18,964 - deep-learning.train - INFO - E10 TL:0.576 VL:2.663 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:30:19,983 - deep-learning.train - INFO - E20 TL:0.509 VL:2.273 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:30:20,489 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.6429
-2025-06-28 12:30:20,493 - deep-learning.train - INFO - 
+2025-07-15 12:56:50,829 - INFO - Run 24, Fold 1/3
+2025-07-15 12:56:52,072 - INFO - E10 TL:0.602 VL:2.543 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:56:53,139 - INFO - E20 TL:0.510 VL:1.889 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:56:53,467 - INFO - Early stopping: E23, Best val_acc: 0.6429
+2025-07-15 12:56:53,469 - INFO - Run 24, Fold 2/3
+2025-07-15 12:56:54,649 - INFO - E10 TL:0.548 VL:1.908 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:56:55,747 - INFO - E20 TL:0.492 VL:1.542 VAcur:0.786 BestVAcur:0.786
+2025-07-15 12:56:56,817 - INFO - E30 TL:0.471 VL:1.359 VAcur:0.786 BestVAcur:0.786
+2025-07-15 12:56:57,829 - INFO - Early stopping: E39, Best val_acc: 0.7857
+2025-07-15 12:56:57,833 - INFO - Run 24, Fold 3/3
+2025-07-15 12:56:59,007 - INFO - E10 TL:0.564 VL:3.641 VAcur:0.214 BestVAcur:0.643
+2025-07-15 12:57:00,075 - INFO - E20 TL:0.489 VL:2.388 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:57:00,610 - INFO - Early stopping: E25, Best val_acc: 0.6429
+2025-07-15 12:57:00,610 - INFO - 
 Starting Run 25/30
-2025-06-28 12:30:20,500 - deep-learning.train - INFO - Run 25, Fold 1/3
-2025-06-28 12:30:21,699 - deep-learning.train - INFO - E10 TL:0.601 VL:2.560 VAcur:0.357 BestVAcur:0.714
-2025-06-28 12:30:22,783 - deep-learning.train - INFO - E20 TL:0.514 VL:1.485 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:30:23,000 - deep-learning.train - INFO - Early stopping: E22, Best val_acc: 0.7143
-2025-06-28 12:30:23,002 - deep-learning.train - INFO - Run 25, Fold 2/3
-2025-06-28 12:30:24,134 - deep-learning.train - INFO - E10 TL:0.637 VL:1.296 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:30:25,151 - deep-learning.train - INFO - E20 TL:0.514 VL:1.595 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:30:26,161 - deep-learning.train - INFO - Early stopping: E30, Best val_acc: 0.7857
-2025-06-28 12:30:26,165 - deep-learning.train - INFO - Run 25, Fold 3/3
-2025-06-28 12:30:27,315 - deep-learning.train - INFO - E10 TL:0.587 VL:2.564 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:30:28,394 - deep-learning.train - INFO - E20 TL:0.517 VL:2.822 VAcur:0.500 BestVAcur:0.643
-2025-06-28 12:30:28,825 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.6429
-2025-06-28 12:30:28,825 - deep-learning.train - INFO - 
+2025-07-15 12:57:00,615 - INFO - Run 25, Fold 1/3
+2025-07-15 12:57:01,796 - INFO - E10 TL:0.563 VL:1.782 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:57:02,872 - INFO - E20 TL:0.518 VL:1.371 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:57:03,085 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:57:03,089 - INFO - Run 25, Fold 2/3
+2025-07-15 12:57:04,309 - INFO - E10 TL:0.593 VL:1.752 VAcur:0.500 BestVAcur:0.643
+2025-07-15 12:57:05,414 - INFO - E20 TL:0.509 VL:1.513 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:57:06,478 - INFO - E30 TL:0.473 VL:1.572 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:57:07,435 - INFO - Early stopping: E39, Best val_acc: 0.7143
+2025-07-15 12:57:07,436 - INFO - Run 25, Fold 3/3
+2025-07-15 12:57:08,669 - INFO - E10 TL:0.572 VL:2.244 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:57:09,735 - INFO - E20 TL:0.517 VL:1.847 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:57:10,268 - INFO - Early stopping: E25, Best val_acc: 0.7143
+2025-07-15 12:57:10,273 - INFO - 
 Starting Run 26/30
-2025-06-28 12:30:28,830 - deep-learning.train - INFO - Run 26, Fold 1/3
-2025-06-28 12:30:29,914 - deep-learning.train - INFO - E10 TL:0.564 VL:1.623 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:30:30,932 - deep-learning.train - INFO - E20 TL:0.501 VL:1.503 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:30:31,036 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.6429
-2025-06-28 12:30:31,040 - deep-learning.train - INFO - Run 26, Fold 2/3
-2025-06-28 12:30:32,218 - deep-learning.train - INFO - E10 TL:0.598 VL:1.726 VAcur:0.357 BestVAcur:0.643
-2025-06-28 12:30:33,293 - deep-learning.train - INFO - E20 TL:0.515 VL:1.808 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:30:33,508 - deep-learning.train - INFO - Early stopping: E22, Best val_acc: 0.6429
-2025-06-28 12:30:33,508 - deep-learning.train - INFO - Run 26, Fold 3/3
-2025-06-28 12:30:34,679 - deep-learning.train - INFO - E10 TL:0.581 VL:2.346 VAcur:0.429 BestVAcur:0.786
-2025-06-28 12:30:35,691 - deep-learning.train - INFO - E20 TL:0.520 VL:1.898 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:30:36,205 - deep-learning.train - INFO - Early stopping: E25, Best val_acc: 0.7857
-2025-06-28 12:30:36,215 - deep-learning.train - INFO - 
+2025-07-15 12:57:10,280 - INFO - Run 26, Fold 1/3
+2025-07-15 12:57:11,417 - INFO - E10 TL:0.553 VL:1.696 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:57:12,483 - INFO - E20 TL:0.503 VL:1.561 VAcur:0.571 BestVAcur:0.643
+2025-07-15 12:57:12,589 - INFO - Early stopping: E21, Best val_acc: 0.6429
+2025-07-15 12:57:12,594 - INFO - Run 26, Fold 2/3
+2025-07-15 12:57:13,826 - INFO - E10 TL:0.543 VL:1.676 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:57:14,942 - INFO - E20 TL:0.490 VL:1.121 VAcur:0.786 BestVAcur:0.786
+2025-07-15 12:57:16,004 - INFO - E30 TL:0.471 VL:1.470 VAcur:0.429 BestVAcur:0.786
+2025-07-15 12:57:16,855 - INFO - Early stopping: E38, Best val_acc: 0.7857
+2025-07-15 12:57:16,859 - INFO - Run 26, Fold 3/3
+2025-07-15 12:57:18,069 - INFO - E10 TL:0.540 VL:2.151 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:57:19,137 - INFO - E20 TL:0.508 VL:1.804 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:57:19,459 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:57:19,459 - INFO - 
 Starting Run 27/30
-2025-06-28 12:30:36,216 - deep-learning.train - INFO - Run 27, Fold 1/3
-2025-06-28 12:30:37,364 - deep-learning.train - INFO - E10 TL:0.587 VL:1.597 VAcur:0.571 BestVAcur:0.643
-2025-06-28 12:30:38,496 - deep-learning.train - INFO - E20 TL:0.522 VL:1.419 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:30:39,580 - deep-learning.train - INFO - E30 TL:0.474 VL:1.458 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:30:40,665 - deep-learning.train - INFO - Early stopping: E40, Best val_acc: 0.7143
-2025-06-28 12:30:40,669 - deep-learning.train - INFO - Run 27, Fold 2/3
-2025-06-28 12:30:41,799 - deep-learning.train - INFO - E10 TL:0.545 VL:2.365 VAcur:0.500 BestVAcur:0.571
-2025-06-28 12:30:42,885 - deep-learning.train - INFO - E20 TL:0.495 VL:1.773 VAcur:0.571 BestVAcur:0.571
-2025-06-28 12:30:42,994 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.5714
-2025-06-28 12:30:42,995 - deep-learning.train - INFO - Run 27, Fold 3/3
-2025-06-28 12:30:44,134 - deep-learning.train - INFO - E10 TL:0.598 VL:2.116 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:30:45,133 - deep-learning.train - INFO - E20 TL:0.512 VL:1.781 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:30:45,432 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7143
-2025-06-28 12:30:45,435 - deep-learning.train - INFO - 
+2025-07-15 12:57:19,464 - INFO - Run 27, Fold 1/3
+2025-07-15 12:57:20,677 - INFO - E10 TL:0.553 VL:2.062 VAcur:0.643 BestVAcur:0.643
+2025-07-15 12:57:21,785 - INFO - E20 TL:0.515 VL:1.555 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:57:22,850 - INFO - E30 TL:0.487 VL:1.472 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:57:23,061 - INFO - Early stopping: E32, Best val_acc: 0.7143
+2025-07-15 12:57:23,065 - INFO - Run 27, Fold 2/3
+2025-07-15 12:57:24,239 - INFO - E10 TL:0.569 VL:2.647 VAcur:0.429 BestVAcur:0.571
+2025-07-15 12:57:25,305 - INFO - E20 TL:0.505 VL:2.107 VAcur:0.571 BestVAcur:0.571
+2025-07-15 12:57:25,517 - INFO - Early stopping: E22, Best val_acc: 0.5714
+2025-07-15 12:57:25,517 - INFO - Run 27, Fold 3/3
+2025-07-15 12:57:26,722 - INFO - E10 TL:0.544 VL:2.230 VAcur:0.500 BestVAcur:0.714
+2025-07-15 12:57:27,789 - INFO - E20 TL:0.506 VL:1.909 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:57:28,105 - INFO - Early stopping: E23, Best val_acc: 0.7143
+2025-07-15 12:57:28,110 - INFO - 
 Starting Run 28/30
-2025-06-28 12:30:45,441 - deep-learning.train - INFO - Run 28, Fold 1/3
-2025-06-28 12:30:46,622 - deep-learning.train - INFO - E10 TL:0.535 VL:1.410 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:30:47,704 - deep-learning.train - INFO - E20 TL:0.515 VL:1.932 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:30:48,136 - deep-learning.train - INFO - Early stopping: E24, Best val_acc: 0.7857
-2025-06-28 12:30:48,141 - deep-learning.train - INFO - Run 28, Fold 2/3
-2025-06-28 12:30:49,239 - deep-learning.train - INFO - E10 TL:0.599 VL:2.885 VAcur:0.286 BestVAcur:0.714
-2025-06-28 12:30:50,267 - deep-learning.train - INFO - E20 TL:0.514 VL:1.616 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:30:50,367 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:30:50,367 - deep-learning.train - INFO - Run 28, Fold 3/3
-2025-06-28 12:30:51,559 - deep-learning.train - INFO - E10 TL:0.570 VL:1.539 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:30:52,683 - deep-learning.train - INFO - E20 TL:0.506 VL:1.296 VAcur:0.786 BestVAcur:0.786
-2025-06-28 12:30:53,779 - deep-learning.train - INFO - E30 TL:0.483 VL:1.483 VAcur:0.571 BestVAcur:0.786
-2025-06-28 12:30:54,859 - deep-learning.train - INFO - Early stopping: E40, Best val_acc: 0.7857
-2025-06-28 12:30:54,863 - deep-learning.train - INFO - 
+2025-07-15 12:57:28,117 - INFO - Run 28, Fold 1/3
+2025-07-15 12:57:29,295 - INFO - E10 TL:0.535 VL:1.565 VAcur:0.714 BestVAcur:0.714
+2025-07-15 12:57:30,358 - INFO - E20 TL:0.504 VL:1.812 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:57:30,574 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:57:30,578 - INFO - Run 28, Fold 2/3
+2025-07-15 12:57:31,793 - INFO - E10 TL:0.554 VL:2.298 VAcur:0.357 BestVAcur:0.786
+2025-07-15 12:57:32,854 - INFO - E20 TL:0.502 VL:1.840 VAcur:0.571 BestVAcur:0.786
+2025-07-15 12:57:33,170 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:57:33,175 - INFO - Run 28, Fold 3/3
+2025-07-15 12:57:34,346 - INFO - E10 TL:0.557 VL:1.394 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:57:35,426 - INFO - E20 TL:0.506 VL:1.274 VAcur:0.571 BestVAcur:0.714
+2025-07-15 12:57:35,638 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:57:35,639 - INFO - 
 Starting Run 29/30
-2025-06-28 12:30:54,870 - deep-learning.train - INFO - Run 29, Fold 1/3
-2025-06-28 12:30:56,060 - deep-learning.train - INFO - E10 TL:0.585 VL:2.019 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:30:57,132 - deep-learning.train - INFO - E20 TL:0.515 VL:1.468 VAcur:0.643 BestVAcur:0.786
-2025-06-28 12:30:57,451 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7857
-2025-06-28 12:30:57,455 - deep-learning.train - INFO - Run 29, Fold 2/3
-2025-06-28 12:30:58,654 - deep-learning.train - INFO - E10 TL:0.569 VL:3.815 VAcur:0.286 BestVAcur:0.571
-2025-06-28 12:30:59,746 - deep-learning.train - INFO - E20 TL:0.509 VL:2.965 VAcur:0.214 BestVAcur:0.571
-2025-06-28 12:30:59,966 - deep-learning.train - INFO - Early stopping: E22, Best val_acc: 0.5714
-2025-06-28 12:30:59,967 - deep-learning.train - INFO - Run 29, Fold 3/3
-2025-06-28 12:31:01,120 - deep-learning.train - INFO - E10 TL:0.620 VL:1.568 VAcur:0.500 BestVAcur:0.643
-2025-06-28 12:31:02,202 - deep-learning.train - INFO - E20 TL:0.504 VL:1.304 VAcur:0.643 BestVAcur:0.643
-2025-06-28 12:31:03,320 - deep-learning.train - INFO - E30 TL:0.489 VL:1.215 VAcur:0.643 BestVAcur:0.714
-2025-06-28 12:31:04,395 - deep-learning.train - INFO - E40 TL:0.469 VL:1.212 VAcur:0.714 BestVAcur:0.714
-2025-06-28 12:31:04,503 - deep-learning.train - INFO - Early stopping: E41, Best val_acc: 0.7143
-2025-06-28 12:31:04,508 - deep-learning.train - INFO - 
+2025-07-15 12:57:35,643 - INFO - Run 29, Fold 1/3
+2025-07-15 12:57:36,824 - INFO - E10 TL:0.552 VL:1.791 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:57:37,901 - INFO - E20 TL:0.490 VL:1.225 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:57:38,121 - INFO - Early stopping: E22, Best val_acc: 0.7857
+2025-07-15 12:57:38,126 - INFO - Run 29, Fold 2/3
+2025-07-15 12:57:39,319 - INFO - E10 TL:0.546 VL:3.306 VAcur:0.286 BestVAcur:0.571
+2025-07-15 12:57:40,397 - INFO - E20 TL:0.519 VL:3.199 VAcur:0.429 BestVAcur:0.571
+2025-07-15 12:57:40,609 - INFO - Early stopping: E22, Best val_acc: 0.5714
+2025-07-15 12:57:40,609 - INFO - Run 29, Fold 3/3
+2025-07-15 12:57:41,814 - INFO - E10 TL:0.612 VL:1.779 VAcur:0.500 BestVAcur:0.786
+2025-07-15 12:57:42,881 - INFO - E20 TL:0.514 VL:1.403 VAcur:0.714 BestVAcur:0.786
+2025-07-15 12:57:43,206 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:57:43,211 - INFO - 
 Starting Run 30/30
-2025-06-28 12:31:04,516 - deep-learning.train - INFO - Run 30, Fold 1/3
-2025-06-28 12:31:05,661 - deep-learning.train - INFO - E10 TL:0.580 VL:2.656 VAcur:0.429 BestVAcur:0.786
-2025-06-28 12:31:06,736 - deep-learning.train - INFO - E20 TL:0.526 VL:1.386 VAcur:0.714 BestVAcur:0.786
-2025-06-28 12:31:07,058 - deep-learning.train - INFO - Early stopping: E23, Best val_acc: 0.7857
-2025-06-28 12:31:07,061 - deep-learning.train - INFO - Run 30, Fold 2/3
-2025-06-28 12:31:08,128 - deep-learning.train - INFO - E10 TL:0.589 VL:2.392 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:31:09,191 - deep-learning.train - INFO - E20 TL:0.528 VL:1.869 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:31:09,299 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:31:09,299 - deep-learning.train - INFO - Run 30, Fold 3/3
-2025-06-28 12:31:10,390 - deep-learning.train - INFO - E10 TL:0.578 VL:2.532 VAcur:0.571 BestVAcur:0.714
-2025-06-28 12:31:11,410 - deep-learning.train - INFO - E20 TL:0.509 VL:1.677 VAcur:0.500 BestVAcur:0.714
-2025-06-28 12:31:11,518 - deep-learning.train - INFO - Early stopping: E21, Best val_acc: 0.7143
-2025-06-28 12:31:11,522 - deep-learning.train - INFO - 
+2025-07-15 12:57:43,219 - INFO - Run 30, Fold 1/3
+2025-07-15 12:57:44,442 - INFO - E10 TL:0.608 VL:1.675 VAcur:0.429 BestVAcur:0.786
+2025-07-15 12:57:45,522 - INFO - E20 TL:0.523 VL:1.739 VAcur:0.786 BestVAcur:0.786
+2025-07-15 12:57:45,837 - INFO - Early stopping: E23, Best val_acc: 0.7857
+2025-07-15 12:57:45,842 - INFO - Run 30, Fold 2/3
+2025-07-15 12:57:46,989 - INFO - E10 TL:0.527 VL:1.936 VAcur:0.643 BestVAcur:0.714
+2025-07-15 12:57:48,060 - INFO - E20 TL:0.499 VL:1.768 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:57:48,168 - INFO - Early stopping: E21, Best val_acc: 0.7143
+2025-07-15 12:57:48,168 - INFO - Run 30, Fold 3/3
+2025-07-15 12:57:49,356 - INFO - E10 TL:0.590 VL:2.439 VAcur:0.429 BestVAcur:0.714
+2025-07-15 12:57:50,436 - INFO - E20 TL:0.508 VL:1.724 VAcur:0.357 BestVAcur:0.714
+2025-07-15 12:57:50,648 - INFO - Early stopping: E22, Best val_acc: 0.7143
+2025-07-15 12:57:50,652 - INFO - 
 Averaged metrics across all runs:
-2025-06-28 12:31:11,522 - deep-learning.train - INFO - Overall Accuracy: 0.7810 ± 0.0519
-2025-06-28 12:31:11,522 - deep-learning.train - INFO - 
+2025-07-15 12:57:50,652 - INFO - Overall Accuracy: 0.7810 ± 0.0486
+2025-07-15 12:57:50,652 - INFO - 
 Detailed metrics summary:
-2025-06-28 12:31:11,522 - deep-learning.train - INFO - balanced_accuracy: 0.7214 ± 0.0674
-2025-06-28 12:31:11,523 - deep-learning.train - INFO - precision: 0.6014 ± 0.1254
-2025-06-28 12:31:11,523 - deep-learning.train - INFO - recall: 0.6750 ± 0.0786
-2025-06-28 12:31:11,523 - deep-learning.train - INFO - f1: 0.6175 ± 0.0987
-2025-06-28 12:31:11,523 - deep-learning.train - INFO - auc_roc: 0.8418 ± 0.0544
+2025-07-15 12:57:50,652 - INFO - balanced_accuracy: 0.7270 ± 0.0653
+2025-07-15 12:57:50,652 - INFO - precision: 0.6299 ± 0.1172
+2025-07-15 12:57:50,652 - INFO - recall: 0.6815 ± 0.0762
+2025-07-15 12:57:50,652 - INFO - f1: 0.6313 ± 0.0909
+2025-07-15 12:57:50,652 - INFO - auc_roc: 0.8533 ± 0.0539
