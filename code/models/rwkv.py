@@ -1,9 +1,9 @@
-""" Recurrent Weighted Key-Value (RWKV) model for time series classification.
+"""Recurrent Weighted Key-Value (RWKV) model for time series classification.
 
 This module implements a Recurrent Weighted Key-Value (RWKV) model for time series classification.
 It includes linear layers for key, value, and output, and uses a recurrent mechanism to update
 the hidden state based on the input features. The model is designed to handle sequential data
-and is suitable for tasks such as time series forecasting or classification.    
+and is suitable for tasks such as time series forecasting or classification.
 
 References:
 1. Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., & Tegmark, M. (2024).
@@ -44,6 +44,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 class RWKV(nn.Module):
     """Receptance-Weighted Key-Value (RWKV) model for time series classification."""
+
     def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.1) -> None:
         """Initialize the RWKV model.
 
@@ -68,10 +69,10 @@ class RWKV(nn.Module):
         self.hidden = None
 
     def forward(self, x):
-        """Forward pass through the RWKV model. 
+        """Forward pass through the RWKV model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).    
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
 
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, output_dim),

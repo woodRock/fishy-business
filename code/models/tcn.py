@@ -1,8 +1,8 @@
-""" Temporal Convolutional Network (TCN) for time series classification.
+"""Temporal Convolutional Network (TCN) for time series classification.
 
 This module implements a Temporal Convolutional Network (TCN) for time series classification tasks.
 It includes temporal blocks with dilated convolutions, batch normalization, ReLU activation,
-and dropout for regularization. The architecture is designed to handle 1D input data, such as time series or sequential data.   
+and dropout for regularization. The architecture is designed to handle 1D input data, such as time series or sequential data.
 
 References:
 1. Bai, S., Kolter, J. Z., & Koltun, V. (2018).
@@ -13,7 +13,7 @@ References:
    The journal of machine learning research, 15(1), 1929-1958.
 3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. R. (2012).
    Improving neural networks by preventing co-adaptation of feature detectors.
-   arXiv preprint arXiv:1207.0580.  
+   arXiv preprint arXiv:1207.0580.
 """
 
 import torch
@@ -29,20 +29,21 @@ class Chomp1d(nn.Module):
     Removes the last elements of a time series.
     Used to ensure causal convolutions for time series prediction.
     """
+
     def __init__(self, chomp_size) -> None:
-        """ Initialize the Chomp1d module.
-        
-        Args:            
+        """Initialize the Chomp1d module.
+
+        Args:
             chomp_size (int): Number of elements to remove from the end of the sequence.
         """
         super(Chomp1d, self).__init__()
         self.chomp_size = chomp_size
 
     def forward(self, x):
-        """ Forward pass through the Chomp1d module.
+        """Forward pass through the Chomp1d module.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).    
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
 
         Returns:
             torch.Tensor: Output tensor with the last chomp_size elements removed from the sequence length dimension.
@@ -132,7 +133,7 @@ class TemporalBlock(nn.Module):
 
     def forward(self, x):
         """Forward pass through the temporal block.
-        
+
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
 
@@ -152,7 +153,7 @@ class TemporalConvNet(nn.Module):
     """
 
     def __init__(self, num_inputs, num_channels, kernel_size=2, dropout=0.2) -> None:
-        """Initialize the TemporalConvNet. 
+        """Initialize the TemporalConvNet.
 
         Args:
             num_inputs (int): Number of input channels.
@@ -185,8 +186,8 @@ class TemporalConvNet(nn.Module):
 
     def forward(self, x):
         """Forward pass through the TCN.
-        
-        Args: 
+
+        Args:
             x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
 
         Returns:
@@ -208,7 +209,7 @@ class TCN(nn.Module):
 
         Args:
             input_dim (int): Number of input features.
-            output_dim (int): Number of output classes. 
+            output_dim (int): Number of output classes.
             num_channels (list): List of output channels for each temporal block. Defaults to None.
             kernel_size (int): Size of the convolutional kernel. Defaults to 3.
             dropout (float): Dropout rate for regularization. Defaults to 0.3.
@@ -281,7 +282,7 @@ class TCN(nn.Module):
 
         Args:
             x: Input tensor of shape [batch_size, sequence_length]
-            
+
         Returns:
             Output tensor of shape [batch_size, output_dim]
         """

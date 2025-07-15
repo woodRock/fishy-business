@@ -45,7 +45,10 @@ class ResidualBlock(nn.Module):
     """Residual block for the RCNN model. This block includes two convolutional layers with batch normalization,
     ReLU activation, and dropout for regularization. It also includes a shortcut connection to add the input to the output,
     allowing for better gradient flow and feature reuse."""
-    def __init__(self, in_channels, out_channels, dropout=0.2, downsample=False) -> None:
+
+    def __init__(
+        self, in_channels, out_channels, dropout=0.2, downsample=False
+    ) -> None:
         """Initialize the ResidualBlock.
 
         Args:
@@ -79,8 +82,8 @@ class ResidualBlock(nn.Module):
             )
 
     def forward(self, x):
-        """ Forward pass through the residual block.
-        
+        """Forward pass through the residual block.
+
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, in_channels, seq_length
 
@@ -104,7 +107,9 @@ class RCNN(nn.Module):
     """Residual Convolutional Neural Network (RCNN) for classification.
     This model consists of multiple residual blocks followed by fully connected layers.
     It includes batch normalization, ReLU activation, and dropout for regularization.
-    The architecture is designed to handle 1D input data, such as time series or sequential data."""
+    The architecture is designed to handle 1D input data, such as time series or sequential data.
+    """
+
     def __init__(self, input_size, num_classes, dropout=0.5) -> None:
         """Initialize the RCNN model.
 
@@ -136,11 +141,11 @@ class RCNN(nn.Module):
         )
 
     def forward(self, x):
-        """Forward pass through the RCNN model. 
+        """Forward pass through the RCNN model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_size, sequence_length).  
-            
+            x (torch.Tensor): Input tensor of shape (batch_size, input_size, sequence_length).
+
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, num_classes),
             where num_classes is the number of output classes.

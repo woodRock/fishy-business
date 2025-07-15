@@ -1,4 +1,4 @@
-""" 
+"""
 DenseNet-like model for classification tasks.
 
 This module implements a DenseNet-like architecture for classification tasks.
@@ -20,6 +20,7 @@ References:
    Adam: A method for stochastic optimization.
    In International conference on learning representations (ICLR).  s
 """
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -30,14 +31,15 @@ from tqdm import tqdm
 
 
 class DenseBlock(nn.Module):
-    """ Dense block for DenseNet-like architecture. """
+    """Dense block for DenseNet-like architecture."""
+
     def __init__(self, in_channels, growth_rate, num_layers, dropout=0.5) -> None:
-        """ Initialize the dense block.
+        """Initialize the dense block.
 
         This block consists of multiple convolutional layers with batch normalization,
         ReLU activation, and dropout for regularization. Each layer takes the output
         from all previous layers as input, promoting feature reuse.
-        
+
         Args:
             in_channels (int): Number of input channels.
             growth_rate (int): Growth rate of the block.
@@ -60,9 +62,9 @@ class DenseBlock(nn.Module):
             self.layers.append(layer)
 
     def forward(self, x):
-        """ Forward pass through the dense block.
-        
-        Args: 
+        """Forward pass through the dense block.
+
+        Args:
             x (torch.Tensor): Input tensor with shape (batch_size, in_channels, sequence_length).
 
         Returns:
@@ -77,14 +79,15 @@ class DenseBlock(nn.Module):
 
 
 class TransitionLayer(nn.Module):
-    """ Transition layer for DenseNet-like architecture."""
+    """Transition layer for DenseNet-like architecture."""
+
     def __init__(self, in_channels, out_channels, dropout=0.5) -> None:
-        """ Initialize the transition layer.
-        
+        """Initialize the transition layer.
+
         This layer consists of batch normalization, ReLU activation, a 1x1 convolution,
         dropout for regularization, and average pooling to reduce the number of channels.
 
-        Args: 
+        Args:
             in_channels (int): Number of input channels.
             out_channels (int): Number of output channels.
             dropout (float): Dropout rate for regularization.
@@ -99,9 +102,9 @@ class TransitionLayer(nn.Module):
         )
 
     def forward(self, x):
-        """ Forward pass through the transition layer.
-        
-        Args: 
+        """Forward pass through the transition layer.
+
+        Args:
             x (torch.Tensor): Input tensor with shape (batch_size, in_channels, sequence_length).
 
         Returns:
@@ -112,14 +115,15 @@ class TransitionLayer(nn.Module):
 
 
 class Dense(nn.Module):
-    """ DenseNet-like model for classification tasks."""
+    """DenseNet-like model for classification tasks."""
+
     def __init__(self, input_dim, output_dim, dropout=0.3) -> None:
-        """ Initialize the DenseNet-like model.
-        
-        Args: 
+        """Initialize the DenseNet-like model.
+
+        Args:
             input_dim (int): Number of input features.
             output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization.   
+            dropout (float): Dropout rate for regularization.
         """
         super(Dense, self).__init__()
 
@@ -159,9 +163,9 @@ class Dense(nn.Module):
         )
 
     def forward(self, x):
-        """ Forward pass through the DenseNet-like model.
-        
-        Args: 
+        """Forward pass through the DenseNet-like model.
+
+        Args:
             x (torch.Tensor): Input tensor with shape (batch_size, input_dim, sequence_length).
 
         Returns:
