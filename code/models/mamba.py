@@ -1,7 +1,7 @@
-""" Mamba model implementation.
+"""Mamba model implementation.
 
 This module implements the Mamba model, a linear-time sequence modeling architecture
-with selective state spaces, as described in the paper by Gu and Dao (2023).    
+with selective state spaces, as described in the paper by Gu and Dao (2023).
 It includes the Mamba block and the overall Mamba model class.
 
 References:
@@ -40,7 +40,7 @@ References:
 10. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
     Rethinking the inception architecture for computer vision.
     In Proceedings of the IEEE conference on computer vision
-    and pattern recognition (pp. 2818-2826).       
+    and pattern recognition (pp. 2818-2826).
 """
 
 import torch
@@ -154,7 +154,7 @@ class Mamba(nn.Module):
     ):
         """Mamba model
 
-        This model implements the Mamba architecture with multiple Mamba blocks.    
+        This model implements the Mamba architecture with multiple Mamba blocks.
 
         Args:
             d_model (int): the dimensions of the model.

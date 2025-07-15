@@ -1,4 +1,4 @@
-""" WaveNet model for time series classification.
+"""WaveNet model for time series classification.
 
 This model uses causal convolutions and residual blocks to process sequential data.
 It includes an initial causal convolutional layer, multiple residual blocks for feature extraction,
@@ -43,7 +43,9 @@ class CausalConv1d(nn.Module):
     Causal 1D convolution with dilations
     """
 
-    def __init__(self, in_channels, out_channels, kernel_size, dilation=1, **kwargs) -> None:
+    def __init__(
+        self, in_channels, out_channels, kernel_size, dilation=1, **kwargs
+    ) -> None:
         """Initialize the CausalConv1d layer.
 
         Args:
@@ -104,13 +106,13 @@ class ResidualBlock(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        """Forward pass through the ResidualBlock.  
+        """Forward pass through the ResidualBlock.
 
         This block applies a dilated convolution, followed by a gated activation unit,
         a 1x1 convolution, and finally adds the input to the output (residual connection).
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).    
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
 
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, channels, sequence_length),
@@ -140,7 +142,9 @@ class WaveNet(nn.Module):
     This model uses causal convolutions and residual blocks to process sequential data.
     It includes an initial causal convolutional layer, multiple residual blocks for feature extraction,
     and a fully connected layer for classification. The architecture is designed to handle time series or other ordered
-    data, leveraging the strengths of convolutional neural networks for sequential tasks."""
+    data, leveraging the strengths of convolutional neural networks for sequential tasks.
+    """
+
     def __init__(self, input_dim, output_dim, dropout=0.2) -> None:
         """Initialize the WaveNet model.
 
@@ -186,7 +190,7 @@ class WaveNet(nn.Module):
         )
 
     def forward(self, x):
-        """Forward pass through the WaveNet model.  
+        """Forward pass through the WaveNet model.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_dim).

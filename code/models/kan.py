@@ -1,10 +1,10 @@
-""" Kolmogorov-Arnold Neural Network (KAN) module.
+"""Kolmogorov-Arnold Neural Network (KAN) module.
 
 This module implements a KAN model, which is a type of neural network that uses
 Kolmogorov-Arnold functions to model complex relationships in data.
 It consists of multiple layers, each containing inner and outer functions that
 are vectorized for efficiency. The model is designed to handle high-dimensional
-input data and can be used for various tasks such as regression or classification.  
+input data and can be used for various tasks such as regression or classification.
 
 References:
 1. Liu, Z., Wang, Y., Vaidya, S., Ruehle, F.,
@@ -33,6 +33,7 @@ References:
     In Proceedings of the IEEE conference on computer vision
     and pattern recognition (pp. 2818-2826).
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -87,7 +88,7 @@ class KANLayer(nn.Module):
         """A forward pass through the KAN layer.
 
         Args:
-            x (torch.Tensor): the input tensor of shape (batch_size, input_dim).    
+            x (torch.Tensor): the input tensor of shape (batch_size, input_dim).
 
         Returns:
             torch.Tensor: output tensor of shape (batch_size, output_dim).

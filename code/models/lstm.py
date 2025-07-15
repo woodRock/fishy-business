@@ -1,4 +1,4 @@
-""" LSTM model for time series classification.
+"""LSTM model for time series classification.
 
 This module implements a Long Short-Term Memory (LSTM) network for time series classification tasks.
 It includes LSTM layers, dropout for regularization, and a fully connected layer for output.
@@ -31,7 +31,8 @@ import torch.nn.functional as F
 
 
 class LSTM(nn.Module):
-    """ Long-short term memory (LSTM) module for time series classification."""
+    """Long-short term memory (LSTM) module for time series classification."""
+
     def __init__(
         self,
         input_size: int = 1023,
