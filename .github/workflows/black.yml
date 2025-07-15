@@ -1,0 +1,29 @@
+name: Format Python Code
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install black
+        run: pip install black
+
+      - name: Run black
+        run: black .
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "style: Format Python code with black"
+          branch: main
+          file_pattern: '*.py'
