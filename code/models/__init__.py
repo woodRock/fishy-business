@@ -1,3 +1,11 @@
+""" Package initialization for the 'models' module.
+
+This module initializes the 'models' package, allowing for easy import of various model architectures.
+It includes implementations of different neural network architectures suitable for tasks such as
+time series classification, image processing, and more.
+
+"""
+
 # models/__init__.py
 
 print("Initializing the 'models' package...")  # Optional: for verification

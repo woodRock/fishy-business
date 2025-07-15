@@ -1,4 +1,9 @@
-"""This is the __init__.py file for the 'code' package."""
+""" Package initialization for the 'siamese' module.
+
+This module initializes the 'siamese' package, allowing for easy import of Siamese network architectures.
+It includes implementations of Siamese networks suitable for tasks such as similarity learning and one-shot learning.  
+
+"""
 
 print("Initializing the 'siamese' package...")  # Optional: for verification
 
