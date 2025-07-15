@@ -60,9 +60,9 @@ References:
 17. Saxe, A. M., McClelland, J. L., & Ganguli, S. (2013).
     Exact solutions to the nonlinear dynamics of learning in
     deep linear neural networks. arXiv preprint arXiv:1312.6120.
-18. 8. He, K., Zhang, X., Ren, S., & Sun, J. (2016). 
-    Deep residual learning for image recognition. 
-    In Proceedings of the IEEE conference on 
+18. 8. He, K., Zhang, X., Ren, S., & Sun, J. (2016).
+    Deep residual learning for image recognition.
+    In Proceedings of the IEEE conference on
     computer vision and pattern recognition (pp. 770-778).
 """
 
@@ -156,4 +156,8 @@ class Transformer(nn.Module):
         x = self.fc_out(x)
         return x
 
-__all__ = ["Transformer", "MultiHeadAttention"] # Expose the MultiHeadAttention for Grad-CAM or other analysis.
+
+__all__ = [
+    "Transformer",
+    "MultiHeadAttention",
+]  # Expose the MultiHeadAttention for Grad-CAM or other analysis.

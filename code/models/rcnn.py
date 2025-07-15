@@ -1,19 +1,19 @@
-""" Convolutional Neural Network for classification.
+"""Convolutional Neural Network for classification.
 
-References: 
-1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998). 
-    Gradient-based learning applied to document recognition. 
+References:
+1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998).
+    Gradient-based learning applied to document recognition.
     Proceedings of the IEEE, 86(11), 2278-2324.
-2. LeCun, Y. (1989). 
-    Generalization and network design strategies. 
+2. LeCun, Y. (1989).
+    Generalization and network design strategies.
     Connectionism in perspective, 19(143-155), 18.
-3. LeCun, Y., Boser, B., Denker, J. S., Henderson, D., 
-    Howard, R. E., Hubbard, W., & Jackel, L. D. (1989). 
-    Backpropagation applied to handwritten zip code recognition. 
+3. LeCun, Y., Boser, B., Denker, J. S., Henderson, D.,
+    Howard, R. E., Hubbard, W., & Jackel, L. D. (1989).
+    Backpropagation applied to handwritten zip code recognition.
     Neural computation, 1(4), 541-551.
 4. LeCun, Y., Boser, B., Denker, J., Henderson, D.,
-    Howard, R., Hubbard, W., & Jackel, L. (1989). 
-    Handwritten digit recognition with a back-propagation network. 
+    Howard, R., Hubbard, W., & Jackel, L. (1989).
+    Handwritten digit recognition with a back-propagation network.
     Advances in neural information processing systems, 2.
 5. Srivastava, N., Hinton, G., Krizhevsky, A.,
     Sutskever, I., & Salakhutdinov, R. (2014).
@@ -27,10 +27,11 @@ References:
     Rethinking the inception architecture for computer vision.
     In Proceedings of the IEEE conference on computer vision
     and pattern recognition (pp. 2818-2826).
-8. Hendrycks, D., & Gimpel, K. (2016). 
-    Gaussian error linear units (gelus). 
+8. Hendrycks, D., & Gimpel, K. (2016).
+    Gaussian error linear units (gelus).
     arXiv preprint arXiv:1606.08415.
 """
+
 import torch
 import torch.nn as nn
 

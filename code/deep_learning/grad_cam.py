@@ -182,9 +182,9 @@ def train_model(
             # Print progress every 10 batches
             if (batch_idx + 1) % 10 == 0:
                 print(
-                    f"Epoch [{epoch+1}/{num_epochs}]," +  
-                    f"Batch [{batch_idx+1}/{len(train_loader)}]," +
-                    f"Loss: {loss.item():.4f}"
+                    f"Epoch [{epoch+1}/{num_epochs}],"
+                    + f"Batch [{batch_idx+1}/{len(train_loader)}],"
+                    + f"Loss: {loss.item():.4f}"
                 )
 
         # Average training loss for the epoch
@@ -235,9 +235,9 @@ def train_model(
         epoch_time = time.time() - start_time
         print(f"Epoch [{epoch+1}/{num_epochs}] completed in {epoch_time:.2f}s")
         print(
-            f"Train Loss: {avg_train_loss:.4f}," +
-            f"Val Loss: {avg_val_loss:.4f}," + 
-            f"Val Accuracy: {val_accuracy:.2f}%"
+            f"Train Loss: {avg_train_loss:.4f},"
+            + f"Val Loss: {avg_val_loss:.4f},"
+            + f"Val Accuracy: {val_accuracy:.2f}%"
         )
         print("-" * 60)
 
