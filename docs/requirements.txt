@@ -1,2 +1,11 @@
 sphinx
 sphinx_rtd_theme
+torch
+numpy
+pandas
+scikit-learn
+tqdm
+matplotlib
+seaborn
+torchdiffeq
+openpyxl
