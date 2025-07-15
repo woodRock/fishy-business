@@ -1,4 +1,4 @@
-""" Package initialization for the 'models' module.
+"""Package initialization for the 'models' module.
 
 This module initializes the 'models' package, allowing for easy import of various model architectures.
 It includes implementations of different neural network architectures suitable for tasks such as

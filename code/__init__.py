@@ -1,7 +1,7 @@
-""" Package initialization for the 'siamese' module.
+"""Package initialization for the 'siamese' module.
 
 This module initializes the 'siamese' package, allowing for easy import of Siamese network architectures.
-It includes implementations of Siamese networks suitable for tasks such as similarity learning and one-shot learning.  
+It includes implementations of Siamese networks suitable for tasks such as similarity learning and one-shot learning.
 
 """
 
