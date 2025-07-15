@@ -93,7 +93,23 @@ class ProjectionHead(nn.Module):
 
     def __init__(
         self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float
-    ):
+    ) -> None:
+        """ Initializes the projection head with a sequence of layers.
+        
+        Args:
+            input_dim (int): Dimension of the input features.
+            hidden_dim (int): Dimension of the hidden layer.
+            output_dim (int): Dimension of the output features.
+            dropout (float): Dropout rate to apply after the hidden layer.
+
+        The projection head consists of:
+            - Layer normalization to stabilize training.
+            - A linear layer to project input features to a hidden dimension.       
+            - Batch normalization to normalize the hidden layer outputs.
+            - ReLU activation for non-linearity.
+            - A final linear layer to project to the output dimension.
+            - The output is normalized to unit length.
+        """
         super().__init__()
         self.net = nn.Sequential(
             nn.LayerNorm(input_dim),
@@ -104,13 +120,38 @@ class ProjectionHead(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """ Forward pass through the projection head.
+        
+        Args: 
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
+
+        Returns:
+            torch.Tensor: Normalized output tensor of shape (batch_size, output_dim).
+        """
         return F.normalize(self.net(x), dim=1)
 
 
 class SimCLRModel(nn.Module):
     """Combines an encoder with a projection head to form the full SimCLR model."""
 
-    def __init__(self, encoder: nn.Module, config: SimCLRConfig):
+    def __init__(self, encoder: nn.Module, config: SimCLRConfig) -> None:
+        """ Initializes the SimCLR model with an encoder and a projection head.
+
+        The model consists of:
+            - An encoder to process input data and extract features.
+            - A projection head to map the encoder outputs to a latent space.   
+        The projection head includes:
+            - Layer normalization to stabilize training.
+            - A linear layer to project input features to a hidden dimension.
+            - Batch normalization to normalize the hidden layer outputs.
+            - ReLU activation for non-linearity.
+            - A final linear layer to project to the output dimension.
+            - The output is normalized to unit length.  
+        
+        Args: 
+            encoder (nn.Module): The encoder network to extract features.
+            config (SimCLRConfig): Configuration object containing model parameters.
+        """
         super().__init__()
         self.encoder = encoder
         self.projector = ProjectionHead(
@@ -123,6 +164,19 @@ class SimCLRModel(nn.Module):
     def forward(
         self, x1: torch.Tensor, x2: Optional[torch.Tensor] = None
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+        """ Forward pass through the SimCLR model.
+        
+        Args: 
+            x1 (torch.Tensor): First input tensor of shape (batch_size, input_dim).
+            x2 (Optional[torch.Tensor]): Second input tensor of shape (batch_size, input_dim).
+                If provided, the model computes embeddings for both inputs.
+       
+        Returns:
+            Tuple[torch.Tensor, Optional[torch.Tensor]]:
+                - h1: Projected output for x1 of shape (batch_size, projection_dim).
+                - h2: Projected output for x2 of shape (batch_size, projection_dim).
+                  If x2 is None, h2 will be None.
+        """
         z1 = self.encoder(x1)
         h1 = self.projector(z1)
         if x2 is not None:
@@ -136,10 +190,30 @@ class SimCLRLoss(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy loss (NT-Xent)."""
 
     def __init__(self, temperature: float):
+        """ Initializes the NT-Xent loss function with a temperature parameter.
+
+        The loss function computes the cosine similarity between pairs of embeddings,
+        applies temperature scaling, and calculates the cross-entropy loss.
+        
+        Args: 
+            temperature (float): Temperature scaling factor for the loss function.
+        """
         super().__init__()
         self.temperature = temperature
 
     def forward(self, z1: torch.Tensor, z2: torch.Tensor):
+        """ Forward pass to compute the NT-Xent loss.
+
+        This function computes the cosine similarity between the concatenated embeddings
+        of two sets of inputs, applies temperature scaling, and calculates the loss.   
+        
+        Args: 
+            z1 (torch.Tensor): First set of embeddings of shape (batch_size, projection_dim
+            z2 (torch.Tensor): Second set of embeddings of shape (batch_size, projection_dim).
+
+        Returns:
+            torch.Tensor: Computed NT-Xent loss value.
+        """
         batch_size = z1.shape[0]
         features = torch.cat([z1, z2], dim=0)
         similarity = F.cosine_similarity(
@@ -186,7 +260,14 @@ ENCODER_REGISTRY: Dict[str, Type[nn.Module]] = {
 
 
 def create_encoder(config: SimCLRConfig) -> nn.Module:
-    """Creates an encoder instance based on the type specified in the config."""
+    """Creates an encoder instance based on the type specified in the config.
+    
+    Args: 
+        config (SimCLRConfig): Configuration object containing encoder type and parameters.
+
+    Returns:
+        nn.Module: An instance of the specified encoder class initialized with the provided parameters.
+    """
     encoder_class = ENCODER_REGISTRY.get(config.encoder_type)
     if not encoder_class:
         raise ValueError(f"Unsupported encoder type: {config.encoder_type}")
@@ -243,7 +324,14 @@ def create_encoder(config: SimCLRConfig) -> nn.Module:
 class SimCLRTrainer:
     """Manages the training and evaluation of the SimCLR model."""
 
-    def __init__(self, model: SimCLRModel, config: SimCLRConfig, device: torch.device):
+    def __init__(self, model: SimCLRModel, config: SimCLRConfig, device: torch.device) -> None:
+        """ Initializes the SimCLRTrainer with a model, configuration, and device.
+        
+        Args: 
+            model (SimCLRModel): The SimCLR model to train and evaluate.
+            config (SimCLRConfig): Configuration object containing training parameters.
+            device (torch.device): The device (CPU or GPU) to run the model on
+        """
         self.model = model
         self.config = config
         self.device = device
@@ -268,7 +356,19 @@ class SimCLRTrainer:
     def _run_epoch(
         self, data_loader: DataLoader, is_training: bool
     ) -> Tuple[float, float]:
-        """Runs a single epoch of training or evaluation."""
+        """Runs a single epoch of training or evaluation.
+
+        This method processes the data loader, computes the model outputs, applies the contrastive loss,
+        and updates the model parameters if in training mode. It also computes the average loss and accuracy
+        for the epoch.
+        
+        Args: 
+            data_loader (DataLoader): DataLoader for the current epoch.
+            is_training (bool): Flag indicating whether this is a training epoch.
+
+        Returns:
+            Tuple[float, float]: Average loss and accuracy for the epoch.
+        """
         self.model.train(is_training)
         total_loss = 0.0
         all_h1, all_h2, all_labels = [], [], []
@@ -309,16 +409,44 @@ class SimCLRTrainer:
         return avg_loss, accuracy
 
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
+        """ Runs a single training epoch.
+        
+        Args: 
+            train_loader (DataLoader): DataLoader for the training data.
+
+        Returns:
+            Tuple[float, float]: Average loss and accuracy for the training epoch.
+        """
         return self._run_epoch(train_loader, is_training=True)
 
     def evaluate_model(self, val_loader: DataLoader) -> Tuple[float, float]:
+        """ Evaluates the model on the validation set.
+
+        This method computes the model outputs, applies the contrastive loss,
+        and calculates the average loss and accuracy for the validation set.    
+        
+        Args: 
+            val_loader (DataLoader): DataLoader for the validation data.
+
+        Returns:
+            Tuple[float, float]: Average loss and accuracy for the validation epoch.
+        """
         return self._run_epoch(val_loader, is_training=False)
 
     @staticmethod
     def _compute_accuracy(
         h1: torch.Tensor, h2: torch.Tensor, labels: torch.Tensor
     ) -> float:
-        """Computes balanced accuracy based on cosine similarity."""
+        """Computes balanced accuracy based on cosine similarity.
+        
+        Args: 
+            h1 (torch.Tensor): First set of projected embeddings.
+            h2 (torch.Tensor): Second set of projected embeddings.
+            labels (torch.Tensor): True labels for the pairs.
+
+        Returns:
+            float: Balanced accuracy score for the predictions.
+        """
         true_labels = torch.argmax(labels, dim=1).cpu().numpy()
         similarity = F.cosine_similarity(h1, h2).cpu().numpy()
         threshold = np.mean(similarity)
@@ -337,8 +465,24 @@ def visualize_batch_thresholds(
     device: torch.device,
     title_prefix: str,
     save_path: str,
-):
-    """Visualizes cosine similarities and decision thresholds for each batch."""
+) -> None:
+    """Visualizes cosine similarities and decision thresholds for each batch.
+    
+    This function evaluates the model on the provided DataLoader, computes cosine similarities
+    between pairs of embeddings, and visualizes the results in a grid of scatter plots.
+    Each plot shows the cosine similarities for a batch of pairs, colored by their true labels.
+    It also computes a decision threshold based on the mean similarity and displays the accuracy
+    of predictions based on this threshold.
+    The resulting figure is saved to the specified path.
+    If the DataLoader is empty, the function exits without creating a plot.
+
+    Args: 
+        model (SimCLRModel): The trained SimCLR model to evaluate.
+        loader (DataLoader): DataLoader for the validation or test set.
+        device (torch.device): The device (CPU or GPU) to run the model on.
+        title_prefix (str): Prefix for the plot title.
+        save_path (str): Path to save the visualization figure. 
+    """
     model.eval()
     num_batches = len(loader)
     if num_batches == 0:
@@ -388,8 +532,18 @@ def visualize_batch_thresholds(
     plt.close(fig)
 
 
-def plot_runs_metrics(all_runs_metrics: List[Dict], encoder_type: str, save_path: str):
-    """Creates box plots of metrics across multiple runs."""
+def plot_runs_metrics(all_runs_metrics: List[Dict], encoder_type: str, save_path: str) -> None:
+    """Creates box plots of metrics across multiple runs.
+    
+    This function takes a list of dictionaries containing metrics from multiple training runs,
+    extracts the relevant metrics, and creates box plots for each metric. Each plot shows the distribution
+    of the metric values across all runs, with jittered points for individual run values.   
+
+    Args: 
+        all_runs_metrics (List[Dict]): List of dictionaries containing metrics for each run.
+        encoder_type (str): Type of encoder used in the runs, used for plot titles.
+        save_path (str): Path to save the box plot figure.  
+    """
     if not all_runs_metrics:
         return
     metric_keys = [k for k in all_runs_metrics[0].keys() if k != "epoch"]
@@ -426,7 +580,24 @@ def run_single_training(
     val_loader: DataLoader,
     base_model: SimCLRModel,
 ) -> Tuple[SimCLRModel, Dict]:
-    """Executes a single training run."""
+    """Executes a single training run.
+
+    This function initializes the model, sets up the trainer, and runs the training and evaluation
+    for a specified number of epochs. It tracks the best validation accuracy and saves the model state
+    if the validation accuracy improves. It also implements early stopping based on a patience parameter.   
+    
+    Args: 
+        config (SimCLRConfig): Configuration object containing training parameters.
+        run_id (int): Identifier for the current run.
+        device (torch.device): The device (CPU or GPU) to run the model on.
+        train_loader (DataLoader): DataLoader for the training data.
+        val_loader (DataLoader): DataLoader for the validation data.
+        base_model (SimCLRModel): The base model to train.
+
+    Returns:
+        Tuple[SimCLRModel, Dict]: The trained model and a dictionary containing the best metrics
+        for the run, including training and validation loss and accuracy.
+    """
     logging.info(f"Starting run {run_id + 1}/{config.num_runs}")
     model = copy.deepcopy(base_model).to(device)
     trainer = SimCLRTrainer(model, config, device)
@@ -465,7 +636,11 @@ def run_single_training(
 
 
 def main(config: SimCLRConfig):
-    """Main function to run the SimCLR training and evaluation."""
+    """Main function to run the SimCLR training and evaluation.
+    
+    Args: 
+        config (SimCLRConfig): Configuration object containing training parameters.
+    """
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
@@ -536,6 +711,8 @@ def main(config: SimCLRConfig):
 
 
 if __name__ == "__main__":
+    """ Entry point for the script.
+    Parses command line arguments, initializes the configuration, and calls the main function."""
     parser = argparse.ArgumentParser(description="Train SimCLR models.")
     parser.add_argument(
         "--encoder_type",

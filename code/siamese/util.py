@@ -19,7 +19,14 @@ from sklearn.preprocessing import LabelEncoder
 
 
 def setup_logger(name: str) -> logging.Logger:
-    """Set up logger with both file and console handlers."""
+    """Set up logger with both file and console handlers.
+    
+    Args: 
+        name (str): Name of the logger.
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
@@ -61,7 +68,8 @@ class DataConfig:
     test_size: float = 0.4
     data_path: List[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """ Post-initialization to set default data path if not provided."""
         if self.data_path is None:
             self.data_path = ["~/", "Desktop", "fishy-business", "data", "REIMS.xlsx"]
             # self.data_path = ["/vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
@@ -70,7 +78,7 @@ class DataConfig:
 class SiameseDataset(Dataset):
     """Dataset for contrastive learning with all possible pairs."""
 
-    def __init__(self, samples: np.ndarray, labels: np.ndarray):
+    def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
         """Initialize Siamese dataset.
         Args:
             samples: Input features
@@ -82,7 +90,19 @@ class SiameseDataset(Dataset):
         self.samples, self.labels = self._generate_pairs()
 
     def _generate_pairs(self) -> Tuple[List[torch.Tensor], np.ndarray]:
-        """Generate all possible pairs for contrastive learning."""
+        """Generate all possible pairs for contrastive learning.
+
+        This method creates pairs of samples and their corresponding labels.
+        We exclude self-pairs (i.e., pairs where both samples are the same).
+        We create every possible pair of samples and assign a label of 1 if they belong to the same class,
+        and 0 otherwise.
+        
+        Returns:
+            Tuple[List[torch.Tensor], np.ndarray]: A tuple containing:
+                - A list of tuples, where each tuple contains two samples (X1, X2).
+                - A numpy array of one-hot encoded labels indicating whether the pairs are similar (1)
+                  or dissimilar (0).  
+        """
         pairs = []
         labels = []
         n_samples = len(self.samples)
@@ -111,9 +131,26 @@ class SiameseDataset(Dataset):
         return pairs, one_hot_labels
 
     def __len__(self) -> int:
+        """Return the number of pairs in the dataset.
+        
+        Returns:
+            int: Number of pairs in the dataset.
+        """
         return len(self.samples)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """ Get a pair of samples and their label by index.
+        
+        Args:
+            idx (int): Index of the sample pair.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+                - First sample (X1)
+                - Second sample (X2)
+                - Label indicating whether the pair is similar (1) or dissimilar (0).
+        """
+        
         return self.samples[idx][0], self.samples[idx][1], self.labels[idx]
 
 
@@ -137,7 +174,20 @@ class ContrastiveBalancedSampler(Sampler):
         batch_size: int,
         num_samples_per_class: Optional[int] = None,
         drop_last: bool = False,
-    ):
+    ) -> None:
+        """ Initialize the balanced sampler.
+
+        This sampler ensures that each batch contains an equal number of samples from each class,
+        which is particularly useful for contrastive learning tasks. It can handle both one-hot encoded
+        labels and class indices, and can work with both numpy arrays and PyTorch tensors.
+        
+        Args: 
+            labels (Union[np.ndarray, torch.Tensor]): One-hot encoded labels or class indices.
+            batch_size (int): Size of each batch.
+            num_samples_per_class (Optional[int]): Number of samples to draw per class in each batch.
+                If None, will be calculated from batch_size.
+            drop_last (bool): If True, drop the last incomplete batch.
+        """
         # Convert to numpy array if tensor
         if isinstance(labels, torch.Tensor):
             labels = labels.cpu().numpy()
@@ -176,6 +226,11 @@ class ContrastiveBalancedSampler(Sampler):
         print(f"Number of batches: {self.num_batches}")
 
     def __iter__(self) -> Iterator[List[int]]:
+        """ Generate batches of indices for contrastive learning.
+        
+        Returns:
+            Iterator[List[int]]: An iterator that yields lists of indices for each batch.
+        """
         # Create a copy of class indices to avoid modifying original
         class_indices = [indices.copy() for indices in self.class_indices]
 
@@ -216,6 +271,11 @@ class ContrastiveBalancedSampler(Sampler):
                 yield batch_indices
 
     def __len__(self) -> int:
+        """ Return the number of batches in the sampler.
+        
+        Returns:
+            int: Number of batches in the sampler.
+        """
         return self.num_batches
 
 
@@ -224,11 +284,31 @@ class DataPreprocessor:
 
     @staticmethod
     def load_data(config: DataConfig) -> pd.DataFrame:
+        """ Load data from the specified path in the configuration.
+        
+        Args:
+            config (DataConfig): Configuration object containing data path.
+
+        Returns:
+            pd.DataFrame: Data loaded from the Excel file.
+        """
         path = Path(*config.data_path).expanduser()
         return pd.read_excel(path)
 
     @staticmethod
     def filter_data(data: pd.DataFrame, dataset: str) -> pd.DataFrame:
+        """ Filter data based on the dataset type.
+        
+        Args:
+            data (pd.DataFrame): Data to be filtered.
+            dataset (str): Type of dataset to filter for.   
+
+        Returns:
+            pd.DataFrame: Filtered data.
+
+        Raises:
+            ValueError: If no data remains after filtering for the specified dataset.
+        """
         data = data[~data["m/z"].str.contains("QC", case=False, na=False)]
 
         if dataset in ["species", "part", "oil", "instance-recognition"]:
@@ -250,6 +330,18 @@ class DataPreprocessor:
 
     @staticmethod
     def encode_labels(data: pd.DataFrame, dataset: str) -> np.ndarray:
+        """ Encode labels based on the dataset type.
+        
+        Args:
+            data (pd.DataFrame): Data containing labels to be encoded.
+            dataset (str): Type of dataset for which to encode labels.
+
+        Returns:
+            np.ndarray: One-hot encoded labels for the dataset.
+
+        Raises:
+            ValueError: If the dataset type is invalid or if no valid labels are found.
+        """
         if dataset == "instance-recognition":
             labels = data.iloc[:, 0].to_numpy()
             encoder = LabelEncoder()
@@ -290,6 +382,17 @@ class DataPreprocessor:
 
 
 def prepare_dataset(config: DataConfig) -> Tuple[DataLoader, DataLoader]:
+    """ Prepare the dataset for training and validation.
+    
+    Args: 
+        config (DataConfig): Configuration object containing dataset parameters.
+
+    Returns:
+        Tuple[DataLoader, DataLoader]: Training and validation DataLoaders.
+
+    Raises:
+        ValueError: If there are not enough samples to split into training and validation sets.
+    """
     preprocessor = DataPreprocessor()
 
     data = preprocessor.load_data(config)
@@ -340,6 +443,15 @@ def prepare_dataset(config: DataConfig) -> Tuple[DataLoader, DataLoader]:
 
 
 def inspect_dataloaders(train_loader: DataLoader, val_loader: DataLoader) -> None:
+    """ Inspect the dataloaders to log class distribution and feature statistics.
+    
+    Args: 
+        train_loader (DataLoader): Training DataLoader.
+        val_loader (DataLoader): Validation DataLoader.
+
+    Logs:
+        Class distribution and feature statistics for both training and validation sets.
+    """
     for name, loader in [("Training", train_loader), ("Validation", val_loader)]:
         class_counts = {0: 0, 1: 0}
         features = []
@@ -357,6 +469,9 @@ def inspect_dataloaders(train_loader: DataLoader, val_loader: DataLoader) -> Non
 
 
 if __name__ == "__main__":
+    """ Entry point for the script.
+    Initializes the data configuration, prepares the dataset, and inspects the dataloaders.
+    Also graphs the mass spectrograph for the first instance in the training loader."""
     config = DataConfig()
     train_loader, val_loader = prepare_dataset(config)
     inspect_dataloaders(train_loader, val_loader)

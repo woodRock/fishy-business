@@ -10,3 +10,4 @@ This is the auto-generated API reference for the ``fish`` library.
 
    deep_learning
    siamese
+   models

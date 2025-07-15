@@ -12,7 +12,14 @@ from sklearn.metrics import balanced_accuracy_score
 
 
 def setup_logger(name: str) -> logging.Logger:
-    """Set up logger with both file and console handlers."""
+    """Set up logger with both file and console handlers.
+    
+    Args: 
+        name (str): Name of the logger.
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
@@ -49,7 +56,14 @@ class EncoderBlock(nn.Module):
     Encoder block with LayerNorm, residual connections, and dropout.
     """
 
-    def __init__(self, in_dim, out_dim, dropout_rate=0.1):
+    def __init__(self, in_dim, out_dim, dropout_rate=0.1) -> None:
+        """ Initialize the encoder block.
+        
+        Args: 
+            in_dim (int): Input dimension of the block.
+            out_dim (int): Output dimension of the block.
+            dropout_rate (float): Dropout rate to apply after ReLU activation.
+        """
         super().__init__()
         self.layer = nn.Sequential(
             nn.Linear(in_dim, out_dim),
@@ -64,6 +78,14 @@ class EncoderBlock(nn.Module):
             self.residual_proj = nn.Linear(in_dim, out_dim)
 
     def forward(self, x):
+        """ Forward pass through the encoder block.
+        
+        Args: 
+            x (torch.Tensor): Input tensor of shape (batch_size, in_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, out_dim).
+        """
         if self.has_residual:
             return self.layer(x) + x
         else:
@@ -77,7 +99,17 @@ class EncoderNetwork(nn.Module):
         hidden_dims=[4096, 2048, 1024, 512, 256],
         embedding_dim=512,
         dropout_rate=0.1,
-    ):
+    ) -> None:
+        """ Initialize the encoder network.
+
+        This network consists of multiple encoder blocks followed by a projection head.
+        
+        Args: 
+            input_dim (int): Dimension of the input features.
+            hidden_dims (list): List of hidden layer dimensions.
+            embedding_dim (int): Dimension of the final embedding.
+            dropout_rate (float): Dropout rate to apply after ReLU activation.
+        """
         super().__init__()
 
         # Input normalization
@@ -104,6 +136,14 @@ class EncoderNetwork(nn.Module):
         )
 
     def forward(self, x):
+        """ Forward pass through the encoder network.
+        
+        Args: 
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).    
+
+        Returns:
+            torch.Tensor: Normalized embeddings of shape (batch_size, embedding_dim).
+        """
         # Input normalization
         x = self.input_norm(x.float())
 
@@ -118,11 +158,29 @@ class EncoderNetwork(nn.Module):
 
 
 class ContrastiveLoss(nn.Module):
-    def __init__(self, temperature=0.07):
+    """ Contrastive loss based on InfoNCE. """
+    def __init__(self, temperature=0.07) -> None:
+        """ Initialize the contrastive loss with temperature scaling.
+        
+        Args: 
+            temperature (float): Temperature parameter for scaling the similarity.
+        """
         super().__init__()
         self.temperature = temperature
 
     def forward(self, z1, z2, labels):
+        """ Forward pass to compute the contrastive loss.
+
+        A custom contrastive loss function that computes the NT-Xent Loss (InfoNCE) for two sets of embeddings.
+
+        Args: 
+            z1 (torch.Tensor): Embeddings from the first view of the batch.
+            z2 (torch.Tensor): Embeddings from the second view of the batch.
+            labels (torch.Tensor): Labels for the pairs, these are not used in the loss computation but can be useful for debugging. 
+        Returns:
+            torch.Tensor: Computed contrastive loss.
+        """
+
         # Normalize embeddings
         z1 = F.normalize(z1, dim=1)
         z2 = F.normalize(z2, dim=1)
@@ -151,7 +209,16 @@ class ContrastiveLoss(nn.Module):
 
 
 def compute_accuracy(embeddings_1, embeddings_2, labels):
-    """Basic accuracy computation"""
+    """Basic accuracy computation.
+    
+    Args: 
+        embeddings_1 (torch.Tensor): First set of embeddings.
+        embeddings_2 (torch.Tensor): Second set of embeddings.
+        labels (torch.Tensor): True labels for the pairs.
+
+    Returns:
+        float: Balanced accuracy score for the predictions.
+    """
     with torch.no_grad():  # Ensure no gradients are computed
         z1 = F.normalize(embeddings_1, dim=1)
         z2 = F.normalize(embeddings_2, dim=1)
@@ -175,8 +242,23 @@ def train_contrastive_model(
     hidden_dims=[1024, 512, 256, 128],
     embedding_dim=128,
     epochs=1000,
-):
+) -> nn.Module:
+    """ Train a contrastive model using the provided data loaders.
 
+    This function trains a Siamese encoder network using contrastive loss.
+    
+    Args: 
+        train_loader (DataLoader): DataLoader for training data.
+        val_loader (DataLoader): DataLoader for validation data.
+        input_dim (int): Dimension of the input features.
+        device (str): Device to run the model on ("cuda" or "cpu").
+        hidden_dims (list): List of hidden layer dimensions for the encoder.
+        embedding_dim (int): Dimension of the final embedding.
+        epochs (int): Number of training epochs.
+    
+    Returns:
+        nn.Module: Trained encoder network.
+    """
     model = EncoderNetwork(input_dim, hidden_dims, embedding_dim).to(device)
     criterion = ContrastiveLoss(temperature=0.07)
 
@@ -281,6 +363,17 @@ def evaluate_model(model, loader, device):
     """
     Evaluate model on a data loader.
     Returns accuracy and loss.
+
+    This function computes the embeddings for pairs of spectra, calculates the contrastive loss,
+    and evaluates the accuracy of the model on the dataset.
+
+    Args: 
+        model: Trained encoder network
+        loader: DataLoader containing samples
+        device: Device to compute embeddings on
+
+    Returns:
+        Tuple[float, float]: Accuracy and average loss on the dataset.
     """
     model.eval()
     total_loss = 0
@@ -353,6 +446,9 @@ def get_embeddings(
 
 
 if __name__ == "__main__":
+    """ Entry point for the script.
+    Parses command line arguments, initializes the configuration, and calls the main function.
+    """
     # Example usage with your SiameseDataset
     from util import DataConfig, prepare_dataset
 

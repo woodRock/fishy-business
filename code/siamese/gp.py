@@ -19,7 +19,16 @@ import os
 
 
 def prepare_data(data_loader) -> List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
-    """Convert data loader into list of (sample1, sample2, label) tuples."""
+    """Convert data loader into list of (sample1, sample2, label) tuples.
+    
+    Args: 
+        data_loader: DataLoader object containing pairs of samples and their labels.
+
+    Returns:
+        List of tuples where each tuple contains two normalized samples and their label.
+        Each sample is normalized along the feature dimension.
+        The label is expected to be a one-hot encoded tensor.   
+    """
     data = []
     for batch in data_loader:
         sample1, sample2, labels = batch
@@ -32,13 +41,34 @@ def prepare_data(data_loader) -> List[Tuple[torch.Tensor, torch.Tensor, torch.Te
 class Modi:
     """Container for output index, returns value of its argument on call."""
 
-    def __init__(self, index: int):
+    def __init__(self, index: int) -> None:
+        """ Initialize Modi primitive with an index.
+        
+        Args:
+            index (int): The index of the output this Modi primitive represents.
+
+        Returns:
+            None
+        """
         self.index = index
 
     def __call__(self, x):
+        """ Return the value of the input x.
+        
+        Args: 
+            x: Input value, expected to be a tensor or numpy array.
+
+        Returns:
+            x: The input value itself, representing the output for this index.
+        """
         return x
 
     def __str__(self):
+        """ Return a string representation of the Modi primitive.
+        
+        Returns: 
+            str: A string in the format "modi{index}" where index is the output index.
+        """
         return f"modi{self.index}"
 
 
@@ -47,13 +77,26 @@ class MultiOutputTree(gp.PrimitiveTree):
 
     num_outputs = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
+        """ Initialize MultiOutputTree with a specified number of outputs.
+        
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        Raises:
+            Exception: If num_outputs is not set before initialization.
+        """
         super().__init__(*args, **kwargs)
         if self.num_outputs is None:
             raise Exception("Please initialize class attribute num_outputs")
 
     def __str__(self):
-        """Return the expression in a human-readable string."""
+        """Return the expression in a human-readable string.
+        
+        Returns:
+            str: A string representation of the tree, formatted as a list of outputs.
+        """
         string_outputs = [""] * self.num_outputs
         stack = []
         for node in self:
@@ -75,17 +118,45 @@ class MultiOutputTree(gp.PrimitiveTree):
 
 
 def protected_div(x, y):
-    """Protected division function"""
+    """Protected division function 
+    
+    Args:
+        x: Numerator, can be a tensor or numpy array.
+        y: Denominator, can be a tensor or numpy array.
+
+    Returns:
+        Result of division x/y if y is not zero, otherwise returns 0.
+    """
     return np.divide(x, y) if y != 0 else 0
 
 
 def relu(x):
-    """ReLU activation function"""
+    """ReLU activation function.
+    
+    Args: 
+        x: Input value, can be a tensor or numpy array.
+
+    Returns:    
+        np.maximum(x, 0): Returns the element-wise maximum of x and 0.
+        This effectively applies the ReLU activation function, which outputs x if x is positive, and
+        0 if x is negative.
+    """
     return np.maximum(x, 0)
 
 
 def sigmoid(x):
-    """Numerically stable sigmoid function"""
+    """Numerically stable sigmoid function.
+    
+    Args: 
+        x: Input value, can be a tensor or numpy array.
+
+    Returns:
+        np.where: Returns 1 / (1 + exp(-x)) for non-negative x,
+        and exp(x) / (1 + exp(x)) for negative x.
+        This ensures numerical stability by clipping the input to avoid overflow or underflow.
+        The clipping limits the input to the range [-88.0, 88.0]
+        to prevent extreme values that could lead to numerical instability.
+    """
     return np.where(
         x >= 0,
         1 / (1 + np.exp(np.clip(-x, -88.0, 88.0))),
@@ -94,12 +165,26 @@ def sigmoid(x):
 
 
 def random_const():
-    """Generate random constant between -1 and 1"""
+    """Generate random constant between -1 and 1.
+
+    Returns:
+        float: A random float value uniformly sampled from the range [-1, 1].
+    """
     return random.uniform(-1, 1)
 
 
 def setup_primitives(n_inputs: int, n_outputs: int) -> gp.PrimitiveSet:
-    """Set up primitive set with basic operations."""
+    """Set up primitive set with basic operations.
+    
+    Args: 
+        n_inputs (int): Number of input features.
+        n_outputs (int): Number of outputs.
+
+    Returns:
+        gp.PrimitiveSet: A DEAP PrimitiveSet containing arithmetic operations, activation functions,
+        constants, and Modi primitives for each output.
+        The PrimitiveSet is named "MAIN" and contains the specified number of inputs.   
+    """
     pset = gp.PrimitiveSet("MAIN", n_inputs)
 
     # Add arithmetic operations
@@ -126,7 +211,16 @@ def setup_primitives(n_inputs: int, n_outputs: int) -> gp.PrimitiveSet:
 
 
 def visualize_contrastive_pairs(data, func, save_path="figures/contrastive_pairs.png"):
-    """Visualize the cosine similarities between positive pairs colored by class."""
+    """Visualize the cosine similarities between positive pairs colored by class.
+    
+    Args:   
+        data (List[Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]): List of tuples containing pairs of samples and their labels.
+        func (callable): Function to compute embeddings from the samples.
+        save_path (str): Path to save the visualization figure.
+
+    Returns:
+        Tuple[float, float]: Mean and standard deviation of the cosine similarities.
+    """
     import os
     import matplotlib.pyplot as plt
     import numpy as np
@@ -224,12 +318,35 @@ def visualize_contrastive_pairs(data, func, save_path="figures/contrastive_pairs
 
 
 def evaluate_individual(individual, data, toolbox):
-    """Evaluation function that can be pickled."""
+    """Evaluation function that can be pickled.
+    
+    Args: 
+        individual: DEAP individual to evaluate.
+        data: List of tuples containing pairs of samples and their labels.
+        toolbox: DEAP toolbox containing the compiled function.
+
+    Returns:
+        Tuple[float]: A tuple containing the best accuracy achieved by the individual on the data.
+        If an error occurs during evaluation, returns (0.0,).   
+    """
     return evaluate(individual, data, toolbox)
 
 
 def evaluate(individual, data, toolbox):
-    """Basic evaluation using balanced accuracy."""
+    """Basic evaluation using balanced accuracy.
+    
+    Args: 
+        individual: DEAP individual to evaluate.
+        data: List of tuples containing pairs of samples and their labels.
+        toolbox: DEAP toolbox containing the compiled function.
+
+    Returns:
+        Tuple[float]: A tuple containing the best accuracy achieved by the individual on the data.
+        If an error occurs during evaluation, returns (0.0,).
+        The evaluation computes the cosine similarities between the outputs of the individual
+        for each pair of samples, normalizes them, and finds the best threshold for classification.
+        It uses balanced accuracy to evaluate the performance of the individual on the provided data.
+    """
     try:
         func = toolbox.compile(expr=individual)
 
@@ -293,6 +410,7 @@ def evaluate(individual, data, toolbox):
 
 
 def main():
+    """ Main function to run the genetic programming algorithms."""
     # Parameters
     N_INPUTS = 2080
     N_OUTPUTS = 32

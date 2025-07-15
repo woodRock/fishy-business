@@ -1,4 +1,9 @@
-"""
+""" Transformer model for time series classification.
+
+This model uses multi-head attention and feed-forward layers to process sequential data.
+It is designed to handle variable-length sequences and can be used for tasks such as classification or regression.
+The architecture includes layer normalization, dropout for regularization, and a final fully connected layer for output.
+
 References:
 1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez,
     A. N., ... & Polosukhin, I. (2017).
@@ -74,7 +79,14 @@ import seaborn as sns
 
 
 class MultiHeadAttention(nn.Module):
+    """Multi-head attention mechanism for the Transformer model. """
     def __init__(self, input_dim: int, num_heads: int) -> None:
+        """Initialize the MultiHeadAttention layer.
+
+        Args:
+            input_dim (int): Number of input features.
+            num_heads (int): Number of attention heads.
+        """
         super().__init__()
         assert input_dim % num_heads == 0
 
@@ -89,6 +101,14 @@ class MultiHeadAttention(nn.Module):
         self.scale = self.head_dim**-0.5
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the multi-head attention layer. 
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, seq_length, input_dim).
+        """
         batch_size = x.shape[0]
 
         # Single matrix multiplication for all projections
@@ -108,6 +128,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class Transformer(nn.Module):
+    """Transformer model for time series classification."""
     def __init__(
         self,
         input_dim: int,
@@ -117,6 +138,16 @@ class Transformer(nn.Module):
         num_layers: int = 1,
         dropout: float = 0.1,
     ) -> None:
+        """Initialize the Transformer model.
+
+        Args:
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes.
+            num_heads (int): Number of attention heads.
+            hidden_dim (int): Dimension of the feed-forward layer.
+            num_layers (int): Number of transformer layers. Defaults to 1.
+            dropout (float): Dropout rate for regularization. Defaults to 0.1.
+        """
         super().__init__()
 
         self.attention_layers = nn.ModuleList(
@@ -136,6 +167,15 @@ class Transformer(nn.Module):
         self.fc_out = nn.Linear(input_dim, output_dim)
 
     def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        """Forward pass through the Transformer model.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, output_dim),
+            where output_dim is the number of classes.
+        """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         if x.dim() == 2:
             x = x.unsqueeze(1)
