@@ -1,4 +1,11 @@
-"""
+""" Mixture of Experts (MoE) Transformer model.
+
+This module implements a Transformer architecture with a Mixture of Experts (MoE) layer
+replacing the standard feed-forward network. The MoE layer allows for dynamic routing of
+inputs to multiple expert networks, enabling the model to learn complex representations
+while maintaining computational efficiency. The architecture is designed to handle sequential
+data, such as time series or other ordered data.
+
 References:
 1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez,
     A. N., ... & Polosukhin, I. (2017).
@@ -90,7 +97,14 @@ from sklearn.model_selection import StratifiedKFold
 
 
 class MultiHeadAttention(nn.Module):
+    """ Multi-head attention mechanism for the Transformer model."""
     def __init__(self, input_dim: int, num_heads: int) -> None:
+        """Initialize the multi-head attention layer.
+
+        Args:
+            input_dim (int): the number of dimensions in the input.
+            num_heads (int): the number of attention heads.
+        """
         super().__init__()
         assert input_dim % num_heads == 0
 
@@ -105,6 +119,14 @@ class MultiHeadAttention(nn.Module):
         self.scale = self.head_dim**-0.5
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the multi-head attention layer.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, seq_length, input_dim).
+        """
         batch_size = x.shape[0]
 
         # Single matrix multiplication for all projections
@@ -124,6 +146,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class Transformer(nn.Module):
+    """ Transformer model with multi-head attention and feed-forward network."""
     def __init__(
         self,
         input_dim: int,
@@ -133,6 +156,16 @@ class Transformer(nn.Module):
         num_layers: int = 1,
         dropout: float = 0.1,
     ) -> None:
+        """Initialize the Transformer model.    
+
+        Args:
+            input_dim (int): the number of dimensions in the input.
+            output_dim (int): the number of dimensions in the output.
+            num_heads (int): the number of attention heads.
+            hidden_dim (int): the number of dimensions in the hidden layer.
+            num_layers (int): the number of layers in the Transformer. Defaults to 1.
+            dropout (float): the dropout rate. Defaults to 0.1.
+        """
         super().__init__()
 
         self.attention_layers = nn.ModuleList(
@@ -152,6 +185,14 @@ class Transformer(nn.Module):
         self.fc_out = nn.Linear(input_dim, output_dim)
 
     def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        """Forward pass through the Transformer model.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, seq_length, output_dim).
+        """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         if x.dim() == 2:
             x = x.unsqueeze(1)
@@ -176,7 +217,14 @@ class Transformer(nn.Module):
 class ExpertLayer(nn.Module):
     """Individual expert neural network"""
 
-    def __init__(self, input_dim: int, hidden_dim: int, dropout: float = 0.1):
+    def __init__(self, input_dim: int, hidden_dim: int, dropout: float = 0.1) -> None:
+        """Initialize the expert layer.
+
+        Args:
+            input_dim (int): the number of dimensions in the input.
+            hidden_dim (int): the number of dimensions in the hidden layer.
+            dropout (float): the dropout rate. Defaults to 0.1.
+        """
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -186,10 +234,19 @@ class ExpertLayer(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass through the expert layer.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, input_dim).
+        """
         return self.net(x)
 
 
 class MixtureOfExperts(nn.Module):
+    """ Mixture of Experts (MoE) layer for the Transformer model."""
     def __init__(
         self,
         input_dim: int,
@@ -198,7 +255,17 @@ class MixtureOfExperts(nn.Module):
         k: int = 2,
         dropout: float = 0.1,
         use_majority_voting: bool = False,
-    ):
+    ) -> None:
+        """Initialize the Mixture of Experts layer.
+
+        Args:
+            input_dim (int): the number of dimensions in the input.
+            hidden_dim (int): the number of dimensions in the hidden layer.
+            num_experts (int): the number of expert networks. Defaults to 4.
+            k (int): the number of experts to route each input to. Defaults to 2.
+            dropout (float): the dropout rate. Defaults to 0.1.
+            use_majority_voting (bool): whether to use majority voting instead of top-k routing.
+        """
         super().__init__()
         self.num_experts = num_experts
         self.k = k
@@ -217,6 +284,15 @@ class MixtureOfExperts(nn.Module):
         self.total_tokens = 0
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """ Forward pass through the Mixture of Experts layer.
+        
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, seq_length, input_dim),
+            where input_dim is the number of features.  
+        """
         batch_size, seq_len, d_model = x.shape
         x_flat = x.view(-1, d_model)
 
@@ -287,7 +363,20 @@ class MOE(nn.Module):
         k: int = 2,
         dropout: float = 0.1,
         use_majority_voting: bool = False,
-    ):
+    ) -> None:
+        """Initialize the MOE model.
+
+        Args:
+            input_dim (int): the number of dimensions in the input.
+            output_dim (int): the number of dimensions in the output.
+            num_heads (int): the number of attention heads.
+            hidden_dim (int): the number of dimensions in the hidden layer.
+            num_layers (int): the number of layers in the Transformer. Defaults to 1.
+            num_experts (int): the number of expert networks. Defaults to 4.
+            k (int): the number of experts to route each input to. Defaults to 2.
+            dropout (float): the dropout rate. Defaults to 0.1.
+            use_majority_voting (bool): whether to use majority voting instead of top-k routing.
+        """
         super().__init__()
 
         self.attention_layers = nn.ModuleList(
@@ -315,6 +404,15 @@ class MOE(nn.Module):
         self.fc_out = nn.Linear(input_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """ Forward pass through the MOE model.
+        
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, seq_length, output_dim).
+            where output_dim is the number of classes.
+        """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         if x.dim() == 2:
             x = x.unsqueeze(1)

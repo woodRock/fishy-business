@@ -1,4 +1,8 @@
-"""A variational autoencoder (VAE) with a classifier
+"""A variational autoencoder (VAE) with a classifier.
+
+This model combines a VAE for unsupervised learning with a classifier for supervised tasks.
+It includes an encoder, decoder, and a classifier that predicts class probabilities based on the latent representation
+of the input data. The model is designed to handle high-dimensional input data and can be used for tasks such as anomaly detection or semi-supervised learning.
 
 References:
 1. Kingma, D. P., & Welling, M. (2013).
@@ -24,6 +28,7 @@ from typing import Union
 
 
 class VAE(nn.Module):
+    """Variational Autoencoder with a classifier."""
     def __init__(
         self,
         input_size: int = 1023,
@@ -32,6 +37,8 @@ class VAE(nn.Module):
         dropout: float = 0.2,
     ) -> None:
         """Variational Autoencoder with a classifier.
+
+        Initializes the VAE model with an encoder, decoder, and classifier.
 
         Args:
             input_size (int): The size of the inlatentput data.

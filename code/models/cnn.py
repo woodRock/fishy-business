@@ -1,5 +1,9 @@
 """Convolutional Neural Network for classification.
 
+This module implements a Convolutional Neural Network (CNN) for classification tasks.
+It includes convolutional layers, batch normalization, dropout, and fully connected layers.
+The architecture is inspired by LeCun's work on handwritten digit recognition and includes
+modern techniques like GELU activation and dropout for regularization.
 References:
 1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998).
     Gradient-based learning applied to document recognition.
@@ -40,6 +44,16 @@ class CNN(nn.Module):
     def __init__(
         self, input_size: int = 1023, num_classes: int = 7, dropout: int = 0.5
     ) -> None:
+        """ Initialize the CNN model.
+
+        This model consists of convolutional layers followed by fully connected layers.
+        It includes batch normalization, ReLU activation, and dropout for regularization.
+        
+        Args: 
+            input_size (int): Size of the input features.
+            num_classes (int): Number of output classes.
+            dropout (float): Dropout rate for regularization.
+        """
 
         super(CNN, self).__init__()
 

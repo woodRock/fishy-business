@@ -1,3 +1,21 @@
+""" Temporal Convolutional Network (TCN) for time series classification.
+
+This module implements a Temporal Convolutional Network (TCN) for time series classification tasks.
+It includes temporal blocks with dilated convolutions, batch normalization, ReLU activation,
+and dropout for regularization. The architecture is designed to handle 1D input data, such as time series or sequential data.   
+
+References:
+1. Bai, S., Kolter, J. Z., & Koltun, V. (2018).
+   An empirical evaluation of generic convolutional and recurrent networks for sequence modeling.
+   arXiv preprint arXiv:1803.01271.
+2. Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. (2014).
+   Dropout: a simple way to prevent neural networks from overfitting.
+   The journal of machine learning research, 15(1), 1929-1958.
+3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. R. (2012).
+   Improving neural networks by preventing co-adaptation of feature detectors.
+   arXiv preprint arXiv:1207.0580.  
+"""
+
 import torch
 import torch.nn as nn
 from torch.nn.utils import weight_norm
@@ -11,12 +29,24 @@ class Chomp1d(nn.Module):
     Removes the last elements of a time series.
     Used to ensure causal convolutions for time series prediction.
     """
-
-    def __init__(self, chomp_size):
+    def __init__(self, chomp_size) -> None:
+        """ Initialize the Chomp1d module.
+        
+        Args:            
+            chomp_size (int): Number of elements to remove from the end of the sequence.
+        """
         super(Chomp1d, self).__init__()
         self.chomp_size = chomp_size
 
     def forward(self, x):
+        """ Forward pass through the Chomp1d module.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).    
+
+        Returns:
+            torch.Tensor: Output tensor with the last chomp_size elements removed from the sequence length dimension.
+        """
         return x[:, :, : -self.chomp_size]
 
 
@@ -28,7 +58,18 @@ class TemporalBlock(nn.Module):
 
     def __init__(
         self, n_inputs, n_outputs, kernel_size, stride, dilation, padding, dropout=0.2
-    ):
+    ) -> None:
+        """Initialize the TemporalBlock.
+
+        Args:
+            n_inputs (int): Number of input channels.
+            n_outputs (int): Number of output channels.
+            kernel_size (int): Size of the convolutional kernel.
+            stride (int): Stride of the convolution.
+            dilation (int): Dilation factor for the convolution.
+            padding (int): Padding size for the convolution.
+            dropout (float): Dropout rate for regularization. Defaults to 0.2.
+        """
         super(TemporalBlock, self).__init__()
 
         # First dilated convolution layer
@@ -83,14 +124,22 @@ class TemporalBlock(nn.Module):
         self.init_weights()
 
     def init_weights(self):
-        """Initialize weights using Kaiming initialization"""
+        """Initialize weights using Kaiming initialization."""
         self.conv1.weight.data.normal_(0, 0.01)
         self.conv2.weight.data.normal_(0, 0.01)
         if self.downsample is not None:
             self.downsample.weight.data.normal_(0, 0.01)
 
     def forward(self, x):
-        """Forward pass through the temporal block"""
+        """Forward pass through the temporal block.
+        
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, n_outputs, new_sequence_length),
+            where new_sequence_length is determined by the kernel size, stride, and dilation.
+        """
         out = self.net(x)
         res = x if self.downsample is None else self.downsample(x)
         return self.relu(out + res)
@@ -102,7 +151,15 @@ class TemporalConvNet(nn.Module):
     with increasing dilation factors.
     """
 
-    def __init__(self, num_inputs, num_channels, kernel_size=2, dropout=0.2):
+    def __init__(self, num_inputs, num_channels, kernel_size=2, dropout=0.2) -> None:
+        """Initialize the TemporalConvNet. 
+
+        Args:
+            num_inputs (int): Number of input channels.
+            num_channels (list): List of output channels for each temporal block.
+            kernel_size (int): Size of the convolutional kernel. Defaults to 2.
+            dropout (float): Dropout rate for regularization. Defaults to 0.2.
+        """
         super(TemporalConvNet, self).__init__()
         layers = []
         num_levels = len(num_channels)
@@ -127,7 +184,15 @@ class TemporalConvNet(nn.Module):
         self.network = nn.Sequential(*layers)
 
     def forward(self, x):
-        """Forward pass through the TCN"""
+        """Forward pass through the TCN.
+        
+        Args: 
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, num_channels[-1], new_sequence_length),
+            where new_sequence_length is determined by the kernel size, stride, and dilation.
+        """
         return self.network(x)
 
 
@@ -138,7 +203,16 @@ class TCN(nn.Module):
 
     def __init__(
         self, input_dim, output_dim, num_channels=None, kernel_size=3, dropout=0.3
-    ):
+    ) -> None:
+        """Initialize the TCN model.
+
+        Args:
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes. 
+            num_channels (list): List of output channels for each temporal block. Defaults to None.
+            kernel_size (int): Size of the convolutional kernel. Defaults to 3.
+            dropout (float): Dropout rate for regularization. Defaults to 0.3.
+        """
         super(TCN, self).__init__()
 
         # Default channel configuration if none provided
@@ -204,8 +278,10 @@ class TCN(nn.Module):
     def forward(self, x):
         """
         Forward pass through the complete TCN model
+
         Args:
             x: Input tensor of shape [batch_size, sequence_length]
+            
         Returns:
             Output tensor of shape [batch_size, output_dim]
         """
