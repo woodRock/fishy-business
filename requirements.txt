@@ -7,3 +7,4 @@ matplotlib
 seaborn
 torchdiffeq
 openpyxl
+black

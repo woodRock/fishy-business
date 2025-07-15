@@ -8,6 +8,7 @@ import numpy as np
 from tqdm import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+
 class RWKV(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.1):
         super(RWKV, self).__init__()

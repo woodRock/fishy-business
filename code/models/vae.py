@@ -1,8 +1,8 @@
-""" A variational autoencoder (VAE) with a classifier
+"""A variational autoencoder (VAE) with a classifier
 
-References: 
-1. Kingma, D. P., & Welling, M. (2013). 
-    Auto-encoding variational bayes. 
+References:
+1. Kingma, D. P., & Welling, M. (2013).
+    Auto-encoding variational bayes.
     arXiv preprint arXiv:1312.6114.
 2. Srivastava, N., Hinton, G., Krizhevsky, A.,
     Sutskever, I., & Salakhutdinov, R. (2014).
@@ -12,8 +12,8 @@ References:
     I., & Salakhutdinov, R. R. (2012).
     Improving neural networks by preventing co-adaptation of feature detectors.
     arXiv preprint arXiv:1207.0580.
-4. Fukushima, K. (1969). 
-    Visual feature extraction by a multilayered network of analog threshold elements. 
+4. Fukushima, K. (1969).
+    Visual feature extraction by a multilayered network of analog threshold elements.
     IEEE Transactions on Systems Science and Cybernetics, 5(4), 322-333.
 """
 

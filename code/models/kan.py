@@ -156,4 +156,5 @@ class KAN(nn.Module):
             x = layer(x)
         return x
 
+
 __all__ = ["KAN"]

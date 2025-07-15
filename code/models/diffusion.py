@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+
 class SinusoidalPositionEmbeddings(nn.Module):
     def __init__(self, dim):
         super().__init__()
@@ -17,21 +18,22 @@ class SinusoidalPositionEmbeddings(nn.Module):
         embeddings = torch.cat((embeddings.sin(), embeddings.cos()), dim=-1)
         return embeddings
 
+
 class Block(nn.Module):
     def __init__(self, in_channels, out_channels, time_dim):
         super().__init__()
         self.time_mlp = nn.Linear(time_dim, out_channels)
-        
+
         self.block1 = nn.Sequential(
             nn.Conv1d(in_channels, out_channels, 3, padding=1),
             nn.GroupNorm(1, out_channels),
-            nn.GELU()
+            nn.GELU(),
         )
-        
+
         self.block2 = nn.Sequential(
             nn.Conv1d(out_channels, out_channels, 3, padding=1),
             nn.GroupNorm(1, out_channels),
-            nn.GELU()
+            nn.GELU(),
         )
 
         if in_channels != out_channels:
@@ -46,18 +48,28 @@ class Block(nn.Module):
         h = self.block2(h)
         return h + self.shortcut(x)
 
+
 class Diffusion(nn.Module):
-    def __init__(self, input_dim=2080, hidden_dim=128, time_dim=64, output_dim=2, num_timesteps=4000):
+    def __init__(
+        self,
+        input_dim=2080,
+        hidden_dim=128,
+        time_dim=64,
+        output_dim=2,
+        num_timesteps=4000,
+    ):
         super().__init__()
         self.input_dim = input_dim
         self.num_timesteps = num_timesteps
-        
+
         # Noise schedule
         beta_start = 1e-4
         beta_end = 0.02
-        self.register_buffer('betas', torch.linspace(beta_start, beta_end, num_timesteps))
-        self.register_buffer('alphas', 1. - self.betas)
-        self.register_buffer('alphas_cumprod', torch.cumprod(self.alphas, dim=0))
+        self.register_buffer(
+            "betas", torch.linspace(beta_start, beta_end, num_timesteps)
+        )
+        self.register_buffer("alphas", 1.0 - self.betas)
+        self.register_buffer("alphas_cumprod", torch.cumprod(self.alphas, dim=0))
 
         # Time embedding
         self.time_dim = time_dim
@@ -87,12 +99,10 @@ class Diffusion(nn.Module):
 
         # Output layers
         self.final_conv = nn.Conv1d(hidden_dim, 1, 1)
-        
+
         # Classifier
         self.classifier = nn.Sequential(
-            nn.AdaptiveAvgPool1d(1),
-            nn.Flatten(),
-            nn.Linear(1, output_dim)
+            nn.AdaptiveAvgPool1d(1), nn.Flatten(), nn.Linear(1, output_dim)
         )
 
         self.target_noise = None
@@ -101,17 +111,17 @@ class Diffusion(nn.Module):
         noise = torch.randn_like(x_0)
         sqrt_alphas_cumprod = torch.sqrt(self.alphas_cumprod[t])
         sqrt_one_minus_alphas_cumprod = torch.sqrt(1 - self.alphas_cumprod[t])
-        
+
         x_noisy = (
-            sqrt_alphas_cumprod.view(-1, 1) * x_0 + 
-            sqrt_one_minus_alphas_cumprod.view(-1, 1) * noise
+            sqrt_alphas_cumprod.view(-1, 1) * x_0
+            + sqrt_one_minus_alphas_cumprod.view(-1, 1) * noise
         )
         return x_noisy, noise
 
     def forward(self, x):
         batch_size = x.shape[0]
         device = x.device
-        
+
         # Handle training vs inference mode
         if self.training:
             t = torch.randint(0, self.num_timesteps, (batch_size,), device=device)
@@ -149,49 +159,54 @@ class Diffusion(nn.Module):
         return logits
 
     @torch.no_grad()
-    def sample(self, num_samples, device='cuda'):
+    def sample(self, num_samples, device="cuda"):
         self.eval()
         x = torch.randn(num_samples, self.input_dim, device=device)
-        
+
         for t in reversed(range(self.num_timesteps)):
             t_batch = torch.full((num_samples,), t, device=device, dtype=torch.long)
             t_emb = self.time_mlp(t_batch.float())
-            
+
             # Forward pass
             x_input = x.unsqueeze(1)
             h = self.init_conv(x_input)
-            
+
             # Process through network
             h = self.down1(h, t_emb)
             h = self.down2(h, t_emb)
             h = self.down3(h, t_emb)
-            
+
             h = self.mid1(h, t_emb)
             h = self.mid2(h, t_emb)
-            
+
             h = self.up1(h, t_emb)
             h = self.up2(h, t_emb)
             h = self.up3(h, t_emb)
-            
+
             denoised = self.final_conv(h)
-            
+
             # Update sample
             alpha_t = self.alphas[t]
             alpha_t_cumprod = self.alphas_cumprod[t]
             beta_t = self.betas[t]
-            
+
             if t > 0:
                 noise = torch.randn_like(x)
             else:
                 noise = 0
-                
+
             x = (
-                1 / torch.sqrt(alpha_t) * 
-                (x - (beta_t / (torch.sqrt(1 - alpha_t_cumprod))) * denoised.squeeze(1)) +
-                torch.sqrt(beta_t) * noise
+                1
+                / torch.sqrt(alpha_t)
+                * (
+                    x
+                    - (beta_t / (torch.sqrt(1 - alpha_t_cumprod))) * denoised.squeeze(1)
+                )
+                + torch.sqrt(beta_t) * noise
             )
-        
+
         self.train()
-        return x 
+        return x
+
 
 __all__ = ["Diffusion"]
