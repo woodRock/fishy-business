@@ -1,6 +1,6 @@
-"""Recurrent Weighted Key-Value (RWKV) model for time series classification.
+"""Receptance Weighted Key-Value (RWKV) model for time series classification.
 
-This module implements a Recurrent Weighted Key-Value (RWKV) model for time series classification.
+This module implements a Receptance Weighted Key-Value (RWKV) model for time series classification.
 It includes linear layers for key, value, and output, and uses a recurrent mechanism to update
 the hidden state based on the input features. The model is designed to handle sequential data
 and is suitable for tasks such as time series forecasting or classification.
