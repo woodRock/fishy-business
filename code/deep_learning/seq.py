@@ -1,7 +1,8 @@
-""" This module implements a sequential transfer learning framework for deep learning models.
+"""This module implements a sequential transfer learning framework for deep learning models.
 It allows for training models on multiple datasets sequentially, with the final dataset being used for fine-tuning.
 The framework is designed to work with PyTorch and includes functions for training, evaluation,
 and visualization of results."""
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset, random_split
@@ -219,8 +220,8 @@ def train_with_tracking(
     model, train_loader, val_loader, optimizer, scheduler, num_epochs, device
 ):
     """Train model with detailed tracking of metrics, including balanced accuracy.
-    
-    Args: 
+
+    Args:
         model (nn.Module): The model to train.
         train_loader (DataLoader): DataLoader for training data.
         val_loader (DataLoader): DataLoader for validation data.
@@ -361,8 +362,8 @@ def train_with_tracking(
 
 def visualize_training_history(history):
     """Visualize training and validation metrics over time.
-    
-    Args: 
+
+    Args:
         history (dict): Dictionary containing training history with keys:
                         - train_loss, val_loss
                         - train_acc, val_acc
@@ -408,11 +409,11 @@ def visualize_training_history(history):
 
 def visualize_transfer_learning_performance(history):
     """Visualize performance across different datasets during transfer learning.
-    
-    Args: 
+
+    Args:
         history (dict): Dictionary containing transfer learning history with keys:
                         - transfer: Dictionary of datasets with their validation accuracies
-                        - finetune: Dictionary of datasets with their validation accuracies 
+                        - finetune: Dictionary of datasets with their validation accuracies
     """
     datasets = list(history["transfer"].keys()) + list(history["finetune"].keys())
     final_accuracies = []
@@ -474,7 +475,7 @@ def visualize_transfer_learning_performance(history):
 
 
 def main():
-    """ Main execution function for sequential transfer learning. """
+    """Main execution function for sequential transfer learning."""
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
