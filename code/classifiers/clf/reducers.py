@@ -24,27 +24,34 @@ from sklearn.manifold import TSNE as tsne
 
 
 if __name__ == "__main__":
-    datasets = ["species", "part", "oil_simple", "oil", "oil_regression", "cross-species"]
+    datasets = [
+        "species",
+        "part",
+        "oil_simple",
+        "oil",
+        "oil_regression",
+        "cross-species",
+    ]
     datasets = ["oil"]
-    
+
     logger = logging.getLogger(__name__)
     # Run argument for numbered log files.
     output = f"logs/reducer.log"
     # Filemode is write, so it clears the file, then appends output.
-    logging.basicConfig(filename=output, level=logging.INFO, filemode='w')
-    
+    logging.basicConfig(filename=output, level=logging.INFO, filemode="w")
+
     n_components = 50
     reducers = {
-        "umap-n2": umap.UMAP(n_neighbors=2, n_components=n_components), 
-        "umap-n5": umap.UMAP(n_neighbors=5, n_components=n_components), 
-        "umap-n10": umap.UMAP(n_neighbors=10, n_components=n_components), 
-        "umap-n20": umap.UMAP(n_neighbors=20, n_components=n_components), 
-        "tsne": tsne(method='exact', n_components=n_components), 
-        "pca": pca(n_components=n_components)
+        "umap-n2": umap.UMAP(n_neighbors=2, n_components=n_components),
+        "umap-n5": umap.UMAP(n_neighbors=5, n_components=n_components),
+        "umap-n10": umap.UMAP(n_neighbors=10, n_components=n_components),
+        "umap-n20": umap.UMAP(n_neighbors=20, n_components=n_components),
+        "tsne": tsne(method="exact", n_components=n_components),
+        "pca": pca(n_components=n_components),
     }
 
     for dataset in tqdm(datasets, desc=f"Training"):
-            
+
         for name, reducer in reducers.items():
 
             logger.info(f"Dataset: {dataset}")
@@ -53,57 +60,62 @@ if __name__ == "__main__":
             print(f"Reducer: {name}")
 
             is_classification = dataset != "oil_regression"
-            
+
             # Load the dataset.
-            X,y = load_dataset(dataset)
+            X, y = load_dataset(dataset)
             # Perform dimensionality reduction.
             X = reducer.fit_transform(X)
             # Remove the first two features.
-            X = X[:,2:]
+            X = X[:, 2:]
 
             if is_classification:
                 # The different models to try out.
-                models = { 
+                models = {
                     # KNN
-                    'knn': knn(),
-                    # DT  
-                    'dt': dt(),
-                    # LDA  
-                    'lda-lsqr': lda(solver='lsqr'),
-                    'lda-svd': lda(solver='svd'),
-                    # 'lda-eigen': lda(solver='eigen'), 
+                    "knn": knn(),
+                    # DT
+                    "dt": dt(),
+                    # LDA
+                    "lda-lsqr": lda(solver="lsqr"),
+                    "lda-svd": lda(solver="svd"),
+                    # 'lda-eigen': lda(solver='eigen'),
                     # NB
-                    'nb': nb(),
-                    # RF  
-                    'rf': rf(),
-                    # SVM  
-                    'svm-linear': svm(kernel='linear'), 
-                    'svm-rbf': svm(kernel='rbf'), 
-                    'svm-poly': svm(kernel='poly'),
-                    'svm-sigmoid': svm(kernel='sigmoid'),
+                    "nb": nb(),
+                    # RF
+                    "rf": rf(),
+                    # SVM
+                    "svm-linear": svm(kernel="linear"),
+                    "svm-rbf": svm(kernel="rbf"),
+                    "svm-poly": svm(kernel="poly"),
+                    "svm-sigmoid": svm(kernel="sigmoid"),
                     # Ensemble
-                    'ensemble': VotingClassifier(
+                    "ensemble": VotingClassifier(
                         estimators=[
-                            ('knn', knn()), 
-                            ('dt', dt()), 
-                            ('lda', lda()), 
-                            ('nb', nb()), 
-                            ('rf', rf()),
-                            ('svm', svm(kernel='linear'))],
-                        voting='hard'
-                    )
+                            ("knn", knn()),
+                            ("dt", dt()),
+                            ("lda", lda()),
+                            ("nb", nb()),
+                            ("rf", rf()),
+                            ("svm", svm(kernel="linear")),
+                        ],
+                        voting="hard",
+                    ),
                 }
-            else:   
+            else:
                 # The different models to try out.
-                models = { 
-                    'lr': lr(), 
-                    'svr': svr(),
-                    'xgb': xgb.XGBRegressor(),
-                    'ensemble': VotingRegressor(
-                        estimators=[('lr', lr()), ('svr', svr()), ('xgb', xgb.XGBRegressor())],
-                    ) # voting='hard')
+                models = {
+                    "lr": lr(),
+                    "svr": svr(),
+                    "xgb": xgb.XGBRegressor(),
+                    "ensemble": VotingRegressor(
+                        estimators=[
+                            ("lr", lr()),
+                            ("svr", svr()),
+                            ("xgb", xgb.XGBRegressor()),
+                        ],
+                    ),  # voting='hard')
                 }
-            
+
             runs = 30
             logger.info(f"Running {runs} experiments")
             # Evaluate for two
@@ -111,9 +123,13 @@ if __name__ == "__main__":
                 train_accs = []
                 test_accs = []
                 # Perform 30 indepdnent runs of the random forest.
-                loss =  balanced_accuracy_score if is_classification else mean_squared_error
-                for run in tqdm(range(1, runs+1), desc=f"{dataset} - {name}"):
-                    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.2, random_state=run)
+                loss = (
+                    balanced_accuracy_score if is_classification else mean_squared_error
+                )
+                for run in tqdm(range(1, runs + 1), desc=f"{dataset} - {name}"):
+                    X_train, X_test, y_train, y_test = train_test_split(
+                        X, y, stratify=y, test_size=0.2, random_state=run
+                    )
                     # Training the classifier.
                     model.fit(X_train, y_train)
                     # Train evaluation.
@@ -124,7 +140,7 @@ if __name__ == "__main__":
                     y_pred = model.predict(X_test)
                     test_acc = loss(y_test, y_pred)
                     test_accs.append(test_acc)
-                
+
                 # Convert to numpy arrays.
                 train_accs = np.array(train_accs)
                 test_accs = np.array(test_accs)
@@ -134,4 +150,4 @@ if __name__ == "__main__":
                 logger.info(f"Classifier: {name}")
                 logger.info(f"training: {mean} +\- {std}")
                 mean, std = np.mean(test_accs), np.std(test_accs)
-                logger.info(f"test: {mean} +\- {std}")#
+                logger.info(f"test: {mean} +\- {std}")  #

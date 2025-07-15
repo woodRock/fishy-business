@@ -1,6 +1,6 @@
 """This is the __init__.py file for the 'code' package."""
 
-print("Initializing the 'siamese' package...") # Optional: for verification
+print("Initializing the 'siamese' package...")  # Optional: for verification
 
 # If you have submodules within 'siamese' that you want to expose
 # when someone does 'import siamese', you can do it here.

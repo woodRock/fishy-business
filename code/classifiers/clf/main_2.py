@@ -1,5 +1,5 @@
 import numpy as np
-import torch 
+import torch
 from torch.utils.data import DataLoader
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.metrics import balanced_accuracy_score
@@ -14,20 +14,21 @@ from nb import nb
 from knn import knn
 from data import load_dataset
 
+
 def calculate_class_weights(y):
     """
     Calculate class weights inversely proportional to class frequencies.
-    
+
     Parameters:
     -----------
     y : numpy.ndarray
         Array of class labels (assumed to be binary: 0 and 1)
-        
+
     Returns:
     --------
     dict
         Dictionary with class labels as keys and class weights as values
-    
+
     Formula used:
     w_j = n_samples / (n_classes * n_samples_j)
     where:
@@ -35,20 +36,20 @@ def calculate_class_weights(y):
     - n_classes is the number of unique classes
     - n_samples_j is the number of samples for class j
     """
-    
+
     # Get total number of samples
     n_samples = len(y)
-    
+
     # Get unique classes and their counts
     unique_classes, class_counts = np.unique(y, return_counts=True)
     n_classes = len(unique_classes)
-    
+
     # Calculate weights for each class
     weights = n_samples / (n_classes * class_counts)
-    
+
     # Create dictionary mapping class labels to weights
     class_weights = dict(zip(unique_classes, weights))
-    
+
     return class_weights
 
 
@@ -57,7 +58,7 @@ def run_experiments(datasets, runs=30, k=5):
 
     for dataset in datasets:
         print(f"Dataset: {dataset}")
-        
+
         # Load the dataset
         X, y = load_dataset(dataset)
 
@@ -66,25 +67,34 @@ def run_experiments(datasets, runs=30, k=5):
 
         # The models run experiments for.
         models = {
-            'knn': knn(class_weights=class_weights),
-            'dt': dt(class_weight=class_weights),
-            'lor': lor(max_iter=20000,class_weight=class_weights),
-            'lda': lda(class_weights=class_weights),
-            'nb': nb(class_weights=class_weights),
-            'rf': rf(class_weight=class_weights),
-            'svm': svm(kernel='linear', max_iter=10000, class_weight=class_weights, ),
-            'ensemble': VotingClassifier(
+            "knn": knn(class_weights=class_weights),
+            "dt": dt(class_weight=class_weights),
+            "lor": lor(max_iter=20000, class_weight=class_weights),
+            "lda": lda(class_weights=class_weights),
+            "nb": nb(class_weights=class_weights),
+            "rf": rf(class_weight=class_weights),
+            "svm": svm(
+                kernel="linear",
+                max_iter=10000,
+                class_weight=class_weights,
+            ),
+            "ensemble": VotingClassifier(
                 estimators=[
-                    ('knn', knn(class_weights=class_weights)),
-                    ('dt', dt(class_weight=class_weights)),
-                    ('lor', lor(max_iter=20000,class_weight=class_weights)),
-                    ('lda', lda(class_weights=class_weights)),
-                    ('nb', nb(class_weights=class_weights)),
-                    ('rf', rf(class_weight=class_weights)),
-                    ('svm', svm(kernel='linear', max_iter=10000, class_weight=class_weights))
+                    ("knn", knn(class_weights=class_weights)),
+                    ("dt", dt(class_weight=class_weights)),
+                    ("lor", lor(max_iter=20000, class_weight=class_weights)),
+                    ("lda", lda(class_weights=class_weights)),
+                    ("nb", nb(class_weights=class_weights)),
+                    ("rf", rf(class_weight=class_weights)),
+                    (
+                        "svm",
+                        svm(
+                            kernel="linear", max_iter=10000, class_weight=class_weights
+                        ),
+                    ),
                 ],
-                voting='hard'
-            )
+                voting="hard",
+            ),
         }
 
         dataset_results = {}
@@ -98,11 +108,11 @@ def run_experiments(datasets, runs=30, k=5):
 
             for _ in range(runs):
                 # Split the data into train and test split (50%-50%).
-                X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.5)
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
 
                 # Normalize the dataset between [0,1].
                 scaler = MinMaxScaler()
-                scaler.fit(X_train,y_train)
+                scaler.fit(X_train, y_train)
                 X_train = scaler.fit_transform(X_train)
                 X_test = scaler.transform(X_test)
 
@@ -119,7 +129,7 @@ def run_experiments(datasets, runs=30, k=5):
 
                 train_accs.append(np.mean(train_acc))
                 test_accs.append(np.mean(test_acc))
-           
+
             # Store the balanced accuracy as a percentage.
             train_mean = np.mean(train_accs) * 100
             train_std = np.std(train_accs) * 100
@@ -128,15 +138,16 @@ def run_experiments(datasets, runs=30, k=5):
 
             # Append the results to a dictionary.
             dataset_results[name] = {
-                'train_acc': train_mean,
-                'train_std': train_std,
-                'test_acc': test_mean,
-                'test_std': test_std
+                "train_acc": train_mean,
+                "train_std": train_std,
+                "test_acc": test_mean,
+                "test_std": test_std,
             }
 
         results[dataset] = dataset_results
 
     return results
+
 
 if __name__ == "__main__":
     # datasets = ["species", "part", "oil", "cross-species"]
@@ -148,5 +159,9 @@ if __name__ == "__main__":
         print(f"\nDataset: {dataset}")
         for classifier, metrics in classifiers.items():
             print(f"  {classifier}:")
-            print(f"    Train: {metrics['train_acc']:.2f}\% $\pm$ {metrics['train_std']:.2f}\%")
-            print(f"    Test:  {metrics['test_acc']:.2f}\% $\pm$ {metrics['test_std']:.2f}\%")
+            print(
+                f"    Train: {metrics['train_acc']:.2f}\% $\pm$ {metrics['train_std']:.2f}\%"
+            )
+            print(
+                f"    Test:  {metrics['test_acc']:.2f}\% $\pm$ {metrics['test_std']:.2f}\%"
+            )
