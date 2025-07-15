@@ -44,12 +44,12 @@ class CNN(nn.Module):
     def __init__(
         self, input_size: int = 1023, num_classes: int = 7, dropout: int = 0.5
     ) -> None:
-        """ Initialize the CNN model.
+        """Initialize the CNN model.
 
         This model consists of convolutional layers followed by fully connected layers.
         It includes batch normalization, ReLU activation, and dropout for regularization.
-        
-        Args: 
+
+        Args:
             input_size (int): Size of the input features.
             num_classes (int): Number of output classes.
             dropout (float): Dropout rate for regularization.

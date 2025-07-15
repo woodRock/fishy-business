@@ -1,4 +1,4 @@
-""" Neural ODE model for time series classification.
+"""Neural ODE model for time series classification.
 
 This model uses a neural ODE block to learn the dynamics of the input time series data.
 It includes an initial convolutional layer, ODE blocks for learning the dynamics,
@@ -8,7 +8,7 @@ sequential data, such as time series or other ordered data.
 References:
 1. Chen, T., Rubanova, Y., Bettencourt, J., & Dumoulin, J. (2018).
    Neural ordinary differential equations.
-   In Advances in neural information processing systems (pp. 6571-6583).        
+   In Advances in neural information processing systems (pp. 6571-6583).
 2. Srivastava, N., Hinton, G., Krizhevsky, A.,
    Sutskever, I., & Salakhutdinov, R. (2014).
    Dropout: a simple way to prevent neural networks from overfitting.
@@ -39,8 +39,9 @@ References:
    and pattern recognition (pp. 2818-2826).
 10. Hendrycks, D., & Gimpel, K. (2016).
     Gaussian error linear units (gelus).
-    arXiv preprint arXiv:1606.08415.    
+    arXiv preprint arXiv:1606.08415.
 """
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -55,8 +56,8 @@ class ODEFunc(nn.Module):
     """ODE function for the Neural ODE block"""
 
     def __init__(self, channels, dropout=0.5) -> None:
-        """ Initialize the ODE function.
-        
+        """Initialize the ODE function.
+
         Args:
             channels (int): Number of input channels.
             dropout (float): Dropout rate for regularization. Defaults to 0.5.
@@ -90,9 +91,10 @@ class ODEFunc(nn.Module):
 
 
 class ODEBlock(nn.Module):
-    """ ODE block for the Neural ODE model."""
+    """ODE block for the Neural ODE model."""
+
     def __init__(self, odefunc) -> None:
-        """ Initialize the ODE block.
+        """Initialize the ODE block.
 
         Args:
             odefunc (ODEFunc): The ODE function to be used in the block.
@@ -102,12 +104,12 @@ class ODEBlock(nn.Module):
         self.register_buffer("integration_times", torch.linspace(0, 1, 2))
 
     def forward(self, x):
-        """ Forward pass through the ODE block.
-        
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, seq_length). 
+        """Forward pass through the ODE block.
 
-        Returns:        
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, seq_length).
+
+        Returns:
             torch.Tensor: Output tensor of shape (batch_size, channels, seq_length).
             The output is the final state after integrating the ODE function over the specified time intervals.
         """
@@ -117,11 +119,12 @@ class ODEBlock(nn.Module):
 
 
 class ODE(nn.Module):
-    """ Neural ODE model for time series classification."""
+    """Neural ODE model for time series classification."""
+
     def __init__(self, input_dim, output_dim, dropout=0.3) -> None:
         """Initialize the Neural ODE model.
-        
-        Args: 
+
+        Args:
             input_dim (int): Number of input features.
             output_dim (int): Number of output classes.
             dropout (float): Dropout rate for regularization. Defaults to 0.3.
@@ -155,10 +158,10 @@ class ODE(nn.Module):
         )
 
     def forward(self, x):
-        """ Forward pass through the Neural ODE model. 
-        Args: 
+        """Forward pass through the Neural ODE model.
+        Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
-            
+
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, output_dim),
             where output_dim is the number of classes.
