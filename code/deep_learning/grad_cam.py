@@ -3,6 +3,7 @@ This script implements a 1D Grad-CAM analysis for a Transformer model
 trained on mass spectrometry data. It includes training the model,
 generating Grad-CAM maps, and visualizing the results.
 """
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -27,8 +28,8 @@ class GradCAM:
     """
 
     def __init__(self, model: nn.Module, target_layer: nn.Module) -> None:
-        """ Initialize Grad-CAM with the model and target layer.
-        
+        """Initialize Grad-CAM with the model and target layer.
+
         Args:
             model: The trained Transformer model
             target_layer: The layer to analyze (usually the last MultiHeadAttention layer)
@@ -44,9 +45,11 @@ class GradCAM:
             self.save_gradient
         )
 
-    def save_activation(self, module: nn.Module, input: torch.tensor, output: torch.tensor) -> None:
-        """ Save the activations from the target layer during forward pass. 
-        
+    def save_activation(
+        self, module: nn.Module, input: torch.tensor, output: torch.tensor
+    ) -> None:
+        """Save the activations from the target layer during forward pass.
+
         Args:
             module: The target layer module
             input: Input to the layer
@@ -54,9 +57,11 @@ class GradCAM:
         """
         self.activations = output.detach()
 
-    def save_gradient(self, module: nn.Module, grad_input: torch.tensor, grad_output: torch.tensor) -> None:
-        """ Save the gradients from the target layer during backward pass.
-        
+    def save_gradient(
+        self, module: nn.Module, grad_input: torch.tensor, grad_output: torch.tensor
+    ) -> None:
+        """Save the gradients from the target layer during backward pass.
+
         Args:
             module: The target layer module
             grad_input: Gradients with respect to the input
@@ -65,14 +70,16 @@ class GradCAM:
         self.gradients = grad_output[0].detach()
 
     def remove_hooks(self):
-        """ Remove the hooks to prevent memory leaks. """
+        """Remove the hooks to prevent memory leaks."""
         self.forward_hook.remove()
         self.backward_hook.remove()
 
-    def generate_cam(self, input_tensor: torch.tensor, target_class:Optional[int]=None):
-        """ Generate the Grad-CAM map for the input tensor.
-        
-        Args: 
+    def generate_cam(
+        self, input_tensor: torch.tensor, target_class: Optional[int] = None
+    ):
+        """Generate the Grad-CAM map for the input tensor.
+
+        Args:
             input_tensor: Input tensor of shape [batch_size, seq_length, features]
             target_class: Class index for which to generate the CAM (if None, uses predicted class)
 

@@ -1,6 +1,7 @@
-""" This module provides utilities for deep learning datasets, 
+"""This module provides utilities for deep learning datasets,
 including dataset types, data augmentation, and dataset classes.
 """
+
 from dataclasses import dataclass, fields as dataclass_fields  # For AugmentationConfig
 from enum import Enum, auto
 import logging
@@ -37,6 +38,7 @@ class DatasetType(Enum):
         INSTANCE_RECOGNITION: Dataset for instance recognition.
         INSTANCE_RECOGNITION_HARD: Dataset for hard instance recognition.
     """
+
     SPECIES = auto()
     PART = auto()
     OIL = auto()
@@ -106,6 +108,7 @@ class AugmentationConfig:
         shift_range: The range for shifting the samples.
         scale_range: The range for scaling the samples.
     """
+
     enabled: bool = False
     num_augmentations: int = 5  # Number of *additional* augmented versions per sample
     noise_enabled: bool = True
@@ -118,12 +121,12 @@ class AugmentationConfig:
 
 class BaseDataset(Dataset):
     def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
-        """ Initializes the dataset with samples and labels.
-        
-        Args: 
+        """Initializes the dataset with samples and labels.
+
+        Args:
             samples (np.ndarray): Array of shape (num_samples, num_features) containing the features.
             labels (np.ndarray): Array of shape (num_samples, num_classes) or (num_samples,) containing the labels.
-        
+
         Raises:
             ValueError: If samples or labels are empty or have incompatible shapes.
         """
@@ -140,17 +143,17 @@ class BaseDataset(Dataset):
             self.samples = F.normalize(self.samples, p=2, dim=0)
 
     def __len__(self) -> int:
-        """ Returns the number of samples in the dataset.
-        
-        Returns:    
+        """Returns the number of samples in the dataset.
+
+        Returns:
             int: Number of samples in the dataset.
         """
         return self.samples.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        """ Retrieves a sample and its corresponding label by index.
-        
-        Args: 
+        """Retrieves a sample and its corresponding label by index.
+
+        Args:
             idx (int): Index of the sample to retrieve.
 
         Returns:
@@ -250,16 +253,16 @@ class SiameseDataset(BaseDataset):
         return paired_samples_tensor, pair_labels_tensor
 
     def __len__(self) -> int:
-        """ Returns the number of pairs in the dataset.
-        
+        """Returns the number of pairs in the dataset.
+
         Returns:
             int: Number of pairs in the dataset.
         """
         return self.paired_samples.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        """ Retrieves a pair of samples and their corresponding label by index.
-        
+        """Retrieves a pair of samples and their corresponding label by index.
+
         Args:
             idx (int): Index of the pair to retrieve.
 
@@ -355,9 +358,9 @@ class DataProcessor:
     def __init__(
         self, dataset_type: DatasetType, batch_size: int = 64
     ) -> None:  # Removed train_split as it's not used
-        """ Initializes the DataProcessor with dataset type and batch size.
-        
-        Args: 
+        """Initializes the DataProcessor with dataset type and batch size.
+
+        Args:
             dataset_type (DatasetType): The type of dataset to process.
             batch_size (int): The batch size for DataLoader. Defaults to 64.
         Raises:
@@ -434,9 +437,9 @@ class DataProcessor:
     def _create_one_hot_encoder(
         self, categories: List[str]
     ) -> Callable[[str], Optional[List[float]]]:
-        """ Creates a one-hot encoder function for the given categories.
-        
-        Args: 
+        """Creates a one-hot encoder function for the given categories.
+
+        Args:
             categories (List[str]): List of category names to encode.
 
         Returns:
@@ -457,9 +460,9 @@ class DataProcessor:
         return encoder
 
     def load_data(self, file_path: Union[str, Path]) -> pd.DataFrame:
-        """ Loads data from a file into a pandas DataFrame.
-        
-        Args: 
+        """Loads data from a file into a pandas DataFrame.
+
+        Args:
             file_path (Union[str, Path]): Path to the data file (CSV or Excel).
 
         Returns:
@@ -482,12 +485,12 @@ class DataProcessor:
     def filter_data(
         self, data: pd.DataFrame, is_pre_train: bool = False
     ) -> pd.DataFrame:
-        """ Filters the DataFrame based on dataset type and pre-training status.
-        
-        Args: 
+        """Filters the DataFrame based on dataset type and pre-training status.
+
+        Args:
             data (pd.DataFrame): The DataFrame to filter.
             is_pre_train (bool): Whether the data is for pre-training. If True, no filtering is applied.
-        
+
         Returns:
             pd.DataFrame: Filtered DataFrame.
         """
@@ -540,12 +543,12 @@ class DataProcessor:
         return df
 
     def encode_labels(self, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-        """ Encodes labels based on dataset type and returns features and labels.
-        
-        Args: 
+        """Encodes labels based on dataset type and returns features and labels.
+
+        Args:
             data (pd.DataFrame): The DataFrame containing the data to encode.
 
-        Returns:    
+        Returns:
             Tuple[np.ndarray, np.ndarray]: A tuple containing:
                 - X (np.ndarray): Features array of shape (num_samples, num_features).
                 - y (np.ndarray): Labels array of shape (num_samples, num_classes).
@@ -617,9 +620,9 @@ def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid confli
     is_pre_train: bool = False,
     augmentation_cfg: Optional[AugmentationConfig] = None,
 ) -> Tuple[DataLoader, pd.DataFrame]:
-    """ Preprocesses data and returns a DataLoader and raw DataFrame.
-    
-    Args: 
+    """Preprocesses data and returns a DataLoader and raw DataFrame.
+
+    Args:
         data_processor (DataProcessor): The DataProcessor instance to use for loading and processing data.
         file_path (Union[str, Path]): Path to the data file (CSV or Excel).
         is_pre_train (bool): Whether the data is for pre-training. If True, no filtering is applied.
@@ -693,9 +696,9 @@ class DataModule:
         is_pre_train: bool = False,
         augmentation_config: Optional[AugmentationConfig] = None,
     ) -> None:
-        """ Initializes the DataModule with dataset name, file path, and configuration.
-        
-        Args: 
+        """Initializes the DataModule with dataset name, file path, and configuration.
+
+        Args:
             dataset_name (str): Name of the dataset (e.g., "species", "part").
             file_path (Union[str, Path]): Path to the data file (CSV or Excel).
             batch_size (int): Batch size for DataLoader. Defaults to 64.
@@ -704,7 +707,7 @@ class DataModule:
 
         Raises:
             ValueError: If the dataset name is invalid or not recognized.
-            TypeError: If the file path is not a string or Path object. 
+            TypeError: If the file path is not a string or Path object.
         """
         self.dataset_name_str = (
             dataset_name  # Store original string for convenience (e.g. get_num_classes)
@@ -720,8 +723,7 @@ class DataModule:
         self.raw_data: Optional[pd.DataFrame] = None
 
     def setup(self) -> None:  # Changed to not return, but set attributes
-        """Loads and preprocesses data, setting up DataLoaders.
-        """
+        """Loads and preprocesses data, setting up DataLoaders."""
         self.train_loader, self.raw_data = preprocess_data_pipeline(
             data_processor=self.processor,
             file_path=self.file_path,
@@ -731,8 +733,8 @@ class DataModule:
 
     def get_dataset(self) -> Dataset:
         """Returns the dataset used by the DataLoader.
-        
-        Returns: 
+
+        Returns:
             Dataset: The dataset used by the train DataLoader, or an empty CustomDataset if not set.
         """
         if self.train_loader is None:
@@ -742,8 +744,8 @@ class DataModule:
 
     def get_train_dataframe(self) -> pd.DataFrame:
         """Returns the raw DataFrame used to create the DataLoader.
-        
-        Returns: 
+
+        Returns:
             pd.DataFrame: The raw DataFrame containing the loaded data before filtering.
         """
         if self.raw_data is None:
@@ -752,9 +754,9 @@ class DataModule:
         return self.raw_data
 
     def get_train_dataloader(self) -> DataLoader:
-        """ Returns the DataLoader for training data.
-        
-        Raises: 
+        """Returns the DataLoader for training data.
+
+        Raises:
             Warning: If the DataLoader is not set up, a warning is logged.
 
         Returns:
@@ -774,7 +776,7 @@ class DataModule:
         """
         Get number of output features (classes) for a dataset.
         For 'use_sklearn_label_encoder' types, it's dynamic if a processor is available.
-        
+
         Args:
             dataset_name_str (str): Name of the dataset (e.g., "species", "part").
             data_processor (Optional[DataProcessor]): DataProcessor instance if available, to check fitted label encoder.
@@ -834,8 +836,8 @@ def create_data_module(
     augmentation_enabled: bool = False,
     **kwargs_for_augmentation,  # Catch all other kwargs
 ) -> DataModule:
-    """ Creates a DataModule instance for the specified dataset.
-    
+    """Creates a DataModule instance for the specified dataset.
+
     Args:
         dataset_name (str): Name of the dataset (e.g., "species", "part").
         file_path (Union[str, Path]): Path to the data file (CSV or Excel).
@@ -870,7 +872,7 @@ def create_data_module(
 
 # Usage example:
 if __name__ == "__main__":
-    """ Main entry point for testing the DataModule and DataProcessor functionality."""
+    """Main entry point for testing the DataModule and DataProcessor functionality."""
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

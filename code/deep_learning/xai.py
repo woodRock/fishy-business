@@ -63,8 +63,8 @@ class ModelFactory:
     @staticmethod
     def create(model_name: str, config: ModelConfig) -> nn.Module:
         """Create a model instance based on configuration.
-        
-        Args: 
+
+        Args:
             model_name (str): Name of the model architecture to create.
             config (ModelConfig): Configuration parameters for the model.
 
@@ -131,9 +131,9 @@ class ModelWrapper:
     """Wrapper for neural network models to make them compatible with LIME."""
 
     def __init__(self, model: nn.Module, device: str) -> Nones:
-        """ Initialize the model wrapper.
-        
-        Args: 
+        """Initialize the model wrapper.
+
+        Args:
             model (nn.Module): The neural network model to wrap.
             device (str): Device to run the model on ('cpu' or 'cuda').
         """
@@ -145,10 +145,10 @@ class ModelWrapper:
         """
         Normalize mass spec intensities to range [0,1]
 
-        Args: 
+        Args:
             x (np.ndarray): Input array of mass spec intensities, shape (n_samples, n_features).
-        
-        Returns: 
+
+        Returns:
             np.ndarray: Normalized intensities, same shape as input.
         """
         # Handle edge case where all values are the same
@@ -172,8 +172,8 @@ class ModelWrapper:
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
         """Get probability predictions from model with normalized intensities.
-        
-        Args: 
+
+        Args:
             x (np.ndarray): Input array of mass spec intensities, shape (n_samples, n_features).
 
         Returns:
@@ -218,9 +218,9 @@ class ModelExplainer:
     def __init__(self, model: nn.Module, config: ExplainerConfig) -> None:
         """Initialize model explainer.
 
-        Args: 
+        Args:
             model (nn.Module): The neural network model to explain.
-            config (ExplainerConfig): Configuration parameters for the explainer.   
+            config (ExplainerConfig): Configuration parameters for the explainer.
 
         Raises:
             ValueError: If the dataset name is not recognized.
@@ -234,7 +234,7 @@ class ModelExplainer:
         """
         Normalize features to [0,1] range before LIME explanation.
 
-        Args: 
+        Args:
             features (torch.Tensor): Input tensor of shape (n_samples, n_features).
 
         Returns:
@@ -267,8 +267,8 @@ class ModelExplainer:
         feature_names: List[str],
     ) -> LimeTabularExplainer:
         """Set up LIME explainer for the model.
-        
-        Args: 
+
+        Args:
             dataset_name (str): Name of the dataset to explain.
             features (torch.Tensor): Input features tensor of shape (n_samples, n_features).
             labels (torch.Tensor): Corresponding labels tensor of shape (n_samples,).
@@ -300,8 +300,8 @@ class ModelExplainer:
         self, features: torch.Tensor, labels: torch.Tensor, target: List[float]
     ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]:
         """Find an instance with the target label.
-        
-        Args: 
+
+        Args:
             features (torch.Tensor): Input features tensor of shape (n_samples, n_features).
             labels (torch.Tensor): Corresponding labels tensor of shape (n_samples,).
             target (List[float]): Target label to find, e.g., [0, 0, 0, 0, 0, 0, 1].
@@ -325,14 +325,14 @@ class ModelExplainer:
         self, instance: torch.Tensor, explainer: LimeTabularExplainer, output_path: Path
     ) -> None:
         """Generate and save LIME explanation with improved readability.
-        
-        Args: 
+
+        Args:
             instance (torch.Tensor): Input instance tensor of shape (n_features,).
             explainer (LimeTabularExplainer): Configured LIME explainer instance.
-            output_path (Path): Path to save the explanation figure.    
+            output_path (Path): Path to save the explanation figure.
 
         Raises:
-            Exception: If explanation generation fails. 
+            Exception: If explanation generation fails.
         """
         try:
             # Generate LIME explanation
@@ -395,7 +395,7 @@ def explain_predictions(
     target_label: List[float],
 ) -> None:
     """Generate explanations for model predictions.
-    
+
     Args:
         dataset_name (str): Name of the dataset to explain.
         model_name (str): Name of the model architecture to use.
@@ -471,7 +471,7 @@ def explain_predictions(
 
 
 if __name__ == "__main__":
-    """ Main entry point for testing the explanation functionality."""
+    """Main entry point for testing the explanation functionality."""
     # Example usage
     model_config = ModelConfig(input_dim=2080, output_dim=7, num_heads=4)
 

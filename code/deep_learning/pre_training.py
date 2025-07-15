@@ -49,7 +49,7 @@ class PreTrainingConfig:
 
 def mask_spectra_side(input_spectra: T_Tensor, side: str = "left") -> T_Tensor:
     """Masks either the left or right side of the input spectra.
-    
+
     Args:
         input_spectra (T_Tensor): The input spectra tensor to mask.
         side (str): The side to mask, either 'left' or 'right'.
@@ -78,8 +78,8 @@ class PreTrainer:
         optimizer: Optional[torch.optim.Optimizer] = None,
         logger: Optional[logging.Logger] = None,
     ) -> None:
-        """ Initializes the PreTrainer with a model, configuration, and optional optimizer and logger.
-        
+        """Initializes the PreTrainer with a model, configuration, and optional optimizer and logger.
+
         Args:
             model (nn.Module): The model to be pre-trained.
             config (PreTrainingConfig): Configuration for pre-training tasks.
@@ -107,8 +107,8 @@ class PreTrainer:
         checkpoint_suffix: str = "",
     ) -> nn.Module:
         """Generic epoch loop for a pre-training task.
-        
-        Args: 
+
+        Args:
             task_name (str): Name of the pre-training task for logging.
             train_loader (DataLoader): DataLoader for training data.
             train_step_fn (Callable): Function to perform a training step, taking a batch and returning loss.
@@ -153,9 +153,9 @@ class PreTrainer:
         return self.model
 
     def pre_train_masked_spectra(self, train_loader: DataLoader) -> nn.Module:
-        """ Pre-trains the model using Masked Spectra Modelling (MSM).
-        
-        Args: 
+        """Pre-trains the model using Masked Spectra Modelling (MSM).
+
+        Args:
             train_loader (DataLoader): DataLoader for training data.
 
         Returns:
@@ -204,11 +204,11 @@ class PreTrainer:
     def _generate_contrastive_pairs_nsp(
         self, data_loader: DataLoader
     ) -> List[Tuple[TensorPair, List[float]]]:
-        """ Generates contrastive pairs for Next Spectra Prediction (NSP). 
-        
-        Args: 
+        """Generates contrastive pairs for Next Spectra Prediction (NSP).
+
+        Args:
             data_loader (DataLoader): DataLoader for the dataset.
-        
+
         Returns:
             List[Tuple[TensorPair, List[float]]]: A list of tuples containing pairs of masked spectra and their labels.
         """
@@ -239,8 +239,8 @@ class PreTrainer:
     def pre_train_next_spectra(
         self, train_loader: DataLoader, val_loader: DataLoader
     ) -> nn.Module:
-        """ Pre-trains the model using Next Spectra Prediction (NSP).
-        
+        """Pre-trains the model using Next Spectra Prediction (NSP).
+
         Args:
             train_loader (DataLoader): DataLoader for training data.
             val_loader (DataLoader): DataLoader for validation data.
@@ -316,9 +316,9 @@ class PreTrainer:
     def _detect_peaks(
         self, spectra: T_Tensor, peak_threshold: float, window_size: int
     ) -> T_Tensor:
-        """ Detects peaks in the spectra using a sliding window approach.
-        
-        Args: 
+        """Detects peaks in the spectra using a sliding window approach.
+
+        Args:
             spectra (T_Tensor): The input spectra tensor of shape (batch_size, n_features).
             peak_threshold (float): Threshold for peak detection relative to the maximum intensity.
             window_size (int): Size of the sliding window to consider for peak detection.
@@ -354,9 +354,9 @@ class PreTrainer:
         peak_threshold: float = 0.1,
         window_size: int = 5,
     ) -> nn.Module:
-        """ Pre-trains the model for Peak Prediction.
-        
-        Args: 
+        """Pre-trains the model for Peak Prediction.
+
+        Args:
             train_loader (DataLoader): DataLoader for training data.
             val_loader (Optional[DataLoader]): DataLoader for validation data.
             peak_threshold (float): Threshold for peak detection relative to the maximum intensity.
@@ -369,8 +369,8 @@ class PreTrainer:
         # Model output for this task is (batch, n_features) with logits for binary classification per point.
 
         def train_step(batch_data):
-            """ Performs a single training step for peak prediction.
-            
+            """Performs a single training step for peak prediction.
+
             Args:
                 batch_data (Tuple[T_Tensor, Any]): A batch of data containing spectra and possibly other data.
 
@@ -391,12 +391,12 @@ class PreTrainer:
             return loss.item()
 
         def val_step(batch_data):
-            """ Performs a single validation step for peak prediction.
-            
-            Args: 
+            """Performs a single validation step for peak prediction.
+
+            Args:
                 batch_data (Tuple[T_Tensor, Any]): A batch of data containing spectra and possibly other data.
 
-            Returns:        
+            Returns:
                 float: The loss for the validation step.
             """
             spectra, _ = batch_data
@@ -418,9 +418,9 @@ class PreTrainer:
         )
 
     def _add_gaussian_noise(self, spectra: T_Tensor, std_dev: float = 0.1) -> T_Tensor:
-        """ Adds Gaussian noise to the spectra.
-        
-        Args: 
+        """Adds Gaussian noise to the spectra.
+
+        Args:
             spectra (T_Tensor): The input spectra tensor of shape (batch_size, n_features).
             std_dev (float): Standard deviation of the Gaussian noise to be added.
 
@@ -432,8 +432,8 @@ class PreTrainer:
     def _random_mask_points(
         self, spectra: T_Tensor, mask_prob: float = 0.05
     ) -> T_Tensor:
-        """ Randomly masks points in the spectra with a given probability.
-        
+        """Randomly masks points in the spectra with a given probability.
+
         Args:
             spectra (T_Tensor): The input spectra tensor of shape (batch_size, n_features).
             mask_prob (float): Probability of masking each point in the spectra.
@@ -452,8 +452,8 @@ class PreTrainer:
         noise_std_dev: float = 0.1,
         mask_point_prob: float = 0.05,
     ) -> nn.Module:
-        """ Pre-trains the model using Spectrum Denoising Autoencoding (SDA).
-        
+        """Pre-trains the model using Spectrum Denoising Autoencoding (SDA).
+
         Args:
             train_loader (DataLoader): DataLoader for training data.
             val_loader (Optional[DataLoader]): DataLoader for validation data.
@@ -470,8 +470,8 @@ class PreTrainer:
         # Ensure model's output layer matches n_features for reconstruction.
 
         def train_step(batch_data):
-            """ Performs a single training step for denoising autoencoding.
-            
+            """Performs a single training step for denoising autoencoding.
+
             Args:
                 batch_data (Tuple[T_Tensor, Any]): A batch of data containing spectra and possibly other data.
 
@@ -497,9 +497,9 @@ class PreTrainer:
             return loss.item()
 
         def val_step(batch_data):
-            """ Performs a single validation step for denoising autoencoding.
-            
-            Args: 
+            """Performs a single validation step for denoising autoencoding.
+
+            Args:
                 batch_data (Tuple[T_Tensor, Any]): A batch of data containing spectra and possibly other data.
 
             Returns:
@@ -535,8 +535,8 @@ class PreTrainer:
         peak_window_size: int = 5,
         mask_value: float = 0.0,
     ) -> nn.Module:
-        """ Pre-trains the model using Peak Parameter Regression (PPR).
-        
+        """Pre-trains the model using Peak Parameter Regression (PPR).
+
         Args:
             train_loader (DataLoader): DataLoader for training data.
             val_loader (Optional[DataLoader]): DataLoader for validation data.
@@ -635,9 +635,9 @@ class PreTrainer:
     def _segment_and_shuffle_spectra(
         self, spectra: T_Tensor, num_segments: int
     ) -> Tuple[T_Tensor, T_Tensor]:
-        """ Segments and shuffles the spectra for segment reordering task. 
-        
-        Args: 
+        """Segments and shuffles the spectra for segment reordering task.
+
+        Args:
             spectra (T_Tensor): The input spectra tensor of shape (batch_size, n_features).
             num_segments (int): Number of segments to divide each spectrum into.
 
@@ -674,8 +674,8 @@ class PreTrainer:
         val_loader: Optional[DataLoader] = None,
         num_segments: int = 4,
     ) -> nn.Module:
-        """ Pre-trains the model using Spectrum Segment Reordering (SSR).
-        
+        """Pre-trains the model using Spectrum Segment Reordering (SSR).
+
         Args:
             train_loader (DataLoader): DataLoader for training data.
             val_loader (Optional[DataLoader]): DataLoader for validation data.
@@ -707,9 +707,9 @@ class PreTrainer:
             )
 
         def ssr_step(batch_data, is_training):
-            """ Performs a single training/validation step for segment reordering.
-            
-            Args: 
+            """Performs a single training/validation step for segment reordering.
+
+            Args:
                 batch_data (Tuple[T_Tensor, Any]): A batch of data containing spectra and possibly other data.
                 is_training (bool): Whether this step is for training or validation.
 
@@ -800,9 +800,9 @@ class PreTrainer:
     def _intensity_scaling(
         self, spectra: T_Tensor, scale_min: float = 0.7, scale_max: float = 1.3
     ) -> T_Tensor:
-        """ Scales the intensity of the spectra randomly within a range.
-        
-        Args: 
+        """Scales the intensity of the spectra randomly within a range.
+
+        Args:
             spectra (T_Tensor): The input spectra tensor of shape (batch_size, n_features).
             scale_min (float): Minimum scaling factor.
             scale_max (float): Maximum scaling factor.
@@ -820,12 +820,12 @@ class PreTrainer:
     def _nt_xent_loss(
         self, z_i: T_Tensor, z_j: T_Tensor, temperature: float = 0.1
     ) -> T_Tensor:
-        """ Computes the normalized temperature-scaled cross-entropy loss for contrastive learning.
-        
-        Args: 
+        """Computes the normalized temperature-scaled cross-entropy loss for contrastive learning.
+
+        Args:
             z_i (T_Tensor): Embeddings from the first view of shape (batch_size, embedding_dim).
             z_j (T_Tensor): Embeddings from the second view of shape (batch_size, embedding_dim).
-            temperature (float): Temperature parameter for scaling the similarity.  
+            temperature (float): Temperature parameter for scaling the similarity.
 
         Returns:
             T_Tensor: The computed loss value.
@@ -849,9 +849,9 @@ class PreTrainer:
         temperature: float = 0.1,
         embedding_dim: int = 128,
     ) -> nn.Module:
-        """ Pre-trains the model using Contrastive Transformation Invariance Learning (CTIL).
-        
-        Args: 
+        """Pre-trains the model using Contrastive Transformation Invariance Learning (CTIL).
+
+        Args:
             train_loader (DataLoader): DataLoader for training data.
             val_loader (Optional[DataLoader]): DataLoader for validation data.
             temperature (float): Temperature parameter for NT-Xent loss.
@@ -905,9 +905,9 @@ class PreTrainer:
             )
 
         def ctil_step(batch_data):
-            """ Performs a single training step for contrastive invariance learning.
-            
-            Args: 
+            """Performs a single training step for contrastive invariance learning.
+
+            Args:
                 batch_data (Tuple[T_Tensor, Any]): A batch of data containing spectra and possibly other data.
 
             Returns:

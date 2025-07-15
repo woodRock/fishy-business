@@ -1,6 +1,7 @@
-""" This module contains functions for plotting various aspects of deep learning models,
+"""This module contains functions for plotting various aspects of deep learning models,
 including attention maps, accuracy curves, and confusion matrices.
 It is designed to work with PyTorch tensors and Matplotlib for visualization."""
+
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
