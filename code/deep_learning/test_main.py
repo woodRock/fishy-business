@@ -1,4 +1,5 @@
-""" This module contains unit tests for the deep learning training pipeline. """
+"""This module contains unit tests for the deep learning training pipeline."""
+
 import unittest
 from unittest.mock import patch, MagicMock
 import torch

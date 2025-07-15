@@ -128,7 +128,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     """
     Creates a model instance based on the model specified in the config.
 
-    Args: 
+    Args:
         config: Training configuration containing model type and parameters.
         input_dim: Dimension of the input features.
         output_dim: Number of output classes.
@@ -277,11 +277,11 @@ class ModelTrainer:
     ]
 
     def __init__(self, config: TrainingConfig):
-        """ Initializes the ModelTrainer with the provided configuration.
-        
-        Args: 
+        """Initializes the ModelTrainer with the provided configuration.
+
+        Args:
             config: Training configuration containing all necessary parameters.
-        
+
         Raises:
             ValueError: If the specified dataset is not supported.
         """
@@ -301,7 +301,7 @@ class ModelTrainer:
 
     def _setup_logging(self) -> logging.Logger:
         """Configures logging to file and console.
-        
+
         Creates a log file in the output directory with the run identifier.
 
         Returns:
@@ -332,7 +332,7 @@ class ModelTrainer:
         """
         Executes the enabled pre-training tasks sequentially.
 
-        Returns: 
+        Returns:
             The model after the last pre-training task, or None if no tasks are enabled.
         """
         self.logger.info("Evaluating pre-training phase")
@@ -400,7 +400,7 @@ class ModelTrainer:
         Loads weights from a previously trained model into the current model,
         matching layers by name and shape.
 
-        Args: 
+        Args:
             current_model: The model to which weights will be loaded.
             prev_model: The previously trained model from which weights are taken.
 
@@ -492,14 +492,14 @@ class ModelTrainer:
         Adapts the pre-trained model for fine-tuning by loading all weights except
         for the final classification layer, which is re-initialized.
 
-        Args: 
+        Args:
             finetune_model: The model to be fine-tuned.
             pretrained_model: The pre-trained model from which weights are loaded.
 
         Raises:
             Exception: If the weight loading fails, a warning is logged and training continues from scratch.
-        
-        
+
+
         """
         checkpoint = pretrained_model.state_dict()
 
@@ -522,8 +522,8 @@ class ModelTrainer:
 
     def _get_n_splits_for_finetune(self) -> int:
         """Determines the number of cross-validation splits based on the dataset.
-        
-        Returns: 
+
+        Returns:
             The number of splits for cross-validation during fine-tuning.
         """
         if self.config.dataset == "instance-recognition":
@@ -540,8 +540,8 @@ class ModelTrainer:
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments.
-    
-    Returns: 
+
+    Returns:
         Parsed command line arguments as a Namespace object.
     """
     parser = argparse.ArgumentParser(
@@ -660,7 +660,7 @@ def parse_arguments() -> argparse.Namespace:
 
 def main() -> None:
     """Main execution function.
-    
+
     Raises:
         Exception: If any critical error occurs during the training pipeline, it logs the error and re-raises it.
     """

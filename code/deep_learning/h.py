@@ -110,7 +110,7 @@ class ReasoningHeuristics:
         Measure how clearly separated different patterns are.
         Higher score means features are more distinctly organized.
         Uses cosine similarity between different feature dimensions.
-        
+
         Args:
             intermediate: Current intermediate representation
 
@@ -200,7 +200,7 @@ class ReasoningHeuristics:
         Args:
             current: Current intermediate representation
             target: Target representation to reach
-            num_steps: Total number of reasoning steps      
+            num_steps: Total number of reasoning steps
 
         Returns:
             Progress score indicating how much of the target has been reached.
@@ -227,9 +227,9 @@ class TransformerWithHeuristics(nn.Module):
         num_classes: int,
         beam_width: int = 3,
     ) -> None:
-        """ Initialize the transformer model with reasoning heuristics.
-        
-        Args: 
+        """Initialize the transformer model with reasoning heuristics.
+
+        Args:
             input_dim: Dimension of input features
             hidden_dim: Dimension of hidden layers
             num_layers: Number of transformer layers
@@ -358,7 +358,7 @@ class TransformerWithHeuristics(nn.Module):
         Perform genetic algorithm search during transformer inference.
         Returns output logits, metrics for each layer, and average quality score.
 
-        Args: 
+        Args:
             x: Input tensor of shape (batch_size, input_dim)
 
         Returns:
@@ -374,11 +374,11 @@ class TransformerWithHeuristics(nn.Module):
 
         def mutate(state):
             """Apply random mutations to the state
-            
-            Args: 
+
+            Args:
                 state: Current intermediate representation tensor
 
-            Returns:    
+            Returns:
                 Mutated state tensor with random noise added based on mutation rate.
             """
             mutation_mask = torch.rand_like(state, device=state.device) < mutation_rate
@@ -387,7 +387,7 @@ class TransformerWithHeuristics(nn.Module):
 
         def crossover(parent1, parent2):
             """Perform crossover between two parent states.
-            
+
             Args:
                 parent1: First parent state tensor
                 parent2: Second parent state tensor
@@ -402,7 +402,7 @@ class TransformerWithHeuristics(nn.Module):
 
         def compute_heuristics(state, previous_state, logits, layer_idx):
             """Compute heuristics without requiring gradients
-            
+
             Args:
                 state: Current intermediate representation tensor
                 previous_state: Previous intermediate representation tensor
@@ -431,15 +431,15 @@ class TransformerWithHeuristics(nn.Module):
 
         def evaluate_fitness(state, previous_state, layer_idx):
             """Calculate fitness score using heuristics
-            
-            Args: 
+
+            Args:
                 state: Current intermediate representation tensor
                 previous_state: Previous intermediate representation tensor
                 layer_idx: Index of the current transformer layer
 
             Returns:
                 fitness: Fitness score for the current state
-                metrics: Dictionary of metrics for the current layer   
+                metrics: Dictionary of metrics for the current layer
             """
             try:
                 # Create computation graph
@@ -504,8 +504,8 @@ class TransformerWithHeuristics(nn.Module):
 
         def tournament_select(population, fitness_scores):
             """Select parent using tournament selection.
-            
-            Args: 
+
+            Args:
                 population: Current population of states
                 fitness_scores: Fitness scores for each individual in the population
 
@@ -616,7 +616,7 @@ class TransformerWithHeuristics(nn.Module):
         - During training: Standard forward pass.
         - During inference: Beam search.
 
-        Args: 
+        Args:
             x: Input tensor of shape (batch_size, input_dim)
             label: Optional labels for training (not used during inference)
 
@@ -679,8 +679,8 @@ def train_model(
     device: torch.device,
 ) -> nn.Module:
     """Train the transformer model with quality score in loss function.
-    
-    Args: 
+
+    Args:
         model: Transformer model with heuristics
         train_loader: DataLoader for training data
         val_loader: DataLoader for validation data
@@ -787,11 +787,11 @@ def analyze_reasoning(
     model: TransformerWithHeuristics, x: torch.Tensor, y: torch.Tensor
 ):
     """Analyze reasoning quality of transformer layers.
-    
-    Args: 
+
+    Args:
         model: Trained transformer model with heuristics
         x: Input tensor of shape (batch_size, input_dim)
-        y: Target tensor of shape (batch_size, num_classes)    
+        y: Target tensor of shape (batch_size, num_classes)
     """
 
     # Move input tensors to the same device as the model
@@ -818,10 +818,10 @@ def analyze_reasoning(
 
 
 def main():
-    """ Main function to run the transformer model with heuristics.
+    """Main function to run the transformer model with heuristics.
     It performs 30 independent runs with stratified cross-validation.
-    Each run consists of training the model on the specified dataset 
-    and reporting the validation accuracy. """
+    Each run consists of training the model on the specified dataset
+    and reporting the validation accuracy."""
     # Set dataset and output dimensions
     dataset = "species"
     n_classes = {"species": 2, "part": 7, "oil": 7, "cross-species": 3}
