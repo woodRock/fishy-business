@@ -1,4 +1,4 @@
-""" Mixture of Experts (MoE) Transformer model.
+"""Mixture of Experts (MoE) Transformer model.
 
 This module implements a Transformer architecture with a Mixture of Experts (MoE) layer
 replacing the standard feed-forward network. The MoE layer allows for dynamic routing of
@@ -97,7 +97,8 @@ from sklearn.model_selection import StratifiedKFold
 
 
 class MultiHeadAttention(nn.Module):
-    """ Multi-head attention mechanism for the Transformer model."""
+    """Multi-head attention mechanism for the Transformer model."""
+
     def __init__(self, input_dim: int, num_heads: int) -> None:
         """Initialize the multi-head attention layer.
 
@@ -146,7 +147,8 @@ class MultiHeadAttention(nn.Module):
 
 
 class Transformer(nn.Module):
-    """ Transformer model with multi-head attention and feed-forward network."""
+    """Transformer model with multi-head attention and feed-forward network."""
+
     def __init__(
         self,
         input_dim: int,
@@ -156,7 +158,7 @@ class Transformer(nn.Module):
         num_layers: int = 1,
         dropout: float = 0.1,
     ) -> None:
-        """Initialize the Transformer model.    
+        """Initialize the Transformer model.
 
         Args:
             input_dim (int): the number of dimensions in the input.
@@ -246,7 +248,8 @@ class ExpertLayer(nn.Module):
 
 
 class MixtureOfExperts(nn.Module):
-    """ Mixture of Experts (MoE) layer for the Transformer model."""
+    """Mixture of Experts (MoE) layer for the Transformer model."""
+
     def __init__(
         self,
         input_dim: int,
@@ -284,14 +287,14 @@ class MixtureOfExperts(nn.Module):
         self.total_tokens = 0
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """ Forward pass through the Mixture of Experts layer.
-        
+        """Forward pass through the Mixture of Experts layer.
+
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
 
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, seq_length, input_dim),
-            where input_dim is the number of features.  
+            where input_dim is the number of features.
         """
         batch_size, seq_len, d_model = x.shape
         x_flat = x.view(-1, d_model)
@@ -404,8 +407,8 @@ class MOE(nn.Module):
         self.fc_out = nn.Linear(input_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """ Forward pass through the MOE model.
-        
+        """Forward pass through the MOE model.
+
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
 

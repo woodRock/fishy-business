@@ -29,6 +29,7 @@ from typing import Union
 
 class VAE(nn.Module):
     """Variational Autoencoder with a classifier."""
+
     def __init__(
         self,
         input_size: int = 1023,

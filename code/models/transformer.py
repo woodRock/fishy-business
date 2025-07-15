@@ -1,4 +1,4 @@
-""" Transformer model for time series classification.
+"""Transformer model for time series classification.
 
 This model uses multi-head attention and feed-forward layers to process sequential data.
 It is designed to handle variable-length sequences and can be used for tasks such as classification or regression.
@@ -79,7 +79,8 @@ import seaborn as sns
 
 
 class MultiHeadAttention(nn.Module):
-    """Multi-head attention mechanism for the Transformer model. """
+    """Multi-head attention mechanism for the Transformer model."""
+
     def __init__(self, input_dim: int, num_heads: int) -> None:
         """Initialize the MultiHeadAttention layer.
 
@@ -101,7 +102,7 @@ class MultiHeadAttention(nn.Module):
         self.scale = self.head_dim**-0.5
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass through the multi-head attention layer. 
+        """Forward pass through the multi-head attention layer.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
@@ -129,6 +130,7 @@ class MultiHeadAttention(nn.Module):
 
 class Transformer(nn.Module):
     """Transformer model for time series classification."""
+
     def __init__(
         self,
         input_dim: int,
