@@ -1,3 +1,7 @@
+""" This module implements a sequential transfer learning framework for deep learning models.
+It allows for training models on multiple datasets sequentially, with the final dataset being used for fine-tuning.
+The framework is designed to work with PyTorch and includes functions for training, evaluation,
+and visualization of results."""
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset, random_split
@@ -214,7 +218,20 @@ def sequential_transfer_learning(
 def train_with_tracking(
     model, train_loader, val_loader, optimizer, scheduler, num_epochs, device
 ):
-    """Train model with detailed tracking of metrics, including balanced accuracy."""
+    """Train model with detailed tracking of metrics, including balanced accuracy.
+    
+    Args: 
+        model (nn.Module): The model to train.
+        train_loader (DataLoader): DataLoader for training data.
+        val_loader (DataLoader): DataLoader for validation data.
+        optimizer (torch.optim.Optimizer): Optimizer for training.
+        scheduler (torch.optim.lr_scheduler): Learning rate scheduler.
+        num_epochs (int): Number of epochs to train.
+        device (torch.device): Device to run the training on.
+
+    Returns:
+        history (dict): Dictionary containing training and validation metrics.
+    """
     criterion = nn.CrossEntropyLoss()
 
     history = {
@@ -343,7 +360,15 @@ def train_with_tracking(
 
 
 def visualize_training_history(history):
-    """Visualize training and validation metrics over time."""
+    """Visualize training and validation metrics over time.
+    
+    Args: 
+        history (dict): Dictionary containing training history with keys:
+                        - train_loss, val_loss
+                        - train_acc, val_acc
+                        - train_balanced_acc, val_balanced_acc
+                        - learning_rates
+    """
     # Create figure with subplots
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 20), sharex=True)
 
@@ -382,7 +407,13 @@ def visualize_training_history(history):
 
 
 def visualize_transfer_learning_performance(history):
-    """Visualize performance across different datasets during transfer learning."""
+    """Visualize performance across different datasets during transfer learning.
+    
+    Args: 
+        history (dict): Dictionary containing transfer learning history with keys:
+                        - transfer: Dictionary of datasets with their validation accuracies
+                        - finetune: Dictionary of datasets with their validation accuracies 
+    """
     datasets = list(history["transfer"].keys()) + list(history["finetune"].keys())
     final_accuracies = []
     final_balanced_accuracies = []
@@ -443,6 +474,7 @@ def visualize_transfer_learning_performance(history):
 
 
 def main():
+    """ Main execution function for sequential transfer learning. """
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")

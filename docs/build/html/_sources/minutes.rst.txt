@@ -284,7 +284,7 @@ Notes:
     * Data augmentation used to help network generalize to new scenarios and edge cases not in the training data. 
 
 2022-03-24 - Faculty Induction
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** Zoom, **Time**: Monday 10am-11am , **Attendees:** Georgia Dix, Jesse Wood, Bach Hoai Nguyen.
 
 Induction to my PhD studies with supervisor and faculty. 
@@ -2842,7 +2842,7 @@ Notes:
 
 2022-08-06 - ECRG 
 ~~~~~~~~~~~~~~~~~
-**Location:** CO350, **Time:** Friday 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgan Benzhaf, Bing Xue, Yi Mei. 
+**Location:** CO350, **Time:** Friday 15:00 - 16:00, **Attendees:** Zhixing Huang, Wolfgang Benzhaf, Bing Xue, Yi Mei. 
 
 General notes: 
     * Meng is attending an Agriculture + Seafood Conference in nelson, he iw working on organizing some industry collaborations.
@@ -5085,7 +5085,7 @@ Related:
 TODO: 
     1. [x] First contribution 
     2. [x] Proposal seminar 
-    3. [ ] Reverse suspension
+    3. [x] Reverse suspension
     4. [ ] Paper: CNN/ST-MT-GP on GC,MS,GC+MS data 
 
 2023-11-23 - FASLIP
@@ -5178,9 +5178,8 @@ TODO:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** GNS Science, **Time:** Monday, 10:00 - 11:00, **Attendees:** Jesse Wood, Colin <last-name>
 
-Green Hydrogen
-By Colin <last-name>
-====================
+Green Hydrogen - By Colin <last-name>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Hydrogen 
     * Hydrogen, odourless colourless gas.
@@ -5242,11 +5241,9 @@ Ngahina Marae
 
 "computer scientist so not a real scientist" 😭🥼 -* Jesse Wood
 
---
 
-Composite magnetic materials development for applications in inroads charging systems
-By <unknown>
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Composite magnetic materials development for applications in inroads charging systems - By <unknown>
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Charge onroad
     * charge cars parked or at traffic lights.
@@ -5308,11 +5305,9 @@ Electric recharging
 "The slow lane, would turn into, a fast lane"
 #IAmSpeed  
 
-Energy efficiency Research
-By Murray 
-Energy Material Scientist, SSIF 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Energy efficiency Research - Murray, Energy Material Scientist, SSI 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Efficiency 
     * using less energy to perform the same task.
@@ -5360,11 +5355,9 @@ Allen-Feldman
         2. diffuson * <unseen>
         3. locom * atom chilling 
 
---
 
-Energy Harvesting
-By Martin Markwitz
-^^^^^^^^^^^^^^^^^^
+Energy Harvesting - Martin Markwitz
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     * 66% of energy is wasted into heat transfer.
     * Voyager, rocket ship, space probes.
@@ -5387,9 +5380,11 @@ The rock does float, but not for the right reason #LK-99
     * diamagnetism, not Meissner effect
     * repulsion, not superconduction
 
---
+
 
 Gupta
+^^^^^
+
 By Gupta
     * arrange carbon in different configurations to create diamond 💎
     * doping a material, implant nitrogen/phosphorus, make it conductive.
@@ -5416,11 +5411,9 @@ Ammonia
     * A surface where the field passes electricity, a catalyst speeds up a reaction, electrocatalyst uses electrons to do this.
     * 500 bar pressure and 299 degree temperature, WWI Germany was trying to synthesize ammonia, Heber & Bosch, allies tried to cut off ammonia supply. 
 
---
 
-Career pathway talks
-By et al.
-^^^^^^^^^^^^^^^^^^^^
+Career pathway talks - et al.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Study
     * masters the PhD
@@ -5486,11 +5479,9 @@ Advice for young scientists:
         4. Be yourself
         5. Writing is important 
 
---
 
-Lab and facilities tour
-By et al.
-^^^^^^^^^^^^^^^^^^^^^^^
+Lab and facilities tour - et al.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Notes:
     * see photos
@@ -5540,7 +5531,7 @@ Related:
     * MoNuSeg dataset :ref::`(Kumar 2019) <kumar2019multi>`
 
 2023-12-01 - Weekly
--------------------
+~~~~~~~~~~~~~~~~~~~
 **Location:** CO352, **Time:** Friday, 14:00 - 15:00, **Attendees:** Bing Xue, Bach Hoai Nguyen, Jesse Wood
 
 Motivations and goals - they key focus of the proposal is coeherence between these two parts 
@@ -5553,7 +5544,7 @@ Exemplar - look at Jordan's proposal as an example of how to structure these sec
 Goals != contributions 
 
 2023-12-02 - Proposal Seminar
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Location:** CO431, **Time:** Friday, 10:00 - 11:00, **Attendees:** Jesse Wood, Mengjie Zhang, Bing Xue, Bach Hoai Nguyen, Daniel Killeen, Andrew Lensen 
 
 I gave my proposal seminar today. 
@@ -6392,3 +6383,878 @@ Notes:
     * Bring results printed out to my next meeting.
     * Write a report about class-dependent multi-tree GP. 
     * Send Bing a PDF of my slides for my proposal.
+
+2023-05-02 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
+
+Notes: 
+    * Explain the output of the attention map.
+    * Troubleshoot loss curve for CNN. 
+    * GP for oil and cross-species contamination detection.
+
+2024-05-09 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Bach Hoai Nguyen, Jesse Wood 
+
+Notes: 
+    * oil detection - need to split train, validation and test set. Can't use the test set. 
+    * Run experiments 30 times for statistical significance. 
+    * Write thesis chapters while I am rnning experiments. 
+    * Plan the next week's work in advance, run new ideas by supervisors first.
+
+2024-05-16 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * Candidate development plan is due tomorrow.
+    * Change "cross-species" :math:`\to` adulterated
+    * We have 4 datasets, same data, different labels.
+    * Start writing up my experiments in a paper format. 
+    * Investigate SVM results, try different kernels. 
+    * Add Linear Disciminant Analysis (LDA)
+    * Compare features selected for each of the interpretable methods.
+
+TODO:
+    * [x] Candidate development plan 
+    * [x] Try different SVM kernels. 
+    * [x] Linear Disciminant Analysis (LDA)
+    * Compare features selected for each of the interpretable methods.
+    * [x] Start writing up my experiments in a paper format. 
+    * [ ] Change "cross-species" :math:`\to` adulterated
+    * [ ] Selected feature comparison.
+
+2024-05-09 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Mengjie Zhang, Jesse Wood 
+
+Notes: 
+    * Submitted my CDP today, supervisors said my progress was good.
+    * The eye catching part of the paper should be the core of the work. 
+    * Change maximum depth of trees to 6.
+    * Re-run evolutionary process for fish species.
+    * Redraw diagrams myself 
+    * Remove diagrams from other works.
+
+TODO: 
+    * [x] Remove diagrams from other works/ 
+    * [x] Change Tree depth to 6
+    * [x] Re-run evolutionary process for fish species.
+    * [x] Re-draw diagrams myself.
+    * [x] Start writing up my experiments in a paper format. 
+    * [ ] Change "cross-species" :math:`\to` adulterated
+    * [ ] Selected feature comparison.
+
+2024-06-06 - Weekly
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse Wood
+
+Notes: 
+    * Choose a conference to publish this work at.
+    * Apply for a travel grant. 
+    * Daniel has been sent an overleaft with editing permissions, he has some changes to make to the paper's sections on fish.
+
+TODO:
+    * [x] Choose a conference (AJCAI 2024) 
+    * [x] Apply for a travel grant.
+    * [x] Revise Daniel's changes 
+
+2025-06-20 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Bach Nguyen, Mengjie Zhang, Jesse Wood
+
+Notes:  
+    * Parallel Ice Sheet Model (PISM)
+    * Goal:  to reduce the computation without losing quality of prediction. 
+    * Spatio-temporal forceasting models. 
+        * Time series data - points change over time.
+        * Spatial data - coordinates associated with measurements
+
+2024-06-20 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Bach Nguyen, Jesse Wood
+
+Notes: 
+    * Motviation - highlight the problem and explain it in detail 
+        * Challenges 
+        * Motivations 
+        * Limitations 
+    * Leave some space for analysing the results.
+    * Include a description of the dataset. 
+
+2024-06-21 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Bocheng Lin, Wolfgang Banzhaf, Bing Xue, Mengjie Zhang, Jesse Wood
+
+General notes: 
+    * AJCAI submissions deadline is the 30th of June. 
+    * PRECAI deadline is the 26th of June. 
+    * Wolfgang is a visting guest progession, foundational work in Genetic Programming. 
+
+Bochen Lin gave a talk on "Automated design of state transition rules in Ant Colony Optimization by Genetic Programming".
+    * Travelling salemen problem - find the shortest path to visit all nodes and return to the orginal node. 
+    * Graph-neural networks as a behcmark for comparison in results. 
+    * Ant colony optimizationUpdate - phermones matrix after all ants have completed their routes. 
+    * Limitations: 
+        * Domain expertise required. 
+        * Manually designed rules do not capture all of the features.
+        * Combinatorial optimization problems - NP-Hard
+    * Optimization - CPU multi-thread processing, numba, numpy, and pytorch
+
+Related: 
+    * Ant Colony Optimization :ref:`(Dorigo 1997) <dorigo1997ant>`
+
+2024-06-27 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood
+
+Notes:
+    * Abtract - introduce the novelty of the problem, explain the interpretability section.
+    * Existing work - explain the limitations :ref:`(Wood 2022) <wood2022automated>`, and how this work addresses them. 
+    * Connecting sentences - previous sections should be conncted with connecting sentences for coherence.
+    * Figures - the transformer figures are very eye catching. Remove these figures to save room and focus on the contributions.
+    * Text editor - Examine the paper paragraph by paragraph. Don't put the whole paper into a text editor. 
+    * Evolutionary computation - explain the representatio, psuedo-code for Genetic Programming (GP).
+    * Dataset - the dataset is the focus of the paper. Move the dataset section to before the theory section.
+    * Rename Dataset section - REIMS dataset 
+    * Paper deadline - target to finish the paper before the 30th of June 2024.
+    * Keywords - put very general words, remove "deep learning", "transformers", and "genetic programming"
+
+2024-07-11 - CDSAI Workshop Day 1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** AM103, **Time:** 12:00 - 13:00, **Attendees:** Jordan MacLachlan, Jesse Wood 
+
+Prof Gill Dobbie gave a talk on AI in health
+https://www.plantandfood.com/en-nz/staff/gillian-dobbie
+
+Notes:
+    * Areas of healthcare:
+        * Diagnostics 
+        * Clinical decision support 
+        * Care delivery 
+        * Self-care prevention wellness 
+        * Chronic care management 
+        * Triage diagnosis 
+    * Goals: 
+        * Improve population health management. 
+        * Improving operations.
+        * Stengthening innovation. 
+    * Motivation - better healthcare for older patients 
+    * Method - buld an ML model to identify dementia trained on interRAI 
+    * InterRAI - pharmacy and hospitalization data from around 137,000 patients. 
+    * Collaborators: - Te Whata Ora Counties Manaku, Pyschological medicine, Statistics, Computer Science/
+    * Qualitative/quantitative suveys of patients to see if people are happy having their data be used. 
+        * 85% of pateints were happy to have their data used. 
+    * Severe Acute Respitory Infection (SARI) dataset from 2012-2024 in Auckland.
+    * Privacy can be ensured with federated learning and differential privacy.
+        * differential privacy is a mathematical way to protect individuals when their data is used in data sets
+    * Forcasting hospitalizations by influenza-like illness. 
+
+Prof. Huanhuan Chen gave a talk on "Causal learning and its applications"
+http://staff.ustc.edu.cn/~hchen/
+
+Notes: 
+    * Causal learning - is one of the key areas for explainable and reliable AI. 
+    * Challenges: 
+        * Causual discovery 
+        * Causual inference 
+        * Causual decision 
+    * Domain knowledge - in medical scenarios, abundant domain-specific knowledge compared to traditional causal approaches.
+    * Causal inference - in medical scenarios, continioous interventions are common, i.e. a treatment of some medication for 8 weeks. 
+    * Definition - Causal inference is the process of determining whetyher a cause and effect relationship exists between variables. It goes beyong mere correlation to establish that changes in one variable (the cause) directly lead to changes in another variation (the effect).
+
+
+Dr. Alvaro Orisi gave a talk on "AI powered digital twins: opportunites for EML"
+https://www.esr.cri.nz/staff-profiles/alvaro-orsi/
+
+Notes:
+    * Digital twin - anything that attempts to virtually replicate something that exists in the real-world.
+    * A gitual twin of the universe, from his background as an astrophysicist. 
+    * Synthetic dataset - synthetic population mirroring the society of New Zealand, with 5 million individuals.
+    * Transformers with attnetion, causal discovery, genetic programming, symbolic regression.
+
+
+Explainable AI dicussion
+
+Notes: 
+    * ChatGPT/Claude Sonet are black-box models that can pass the Turing Test. 
+    * Explainable AI: context dependent, difficult to quantify, needs a metric, depends on expertise. 
+    * Hallucinations:  completely and believably wrong. 
+    * SHapley Additive exPlanations (SHAP), Local Interpretable Model Agnostic Explanations (LIME)
+
+Yanan Sun gave a talk on "Recent Advanced in Neural Architecture Search"
+
+https://yn-sun.github.io/
+
+Notes: 
+    * In many scenarios large models are not available. 
+    * Stages: Initial  :math:`\to` Rapid development :math:`\to` Application :math:`\to` Refelection 
+    * RL-based NAS, gradient-based NAS, EC-NAS.
+    * E2EPP, HAAP, CDP, CAP
+
+Related:    
+    * End-to-end perfromance predictor (E2PP) :ref:`(Sun 2022) <sun2022end>`
+    * Homogenous architecture agumentation for neural predictor (HAAP) :ref:`(Liu 2021) <liu2021homogeneous>`
+    * Cross-domain predictor (CDP) :ref:`(Liu 2022) <liu2022bridge>`
+    * Context-Aware Neural Predictor (CAP) :ref:`(Ji 2024) <ji2024cap>`
+
+2024-07-11 - CDSAI Workshop Day 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** AM103, **Time:** 12:00 - 13:00, **Attendees:** Jordan MacLachlan, Jesse Wood 
+
+There was a general dicussion panel with all the guest speakers.
+
+Notes: 
+    * Government may ban the use of GEnAI to censor information that the state does not support. 
+    * Wolfgang  - GP is a generative AI method, population based approaches to GP provide a diverse set of solutions. 
+    * Internet - don't just regurgitate the internet, LLMs have 1-2 more models before they reach a plateau. 
+    * Ethics - Ethical use of products, scalability, adversarial attacks, deep fakes, plagerism, writing code.
+    * The post-truth era. 
+    * Future work - Mamba state space models, diffusion models, Kolmogorov-Arnold Networks (KAN).
+    * Google Gemini - hard coded diversity in generated output, so models could not reflect historic accuracies. 
+        * e.g. "give me an image of the first atronaut to land on the moon." 
+        * e.g. "give me an image of the founding fathers."
+    * LLM - everything is a large-language model, when in reality they belong to more complicated pipelines. 
+    * Hype - Marketing and propaganda, Gartner Hype Cycle. https://en.wikipedia.org/wiki/Gartner_hype_cycle
+    * Interface (relatable) - models have an excellent human-computer interface, allowing every single human to have access to universal compute, universal computational intelligence.
+    * GitHub Copilot - results in a 15% increase in producticity, leading to big tech layoffs, and the third industrial revolution.
+    * Jevons paradox - The Jevons Paradox states that, in the long term, an increase in efficiency in resource use will generate an increase in resource consumption rather than a decrease.
+
+2024-07-12 - ECRG 
+~~~~~~~~~~~~~~~~~
+
+Yanan Sun gave a talk entitled "My notes on submitting papers to top tier conferences"
+
+https://yn-sun.github.io/
+
+Notes: 
+    Stages: 
+        1. Idea conceptualization stage 
+        2. Experiments running stage 
+        3. Paper writing stage 
+        4. Rebuttal stage
+    * Entry point - the entry point is as small as possible, such as a small issue within a hot topic. 
+    * The experimental results should be as good as possible for CVPR, ICCV, ECCV, AAAI, IKJCAI. 
+        * Analysing the reason for performance improvement. 
+        * Please give mean :math:`\pm` standard deviation. 
+    * You can tell if a paper has been written with ChatGPT by the choice of vocabulary.
+
+2024-07-25 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Mengjie Zhang, Jesse Wood
+
+Notes: 
+    * Seafood New Zealand, a conference from August 7th - 8th in Auckland. https://www.seafood.co.nz/news-and-events/conference
+    * Bing will register and arrange flights for this conference. 
+    * Figures - for my new paper, I need more pictures, visualizations, and explanations. More eyecatching results, not just a wall of text. 
+
+2024-08-01 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Notes: 
+    * Feature importance comparison 
+        * plot the important features for each model on a linegraph.
+        * with one line for each of the top 5 performing models. 
+    * Evolutionary computation - remove the evolutionary compuation results, because they don't perform well.
+    * Seafood conference - the seafood conference is next week from Wednesday 7th August to 8th of August.
+    * IEEE Symposium - put name down on the spreadsheet for rehearsals of for the IEEE post-graduate symposium.
+        * 8 minute presentation 
+        * Take home message 
+        * Big picture / high-level 
+
+TODO: 
+    * [ ] Feature importance comparison for top 5 models.
+    * [ ] Remove evolutionary computation methods.
+    * [ ] Prepare for conference next week.
+
+
+2024-08-07 - Seafood Conference - Day 1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
+
+
+Vangelis Vitalis - MFAT 
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Tick box to be included in free trade agreements.
+
+QR code:
+ https://www.mfat.govt.nz/en/trade/how-we-help-exporters
+
+MFAT market reports:
+ https://www.mfat.govt.nz/en/trade/mfat-market-reports
+
+
+Lisette Reymer - Three News, Stuff
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- 2 years into the Ukraine-Russia war. 
+- Security 
+
+Should Ukraine be refused membership to NATO?
+
+The West wants it to happen, but they will aggravate Putin in doing so. 
+
+
+Simon Marks - Feature Story News
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Trump assassination attempt 
+- Harris is now ahead in polls on independents.
+- 90 days until the election.
+- Harris against TPPA and other free trade agreements. 
+- typical rose tinted glasses about Tim Walz, he was a former veteran. No mention of JD Vance as a marine.
+- Elon Musk is interviewing Trump on X. 
+
+
+Grahame Morton - Sanford
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- NZ seafood industry has been really successful in China. 
+- $30 billion dollars of exports consumed by China per year. 
+- China, China, China
+
+
+Sharon Zollner - ANZ
+^^^^^^^^^^^^^^^^^^^^
+
+Twitter:
+https://x.com/sharon_zollner?t=-4QjZEafUS96NdvSGX4RVg&s=09
+
+- OCR The official cash rate (OCR)
+- Inflammation, interest rates, cash flow. 
+- the OCR is not high
+
+ANZ business outlook survey 
+https://www.anz.co.nz/about-us/economic-markets-research/business-outlook/
+
+
+
+Veronica Papacosta, Angela Williamson
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Atlas - Seafood (~1000 maps) CSIRO
+
+
+Bex O'Malley - AirNZ Cargo
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- purchase carbon credits. 
+- projects that reduce carbon
+- analytics dashboards for carbon emissions 
+
+Electric short haul flights exclusively for cargo.
+
+https://www.rnz.co.nz/news/national/514470/air-nz-to-fly-electric-planes-from-wellington-to-marlborough
+
+- modern slavery reporting 
+- sustainability agreements 
+
+
+Rui Peng - Critical
+^^^^^^^^^^^^^^^^^^^
+
+- cleanstone - recycled plastic 
+- transformimg trawl waste into resources. 
+- cleanatone made from fishing nets. 
+- highschool all cleanstone desks. 
+- Maori carvings. 
+
+QR code:
+
+https://criticaldesign.nz/
+
+
+Karen Olver - WISA
+^^^^^^^^^^^^^^^^^^
+
+- women in seafood Australasia (WISA) 
+- 28 years ago, formed an associatation.
+- our purpose is to champion an inclusive industry. 
+- WISA sponsored the happy hour
+
+2024-08-08 - Seafood Conference - Day 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** Auckland, **Time:** Wednesday 7th August - Thursday 8th August, **Attendees:** Xiaoying Gao, Jesse Wood
+
+
+Media Panel - Michael Morrah, Tim Murphy, Sally Murphy, Nathan Hines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Q&A panel:
+
+- cameras on boats
+- "nothing to hide"
+- vast number of species are being caught. 
+- fisherman are weary of journalists.
+- industry not saving money from free trade agreements. 
+- media have a negative vibe associated with them, they appear to focus on controversy, and fail to reach out to many fisherman. 
+- radio: an hour to fill, 2 mins per story. 
+- Warner Brothers, Newshub, cutting of shows.
+- people are consuming news through various social media platforms.
+- Newsroom is an independent news organizations, that try to cover issues, foreign affairs, trade. They don't cover breaking stories or the whether. 
+- having media come on the boat helped build trust in the media. 
+- the story was about Hector's dolphins. And reducing dolphins getting killed by the fishing industry. 
+
+Q1. How will AI effect the ability of news to show the truth? 
+
+- trust in media used to be 40%, now it is 30%. 
+- AI is going to through more doubt into what can be known as true. 
+
+Q2. More stories than not are opinion pieces disguised as news. 
+
+- the quota management system is outdated and not fit for purpose. 
+- fisherman are trying to do there best, they are fishing for big companies, they put the net down, and pull up a variety of species -  Heterogeneous incoming catch.
+- quota system forces fisherman to discard bycatch. 
+- more rapid reaction in the quota management system to match fisheries.
+- important for journalists to meet people in the industry. The poor public perception is a misunderstanding of how journalism operates. 
+- cameras on boats are an additional cost for fishermen. 
+
+
+Tim Li - Tim Li Art
+^^^^^^^^^^^^^^^^^^^
+
+"My name is Tim and I draw pictures". 
+
+- Teachers: if you can't do it, teach. 
+- drawing crayfish. 
+- capturing the imperfections: honesty 
+- japanese Gyotaku: ink on fish, rub it, make a print
+
+QR code:
+
+https://www.timliart.com/fineartprints
+
+
+Fisheries New Zealand Panel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- data is important for monitoring fisheries.
+- artisinal scale: 
+- when you are catching snapper, you are going to catch more gurnard.
+- commercial nature of fishes data. 
+- low information / low knowledge of some fish stocks. 
+
+
+Caroline Read - Fishserve
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- fishserve has been the manager of the quota management system. 
+- the whole commercial fishing industry are electronically reporting. 
+- 588,000 tonnes of ACE. 
+- 11,000 quota transfers 
+- 138,044 catch reports
+- $40,500,000 crown revenue collections.
+- 17,278 kgs of ACE shelved. 
+- 125,000 crayfish measurement.
+
+
+Lisa Futachek - Seafood New Zealand
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- surface longline mitigation.
+  - dying bait blue so it's less visible to birds.
+  - weighted hooks 
+-  deepsea portal.
+
+
+Philipp Neubauer - Dragonfly Data Science
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Kingfish monitoring is a dynamic problem.
+- features: sea surface temperature, flux of ocean currents. 
+- daily oceanography relates to daily catches. 
+- Continious model updates based of daily updated data. 
+- Comparison of fish abundance to catch Jack Mackerel and avoid bycatch of Kingfish - avoidance areas. 
+- Dashboards, data science, visualization 
+
+
+Rob Christie - NIWA
+^^^^^^^^^^^^^^^^^^^
+
+Niwa RV Kaharoa
+
+Although designed primarily for coastal surveys, RV Kaharoa is capable of working throughout New Zealand's Exclusive Economic Zone (EEZ) and further afield. In the last decade, the deployment of over 3000 ocean-profiling Argo floats has taken the vessel over 75,000 nautical miles, as far east as Chile and west as far as Mauritius.
+
+https://niwa.co.nz/vessels/rv-kaharoa
+
+- Deck area 88 square meters. 
+- CTD winch, oceanographic winch, 2 trawl winches
+- advanced data acquisition platform. AI driven systems. 
+- Arrival Wellington 12th August 2024
+- detailed vessal designed for fisheries science. 
+
+
+Louis Kregting - Plant and Food
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Flume tank
+
+https://www.plantandfood.com/en-nz/flume-tank/
+
+- reduce bycatch
+- target specific species 
+- goal: "target size quality fish with little to no bycatch"
+- precision in seafood harvesting.
+- computational fluid dynamics (CFD)
+- CFD modelling predicts fluid flow around an object. 
+
+
+Jeremy Prince - Biofericw P/L
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- statistical assessment model
+- standard assessment models don't work for New Zealand fisheries. 
+- length based assessment of spawning potential ratio (LB-SPR)
+- Human reproductive index - measures average number of children that survive to adulthood. 
+  - more than 2.1 children :math:`\to` population growth 
+  - 2.1 children :math:`\to` replacement rate
+  - less than 2.1 children population decline
+- recognized SPR reference points. 
+- Sri Lanka blue swimmer crab fishery had a stock assessment for $400 per year.
+- dragonfly fly's MSR testing of SPR based Harvest Control Rules for Setting Catches. 
+
+
+Darren Guard - ACC
+^^^^^^^^^^^^^^^^^^
+
+- prevent injury.
+- help people regain independence.
+- compensate people for injury.
+- 40,000 days of worker productivity are lost per year due to workplace injuries. 
+- 1% of the workforce is taking time off for an injury.
+- males aged 20-24 are being injured the most.
+- for every one person injured in the workplace there are two people injured outside the workplace.
+
+
+Sharon Forsyth - Maritime NZ
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- 65 serious harm injuries in fisheries each year. 
+- 30% of injuries come from the fishing industry.
+- 7 people died in the fishing industry. 
+- environment: oil spills, chemicals, rubbish and fishing gear
+
+
+ACC panel
+^^^^^^^^^
+
+- training on how to use equipment.
+- personal responsibility
+- FishSafe :math:`\to` MarineSafe
+- best ideas for safety come from the sector. 
+- workplace injuries on average take 60 days off work.
+- health and safety forum, first mate, MarineSafe
+- there are ships with every health and safety feature on board. And people are hurting themselves still. It's a human factor not an environmental one. 
+
+
+Amy Jones - Human Impact Leadership
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- setting the vision
+- strategic planning 
+- team effort
+- resilience 
+- celebrate milestones
+- Everest base camp
+- Food & Fibre Seafood Representative
+- spend time to understand what technology changes and AI will have on your business. 
+- culture continuum: generative, proactive, calculative, reactive, pathological
+
+https://humanimpact.co.nz
+
+
+2024-08-29 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 14:00 - 15:00, **Attendees:** Jiahong, Bing Xue, Mengjie Zhang
+
+Jiahong Wei  had a proposal seminar rehearsal https://ecs.wgtn.ac.nz/Main/GradJiahongWei
+
+Notes:     
+    * Device a variable length encoding for GA. 
+    * Multi-objective zero-shot NAS for medical image segmentation.
+
+Limitations: 
+1. spatial inconsistency
+2. lack of interpretability 
+3. lack of transferability 
+4. lack of multi-task optimization 
+
+Models to explore:
+1. CNNs 
+2. Vision mamba 
+3. Vision transformer 
+
+
+
+Related: 
+    * Patch-based output space adversarial learning :ref:`(Wang 2019) <https://ieeexplore.ieee.org/abstract/document/8643416>`
+    * Zero-shot NAS :ref:`(Li 2024) <li2024zero>`
+    * Loss functions for medical image segmentations :ref:`(Ma 2019) <ma2021loss>`
+    * Domain-oriented feature embedding :ref:`(Wang 2020) <wang2020dofe>`
+
+2024-08-29 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+Notes:
+    * Paper - polist the second paper to be a journal paper, look to submit to a journal.
+    * Send Bing a copy of my slides. 
+    * Create a dataset 
+        * Easy :math:`\to` fish stratification doesn't matter 
+        * Hard :math:`\to` seperate individual fish, to ommit them from training, and only include them in the test.
+
+2024-08-29 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bing Xue, Jesse Wood
+
+* Section 3 should be about the transformer, flowchart, architecture diagram, focus on the transformer.
+* For a journal paper, need a related work section. 
+* Need to discuss where the data comes from, Cyber-Marine/PFR 
+* Remove the PSO and GA part from the results. 
+* Present the GP tree for instance recognition. 
+
+2024-09-26 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Mengjie Zhang, Jesse Wood 
+
+* Not multi-task learning, but instead transfer learning. Multi-task is run simultanesouly, transfer learning is asynchronous.
+* Heterogenous transfer learning; transform both feature set into a common feature set when different tasks have different number of features as input.
+* Imbalanced dataset: all possible combinations of the instance recognition problem, an imbalanced dataset and a more challenging problem. 
+* Statistical significance test: either paired or unparied, pair-wise comparison between transformer and other models. 
+
+2024-10-03 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood 
+
+* Rewrite the transfromer/GP methods section so that AJCAI and Journal paper are different. 
+* Look at the reviewers comments for the AJCAI paper, make revisions that are easy. 
+* Focus on the journal paper first, then revise the AJCAI paper while waiting for feedback. 
+* Use balanced accuracy to evaluate the perfromance on the instance recognition to evaluate the performance on the instance recognition dataset. 
+* Write a detailed report about the experimental setup for instance recognition.
+
+
+2024-10-10 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO364, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood 
+
+* The contribution of the paper is not clear, need a connection betweeen the AI task and the domain application.
+* I have four datasets with different number of instances. I need to clearly explain the preprocessing methods and how the four datasets are formulated. 
+* Explain how the LIME explanations are generated and why they only choose 10 important features. 
+* Only have one or two items for the future work section. 
+* Evaluate the results using cross-fodl validation, not train-test split. 
+* Train-test split, then normalize the dataset. 
+* Difference vector :math:`sample_1 - sample_2`: the difference between two sample vectors. 
+* Write a report for the construction of the dataset. Justify the choice of each dataset.
+
+2024-10-17 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00, **Attendees:** Bach Nguyen, Jesse Wood
+
+* Progressive left-to-right masking, get 1023 instances per training sample. Pre-train the model on this dataset of progressive masking, then fine-tune on down-stream tasks.
+* Contrastive learning: (pair 1) & (pair 2) :math:`\to` encoder :math:`\to` embedding :math:`\to` distance measure :math:`\to` contrastive loss 
+* Binary classification (pair 1) & (pair 2) :math:`\to` concatenate or difference :math:`\to` binary classification :math:`\to` "same" or "different"
+* Transactions on Artificial Intelligence (TAI) is the journal we are targetting for this paper. 
+* Focus on the journal paper this week. Try and get it finished. 
+* Organize a meeting with Daniel to discuss instance recognition for batch detection. See what he thinks of batch detection research. 
+
+2024-10-18 - ECRG 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 15:00 - 16:00, **Attendees:** Hao Xie, Luyau  Zhu, Mengjie Zhang, Yi Mei 
+
+General notes:
+
+* Pacific Asia Conference on Knowledge Discovery and Data Mining, paper submission deadline is November 30th 2024. https://pakdd2025.org/
+* Topics: Anomoly detection, outlier detection, transfer learning, learning in real-time, fraud detection, scientific data. 
+* Progress report: Hi I'm Jesse, a 3rd year PhD stduent working on an industry project in seafood with machine learning for mass spectrometry. 
+    * Write another revision for my journal paper, plan to submit ot transactions on artificial intelligence.
+    * Gave a presentation on instance recognition for batch detection in FASLIP yesterday, ran experiments on this task . 
+    * Organize a meeting with Daniel to discuss the dataset for instance recognition for batch detection. 
+    * Added pre-trained transformer results to my journal paper, pre-training on a large dataset, then fine-tune on downstream classficiation tasks, left-to-right progressive masking. 
+
+Multi-label feature selection
+Hao Xie https://ecs.wgtn.ac.nz/Main/GradHaoXie 
+
+Notes: 
+* Multi-label feature selection based on manifold learning and sparse regularization. 
+* Dual graph manifold learning. 
+* Distances between vectors are similar in their low-dimensional embedding.
+* Dataset - 10 multi-label datasets publicly available at the Mulan library. 
+* Method - novel multi-label feature selection method with dual graphs and non-convex sparse regression. 
+
+Sample-aware dynamic job shop scheduling 
+Luyao Zhu https://ecs.wgtn.ac.nz/Main/GradLuyaoZhu
+
+Notes:
+* Hyper Heuristic - GP as a hyper heuristic to learn the DFJSS rules automatically.
+* Surrogate-assisted genetic programming with simplified models for automated design of dispatching rules.
+* Rule-size based selection strategy; only evaluate the smallest individuals. 
+
+Related: 
+* Paper mentioned on GP for DFJSS :ref:`(Nguyen 2016 <nguyen2016surrogate>)`
+
+2024-10-24 - FASLIP
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Thursday, 15:00 - 16:00, **Attendees:** Fei Ming
+
+* A Review of Evolutionary Multimodal Multiobjective Optimization (Tanabe 2019)
+* A many-objective test problem for visually examining diversity maintenance behavior in a decision space (Ishibuchi 2011)
+* Balancing Convergence and Diversity in Objective and Decision Spaces for Multimodal Multi-Objective Optimization (Ming 2022)
+
+Related:
+* :ref:`(Ming 2022) <ming2022balancing>`
+* :ref:`(Ishibuchi 2011) <ishibuchi2011many>`
+* :ref:`(Tanabe 2019) <tanabe2019review>`
+
+2024-10-25 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO362, **Time:** Friday 10:00 AM - 10:30 AM, **Attendees:** Bach Nguyen, Jesse Wood 
+
+* AJCAI -  revise the paper based on the comments from the reviwers. Put it into PAKDD format. 
+* Revise journal - once Bach has revied the Transactions on Artificial Intelligence (TAI) journal paper, revised based of his comments.
+* The AJCAI paper and TAI journal paper may be too similar to each other. Have to be careful not to plagerize myself. 
+
+2024-10-24 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** 
+
+"LGP with trainable primitives for firsh biomass compositio spectra" Zhixing Huang https://people.wgtn.ac.nz/zhixing.huang
+
+Notes: 
+    * Raman spectra 
+        1. Laser hits a molecule 
+        2. Molecule absorbs and reflects light. 
+        3. Near Infared (NIR) spatial region focusses on reflecting lights
+    * Limitations - the wavelength region is critical for detecting precision and sensitivity.
+    * Linear Genetic Programming (LGP)
+        * A sequence of register based instructions. 
+        * Sequential execution of instructions. 
+        * Destination, Source, Registers 
+    * Intron - ineffective program 
+    * Extron - effective program. 
+    * Benefits of LGP 
+        1. Flexible - multi-input and multi-output 
+        2. Assembley - control flow operation 
+        3. Easy to model search space 
+    * Trainable primatives 
+        * Wrap input terminals by linear models 
+        * wave-sepecfici trainable terminals
+    * Data augmentation - magnify, rotate, amplify; based on paper on RAMAN NIR data augmentation. 
+
+2024-10-31 - Weekly 
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00 **Attendees:** Bing Xue, Bach Hoai Nguyen 
+
+Notes: 
+    * The hournal paper is 3 times as much work as the AJCAI paper. 
+    * Focus on the journal paper, forget about the AJCAI paper. 
+    * We spoke to Daniel about how to form the instance recogntion dataset. 
+    * MCIFC is a feature construction method. Follow the original work and append a classifier to the MCIFC. 
+
+2024-11-01 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Emrah Hancer, Junhao Huang 
+
+A methodology for forecasting green-lipped mussel settlement. https://people.wgtn.ac.nz/emrah.hancer 
+
+Notes: 
+    * Wild spat availability is inconsistent. 
+    * Variables: 
+        1. sea surface tempertature (SST)
+        2. mean water temperature (MT) 
+        3. temperature anomoly (TA)
+    * Mean imputation for missing values.  Samples with missing perma are removed from the dataset. 
+    * Lagged features, feature averaging, decision-tree based averaging.
+    * Combine STT + MT + TA ? 
+
+Neural architecture search https://people.wgtn.ac.nz/junhao.huang
+
+Notes: 
+    * Multi-shot, few-shot, one-shot, zero-cost proxy. 
+    * EPADs: Efficient Pertubation-Aware Distinguishing Score for Zero-Shot Neural Architecture Search. 
+    * NASWOT: expensive zero-shot NAS proxy. 
+
+Related: 
+    * NASWOT :ref:`(Mellor 2021) <mellor2021neural>`
+
+2024-11-08 - ECRG 
+~~~~~~~~~~~~~~~~~
+**Location:** CO350, **Time:** Friday, 15:00 - 17:00, **Attendees:** Benny Lin, Mengjie Zhang, Bing Xue, Huia Ma 
+
+Notes: 
+    * Candidate development plan (CDP) is due in the following week 2024-11-15. 
+    * EvoStart deadline: we have another week until the submission deadline. 
+    * Progress: I have been working on my journal paper, implemented multi-tree GP in c++ for a performance boost. 
+
+Machine Learning for Computer Vision for detecting Radiata Pine Tree Branch Locations for Drone-Based Prunings.
+Benny Lin https://ecs.wgtn.ac.nz/Main/GradYidaLin
+
+Notes: 
+    * 14.8 million million cubic meters of NZ radiata pine logs were exported to China from Jan - Nov 2022.
+    * Regular pruning is necessary to promote strong trunk growth and good wood quality. 
+    * ZED mini steroe camera is attached to a small electronic unmanned drone. 
+    * NZ Forestry has an injury rate that is 30 times higher than other industries. 
+    * There is no existing dataset. They need to create a dataset. Label annotation is a time-consuming task. 
+    * Considered using LiDAR to estimate branch length, but too expensive and difficult to implement. Intead solve the problem with vision alone.
+    * Pyramid Stereo Monitoring Network (PSMNet) https://github.com/JiaRenChang/PSMNet
+    * Semi-Global Block Matching (SGBM) 
+    * Neural Radiance Fields (NerF)
+
+Related:
+    * Pyramid Stereo Monitoring Network (PSMNet) :ref:`(Chang 2018) <chang2018pyramid>`
+    * Neural Radiance Fields (NeRF) :ref:`(Mildenhall 2021) <mildenhall2021nerf>`
+
+2024-11-21 - Weekly 
+~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00 **Attendees:** Bing Xue, Mengjie Zhang, Bach Hoai Nguyen 
+
+Notes:
+    * Need to subtmit my PhD candidate devleopment plan. It was due last week but will submit this week. 
+    * Need to revise my AJCAI paper, with the stuff from the journal paper. 
+    * 27 months of enrollment from March 2022, don't need to submit my PhD in the next 6 months. Aim to submit my thesis by the end of 2025. 
+    * Open source journal - Intelligent Marine Technology and Systems. 
+    * Conference - IEEE CEC 2025 - double column format, 8 pages including references. 
+
+2024-11-28 - FASLIP 
+~~~~~~~~~~~~~~~~~~~
+
+Distributed Evolutionary Compuation for Multi-agent Systems
+
+Notes:
+    - Swarm intelligence - algorithms that imitate swarm intelligence to cooperatively solve large scale complex problems.
+    - Algorithms 
+        - Ant Colony Optimization (Dorigo 1992)
+        - Particle Swarm Optimization (Kennedy 1995)
+    - Social animals - simulated behaviour of social animals. 
+    - Predictable, Guidable, Expandable 
+    - Predictable - Evolutionary transfer opimization theory - transfer knowledge to new tasks. 
+    - Guidable - Network optimization evolutionary methods 
+    - Expandable - Edge-cloud cooperative decision making for distributed swarm intelligence. 
+    - Distributed multi-agent opimization - hetergenous, partial data, conflicting objectives. 
+    - Privacy preserving mechanisms. 
+    - Federated learning - build local model, send parameters to global sever. 
+
+Related: 
+    * CrowdEC: Crowdsourcing-based Evolutionary Computation for Distributed Optimization
+ :ref:`(Wei 2024) <wei2024crowdec>`
+    * Population-Level Hybridization between Roulette Wheel Selection and Tournament Selection for Particle Swarm Optimization
+ :ref:`(Wang 2024) <wang2024population>`
+    * Multi-Agent Swarm Optimization With Adaptive Internal and External Learning for Complex Consensus-Based Distributed Optimization}
+ :ref:`(Chen 2024) <chen2024multi>`
+    * Uncertain commuters assignment through genetic programming hyper-heuristic
+ :ref:`(Liao 2023) <liao2023uncertain>`
+    * An individual evolutionary game model guided by global evolutionary optimization for vehicle energy station distribution
+ :ref:`(Zhang 2023) <zhang2023individual>`
+
+2024-11-28 - Weekly 
+~~~~~~~~~~~~~~~~~~~
+**Location:** CO352, **Time:** Thursday, 15:30 - 16:00 **Attendees:** Bing Xue, Bach Hoai Nguyen 
+
+Notes: 
+    - conference paper - submit a draft of my paer. Need to fix the parts diagram for gonads. 
+    - update: send an update by email next week. Bing will be away. 
+    - Data - don't need to attend meeting with Daniel. 
+    - Domian knowledge - domain knowledge from Daniel on important features identified by LIME explanations. 

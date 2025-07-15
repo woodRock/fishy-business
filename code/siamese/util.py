@@ -1,3 +1,8 @@
+""" Siamese Network Utilities
+This module provides utilities for setting up a Siamese dataset, data preprocessing,
+and balanced sampling for contrastive learning tasks. It includes a custom dataset class,
+a balanced sampler, and a data preprocessor to handle loading and filtering of data.
+It also sets up logging for debugging and information purposes."""
 import logging
 import sys
 from pathlib import Path

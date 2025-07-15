@@ -3,7 +3,6 @@ This script implements a 1D Grad-CAM analysis for a Transformer model
 trained on mass spectrometry data. It includes training the model,
 generating Grad-CAM maps, and visualizing the results.
 """
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -12,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import os
+from typing import Optional
 
 # Import your original Transformer and MultiHeadAttention implementations
 from models import Transformer, MultiHeadAttention
@@ -26,7 +26,13 @@ class GradCAM:
     for mass spectrometry data.
     """
 
-    def __init__(self, model, target_layer):
+    def __init__(self, model: nn.Module, target_layer: nn.Module) -> None:
+        """ Initialize Grad-CAM with the model and target layer.
+        
+        Args:
+            model: The trained Transformer model
+            target_layer: The layer to analyze (usually the last MultiHeadAttention layer)
+        """
         self.model = model
         self.target_layer = target_layer
         self.gradients = None
@@ -38,17 +44,41 @@ class GradCAM:
             self.save_gradient
         )
 
-    def save_activation(self, module, input, output):
+    def save_activation(self, module: nn.Module, input: torch.tensor, output: torch.tensor) -> None:
+        """ Save the activations from the target layer during forward pass. 
+        
+        Args:
+            module: The target layer module
+            input: Input to the layer
+            output: Output from the layer
+        """
         self.activations = output.detach()
 
-    def save_gradient(self, module, grad_input, grad_output):
+    def save_gradient(self, module: nn.Module, grad_input: torch.tensor, grad_output: torch.tensor) -> None:
+        """ Save the gradients from the target layer during backward pass.
+        
+        Args:
+            module: The target layer module
+            grad_input: Gradients with respect to the input
+            grad_output: Gradients with respect to the output
+        """
         self.gradients = grad_output[0].detach()
 
     def remove_hooks(self):
+        """ Remove the hooks to prevent memory leaks. """
         self.forward_hook.remove()
         self.backward_hook.remove()
 
-    def generate_cam(self, input_tensor, target_class=None):
+    def generate_cam(self, input_tensor: torch.tensor, target_class:Optional[int]=None):
+        """ Generate the Grad-CAM map for the input tensor.
+        
+        Args: 
+            input_tensor: Input tensor of shape [batch_size, seq_length, features]
+            target_class: Class index for which to generate the CAM (if None, uses predicted class)
+
+        Returns:
+            CAM map of shape [batch_size, features]
+        """
         # Ensure model is in eval mode
         self.model.eval()
 
@@ -143,7 +173,7 @@ def train_model(
 
     # Learning rate scheduler
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="max", factor=0.5, patience=3, verbose=True
+        optimizer, mode="max", factor=0.5, patience=3
     )
 
     # Track best accuracy and save best model
@@ -291,6 +321,9 @@ def visualize_gradcam(features, cam_map, idx=0, title="Grad-CAM Analysis"):
         cam_map: CAM map tensor (will be converted to 1D array)
         idx: Sample index
         title: Plot title
+
+    Returns:
+        Matplotlib figure object
     """
     # Get the feature tensor as numpy array
     if isinstance(features, torch.Tensor):
@@ -520,7 +553,8 @@ def main():
 
     # Create data module and load dataset
     data_module = create_data_module(
-        file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
+        file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        # file_path="/home/woodj/Desktop/fishy-business/data/REIMS.xlsx",  # Assuming this is needed for main training
         # file_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx" # Example server path
         dataset_name="part",  # Use your desired dataset
         batch_size=32,

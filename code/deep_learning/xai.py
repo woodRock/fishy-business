@@ -62,7 +62,15 @@ class ModelFactory:
 
     @staticmethod
     def create(model_name: str, config: ModelConfig) -> nn.Module:
-        """Create a model instance based on configuration."""
+        """Create a model instance based on configuration.
+        
+        Args: 
+            model_name (str): Name of the model architecture to create.
+            config (ModelConfig): Configuration parameters for the model.
+
+        Returns:
+            nn.Module: An instance of the specified model architecture.
+        """
         models = {
             "transformer": lambda: Transformer(
                 input_dim=config.input_dim,
@@ -122,7 +130,13 @@ class ModelFactory:
 class ModelWrapper:
     """Wrapper for neural network models to make them compatible with LIME."""
 
-    def __init__(self, model: nn.Module, device: str):
+    def __init__(self, model: nn.Module, device: str) -> Nones:
+        """ Initialize the model wrapper.
+        
+        Args: 
+            model (nn.Module): The neural network model to wrap.
+            device (str): Device to run the model on ('cpu' or 'cuda').
+        """
         self.model = model.to(device)
         self.device = device
         self.model.eval()
@@ -131,15 +145,11 @@ class ModelWrapper:
         """
         Normalize mass spec intensities to range [0,1]
 
-        Parameters:
-        -----------
-        x : np.ndarray
-            Input spectral data
-
-        Returns:
-        --------
-        np.ndarray
-            Normalized spectral data with intensities between 0 and 1
+        Args: 
+            x (np.ndarray): Input array of mass spec intensities, shape (n_samples, n_features).
+        
+        Returns: 
+            np.ndarray: Normalized intensities, same shape as input.
         """
         # Handle edge case where all values are the same
         if np.all(x == x[0]):
@@ -161,7 +171,14 @@ class ModelWrapper:
         return x_norm
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
-        """Get probability predictions from model with normalized intensities."""
+        """Get probability predictions from model with normalized intensities.
+        
+        Args: 
+            x (np.ndarray): Input array of mass spec intensities, shape (n_samples, n_features).
+
+        Returns:
+            np.ndarray: Probability predictions, shape (n_samples, n_classes).
+        """
         try:
             # Normalize intensities to [0,1] range
             x_normalized = self.normalize_intensities(x)
@@ -198,8 +215,16 @@ class ModelExplainer:
         "instance-recognition": ["different", "same"],
     }
 
-    def __init__(self, model: nn.Module, config: ExplainerConfig):
-        """Initialize model explainer."""
+    def __init__(self, model: nn.Module, config: ExplainerConfig) -> None:
+        """Initialize model explainer.
+
+        Args: 
+            model (nn.Module): The neural network model to explain.
+            config (ExplainerConfig): Configuration parameters for the explainer.   
+
+        Raises:
+            ValueError: If the dataset name is not recognized.
+        """
         self.config = config
         self.device = config.device
         self.model_wrapper = ModelWrapper(model, config.device)
@@ -209,15 +234,11 @@ class ModelExplainer:
         """
         Normalize features to [0,1] range before LIME explanation.
 
-        Parameters:
-        -----------
-        features : torch.Tensor
-            Input features to normalize
+        Args: 
+            features (torch.Tensor): Input tensor of shape (n_samples, n_features).
 
         Returns:
-        --------
-        np.ndarray
-            Normalized features array
+            np.ndarray: Normalized features, shape (n_samples, n_features).
         """
         # Convert to numpy and ensure 2D
         features_np = features.cpu().numpy()
@@ -245,7 +266,17 @@ class ModelExplainer:
         labels: torch.Tensor,
         feature_names: List[str],
     ) -> LimeTabularExplainer:
-        """Set up LIME explainer for the model."""
+        """Set up LIME explainer for the model.
+        
+        Args: 
+            dataset_name (str): Name of the dataset to explain.
+            features (torch.Tensor): Input features tensor of shape (n_samples, n_features).
+            labels (torch.Tensor): Corresponding labels tensor of shape (n_samples,).
+            feature_names (List[str]): List of feature names.
+
+        Returns:
+            LimeTabularExplainer: Configured LIME explainer instance.
+        """
         if dataset_name not in self.DATASET_LABELS:
             raise ValueError(f"Unknown dataset: {dataset_name}")
 
@@ -268,7 +299,17 @@ class ModelExplainer:
     def find_instance(
         self, features: torch.Tensor, labels: torch.Tensor, target: List[float]
     ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]:
-        """Find an instance with the target label."""
+        """Find an instance with the target label.
+        
+        Args: 
+            features (torch.Tensor): Input features tensor of shape (n_samples, n_features).
+            labels (torch.Tensor): Corresponding labels tensor of shape (n_samples,).
+            target (List[float]): Target label to find, e.g., [0, 0, 0, 0, 0, 0, 1].
+
+        Returns:
+            Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]: The feature and label of the found instance,
+            or (None, None) if no instance matches the target label.
+        """
         try:
             target_tensor = torch.tensor(target)
             for feat, label in zip(features, labels):
@@ -283,7 +324,16 @@ class ModelExplainer:
     def explain(
         self, instance: torch.Tensor, explainer: LimeTabularExplainer, output_path: Path
     ) -> None:
-        """Generate and save LIME explanation with improved readability."""
+        """Generate and save LIME explanation with improved readability.
+        
+        Args: 
+            instance (torch.Tensor): Input instance tensor of shape (n_features,).
+            explainer (LimeTabularExplainer): Configured LIME explainer instance.
+            output_path (Path): Path to save the explanation figure.    
+
+        Raises:
+            Exception: If explanation generation fails. 
+        """
         try:
             # Generate LIME explanation
             normalized_instance = self.normalize_features(instance)
@@ -344,7 +394,20 @@ def explain_predictions(
     instance_name: str,
     target_label: List[float],
 ) -> None:
-    """Generate explanations for model predictions."""
+    """Generate explanations for model predictions.
+    
+    Args:
+        dataset_name (str): Name of the dataset to explain.
+        model_name (str): Name of the model architecture to use.
+        model_config (ModelConfig): Configuration parameters for the model.
+        train_config (TrainConfig): Configuration parameters for training.
+        explainer_config (ExplainerConfig): Configuration parameters for the explainer.
+        instance_name (str): Name of the specific instance to explain.
+        target_label (List[float]): Target label to find and explain.
+
+    Raises:
+        Exception: If the explanation pipeline fails at any step.
+    """
     try:
         # Create and train model
         model = ModelFactory.create(model_name, model_config)
@@ -408,6 +471,7 @@ def explain_predictions(
 
 
 if __name__ == "__main__":
+    """ Main entry point for testing the explanation functionality."""
     # Example usage
     model_config = ModelConfig(input_dim=2080, output_dim=7, num_heads=4)
 
