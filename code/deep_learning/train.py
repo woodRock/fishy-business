@@ -1,3 +1,4 @@
+""" This module implements a training pipeline for deep learning models using PyTorch. """
 from tqdm import tqdm
 import logging
 import copy
@@ -35,6 +36,23 @@ def _reinitialize_model_and_optimizer(
     base_optimizer_instance: optim.Optimizer,
     device: str,
 ) -> Tuple[nn.Module, optim.Optimizer]:
+    """Re-initializes a model and optimizer for a new fold or run.
+
+    This function creates a deep copy of the provided CPU model template and moves
+    it to the specified device. It then creates a new optimizer instance of the
+    same type as `base_optimizer_instance`, initialized with the parameters of
+    the new model. This ensures that each fold or run starts with a fresh model
+    and optimizer state.
+
+    Args:
+        pristine_template_cpu (nn.Module): A copy of the model template in CPU memory.
+        base_optimizer_instance (optim.Optimizer): An instance of the optimizer to use as a template.
+        device (str): The device to which the model should be moved (e.g., 'cuda', 'cpu', 'mps').
+
+    Returns:
+        Tuple[nn.Module, optim.Optimizer]: A new model instance on the specified device and
+        a new optimizer instance initialized with the model's parameters.
+    """
     new_model_gpu = copy.deepcopy(pristine_template_cpu).to(device)
 
     # Filter out problematic parameters that might not be accepted by the optimizer constructor
@@ -63,6 +81,23 @@ def train_model(
     is_augmented: bool = False,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
 ) -> Tuple[nn.Module, Dict]:
+    """ Trains a model using k-fold cross-validation with multiple independent runs.
+    
+    Args: 
+        model (nn.Module): The model to train.
+        train_loader (DataLoader): DataLoader for the training dataset.
+        criterion (nn.Module): Loss function to use for training.
+        optimizer (optim.Optimizer): Optimizer instance to use for training.
+        num_epochs (int): Number of epochs to train each fold.      
+        patience (int): Number of epochs with no improvement after which training will be stopped.
+        n_splits (int): Number of splits for k-fold cross-validation.
+        n_runs (int): Number of independent runs to perform.
+        is_augmented (bool): Whether to apply data augmentation during training.
+        device (str): Device to use for training ('cuda', 'cpu', 'mps
+
+    Returns: 
+        Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of averaged metrics across all runs.
+    """
     logger = logging.getLogger(__name__)
 
     pristine_model_template_cpu = copy.deepcopy(model).cpu()
@@ -204,6 +239,15 @@ def train_model(
 def _calculate_averaged_metrics(
     all_runs_metrics_accumulator: List[Dict], logger: logging.Logger
 ) -> Dict:
+    """ Calculates averaged metrics across all runs.
+    
+    Args: 
+        all_runs_metrics_accumulator (List[Dict]): List of dictionaries containing metrics from each run
+        logger (logging.Logger): Logger instance for logging information.   
+
+    Returns:
+        Dict: A dictionary containing averaged metrics across all runs, including overall accuracy and detailed metrics.
+    """
     if not all_runs_metrics_accumulator:
         logger.warning("No run metrics available to calculate averages.")
         return {"runs_summary": {}, "metrics_summary": {}}
@@ -276,6 +320,23 @@ def _train_single_split(
     logger: logging.Logger,
     n_runs: int = 30,
 ) -> Tuple[nn.Module, Dict]:
+    """ Trains a model using a single split with multiple independent runs.
+    
+    Args: 
+        pristine_model_template_cpu (nn.Module): A copy of the model template in CPU memory.
+        train_loader (DataLoader): DataLoader for the full training dataset.
+        criterion (nn.Module): Loss function to use for training.
+        base_optimizer_instance (optim.Optimizer): Optimizer instance to use as a template.
+        num_epochs (int): Number of epochs to train each fold.      
+        patience (int): Number of epochs with no improvement after which training will be stopped.
+        train_data_augmenter (Optional[DataAugmenter]): Data augmenter instance for training
+        device (str): Device to use for training ('cuda', 'cpu', 'mps').
+        logger (logging.Logger): Logger instance for logging information.
+        n_runs (int): Number of independent runs to perform.
+
+    Returns: 
+        Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of
+    """
     all_runs_metrics_accumulator = []
     best_overall_accuracy = float("-inf")
     best_overall_model_state_cpu = None
@@ -381,6 +442,16 @@ def transfer_learning(  # No significant changes for conciseness here, it's a di
     model_instance: Transformer,
     file_path: str = "transformer_checkpoint.pth",
 ) -> Transformer:
+    """ Transfers learning weights from a checkpoint to a model instance for a specific dataset.
+    
+    Args:
+        dataset_name (str): Name of the dataset for which the model is being adapted.
+        model_instance (Transformer): Instance of the Transformer model to adapt.
+        file_path (str): Path to the checkpoint file containing pre-trained weights.
+
+    Returns:
+        Transformer: The model instance with adapted weights for the specified dataset.
+    """
     logger = logging.getLogger(__name__)
     output_dims_map = {
         "species": 2,
@@ -444,6 +515,15 @@ def transfer_learning(  # No significant changes for conciseness here, it's a di
 
 
 def _process_label_item(label_item) -> int:
+    """ Processes a label item to ensure it is returned as an integer.
+    
+    Args: 
+        label_item: The label item to process, which can be a tensor, numpy array,
+        or a scalar value.
+
+    Returns:
+        int: The processed label as an integer.
+    """
     if isinstance(label_item, torch.Tensor):
         return (
             label_item.item() if label_item.numel() == 1 else label_item.argmax().item()
@@ -454,6 +534,14 @@ def _process_label_item(label_item) -> int:
 
 
 def _extract_labels(dataset: Dataset) -> np.ndarray:
+    """ Extracts labels from a dataset, handling both Subset and full Dataset cases.
+    
+    Args:
+        dataset (Dataset): The dataset from which to extract labels, can be a Subset or full Dataset.
+
+    Returns:
+        np.ndarray: An array of labels extracted from the dataset.
+    """
     labels_list = []
     target_dataset = dataset.dataset if isinstance(dataset, Subset) else dataset
     indices = (
@@ -482,6 +570,19 @@ def _create_fold_loaders(
     num_workers: int = 0,
     pin_memory: bool = False,
 ) -> Tuple[DataLoader, DataLoader]:
+    """ Creates DataLoaders for training and validation subsets based on provided indices.
+    
+    Args: 
+        dataset (Dataset): The full dataset from which to create subsets.
+        train_idx (np.ndarray): Indices for the training subset.
+        val_idx (np.ndarray): Indices for the validation subset.
+        batch_size (int): Batch size for the DataLoaders.
+        num_workers (int): Number of worker threads for loading data.
+        pin_memory (bool): Whether to pin memory for faster data transfer to GPU.
+
+    Returns:
+        Tuple[DataLoader, DataLoader]: DataLoaders for training and validation subsets.
+    """
     train_subset = Subset(dataset, train_idx)
     val_subset = Subset(dataset, val_idx)
     common_loader_params = {
@@ -506,6 +607,23 @@ def _train_fold(
     device: str,
     logger: logging.Logger,
 ) -> Dict:
+    """ Trains a model for a single fold of cross-validation.
+    
+    Args: 
+        model (nn.Module): The model to train.
+        train_loader (DataLoader): DataLoader for the training dataset.
+        val_loader (DataLoader): DataLoader for the validation dataset.
+        criterion (nn.Module): Loss function to use for training.
+        optimizer (optim.Optimizer): Optimizer instance to use for training.
+        num_epochs (int): Number of epochs to train the fold.
+        patience (int): Number of epochs with no improvement after which training will be stopped.
+        device (str): Device to use for training ('cuda', 'cpu', 'mps').
+        logger (logging.Logger): Logger instance for logging information.
+
+    Returns:
+        Dict: A dictionary containing the best validation accuracy, the best model state,
+        the best fold metrics, and a log of metrics for each epoch.
+    """
     best_val_accuracy = float("-inf")
     epochs_no_improve = 0
     best_model_state_cpu, best_fold_metrics = None, None
@@ -587,6 +705,19 @@ def _run_epoch(
     device: str,
     is_training: bool,
 ) -> Dict:
+    """ Runs a single epoch of training or validation.
+    
+    Args:
+        model (nn.Module): The model to train or validate.
+        loader (DataLoader): DataLoader for the current epoch's dataset.
+        criterion (nn.Module): Loss function to use for training or validation.
+        optimizer (Optional[optim.Optimizer]): Optimizer instance for training; None for validation.
+        device (str): Device to use for training or validation ('cuda', 'cpu', 'mps').
+        is_training (bool): Whether this is a training epoch.
+
+    Returns:
+        Dict: A dictionary containing the average loss and metrics for the epoch, along with predictions.
+    """
     total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
 
     for inputs, labels_batch in loader:
@@ -637,6 +768,16 @@ def _run_epoch(
 def _calculate_metrics(  # Minor cleanup for NaN handling
     y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None
 ) -> MetricsDict:
+    """ Calculates various metrics based on true labels, predicted labels, and predicted probabilities.
+    
+    Args:
+        y_true (np.ndarray): True labels.
+        y_pred (np.ndarray): Predicted labels.
+        y_prob (Optional[np.ndarray]): Predicted probabilities for each class, if available.    
+
+    Returns:
+        MetricsDict: A dictionary containing calculated metrics such as balanced accuracy, precision, recall, F
+    """
     labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
     metrics: MetricsDict = {
         "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
@@ -690,6 +831,16 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
 def roc_curve_auc(
     y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True
 ) -> float:
+    """ Calculates the AUC-ROC for a specific class.
+    
+    Args: 
+        y_true_class (np.ndarray): True labels for the specific class.
+        y_prob_class (np.ndarray): Predicted probabilities for the specific class.
+        class_present (bool): Whether the class is present in the true labels.
+
+    Returns:
+        float: The AUC-ROC value for the class, or NaN if the class is not present or not enough classes are available.
+    """
     if (
         not class_present or len(np.unique(y_true_class)) < 2
     ):  # Not enough classes or class not present

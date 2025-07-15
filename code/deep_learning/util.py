@@ -1,3 +1,6 @@
+""" This module provides utilities for deep learning datasets, 
+including dataset types, data augmentation, and dataset classes.
+"""
 from dataclasses import dataclass, fields as dataclass_fields  # For AugmentationConfig
 from enum import Enum, auto
 import logging
@@ -21,6 +24,19 @@ logger = logging.getLogger(__name__)
 
 
 class DatasetType(Enum):
+    """Enumeration for the different types of datasets.
+
+    Attributes:
+        SPECIES: Dataset for species classification.
+        PART: Dataset for part classification.
+        OIL: Dataset for oil classification.
+        OIL_SIMPLE: Dataset for simple oil classification.
+        OIL_REGRESSION: Dataset for oil regression.
+        CROSS_SPECIES: Dataset for cross-species classification.
+        CROSS_SPECIES_HARD: Dataset for hard cross-species classification.
+        INSTANCE_RECOGNITION: Dataset for instance recognition.
+        INSTANCE_RECOGNITION_HARD: Dataset for hard instance recognition.
+    """
     SPECIES = auto()
     PART = auto()
     OIL = auto()
@@ -33,6 +49,17 @@ class DatasetType(Enum):
 
     @classmethod
     def from_string(cls, name: str) -> "DatasetType":
+        """Converts a string to a DatasetType enum member.
+
+        Args:
+            name: The name of the dataset type.
+
+        Returns:
+            The corresponding DatasetType enum member.
+
+        Raises:
+            ValueError: If the dataset name is invalid.
+        """
         # Create a mapping from lowercase string to enum member
         # Handles names with hyphens by replacing them with underscores for enum member lookup
         normalized_name_map = {
@@ -67,6 +94,18 @@ class DatasetType(Enum):
 
 @dataclass
 class AugmentationConfig:
+    """Configuration for data augmentation.
+
+    Attributes:
+        enabled: Whether augmentation is enabled.
+        num_augmentations: The number of augmented versions to create per sample.
+        noise_enabled: Whether to add noise to the samples.
+        shift_enabled: Whether to shift the samples.
+        scale_enabled: Whether to scale the samples.
+        noise_level: The level of noise to add.
+        shift_range: The range for shifting the samples.
+        scale_range: The range for scaling the samples.
+    """
     enabled: bool = False
     num_augmentations: int = 5  # Number of *additional* augmented versions per sample
     noise_enabled: bool = True
@@ -78,7 +117,16 @@ class AugmentationConfig:
 
 
 class BaseDataset(Dataset):
-    def __init__(self, samples: np.ndarray, labels: np.ndarray):
+    def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
+        """ Initializes the dataset with samples and labels.
+        
+        Args: 
+            samples (np.ndarray): Array of shape (num_samples, num_features) containing the features.
+            labels (np.ndarray): Array of shape (num_samples, num_classes) or (num_samples,) containing the labels.
+        
+        Raises:
+            ValueError: If samples or labels are empty or have incompatible shapes.
+        """
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.tensor(
             np.array(labels), dtype=torch.float32
@@ -92,22 +140,56 @@ class BaseDataset(Dataset):
             self.samples = F.normalize(self.samples, p=2, dim=0)
 
     def __len__(self) -> int:
+        """ Returns the number of samples in the dataset.
+        
+        Returns:    
+            int: Number of samples in the dataset.
+        """
         return self.samples.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        """ Retrieves a sample and its corresponding label by index.
+        
+        Args: 
+            idx (int): Index of the sample to retrieve.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing the sample and its label.
+        """
         return self.samples[idx], self.labels[idx]
 
 
 class CustomDataset(BaseDataset):
-    """Standard dataset, inherits all from BaseDataset."""
+    """A standard PyTorch Dataset that inherits from BaseDataset.
+
+    This class serves as a simple wrapper around `BaseDataset` and does not introduce
+    any additional functionality or modifications. It is intended for use cases
+    where a basic dataset structure is sufficient without specialized behaviors
+    like pair generation for contrastive learning.
+    """
 
     pass
 
 
 class SiameseDataset(BaseDataset):
-    """Dataset for contrastive learning, generating pairs of samples."""
+    """Dataset for contrastive learning, generating pairs of samples.
 
-    def __init__(self, samples: np.ndarray, labels: np.ndarray):
+    This dataset extends `BaseDataset` to create pairs of samples and their
+    corresponding labels, indicating whether the samples in a pair belong to
+    the same class or different classes. It is particularly useful for
+    Siamese networks and other contrastive learning approaches.
+    """
+
+    def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
+        """Initializes the Siamese dataset with samples and labels.
+
+        Args:
+            samples (np.ndarray): Array of shape (num_samples, num_features) containing the features.
+            labels (np.ndarray): Array of shape (num_samples, num_classes) or (num_samples,) containing the labels.
+
+        Raises:
+            ValueError: If samples or labels are empty or have incompatible shapes.
+        """
         # Initialize with original data to allow BaseDataset to convert them to tensors
         super().__init__(samples, labels)
         # Now self.samples and self.labels are tensors. Generate pairs from these.
@@ -118,7 +200,23 @@ class SiameseDataset(BaseDataset):
     def _generate_pairs_vectorized(
         self, original_samples: torch.Tensor, original_labels: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """Generates differing pairs for contrastive learning in a vectorized way."""
+        """Generates differing pairs for contrastive learning in a vectorized way.
+
+        This method creates all possible unique pairs from the input samples and
+        determines if each pair consists of samples from the same class or different
+        classes. The output `paired_samples_tensor` contains the element-wise
+        difference between the paired samples, and `pair_labels_tensor` indicates
+        the similarity (1.0 for same class, 0.0 for different class).
+
+        Args:
+            original_samples (torch.Tensor): Original samples tensor of shape (num_samples, num_features).
+            original_labels (torch.Tensor): Original labels tensor of shape (num_samples, num_classes) or (num_samples,).
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
+                - paired_samples_tensor: Tensor of shape (num_pairs, num_features) with element-wise differences.
+                - pair_labels_tensor: Tensor of shape (num_pairs, 1) with labels indicating if pairs are from the same class (1.0) or different (0.0).
+        """
         n_samples = original_samples.shape[0]
         if n_samples < 2:
             return torch.empty(
@@ -152,15 +250,33 @@ class SiameseDataset(BaseDataset):
         return paired_samples_tensor, pair_labels_tensor
 
     def __len__(self) -> int:
+        """ Returns the number of pairs in the dataset.
+        
+        Returns:
+            int: Number of pairs in the dataset.
+        """
         return self.paired_samples.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+        """ Retrieves a pair of samples and their corresponding label by index.
+        
+        Args:
+            idx (int): Index of the pair to retrieve.
+
+        Returns:
+            Tuple[torch.Tensor, torch.Tensor]: A tuple containing the paired sample and its label.
+        """
         return self.paired_samples[idx], self.paired_labels[idx]
 
 
 class DataAugmenter:
-    """
-    Handles data augmentation.
+    """Applies various data augmentation techniques to a DataLoader.
+
+    This class provides methods to augment data by adding noise, shifting, and scaling
+    samples based on a provided `AugmentationConfig`. It operates by extracting
+    data from an existing DataLoader, applying augmentations, and then creating
+    a new DataLoader with the augmented data.
+
     NOTE: The current approach of extracting all data from a DataLoader,
     augmenting in NumPy, then creating a new DataLoader is highly inefficient
     and not recommended for large datasets or performance-critical applications.
@@ -168,11 +284,23 @@ class DataAugmenter:
     This refactoring makes the existing logic more concise but doesn't change the approach.
     """
 
-    def __init__(self, config: AugmentationConfig):
+    def __init__(self, config: AugmentationConfig) -> None:
+        """Initializes the DataAugmenter with a configuration.
+
+        Args:
+            config: An `AugmentationConfig` object specifying the augmentation parameters.
+        """
         self.config = config
 
     def _apply_augmentations_to_batch(self, X_batch: np.ndarray) -> np.ndarray:
-        """Applies configured augmentations to a batch of samples."""
+        """Applies configured augmentations to a batch of samples.
+
+        Args:
+            X_batch: A NumPy array representing a batch of samples to be augmented.
+
+        Returns:
+            A NumPy array containing the augmented batch of samples.
+        """
         X_augmented_batch = X_batch.copy()  # Augment from fresh copies
         n_samples, n_features = X_augmented_batch.shape
 
@@ -206,72 +334,35 @@ class DataAugmenter:
         return X_augmented_batch
 
     def augment(self, dataloader: DataLoader) -> DataLoader:
-        if not self.config.enabled or self.config.num_augmentations == 0:
-            return dataloader
+        """Applies data augmentation to the samples in the provided DataLoader.
 
-        logger.info(
-            f"DataAugmenter: Applying {self.config.num_augmentations} augmentations per sample."
-        )
+        If augmentation is enabled in the configuration, this method extracts all
+        samples from the input DataLoader, applies the specified augmentations
+        (`num_augmentations` times), concatenates the original and augmented data,
+        shuffles the combined dataset, and returns a new DataLoader.
 
-        original_X_list, original_y_list = [], []
-        for samples, labels in tqdm(
-            dataloader, desc="Collecting data for augmentation"
-        ):
-            original_X_list.append(samples.cpu().numpy())
-            original_y_list.append(labels.cpu().numpy())
+        Args:
+            dataloader: The original `DataLoader` containing the data to be augmented.
 
-        if not original_X_list:
-            logger.warning("DataAugmenter: No data to augment.")
-            return dataloader
-
-        X_original = np.concatenate(original_X_list, axis=0)
-        y_original = np.concatenate(original_y_list, axis=0)
-
-        all_X_augmented = [X_original]
-        all_y_augmented = [y_original]
-
-        for _ in tqdm(
-            range(self.config.num_augmentations), desc="Generating augmentations"
-        ):
-            all_X_augmented.append(self._apply_augmentations_to_batch(X_original))
-            all_y_augmented.append(y_original.copy())  # Labels remain the same
-
-        X_final = np.concatenate(all_X_augmented, axis=0)
-        y_final = np.concatenate(all_y_augmented, axis=0)
-
-        logger.info(f"Augmentation complete. Dataset size: {len(X_final)} samples.")
-
-        # Shuffle the entire augmented dataset
-        shuffle_idx = np.random.permutation(len(X_final))
-        X_final, y_final = X_final[shuffle_idx], y_final[shuffle_idx]
-
-        # Reuse the original dataset's class if possible, otherwise default to CustomDataset
-        dataset_class = (
-            dataloader.dataset.__class__
-            if hasattr(dataloader.dataset, "__class__")
-            else CustomDataset
-        )
-        try:  # Ensure dataset_class can be initialized with X, y
-            augmented_dataset = dataset_class(X_final, y_final)
-        except TypeError:  # Fallback if original class cannot be simply instantiated
-            logger.warning(
-                f"Could not use original dataset class {dataset_class}. Falling back to CustomDataset for augmented data."
-            )
-            augmented_dataset = CustomDataset(X_final, y_final)
-
-        return DataLoader(
-            augmented_dataset,
-            batch_size=dataloader.batch_size,
-            shuffle=False,  # Data is already shuffled
-            num_workers=dataloader.num_workers,
-            pin_memory=dataloader.pin_memory,
-        )
+        Returns:
+            A new `DataLoader` containing the original and augmented samples.
+            If augmentation is disabled or `num_augmentations` is 0, the original
+            `DataLoader` is returned unchanged.
+        """
 
 
 class DataProcessor:
     def __init__(
         self, dataset_type: DatasetType, batch_size: int = 64
-    ):  # Removed train_split as it's not used
+    ) -> None:  # Removed train_split as it's not used
+        """ Initializes the DataProcessor with dataset type and batch size.
+        
+        Args: 
+            dataset_type (DatasetType): The type of dataset to process.
+            batch_size (int): The batch size for DataLoader. Defaults to 64.
+        Raises:
+            ValueError: If the dataset type is not recognized.
+        """
         self.dataset_type = dataset_type
         self.batch_size = batch_size
         self.label_encoder_ = None  # To store fitted LabelEncoder if used
@@ -343,6 +434,14 @@ class DataProcessor:
     def _create_one_hot_encoder(
         self, categories: List[str]
     ) -> Callable[[str], Optional[List[float]]]:
+        """ Creates a one-hot encoder function for the given categories.
+        
+        Args: 
+            categories (List[str]): List of category names to encode.
+
+        Returns:
+            Callable[[str], Optional[List[float]]]: A function that takes a string and returns a one-hot encoded list
+        """
         cat_to_idx = {cat.lower(): i for i, cat in enumerate(categories)}
         num_cat = len(categories)
 
@@ -358,6 +457,14 @@ class DataProcessor:
         return encoder
 
     def load_data(self, file_path: Union[str, Path]) -> pd.DataFrame:
+        """ Loads data from a file into a pandas DataFrame.
+        
+        Args: 
+            file_path (Union[str, Path]): Path to the data file (CSV or Excel).
+
+        Returns:
+            pd.DataFrame: DataFrame containing the loaded data.
+        """
         path = Path(file_path)
         logger.info(f"Loading data from: {path}")
         if not path.exists():
@@ -375,6 +482,15 @@ class DataProcessor:
     def filter_data(
         self, data: pd.DataFrame, is_pre_train: bool = False
     ) -> pd.DataFrame:
+        """ Filters the DataFrame based on dataset type and pre-training status.
+        
+        Args: 
+            data (pd.DataFrame): The DataFrame to filter.
+            is_pre_train (bool): Whether the data is for pre-training. If True, no filtering is applied.
+        
+        Returns:
+            pd.DataFrame: Filtered DataFrame.
+        """
         if is_pre_train:
             return data
 
@@ -424,6 +540,16 @@ class DataProcessor:
         return df
 
     def encode_labels(self, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        """ Encodes labels based on dataset type and returns features and labels.
+        
+        Args: 
+            data (pd.DataFrame): The DataFrame containing the data to encode.
+
+        Returns:    
+            Tuple[np.ndarray, np.ndarray]: A tuple containing:
+                - X (np.ndarray): Features array of shape (num_samples, num_features).
+                - y (np.ndarray): Labels array of shape (num_samples, num_classes).
+        """
         label_action = self._LABEL_ENCODERS_MAP.get(self.dataset_type)
 
         if data.empty:
@@ -491,6 +617,19 @@ def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid confli
     is_pre_train: bool = False,
     augmentation_cfg: Optional[AugmentationConfig] = None,
 ) -> Tuple[DataLoader, pd.DataFrame]:
+    """ Preprocesses data and returns a DataLoader and raw DataFrame.
+    
+    Args: 
+        data_processor (DataProcessor): The DataProcessor instance to use for loading and processing data.
+        file_path (Union[str, Path]): Path to the data file (CSV or Excel).
+        is_pre_train (bool): Whether the data is for pre-training. If True, no filtering is applied.
+        augmentation_cfg (Optional[AugmentationConfig]): Configuration for data augmentation. If None, no augmentation is applied.
+
+    Returns:
+        Tuple[DataLoader, pd.DataFrame]: A tuple containing:
+            - DataLoader: The DataLoader containing the preprocessed data.
+            - pd.DataFrame: The raw DataFrame containing the loaded data before filtering.
+    """
 
     raw_df = data_processor.load_data(file_path)
     filtered_df = data_processor.filter_data(raw_df, is_pre_train)
@@ -553,7 +692,20 @@ class DataModule:
         batch_size: int = 64,
         is_pre_train: bool = False,
         augmentation_config: Optional[AugmentationConfig] = None,
-    ):
+    ) -> None:
+        """ Initializes the DataModule with dataset name, file path, and configuration.
+        
+        Args: 
+            dataset_name (str): Name of the dataset (e.g., "species", "part").
+            file_path (Union[str, Path]): Path to the data file (CSV or Excel).
+            batch_size (int): Batch size for DataLoader. Defaults to 64.
+            is_pre_train (bool): Whether the data is for pre-training. If True, no filtering is applied.
+            augmentation_config (Optional[AugmentationConfig]): Configuration for data augmentation. If None, no augmentation is applied.
+
+        Raises:
+            ValueError: If the dataset name is invalid or not recognized.
+            TypeError: If the file path is not a string or Path object. 
+        """
         self.dataset_name_str = (
             dataset_name  # Store original string for convenience (e.g. get_num_classes)
         )
@@ -568,7 +720,8 @@ class DataModule:
         self.raw_data: Optional[pd.DataFrame] = None
 
     def setup(self) -> None:  # Changed to not return, but set attributes
-        """Loads and preprocesses data, setting up DataLoaders."""
+        """Loads and preprocesses data, setting up DataLoaders.
+        """
         self.train_loader, self.raw_data = preprocess_data_pipeline(
             data_processor=self.processor,
             file_path=self.file_path,
@@ -576,14 +729,37 @@ class DataModule:
             augmentation_cfg=self.augmentation_config,
         )
 
+    def get_dataset(self) -> Dataset:
+        """Returns the dataset used by the DataLoader.
+        
+        Returns: 
+            Dataset: The dataset used by the train DataLoader, or an empty CustomDataset if not set.
+        """
+        if self.train_loader is None:
+            logger.warning("Train DataLoader not set up. Call setup() first.")
+            return CustomDataset(np.array([]), np.array([]))
+        return self.train_loader.dataset
+
     def get_train_dataframe(self) -> pd.DataFrame:
-        """Returns the raw DataFrame used to create the DataLoader."""
+        """Returns the raw DataFrame used to create the DataLoader.
+        
+        Returns: 
+            pd.DataFrame: The raw DataFrame containing the loaded data before filtering.
+        """
         if self.raw_data is None:
             logger.warning("Raw DataFrame not set up. Call setup() first.")
             return pd.DataFrame()
         return self.raw_data
 
     def get_train_dataloader(self) -> DataLoader:
+        """ Returns the DataLoader for training data.
+        
+        Raises: 
+            Warning: If the DataLoader is not set up, a warning is logged.
+
+        Returns:
+            DataLoader: The DataLoader for training data, or an empty DataLoader if not set up.
+        """
         if self.train_loader is None:
             logger.warning("Train DataLoader not set up. Call setup() first.")
             # Return an empty loader to prevent None errors downstream
@@ -598,6 +774,13 @@ class DataModule:
         """
         Get number of output features (classes) for a dataset.
         For 'use_sklearn_label_encoder' types, it's dynamic if a processor is available.
+        
+        Args:
+            dataset_name_str (str): Name of the dataset (e.g., "species", "part").
+            data_processor (Optional[DataProcessor]): DataProcessor instance if available, to check fitted label encoder.
+
+        Returns:
+            int: Number of output features (classes) for the dataset.
         """
         dt = DatasetType.from_string(dataset_name_str)
         # This static map defines the *expected* output dimension for models.
@@ -651,6 +834,22 @@ def create_data_module(
     augmentation_enabled: bool = False,
     **kwargs_for_augmentation,  # Catch all other kwargs
 ) -> DataModule:
+    """ Creates a DataModule instance for the specified dataset.
+    
+    Args:
+        dataset_name (str): Name of the dataset (e.g., "species", "part").
+        file_path (Union[str, Path]): Path to the data file (CSV or Excel).
+        batch_size (int): Batch size for DataLoader. Defaults to 64.
+        is_pre_train (bool): Whether the data is for pre-training. If True, no filtering is applied.
+        augmentation_enabled (bool): Whether to enable data augmentation.
+        **kwargs_for_augmentation: Additional keyword arguments for AugmentationConfig.
+
+    Returns:
+        DataModule: An instance of DataModule configured for the specified dataset.
+    Raises:
+        ValueError: If the dataset name is invalid or not recognized.
+        TypeError: If the file path is not a string or Path object.
+    """
     aug_config = None
     if augmentation_enabled:
         # Filter kwargs to only those valid for AugmentationConfig
@@ -671,6 +870,7 @@ def create_data_module(
 
 # Usage example:
 if __name__ == "__main__":
+    """ Main entry point for testing the DataModule and DataProcessor functionality."""
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

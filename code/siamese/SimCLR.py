@@ -1,3 +1,6 @@
+""" SimCLR implementation for contrastive learning.
+This module defines the encoder network, contrastive loss, training and evaluation functions.
+It uses a Siamese architecture to learn embeddings from pairs of spectra."""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

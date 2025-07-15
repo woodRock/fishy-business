@@ -575,6 +575,16 @@ cai2020high
     * Reward function is scaled by velocity, so faster lap times are rewarded. 
     * Works for 4 different kinds of vehicles, although the truck struggles to achieve same performance as lighter ones. 
 
+chang2018pyramid
+----------------
+Pyramid stereo matching network
+
+Available: https://openaccess.thecvf.com/content_cvpr_2018/html/Chang_Pyramid_Stereo_Matching_CVPR_2018_paper.html
+
+Related: 
+    * Discussed in :ref:`2024-11-08 - ECRG <2024-11-08 - ECRG>`
+    * GitHub: https://github.com/JiaRenChang/PSMNet
+
 chase1973perception
 -------------------
     * Domain expertise allows people to build meaningful schema to represent patterns.
@@ -670,6 +680,15 @@ Results:
     * Outperforms state-of-the-art methods on on larger problems.
     * Requires re-training for each new problem.
     * GP approaches are competitive with DRL approaches.
+
+chen2024multi
+-------------
+Multi-Agent Swarm Optimization With Adaptive Internal and External Learning for Complex Consensus-Based Distributed Optimization}
+
+Available: https://ieeexplore.ieee.org/abstract/document/10477458
+
+Related: 
+    * Author discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
 
 chevalier2018babyai
 -------------------
@@ -840,6 +859,15 @@ Related:
     * OpenAI GPT-3 
     * :ref:`(Brown 2020) <brown2020language>` LLMs are few shot learners papers 
 
+
+dorigo1997ant
+-------------
+Ant colony system: a cooperative learning approach to the traveling salesman problem
+
+Available: https://ieeexplore.ieee.org/abstract/document/585892 
+
+Related: 
+    * Mentioned in :ref:`2024-06-21 - ECRG<2024-06-21 - ECRG>`
 
 ecoffet2021first
 ----------------
@@ -1307,6 +1335,15 @@ Algorithmic amplification of politics on Twitter
 Related:
     * Discussed in Deep Learning - 2022-11-30
 
+ishibuchi2011many
+-----------------
+A many-objective test problem for visually examining diversity maintenance behavior in a decision space
+
+Available: https://dl.acm.org/doi/abs/10.1145/2001576.2001666
+
+Related: 
+    * Discussed in :ref:`2024-10-24 - FASLIP`
+
 li2022language
 --------------
 Language-driven semantic segmentation
@@ -1376,6 +1413,20 @@ Def. adulteration:
 
 Related:    
     * :ref:`(Black 2019)` uses REIMS to detect beef adulteration. 
+
+ji2024cap
+---------
+CAP: A Context-Aware Neural Predictor for NAS 
+
+(Ji 2024) propose context-aware neural predictor (CAP) for neural architecture search (NAS). 
+
+Available: https://arxiv.org/abs/2406.02056
+
+Related: 
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in E2EPP :ref:`(Sun 2022) <sun2022end>`
+    * Similar work in CDP :ref:`(Liu 2022) <liu2022bridge>`
+    * Similar work in HAAP :ref:`(Liu 2021) <liu2021homogeneous>`
 
 jiang2019degenerate
 -------------------
@@ -1766,6 +1817,17 @@ Available: https://www.class-specific.com/csf/papers/hidim.pdf
 Related:
     * Discussed by Ruwang in :ref:`2023-12-08 - ECRG <2023-12-08 - ECRG>`
 
+koza1994genetic
+----------------
+Genetic programming as a means for programming computers by natural selection
+
+(Koza 1994) propose genetric programming techniques.
+
+Available: https://link.springer.com/article/10.1007/BF00175355
+
+Related: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
 kulasekara2014transposon
 ------------------------
 Transposon mutagenesis
@@ -2053,6 +2115,26 @@ Available: https://arxiv.org/abs/2301.12597
 Related: 
     * Discussed in :ref:`2024-02-29 - FASLIP <2024-02-29 - FASLIP>`
 
+li2024zero
+----------
+Zero-Shot Neural Architecture Search: Challenges, Solutions, and Opportunities
+
+(Li 2024) propose zero shot NAS.
+
+Available: https://ieeexplore.ieee.org/abstract/document/10516268
+
+Related: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
+liao2023uncertain
+-----------------
+Uncertain commuters assignment through genetic programming hyper-heuristic
+
+Available: https://ieeexplore.ieee.org/abstract/document/10106053
+
+Related:
+    * Author discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
+
 lin2017feature
 --------------
     * Feature pyramid networks for object detection. 
@@ -2113,6 +2195,34 @@ Available: https://arxiv.org/abs/1806.09055
 Related: 
     * Discussed in :ref:`2024-02-22 - FASLIP <2024-02-22 - FASLIP>`
 
+liu2021homogeneous
+------------------
+Homogeneous architecture augmentation for neural predictor
+
+(Liu 2021) proposed homogenous architecture augmentation for neural predictor (HAAP).
+
+Available: https://link.springer.com/chapter/10.1007/978-3-031-16868-0_14
+
+Related:    
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in E2EPP :ref:`(Sun 2022) <sun2022end>`
+    * Similar work in CDP :ref:`(Liu 2022) <liu2022bridge>`
+    * Similar work in CAP :ref:`(Ji 2024) <ji2024cap>`
+
+liu2022bridge
+-------------
+Bridge the gap between architecture spaces via a cross-domain predictor
+
+(Liu 2022) propose cross-domain predictor (CDP) for neural architecture search (NAS).
+
+Available: https://proceedings.neurips.cc/paper_files/paper/2022/hash/572aaddf9ff774f7c1cf3d0c81c7185b-Abstract-Conference.html
+
+Related: 
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in E2EPP :ref:`(Sun 2022) <sun2022end>`
+    * Similar work in HAAP :ref:`(Liu 2021) <liu2021homogeneous>`
+    * Similar work in CAP :ref:`(Ji 2024) <ji2024cap>`
+
 liu2023instaflow
 ----------------
 InstaFlow: One Step is Enough for High-Quality Diffusion-Based Text-to-Image Generation
@@ -2152,6 +2262,25 @@ Available: https://arxiv.org/abs/1711.05101
 
 Notes:
     * "decoupling weight decay from the learning rate." - Christian Raymond 
+
+lundberg2017unified
+-------------------
+A unified approach to interpreting model predictions
+
+(Lundberg 2017) propose SHapley Additive exPlanations (SHAP).
+
+Available: https://arxiv.org/abs/1705.07874
+
+ma2021loss
+----------
+Loss odyssey in medical image segmentation
+
+(Ma 2021) explore plug-and-play segmentation loss functions in an organized manner
+
+Available: https://www.sciencedirect.com/science/article/pii/S1361841521000815
+
+Related: 
+    * Discussed in :ref:`2024-02-29 - FASLIP <2024-02-29 - FASLIP>`
 
 mantyla1998cuelensen2017new
 --------------
@@ -2237,6 +2366,16 @@ Related:
     * :ref:`(Gomes 2022)<gomes2020ensemble>` for concept drift from data stream mining.
     * See (Wood 2023), my proposal, which references Hoki seasonal variation.
 
+mellor2021neural
+----------------
+Neural architecture search without training
+
+Available: https://proceedings.mlr.press/v139/mellor21a.html
+
+Related: 
+    * Discussed in :ref:`2024-11-01 - ECRG <2024-11-01 - ECRG>`
+
+
 mikolov2013efficient
 ---------------------
 Efficient Estimation of Word Representations in Vector Space
@@ -2265,6 +2404,15 @@ Related:
     * Related to node2vec (Grover 2016) for graph embeddings.
     * Related to (Olah 2018) for feature visualisation.
     * Same author as :ref:`(Mikolov 2013) <mikolov2013efficient>`.
+
+mildenhall2021nerf
+------------------
+Nerf: Representing scenes as neural radiance fields for view synthesis
+
+Available: https://dl.acm.org/doi/abs/10.1145/3503250
+
+Related: 
+    * Discussed in :ref:`2024-11-08 - ECRG <2024-11-08 - ECRG>`
 
 miles1998state
 --------------
@@ -2314,6 +2462,15 @@ Related:
     * :ref:`(Miller 2017) <miller2017explainable>` explainable AI.
     * :ref:`(Miller 2019) <miller2019explanation>` explanation in AI.
     * :ref:`2022-12-07 - AJCAI<2022-12-07 - AJCAI>` for talk from author.
+
+ming2022balancing
+-----------------
+Balancing convergence and diversity in objective and decision spaces for multimodal multi-objective optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/9962333
+
+Related:   
+    * Discussed in :ref:`2024-10-24 - FASLIP <2024-10-24 - FASLIP>`
 
 morgan1989generalization
 ------------------------
@@ -2415,6 +2572,17 @@ nguyen2014filtermccann2012local
     * The local search only considers the global best using a filter based method.
     * It draws from the strengths of filter and wrapper based feature selection.
     * This proposed method outperformed three state-of-the-art and two traditional feature selection methods.
+
+nguyen2016surrogate
+-------------------
+Surrogate-assisted genetic programming with simplified models for automated design of dispatching rules
+
+(Nguyen 2016) use GP for dynamic flexible job shop scheduling.
+
+Available: https://ieeexplore.ieee.org/abstract/document/7473913/
+
+Related: 
+    * Discussed in :ref:`2024-10-18 - ECRG <2024-10-18 - ECRG >`
 
 olah2018building
 ----------------
@@ -2721,6 +2889,17 @@ rasmussen2003gaussian
 ---------------------
     * Gaussian Processes in machine learning. 
 
+raymond2023learning
+-------------------
+Learning symbolic model-agnostic loss functions via meta-learning
+
+(Raymond 2023) propose model-agnostic loss functions for meta-learning.
+
+Available: https://ieeexplore.ieee.org/abstract/document/10177983
+
+Related:
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
 restek2018high
 --------------
     * Explanation of gas-chromatraphy in food science for FAMEs. 
@@ -2728,6 +2907,14 @@ restek2018high
 riad2022learning
 ----------------
     * Learning strides in convolutional neural networks 
+
+ribeiro2016should
+-----------------
+"Why should i trust you?" Explaining the predictions of any classifier
+
+(Ribeiro 2016) propose Local Interpretable Model-Agnostic Explanation (LIME) for explaining black-box models.
+
+Available: https://arxiv.org/abs/1602.04938
 
 riccardo2009field
 -----------------
@@ -3018,6 +3205,20 @@ Related:
     * Also about regularization :ref:`(Hinton 2012) <hinton2012improving>`
 
 
+sun2022end
+----------
+End-to-End Performance Predictors
+
+(Sun 2022) propose end-to-end (E2E) performance predictors (E2EPP) for neural architecture search (NAS)
+
+Available: https://link.springer.com/chapter/10.1007/978-3-031-16868-0_14
+
+Related: 
+    * Discussed in :ref:`2024-07-11 - CDSAI Workshop Day 1 <2024-07-11 - CDSAI Workshop Day 1>`
+    * Similar work in HAAP :ref:`(Liu 2021) <liu2021homogeneous>`
+    * Similar work in CDP :ref:`(Liu 2022) <liu2022bridge>`
+    * Similar work in CAP :ref:`(Ji 2024) <ji2024cap>`
+
 sun2022soknl
 ------------
 SOKNL: A novel way of integrating K-nearest neighbours with adaptive random forest regression for data streams
@@ -3071,6 +3272,15 @@ Related:
     * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
     * Same author, GoogLeNet :ref:`(Szegedy 2015) <szegedy2015going>`
     * Same author, adversarial attacks on NNs :ref:`(Szegedy 2013) <szegedy2013intriguing>`
+
+tanabe2019review
+----------------
+A review of evolutionary multimodal multiobjective optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/8684299
+
+Related: 
+    * Discussed in :ref:`2024-10-24 - FASLIP <2024-10-24 - FASLIP>`
 
 tran2019genetic
 ---------------
@@ -3218,6 +3428,27 @@ Evolving deep convolutional neural networks by variable-length particle swarm op
 Related:
     * See :ref:`2022-10-27 - FASLIP<2022-10-27 - FASLIP>`
 
+wang2019patch
+-------------
+Patch-based output space adversarial learning for joint optic disc and cup segmentation
+
+(Wang 2019) propose patch-based output space adversarial learning for joint optic disc and cup segmentation.
+
+Available: https://ieeexplore.ieee.org/abstract/document/9163289
+
+References: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
+wang2020dofe
+------------
+Dofe: Domain-oriented feature embedding for generalizable fundus image segmentation on unseen datasets
+
+Available: https://ieeexplore.ieee.org/abstract/document/9163289
+
+References: 
+    * See :ref:`2024-08-29 - FASLIP <2024-08-29 - FASLIP>`
+
+
 wang2020linformer
 -----------------
 Linformer: Self-attention with linear complexity},
@@ -3237,6 +3468,15 @@ Related:
     * See :ref:`(Katharopoulos 2020) <katharopoulos2020transformers>` for linear transformers. 
     * See :ref:`(Vaswani 2017) <vaswani2017attention>` for transformer paper.
 
+wang2024population
+------------------
+Population-Level Hybridization between Roulette Wheel Selection and Tournament Selection for Particle Swarm Optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/10751699
+
+Related:
+    * Author discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
+
 watkins1992q
 ------------
 Q-learning
@@ -3254,6 +3494,15 @@ Unsupervised Predictive Memory in a Goal-Directed Agent
 
 Related:
     * See 2022-12-05 - AJCAI #01 
+
+wei2024crowdec
+--------------
+CrowdEC: Crowdsourcing-based Evolutionary Computation for Distributed Optimization
+
+Available: https://ieeexplore.ieee.org/abstract/document/10618890
+
+Related:   
+    * Mentioned in :ref:`2024-11-28 - FASLIP  <2024-11-28 - FASLIP>`
 
 weinstein2022hunter 
 -------------------
@@ -3468,6 +3717,15 @@ Related:
     * See :ref:`2023-05-03 - Deep Learning <2023-05-03 - Deep Learning>`
     * See :ref:`(Ho 2020) <ho2020denoising>` for more on diffusion models.
     * See :ref:`(Song 2020) <song2020denoising>` for more on diffusion models.
+
+zhang2023individual
+-------------------
+An individual evolutionary game model guided by global evolutionary optimization for vehicle energy station distribution
+
+Available: https://ieeexplore.ieee.org/abstract/document/10025665
+
+Related: 
+    * Discussed in :ref:`2024-11-28 - FASLIP <2024-11-28 - FASLIP>`
 
 zhao2017pyramid
 ---------------

@@ -127,6 +127,15 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
     Creates a model instance based on the model specified in the config.
+
+    Args: 
+        config: Training configuration containing model type and parameters.
+        input_dim: Dimension of the input features.
+        output_dim: Number of output classes.
+
+    Returns:
+        An instance of the specified model class initialized with the given dimensions
+        and configuration parameters.
     """
     model_class = MODEL_REGISTRY.get(config.model)
     if not model_class:
@@ -268,6 +277,14 @@ class ModelTrainer:
     ]
 
     def __init__(self, config: TrainingConfig):
+        """ Initializes the ModelTrainer with the provided configuration.
+        
+        Args: 
+            config: Training configuration containing all necessary parameters.
+        
+        Raises:
+            ValueError: If the specified dataset is not supported.
+        """
         self.config = config
         self.logger = self._setup_logging()
         self.device = torch.device(
@@ -283,7 +300,13 @@ class ModelTrainer:
         self.n_features = 2080  # This could be derived from data later if needed
 
     def _setup_logging(self) -> logging.Logger:
-        """Configures logging to file and console."""
+        """Configures logging to file and console.
+        
+        Creates a log file in the output directory with the run identifier.
+
+        Returns:
+            A configured logger instance.
+        """
         log_file = (
             Path(self.config.output).parent
             / f"{Path(self.config.output).name}_{self.config.run}.log"
@@ -308,6 +331,9 @@ class ModelTrainer:
     def pre_train(self) -> Optional[nn.Module]:
         """
         Executes the enabled pre-training tasks sequentially.
+
+        Returns: 
+            The model after the last pre-training task, or None if no tasks are enabled.
         """
         self.logger.info("Evaluating pre-training phase")
         enabled_tasks = [
@@ -373,6 +399,13 @@ class ModelTrainer:
         """
         Loads weights from a previously trained model into the current model,
         matching layers by name and shape.
+
+        Args: 
+            current_model: The model to which weights will be loaded.
+            prev_model: The previously trained model from which weights are taken.
+
+        Raises:
+            Exception: If the weight loading fails, a warning is logged and training continues from scratch.
         """
         self.logger.info(
             f"Attempting to load weights from previous model for {self.config.model}"
@@ -402,6 +435,15 @@ class ModelTrainer:
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> nn.Module:
         """
         Executes the main fine-tuning phase on the specified dataset.
+
+        Args:
+            pre_trained_model: An optional pre-trained model to adapt for fine-tuning.
+
+        Raises:
+            ValueError: If the DataModule is not set before training.
+
+        Returns:
+            The trained model instance after fine-tuning.
         """
         self.logger.info("Starting main fine-tuning phase")
         if self.data_module is None:
@@ -449,6 +491,15 @@ class ModelTrainer:
         """
         Adapts the pre-trained model for fine-tuning by loading all weights except
         for the final classification layer, which is re-initialized.
+
+        Args: 
+            finetune_model: The model to be fine-tuned.
+            pretrained_model: The pre-trained model from which weights are loaded.
+
+        Raises:
+            Exception: If the weight loading fails, a warning is logged and training continues from scratch.
+        
+        
         """
         checkpoint = pretrained_model.state_dict()
 
@@ -470,7 +521,11 @@ class ModelTrainer:
         self.logger.info("Final layer will be trained from scratch.")
 
     def _get_n_splits_for_finetune(self) -> int:
-        """Determines the number of cross-validation splits based on the dataset."""
+        """Determines the number of cross-validation splits based on the dataset.
+        
+        Returns: 
+            The number of splits for cross-validation during fine-tuning.
+        """
         if self.config.dataset == "instance-recognition":
             return 1
         if self.config.dataset == "part":
@@ -484,7 +539,11 @@ class ModelTrainer:
 
 
 def parse_arguments() -> argparse.Namespace:
-    """Parse command line arguments."""
+    """Parse command line arguments.
+    
+    Returns: 
+        Parsed command line arguments as a Namespace object.
+    """
     parser = argparse.ArgumentParser(
         prog="ModelTraining", description="Spectra Model Training Pipeline."
     )
@@ -600,7 +659,11 @@ def parse_arguments() -> argparse.Namespace:
 
 
 def main() -> None:
-    """Main execution function."""
+    """Main execution function.
+    
+    Raises:
+        Exception: If any critical error occurs during the training pipeline, it logs the error and re-raises it.
+    """
     trainer_instance = None
     try:
         args = parse_arguments()

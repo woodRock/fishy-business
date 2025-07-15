@@ -1,7 +1,12 @@
-API
-===
+API Reference
+=============
+
+This is the auto-generated API reference for the ``fish`` library.
 
 .. autosummary::
-   :toctree: generated
+   :toctree: generated/
+   :template: module.rst
+   :recursive:
 
-   gp
+   deep_learning
+   siamese

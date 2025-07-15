@@ -14,7 +14,9 @@ import os
 import sys
 
 # sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath(os.path.join("..", "..", "code", "gp")))
+# sys.path.insert(0, os.path.abspath(os.path.join("..", "..", "code", "gp")))
+sys.path.insert(0, os.path.abspath('../../code')) # Adjust path to your project's root
+print("sys.path:", sys.path)  # Debugging line to check sys.path contents
 # -- Project information -----------------------------------------------------
 
 project = "fish"
@@ -29,18 +31,20 @@ release = "0.0.1"
 
 # -- General configuration ---------------------------------------------------
 
+autosummary_generate = True
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",  # referencess - source https://sublime-and-sphinx-guide.readthedocs.io/en/latest/references.html
-    "sphinx.ext.autosummary",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = ["templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
