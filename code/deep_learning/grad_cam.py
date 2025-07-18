@@ -55,7 +55,10 @@ class GradCAM:
             input: Input to the layer
             output: Output from the layer
         """
-        self.activations = output.detach()
+        if isinstance(output, tuple):
+            self.activations = output[0].detach()
+        else:
+            self.activations = output.detach()
 
     def save_gradient(
         self, module: nn.Module, grad_input: torch.tensor, grad_output: torch.tensor
@@ -95,6 +98,8 @@ class GradCAM:
 
         # Forward pass
         model_output = self.model(input_tensor)
+        if isinstance(model_output, tuple):
+            model_output = model_output[0]
 
         # If target_class is None, use the predicted class
         if target_class is None:
@@ -113,34 +118,58 @@ class GradCAM:
         # Get activation and gradient
         if self.activations is None or self.gradients is None:
             print("Warning: Activations or gradients are None")
-            # Return dummy tensor
             return torch.zeros(
                 (input_tensor.shape[0], input_tensor.shape[2]),
                 device=input_tensor.device,
             )
 
-        # Use the activations and gradients to calculate importance
-        weights = torch.mean(self.gradients, dim=1)  # [batch_size, features]
-        batch_size = input_tensor.shape[0]
-        feature_dim = input_tensor.shape[2]
+        # Get dimensions
+        batch_size, seq_len, feature_dim = input_tensor.shape
+        activation_channels = self.activations.shape[-1]
 
-        # Create CAM map of shape [batch_size, features]
-        cam = torch.zeros((batch_size, feature_dim), device=input_tensor.device)
+        # Pool gradients based on layer type
+        if isinstance(self.target_layer, nn.Linear):
+            # For linear layers, activations are typically [batch_size, features]
+            # Gradients are [batch_size, features]
+            pooled_gradients = torch.mean(self.gradients, dim=0)
+        else:
+            # For layers with sequence dimension (e.g., attention), activations are [batch_size, seq_len, features]
+            pooled_gradients = torch.mean(self.gradients, dim=[0, 1])
 
-        # Calculate feature importance
-        for i in range(batch_size):
-            for j in range(feature_dim):
-                cam[i, j] = weights[i, j] * self.activations[i, 0, j]
+        # Weight activations with gradients
+        # Ensure activations and pooled_gradients have compatible dimensions for multiplication
+        if isinstance(self.target_layer, nn.Linear):
+            # Activations: [batch_size, features]
+            # Pooled gradients: [features]
+            # Result: [batch_size, features]
+            for i in range(activation_channels):
+                self.activations[:, i] *= pooled_gradients[i]
+            cam = self.activations
+        else:
+            # Activations: [batch_size, seq_len, features]
+            # Pooled gradients: [features]
+            # Result: [batch_size, seq_len, features]
+            for i in range(activation_channels):
+                self.activations[:, :, i] *= pooled_gradients[i]
+            # Sum over the sequence length dimension to get [batch_size, features_of_target_layer]
+            cam = torch.sum(self.activations, dim=1)
 
         # Apply ReLU and normalize
         cam = torch.nn.functional.relu(cam)
+        
+        # Resize CAM to match input feature dimension
+        if cam.shape[1] != feature_dim:
+            cam = torch.nn.functional.interpolate(
+                cam.unsqueeze(1),
+                size=feature_dim,
+                mode='linear',
+                align_corners=False
+            ).squeeze(1)
 
         # Normalize each sample independently
         for i in range(batch_size):
-            if torch.max(cam[i]) > torch.min(cam[i]):
-                cam[i] = (cam[i] - torch.min(cam[i])) / (
-                    torch.max(cam[i]) - torch.min(cam[i])
-                )
+            if torch.max(cam[i]) > 0:
+                cam[i] = (cam[i] - torch.min(cam[i])) / torch.max(cam[i])
 
         return cam
 
