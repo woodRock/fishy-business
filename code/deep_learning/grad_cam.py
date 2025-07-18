@@ -156,14 +156,11 @@ class GradCAM:
 
         # Apply ReLU and normalize
         cam = torch.nn.functional.relu(cam)
-        
+
         # Resize CAM to match input feature dimension
         if cam.shape[1] != feature_dim:
             cam = torch.nn.functional.interpolate(
-                cam.unsqueeze(1),
-                size=feature_dim,
-                mode='linear',
-                align_corners=False
+                cam.unsqueeze(1), size=feature_dim, mode="linear", align_corners=False
             ).squeeze(1)
 
         # Normalize each sample independently
