@@ -97,8 +97,9 @@ class CNN(nn.Module):
         Returns:
             x (torch.Tensor): the output tensor.
         """
-        # Add channel dimension
-        x = x.unsqueeze(1)
+        # Add channel dimension if missing (expected by Conv1d)
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
 
         # Convolutional layers
         x = self.conv_layers(x)

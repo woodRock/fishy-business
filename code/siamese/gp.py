@@ -413,13 +413,13 @@ def main():
     """ Main function to run the genetic programming algorithms."""
     # Parameters
     N_INPUTS = 2080
-    N_OUTPUTS = 32
+    N_OUTPUTS = 128
     POP_SIZE = 200
     N_GENERATIONS = 500
     N_ELITE = 5
 
     # Load and prepare data
-    from util import prepare_dataset, DataConfig
+    from .util import prepare_dataset, DataConfig
 
     train_loader, test_loader = prepare_dataset(DataConfig())
     train_data = prepare_data(train_loader)
