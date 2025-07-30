@@ -160,7 +160,11 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             output_dim=output_dim,
             hidden_dim=config.hidden_dimension,
             dropout=config.dropout,
-            device="cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu",
+            device=(
+                "cuda"
+                if torch.cuda.is_available()
+                else "mps" if torch.backends.mps.is_available() else "cpu"
+            ),
         )
     elif config.model == "lstm":
         model_args.update(
@@ -362,7 +366,9 @@ class ModelTrainer:
         self.data_module.setup()
         train_loader: DataLoader = self.data_module.get_train_dataloader()
         val_loader: Optional[DataLoader] = (
-            self.data_module.get_val_dataloader() if hasattr(self.data_module, "get_val_dataloader") else None
+            self.data_module.get_val_dataloader()
+            if hasattr(self.data_module, "get_val_dataloader")
+            else None
         )
 
         pre_train_cfg = PreTrainingConfig(
