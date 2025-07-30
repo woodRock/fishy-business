@@ -3,11 +3,11 @@ This script performs a comparative 1D Grad-CAM analysis on multiple models
 (Transformer, MOE, LSTM) trained on mass spectrometry data. It identifies the
 top 10 most important features for each model and visualizes them on a single graph.
 """
-
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import os
 from typing import List
 
@@ -78,13 +78,17 @@ def get_top_features(cam_map: torch.tensor, top_k: int = 10) -> np.ndarray:
 
 
 def plot_top_features_comparison(
-    feature_sets: List[List[int]], model_names: List[str], output_path: os.path
+    feature_sets: List[List[int]],
+    model_names: List[str],
+    mass_to_charge_ratios: np.ndarray,
+    output_path: os.path,
 ) -> None:
     """Plots the top features for multiple models on the same graph.
 
     Args:
         feature_sets: List of arrays containing top features for each model.
         model_names: List of model names corresponding to the feature sets.
+        mass_to_charge_ratios: Array of mass-to-charge ratios.
         output_path: Path to save the comparison plot.
     """
     plt.figure(figsize=(15, 8))
@@ -93,9 +97,11 @@ def plot_top_features_comparison(
 
     for i, (features, name) in enumerate(zip(feature_sets, model_names)):
         y_values = np.random.normal(loc=i, scale=jitter_strength, size=len(features))
+        # Ensure features are integers for indexing
+        features = np.array(features).astype(int)
         plt.scatter(
-            features, y_values, label=name, alpha=0.7, s=50
-        )  # Reduced size to 50
+            mass_to_charge_ratios[features], y_values, label=name, alpha=0.7, s=50
+        )
 
     plt.yticks(range(len(model_names)), model_names)
     plt.xlabel("Feature Index (m/z)")
@@ -107,6 +113,36 @@ def plot_top_features_comparison(
     plt.close()
     print(f"Saved top features comparison plot to {output_path}")
 
+def save_top_features_to_table(
+    feature_sets: List[List[int]], model_names: List[str], dataframe: pd.DataFrame
+) -> None:
+    """Saves the top features to a CSV file.
+
+    Args:
+        feature_sets: List of arrays containing top features for each model.
+        model_names: List of model names corresponding to the feature sets.
+        dataframe: DataFrame containing the original data for reference.
+    """
+    if dataframe is not None:
+        # Get the m/z values from the dataframe columns
+        mz_values = dataframe.columns[1:] 
+
+        top_features_data = []
+        for i, features in enumerate(feature_sets):
+            # Map feature indices to m/z values
+            top_mz_values = [mz_values[j] for j in features]
+            top_features_data.append(top_mz_values)
+
+        top_features_df = pd.DataFrame(
+            {
+                "Model": model_names,
+                "Top Features (m/z)": top_features_data,
+            }
+        )
+        top_features_df.to_csv("gradcam_results/top_features.csv", index=False)
+        print("Saved top features to gradcam_results/top_features.csv")
+    else:
+        print("No dataframe available to save top features.")
 
 def main():
     """Main function to run the multi-model Grad-CAM analysis."""
@@ -116,11 +152,12 @@ def main():
     # --- Data Loading ---
     data_module = create_data_module(
         file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
-        dataset_name="species",
+        dataset_name="cross-species",
         batch_size=32,
     )
     data_module.setup()
     data_loader = data_module.get_train_dataloader()
+    dataframe = data_module.get_train_dataframe()
     _, _, test_loader = prepare_data_loaders(data_loader, val_split=0.2, test_split=0.1)
 
     sample_features, _ = next(iter(test_loader))
@@ -232,13 +269,23 @@ def main():
         except Exception as e:
             print(f"An error occurred during {name} analysis: {e}")
 
+    mass_to_charge_ratios = dataframe.columns[1:].tolist()  # Adjust as needed
+    # Convert mass-to-charge ratios to float if they are strings
+    mass_to_charge_ratios = np.array(mass_to_charge_ratios)
+
     # --- Plotting ---
     os.makedirs("gradcam_results", exist_ok=True)
     if all_top_features:
         plot_top_features_comparison(
-            all_top_features, model_names, "gradcam_results/top_features_comparison.png"
+            all_top_features, 
+            model_names, 
+            mass_to_charge_ratios, # Assuming first column is m/z
+            "gradcam_results/top_features_comparison.png"
         )
 
+    # --- Save to table ---
+    if all_top_features:
+        save_top_features_to_table(all_top_features, model_names, dataframe)
 
 if __name__ == "__main__":
     main()

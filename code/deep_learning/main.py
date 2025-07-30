@@ -154,6 +154,14 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             }
         )
         return Transformer(input_dim=input_dim, output_dim=output_dim, **model_args)
+    elif config.model == "ensemble":
+        return Ensemble(
+            input_dim=input_dim,
+            output_dim=output_dim,
+            hidden_dim=config.hidden_dimension,
+            dropout=config.dropout,
+            device="cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu",
+        )
     elif config.model == "lstm":
         model_args.update(
             {"hidden_size": config.hidden_dimension, "num_layers": config.num_layers}
@@ -351,7 +359,11 @@ class ModelTrainer:
         if self.data_module is None:
             self.logger.error("Pre-training DataModule not set.")
             return None
-        train_loader, val_loader = self.data_module.setup()
+        self.data_module.setup()
+        train_loader: DataLoader = self.data_module.get_train_dataloader()
+        val_loader: Optional[DataLoader] = (
+            self.data_module.get_val_dataloader() if hasattr(self.data_module, "get_val_dataloader") else None
+        )
 
         pre_train_cfg = PreTrainingConfig(
             num_epochs=self.config.epochs,
