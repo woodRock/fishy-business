@@ -23,6 +23,8 @@ References:
 
 import torch
 import torch.nn as nn
+
+from .cnn import CNN
 from .transformer import Transformer
 from .lstm import LSTM
 from .mamba import Mamba
@@ -52,31 +54,37 @@ class Ensemble(nn.Module):
         self.device = device
 
         # Base models
-        # self.lstm = LSTM(
-        #     input_size=input_dim,
-        #     hidden_size=hidden_dim,
-        #     num_layers=4,
-        #     output_size=output_dim,
+        self.lstm = LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_dim,
+            num_layers=4,
+            output_size=output_dim,
+            dropout=dropout,
+        )
+
+        self.cnn = CNN(
+            input_size=input_dim,
+            num_classes=output_dim,
+            dropout=dropout,
+        )
+
+        # self.t1 = Transformer(
+        #     input_dim=input_dim,
+        #     output_dim=output_dim,
+        #     num_heads=2,
+        #     hidden_dim=hidden_dim,
+        #     num_layers=2,
         #     dropout=dropout,
         # )
 
-        self.t1 = Transformer(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            num_heads=2,
-            hidden_dim=hidden_dim,
-            num_layers=2,
-            dropout=dropout,
-        )
-
-        self.t2 = Transformer(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            num_heads=4,
-            hidden_dim=hidden_dim,
-            num_layers=4,
-            dropout=dropout,
-        )
+        # self.t2 = Transformer(
+        #     input_dim=input_dim,
+        #     output_dim=output_dim,
+        #     num_heads=4,
+        #     hidden_dim=hidden_dim,
+        #     num_layers=4,
+        #     dropout=dropout,
+        # )
 
         self.t3 = Transformer(
             input_dim=input_dim,
@@ -116,9 +124,12 @@ class Ensemble(nn.Module):
         x = x.to(self.device)
 
         # Get predictions from each model
-        t1 = self.t1(x)
-        t2 = self.t2(x)
+        t1 = self.lstm(x)
+        t2 = self.cnn(x)
+        # t3 = self.t1(x)
+        # t4 = self.t2(x)
         t3 = self.t3(x)
+        # mamba = self.mamba(x)
 
         # Weighted voting
         weighted_sum = (
