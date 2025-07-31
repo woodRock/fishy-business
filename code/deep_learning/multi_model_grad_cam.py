@@ -3,6 +3,7 @@ This script performs a comparative 1D Grad-CAM analysis on multiple models
 (Transformer, MOE, LSTM) trained on mass spectrometry data. It identifies the
 top 10 most important features for each model and visualizes them on a single graph.
 """
+
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -113,6 +114,7 @@ def plot_top_features_comparison(
     plt.close()
     print(f"Saved top features comparison plot to {output_path}")
 
+
 def save_top_features_to_table(
     feature_sets: List[List[int]], model_names: List[str], dataframe: pd.DataFrame
 ) -> None:
@@ -125,7 +127,7 @@ def save_top_features_to_table(
     """
     if dataframe is not None:
         # Get the m/z values from the dataframe columns
-        mz_values = dataframe.columns[1:] 
+        mz_values = dataframe.columns[1:]
 
         top_features_data = []
         for i, features in enumerate(feature_sets):
@@ -143,6 +145,7 @@ def save_top_features_to_table(
         print("Saved top features to gradcam_results/top_features.csv")
     else:
         print("No dataframe available to save top features.")
+
 
 def main():
     """Main function to run the multi-model Grad-CAM analysis."""
@@ -277,15 +280,16 @@ def main():
     os.makedirs("gradcam_results", exist_ok=True)
     if all_top_features:
         plot_top_features_comparison(
-            all_top_features, 
-            model_names, 
-            mass_to_charge_ratios, # Assuming first column is m/z
-            "gradcam_results/top_features_comparison.png"
+            all_top_features,
+            model_names,
+            mass_to_charge_ratios,  # Assuming first column is m/z
+            "gradcam_results/top_features_comparison.png",
         )
 
     # --- Save to table ---
     if all_top_features:
         save_top_features_to_table(all_top_features, model_names, dataframe)
+
 
 if __name__ == "__main__":
     main()
