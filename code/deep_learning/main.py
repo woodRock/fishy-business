@@ -37,6 +37,7 @@ from torch.utils.data import DataLoader
 
 from models import (
     Transformer,
+    TransGBoost,
     LSTM,
     CNN,
     RCNN,
@@ -107,6 +108,7 @@ class TrainingConfig:
 
 MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "transformer": Transformer,
+    "transgboost": TransGBoost,
     "lstm": LSTM,
     "cnn": CNN,
     "rcnn": RCNN,
@@ -161,6 +163,14 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             hidden_dim=config.hidden_dimension,
             dropout=config.dropout,
             device="cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu",
+        )
+    elif config.model == "transgboost":
+        return TransGBoost(
+            input_dim=input_dim,
+            num_classes=output_dim,
+            num_layers=config.num_layers,
+            hidden_dim=config.hidden_dimension,
+            lr=config.learning_rate,
         )
     elif config.model == "lstm":
         model_args.update(
@@ -300,12 +310,17 @@ class ModelTrainer:
             if torch.cuda.is_available()
             else "mps" if torch.backends.mps.is_available() else "cpu"
         )
-        self.data_module = None
-
-        if config.dataset not in self.N_CLASSES_PER_DATASET:
-            raise ValueError(f"Invalid dataset: {config.dataset}")
-        self.n_classes = self.N_CLASSES_PER_DATASET[config.dataset]
-        self.n_features = 2080  # This could be derived from data later if needed
+        if self.config.dataset not in self.N_CLASSES_PER_DATASET:
+            raise ValueError(f"Invalid dataset: {self.config.dataset}")
+        self.n_classes = self.N_CLASSES_PER_DATASET[self.config.dataset]
+        self.data_module = create_data_module(
+            file_path=config.file_path,
+            dataset_name=config.dataset,
+            batch_size=config.batch_size,
+            augmentation_config=config,
+        )
+        self.data_module.setup()
+        self.n_features = self.data_module.get_input_dim()
 
     def _setup_logging(self) -> logging.Logger:
         """Configures logging to file and console.
@@ -359,7 +374,6 @@ class ModelTrainer:
         if self.data_module is None:
             self.logger.error("Pre-training DataModule not set.")
             return None
-        self.data_module.setup()
         train_loader: DataLoader = self.data_module.get_train_dataloader()
         val_loader: Optional[DataLoader] = (
             self.data_module.get_val_dataloader() if hasattr(self.data_module, "get_val_dataloader") else None
@@ -464,7 +478,6 @@ class ModelTrainer:
                 self.config, self.n_features, self.n_classes
             )  # Return a fresh model
 
-        self.data_module.setup()
         train_loader = self.data_module.get_train_dataloader()
 
         model_to_finetune = create_model(
@@ -693,30 +706,11 @@ def main() -> None:
         )
         pre_trained_model = None
         if any_pretrain_task_enabled:
-            logger.info("Setting up pre-training data module.")
-            pretrain_data_module = create_data_module(
-                file_path=config.file_path,
-                dataset_name=config.dataset,
-                batch_size=config.batch_size,
-                augmentation_config=config,
-                is_pre_train=True,
-            )
-            trainer_instance.data_module = pretrain_data_module
             pre_trained_model = trainer_instance.pre_train()
         else:
             logger.info("Skipping pre-training phase.")
 
         # --- Fine-tuning Phase ---
-        logger.info("Setting up main fine-tuning data module.")
-        main_data_module = create_data_module(
-            file_path=config.file_path,
-            dataset_name=config.dataset,
-            batch_size=config.batch_size,
-            augmentation_config=config,
-            is_pre_train=False,
-        )
-        trainer_instance.data_module = main_data_module
-
         final_trained_model = trainer_instance.train(pre_trained_model)
         logger.info(
             f"Training pipeline completed. Final model: {type(final_trained_model).__name__}"
