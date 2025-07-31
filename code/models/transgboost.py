@@ -1,4 +1,4 @@
-""" A transformer-based gradient boosting ensemble model.
+"""A transformer-based gradient boosting ensemble model.
 
 Boosting: In this sequential approach, models are built one after another,
 where each new model attempts to correct the errors of its predecessor.
@@ -19,10 +19,18 @@ from typing import Any, Dict, Optional
 import torch
 from torch import nn
 
+
 class TransGBoost(nn.Module):
     """Transformer-based Gradient Boosting model."""
 
-    def __init__(self, input_dim: int, num_classes: int, num_layers: int = 2, hidden_dim: int = 64, lr: float = 0.1):
+    def __init__(
+        self,
+        input_dim: int,
+        num_classes: int,
+        num_layers: int = 2,
+        hidden_dim: int = 64,
+        lr: float = 0.1,
+    ):
         super(TransGBoost, self).__init__()
         self.input_dim = input_dim
         self.num_classes = num_classes
@@ -32,7 +40,12 @@ class TransGBoost(nn.Module):
         # Define a multiple transformer encoder layers
         # Each layer will be a "weak learner" in the boosting ensemble.
         self.transformer_layers = nn.ModuleList(
-            [nn.TransformerEncoderLayer(d_model=input_dim, nhead=8, dim_feedforward=hidden_dim, dropout=0.1) for _ in range(num_layers)]
+            [
+                nn.TransformerEncoderLayer(
+                    d_model=input_dim, nhead=8, dim_feedforward=hidden_dim, dropout=0.1
+                )
+                for _ in range(num_layers)
+            ]
         )
 
         # Each layer has its own output layer
@@ -74,5 +87,6 @@ class TransGBoost(nn.Module):
         # The final prediction is the sum of the predictions from all layers, scaled by the learning rate.
         final_prediction = torch.stack(predictions).sum(dim=0) * self.lr
         return final_prediction
+
 
 __all__ = ["TransGBoost"]
