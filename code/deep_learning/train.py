@@ -729,6 +729,9 @@ def _run_epoch(
         # Model specific forward pass - adjust if your VAE/Transformer has different API
         outputs = model(inputs)  # Simplified, ensure your models' forward methods align
 
+        if labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1:
+            labels_on_device = labels_on_device.argmax(dim=1)
+
         loss = criterion(outputs, labels_on_device)
         if is_training:
             loss.backward()

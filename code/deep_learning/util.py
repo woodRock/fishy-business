@@ -769,6 +769,14 @@ class DataModule:
             return DataLoader(empty_dataset, batch_size=self.batch_size)
         return self.train_loader
 
+    def get_input_dim(self) -> int:
+        """Returns the input dimension of the dataset."""
+        if self.train_loader is None:
+            self.setup()
+        if self.train_loader is not None and len(self.train_loader.dataset) > 0:
+            return self.train_loader.dataset.samples.shape[1]
+        return 0
+
     @staticmethod
     def get_num_output_features(
         dataset_name_str: str, data_processor: Optional[DataProcessor] = None
