@@ -22,11 +22,7 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
     """
     logger = logging.getLogger(__name__)
 
-    # Path for university computers
-    path = ["/", "vol", "ecrg-solar", "woodj4", "fishy-business", "data", "REIMS.xlsx"]
-    # Path for home computer
-    # path = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-    path = os.path.join(*path)
+    path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "REIMS.xlsx")
 
     # Load the dataset
     logger.info(f"Reading dataset fish: {dataset}")

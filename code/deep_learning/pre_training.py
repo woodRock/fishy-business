@@ -38,9 +38,7 @@ class PreTrainingConfig:
     """Configuration for pre-training tasks."""
 
     num_epochs: int = 100
-    file_path: str = (
-        "transformer_checkpoint.pth"  # Base path, tasks might append suffixes
-    )
+    file_path: str = "transformer_checkpoint.pth"  # Default path
     n_features: int = 2080
     chunk_size: int = 50  # For Masked Spectra Modelling
     device: Device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -164,42 +162,61 @@ class PreTrainer:
         criterion = nn.MSELoss()
         self.logger.info("Starting Masked Spectra Modelling pre-training...")
 
+        original_fc = None
+        if hasattr(self.model, "fc_out") and isinstance(self.model.fc_out, nn.Linear):
+            self.logger.info("MSM: Adapting model's final layer for reconstruction.")
+            original_fc = self.model.fc_out
+            in_features = self.model.fc_out.in_features
+            self.model.fc_out = nn.Linear(in_features, self.config.n_features).to(self.config.device)
+            self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+        else:
+            self.logger.warning(
+                "MSM: Model does not have 'fc_out: nn.Linear'. Assuming output is already configured for reconstruction."
+            )
+
         def train_step(batch_data):
             x, _ = batch_data
             x = x.to(self.config.device)
             batch_size, n_features = x.shape
-            step_loss = 0.0
-            num_chunks = 0
 
-            for start_idx in range(1, n_features, self.config.chunk_size):
-                end_idx = min(start_idx + self.config.chunk_size, n_features)
-                if start_idx >= end_idx:
-                    continue  # Should not happen with start_idx=1
+            # For each item in the batch, select a random chunk to mask
+            if n_features > self.config.chunk_size:
+                start_indices = torch.randint(0, n_features - self.config.chunk_size + 1, (batch_size,), device=self.config.device)
+            else:
+                start_indices = torch.zeros((batch_size,), dtype=torch.long, device=self.config.device)
 
-                mask = torch.zeros(
-                    batch_size, n_features, dtype=torch.bool, device=self.config.device
-                )
-                mask[:, start_idx:end_idx] = True
-                masked_x = x.clone()
-                masked_x[mask] = 0
+            mask = torch.zeros_like(x, dtype=torch.bool)
+            for i in range(batch_size):
+                start = start_indices[i]
+                end = start + self.config.chunk_size
+                mask[i, start:end] = True
 
-                self.optimizer.zero_grad()
-                # Assuming model output is (batch, n_features) for this task
-                outputs = self.model(
-                    masked_x, masked_x
-                )  # Or self.model(masked_x) if model API expects that
-                target = x[:, start_idx:end_idx]
+            masked_x = x.clone()
+            masked_x[mask] = 0
 
-                loss = criterion(outputs[:, start_idx:end_idx], target)
-                loss.backward()
-                self.optimizer.step()
-                step_loss += loss.item()
-                num_chunks += 1
-            return step_loss / num_chunks if num_chunks > 0 else 0.0
+            self.optimizer.zero_grad()
+            outputs = self.model(masked_x)
+            
+            # The loss is calculated only on the masked region
+            if torch.any(mask):
+                loss = criterion(outputs[mask], x[mask])
+            else:
+                loss = torch.tensor(0.0, device=self.config.device)
 
-        return self._perform_epoch_loop(
+            loss.backward()
+            self.optimizer.step()
+            return loss.item()
+
+        result_model = self._perform_epoch_loop(
             "MSM", train_loader, train_step, checkpoint_suffix="_msm"
         )
+
+        if original_fc is not None:
+            self.logger.info("MSM: Restoring model's original final layer.")
+            self.model.fc_out = original_fc
+            self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+
+        return result_model
 
     def _generate_contrastive_pairs_nsp(
         self, data_loader: DataLoader
