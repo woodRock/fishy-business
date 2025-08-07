@@ -119,24 +119,36 @@ def benchmark(model_name) -> pd.DataFrame:
         X, y = load_dataset(dataset_name)
         n_features = X.shape[1]
         n_classes = len(np.unique(y))
-        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(torch.from_numpy(X).float(), torch.from_numpy(y).long()), batch_size=32)
+        train_loader = torch.utils.data.DataLoader(
+            torch.utils.data.TensorDataset(
+                torch.from_numpy(X).float(), torch.from_numpy(y).long()
+            ),
+            batch_size=32,
+        )
 
         # --- Warm-up ---
         if warmup_epochs > 0:
             print(f"Running {warmup_epochs} warm-up epochs...")
             # Warm-up on a dummy model instance
-            warmup_model = get_model_instance(model_name, n_features, n_classes, device).to(device)
-            train_model(warmup_model, train_loader,
-                        torch.nn.CrossEntropyLoss(), torch.optim.Adam(warmup_model.parameters()),
-                        num_epochs=warmup_epochs, n_splits=1, n_runs=1)
+            warmup_model = get_model_instance(
+                model_name, n_features, n_classes, device
+            ).to(device)
+            train_model(
+                warmup_model,
+                train_loader,
+                torch.nn.CrossEntropyLoss(),
+                torch.optim.Adam(warmup_model.parameters()),
+                num_epochs=warmup_epochs,
+                n_splits=1,
+                n_runs=1,
+            )
             with torch.no_grad():
                 warmup_model(torch.from_numpy(X).float().to(device))
-
 
         # --- Training Time Measurement ---
         # Create a fresh model for accurate training benchmark
         model = get_model_instance(model_name, n_features, n_classes, device).to(device)
-        
+
         start_time = time.time()
         train_loader = torch.utils.data.DataLoader(
             torch.utils.data.TensorDataset(
