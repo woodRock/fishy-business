@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from .transformer import Transformer
 
+
 class Ensemble(nn.Module):
     """Simple averaging ensemble of Transformer models."""
 

@@ -167,8 +167,12 @@ class PreTrainer:
             self.logger.info("MSM: Adapting model's final layer for reconstruction.")
             original_fc = self.model.fc_out
             in_features = self.model.fc_out.in_features
-            self.model.fc_out = nn.Linear(in_features, self.config.n_features).to(self.config.device)
-            self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+            self.model.fc_out = nn.Linear(in_features, self.config.n_features).to(
+                self.config.device
+            )
+            self.optimizer = AdamW(
+                self.model.parameters(), lr=self.config.learning_rate
+            )
         else:
             self.logger.warning(
                 "MSM: Model does not have 'fc_out: nn.Linear'. Assuming output is already configured for reconstruction."
@@ -181,9 +185,16 @@ class PreTrainer:
 
             # For each item in the batch, select a random chunk to mask
             if n_features > self.config.chunk_size:
-                start_indices = torch.randint(0, n_features - self.config.chunk_size + 1, (batch_size,), device=self.config.device)
+                start_indices = torch.randint(
+                    0,
+                    n_features - self.config.chunk_size + 1,
+                    (batch_size,),
+                    device=self.config.device,
+                )
             else:
-                start_indices = torch.zeros((batch_size,), dtype=torch.long, device=self.config.device)
+                start_indices = torch.zeros(
+                    (batch_size,), dtype=torch.long, device=self.config.device
+                )
 
             mask = torch.zeros_like(x, dtype=torch.bool)
             for i in range(batch_size):
@@ -196,7 +207,7 @@ class PreTrainer:
 
             self.optimizer.zero_grad()
             outputs = self.model(masked_x)
-            
+
             # The loss is calculated only on the masked region
             if torch.any(mask):
                 loss = criterion(outputs[mask], x[mask])
@@ -214,7 +225,9 @@ class PreTrainer:
         if original_fc is not None:
             self.logger.info("MSM: Restoring model's original final layer.")
             self.model.fc_out = original_fc
-            self.optimizer = AdamW(self.model.parameters(), lr=self.config.learning_rate)
+            self.optimizer = AdamW(
+                self.model.parameters(), lr=self.config.learning_rate
+            )
 
         return result_model
 
