@@ -10,7 +10,7 @@ class ProjectionHead(nn.Module):
     def __init__(
         self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float
     ) -> None:
-        """ Initializes the projection head with a sequence of layers."""
+        """Initializes the projection head with a sequence of layers."""
         super().__init__()
         self.net = nn.Sequential(
             nn.LayerNorm(input_dim),
@@ -24,7 +24,7 @@ class ProjectionHead(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """ Forward pass through the projection head."""
+        """Forward pass through the projection head."""
         return F.normalize(self.net(x), dim=1)
 
 
@@ -32,7 +32,7 @@ class SimCLRModel(nn.Module):
     """Combines an encoder with a projection head to form the full SimCLR model."""
 
     def __init__(self, encoder: nn.Module, config) -> None:
-        """ Initializes the SimCLR model with an encoder and a projection head."""
+        """Initializes the SimCLR model with an encoder and a projection head."""
         super().__init__()
         self.encoder = encoder
         self.projector = ProjectionHead(
@@ -45,7 +45,7 @@ class SimCLRModel(nn.Module):
     def forward(
         self, x1: torch.Tensor, x2: Optional[torch.Tensor] = None
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
-        """ Forward pass through the SimCLR model."""
+        """Forward pass through the SimCLR model."""
         z1 = self.encoder(x1)
         h1 = self.projector(z1)
         if x2 is not None:
@@ -59,12 +59,12 @@ class SimCLRLoss(nn.Module):
     """Normalized Temperature-scaled Cross-Entropy loss (NT-Xent)."""
 
     def __init__(self, temperature: float):
-        """ Initializes the NT-Xent loss function with a temperature parameter."""
+        """Initializes the NT-Xent loss function with a temperature parameter."""
         super().__init__()
         self.temperature = temperature
 
     def forward(self, z1: torch.Tensor, z2: torch.Tensor):
-        """ Forward pass to compute the NT-Xent loss."""
+        """Forward pass to compute the NT-Xent loss."""
         batch_size = z1.shape[0]
         features = torch.cat([z1, z2], dim=0)
         similarity = F.cosine_similarity(

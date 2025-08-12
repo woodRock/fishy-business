@@ -3,10 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+
 class PerformerAttention(nn.Module):
     """Performer-style attention using Random Feature Attention (RFA)."""
 
-    def __init__(self, input_dim: int, num_heads: int, num_random_features: int = 256) -> None:
+    def __init__(
+        self, input_dim: int, num_heads: int, num_random_features: int = 256
+    ) -> None:
         """Initialize the PerformerAttention layer.
 
         Args:
@@ -47,8 +50,14 @@ class PerformerAttention(nn.Module):
 
         # Apply random features
         # (batch_size, num_heads, seq_len, num_random_features)
-        q_prime = torch.exp(torch.matmul(q, self.random_features) - 0.5 * q.pow(2).sum(dim=-1, keepdim=True))
-        k_prime = torch.exp(torch.matmul(k, self.random_features) - 0.5 * k.pow(2).sum(dim=-1, keepdim=True))
+        q_prime = torch.exp(
+            torch.matmul(q, self.random_features)
+            - 0.5 * q.pow(2).sum(dim=-1, keepdim=True)
+        )
+        k_prime = torch.exp(
+            torch.matmul(k, self.random_features)
+            - 0.5 * k.pow(2).sum(dim=-1, keepdim=True)
+        )
 
         # Compute approximate attention
         # (batch_size, num_heads, num_random_features, head_dim)
@@ -58,10 +67,16 @@ class PerformerAttention(nn.Module):
 
         # Normalize (similar to softmax)
         # (batch_size, num_heads, seq_len, num_random_features)
-        norm_factor = torch.matmul(q_prime, k_prime.sum(dim=-2, keepdim=True).transpose(-1, -2))
+        norm_factor = torch.matmul(
+            q_prime, k_prime.sum(dim=-2, keepdim=True).transpose(-1, -2)
+        )
         attn_output = attn_output / (norm_factor + 1e-6)
 
-        attn_output = attn_output.permute(0, 2, 1, 3).contiguous().view(batch_size, seq_len, self.input_dim)
+        attn_output = (
+            attn_output.permute(0, 2, 1, 3)
+            .contiguous()
+            .view(batch_size, seq_len, self.input_dim)
+        )
         output = self.out_proj(attn_output)
         return output
 
@@ -71,10 +86,10 @@ class Performer(nn.Module):
 
     def __init__(
         self,
-        input_dim: int, # Raw input features per time step (e.g., 2080 for REIMS data)
+        input_dim: int,  # Raw input features per time step (e.g., 2080 for REIMS data)
         output_dim: int,
         num_heads: int,
-        hidden_dim: int, # Dimension of the internal representation and attention blocks
+        hidden_dim: int,  # Dimension of the internal representation and attention blocks
         num_layers: int = 1,
         dropout: float = 0.1,
         num_random_features: int = 256,
@@ -89,11 +104,16 @@ class Performer(nn.Module):
         self.input_projection = nn.Linear(input_dim, hidden_dim)
 
         self.attention_layers = nn.ModuleList(
-            [PerformerAttention(hidden_dim, num_heads, num_random_features) for _ in range(num_layers)]
+            [
+                PerformerAttention(hidden_dim, num_heads, num_random_features)
+                for _ in range(num_layers)
+            ]
         )
 
         self.feed_forward = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim * 4), # Common practice for feed-forward size
+            nn.Linear(
+                hidden_dim, hidden_dim * 4
+            ),  # Common practice for feed-forward size
             nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim * 4, hidden_dim),
@@ -108,7 +128,7 @@ class Performer(nn.Module):
         # Ensure input has 3 dimensions [batch_size, seq_length, features_per_step]
         # Here, seq_length is 1, and features_per_step is 2080
         if x.dim() == 2:
-            x = x.unsqueeze(1) # (batch_size, 1, 2080)
+            x = x.unsqueeze(1)  # (batch_size, 1, 2080)
 
         # Project input features to hidden_dim
         # x shape: (batch_size, 1, 2080) -> (batch_size, 1, hidden_dim)

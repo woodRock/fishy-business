@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from transformers import LongformerModel, LongformerConfig
 
+
 class Longformer(nn.Module):
     """
     A Longformer model for sequential data.
@@ -9,15 +10,16 @@ class Longformer(nn.Module):
     Assumes input shape: (batch_size, sequence_length, num_features_per_step)
     For REIMS data, this would typically be (batch_size, 2080, 1).
     """
+
     def __init__(
         self,
         input_dim: int,  # This will be num_features_per_step (e.g., 1 for REIMS intensity)
         output_dim: int,
         num_heads: int,
-        hidden_dim: int, # Corresponds to Longformer's hidden_size
-        num_layers: int = 1, # Corresponds to Longformer's num_hidden_layers
+        hidden_dim: int,  # Corresponds to Longformer's hidden_size
+        num_layers: int = 1,  # Corresponds to Longformer's num_hidden_layers
         dropout: float = 0.1,
-        attention_window: int = 128, # Specific to Longformer
+        attention_window: int = 128,  # Specific to Longformer
     ) -> None:
         super().__init__()
 
@@ -37,12 +39,16 @@ class Longformer(nn.Module):
             attention_probs_dropout_prob=dropout,
             # vocab_size is not directly relevant for continuous input, but required
             # Set to a dummy value or adjust if using tokenization
-            vocab_size=2, # Minimum vocab_size to satisfy nn.Embedding assertion
-            pad_token_id=0, # Must be within vocab_size
+            vocab_size=2,  # Minimum vocab_size to satisfy nn.Embedding assertion
+            pad_token_id=0,  # Must be within vocab_size
         )
 
         # If input_dim (features_per_step) is not equal to hidden_dim, project it
-        self.input_projection = nn.Linear(input_dim, hidden_dim) if input_dim != hidden_dim else nn.Identity()
+        self.input_projection = (
+            nn.Linear(input_dim, hidden_dim)
+            if input_dim != hidden_dim
+            else nn.Identity()
+        )
 
         self.longformer = LongformerModel(config)
 
@@ -53,7 +59,7 @@ class Longformer(nn.Module):
         # Ensure input has 3 dimensions [batch_size, sequence_length, features_per_step]
         if x.dim() == 2:
             # Assuming input is (batch_size, sequence_length) and features_per_step is 1
-            x = x.unsqueeze(-1) # (batch_size, sequence_length, 1)
+            x = x.unsqueeze(-1)  # (batch_size, sequence_length, 1)
 
         # Project input features to hidden_dim if necessary
         x = self.input_projection(x)
@@ -74,5 +80,6 @@ class Longformer(nn.Module):
         # Final classification
         x = self.fc_out(x)
         return x
+
 
 __all__ = ["Longformer"]
