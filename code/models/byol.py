@@ -1,14 +1,15 @@
-""" BYOL (Bootstrap Your Own Latent) model implementation.
+"""BYOL (Bootstrap Your Own Latent) model implementation.
 
 This module defines the BYOL model architecture, which consists of an online network and a target network.
 The online network is updated with backpropagation, while the target network is updated using a momentum
 update mechanism. The model is designed for self-supervised learning tasks, particularly in computer vision.
 
 References:
-1.  Grill, J. B., Strub, F., Altché, F., Tallec, C., Richemond, P., Buchatskaya, E., ... & Valko, M. (2020). 
-    Bootstrap your own latent-a new approach to self-supervised learning. 
+1.  Grill, J. B., Strub, F., Altché, F., Tallec, C., Richemond, P., Buchatskaya, E., ... & Valko, M. (2020).
+    Bootstrap your own latent-a new approach to self-supervised learning.
     Advances in neural information processing systems, 33, 21271-21284.
 """
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
