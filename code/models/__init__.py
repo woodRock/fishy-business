@@ -30,7 +30,6 @@ from .tcn import TCN
 from .transformer import Transformer, MultiHeadAttention
 from .vae import VAE
 from .wavenet import WaveNet
-from .transgboost import TransGBoost
 from .hybrid import Hybrid
 from .longformer import Longformer
 from .performer import Performer

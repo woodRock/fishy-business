@@ -39,7 +39,6 @@ from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 from models import (
     Transformer,
-    TransGBoost,
     LSTM,
     CNN,
     RCNN,
@@ -110,7 +109,6 @@ class TrainingConfig:
 
 MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "transformer": Transformer,
-    "transgboost": TransGBoost,
     "lstm": LSTM,
     "cnn": CNN,
     "rcnn": RCNN,
@@ -169,14 +167,6 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
                 if torch.cuda.is_available()
                 else "mps" if torch.backends.mps.is_available() else "cpu"
             ),
-        )
-    elif config.model == "transgboost":
-        return TransGBoost(
-            input_dim=input_dim,
-            num_classes=output_dim,
-            num_layers=config.num_layers,
-            hidden_dim=config.hidden_dimension,
-            lr=config.learning_rate,
         )
     elif config.model == "lstm":
         model_args.update(
