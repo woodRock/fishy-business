@@ -31,3 +31,11 @@ from .transformer import Transformer, MultiHeadAttention
 from .vae import VAE
 from .wavenet import WaveNet
 from .transgboost import TransGBoost
+from .hybrid import Hybrid
+from .longformer import Longformer
+from .performer import Performer
+from .moco import MoCoModel, MoCoLoss
+from .byol import BYOLModel, BYOLLoss
+from .simsiam import SimSiamModel, SimSiamLoss
+from .barlow_twins import BarlowTwinsModel, BarlowTwinsLoss
+from .simclr import SimCLRModel, SimCLRLoss

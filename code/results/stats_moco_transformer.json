@@ -1,0 +1,76 @@
+{
+    "config": {
+        "temperature": 0.55,
+        "projection_dim": 256,
+        "embedding_dim": 256,
+        "learning_rate": 3.5e-05,
+        "weight_decay": 1e-06,
+        "batch_size": 16,
+        "num_epochs": 1000,
+        "input_dim": 2080,
+        "num_heads": 8,
+        "hidden_dim": 256,
+        "num_layers": 6,
+        "dropout": 0.18,
+        "num_runs": 3,
+        "patience": 100,
+        "encoder_type": "transformer",
+        "contrastive_method": "moco",
+        "moco_dim": 256,
+        "moco_k": 65536,
+        "moco_m": 0.999,
+        "moco_mlp": false,
+        "byol_projection_dim": 256,
+        "byol_hidden_dim": 4096,
+        "byol_m": 0.996,
+        "simsiam_projection_dim": 2048,
+        "simsiam_hidden_dim": 512,
+        "barlow_twins_projection_dim": 8192,
+        "barlow_twins_lambda": 0.005
+    },
+    "stats": {
+        "train_loss": {
+            "mean": 9.472222222222221,
+            "std": 0.004725349736960617
+        },
+        "train_accuracy": {
+            "mean": 0.7152777777777778,
+            "std": 0.038351947976344655
+        },
+        "val_loss": {
+            "mean": 9.503309461805555,
+            "std": 0.016977783091279824
+        },
+        "val_accuracy": {
+            "mean": 0.7777777777777777,
+            "std": 0.06440012844094237
+        },
+        "epoch": {
+            "mean": 4.0,
+            "std": 0.816496580927726
+        }
+    },
+    "folds": [
+        {
+            "train_loss": 9.466634114583334,
+            "train_accuracy": 0.7604166666666667,
+            "val_loss": 9.52685546875,
+            "val_accuracy": 0.6875,
+            "epoch": 5
+        },
+        {
+            "train_loss": 9.471842447916666,
+            "train_accuracy": 0.6666666666666667,
+            "val_loss": 9.487467447916666,
+            "val_accuracy": 0.8125,
+            "epoch": 3
+        },
+        {
+            "train_loss": 9.478190104166666,
+            "train_accuracy": 0.71875,
+            "val_loss": 9.49560546875,
+            "val_accuracy": 0.8333333333333333,
+            "epoch": 4
+        }
+    ]
+}

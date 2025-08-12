@@ -31,9 +31,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional, Tuple, List, Any, Callable, Type
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 from models import (
     Transformer,
@@ -55,7 +57,7 @@ from models import (
 )
 from .pre_training import PreTrainer, PreTrainingConfig
 from .train import train_model
-from .util import create_data_module, AugmentationConfig
+from .util import create_data_module, AugmentationConfig, CustomDataset, SiameseDataset
 
 # ## 2. Configuration
 # --------------------
@@ -466,102 +468,112 @@ class ModelTrainer:
 
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> nn.Module:
         """
-        Executes the main fine-tuning phase on the specified dataset.
+        Executes the main fine-tuning phase using Group k-fold cross-validation.
 
         Args:
             pre_trained_model: An optional pre-trained model to adapt for fine-tuning.
 
-        Raises:
-            ValueError: If the DataModule is not set before training.
-
         Returns:
-            The trained model instance after fine-tuning.
+            The final trained model instance (from the last fold).
         """
-        self.logger.info("Starting main fine-tuning phase")
+        dataset_name_str = self.data_module.processor.dataset_type.name.lower().replace("_", "-")
+        if "instance-recognition" in dataset_name_str:
+            self.logger.info("Starting main fine-tuning phase with Stratified Group K-Fold Cross-Validation")
+        else:
+            self.logger.info("Starting main fine-tuning phase with Stratified K-Fold Cross-Validation")
+
         if self.data_module is None:
             self.logger.error("Fine-tuning DataModule not set.")
-            return create_model(
-                self.config, self.n_features, self.n_classes
-            )  # Return a fresh model
+            return create_model(self.config, self.n_features, self.n_classes)
 
-        train_loader = self.data_module.get_train_dataloader()
+        # Get full dataset from DataModule
+        full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
+        full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
+        
+        k_folds = 3 # User requested k=3
+        
+        if "instance-recognition" in dataset_name_str:
+            full_dataset_groups = self.data_module.processor.extract_groups(self.data_module.filtered_data)
+            cv_splitter = StratifiedGroupKFold(n_splits=k_folds)
+            split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1), full_dataset_groups)
+        else:
+            cv_splitter = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
+            split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1))
 
-        model_to_finetune = create_model(
-            self.config, self.n_features, self.n_classes
-        ).to(self.device)
+        all_fold_metrics = []
+        final_trained_model = None # To store the model from the last fold
 
-        if pre_trained_model:
-            self.logger.info("Transferring pre-trained weights for fine-tuning.")
-            self._adapt_pretrained_model_for_finetuning(
-                model_to_finetune, pre_trained_model
+        for fold, (train_index, val_index) in enumerate(cv_splitter.split(*split_args)):
+            self.logger.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
+
+            X_train, X_val = full_dataset_samples[train_index], full_dataset_samples[val_index]
+            y_train, y_val = full_dataset_labels[train_index], full_dataset_labels[val_index]
+            
+            # Determine dataset class (e.g. Siamese for instance recognition)
+            dataset_name_str = self.data_module.processor.dataset_type.name.lower().replace("_", "-")
+            dataset_class = SiameseDataset if "instance-recognition" in dataset_name_str else CustomDataset
+
+            train_dataset = dataset_class(X_train, y_train)
+            val_dataset = dataset_class(X_val, y_val)
+
+            # Check for empty datasets or lack of positive pairs for Siamese
+            if isinstance(train_dataset, SiameseDataset):
+                num_train_pairs = len(train_dataset)
+                num_train_pos_pairs = np.sum(train_dataset.paired_labels.cpu().numpy() == 1)
+                self.logger.info(f"Train pairs: {num_train_pairs} (Positive: {num_train_pos_pairs})")
+                if num_train_pairs == 0 or num_train_pos_pairs == 0:
+                    self.logger.warning(f"Fold {fold + 1} train set has no pairs or no positive pairs. Skipping fold.")
+                    continue
+            else:
+                self.logger.info(f"Train samples: {len(train_dataset)}")
+
+            if isinstance(val_dataset, SiameseDataset):
+                num_val_pairs = len(val_dataset)
+                num_val_pos_pairs = np.sum(val_dataset.paired_labels.cpu().numpy() == 1)
+                self.logger.info(f"Validation pairs: {num_val_pairs} (Positive: {num_val_pos_pairs})")
+                if num_val_pairs == 0 or num_val_pos_pairs == 0:
+                    self.logger.warning(f"Fold {fold + 1} validation set has no pairs or no positive pairs. Skipping fold.")
+                    continue
+            else:
+                self.logger.info(f"Validation samples: {len(val_dataset)}")
+
+            train_loader = DataLoader(train_dataset, batch_size=self.config.batch_size, shuffle=True, num_workers=0, pin_memory=True)
+            val_loader = DataLoader(val_dataset, batch_size=self.config.batch_size, shuffle=False, num_workers=0, pin_memory=True) # No shuffle for val
+
+            model_to_finetune = create_model(self.config, self.n_features, self.n_classes).to(self.device)
+
+            if pre_trained_model:
+                self.logger.info("Transferring pre-trained weights for fine-tuning.")
+                self._adapt_pretrained_model_for_finetuning(model_to_finetune, pre_trained_model)
+
+            criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+            optimizer = torch.optim.AdamW(model_to_finetune.parameters(), lr=self.config.learning_rate)
+
+            trained_model_instance, metrics = train_model(
+                model=model_to_finetune,
+                train_loader=train_loader,
+                val_loader=val_loader, # Pass validation loader
+                criterion=criterion,
+                optimizer=optimizer,
+                num_epochs=self.config.epochs,
+                patience=self.config.early_stopping,
+                is_augmented=self.config.data_augmentation,
+                device=self.device,
             )
+            all_fold_metrics.append(metrics)
+            final_trained_model = trained_model_instance # Keep the last one
 
-        criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-        optimizer = torch.optim.AdamW(
-            model_to_finetune.parameters(), lr=self.config.learning_rate
-        )
+        self.logger.info("Cross-Validation finished.")
+        
+        if all_fold_metrics:
+            # Aggregate and log cross-validation results
+            avg_metrics = {k: np.mean([m[k] for m in all_fold_metrics]) for k in all_fold_metrics[0]}
+            self.logger.info(f"Average metrics across {k_folds} folds: {avg_metrics}")
+            # You might want to save these aggregated metrics to a file
+        else:
+            self.logger.warning("No folds completed successfully to aggregate metrics.")
 
-        trained_model_instance, _ = train_model(
-            model=model_to_finetune,
-            train_loader=train_loader,
-            criterion=criterion,
-            optimizer=optimizer,
-            n_splits=self._get_n_splits_for_finetune(),
-            n_runs=30,  # This could be configurable
-            num_epochs=self.config.epochs,
-            patience=self.config.early_stopping,
-            is_augmented=self.config.data_augmentation,
-            device=self.device,
-        )
-        self.logger.info("Main fine-tuning finished.")
-        return trained_model_instance
-
-    def _adapt_pretrained_model_for_finetuning(
-        self, finetune_model: nn.Module, pretrained_model: nn.Module
-    ):
-        """
-        Adapts the pre-trained model for fine-tuning by loading all weights except
-        for the final classification layer, which is re-initialized.
-
-        Args:
-            finetune_model: The model to be fine-tuned.
-            pretrained_model: The pre-trained model from which weights are loaded.
-
-        Raises:
-            Exception: If the weight loading fails, a warning is logged and training continues from scratch.
-
-
-        """
-        checkpoint = pretrained_model.state_dict()
-
-        # Heuristic to find the final layer's weights and biases.
-        # This might need adjustment if model architectures change significantly.
-        final_layer_keys = [
-            k for k in checkpoint if "fc" in k or "classifier" in k or "output" in k
-        ]
-
-        # Remove final layer keys from checkpoint
-        for key in final_layer_keys:
-            if key in checkpoint:
-                del checkpoint[key]
-
-        missing, unexpected = finetune_model.load_state_dict(checkpoint, strict=False)
-        self.logger.info("Loaded backbone weights from pre-trained model.")
-        self.logger.warning(f"Fine-tuning model missing keys: {missing}")
-        self.logger.warning(f"Fine-tuning model unexpected keys: {unexpected}")
-        self.logger.info("Final layer will be trained from scratch.")
-
-    def _get_n_splits_for_finetune(self) -> int:
-        """Determines the number of cross-validation splits based on the dataset.
-
-        Returns:
-            The number of splits for cross-validation during fine-tuning.
-        """
-        if self.config.dataset == "instance-recognition":
-            return 1
-        if self.config.dataset == "part":
-            return 3
-        return 5  # Default for "species", "oil", etc.
+        return final_trained_model
 
 
 # ## 5. Argument Parsing
