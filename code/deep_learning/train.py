@@ -262,7 +262,6 @@ def train_model(
     return final_model_on_device, averaged_metrics
 
 
-
 def _calculate_averaged_metrics(
     all_runs_metrics_accumulator: List[Dict], logger: logging.Logger
 ) -> Dict:
@@ -744,14 +743,18 @@ def _run_epoch(
         outputs = model(inputs)  # Simplified, ensure your models' forward methods align
 
         # Prepare labels for loss and metrics
-        if labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1: # one-hot to index
+        if (
+            labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1
+        ):  # one-hot to index
             actual_indices = labels_on_device.argmax(dim=1)
-        elif labels_on_device.dim() > 1: # [batch, 1] to [batch]
+        elif labels_on_device.dim() > 1:  # [batch, 1] to [batch]
             actual_indices = labels_on_device.squeeze(-1)
         else:
             actual_indices = labels_on_device
 
-        loss = criterion(outputs, actual_indices.long()) # Ensure long type for CrossEntropy
+        loss = criterion(
+            outputs, actual_indices.long()
+        )  # Ensure long type for CrossEntropy
         if is_training:
             loss.backward()
             optimizer.step()

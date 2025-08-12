@@ -616,8 +616,8 @@ class DataProcessor:
     def extract_groups(self, data: pd.DataFrame) -> np.ndarray:
         """Extracts group labels from the sample names in the 'm/z' column."""
         # Assumes group is the part of the name before the first '_'
-        sample_names = data['m/z'].astype(str)
-        groups = sample_names.str.split('_').str[0]
+        sample_names = data["m/z"].astype(str)
+        groups = sample_names.str.split("_").str[0]
         return groups.to_numpy()
 
 

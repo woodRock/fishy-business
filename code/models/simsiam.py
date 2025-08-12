@@ -2,10 +2,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class SimSiamModel(nn.Module):
     """SimSiam model with an encoder, projector, and predictor."""
 
-    def __init__(self, encoder: nn.Module, encoder_output_dim: int, projection_dim: int = 2048, hidden_dim: int = 512):
+    def __init__(
+        self,
+        encoder: nn.Module,
+        encoder_output_dim: int,
+        projection_dim: int = 2048,
+        hidden_dim: int = 512,
+    ):
         super().__init__()
 
         # online network
@@ -18,7 +25,7 @@ class SimSiamModel(nn.Module):
             nn.BatchNorm1d(projection_dim),
             nn.ReLU(),
             nn.Linear(projection_dim, projection_dim),
-            nn.BatchNorm1d(projection_dim, affine=False) # No affine for last BN
+            nn.BatchNorm1d(projection_dim, affine=False),  # No affine for last BN
         )
         self.predictor = nn.Sequential(
             nn.Linear(projection_dim, hidden_dim, bias=False),
@@ -41,11 +48,21 @@ class SimSiamModel(nn.Module):
 
 class SimSiamLoss(nn.Module):
     """SimSiam loss function."""
+
     def __init__(self):
         super(SimSiamLoss, self).__init__()
 
-    def forward(self, p1: torch.Tensor, z2: torch.Tensor, p2: torch.Tensor, z1: torch.Tensor):
-        loss = -(F.cosine_similarity(p1, z2, dim=-1).mean() + F.cosine_similarity(p2, z1, dim=-1).mean()) * 0.5
+    def forward(
+        self, p1: torch.Tensor, z2: torch.Tensor, p2: torch.Tensor, z1: torch.Tensor
+    ):
+        loss = (
+            -(
+                F.cosine_similarity(p1, z2, dim=-1).mean()
+                + F.cosine_similarity(p2, z1, dim=-1).mean()
+            )
+            * 0.5
+        )
         return loss
+
 
 __all__ = ["SimSiamModel", "SimSiamLoss"]

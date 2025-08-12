@@ -3,11 +3,21 @@ import torch.nn as nn
 import torch.nn.functional as F
 import copy
 
+
 class MoCoModel(nn.Module):
     """MoCo model with a query encoder, key encoder, and a momentum mechanism."""
 
-    def __init__(self, encoder: nn.Module, encoder_output_dim: int, dim: int = 256, K: int = 65536, m: float = 0.999, T: float = 0.07, mlp: bool = False):
-        """ 
+    def __init__(
+        self,
+        encoder: nn.Module,
+        encoder_output_dim: int,
+        dim: int = 256,
+        K: int = 65536,
+        m: float = 0.999,
+        T: float = 0.07,
+        mlp: bool = False,
+    ):
+        """
         dim: feature dimension (default: 256)
         K: queue size; number of negative keys (default: 65536)
         m: moco momentum of updating key encoder (default: 0.999)
@@ -29,22 +39,26 @@ class MoCoModel(nn.Module):
             self.projector_q = nn.Sequential(
                 nn.Linear(encoder_output_dim, encoder_output_dim),
                 nn.ReLU(),
-                nn.Linear(encoder_output_dim, dim)
+                nn.Linear(encoder_output_dim, dim),
             )
             self.projector_k = nn.Sequential(
                 nn.Linear(encoder_output_dim, encoder_output_dim),
                 nn.ReLU(),
-                nn.Linear(encoder_output_dim, dim)
+                nn.Linear(encoder_output_dim, dim),
             )
         else:
             self.projector_q = nn.Linear(encoder_output_dim, dim)
             self.projector_k = nn.Linear(encoder_output_dim, dim)
 
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
+        for param_q, param_k in zip(
+            self.encoder_q.parameters(), self.encoder_k.parameters()
+        ):
             param_k.data.copy_(param_q.data)
             param_k.requires_grad = False  # no gradient for key encoder
 
-        for param_q, param_k in zip(self.projector_q.parameters(), self.projector_k.parameters()):
+        for param_q, param_k in zip(
+            self.projector_q.parameters(), self.projector_k.parameters()
+        ):
             param_k.data.copy_(param_q.data)
             param_k.requires_grad = False  # no gradient for key projector
 
@@ -57,11 +71,15 @@ class MoCoModel(nn.Module):
     @torch.no_grad()
     def _momentum_update_key_encoder(self):
         """Momentum update of the key encoder"""
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
-            param_k.data = param_k.data * self.m + param_q.data * (1. - self.m)
+        for param_q, param_k in zip(
+            self.encoder_q.parameters(), self.encoder_k.parameters()
+        ):
+            param_k.data = param_k.data * self.m + param_q.data * (1.0 - self.m)
 
-        for param_q, param_k in zip(self.projector_q.parameters(), self.projector_k.parameters()):
-            param_k.data = param_k.data * self.m + param_q.data * (1. - self.m)
+        for param_q, param_k in zip(
+            self.projector_q.parameters(), self.projector_k.parameters()
+        ):
+            param_k.data = param_k.data * self.m + param_q.data * (1.0 - self.m)
 
     @torch.no_grad()
     def _dequeue_and_enqueue(self, keys):
@@ -71,13 +89,13 @@ class MoCoModel(nn.Module):
         assert self.K % batch_size == 0  # for simplicity
 
         # replace the keys at ptr (dequeue and enqueue)
-        self.queue[:, ptr:ptr + batch_size] = keys.T
+        self.queue[:, ptr : ptr + batch_size] = keys.T
         ptr = (ptr + batch_size) % self.K  # move pointer
 
         self.queue_ptr[0] = ptr
 
     def forward(self, im_q: torch.Tensor, im_k: torch.Tensor):
-        """ 
+        """
         im_q: a batch of query images
         im_k: a batch of key images
         """
@@ -99,15 +117,16 @@ class MoCoModel(nn.Module):
 
 class MoCoLoss(nn.Module):
     """MoCo loss function."""
+
     def __init__(self, T: float = 0.07):
         super(MoCoLoss, self).__init__()
         self.T = T
 
     def forward(self, q: torch.Tensor, k: torch.Tensor, queue: torch.Tensor):
         # positive logits: Nx1
-        l_pos = torch.einsum('nc,nc->n', [q, k]).unsqueeze(-1)
+        l_pos = torch.einsum("nc,nc->n", [q, k]).unsqueeze(-1)
         # negative logits: NxK
-        l_neg = torch.einsum('nc,ck->nk', [q, queue.detach()])
+        l_neg = torch.einsum("nc,ck->nk", [q, queue.detach()])
 
         # logits: Nx(1+K)
         logits = torch.cat([l_pos, l_neg], dim=1) / self.T
@@ -117,5 +136,6 @@ class MoCoLoss(nn.Module):
 
         loss = F.cross_entropy(logits, labels)
         return loss
+
 
 __all__ = ["MoCoModel", "MoCoLoss"]

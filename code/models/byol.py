@@ -3,10 +3,18 @@ import torch.nn as nn
 import torch.nn.functional as F
 import copy
 
+
 class BYOLModel(nn.Module):
     """BYOL model with online and target networks, and a predictor."""
 
-    def __init__(self, encoder: nn.Module, encoder_output_dim: int, projection_dim: int = 256, hidden_dim: int = 4096, m: float = 0.996):
+    def __init__(
+        self,
+        encoder: nn.Module,
+        encoder_output_dim: int,
+        projection_dim: int = 256,
+        hidden_dim: int = 4096,
+        m: float = 0.996,
+    ):
         super().__init__()
 
         self.m = m
@@ -30,22 +38,30 @@ class BYOLModel(nn.Module):
         self.target_encoder = copy.deepcopy(encoder)
         self.target_projector = copy.deepcopy(self.online_projector)
 
-        for param_q, param_k in zip(self.online_encoder.parameters(), self.target_encoder.parameters()):
+        for param_q, param_k in zip(
+            self.online_encoder.parameters(), self.target_encoder.parameters()
+        ):
             param_k.data.copy_(param_q.data)
             param_k.requires_grad = False  # no gradient for target encoder
 
-        for param_q, param_k in zip(self.online_projector.parameters(), self.target_projector.parameters()):
+        for param_q, param_k in zip(
+            self.online_projector.parameters(), self.target_projector.parameters()
+        ):
             param_k.data.copy_(param_q.data)
             param_k.requires_grad = False  # no gradient for target projector
 
     @torch.no_grad()
     def _momentum_update_target_network(self):
         """Momentum update of the target network"""
-        for param_ol, param_tg in zip(self.online_encoder.parameters(), self.target_encoder.parameters()):
-            param_tg.data = param_tg.data * self.m + param_ol.data * (1. - self.m)
+        for param_ol, param_tg in zip(
+            self.online_encoder.parameters(), self.target_encoder.parameters()
+        ):
+            param_tg.data = param_tg.data * self.m + param_ol.data * (1.0 - self.m)
 
-        for param_ol, param_tg in zip(self.online_projector.parameters(), self.target_projector.parameters()):
-            param_tg.data = param_tg.data * self.m + param_ol.data * (1. - self.m)
+        for param_ol, param_tg in zip(
+            self.online_projector.parameters(), self.target_projector.parameters()
+        ):
+            param_tg.data = param_tg.data * self.m + param_ol.data * (1.0 - self.m)
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor):
         # online network
@@ -66,13 +82,17 @@ class BYOLModel(nn.Module):
 
 class BYOLLoss(nn.Module):
     """BYOL loss function."""
+
     def __init__(self):
         super(BYOLLoss, self).__init__()
 
-    def forward(self, p1: torch.Tensor, z2: torch.Tensor, p2: torch.Tensor, z1: torch.Tensor):
+    def forward(
+        self, p1: torch.Tensor, z2: torch.Tensor, p2: torch.Tensor, z1: torch.Tensor
+    ):
         loss1 = F.cosine_similarity(p1, z2.detach(), dim=-1).mean()
         loss2 = F.cosine_similarity(p2, z1.detach(), dim=-1).mean()
-        loss = 2 - loss1 - loss2 # Maximize cosine similarity, so minimize 2 - cos_sim
+        loss = 2 - loss1 - loss2  # Maximize cosine similarity, so minimize 2 - cos_sim
         return loss
+
 
 __all__ = ["BYOLModel", "BYOLLoss"]
