@@ -1,10 +1,10 @@
-""" MoCo model implementation for self-supervised learning.
+"""MoCo model implementation for self-supervised learning.
 
 This module defines the MoCo model architecture, which includes a query encoder, a key encoder, and a momentum mechanism for self-supervised learning tasks, particularly in computer vision.
 
 References:
 1.  He, K., Fan, H., Wu, Y., Xie, S., & Girshick, R. (2020).
-    Momentum contrast for unsupervised visual representation learning. 
+    Momentum contrast for unsupervised visual representation learning.
     In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 9729-9738).
 """
 
