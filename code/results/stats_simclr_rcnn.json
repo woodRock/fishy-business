@@ -1,0 +1,64 @@
+{
+    "config": {
+        "temperature": 0.55,
+        "projection_dim": 256,
+        "embedding_dim": 256,
+        "learning_rate": 3.5e-05,
+        "weight_decay": 1e-06,
+        "batch_size": 16,
+        "num_epochs": 1000,
+        "input_dim": 2080,
+        "num_heads": 8,
+        "hidden_dim": 256,
+        "num_layers": 6,
+        "dropout": 0.18,
+        "num_runs": 3,
+        "patience": 100,
+        "encoder_type": "rcnn"
+    },
+    "stats": {
+        "train_loss": {
+            "mean": 3.39967053466373,
+            "std": 0.007053612460421585
+        },
+        "train_accuracy": {
+            "mean": 0.5243055555555557,
+            "std": 0.004910463758239896
+        },
+        "val_loss": {
+            "mean": 3.489844878514608,
+            "std": 0.07019234101257717
+        },
+        "val_accuracy": {
+            "mean": 0.6805555555555557,
+            "std": 0.025983731852596774
+        },
+        "epoch": {
+            "mean": 88.0,
+            "std": 34.66987164671943
+        }
+    },
+    "folds": [
+        {
+            "train_loss": 3.409627159436544,
+            "train_accuracy": 0.53125,
+            "val_loss": 3.5867727597554526,
+            "val_accuracy": 0.6458333333333334,
+            "epoch": 111
+        },
+        {
+            "train_loss": 3.3952207962671914,
+            "train_accuracy": 0.5208333333333334,
+            "val_loss": 3.4599332014719644,
+            "val_accuracy": 0.6875,
+            "epoch": 114
+        },
+        {
+            "train_loss": 3.394163648287455,
+            "train_accuracy": 0.5208333333333334,
+            "val_loss": 3.4228286743164062,
+            "val_accuracy": 0.7083333333333333,
+            "epoch": 39
+        }
+    ]
+}

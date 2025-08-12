@@ -613,13 +613,20 @@ class DataProcessor:
 
         return X, y
 
+    def extract_groups(self, data: pd.DataFrame) -> np.ndarray:
+        """Extracts group labels from the sample names in the 'm/z' column."""
+        # Assumes group is the part of the name before the first '_'
+        sample_names = data['m/z'].astype(str)
+        groups = sample_names.str.split('_').str[0]
+        return groups.to_numpy()
+
 
 def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid conflict with torch.utils.data.Dataset
     data_processor: DataProcessor,
     file_path: Union[str, Path],
     is_pre_train: bool = False,
     augmentation_cfg: Optional[AugmentationConfig] = None,
-) -> Tuple[DataLoader, pd.DataFrame]:
+) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
     """Preprocesses data and returns a DataLoader and raw DataFrame.
 
     Args:
@@ -629,9 +636,10 @@ def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid confli
         augmentation_cfg (Optional[AugmentationConfig]): Configuration for data augmentation. If None, no augmentation is applied.
 
     Returns:
-        Tuple[DataLoader, pd.DataFrame]: A tuple containing:
+        Tuple[DataLoader, pd.DataFrame, pd.DataFrame]: A tuple containing:
             - DataLoader: The DataLoader containing the preprocessed data.
             - pd.DataFrame: The raw DataFrame containing the loaded data before filtering.
+            - pd.DataFrame: The filtered DataFrame used for processing.
     """
 
     raw_df = data_processor.load_data(file_path)
@@ -646,6 +654,7 @@ def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid confli
         return (
             DataLoader(empty_torch_dataset, batch_size=data_processor.batch_size),
             raw_df,
+            filtered_df,
         )
 
     X, y = data_processor.encode_labels(filtered_df)
@@ -660,6 +669,7 @@ def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid confli
         return (
             DataLoader(empty_torch_dataset, batch_size=data_processor.batch_size),
             raw_df,
+            filtered_df,
         )
 
     # Determine dataset class (e.g. Siamese for instance recognition)
@@ -682,7 +692,7 @@ def preprocess_data_pipeline(  # Renamed from preprocess_dataset to avoid confli
         augmenter = DataAugmenter(augmentation_cfg)
         data_loader = augmenter.augment(data_loader)  # Returns a new DataLoader
 
-    return data_loader, raw_df
+    return data_loader, raw_df, filtered_df
 
 
 class DataModule:
@@ -721,10 +731,11 @@ class DataModule:
         self.processor = DataProcessor(dataset_type_enum, batch_size)
         self.train_loader: Optional[DataLoader] = None
         self.raw_data: Optional[pd.DataFrame] = None
+        self.filtered_data: Optional[pd.DataFrame] = None
 
     def setup(self) -> None:  # Changed to not return, but set attributes
         """Loads and preprocesses data, setting up DataLoaders."""
-        self.train_loader, self.raw_data = preprocess_data_pipeline(
+        self.train_loader, self.raw_data, self.filtered_data = preprocess_data_pipeline(
             data_processor=self.processor,
             file_path=self.file_path,
             is_pre_train=self.is_pre_train,

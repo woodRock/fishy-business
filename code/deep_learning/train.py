@@ -74,15 +74,17 @@ def train_model(
     model: nn.Module,
     train_loader: DataLoader,
     criterion: nn.Module,
-    optimizer: optim.Optimizer,  # This is the optimizer instance for the initial model, used as a template
+    optimizer: optim.Optimizer,
     num_epochs: int = 100,
     patience: int = 20,
     n_splits: int = 5,
     n_runs: int = 30,
     is_augmented: bool = False,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    val_loader: Optional[DataLoader] = None,
 ) -> Tuple[nn.Module, Dict]:
-    """Trains a model using k-fold cross-validation with multiple independent runs.
+    """Trains a model. If val_loader is provided, it performs a single training run.
+    Otherwise, it performs k-fold cross-validation with multiple independent runs.
 
     Args:
         model (nn.Module): The model to train.
@@ -91,15 +93,38 @@ def train_model(
         optimizer (optim.Optimizer): Optimizer instance to use for training.
         num_epochs (int): Number of epochs to train each fold.
         patience (int): Number of epochs with no improvement after which training will be stopped.
-        n_splits (int): Number of splits for k-fold cross-validation.
-        n_runs (int): Number of independent runs to perform.
+        n_splits (int): Number of splits for k-fold cross-validation (if val_loader is not provided).
+        n_runs (int): Number of independent runs to perform (if val_loader is not provided).
         is_augmented (bool): Whether to apply data augmentation during training.
-        device (str): Device to use for training ('cuda', 'cpu', 'mps
+        device (str): Device to use for training ('cuda', 'cpu', 'mps').
+        val_loader (Optional[DataLoader]): DataLoader for the validation dataset. If provided, k-fold CV is skipped.
 
     Returns:
-        Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of averaged metrics across all runs.
+        Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of metrics.
     """
     logger = logging.getLogger(__name__)
+
+    if val_loader:
+        # If a validation loader is provided, we are in a single fold of an outer CV loop.
+        # We should not perform our own CV or runs here.
+        fold_results = _train_fold(
+            model,
+            train_loader,
+            val_loader,
+            criterion,
+            optimizer,
+            num_epochs,
+            patience,
+            device,
+            logger,
+        )
+        # The return type of train_model is Tuple[nn.Module, Dict].
+        # _train_fold returns a Dict. I need to load the best model state and return it.
+        final_model = model
+        if fold_results["best_model_state"] is not None:
+            final_model.load_state_dict(fold_results["best_model_state"])
+        # The metrics dict from _train_fold is what we want.
+        return final_model, fold_results["best_fold_metrics"]
 
     pristine_model_template_cpu = copy.deepcopy(model).cpu()
 
@@ -235,6 +260,7 @@ def train_model(
         )
 
     return final_model_on_device, averaged_metrics
+
 
 
 def _calculate_averaged_metrics(
@@ -706,19 +732,7 @@ def _run_epoch(
     device: str,
     is_training: bool,
 ) -> Dict:
-    """Runs a single epoch of training or validation.
-
-    Args:
-        model (nn.Module): The model to train or validate.
-        loader (DataLoader): DataLoader for the current epoch's dataset.
-        criterion (nn.Module): Loss function to use for training or validation.
-        optimizer (Optional[optim.Optimizer]): Optimizer instance for training; None for validation.
-        device (str): Device to use for training or validation ('cuda', 'cpu', 'mps').
-        is_training (bool): Whether this is a training epoch.
-
-    Returns:
-        Dict: A dictionary containing the average loss and metrics for the epoch, along with predictions.
-    """
+    """Runs a single epoch of training or validation."""
     total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
 
     for inputs, labels_batch in loader:
@@ -729,10 +743,15 @@ def _run_epoch(
         # Model specific forward pass - adjust if your VAE/Transformer has different API
         outputs = model(inputs)  # Simplified, ensure your models' forward methods align
 
-        if labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1:
-            labels_on_device = labels_on_device.argmax(dim=1)
+        # Prepare labels for loss and metrics
+        if labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1: # one-hot to index
+            actual_indices = labels_on_device.argmax(dim=1)
+        elif labels_on_device.dim() > 1: # [batch, 1] to [batch]
+            actual_indices = labels_on_device.squeeze(-1)
+        else:
+            actual_indices = labels_on_device
 
-        loss = criterion(outputs, labels_on_device)
+        loss = criterion(outputs, actual_indices.long()) # Ensure long type for CrossEntropy
         if is_training:
             loss.backward()
             optimizer.step()
@@ -740,11 +759,6 @@ def _run_epoch(
         total_loss += loss.item() * inputs.size(0)
 
         # Process labels and predictions for metrics
-        actual_indices = (
-            labels_on_device.argmax(dim=1)
-            if (labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1)
-            else labels_on_device
-        )
         probs = torch.softmax(outputs, dim=1)
         predicted_indices = outputs.argmax(dim=1)
 

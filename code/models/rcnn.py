@@ -110,7 +110,7 @@ class RCNN(nn.Module):
     The architecture is designed to handle 1D input data, such as time series or sequential data.
     """
 
-    def __init__(self, input_size, num_classes, dropout=0.5) -> None:
+    def __init__(self, input_dim, output_dim, dropout=0.5) -> None:
         """Initialize the RCNN model.
 
         Args:
@@ -137,7 +137,7 @@ class RCNN(nn.Module):
             nn.Linear(self.flat_features, 256),
             nn.ReLU(),
             nn.Dropout(p=dropout),
-            nn.Linear(256, num_classes),
+            nn.Linear(256, output_dim),
         )
 
     def forward(self, x):

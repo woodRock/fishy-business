@@ -54,6 +54,14 @@ class DataPreprocessor:
             return np.eye(len(encoder.classes_))[encoded]
         raise ValueError(f"Dataset type '{dataset}' not supported for encoding.")
 
+    @staticmethod
+    def extract_groups(data: pd.DataFrame) -> np.ndarray:
+        """Extracts group labels from the sample names in the 'm/z' column."""
+        # Assumes group is the part of the name before the first '_'
+        sample_names = data['m/z'].astype(str)
+        groups = sample_names.str.split('_').str[0]
+        return groups.to_numpy()
+
 class SiameseDataset(Dataset):
     """Generates positive and negative pairs from samples."""
     def __init__(self, samples: np.ndarray, labels: np.ndarray):
@@ -64,16 +72,20 @@ class SiameseDataset(Dataset):
     def _generate_pairs(self) -> Tuple[List[Tuple[int, int]], np.ndarray]:
         pairs, labels = [], []
         n_samples = len(self.samples)
-        label_indices = [np.where(r==1)[0][0] for r in self.labels]
+
+        if n_samples < 2:
+            return [], np.empty((0, 2), dtype=np.float32)
+
+        label_indices = [np.where(r == 1)[0][0] for r in self.labels]
 
         for i in range(n_samples):
             for j in range(i + 1, n_samples):
                 pairs.append((i, j))
                 is_similar = 1 if label_indices[i] == label_indices[j] else 0
                 labels.append(is_similar)
-        
+
         # one-hot: [dissimilar, similar] -> index 0=dissimilar, 1=similar
-        one_hot_labels = np.eye(2)[np.array(labels)]
+        one_hot_labels = np.eye(2)[np.array(labels, dtype=np.int64)]
         return pairs, one_hot_labels
 
     def __len__(self) -> int:
@@ -114,42 +126,3 @@ class BalancedBatchSampler(Sampler):
     def __len__(self) -> int:
         return self.num_batches
 
-def prepare_dataset(config: DataConfig) -> Tuple[DataLoader, DataLoader]:
-    """Prepares and debugs the data pipeline."""
-    preprocessor = DataPreprocessor()
-    print("--- Starting Data Preparation ---")
-    data = preprocessor.load_data(config)
-    print(f"✅ Step 1: Loaded data successfully. Shape: {data.shape}")
-
-    filtered_data = preprocessor.filter_data(data, config.dataset_name)
-    print(f"✅ Step 2: Filtered data. Shape after filtering: {filtered_data.shape}")
-    if filtered_data.empty: raise ValueError("FATAL: All data removed after filtering.")
-
-    features = filtered_data.drop("m/z", axis=1).to_numpy()
-    labels = preprocessor.encode_labels(filtered_data, config.dataset_name)
-    print(f"✅ Step 3: Extracted features and labels. Samples: {len(features)}, Unique Classes: {labels.shape[1]}")
-
-    X_train, X_val, y_train, y_val = train_test_split(
-        features, labels, stratify=labels, test_size=config.test_size, random_state=42
-    )
-    print(f"✅ Step 4: Split data. Training samples: {len(X_train)}, Validation samples: {len(X_val)}")
-
-    train_dataset = SiameseDataset(X_train, y_train)
-    val_dataset = SiameseDataset(X_val, y_val)
-    
-    num_train_pos = np.sum(np.argmax(train_dataset.pair_labels, axis=1) == 1)
-    num_val_pos = np.sum(np.argmax(val_dataset.pair_labels, axis=1) == 1)
-    print(f"✅ Step 5: Generated pairs. Train: {len(train_dataset)} (Positive: {num_train_pos}). Val: {len(val_dataset)} (Positive: {num_val_pos})")
-
-    train_sampler = BalancedBatchSampler(train_dataset.pair_labels, config.batch_size)
-    val_sampler = BalancedBatchSampler(val_dataset.pair_labels, config.batch_size)
-
-    if len(train_sampler) == 0:
-        raise ValueError("FATAL: Training sampler has 0 batches. Not enough positive/negative pairs to form a balanced batch. Try reducing batch size or adjusting the train/test split.")
-
-    # CORRECTED DataLoader initialization
-    train_loader = DataLoader(train_dataset, batch_sampler=train_sampler)
-    val_loader = DataLoader(val_dataset, batch_sampler=val_sampler)
-    
-    print("--- Data Preparation Finished ---")
-    return train_loader, val_loader
