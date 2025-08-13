@@ -21,6 +21,7 @@ from .ensemble import Ensemble
 from .kan import KAN
 from .lstm import LSTM
 from .mamba import Mamba
+from .mamba import SiameseMamba
 from .MOE import MOE
 from .ode import ODE
 from .rcnn import RCNN

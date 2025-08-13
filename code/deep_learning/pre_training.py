@@ -475,6 +475,65 @@ class PreTrainer:
         noisy_spectra[torch.rand_like(spectra) < mask_prob] = 0
         return noisy_spectra
 
+    def _random_crop(self, X_batch: torch.Tensor, crop_size: float) -> torch.Tensor:
+        """Randomly crops a portion of the spectra.
+
+        Args:
+            X_batch: A torch.Tensor representing a batch of samples.
+            crop_size: Proportion of original size to crop to.
+
+        Returns:
+            A torch.Tensor containing the cropped batch of samples.
+        """
+        n_samples, n_features = X_batch.shape
+        cropped_batch = torch.zeros_like(X_batch)
+        for i in range(n_samples):
+            spectrum = X_batch[i]
+            crop_len = int(n_features * crop_size)
+            if crop_len == 0: # Handle case where crop_size is too small
+                cropped_batch[i] = spectrum
+                continue
+            start = torch.randint(0, n_features - crop_len + 1, (1,)).item()
+            end = start + crop_len
+            cropped_spectrum = spectrum[start:end]
+            # Pad back to original size
+            if start > 0:
+                cropped_spectrum = F.pad(cropped_spectrum, (start, n_features - end), 'constant')
+            else:
+                cropped_spectrum = F.pad(cropped_spectrum, (0, n_features - end), 'constant')
+            cropped_batch[i] = cropped_spectrum
+        return cropped_batch
+
+    def _random_flip(self, X_batch: torch.Tensor) -> torch.Tensor:
+        """Randomly flips the spectra horizontally.
+
+        Args:
+            X_batch: A torch.Tensor representing a batch of samples.
+
+        Returns:
+            A torch.Tensor containing the flipped batch of samples.
+        """
+        flipped_batch = X_batch.clone()
+        if random.random() < 0.5: # 50% chance to flip
+            flipped_batch = torch.flip(flipped_batch, dims=[1])
+        return flipped_batch
+
+    def _random_permutation(self, X_batch: torch.Tensor) -> torch.Tensor:
+        """Randomly permutes the features of the spectra.
+
+        Args:
+            X_batch: A torch.Tensor representing a batch of samples.
+
+        Returns:
+            A torch.Tensor containing the permuted batch of samples.
+        """
+        permuted_batch = X_batch.clone()
+        n_samples, n_features = X_batch.shape
+        for i in range(n_samples):
+            permutation = torch.randperm(n_features, device=X_batch.device)
+            permuted_batch[i] = permuted_batch[i, permutation]
+        return permuted_batch
+
     def pre_train_denoising_autoencoder(
         self,
         train_loader: DataLoader,
@@ -945,12 +1004,39 @@ class PreTrainer:
             """
             spectra_anchor, _ = batch_data
             spectra_anchor = spectra_anchor.to(self.config.device)
-            view1 = self._add_gaussian_noise(
-                self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05
-            )
-            view2 = self._add_gaussian_noise(
-                self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05
-            )
+
+            # Define a list of augmentation functions to apply
+            augmentation_functions = []
+            if self.config.noise_enabled:
+                augmentation_functions.append(lambda x: self._add_gaussian_noise(x, std_dev=self.config.noise_level))
+            if self.config.shift_enabled:
+                # Shift needs to be applied carefully, as it's per-sample in DataAugmenter
+                # For simplicity, I'll skip shift and scale for now, as they are more complex
+                # to apply in a generic way to a batch without iterating.
+                pass
+            if self.config.scale_enabled:
+                pass
+            if self.config.crop_enabled:
+                augmentation_functions.append(lambda x: self._random_crop(x, crop_size=self.config.crop_size))
+            if self.config.flip_enabled:
+                augmentation_functions.append(self._random_flip)
+            if self.config.permutation_enabled:
+                augmentation_functions.append(self._random_permutation)
+            
+            # Always include intensity scaling as it's a core SimCLR augmentation
+            augmentation_functions.append(lambda x: self._intensity_scaling(x))
+
+            # Apply two random augmentations to create view1 and view2
+            # Ensure at least two augmentations are available
+            if len(augmentation_functions) < 2:
+                self.logger.warning("Not enough augmentation functions enabled for effective SimCLR. Using default noise and intensity scaling.")
+                view1 = self._add_gaussian_noise(self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05)
+                view2 = self._add_gaussian_noise(self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05)
+            else:
+                # Randomly select two distinct augmentation functions
+                aug_fn1, aug_fn2 = random.sample(augmentation_functions, 2)
+                view1 = aug_fn1(spectra_anchor.clone())
+                view2 = aug_fn2(spectra_anchor.clone())
 
             self.optimizer.zero_grad()
             if (
@@ -959,8 +1045,8 @@ class PreTrainer:
                 emb1 = self.model.projection_head(self.model.get_embedding(view1))
                 emb2 = self.model.projection_head(self.model.get_embedding(view2))
             else:  # Assumes model's main output (after fc adaptation) is the embedding
-                emb1 = self.model(view1, view1)  # Or self.model(view1)
-                emb2 = self.model(view2, view2)  # Or self.model(view2)
+                emb1 = self.model(view1)
+                emb2 = self.model(view2)
 
             loss = self._nt_xent_loss(emb1, emb2, temperature)
             loss.backward()
