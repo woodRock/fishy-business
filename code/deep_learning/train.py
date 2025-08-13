@@ -686,7 +686,17 @@ def _train_fold(
             best_model_state_cpu = OrderedDict(
                 (k, v.clone().cpu()) for k, v in model.state_dict().items()
             )
-            best_fold_metrics = copy.deepcopy(val_results["metrics"])
+            best_fold_metrics = {
+                "train_loss": train_results["loss"],
+                "train_accuracy": train_results["metrics"].get(
+                    "balanced_accuracy", float("nan")
+                ),
+                "val_loss": val_results["loss"],
+                "val_accuracy": val_results["metrics"].get(
+                    "balanced_accuracy", float("nan")
+                ),
+                "epoch": epoch,
+            }
             epochs_no_improve = 0
             logger.debug(f"E{epoch+1}: New best val_acc: {best_val_accuracy:.4f}")
         else:
@@ -705,9 +715,28 @@ def _train_fold(
 
     # Ensure defaults if no training happened or no improvement
     if best_fold_metrics is None:
-        best_fold_metrics = (
-            val_results.get("metrics", {}) if "val_results" in locals() else {}
-        )
+        # If no best model was found (e.g., due to early stopping before any improvement)
+        # use the metrics from the last epoch, or empty dict if no epochs ran.
+        if epoch_log["train_losses"]:
+            best_fold_metrics = {
+                "train_loss": epoch_log["train_losses"][-1],
+                "train_accuracy": epoch_log["train_metrics"][-1].get(
+                    "balanced_accuracy", float("nan")
+                ),
+                "val_loss": epoch_log["val_losses"][-1],
+                "val_accuracy": epoch_log["val_metrics"][-1].get(
+                    "balanced_accuracy", float("nan")
+                ),
+                "epoch": epoch,  # Use the last epoch number
+            }
+        else:
+            best_fold_metrics = {
+                "train_loss": float("nan"),
+                "train_accuracy": float("nan"),
+                "val_loss": float("nan"),
+                "val_accuracy": float("nan"),
+                "epoch": float("nan"),
+            }
     if best_model_state_cpu is None:
         best_model_state_cpu = OrderedDict(
             (k, v.clone().cpu()) for k, v in model.state_dict().items()

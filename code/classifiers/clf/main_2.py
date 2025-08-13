@@ -1,7 +1,11 @@
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.model_selection import (
+    StratifiedKFold,
+    train_test_split,
+    StratifiedGroupKFold,
+)  # Added StratifiedGroupKFold
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.tree import DecisionTreeClassifier as dt
@@ -53,6 +57,22 @@ def calculate_class_weights(y):
     return class_weights
 
 
+def create_pairs(X_raw, y_raw):
+    features = []
+    labels = []
+    all_possible_pairs = [
+        ((a, a_idx), (b, b_idx))
+        for a_idx, a in enumerate(X_raw)
+        for b_idx, b in enumerate(X_raw[a_idx + 1 :])
+    ]
+    for (a, a_idx), (b, b_idx) in all_possible_pairs:
+        concatenated = np.concatenate((a, b))
+        label = int(y_raw[a_idx] == y_raw[b_idx])
+        features.append(concatenated)
+        labels.append(label)
+    return np.array(features), np.array(labels)
+
+
 def run_experiments(datasets, runs=30, k=5):
     results = {}
 
@@ -60,10 +80,12 @@ def run_experiments(datasets, runs=30, k=5):
         print(f"Dataset: {dataset}")
 
         # Load the dataset
-        X, y = load_dataset(dataset)
+        X_original, y_original, groups_original = load_dataset(dataset)  # Modified
 
         # Class weights are proportional to the inverse frequency of each class.
-        class_weights = calculate_class_weights(y)
+        class_weights = calculate_class_weights(
+            y_original
+        )  # Modified to use y_original
 
         # The models run experiments for.
         models = {
@@ -78,23 +100,23 @@ def run_experiments(datasets, runs=30, k=5):
                 max_iter=10000,
                 class_weight=class_weights,
             ),
-            "ensemble": VotingClassifier(
-                estimators=[
-                    ("knn", knn(class_weights=class_weights)),
-                    ("dt", dt(class_weight=class_weights)),
-                    ("lor", lor(max_iter=20000, class_weight=class_weights)),
-                    ("lda", lda(class_weights=class_weights)),
-                    ("nb", nb(class_weights=class_weights)),
-                    ("rf", rf(class_weight=class_weights)),
-                    (
-                        "svm",
-                        svm(
-                            kernel="linear", max_iter=10000, class_weight=class_weights
-                        ),
-                    ),
-                ],
-                voting="hard",
-            ),
+            # "ensemble": VotingClassifier(
+            #     estimators=[
+            #         ("knn", knn(class_weights=class_weights)),
+            #         ("dt", dt(class_weight=class_weights)),
+            #         ("lor", lor(max_iter=20000, class_weight=class_weights)),
+            #         ("lda", lda(class_weights=class_weights)),
+            #         ("nb", nb(class_weights=class_weights)),
+            #         ("rf", rf(class_weight=class_weights)),
+            #         (
+            #             "svm",
+            #             svm(
+            #                 kernel="linear", max_iter=10000, class_weight=class_weights
+            #             ),
+            #         ),
+            #     ],
+            #     voting="hard",
+            # ),
         }
 
         dataset_results = {}
@@ -106,13 +128,32 @@ def run_experiments(datasets, runs=30, k=5):
             train_accs = []
             test_accs = []
 
-            for _ in range(runs):
-                # Split the data into train and test split (50%-50%).
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
+            # Use StratifiedGroupKFold
+            sgkf = StratifiedGroupKFold(n_splits=k, shuffle=True, random_state=42)
+
+            # Iterate through folds
+            for fold, (train_index, test_index) in enumerate(
+                sgkf.split(X_original, y_original, groups_original)
+            ):
+                print(f"  Fold {fold + 1}")  # Added fold print
+
+                # Split the data into train and test sets for this fold (raw, unpaired)
+                X_train_raw, X_test_raw = (
+                    X_original[train_index],
+                    X_original[test_index],
+                )
+                y_train_raw, y_test_raw = (
+                    y_original[train_index],
+                    y_original[test_index],
+                )
+
+                # For all datasets, use raw data directly
+                X_train, y_train = X_train_raw, y_train_raw
+                X_test, y_test = X_test_raw, y_test_raw
 
                 # Normalize the dataset between [0,1].
                 scaler = MinMaxScaler()
-                scaler.fit(X_train, y_train)
+                # Fit scaler only on training data, transform both
                 X_train = scaler.fit_transform(X_train)
                 X_test = scaler.transform(X_test)
 
@@ -127,8 +168,12 @@ def run_experiments(datasets, runs=30, k=5):
                 train_acc = balanced_accuracy_score(y_train, train_pred)
                 test_acc = balanced_accuracy_score(y_test, test_pred)
 
-                train_accs.append(np.mean(train_acc))
-                test_accs.append(np.mean(test_acc))
+                train_accs.append(
+                    train_acc
+                )  # Removed np.mean, as it's already a single score per fold
+                test_accs.append(
+                    test_acc
+                )  # Removed np.mean, as it's already a single score per fold
 
             # Store the balanced accuracy as a percentage.
             train_mean = np.mean(train_accs) * 100
@@ -152,7 +197,7 @@ def run_experiments(datasets, runs=30, k=5):
 if __name__ == "__main__":
     # datasets = ["species", "part", "oil", "cross-species"]
     datasets = ["instance-recognition"]
-    results = run_experiments(datasets)
+    results = run_experiments(datasets, k=3)  # Set k=3 as requested
 
     # Print results (for verification)
     for dataset, classifiers in results.items():

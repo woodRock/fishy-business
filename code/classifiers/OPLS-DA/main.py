@@ -6,28 +6,51 @@ from sklearn.metrics import balanced_accuracy_score, classification_report
 from pyopls import OPLS
 from data import load_dataset
 
+from sklearn.model_selection import StratifiedGroupKFold
+
+
+def create_pairs(X_raw, y_raw):
+    features = []
+    labels = []
+    all_possible_pairs = [
+        ((a, a_idx), (b, b_idx))
+        for a_idx, a in enumerate(X_raw)
+        for b_idx, b in enumerate(X_raw[a_idx + 1 :])
+    ]
+    for (a, a_idx), (b, b_idx) in all_possible_pairs:
+        concatenated = np.concatenate((a, b))
+        label = int(y_raw[a_idx] == y_raw[b_idx])
+        features.append(concatenated)
+        labels.append(label)
+    return np.array(features), np.array(labels)
+
+
 dataset = "instance-recognition"
-X, y = load_dataset(dataset=dataset)
+X_original, y_original, groups_original = load_dataset(dataset=dataset)
 
 # 1. Standardize the features
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+X_scaled = scaler.fit_transform(X_original)
 
-# 2. Stratified K-Fold Cross-Validation setup (k=5)
-skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+# 2. Stratified Group K-Fold Cross-Validation setup (k=5)
+sgkf = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=42)
 
 # Lists to store results
 train_balanced_accuracies = []
 test_balanced_accuracies = []
 fold = 1
 
-for train_index, test_index in skf.split(X_scaled, y):
+for train_index, test_index in sgkf.split(X_scaled, y_original, groups_original):
     print(f"Fold {fold}")
     fold += 1
 
     # Split the data into train and test sets for this fold
-    X_train, X_test = X_scaled[train_index], X_scaled[test_index]
-    y_train, y_test = y[train_index], y[test_index]
+    X_train_raw, X_test_raw = X_scaled[train_index], X_scaled[test_index]
+    y_train_raw, y_test_raw = y_original[train_index], y_original[test_index]
+
+    # Create pairs for training and testing
+    X_train, y_train = create_pairs(X_train_raw, y_train_raw)
+    X_test, y_test = create_pairs(X_test_raw, y_test_raw)
 
     # 3. Apply OPLS-DA for feature extraction
     n_components = 1  # Number of predictive components to extract
@@ -53,7 +76,7 @@ for train_index, test_index in skf.split(X_scaled, y):
     test_balanced_accuracies.append(test_bal_acc)
 
     print(f"Train Balanced Accuracy: {train_bal_acc * 100:.2f}%")
-    print(f"Test Balanced Accuracy: {test_bal_acc * 100:.2f}%\n")
+    print(f"Test Balanced Accuracy: {test_bal_acc * 100:.2f}%")
 
 # 7. Final Evaluation: Mean balanced accuracy across all folds
 mean_train_bal_acc = np.mean(train_balanced_accuracies)

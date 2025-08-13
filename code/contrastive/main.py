@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Main entry point for training SimCLR models with various encoders.
+Main script for training and evaluating contrastive models using contrastive learning methods.
 
-This script orchestrates the training and evaluation of a Siamese network using the SimCLR
-framework. It supports multiple encoder architectures, handles data preparation, runs
-training for a specified number of iterations, and provides detailed statistics and
-visualizations.
+This script supports various contrastive learning methods such as SimCLR, MoCo, BYOL, SimSiam, and Barlow Twins.
+It includes model definitions, loss functions, and training routines.
+It is designed to be flexible and extensible, allowing for easy integration of new models and methods.
+It also includes utilities for data preprocessing, model evaluation, and visualization of results.
 
-Example Usage:
---------------
-# Train a SimCLR model with a Transformer encoder
-python -m siamese.main --encoder_type transformer --num_runs 10
-
-# Train with a CNN encoder and different hyperparameters
-python -m siamese.main --encoder_type cnn --num_runs 30 --batch_size 32 --learning_rate 1e-4
+Example usage:
+    python3 -m contrastive.main --encoder_type transformer --contrastive_method simclr --num_runs 3 --batch_size 16
 
 """
 
@@ -56,13 +51,18 @@ from models import (
     TCN,
     WaveNet,
     Hybrid,
-    Longformer,
+    # Longformer,
     Performer,
-    SimCLRModel, SimCLRLoss,
-    MoCoModel, MoCoLoss,
-    BYOLModel, BYOLLoss,
-    SimSiamModel, SimSiamLoss,
-    BarlowTwinsModel, BarlowTwinsLoss,
+    SimCLRModel,
+    SimCLRLoss,
+    MoCoModel,
+    MoCoLoss,
+    BYOLModel,
+    BYOLLoss,
+    SimSiamModel,
+    SimSiamLoss,
+    BarlowTwinsModel,
+    BarlowTwinsLoss,
 )
 from .util import DataConfig, DataPreprocessor, SiameseDataset, BalancedBatchSampler
 
@@ -90,7 +90,7 @@ class ContrastiveConfig:
     num_runs: int = 30
     patience: int = 100
     encoder_type: str = "transformer"
-    contrastive_method: str = "simclr" # New: specifies the contrastive learning method
+    contrastive_method: str = "simclr"  # New: specifies the contrastive learning method
 
     # MoCo specific
     moco_dim: int = 256
@@ -110,6 +110,19 @@ class ContrastiveConfig:
     # Barlow Twins specific
     barlow_twins_projection_dim: int = 8192
     barlow_twins_lambda: float = 5e-3
+
+
+class VAEEncoderWrapper(nn.Module):
+    def __init__(self, vae_model: nn.Module):
+        super().__init__()
+        self.vae_model = vae_model
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # VAE.forward returns recon_x, mu, logvar, class_probs
+        # We need the latent representation 'z' for contrastive learning
+        mu, logvar = self.vae_model.encode(x)
+        z = self.vae_model.reparameterize(mu, logvar)
+        return z
 
 
 # ## 3. Core SimCLR Components
@@ -141,7 +154,7 @@ ENCODER_REGISTRY: Dict[str, Type[nn.Module]] = {
     "tcn": TCN,
     "wavenet": WaveNet,
     "hybrid": Hybrid,
-    "longformer": Longformer,
+    # "longformer": Longformer,
     "performer": Performer,
 }
 
@@ -161,26 +174,8 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
         raise ValueError(f"Unsupported encoder type: {config.encoder_type}")
 
     args = {
-        "input_dim": config.input_dim,
-        "output_dim": config.embedding_dim,
         "dropout": config.dropout,
     }
-    # Special handling for Hybrid, Longformer, and Performer
-    if config.encoder_type in ["hybrid", "longformer", "performer"]:
-        args.update(
-            {
-                "hidden_dim": config.hidden_dim,
-                "num_layers": config.num_layers,
-                "num_heads": config.num_heads,
-            }
-        )
-        if config.encoder_type == "longformer":
-            args["attention_window"] = 32 # Default attention window for Longformer
-            args["hidden_dim"] = 64
-            args["num_layers"] = 1
-            args["num_heads"] = 4
-        elif config.encoder_type == "performer":
-            args["num_random_features"] = 256 # Default for Performer
 
     if config.encoder_type == "cnn":
         return encoder_class(
@@ -188,45 +183,89 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
             num_classes=config.embedding_dim,
             dropout=config.dropout,
         )
-    if config.encoder_type in ["transformer", "lstm", "moe", "rwkv"]:
+    elif config.encoder_type == "mamba":
         args.update(
             {
-                "hidden_dim": config.hidden_dim,
-                "num_layers": config.num_layers,
+                "input_dim": config.input_dim,  # Add input_dim
+                "d_model": config.embedding_dim,  # Output dimension of the encoder
+                "d_state": config.hidden_dim,
+                "d_conv": 4,  # Default value for d_conv
+                "expand": 2,  # Default value for expand
+                "depth": config.num_layers,
             }
         )
-    if config.encoder_type == "ensemble":
-        args.update(
-            {
-                "hidden_dim": config.hidden_dim,
-            }
-        )
-    if config.encoder_type in ["transformer", "moe"]:
-        args["num_heads"] = config.num_heads
-    if config.encoder_type == "mamba":
-        args.update({"d_state": config.hidden_dim, "num_layers": config.num_layers})
-    if config.encoder_type == "kan":
+    elif config.encoder_type == "kan":
         args.update(
             {
                 "hidden_dim": config.hidden_dim,
                 "num_layers": config.num_layers,
                 "num_inner_functions": 10,
+                "dropout_rate": args.pop("dropout"),  # Rename dropout to dropout_rate
             }
         )
-    if config.encoder_type == "vae":
-        args.update({"hidden_dim": config.hidden_dim, "latent_dim": config.hidden_dim})
-    if config.encoder_type == "moe":
-        args.update({"num_experts": 4, "k": 2})
-
-    simple_models = ["rcnn", "dense", "ode", "tcn", "wavenet"]
-    if config.encoder_type in simple_models:
-        return encoder_class(
-            input_dim=args["input_dim"],
-            output_dim=args["output_dim"],
-            dropout=args["dropout"],
+    elif config.encoder_type == "vae":
+        args["input_size"] = config.input_dim  # Rename input_dim to input_size
+        args["num_classes"] = config.embedding_dim  # Rename output_dim to num_classes
+        args["latent_dim"] = config.hidden_dim  # Map hidden_dim to latent_dim
+    elif config.encoder_type == "moe":
+        args.update(
+            {
+                "hidden_dim": config.hidden_dim,
+                "num_layers": config.num_layers,
+                "num_heads": config.num_heads,
+                "num_experts": 4,
+                "k": 2,
+            }
+        )
+    elif config.encoder_type in ["transformer", "lstm", "rwkv"]:
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
+                "hidden_dim": config.hidden_dim,
+                "num_layers": config.num_layers,
+            }
+        )
+        if config.encoder_type == "transformer":
+            args["num_heads"] = config.num_heads
+    elif config.encoder_type == "ensemble":
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
+                "hidden_dim": config.hidden_dim,
+            }
+        )
+    elif config.encoder_type in ["hybrid", "longformer", "performer"]:
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
+                "hidden_dim": config.hidden_dim,
+                "num_layers": config.num_layers,
+                "num_heads": config.num_heads,
+            }
+        )
+        if config.encoder_type == "longformer":
+            args["attention_window"] = 32  # Default attention window for Longformer
+            args["hidden_dim"] = 64
+            args["num_layers"] = 1
+            args["num_heads"] = 4
+        elif config.encoder_type == "performer":
+            args["num_random_features"] = 256  # Default for Performer
+    else:  # For simple_models and others that take input_dim, output_dim, dropout
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
+            }
         )
 
-    return encoder_class(**args)
+    encoder = encoder_class(**args)
+
+    if config.encoder_type == "vae":
+        return VAEEncoderWrapper(encoder)
+    return encoder
 
 
 def create_contrastive_model(
@@ -295,8 +334,14 @@ def create_contrastive_model(
 class ContrastiveTrainer:
     """Manages the training and evaluation of the contrastive model."""
 
-    def __init__(self, model: nn.Module, loss_fn: nn.Module, config: ContrastiveConfig, device: torch.device) -> None:
-        """ Initializes the ContrastiveTrainer."""
+    def __init__(
+        self,
+        model: nn.Module,
+        loss_fn: nn.Module,
+        config: ContrastiveConfig,
+        device: torch.device,
+    ) -> None:
+        """Initializes the ContrastiveTrainer."""
         self.model = model
         self.loss_fn = loss_fn
         self.config = config
@@ -354,7 +399,9 @@ class ContrastiveTrainer:
                         z1, z2 = self.model(x1, x2)
                         loss = self.loss_fn(z1, z2)
                     else:
-                        raise ValueError(f"Unhandled contrastive method for forward pass: {self.config.contrastive_method}")
+                        raise ValueError(
+                            f"Unhandled contrastive method for forward pass: {self.config.contrastive_method}"
+                        )
 
                 if is_training:
                     self.optimizer.zero_grad()
@@ -390,18 +437,22 @@ class ContrastiveTrainer:
                     all_h1.append(z1.detach())
                     all_h2.append(z2.detach())
                 else:
-                    logging.warning(f"Unhandled contrastive method for embedding collection: {self.config.contrastive_method}")
+                    logging.warning(
+                        f"Unhandled contrastive method for embedding collection: {self.config.contrastive_method}"
+                    )
                     # Fallback to encoder output if available, though not ideal for all methods
-                    if hasattr(self.model, 'encoder'):
+                    if hasattr(self.model, "encoder"):
                         all_h1.append(self.model.encoder(x1).detach())
                         all_h2.append(self.model.encoder(x2).detach())
                     else:
-                        logging.warning("Could not collect embeddings for accuracy calculation.")
+                        logging.warning(
+                            "Could not collect embeddings for accuracy calculation."
+                        )
 
                 all_labels.append(labels.detach())
 
         avg_loss = total_loss / len(data_loader)
-        
+
         # Only compute accuracy if embeddings were collected
         accuracy = 0.0
         if len(all_h1) > 0:
@@ -410,20 +461,24 @@ class ContrastiveTrainer:
             all_labels = torch.cat(all_labels)
 
             if is_training:
-                self.best_threshold = self._find_best_threshold(all_h1, all_h2, all_labels)
-            
-            accuracy = self._compute_accuracy(all_h1, all_h2, all_labels, self.best_threshold)
+                self.best_threshold = self._find_best_threshold(
+                    all_h1, all_h2, all_labels
+                )
+
+            accuracy = self._compute_accuracy(
+                all_h1, all_h2, all_labels, self.best_threshold
+            )
         else:
             logging.warning("Could not collect embeddings for accuracy calculation.")
 
         return avg_loss, accuracy
 
     def train_epoch(self, train_loader: DataLoader) -> Tuple[float, float]:
-        """ Runs a single training epoch."""
+        """Runs a single training epoch."""
         return self._run_epoch(train_loader, is_training=True)
 
     def evaluate_model(self, val_loader: DataLoader) -> Tuple[float, float]:
-        """ Evaluates the model on the validation set."""
+        """Evaluates the model on the validation set."""
         return self._run_epoch(val_loader, is_training=False)
 
     @staticmethod
@@ -433,7 +488,7 @@ class ContrastiveTrainer:
         """Finds the best cosine similarity threshold for classification."""
         similarities = F.cosine_similarity(h1, h2).cpu().numpy()
         true_labels = torch.argmax(labels, dim=1).cpu().numpy()
-        
+
         best_acc = 0
         best_thresh = 0
         for threshold in np.arange(0, 1, 0.01):
@@ -466,7 +521,7 @@ def visualize_batch_thresholds(
     device: torch.device,
     title_prefix: str,
     save_path: str,
-    threshold: float
+    threshold: float,
 ) -> None:
     """Visualizes cosine similarities and decision thresholds for each batch."""
     model.eval()
@@ -517,7 +572,9 @@ def visualize_batch_thresholds(
     plt.close(fig)
 
 
-def plot_runs_metrics(all_runs_metrics: List[Dict], encoder_type: str, save_path: str) -> None:
+def plot_runs_metrics(
+    all_runs_metrics: List[Dict], encoder_type: str, save_path: str
+) -> None:
     """Creates box plots of metrics across multiple runs."""
     if not all_runs_metrics:
         return
@@ -554,12 +611,14 @@ def run_single_training(
     train_loader: DataLoader,
     val_loader: DataLoader,
     base_model: SimCLRModel,
-    loss_fn: Optional[nn.Module] = None
+    loss_fn: Optional[nn.Module] = None,
 ) -> Tuple[SimCLRModel, Dict, float]:
     """Executes a single training run for a given fold."""
     logging.info(f"Starting training for fold {run_id + 1}/{config.num_runs}")
     model = copy.deepcopy(base_model).to(device)
-    trainer = ContrastiveTrainer(model=model, loss_fn=loss_fn, config=config, device=device)
+    trainer = ContrastiveTrainer(
+        model=model, loss_fn=loss_fn, config=config, device=device
+    )
     best_val_acc = 0.0
     best_metrics = {}
     patience_counter = 0
@@ -597,7 +656,21 @@ def run_single_training(
 
 
 def main(config: ContrastiveConfig):
-    """Main function to run SimCLR training with Group k-fold cross-validation."""
+    """Orchestrates the training and evaluation of contrastive learning models using Group K-fold cross-validation.
+
+    This function sets up the environment, loads and preprocesses data, and then
+    iterates through multiple cross-validation folds. For each fold, it trains
+    a contrastive learning model (e.g., SimCLR, MoCo, BYOL, SimSiam, Barlow Twins)
+    with a specified encoder architecture (e.g., Transformer, CNN, LSTM).
+    It collects and logs training and validation metrics, and saves the best
+    performing model across all runs.
+
+    Args:
+        config (ContrastiveConfig): An object containing all configuration
+            parameters for the contrastive learning experiment, including
+            model architecture, training hyperparameters, and cross-validation
+            settings.
+    """
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
@@ -635,7 +708,9 @@ def main(config: ContrastiveConfig):
     best_overall_model = None
     best_overall_val_acc = float("-inf")
 
-    for fold, (train_index, val_index) in enumerate(sgkf.split(features, np.argmax(labels, axis=1), groups=groups)):
+    for fold, (train_index, val_index) in enumerate(
+        sgkf.split(features, np.argmax(labels, axis=1), groups=groups)
+    ):
         logging.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
 
         X_train, X_val = features[train_index], features[val_index]
@@ -643,29 +718,51 @@ def main(config: ContrastiveConfig):
 
         train_dataset = SiameseDataset(X_train, y_train)
         val_dataset = SiameseDataset(X_val, y_val)
-        
-        num_train_pos = np.sum(np.argmax(train_dataset.pair_labels, axis=1) == 1) if len(train_dataset) > 0 else 0
-        num_val_pos = np.sum(np.argmax(val_dataset.pair_labels, axis=1) == 1) if len(val_dataset) > 0 else 0
-        logging.info(f"Generated pairs. Train: {len(train_dataset)} (Positive: {num_train_pos}). Val: {len(val_dataset)} (Positive: {num_val_pos})")
+
+        num_train_pos = (
+            np.sum(np.argmax(train_dataset.pair_labels, axis=1) == 1)
+            if len(train_dataset) > 0
+            else 0
+        )
+        num_val_pos = (
+            np.sum(np.argmax(val_dataset.pair_labels, axis=1) == 1)
+            if len(val_dataset) > 0
+            else 0
+        )
+        logging.info(
+            f"Generated pairs. Train: {len(train_dataset)} (Positive: {num_train_pos}). Val: {len(val_dataset)} (Positive: {num_val_pos})"
+        )
 
         if len(val_dataset) == 0 or num_val_pos == 0:
-            logging.warning(f"Fold {fold + 1} has no validation pairs or no positive validation pairs. Skipping.")
+            logging.warning(
+                f"Fold {fold + 1} has no validation pairs or no positive validation pairs. Skipping."
+            )
             continue
 
-        train_sampler = BalancedBatchSampler(train_dataset.pair_labels, config.batch_size)
+        train_sampler = BalancedBatchSampler(
+            train_dataset.pair_labels, config.batch_size
+        )
         val_sampler = BalancedBatchSampler(val_dataset.pair_labels, config.batch_size)
 
         if len(train_sampler) == 0 or len(val_sampler) == 0:
-            logging.warning(f"Fold {fold + 1} has insufficient pairs to form a batch. Skipping.")
+            logging.warning(
+                f"Fold {fold + 1} has insufficient pairs to form a batch. Skipping."
+            )
             continue
 
         train_loader = DataLoader(train_dataset, batch_sampler=train_sampler)
         val_loader = DataLoader(val_dataset, batch_sampler=val_sampler)
 
         model, metrics, threshold = run_single_training(
-            config, fold, device, train_loader, val_loader, base_model, loss_fn # Pass loss_fn
+            config,
+            fold,
+            device,
+            train_loader,
+            val_loader,
+            base_model,
+            loss_fn,  # Pass loss_fn
         )
-        
+
         if metrics:
             all_fold_metrics.append(metrics)
             if metrics["val_accuracy"] > best_overall_val_acc:
@@ -685,7 +782,9 @@ def main(config: ContrastiveConfig):
             for key in all_fold_metrics[0]
         }
         logging.info(f"Cross-validation statistics for {config.encoder_type}: {stats}")
-        with open(f"results/stats_{config.contrastive_method}_{config.encoder_type}.json", "w") as f:
+        with open(
+            f"results/stats_{config.contrastive_method}_{config.encoder_type}.json", "w"
+        ) as f:
             json.dump(
                 {"config": asdict(config), "stats": stats, "folds": all_fold_metrics},
                 f,
@@ -694,7 +793,7 @@ def main(config: ContrastiveConfig):
 
 
 if __name__ == "__main__":
-    """ Entry point for the script."""
+    """Entry point for the script."""
     parser = argparse.ArgumentParser(description="Train SimCLR models.")
     parser.add_argument(
         "--encoder_type",
@@ -702,7 +801,12 @@ if __name__ == "__main__":
         default="transformer",
         choices=ENCODER_REGISTRY.keys(),
     )
-    parser.add_argument("--num_runs", type=int, default=3, help="Number of folds for cross-validation (k).")
+    parser.add_argument(
+        "--num_runs",
+        type=int,
+        default=3,
+        help="Number of folds for cross-validation (k).",
+    )
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--learning_rate", type=float, default=3.5e-5)
     parser.add_argument(

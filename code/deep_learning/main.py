@@ -27,6 +27,8 @@ python -m deep-learning.main --model transformer --dataset species --file-path /
 import argparse
 import logging
 import time
+import json
+from dataclasses import asdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional, Tuple, List, Any, Callable, Type
@@ -39,7 +41,6 @@ from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 from models import (
     Transformer,
-    TransGBoost,
     LSTM,
     CNN,
     RCNN,
@@ -110,7 +111,6 @@ class TrainingConfig:
 
 MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "transformer": Transformer,
-    "transgboost": TransGBoost,
     "lstm": LSTM,
     "cnn": CNN,
     "rcnn": RCNN,
@@ -170,21 +170,13 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
                 else "mps" if torch.backends.mps.is_available() else "cpu"
             ),
         )
-    elif config.model == "transgboost":
-        return TransGBoost(
-            input_dim=input_dim,
-            num_classes=output_dim,
-            num_layers=config.num_layers,
-            hidden_dim=config.hidden_dimension,
-            lr=config.learning_rate,
-        )
     elif config.model == "lstm":
         model_args.update(
             {"hidden_size": config.hidden_dimension, "num_layers": config.num_layers}
         )
         return LSTM(input_size=input_dim, output_size=output_dim, **model_args)
     elif config.model in ["cnn", "rcnn"]:
-        return model_class(input_size=input_dim, num_classes=output_dim, **model_args)
+        return model_class(input_dim=input_dim, output_dim=output_dim, **model_args)
     elif config.model == "mamba":
         return Mamba(
             d_model=input_dim,
@@ -573,19 +565,20 @@ class ModelTrainer:
             else:
                 self.logger.info(f"Validation samples: {len(val_dataset)}")
 
+            pin_memory_val = True if self.device.type == "cuda" else False
             train_loader = DataLoader(
                 train_dataset,
                 batch_size=self.config.batch_size,
                 shuffle=True,
-                num_workers=0,
-                pin_memory=True,
+                num_workers=4,
+                pin_memory=pin_memory_val,
             )
             val_loader = DataLoader(
                 val_dataset,
                 batch_size=self.config.batch_size,
                 shuffle=False,
-                num_workers=0,
-                pin_memory=True,
+                num_workers=4,
+                pin_memory=pin_memory_val,
             )  # No shuffle for val
 
             model_to_finetune = create_model(
@@ -621,12 +614,27 @@ class ModelTrainer:
 
         if all_fold_metrics:
             # Aggregate and log cross-validation results
-            avg_metrics = {
+            stats = {
                 k: np.mean([m[k] for m in all_fold_metrics])
                 for k in all_fold_metrics[0]
             }
-            self.logger.info(f"Average metrics across {k_folds} folds: {avg_metrics}")
-            # You might want to save these aggregated metrics to a file
+            self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
+            # Save aggregated metrics to a file
+            results_dir = Path("results")
+            results_dir.mkdir(parents=True, exist_ok=True)
+            file_name = f"stats_{self.config.model}_{self.config.dataset}.json"
+            file_path = results_dir / file_name
+            with open(file_path, "w") as f:
+                json.dump(
+                    {
+                        "config": asdict(self.config),
+                        "stats": stats,
+                        "folds": all_fold_metrics,
+                    },
+                    f,
+                    indent=4,
+                )
+            self.logger.info(f"Aggregated metrics saved to {file_path}")
         else:
             self.logger.warning("No folds completed successfully to aggregate metrics.")
 

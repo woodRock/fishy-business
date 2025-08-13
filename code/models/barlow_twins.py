@@ -1,3 +1,16 @@
+"""Barlow Twins model and loss function implementation.
+
+This module defines the Barlow Twins model architecture and the corresponding loss function.
+It includes a model with two identical encoders and a projection head, as well as the Barlow Twins loss function.
+The model is designed for self-supervised learning tasks, particularly in computer vision.
+
+References:
+1.  Zbontar, J., Jing, L., Misra, I., LeCun, Y., & Deny, S. (2021, July).
+    Barlow twins: Self-supervised learning via redundancy reduction.
+    In International conference on machine learning (pp. 12310-12320). PMLR.
+
+"""
+
 import torch
 import torch.nn as nn
 

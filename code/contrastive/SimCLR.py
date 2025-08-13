@@ -1,6 +1,7 @@
-""" SimCLR implementation for contrastive learning.
+"""SimCLR implementation for contrastive learning.
 This module defines the encoder network, contrastive loss, training and evaluation functions.
 It uses a Siamese architecture to learn embeddings from pairs of spectra."""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,8 +14,8 @@ from sklearn.metrics import balanced_accuracy_score
 
 def setup_logger(name: str) -> logging.Logger:
     """Set up logger with both file and console handlers.
-    
-    Args: 
+
+    Args:
         name (str): Name of the logger.
 
     Returns:
@@ -57,9 +58,9 @@ class EncoderBlock(nn.Module):
     """
 
     def __init__(self, in_dim, out_dim, dropout_rate=0.1) -> None:
-        """ Initialize the encoder block.
-        
-        Args: 
+        """Initialize the encoder block.
+
+        Args:
             in_dim (int): Input dimension of the block.
             out_dim (int): Output dimension of the block.
             dropout_rate (float): Dropout rate to apply after ReLU activation.
@@ -78,9 +79,9 @@ class EncoderBlock(nn.Module):
             self.residual_proj = nn.Linear(in_dim, out_dim)
 
     def forward(self, x):
-        """ Forward pass through the encoder block.
-        
-        Args: 
+        """Forward pass through the encoder block.
+
+        Args:
             x (torch.Tensor): Input tensor of shape (batch_size, in_dim).
 
         Returns:
@@ -100,11 +101,11 @@ class EncoderNetwork(nn.Module):
         embedding_dim=512,
         dropout_rate=0.1,
     ) -> None:
-        """ Initialize the encoder network.
+        """Initialize the encoder network.
 
         This network consists of multiple encoder blocks followed by a projection head.
-        
-        Args: 
+
+        Args:
             input_dim (int): Dimension of the input features.
             hidden_dims (list): List of hidden layer dimensions.
             embedding_dim (int): Dimension of the final embedding.
@@ -136,10 +137,10 @@ class EncoderNetwork(nn.Module):
         )
 
     def forward(self, x):
-        """ Forward pass through the encoder network.
-        
-        Args: 
-            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).    
+        """Forward pass through the encoder network.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
 
         Returns:
             torch.Tensor: Normalized embeddings of shape (batch_size, embedding_dim).
@@ -158,25 +159,26 @@ class EncoderNetwork(nn.Module):
 
 
 class ContrastiveLoss(nn.Module):
-    """ Contrastive loss based on InfoNCE. """
+    """Contrastive loss based on InfoNCE."""
+
     def __init__(self, temperature=0.07) -> None:
-        """ Initialize the contrastive loss with temperature scaling.
-        
-        Args: 
+        """Initialize the contrastive loss with temperature scaling.
+
+        Args:
             temperature (float): Temperature parameter for scaling the similarity.
         """
         super().__init__()
         self.temperature = temperature
 
     def forward(self, z1, z2, labels):
-        """ Forward pass to compute the contrastive loss.
+        """Forward pass to compute the contrastive loss.
 
         A custom contrastive loss function that computes the NT-Xent Loss (InfoNCE) for two sets of embeddings.
 
-        Args: 
+        Args:
             z1 (torch.Tensor): Embeddings from the first view of the batch.
             z2 (torch.Tensor): Embeddings from the second view of the batch.
-            labels (torch.Tensor): Labels for the pairs, these are not used in the loss computation but can be useful for debugging. 
+            labels (torch.Tensor): Labels for the pairs, these are not used in the loss computation but can be useful for debugging.
         Returns:
             torch.Tensor: Computed contrastive loss.
         """
@@ -210,8 +212,8 @@ class ContrastiveLoss(nn.Module):
 
 def compute_accuracy(embeddings_1, embeddings_2, labels):
     """Basic accuracy computation.
-    
-    Args: 
+
+    Args:
         embeddings_1 (torch.Tensor): First set of embeddings.
         embeddings_2 (torch.Tensor): Second set of embeddings.
         labels (torch.Tensor): True labels for the pairs.
@@ -243,11 +245,11 @@ def train_contrastive_model(
     embedding_dim=128,
     epochs=1000,
 ) -> nn.Module:
-    """ Train a contrastive model using the provided data loaders.
+    """Train a contrastive model using the provided data loaders.
 
     This function trains a Siamese encoder network using contrastive loss.
-    
-    Args: 
+
+    Args:
         train_loader (DataLoader): DataLoader for training data.
         val_loader (DataLoader): DataLoader for validation data.
         input_dim (int): Dimension of the input features.
@@ -255,7 +257,7 @@ def train_contrastive_model(
         hidden_dims (list): List of hidden layer dimensions for the encoder.
         embedding_dim (int): Dimension of the final embedding.
         epochs (int): Number of training epochs.
-    
+
     Returns:
         nn.Module: Trained encoder network.
     """
@@ -367,7 +369,7 @@ def evaluate_model(model, loader, device):
     This function computes the embeddings for pairs of spectra, calculates the contrastive loss,
     and evaluates the accuracy of the model on the dataset.
 
-    Args: 
+    Args:
         model: Trained encoder network
         loader: DataLoader containing samples
         device: Device to compute embeddings on
@@ -446,7 +448,7 @@ def get_embeddings(
 
 
 if __name__ == "__main__":
-    """ Entry point for the script.
+    """Entry point for the script.
     Parses command line arguments, initializes the configuration, and calls the main function.
     """
     # Example usage with your SiameseDataset

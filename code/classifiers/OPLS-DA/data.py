@@ -5,7 +5,7 @@ import pandas as pd
 from typing import Iterable, Union
 
 
-def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
+def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable, Iterable]:
     """Load and prepare the dataset from an excel spreadsheet.
 
     This method loads the dataset from an excel spreadsheet.
@@ -17,7 +17,7 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
         dataset (str): the species, part, oil or cross-species dataset
 
     Returns:
-        X,y (np.array, np.array): Returns the dataset split into features X, and class labels y.
+        X,y,groups (np.array, np.array, np.array): Returns the dataset split into features X, class labels y, and group identifiers.
     """
     logger = logging.getLogger(__name__)
 
@@ -31,6 +31,8 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
     logger.info(f"Reading dataset fish: {dataset}")
     data = pd.read_excel(path)
     y = []
+    groups = []  # Initialize groups
+
     # Remove the quality control samples.
     data = data[~data["m/z"].str.contains("QC")]
 
@@ -45,6 +47,9 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
     if dataset == "species":
         # Binary encodings for class labels (1 for Hoki, 0 for Mackeral)
         y = data["m/z"].apply(lambda x: 1 if "H" in x else 0)
+        groups = data["m/z"].apply(
+            lambda x: x.split("_")[0]
+        )  # Assuming group is first part of m/z
     elif dataset == "part":
         y = data["m/z"].apply(
             lambda x: (
@@ -65,8 +70,10 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
                 )
             )
         )  # For fish parts
+        groups = data["m/z"].apply(lambda x: x.split("_")[0])
     elif dataset == "oil_simple":
         y = data["m/z"].apply(lambda x: 1 if "MO" in x else 0)
+        groups = data["m/z"].apply(lambda x: x.split("_")[0])
     elif dataset == "oil":
         # Binary encodings for class labels (1 for Oil, 0 for No Oil)
         # Oil contaminated samples contain 'MO' in their class label.
@@ -95,6 +102,7 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
                 )
             )
         )
+        groups = data["m/z"].apply(lambda x: x.split("_")[0])
     elif dataset == "oil_regression":
         # Binary encodings for class labels (1 for Oil, 0 for No Oil)
         # Oil contaminated samples contain 'MO' in their class label.
@@ -125,12 +133,14 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
                 )
             )
         )
+        groups = data["m/z"].apply(lambda x: x.split("_")[0])
     elif dataset == "cross-species":
         # Mutli-label encodings for class labels (1 for Hoki, 2 for Mackeral, 3 for Cross-species)
         # Cross-species contaminated samples contain 'HM' in their class label.
         y = data["m/z"].apply(
             lambda x: 0 if "HM" in x else (1 if "H" in x else (2 if "M" in x else None))
         )
+        groups = data["m/z"].apply(lambda x: x.split("_")[0])
     elif dataset == "instance-recognition":
         data = data[
             ~data.iloc[:, 0]
@@ -141,43 +151,36 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
                 na=False,
             )
         ]
-        X = data.iloc[:, 1:].to_numpy()
-        # Take only the class label column.
-        y = data.iloc[:, 0].to_numpy()
-        features = list()
-        labels = list()
-
-        all_possible_pairs = [
-            ((a, a_idx), (b, b_idx))
-            for a_idx, a in enumerate(X)
-            for b_idx, b in enumerate(X[a_idx + 1 :])
-        ]
-        for (a, a_idx), (b, b_idx) in all_possible_pairs:
-            concatenated = np.concatenate((a, b))
-            label = int(y[a_idx] == y[b_idx])
-            features.append(concatenated)
-            labels.append(label)
-        X, y = np.array(features), np.array(labels)
-        # We don't want onehot encoding for multi-tree GP.
-        # y = np.eye(2)[y]
-        return X, y
+        X = data.iloc[:, 1:]
+        y = data.iloc[:, 0]  # Original instance labels
+        groups = data.iloc[:, 0]  # Groups are the instance labels themselves
     else:
         # Return an excpetion if the dataset is not valid.
         raise ValueError(f"No valid dataset was specified: {dataset}")
 
     X = data.drop("m/z", axis=1)  # X contains only the features.
     y = np.array(y)
+    groups = np.array(groups)  # Convert groups to numpy array
 
     # Remove the classes that are not related to this dataset,
     # i.e. the instances whose class is None are discarded.
     xs = []
     ys = []
-    for x, y in zip(X.to_numpy(), y):
-        if y is not None and not np.isnan(y):
+    gs = []  # For groups
+    for x, y_val, g_val in zip(X.to_numpy(), y, groups):
+        if y_val is not None:
             xs.append(x)
-            ys.append(y)
+            ys.append(y_val)
+            gs.append(g_val)
     X = np.array(xs)
     y = np.array(ys)
+    groups = np.array(gs)
+
+    # Convert string groups to numerical IDs if necessary
+    if groups.dtype == "object":
+        unique_groups = np.unique(groups)
+        group_to_id = {group: i for i, group in enumerate(unique_groups)}
+        groups = np.array([group_to_id[g] for g in groups])
 
     classes, class_counts = np.unique(y, axis=0, return_counts=True)
     n_features = X.shape[1]
@@ -189,4 +192,4 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
     logger.info(f"Number of features: {n_features}")
     logger.info(f"Number of instances: {n_instances}")
     logger.info(f"Number of classes {n_classes}.")
-    return X, y
+    return X, y, groups
