@@ -45,6 +45,7 @@ from models import (
     CNN,
     RCNN,
     Mamba,
+    SiameseMamba,
     KAN,
     VAE,
     SiameseVAE,
@@ -179,14 +180,25 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     elif config.model in ["cnn", "rcnn"]:
         return model_class(input_dim=input_dim, output_dim=output_dim, **model_args)
     elif config.model == "mamba":
-        return Mamba(
-            d_model=input_dim,
-            n_classes=output_dim,
-            d_state=config.hidden_dimension,
-            d_conv=4,
-            expand=2,
-            depth=config.num_layers,
-        )
+        if "instance-recognition" in config.dataset:
+            mamba_model = Mamba(
+                input_dim=input_dim,
+                d_model=config.hidden_dimension,
+                d_state=config.hidden_dimension,
+                d_conv=4,
+                expand=2,
+                depth=config.num_layers,
+            )
+            return SiameseMamba(mamba_model)
+        else:
+            return Mamba(
+                input_dim=input_dim,
+                d_model=config.hidden_dimension,
+                d_state=config.hidden_dimension,
+                d_conv=4,
+                expand=2,
+                depth=config.num_layers,
+            )
     elif config.model == "kan":
         return KAN(
             input_dim=input_dim,
@@ -671,8 +683,8 @@ def parse_arguments() -> argparse.Namespace:
         "-fp",
         "--file-path",
         type=str,
-        # default="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
-        default="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
+        default="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        # default="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
         help="Path to the dataset file (e.g., REIMS.xlsx)",
     )
     parser.add_argument(

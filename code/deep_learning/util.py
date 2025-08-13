@@ -114,9 +114,13 @@ class AugmentationConfig:
     noise_enabled: bool = True
     shift_enabled: bool = False
     scale_enabled: bool = False
+    crop_enabled: bool = False
+    flip_enabled: bool = False
+    permutation_enabled: bool = False
     noise_level: float = 0.1  # Can be absolute or relative (see DataAugmenter)
     shift_range: float = 0.1  # Proportion of total length
     scale_range: float = 0.1  # Range around 1.0 (e.g., 0.1 means 0.9 to 1.1)
+    crop_size: float = 0.8 # Proportion of original size to crop to
 
 
 class BaseDataset(Dataset):
@@ -294,6 +298,63 @@ class DataAugmenter:
         """
         self.config = config
 
+    def _random_crop(self, X_batch: np.ndarray) -> np.ndarray:
+        """Randomly crops a portion of the spectra.
+
+        Args:
+            X_batch: A NumPy array representing a batch of samples.
+
+        Returns:
+            A NumPy array containing the cropped batch of samples.
+        """
+        n_samples, n_features = X_batch.shape
+        cropped_batch = np.zeros_like(X_batch)
+        for i in range(n_samples):
+            spectrum = X_batch[i]
+            crop_len = int(n_features * self.config.crop_size)
+            if crop_len == 0: # Handle case where crop_size is too small
+                cropped_batch[i] = spectrum
+                continue
+            start = np.random.randint(0, n_features - crop_len + 1)
+            end = start + crop_len
+            cropped_spectrum = spectrum[start:end]
+            # Pad back to original size
+            if start > 0:
+                cropped_spectrum = np.pad(cropped_spectrum, (start, n_features - end), 'constant')
+            else:
+                cropped_spectrum = np.pad(cropped_spectrum, (0, n_features - end), 'constant')
+            cropped_batch[i] = cropped_spectrum
+        return cropped_batch
+
+    def _random_flip(self, X_batch: np.ndarray) -> np.ndarray:
+        """Randomly flips the spectra horizontally.
+
+        Args:
+            X_batch: A NumPy array representing a batch of samples.
+
+        Returns:
+            A NumPy array containing the flipped batch of samples.
+        """
+        flipped_batch = X_batch.copy()
+        if np.random.rand() < 0.5: # 50% chance to flip
+            flipped_batch = np.flip(flipped_batch, axis=1)
+        return flipped_batch
+
+    def _random_permutation(self, X_batch: np.ndarray) -> np.ndarray:
+        """Randomly permutes the features of the spectra.
+
+        Args:
+            X_batch: A NumPy array representing a batch of samples.
+
+        Returns:
+            A NumPy array containing the permuted batch of samples.
+        """
+        permuted_batch = X_batch.copy()
+        n_samples, n_features = X_batch.shape
+        for i in range(n_samples):
+            permuted_batch[i] = np.random.permutation(permuted_batch[i])
+        return permuted_batch
+
     def _apply_augmentations_to_batch(self, X_batch: np.ndarray) -> np.ndarray:
         """Applies configured augmentations to a batch of samples.
 
@@ -333,6 +394,16 @@ class DataAugmenter:
                     1 - self.config.scale_range, 1 + self.config.scale_range
                 )
                 X_augmented_batch[k] *= scale_factor
+
+        if self.config.crop_enabled:
+            X_augmented_batch = self._random_crop(X_augmented_batch)
+
+        if self.config.flip_enabled:
+            X_augmented_batch = self._random_flip(X_augmented_batch)
+
+        if self.config.permutation_enabled:
+            X_augmented_batch = self._random_permutation(X_augmented_batch)
+
         return X_augmented_batch
 
     def augment(self, dataloader: DataLoader) -> DataLoader:
@@ -351,6 +422,49 @@ class DataAugmenter:
             If augmentation is disabled or `num_augmentations` is 0, the original
             `DataLoader` is returned unchanged.
         """
+        if not self.config.enabled or self.config.num_augmentations == 0:
+            return dataloader
+
+        all_samples = []
+        all_labels = []
+        for samples, labels in dataloader:
+            all_samples.append(samples)
+            all_labels.append(labels)
+
+        if not all_samples:
+            return dataloader # Return original if no samples
+
+        all_samples = torch.cat(all_samples, dim=0).cpu().numpy()
+        all_labels = torch.cat(all_labels, dim=0).cpu().numpy()
+
+        augmented_samples = []
+        augmented_labels = []
+
+        for _ in range(self.config.num_augmentations):
+            # Apply augmentations to the entire batch of samples
+            aug_samples = self._apply_augmentations_to_batch(all_samples)
+            augmented_samples.append(aug_samples)
+            augmented_labels.append(all_labels) # Labels remain the same for augmented data
+
+        combined_samples = np.concatenate([all_samples] + augmented_samples, axis=0)
+        combined_labels = np.concatenate([all_labels] + augmented_labels, axis=0)
+
+        # Shuffle the combined dataset
+        permutation = np.random.permutation(len(combined_samples))
+        combined_samples = combined_samples[permutation]
+        combined_labels = combined_labels[permutation]
+
+        # Create a new DataLoader from the combined dataset
+        # Assuming CustomDataset is suitable for augmented data
+        new_dataset = CustomDataset(combined_samples, combined_labels)
+        new_dataloader = DataLoader(
+            new_dataset,
+            batch_size=dataloader.batch_size,
+            shuffle=True,
+            num_workers=dataloader.num_workers,
+            pin_memory=dataloader.pin_memory,
+        )
+        return new_dataloader
 
 
 class DataProcessor:

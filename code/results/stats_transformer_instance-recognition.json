@@ -1,0 +1,60 @@
+{
+    "config": {
+        "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        "model": "transformer",
+        "dataset": "instance-recognition",
+        "run": 0,
+        "output": "logs/results_base",
+        "data_augmentation": false,
+        "masked_spectra_modelling": false,
+        "next_spectra_prediction": false,
+        "next_peak_prediction": false,
+        "spectrum_denoising_autoencoding": false,
+        "peak_parameter_regression": false,
+        "spectrum_segment_reordering": false,
+        "contrastive_transformation_invariance_learning": false,
+        "early_stopping": 20,
+        "dropout": 0.2,
+        "label_smoothing": 0.1,
+        "epochs": 100,
+        "learning_rate": 0.0001,
+        "batch_size": 64,
+        "hidden_dimension": 128,
+        "num_layers": 4,
+        "num_heads": 4,
+        "num_augmentations": 5,
+        "noise_level": 0.1,
+        "shift_enabled": false,
+        "scale_enabled": false
+    },
+    "stats": {
+        "train_loss": 0.34477411411332753,
+        "train_accuracy": 0.5135030864197531,
+        "val_loss": 0.42454687149628345,
+        "val_accuracy": 0.5347222222222223,
+        "epoch": 4.0
+    },
+    "folds": [
+        {
+            "train_loss": 0.33985262010114414,
+            "train_accuracy": 0.5071759259259259,
+            "val_loss": 0.4493819388790407,
+            "val_accuracy": 0.5744047619047619,
+            "epoch": 3
+        },
+        {
+            "train_loss": 0.3107209867196726,
+            "train_accuracy": 0.5307870370370371,
+            "val_loss": 0.42537037358767743,
+            "val_accuracy": 0.5148809523809524,
+            "epoch": 8
+        },
+        {
+            "train_loss": 0.38374873551916566,
+            "train_accuracy": 0.5025462962962963,
+            "val_loss": 0.3988883020221323,
+            "val_accuracy": 0.5148809523809524,
+            "epoch": 1
+        }
+    ]
+}
