@@ -172,9 +172,9 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         )
     elif config.model == "lstm":
         model_args.update(
-            {"hidden_size": config.hidden_dimension, "num_layers": config.num_layers}
+            {"hidden_dim": config.hidden_dimension, "num_layers": config.num_layers}
         )
-        return LSTM(input_size=input_dim, output_size=output_dim, **model_args)
+        return LSTM(input_dim=input_dim, output_dim=output_dim, **model_args)
     elif config.model in ["cnn", "rcnn"]:
         return model_class(input_dim=input_dim, output_dim=output_dim, **model_args)
     elif config.model == "mamba":
@@ -661,7 +661,8 @@ def parse_arguments() -> argparse.Namespace:
         "-fp",
         "--file-path",
         type=str,
-        default="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        # default="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        default="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
         help="Path to the dataset file (e.g., REIMS.xlsx)",
     )
     parser.add_argument(

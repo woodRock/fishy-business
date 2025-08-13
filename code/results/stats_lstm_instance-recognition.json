@@ -1,0 +1,60 @@
+{
+    "config": {
+        "file_path": "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
+        "model": "lstm",
+        "dataset": "instance-recognition",
+        "run": 0,
+        "output": "logs/results_base",
+        "data_augmentation": false,
+        "masked_spectra_modelling": false,
+        "next_spectra_prediction": false,
+        "next_peak_prediction": false,
+        "spectrum_denoising_autoencoding": false,
+        "peak_parameter_regression": false,
+        "spectrum_segment_reordering": false,
+        "contrastive_transformation_invariance_learning": false,
+        "early_stopping": 20,
+        "dropout": 0.2,
+        "label_smoothing": 0.1,
+        "epochs": 100,
+        "learning_rate": 0.0001,
+        "batch_size": 64,
+        "hidden_dimension": 128,
+        "num_layers": 4,
+        "num_heads": 4,
+        "num_augmentations": 5,
+        "noise_level": 0.1,
+        "shift_enabled": false,
+        "scale_enabled": false
+    },
+    "stats": {
+        "train_loss": 0.6917901606988117,
+        "train_accuracy": 0.5013888888888889,
+        "val_loss": 0.6864538616028385,
+        "val_accuracy": 0.5350529100529101,
+        "epoch": 0.3333333333333333
+    },
+    "folds": [
+        {
+            "train_loss": 0.6645044540682583,
+            "train_accuracy": 0.5,
+            "val_loss": 0.6622436150260593,
+            "val_accuracy": 0.5,
+            "epoch": 0
+        },
+        {
+            "train_loss": 0.6985418897994021,
+            "train_accuracy": 0.5041666666666667,
+            "val_loss": 0.6918901308723118,
+            "val_accuracy": 0.6051587301587302,
+            "epoch": 1
+        },
+        {
+            "train_loss": 0.7123241382287749,
+            "train_accuracy": 0.5,
+            "val_loss": 0.7052278389101443,
+            "val_accuracy": 0.5,
+            "epoch": 0
+        }
+    ]
+}
