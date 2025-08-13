@@ -1,3 +1,6 @@
 2025-08-13 18:46:45,965 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
 2025-08-13 18:46:53,167 - INFO - Loaded data with shape: (306, 2081)
 2025-08-13 18:46:53,170 - INFO - Filtered data shape: (72, 2081)
+2025-08-13 18:45:47,834 - INFO - Loading data from: /vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx
+2025-08-13 18:45:58,136 - INFO - Loaded data with shape: (306, 2081)
+2025-08-13 18:45:58,141 - INFO - Filtered data shape: (72, 2081)

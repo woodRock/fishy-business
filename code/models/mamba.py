@@ -164,7 +164,7 @@ class Mamba(nn.Module):
 
         if spectral_norm:
             # No self.fc, so apply spectral norm to a dummy layer or remove if not needed
-            pass # Removed self.fc, so no spectral norm here
+            pass  # Removed self.fc, so no spectral norm here
 
         # Layer normalization (Ba 2016)
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
@@ -178,7 +178,7 @@ class Mamba(nn.Module):
         Returns:
             torch.Tensor: the output tensor.
         """
-        x = self.embedding_layer(x) # Apply embedding layer first
+        x = self.embedding_layer(x)  # Apply embedding layer first
         x = x.unsqueeze(1).repeat(1, 100, 1)
 
         for layer in self.layers:
