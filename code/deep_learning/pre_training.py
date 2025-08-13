@@ -111,7 +111,7 @@ class PreTrainer:
             Callable[[Any], float]
         ] = None,  # Takes batch, returns loss/metric
         checkpoint_suffix: str = "",
-    ) -> Tuple[nn.Module, float]: # Changed return type
+    ) -> Tuple[nn.Module, float]:  # Changed return type
         """Generic epoch loop for a pre-training task.
 
         Args:
@@ -125,7 +125,7 @@ class PreTrainer:
         Returns:
             Tuple[nn.Module, float]: The trained model after the epoch loop and the final average training loss.
         """
-        final_avg_train_loss = 0.0 # Initialize
+        final_avg_train_loss = 0.0  # Initialize
         for epoch in range(self.config.num_epochs):
             self.model.train()
             total_train_loss = 0.0
@@ -135,7 +135,7 @@ class PreTrainer:
                 loss = train_step_fn(batch_data)
                 total_train_loss += loss
             avg_train_loss = total_train_loss / len(train_loader)
-            final_avg_train_loss = avg_train_loss # Update for each epoch
+            final_avg_train_loss = avg_train_loss  # Update for each epoch
             log_msg = f"{task_name} Epoch [{epoch+1}/{self.config.num_epochs}], Train Loss: {avg_train_loss:.4f}"
 
             if val_loader and val_step_fn:
@@ -158,7 +158,7 @@ class PreTrainer:
         self.logger.info(
             f"{task_name} pre-training finished. Model saved to {model_save_path}"
         )
-        return self.model, final_avg_train_loss # Return model and final loss
+        return self.model, final_avg_train_loss  # Return model and final loss
 
     def pre_train_masked_spectra(self, train_loader: DataLoader) -> nn.Module:
         """Pre-trains the model using Masked Spectra Modelling (MSM).
@@ -951,7 +951,7 @@ class PreTrainer:
         val_loader: Optional[DataLoader] = None,
         temperature: float = 0.1,
         embedding_dim: int = 128,
-    ) -> float: # Changed return type to float
+    ) -> float:  # Changed return type to float
         """Pre-trains the model using Contrastive Transformation Invariance Learning (CTIL).
 
         Args:
@@ -1073,8 +1073,8 @@ class PreTrainer:
             else:  # Assumes model's main output (after fc adaptation) is the embedding
                 # The SimCLRModel returns a tuple (h1, h2) or (h1, None)
                 # We need to extract h1 and h2
-                h1, _ = self.model(view1) # Extract h1
-                h2, _ = self.model(view2) # Extract h2
+                h1, _ = self.model(view1)  # Extract h1
+                h2, _ = self.model(view2)  # Extract h2
                 emb1 = h1
                 emb2 = h2
 
@@ -1083,7 +1083,7 @@ class PreTrainer:
             self.optimizer.step()
             return loss.item()
 
-        trained_model, final_loss = self._perform_epoch_loop( # Capture the loss
+        trained_model, final_loss = self._perform_epoch_loop(  # Capture the loss
             "CTIL",
             train_loader,
             ctil_step,
@@ -1113,4 +1113,4 @@ class PreTrainer:
             self.optimizer = AdamW(
                 self.model.parameters(), lr=self.config.learning_rate
             )
-        return final_loss # Return the final loss
+        return final_loss  # Return the final loss

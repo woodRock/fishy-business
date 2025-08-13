@@ -120,7 +120,7 @@ class ContrastiveConfig:
     flip_enabled: bool = False
     permutation_enabled: bool = False
     noise_level: float = 0.1
-    crop_size: float = 0.8 # Added
+    crop_size: float = 0.8  # Added
 
 
 class VAEEncoderWrapper(nn.Module):
@@ -385,7 +385,7 @@ class ContrastiveTrainer:
 
         # Create a DataAugmenter instance with the current config
         aug_config = AugmentationConfig(
-            enabled=True, # Always enabled for contrastive learning
+            enabled=True,  # Always enabled for contrastive learning
             noise_enabled=self.config.noise_enabled,
             shift_enabled=self.config.shift_enabled,
             scale_enabled=self.config.scale_enabled,
@@ -406,8 +406,20 @@ class ContrastiveTrainer:
                 x2_np = x2_raw.cpu().numpy()
 
                 # Apply augmentations to create two views
-                x1_aug = torch.from_numpy(data_augmenter._apply_augmentations_to_batch(x1_np)).float().to(self.device)
-                x2_aug = torch.from_numpy(data_augmenter._apply_augmentations_to_batch(x2_np)).float().to(self.device)
+                x1_aug = (
+                    torch.from_numpy(
+                        data_augmenter._apply_augmentations_to_batch(x1_np)
+                    )
+                    .float()
+                    .to(self.device)
+                )
+                x2_aug = (
+                    torch.from_numpy(
+                        data_augmenter._apply_augmentations_to_batch(x2_np)
+                    )
+                    .float()
+                    .to(self.device)
+                )
                 labels = labels.float().to(self.device)
 
                 with torch.amp.autocast(self.device.type):
@@ -819,10 +831,10 @@ def main(config: ContrastiveConfig) -> Dict:
                 f,
                 indent=4,
             )
-        return stats # Return the stats dictionary
+        return stats  # Return the stats dictionary
     else:
         logging.warning("No folds completed successfully to aggregate metrics.")
-        return {} # Return empty dict if no metrics
+        return {}  # Return empty dict if no metrics
 
 
 if __name__ == "__main__":
