@@ -64,6 +64,7 @@ from models import (
     BarlowTwinsModel,
     BarlowTwinsLoss,
 )
+from deep_learning.util import AugmentationConfig, DataAugmenter
 from .util import DataConfig, DataPreprocessor, SiameseDataset, BalancedBatchSampler
 
 # ## 2. Configuration
@@ -110,6 +111,16 @@ class ContrastiveConfig:
     # Barlow Twins specific
     barlow_twins_projection_dim: int = 8192
     barlow_twins_lambda: float = 5e-3
+
+    # Augmentation parameters
+    noise_enabled: bool = False
+    shift_enabled: bool = False
+    scale_enabled: bool = False
+    crop_enabled: bool = False
+    flip_enabled: bool = False
+    permutation_enabled: bool = False
+    noise_level: float = 0.1
+    crop_size: float = 0.8 # Added
 
 
 class VAEEncoderWrapper(nn.Module):
@@ -179,8 +190,8 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
 
     if config.encoder_type == "cnn":
         return encoder_class(
-            input_size=config.input_dim,
-            num_classes=config.embedding_dim,
+            input_dim=config.input_dim,
+            output_dim=config.embedding_dim,
             dropout=config.dropout,
         )
     elif config.encoder_type == "mamba":
@@ -372,19 +383,37 @@ class ContrastiveTrainer:
         total_loss = 0.0
         all_h1, all_h2, all_labels = [], [], []
 
+        # Create a DataAugmenter instance with the current config
+        aug_config = AugmentationConfig(
+            enabled=True, # Always enabled for contrastive learning
+            noise_enabled=self.config.noise_enabled,
+            shift_enabled=self.config.shift_enabled,
+            scale_enabled=self.config.scale_enabled,
+            crop_enabled=self.config.crop_enabled,
+            flip_enabled=self.config.flip_enabled,
+            permutation_enabled=self.config.permutation_enabled,
+            noise_level=self.config.noise_level,
+            crop_size=self.config.crop_size,
+        )
+        data_augmenter = DataAugmenter(aug_config)
+
         context = torch.no_grad() if not is_training else torch.enable_grad()
         with context:
-            for x1, x2, labels in data_loader:
-                x1, x2, labels = (
-                    x1.float().to(self.device),
-                    x2.float().to(self.device),
-                    labels.float().to(self.device),
-                )
+            for x1_raw, x2_raw, labels in data_loader:
+                # Apply augmentations to x1_raw and x2_raw
+                # DataAugmenter methods expect numpy arrays, so convert
+                x1_np = x1_raw.cpu().numpy()
+                x2_np = x2_raw.cpu().numpy()
+
+                # Apply augmentations to create two views
+                x1_aug = torch.from_numpy(data_augmenter._apply_augmentations_to_batch(x1_np)).float().to(self.device)
+                x2_aug = torch.from_numpy(data_augmenter._apply_augmentations_to_batch(x2_np)).float().to(self.device)
+                labels = labels.float().to(self.device)
 
                 with torch.amp.autocast(self.device.type):
                     # Forward pass depends on the contrastive method
                     if self.config.contrastive_method == "simclr":
-                        h1, h2 = self.model(x1, x2)
+                        h1, h2 = self.model(x1_aug, x2_aug)
                         loss = self.loss_fn(h1, h2)
                     elif self.config.contrastive_method == "moco":
                         q, k, queue = self.model(x1, x2)
@@ -655,7 +684,7 @@ def run_single_training(
     return model, best_metrics, best_threshold
 
 
-def main(config: ContrastiveConfig):
+def main(config: ContrastiveConfig) -> Dict:
     """Orchestrates the training and evaluation of contrastive learning models using Group K-fold cross-validation.
 
     This function sets up the environment, loads and preprocesses data, and then
@@ -685,7 +714,7 @@ def main(config: ContrastiveConfig):
     # Load and preprocess data once
     data_config = DataConfig(
         batch_size=config.batch_size,
-        data_path="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
+        data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
     )
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
@@ -790,6 +819,10 @@ def main(config: ContrastiveConfig):
                 f,
                 indent=4,
             )
+        return stats # Return the stats dictionary
+    else:
+        logging.warning("No folds completed successfully to aggregate metrics.")
+        return {} # Return empty dict if no metrics
 
 
 if __name__ == "__main__":

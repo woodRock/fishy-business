@@ -99,6 +99,11 @@ class TrainingConfig:
     noise_level: float
     shift_enabled: bool
     scale_enabled: bool
+    # New augmentation parameters
+    crop_enabled: bool = False
+    flip_enabled: bool = False
+    permutation_enabled: bool = False
+    crop_size: float = 0.8 # Default crop size
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "TrainingConfig":

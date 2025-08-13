@@ -43,6 +43,14 @@ class PreTrainingConfig:
     chunk_size: int = 50  # For Masked Spectra Modelling
     device: Device = "cuda" if torch.cuda.is_available() else "cpu"
     learning_rate: float = 1e-4  # Added for default optimizer
+    # Augmentation parameters
+    noise_enabled: bool = False
+    shift_enabled: bool = False
+    scale_enabled: bool = False
+    crop_enabled: bool = False
+    flip_enabled: bool = False
+    permutation_enabled: bool = False
+    crop_size: float = 0.8
 
 
 def mask_spectra_side(input_spectra: T_Tensor, side: str = "left") -> T_Tensor:
@@ -103,7 +111,7 @@ class PreTrainer:
             Callable[[Any], float]
         ] = None,  # Takes batch, returns loss/metric
         checkpoint_suffix: str = "",
-    ) -> nn.Module:
+    ) -> Tuple[nn.Module, float]: # Changed return type
         """Generic epoch loop for a pre-training task.
 
         Args:
@@ -115,8 +123,9 @@ class PreTrainer:
             checkpoint_suffix (str): Suffix to append to the model save path.
 
         Returns:
-            nn.Module: The trained model after the epoch loop.
+            Tuple[nn.Module, float]: The trained model after the epoch loop and the final average training loss.
         """
+        final_avg_train_loss = 0.0 # Initialize
         for epoch in range(self.config.num_epochs):
             self.model.train()
             total_train_loss = 0.0
@@ -126,6 +135,7 @@ class PreTrainer:
                 loss = train_step_fn(batch_data)
                 total_train_loss += loss
             avg_train_loss = total_train_loss / len(train_loader)
+            final_avg_train_loss = avg_train_loss # Update for each epoch
             log_msg = f"{task_name} Epoch [{epoch+1}/{self.config.num_epochs}], Train Loss: {avg_train_loss:.4f}"
 
             if val_loader and val_step_fn:
@@ -148,7 +158,7 @@ class PreTrainer:
         self.logger.info(
             f"{task_name} pre-training finished. Model saved to {model_save_path}"
         )
-        return self.model
+        return self.model, final_avg_train_loss # Return model and final loss
 
     def pre_train_masked_spectra(self, train_loader: DataLoader) -> nn.Module:
         """Pre-trains the model using Masked Spectra Modelling (MSM).
@@ -937,7 +947,7 @@ class PreTrainer:
         val_loader: Optional[DataLoader] = None,
         temperature: float = 0.1,
         embedding_dim: int = 128,
-    ) -> nn.Module:
+    ) -> float: # Changed return type to float
         """Pre-trains the model using Contrastive Transformation Invariance Learning (CTIL).
 
         Args:
@@ -947,7 +957,7 @@ class PreTrainer:
             embedding_dim (int): Desired output dimension of the model's embeddings.
 
         Returns:
-            nn.Module: The trained model after pre-training.
+            float: The final average training loss after pre-training.
         """
         self.logger.info(
             "Starting Contrastive Transformation Invariance Learning (CTIL) pre-training..."
@@ -1045,15 +1055,19 @@ class PreTrainer:
                 emb1 = self.model.projection_head(self.model.get_embedding(view1))
                 emb2 = self.model.projection_head(self.model.get_embedding(view2))
             else:  # Assumes model's main output (after fc adaptation) is the embedding
-                emb1 = self.model(view1)
-                emb2 = self.model(view2)
+                # The SimCLRModel returns a tuple (h1, h2) or (h1, None)
+                # We need to extract h1 and h2
+                h1, _ = self.model(view1) # Extract h1
+                h2, _ = self.model(view2) # Extract h2
+                emb1 = h1
+                emb2 = h2
 
             loss = self._nt_xent_loss(emb1, emb2, temperature)
             loss.backward()
             self.optimizer.step()
             return loss.item()
 
-        self._perform_epoch_loop(
+        trained_model, final_loss = self._perform_epoch_loop( # Capture the loss
             "CTIL",
             train_loader,
             ctil_step,
@@ -1083,4 +1097,4 @@ class PreTrainer:
             self.optimizer = AdamW(
                 self.model.parameters(), lr=self.config.learning_rate
             )
-        return self.model
+        return final_loss # Return the final loss
