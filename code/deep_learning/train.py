@@ -23,7 +23,7 @@ from sklearn.metrics import (
 )
 
 from models import Transformer, VAE
-from .util import DataAugmenter, AugmentationConfig
+from .util import DataAugmenter, AugmentationConfig, SiameseDataset
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[
@@ -755,13 +755,33 @@ def _run_epoch(
     """Runs a single epoch of training or validation."""
     total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
 
-    for inputs, labels_batch in loader:
-        inputs, labels_on_device = inputs.to(device), labels_batch.to(device)
+    for batch in loader:
+        # Unpack based on dataset type
+        if isinstance(loader.dataset, SiameseDataset) or (
+            isinstance(loader.dataset, Subset)
+            and isinstance(loader.dataset.dataset, SiameseDataset)
+        ):
+            inputs1, inputs2, labels_batch = batch
+            inputs1, inputs2, labels_on_device = (
+                inputs1.to(device),
+                inputs2.to(device),
+                labels_batch.to(device),
+            )
+        else:
+            inputs, labels_batch = batch
+            inputs, labels_on_device = inputs.to(device), labels_batch.to(device)
+
         if is_training:
             optimizer.zero_grad()
 
-        # Model specific forward pass - adjust if your VAE/Transformer has different API
-        outputs = model(inputs)  # Simplified, ensure your models' forward methods align
+        # Model specific forward pass
+        if isinstance(loader.dataset, SiameseDataset) or (
+            isinstance(loader.dataset, Subset)
+            and isinstance(loader.dataset.dataset, SiameseDataset)
+        ):
+            outputs = model(inputs1, inputs2)
+        else:
+            outputs = model(inputs)
 
         # Prepare labels for loss and metrics
         if (
@@ -780,7 +800,15 @@ def _run_epoch(
             loss.backward()
             optimizer.step()
 
-        total_loss += loss.item() * inputs.size(0)
+        total_loss += loss.item() * (
+            inputs1.size(0)
+            if isinstance(loader.dataset, SiameseDataset)
+            or (
+                isinstance(loader.dataset, Subset)
+                and isinstance(loader.dataset.dataset, SiameseDataset)
+            )
+            else inputs.size(0)
+        )
 
         # Process labels and predictions for metrics
         probs = torch.softmax(outputs, dim=1)
