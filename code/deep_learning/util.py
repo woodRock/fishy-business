@@ -196,13 +196,13 @@ class SiameseDataset(BaseDataset):
         # Initialize with original data to allow BaseDataset to convert them to tensors
         super().__init__(samples, labels)
         # Now self.samples and self.labels are tensors. Generate pairs from these.
-        self.paired_samples, self.paired_labels = self._generate_pairs_vectorized(
+        self.X1, self.X2, self.paired_labels = self._generate_pairs_vectorized(
             self.samples, self.labels
         )
 
     def _generate_pairs_vectorized(
         self, original_samples: torch.Tensor, original_labels: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Generates differing pairs for contrastive learning in a vectorized way.
 
         This method creates all possible unique pairs from the input samples and
@@ -216,15 +216,18 @@ class SiameseDataset(BaseDataset):
             original_labels (torch.Tensor): Original labels tensor of shape (num_samples, num_classes) or (num_samples,).
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: A tuple containing:
-                - paired_samples_tensor: Tensor of shape (num_pairs, num_features) with element-wise differences.
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+                - X1: Tensor of shape (num_pairs, num_features) with the first samples of the pairs.
+                - X2: Tensor of shape (num_pairs, num_features) with the second samples of the pairs.
                 - pair_labels_tensor: Tensor of shape (num_pairs, 1) with labels indicating if pairs are from the same class (1.0) or different (0.0).
         """
         n_samples = original_samples.shape[0]
         if n_samples < 2:
-            return torch.empty(
-                (0, original_samples.shape[1]), dtype=original_samples.dtype
-            ), torch.empty((0, 1), dtype=torch.float32)
+            return (
+                torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype),
+                torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype),
+                torch.empty((0, 1), dtype=torch.float32),
+            )
 
         # Create all possible (i, j) indices where i != j
         indices_i = torch.arange(n_samples).unsqueeze(1).expand(-1, n_samples).flatten()
@@ -236,10 +239,6 @@ class SiameseDataset(BaseDataset):
         X1, X2 = original_samples[indices_i], original_samples[indices_j]
         y1, y2 = original_labels[indices_i], original_labels[indices_j]
 
-        # Input for the model: element-wise difference (can be changed to concatenation or other)
-        # paired_samples_tensor = torch.abs(X1 - X2) # Or just X1-X2, or torch.cat((X1,X2), dim=1)
-        paired_samples_tensor = X1 - X2
-
         # Determine if labels are identical. Handles multi-class (one-hot) or single-class index labels.
         if y1.ndim > 1 and y1.shape[1] > 1:  # Assumed one-hot encoded
             same_label_mask = torch.all(y1 == y2, dim=1)
@@ -250,7 +249,7 @@ class SiameseDataset(BaseDataset):
         # Shape: (num_pairs, 1) for compatibility with BCEWithLogitsLoss
         pair_labels_tensor = same_label_mask.to(torch.float32).unsqueeze(1)
 
-        return paired_samples_tensor, pair_labels_tensor
+        return X1, X2, pair_labels_tensor
 
     def __len__(self) -> int:
         """Returns the number of pairs in the dataset.
@@ -258,18 +257,18 @@ class SiameseDataset(BaseDataset):
         Returns:
             int: Number of pairs in the dataset.
         """
-        return self.paired_samples.shape[0]
+        return self.paired_labels.shape[0]
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Retrieves a pair of samples and their corresponding label by index.
 
         Args:
             idx (int): Index of the pair to retrieve.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: A tuple containing the paired sample and its label.
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing the first sample, the second sample, and their label.
         """
-        return self.paired_samples[idx], self.paired_labels[idx]
+        return self.X1[idx], self.X2[idx], self.paired_labels[idx]
 
 
 class DataAugmenter:

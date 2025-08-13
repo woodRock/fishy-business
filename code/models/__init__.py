@@ -38,3 +38,4 @@ from .byol import BYOLModel, BYOLLoss
 from .simsiam import SimSiamModel, SimSiamLoss
 from .barlow_twins import BarlowTwinsModel, BarlowTwinsLoss
 from .simclr import SimCLRModel, SimCLRLoss
+from .vae import SiameseVAE

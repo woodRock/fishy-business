@@ -186,3 +186,33 @@ def vae_classifier_loss(
     cce = nn.CrossEntropyLoss()
     CCE = cce(class_probs, labels)
     return (alpha * BCE) + (beta * KLD) + (gamma * CCE)
+
+
+class SiameseVAE(nn.Module):
+    """A Siamese network using a VAE as the backbone."""
+
+    def __init__(self, vae_model: VAE):
+        """Initializes the SiameseVAE model.
+
+        Args:
+            vae_model (VAE): An instance of the VAE model.
+        """
+        super(SiameseVAE, self).__init__()
+        self.vae = vae_model
+        self.fc = nn.Linear(1, 1)
+
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
+        """Forward pass of the SiameseVAE.
+
+        Args:
+            x1 (torch.Tensor): The first input tensor.
+            x2 (torch.Tensor): The second input tensor.
+
+        Returns:
+            torch.Tensor: The output of the Siamese network.
+        """
+        mu1, _ = self.vae.encode(x1)
+        mu2, _ = self.vae.encode(x2)
+        distance = F.pairwise_distance(mu1, mu2)
+        output = self.fc(distance.unsqueeze(-1))
+        return output

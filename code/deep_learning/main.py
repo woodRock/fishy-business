@@ -47,6 +47,7 @@ from models import (
     Mamba,
     KAN,
     VAE,
+    SiameseVAE,
     MOE,
     Dense,
     ODE,
@@ -196,12 +197,21 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             num_inner_functions=10,
         )
     elif config.model == "vae":
-        return VAE(
-            input_size=input_dim,
-            num_classes=output_dim,
-            latent_dim=config.hidden_dimension,
-            **model_args,
-        )
+        if "instance-recognition" in config.dataset:
+            vae_model = VAE(
+                input_size=input_dim,
+                num_classes=output_dim,
+                latent_dim=config.hidden_dimension,
+                **model_args,
+            )
+            return SiameseVAE(vae_model)
+        else:
+            return VAE(
+                input_size=input_dim,
+                num_classes=output_dim,
+                latent_dim=config.hidden_dimension,
+                **model_args,
+            )
     elif config.model == "moe":
         return MOE(
             input_dim=input_dim,
