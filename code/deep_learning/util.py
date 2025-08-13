@@ -120,7 +120,7 @@ class AugmentationConfig:
     noise_level: float = 0.1  # Can be absolute or relative (see DataAugmenter)
     shift_range: float = 0.1  # Proportion of total length
     scale_range: float = 0.1  # Range around 1.0 (e.g., 0.1 means 0.9 to 1.1)
-    crop_size: float = 0.8 # Proportion of original size to crop to
+    crop_size: float = 0.8  # Proportion of original size to crop to
 
 
 class BaseDataset(Dataset):
@@ -316,7 +316,7 @@ class DataAugmenter:
         for i in range(n_samples):
             spectrum = X_batch[i]
             crop_len = int(n_features * self.config.crop_size)
-            if crop_len == 0: # Handle case where crop_size is too small
+            if crop_len == 0:  # Handle case where crop_size is too small
                 cropped_batch[i] = spectrum
                 continue
             start = np.random.randint(0, n_features - crop_len + 1)
@@ -324,9 +324,13 @@ class DataAugmenter:
             cropped_spectrum = spectrum[start:end]
             # Pad back to original size
             if start > 0:
-                cropped_spectrum = np.pad(cropped_spectrum, (start, n_features - end), 'constant')
+                cropped_spectrum = np.pad(
+                    cropped_spectrum, (start, n_features - end), "constant"
+                )
             else:
-                cropped_spectrum = np.pad(cropped_spectrum, (0, n_features - end), 'constant')
+                cropped_spectrum = np.pad(
+                    cropped_spectrum, (0, n_features - end), "constant"
+                )
             cropped_batch[i] = cropped_spectrum
         return cropped_batch
 
@@ -340,7 +344,7 @@ class DataAugmenter:
             A NumPy array containing the flipped batch of samples.
         """
         flipped_batch = X_batch.copy()
-        if np.random.rand() < 0.5: # 50% chance to flip
+        if np.random.rand() < 0.5:  # 50% chance to flip
             flipped_batch = np.flip(flipped_batch, axis=1)
         return flipped_batch
 
@@ -436,7 +440,7 @@ class DataAugmenter:
             all_labels.append(labels)
 
         if not all_samples:
-            return dataloader # Return original if no samples
+            return dataloader  # Return original if no samples
 
         all_samples = torch.cat(all_samples, dim=0).cpu().numpy()
         all_labels = torch.cat(all_labels, dim=0).cpu().numpy()
@@ -448,7 +452,9 @@ class DataAugmenter:
             # Apply augmentations to the entire batch of samples
             aug_samples = self._apply_augmentations_to_batch(all_samples)
             augmented_samples.append(aug_samples)
-            augmented_labels.append(all_labels) # Labels remain the same for augmented data
+            augmented_labels.append(
+                all_labels
+            )  # Labels remain the same for augmented data
 
         combined_samples = np.concatenate([all_samples] + augmented_samples, axis=0)
         combined_labels = np.concatenate([all_labels] + augmented_labels, axis=0)
