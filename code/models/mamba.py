@@ -203,7 +203,7 @@ class SiameseMamba(nn.Module):
         super(SiameseMamba, self).__init__()
         self.mamba = mamba_model
         # The output of Mamba is d_model, so the linear layer should take d_model as input
-        self.fc = nn.Linear(1, 1) # Output is a scalar distance, so input to FC is 1
+        self.fc = nn.Linear(1, 1)  # Output is a scalar distance, so input to FC is 1
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
         """Forward pass of the SiameseMamba.
@@ -226,24 +226,28 @@ class SiameseMamba(nn.Module):
         # For Mamba, the output of the layers is (batch_size, sequence_length, d_model)
         # and the original Mamba takes x[:, 0, :] as the final output.
         # So we will apply the layers and then take x[:, 0, :]
-        
+
         # Apply Mamba blocks to x1
-        x1_processed = x1_embed.unsqueeze(1).repeat(1, 100, 1) # Re-add the unsqueeze and repeat for Mamba's internal processing
+        x1_processed = x1_embed.unsqueeze(1).repeat(
+            1, 100, 1
+        )  # Re-add the unsqueeze and repeat for Mamba's internal processing
         for layer in self.mamba.layers:
             residual = x1_processed
             x1_processed = layer(x1_processed)
             x1_processed = x1_processed + residual
             x1_processed = self.mamba.dropout(x1_processed)
-        x1_features = self.mamba.layer_norm(x1_processed)[:, 0, :] # Extract features
+        x1_features = self.mamba.layer_norm(x1_processed)[:, 0, :]  # Extract features
 
         # Apply Mamba blocks to x2
-        x2_processed = x2_embed.unsqueeze(1).repeat(1, 100, 1) # Re-add the unsqueeze and repeat for Mamba's internal processing
+        x2_processed = x2_embed.unsqueeze(1).repeat(
+            1, 100, 1
+        )  # Re-add the unsqueeze and repeat for Mamba's internal processing
         for layer in self.mamba.layers:
             residual = x2_processed
             x2_processed = layer(x2_processed)
             x2_processed = x2_processed + residual
             x2_processed = self.mamba.dropout(x2_processed)
-        x2_features = self.mamba.layer_norm(x2_processed)[:, 0, :] # Extract features
+        x2_features = self.mamba.layer_norm(x2_processed)[:, 0, :]  # Extract features
 
         distance = F.pairwise_distance(x1_features, x2_features)
         output = self.fc(distance.unsqueeze(-1))
