@@ -6,6 +6,7 @@ from scipy.special import softmax
 
 class knn(BaseEstimator, ClassifierMixin):
     _estimator_type = "classifier"
+
     def __init__(self, n_neighbors=5, class_weights=None, batch_size=1000):
         self.n_neighbors = n_neighbors
         self.class_weights = class_weights
@@ -68,6 +69,3 @@ class knn(BaseEstimator, ClassifierMixin):
 
     def predict(self, X):
         return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
-
-
-

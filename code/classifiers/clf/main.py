@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import DataLoader
 from sklearn.metrics import roc_curve, auc, f1_score, precision_score, recall_score
-from sklearn.model_selection import StratifiedKFold, StratifiedGroupKFold # Added StratifiedGroupKFold
+from sklearn.model_selection import (
+    StratifiedKFold,
+    StratifiedGroupKFold,
+)  # Added StratifiedGroupKFold
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.tree import DecisionTreeClassifier as dt
@@ -61,7 +64,7 @@ def run_experiments(datasets, runs=30, k=3):
 
     for dataset in datasets:
         print(f"Dataset: {dataset}")
-        X_original, y_original, groups_original = load_dataset(dataset) # Modified
+        X_original, y_original, groups_original = load_dataset(dataset)  # Modified
 
         class_weights = calculate_class_weights(y)
 
@@ -116,7 +119,9 @@ def run_experiments(datasets, runs=30, k=3):
                 k_fold_train_accs = []
                 k_fold_test_accs = []
 
-                for train_index, test_index in sgkf.split(X_original, y_original, groups_original):
+                for train_index, test_index in sgkf.split(
+                    X_original, y_original, groups_original
+                ):
                     X_train, X_test = X_original[train_index], X_original[test_index]
                     y_train, y_test = y_original[train_index], y_original[test_index]
 
@@ -231,7 +236,7 @@ def run_experiments(datasets, runs=30, k=3):
 if __name__ == "__main__":
     datasets = ["species", "part", "oil", "cross-species"]
     # datasets = ["species"]
-    results = run_experiments(datasets, k=3) # Set k=3 as requested
+    results = run_experiments(datasets, k=3)  # Set k=3 as requested
 
     # Print results (for verification)
     for dataset, classifiers in results.items():
