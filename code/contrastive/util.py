@@ -20,21 +20,30 @@ from sklearn.preprocessing import LabelEncoder
 @dataclass
 class DataConfig:
     """Configuration for dataset preprocessing."""
+
     dataset_name: str = "instance-recognition"
     batch_size: int = 32
     test_size: float = 0.5
     data_path: Union[str, List[str]] = None
 
+
 class DataPreprocessor:
     """Handles robust data loading and filtering."""
+
     @staticmethod
     def load_data(config: DataConfig) -> pd.DataFrame:
         path_input = config.data_path
-        path = Path(path_input).expanduser() if isinstance(path_input, str) else Path(os.path.join(*path_input)).expanduser()
-        
+        path = (
+            Path(path_input).expanduser()
+            if isinstance(path_input, str)
+            else Path(os.path.join(*path_input)).expanduser()
+        )
+
         print(f"Attempting to load data from: {path}")
         if not path.exists():
-            raise FileNotFoundError(f"Data file not found at the specified path: {path}")
+            raise FileNotFoundError(
+                f"Data file not found at the specified path: {path}"
+            )
         return pd.read_excel(path)
 
     @staticmethod
@@ -42,7 +51,9 @@ class DataPreprocessor:
         data = data[~data["m/z"].str.contains("QC", case=False, na=False)]
         if dataset == "instance-recognition":
             pattern = r"QC|HM|MO|fillet|frames|gonads|livers|skins|guts|frame|heads"
-            data = data[~data.iloc[:, 0].astype(str).str.contains(pattern, case=False, na=False)]
+            data = data[
+                ~data.iloc[:, 0].astype(str).str.contains(pattern, case=False, na=False)
+            ]
         return data
 
     @staticmethod
@@ -58,12 +69,14 @@ class DataPreprocessor:
     def extract_groups(data: pd.DataFrame) -> np.ndarray:
         """Extracts group labels from the sample names in the 'm/z' column."""
         # Assumes group is the part of the name before the first '_'
-        sample_names = data['m/z'].astype(str)
-        groups = sample_names.str.split('_').str[0]
+        sample_names = data["m/z"].astype(str)
+        groups = sample_names.str.split("_").str[0]
         return groups.to_numpy()
+
 
 class SiameseDataset(Dataset):
     """Generates positive and negative pairs from samples."""
+
     def __init__(self, samples: np.ndarray, labels: np.ndarray):
         self.samples = torch.from_numpy(samples).float()
         self.labels = labels
@@ -93,26 +106,34 @@ class SiameseDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         idx1, idx2 = self.pairs[idx]
-        return self.samples[idx1], self.samples[idx2], torch.from_numpy(self.pair_labels[idx]).float()
+        return (
+            self.samples[idx1],
+            self.samples[idx2],
+            torch.from_numpy(self.pair_labels[idx]).float(),
+        )
+
 
 class BalancedBatchSampler(Sampler):
     """Generates balanced batches of positive and negative pairs."""
+
     def __init__(self, pair_labels: np.ndarray, batch_size: int):
         class_labels = np.argmax(pair_labels, axis=1)
         self.neg_indices = np.where(class_labels == 0)[0]
         self.pos_indices = np.where(class_labels == 1)[0]
         self.batch_size = batch_size
-        
+
         # Ensure we have pairs of both classes
         if len(self.neg_indices) == 0 or len(self.pos_indices) == 0:
             self.num_batches = 0
         else:
-            self.num_batches = min(len(self.neg_indices), len(self.pos_indices)) // (batch_size // 2)
+            self.num_batches = min(len(self.neg_indices), len(self.pos_indices)) // (
+                batch_size // 2
+            )
 
     def __iter__(self) -> Iterator[List[int]]:
         np.random.shuffle(self.neg_indices)
         np.random.shuffle(self.pos_indices)
-        
+
         half_batch = self.batch_size // 2
         for i in range(self.num_batches):
             batch = []
@@ -122,7 +143,6 @@ class BalancedBatchSampler(Sampler):
             batch.extend(self.neg_indices[start_neg : start_neg + half_batch])
             random.shuffle(batch)
             yield batch
-            
+
     def __len__(self) -> int:
         return self.num_batches
-
