@@ -8,6 +8,7 @@ from data import load_dataset
 
 from sklearn.model_selection import StratifiedGroupKFold
 
+
 def create_pairs(X_raw, y_raw):
     features = []
     labels = []
@@ -22,6 +23,7 @@ def create_pairs(X_raw, y_raw):
         features.append(concatenated)
         labels.append(label)
     return np.array(features), np.array(labels)
+
 
 dataset = "instance-recognition"
 X_original, y_original, groups_original = load_dataset(dataset=dataset)

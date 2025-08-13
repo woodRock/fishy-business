@@ -13,7 +13,11 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, GridSearchCV, StratifiedGroupKFold # Added StratifiedGroupKFold
+from sklearn.model_selection import (
+    StratifiedKFold,
+    GridSearchCV,
+    StratifiedGroupKFold,
+)  # Added StratifiedGroupKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -109,9 +113,9 @@ def main(dataset="species"):
     print(
         f"Starting Decision Tree Classifier GridSearchCV script for dataset: {dataset}..."
     )  # Updated
-    X_original, y_original, groups_original = load_dataset(dataset=dataset) # Modified
-    X = pd.DataFrame(X_original) # Modified
-    y = pd.Series(y_original) # Modified
+    X_original, y_original, groups_original = load_dataset(dataset=dataset)  # Modified
+    X = pd.DataFrame(X_original)  # Modified
+    y = pd.Series(y_original)  # Modified
 
     numerical_features = X.select_dtypes(include=np.number).columns.tolist()
     categorical_features = X.select_dtypes(
@@ -177,7 +181,7 @@ def main(dataset="species"):
     # -------------------------------
 
     # --- CV and Scorer Definition (Updated for StratifiedGroupKFold) ---
-    n_cv_splits = 3 # Fixed to 3 as per request
+    n_cv_splits = 3  # Fixed to 3 as per request
     cv = StratifiedGroupKFold(
         n_splits=n_cv_splits, shuffle=True, random_state=random_seed
     )

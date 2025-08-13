@@ -9,7 +9,6 @@ time series classification, image processing, and more.
 # models/__init__.py
 
 
-
 # If you have submodules within 'models' that you want to expose
 # when someone does 'import models', you can do it here.
 # For example, if you had 'model/submodule.py':
@@ -31,6 +30,7 @@ from .transformer import Transformer, MultiHeadAttention
 from .vae import VAE
 from .wavenet import WaveNet
 from .hybrid import Hybrid
+
 # from .longformer import Longformer
 from .performer import Performer
 from .moco import MoCoModel, MoCoLoss

@@ -1,7 +1,11 @@
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
-from sklearn.model_selection import StratifiedKFold, train_test_split, StratifiedGroupKFold # Added StratifiedGroupKFold
+from sklearn.model_selection import (
+    StratifiedKFold,
+    train_test_split,
+    StratifiedGroupKFold,
+)  # Added StratifiedGroupKFold
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.ensemble import RandomForestClassifier as rf
 from sklearn.tree import DecisionTreeClassifier as dt
@@ -52,6 +56,7 @@ def calculate_class_weights(y):
 
     return class_weights
 
+
 def create_pairs(X_raw, y_raw):
     features = []
     labels = []
@@ -75,10 +80,12 @@ def run_experiments(datasets, runs=30, k=5):
         print(f"Dataset: {dataset}")
 
         # Load the dataset
-        X_original, y_original, groups_original = load_dataset(dataset) # Modified
+        X_original, y_original, groups_original = load_dataset(dataset)  # Modified
 
         # Class weights are proportional to the inverse frequency of each class.
-        class_weights = calculate_class_weights(y_original) # Modified to use y_original
+        class_weights = calculate_class_weights(
+            y_original
+        )  # Modified to use y_original
 
         # The models run experiments for.
         models = {
@@ -123,14 +130,22 @@ def run_experiments(datasets, runs=30, k=5):
 
             # Use StratifiedGroupKFold
             sgkf = StratifiedGroupKFold(n_splits=k, shuffle=True, random_state=42)
-            
+
             # Iterate through folds
-            for fold, (train_index, test_index) in enumerate(sgkf.split(X_original, y_original, groups_original)):
-                print(f"  Fold {fold + 1}") # Added fold print
+            for fold, (train_index, test_index) in enumerate(
+                sgkf.split(X_original, y_original, groups_original)
+            ):
+                print(f"  Fold {fold + 1}")  # Added fold print
 
                 # Split the data into train and test sets for this fold (raw, unpaired)
-                X_train_raw, X_test_raw = X_original[train_index], X_original[test_index]
-                y_train_raw, y_test_raw = y_original[train_index], y_original[test_index]
+                X_train_raw, X_test_raw = (
+                    X_original[train_index],
+                    X_original[test_index],
+                )
+                y_train_raw, y_test_raw = (
+                    y_original[train_index],
+                    y_original[test_index],
+                )
 
                 # For all datasets, use raw data directly
                 X_train, y_train = X_train_raw, y_train_raw
@@ -142,7 +157,7 @@ def run_experiments(datasets, runs=30, k=5):
                 X_train = scaler.fit_transform(X_train)
                 X_test = scaler.transform(X_test)
 
-                # Fit the model to the training data. 
+                # Fit the model to the training data.
                 model.fit(X_train, y_train)
 
                 # Evaluate on the train and test dataset.
@@ -153,8 +168,12 @@ def run_experiments(datasets, runs=30, k=5):
                 train_acc = balanced_accuracy_score(y_train, train_pred)
                 test_acc = balanced_accuracy_score(y_test, test_pred)
 
-                train_accs.append(train_acc) # Removed np.mean, as it's already a single score per fold
-                test_accs.append(test_acc)   # Removed np.mean, as it's already a single score per fold
+                train_accs.append(
+                    train_acc
+                )  # Removed np.mean, as it's already a single score per fold
+                test_accs.append(
+                    test_acc
+                )  # Removed np.mean, as it's already a single score per fold
 
             # Store the balanced accuracy as a percentage.
             train_mean = np.mean(train_accs) * 100
@@ -178,7 +197,7 @@ def run_experiments(datasets, runs=30, k=5):
 if __name__ == "__main__":
     # datasets = ["species", "part", "oil", "cross-species"]
     datasets = ["instance-recognition"]
-    results = run_experiments(datasets, k=3) # Set k=3 as requested
+    results = run_experiments(datasets, k=3)  # Set k=3 as requested
 
     # Print results (for verification)
     for dataset, classifiers in results.items():
