@@ -490,7 +490,7 @@ class PreTrainer:
         for i in range(n_samples):
             spectrum = X_batch[i]
             crop_len = int(n_features * crop_size)
-            if crop_len == 0: # Handle case where crop_size is too small
+            if crop_len == 0:  # Handle case where crop_size is too small
                 cropped_batch[i] = spectrum
                 continue
             start = torch.randint(0, n_features - crop_len + 1, (1,)).item()
@@ -498,9 +498,13 @@ class PreTrainer:
             cropped_spectrum = spectrum[start:end]
             # Pad back to original size
             if start > 0:
-                cropped_spectrum = F.pad(cropped_spectrum, (start, n_features - end), 'constant')
+                cropped_spectrum = F.pad(
+                    cropped_spectrum, (start, n_features - end), "constant"
+                )
             else:
-                cropped_spectrum = F.pad(cropped_spectrum, (0, n_features - end), 'constant')
+                cropped_spectrum = F.pad(
+                    cropped_spectrum, (0, n_features - end), "constant"
+                )
             cropped_batch[i] = cropped_spectrum
         return cropped_batch
 
@@ -514,7 +518,7 @@ class PreTrainer:
             A torch.Tensor containing the flipped batch of samples.
         """
         flipped_batch = X_batch.clone()
-        if random.random() < 0.5: # 50% chance to flip
+        if random.random() < 0.5:  # 50% chance to flip
             flipped_batch = torch.flip(flipped_batch, dims=[1])
         return flipped_batch
 
@@ -1008,7 +1012,11 @@ class PreTrainer:
             # Define a list of augmentation functions to apply
             augmentation_functions = []
             if self.config.noise_enabled:
-                augmentation_functions.append(lambda x: self._add_gaussian_noise(x, std_dev=self.config.noise_level))
+                augmentation_functions.append(
+                    lambda x: self._add_gaussian_noise(
+                        x, std_dev=self.config.noise_level
+                    )
+                )
             if self.config.shift_enabled:
                 # Shift needs to be applied carefully, as it's per-sample in DataAugmenter
                 # For simplicity, I'll skip shift and scale for now, as they are more complex
@@ -1017,21 +1025,29 @@ class PreTrainer:
             if self.config.scale_enabled:
                 pass
             if self.config.crop_enabled:
-                augmentation_functions.append(lambda x: self._random_crop(x, crop_size=self.config.crop_size))
+                augmentation_functions.append(
+                    lambda x: self._random_crop(x, crop_size=self.config.crop_size)
+                )
             if self.config.flip_enabled:
                 augmentation_functions.append(self._random_flip)
             if self.config.permutation_enabled:
                 augmentation_functions.append(self._random_permutation)
-            
+
             # Always include intensity scaling as it's a core SimCLR augmentation
             augmentation_functions.append(lambda x: self._intensity_scaling(x))
 
             # Apply two random augmentations to create view1 and view2
             # Ensure at least two augmentations are available
             if len(augmentation_functions) < 2:
-                self.logger.warning("Not enough augmentation functions enabled for effective SimCLR. Using default noise and intensity scaling.")
-                view1 = self._add_gaussian_noise(self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05)
-                view2 = self._add_gaussian_noise(self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05)
+                self.logger.warning(
+                    "Not enough augmentation functions enabled for effective SimCLR. Using default noise and intensity scaling."
+                )
+                view1 = self._add_gaussian_noise(
+                    self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05
+                )
+                view2 = self._add_gaussian_noise(
+                    self._intensity_scaling(spectra_anchor.clone()), std_dev=0.05
+                )
             else:
                 # Randomly select two distinct augmentation functions
                 aug_fn1, aug_fn2 = random.sample(augmentation_functions, 2)
