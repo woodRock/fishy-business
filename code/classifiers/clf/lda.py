@@ -61,7 +61,7 @@ class lda(BaseEstimator, ClassifierMixin):
         # Solve the eigenvalue problem using SVD
         if self.solver == "svd":
             # Calculate Sw^(-1/2)
-            U, s, Vt = svd(Sw)
+            U, s, Vt = svd(Sw + np.eye(Sw.shape[0]) * 1e-6)
             # Add small constant to avoid division by zero
             s = np.maximum(s, 1e-10)
             Sw_sqrt_inv = np.dot(U * (1.0 / np.sqrt(s)), Vt)

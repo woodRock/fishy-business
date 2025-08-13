@@ -1,0 +1,60 @@
+{
+    "config": {
+        "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        "model": "cnn",
+        "dataset": "instance-recognition",
+        "run": 0,
+        "output": "logs/results_base",
+        "data_augmentation": false,
+        "masked_spectra_modelling": false,
+        "next_spectra_prediction": false,
+        "next_peak_prediction": false,
+        "spectrum_denoising_autoencoding": false,
+        "peak_parameter_regression": false,
+        "spectrum_segment_reordering": false,
+        "contrastive_transformation_invariance_learning": false,
+        "early_stopping": 20,
+        "dropout": 0.2,
+        "label_smoothing": 0.1,
+        "epochs": 100,
+        "learning_rate": 0.0001,
+        "batch_size": 64,
+        "hidden_dimension": 128,
+        "num_layers": 4,
+        "num_heads": 4,
+        "num_augmentations": 5,
+        "noise_level": 0.1,
+        "shift_enabled": false,
+        "scale_enabled": false
+    },
+    "stats": {
+        "balanced_accuracy": 0.6044973544973545,
+        "precision": 0.9049540277017692,
+        "recall": 0.6678743961352657,
+        "f1": 0.6783753462660883,
+        "auc_roc": 0.8378251763668431
+    },
+    "folds": [
+        {
+            "balanced_accuracy": 0.6676587301587301,
+            "precision": 0.8850931677018633,
+            "recall": 0.8405797101449275,
+            "f1": 0.8593666129898014,
+            "auc_roc": 0.7111441798941799
+        },
+        {
+            "balanced_accuracy": 0.560515873015873,
+            "precision": 0.9077685421994885,
+            "recall": 0.9202898550724637,
+            "f1": 0.8933431321416717,
+            "auc_roc": 0.9470072751322752
+        },
+        {
+            "balanced_accuracy": 0.5853174603174603,
+            "precision": 0.922000373203956,
+            "recall": 0.2427536231884058,
+            "f1": 0.2824162936667919,
+            "auc_roc": 0.8553240740740742
+        }
+    ]
+}
