@@ -228,8 +228,12 @@ class SiameseDataset(BaseDataset):
         n_samples = original_samples.shape[0]
         if n_samples < 2:
             return (
-                torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype),
-                torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype),
+                torch.empty(
+                    (0, original_samples.shape[1]), dtype=original_samples.dtype
+                ),
+                torch.empty(
+                    (0, original_samples.shape[1]), dtype=original_samples.dtype
+                ),
                 torch.empty((0, 1), dtype=torch.float32),
             )
 
