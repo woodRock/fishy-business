@@ -35,27 +35,27 @@ class LSTM(nn.Module):
 
     def __init__(
         self,
-        input_size: int = 1023,
-        hidden_size: int = 128,
+        input_dim: int = 1023,
+        hidden_dim: int = 128,
         num_layers: int = 2,
-        output_size: int = 2,
+        output_dim: int = 2,
         dropout: float = 0.2,
     ) -> None:
         """Long-short term memory (LSTM) module
 
         Args:
-            input_size (int): the size of the input. Defaults to 1023.
-            hidden_size (int): the dimensions of the hidden layer. Defaults to 128.
+            input_dim (int): the size of the input. Defaults to 1023.
+            hidden_dim (int): the dimensions of the hidden layer. Defaults to 128.
             num_layers (int): the number of hidden layers. Defaults to 2.
         """
         super(LSTM, self).__init__()
-        self.hidden_size = hidden_size
+        self.hidden_dim = hidden_dim
         self.num_layers = num_layers
 
         # LSTM layer (Hochreiter 1997)
         self.lstm = nn.LSTM(
-            input_size=input_size,
-            hidden_size=hidden_size,
+            input_size=input_dim,
+            hidden_size=hidden_dim,
             num_layers=num_layers,
             batch_first=True,
         )
@@ -63,7 +63,7 @@ class LSTM(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
 
         # Fully connected layer
-        self.fc = nn.Linear(hidden_size, output_size)
+        self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass of the LSTM
@@ -74,12 +74,12 @@ class LSTM(nn.Module):
         Returns
             out (torch.Tensor): the output of the model.
         """
-        # x shape: (batch_size, sequence_length, input_size)
+        # x shape: (batch_size, sequence_length, input_dim)
         # Initialize hidden state with zeros
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
 
         # Initialize cell state
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
 
         # We need to unsqueeze the input to add a sequence dimension
         if x.dim() == 2:
@@ -88,7 +88,7 @@ class LSTM(nn.Module):
         # Forward propagate LSTM
         out, _ = self.lstm(
             x, (h0, c0)
-        )  # out: tensor of shape (batch_size, seq_length, hidden_size)
+        )  # out: tensor of shape (batch_size, seq_length, hidden_dim)
 
         # Dropout layer (Srivastava 2014, Hinton 2012)
         out = self.dropout(out)

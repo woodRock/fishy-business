@@ -230,7 +230,7 @@ class SiameseDataset(BaseDataset):
         indices_i = torch.arange(n_samples).unsqueeze(1).expand(-1, n_samples).flatten()
         indices_j = torch.arange(n_samples).unsqueeze(0).expand(n_samples, -1).flatten()
 
-        mask = indices_i != indices_j
+        mask = indices_i < indices_j
         indices_i, indices_j = indices_i[mask], indices_j[mask]
 
         X1, X2 = original_samples[indices_i], original_samples[indices_j]

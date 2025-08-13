@@ -42,7 +42,7 @@ import torch.nn as nn
 
 class CNN(nn.Module):
     def __init__(
-        self, input_size: int = 1023, num_classes: int = 7, dropout: int = 0.5
+        self, input_dim: int = 1023, output_dim: int = 7, dropout: int = 0.5
     ) -> None:
         """Initialize the CNN model.
 
@@ -50,8 +50,8 @@ class CNN(nn.Module):
         It includes batch normalization, ReLU activation, and dropout for regularization.
 
         Args:
-            input_size (int): Size of the input features.
-            num_classes (int): Number of output classes.
+            input_dim (int): Size of the input features.
+            output_dim (int): Number of output classes.
             dropout (float): Dropout rate for regularization.
         """
 
@@ -78,14 +78,14 @@ class CNN(nn.Module):
         self.flatten = nn.Flatten()
 
         # Calculate the size of the flattened features after convolutions
-        self.flat_features = 256 * (input_size // 4)
+        self.flat_features = 256 * (input_dim // 4)
 
         self.fc_layers = nn.Sequential(
             nn.Linear(self.flat_features, 256),
             nn.ReLU(),
             # Dropout layer (Srivastava 2014, Hinton 2012)
             nn.Dropout(p=dropout),
-            nn.Linear(256, num_classes),
+            nn.Linear(256, output_dim),
         )
 
     def forward(self, x):

@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Main entry point for training SimCLR models with various encoders.
+Main script for training and evaluating contrastive models using contrastive learning methods.
 
-This script orchestrates the training and evaluation of a Siamese network using the SimCLR
-framework. It supports multiple encoder architectures, handles data preparation, runs
-training for a specified number of iterations, and provides detailed statistics and
-visualizations.
+This script supports various contrastive learning methods such as SimCLR, MoCo, BYOL, SimSiam, and Barlow Twins.    
+It includes model definitions, loss functions, and training routines.  
+It is designed to be flexible and extensible, allowing for easy integration of new models and methods.
+It also includes utilities for data preprocessing, model evaluation, and visualization of results.
 
-Example Usage:
---------------
-# Train a SimCLR model with a Transformer encoder
-python -m siamese.main --encoder_type transformer --num_runs 10
-
-# Train with a CNN encoder and different hyperparameters
-python -m siamese.main --encoder_type cnn --num_runs 30 --batch_size 32 --learning_rate 1e-4
+Example usage:
+    python3 -m contrastive.main --encoder_type transformer --contrastive_method simclr --num_runs 3 --batch_size 16
 
 """
 
@@ -56,7 +51,7 @@ from models import (
     TCN,
     WaveNet,
     Hybrid,
-    Longformer,
+    # Longformer,
     Performer,
     SimCLRModel, SimCLRLoss,
     MoCoModel, MoCoLoss,
@@ -112,6 +107,19 @@ class ContrastiveConfig:
     barlow_twins_lambda: float = 5e-3
 
 
+class VAEEncoderWrapper(nn.Module):
+    def __init__(self, vae_model: nn.Module):
+        super().__init__()
+        self.vae_model = vae_model
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # VAE.forward returns recon_x, mu, logvar, class_probs
+        # We need the latent representation 'z' for contrastive learning
+        mu, logvar = self.vae_model.encode(x)
+        z = self.vae_model.reparameterize(mu, logvar)
+        return z
+
+
 # ## 3. Core SimCLR Components
 # -----------------------------
 # These classes define the main components of the SimCLR framework:
@@ -141,7 +149,7 @@ ENCODER_REGISTRY: Dict[str, Type[nn.Module]] = {
     "tcn": TCN,
     "wavenet": WaveNet,
     "hybrid": Hybrid,
-    "longformer": Longformer,
+    # "longformer": Longformer,
     "performer": Performer,
 }
 
@@ -161,14 +169,69 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
         raise ValueError(f"Unsupported encoder type: {config.encoder_type}")
 
     args = {
-        "input_dim": config.input_dim,
-        "output_dim": config.embedding_dim,
         "dropout": config.dropout,
     }
-    # Special handling for Hybrid, Longformer, and Performer
-    if config.encoder_type in ["hybrid", "longformer", "performer"]:
+
+    if config.encoder_type == "cnn":
+        return encoder_class(
+            input_size=config.input_dim,
+            num_classes=config.embedding_dim,
+            dropout=config.dropout,
+        )
+    elif config.encoder_type == "mamba":
+        args.update({
+            "input_dim": config.input_dim, # Add input_dim
+            "d_model": config.embedding_dim, # Output dimension of the encoder
+            "d_state": config.hidden_dim,
+            "d_conv": 4, # Default value for d_conv
+            "expand": 2, # Default value for expand
+            "depth": config.num_layers,
+        })
+    elif config.encoder_type == "kan":
         args.update(
             {
+                "hidden_dim": config.hidden_dim,
+                "num_layers": config.num_layers,
+                "num_inner_functions": 10,
+                "dropout_rate": args.pop("dropout"), # Rename dropout to dropout_rate
+            }
+        )
+    elif config.encoder_type == "vae":
+        args["input_size"] = config.input_dim # Rename input_dim to input_size
+        args["num_classes"] = config.embedding_dim # Rename output_dim to num_classes
+        args["latent_dim"] = config.hidden_dim # Map hidden_dim to latent_dim
+    elif config.encoder_type == "moe":
+        args.update({
+            "hidden_dim": config.hidden_dim,
+            "num_layers": config.num_layers,
+            "num_heads": config.num_heads,
+            "num_experts": 4,
+            "k": 2
+        })
+    elif config.encoder_type in ["transformer", "lstm", "rwkv"]:
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
+                "hidden_dim": config.hidden_dim,
+                "num_layers": config.num_layers,
+            }
+        )
+        if config.encoder_type == "transformer":
+            args["num_heads"] = config.num_heads
+    elif config.encoder_type == "ensemble":
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
+                "hidden_dim": config.hidden_dim,
+            }
+        )
+    elif config.encoder_type in ["hybrid", "longformer", "performer"]:
+        args.update(
+            {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
                 "hidden_dim": config.hidden_dim,
                 "num_layers": config.num_layers,
                 "num_heads": config.num_heads,
@@ -181,52 +244,17 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
             args["num_heads"] = 4
         elif config.encoder_type == "performer":
             args["num_random_features"] = 256 # Default for Performer
+    else: # For simple_models and others that take input_dim, output_dim, dropout
+        args.update({
+            "input_dim": config.input_dim,
+            "output_dim": config.embedding_dim,
+        })
 
-    if config.encoder_type == "cnn":
-        return encoder_class(
-            input_size=config.input_dim,
-            num_classes=config.embedding_dim,
-            dropout=config.dropout,
-        )
-    if config.encoder_type in ["transformer", "lstm", "moe", "rwkv"]:
-        args.update(
-            {
-                "hidden_dim": config.hidden_dim,
-                "num_layers": config.num_layers,
-            }
-        )
-    if config.encoder_type == "ensemble":
-        args.update(
-            {
-                "hidden_dim": config.hidden_dim,
-            }
-        )
-    if config.encoder_type in ["transformer", "moe"]:
-        args["num_heads"] = config.num_heads
-    if config.encoder_type == "mamba":
-        args.update({"d_state": config.hidden_dim, "num_layers": config.num_layers})
-    if config.encoder_type == "kan":
-        args.update(
-            {
-                "hidden_dim": config.hidden_dim,
-                "num_layers": config.num_layers,
-                "num_inner_functions": 10,
-            }
-        )
+    encoder = encoder_class(**args)
+
     if config.encoder_type == "vae":
-        args.update({"hidden_dim": config.hidden_dim, "latent_dim": config.hidden_dim})
-    if config.encoder_type == "moe":
-        args.update({"num_experts": 4, "k": 2})
-
-    simple_models = ["rcnn", "dense", "ode", "tcn", "wavenet"]
-    if config.encoder_type in simple_models:
-        return encoder_class(
-            input_dim=args["input_dim"],
-            output_dim=args["output_dim"],
-            dropout=args["dropout"],
-        )
-
-    return encoder_class(**args)
+        return VAEEncoderWrapper(encoder)
+    return encoder
 
 
 def create_contrastive_model(
@@ -597,7 +625,21 @@ def run_single_training(
 
 
 def main(config: ContrastiveConfig):
-    """Main function to run SimCLR training with Group k-fold cross-validation."""
+    """Orchestrates the training and evaluation of contrastive learning models using Group K-fold cross-validation.
+
+    This function sets up the environment, loads and preprocesses data, and then
+    iterates through multiple cross-validation folds. For each fold, it trains
+    a contrastive learning model (e.g., SimCLR, MoCo, BYOL, SimSiam, Barlow Twins)
+    with a specified encoder architecture (e.g., Transformer, CNN, LSTM).
+    It collects and logs training and validation metrics, and saves the best
+    performing model across all runs.
+
+    Args:
+        config (ContrastiveConfig): An object containing all configuration
+            parameters for the contrastive learning experiment, including
+            model architecture, training hyperparameters, and cross-validation
+            settings.
+    """
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )

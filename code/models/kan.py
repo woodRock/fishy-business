@@ -46,7 +46,7 @@ class KANLayer(nn.Module):
         output_dim: int,
         hidden_dim: int = 64,
         num_inner_functions: int = 10,
-        dropout_rate: float = 0.1,
+        dropout: float = 0.1,
     ) -> None:
         """Kolmogorov-Arnold Neural Network (KAN) module.
 
@@ -82,7 +82,7 @@ class KANLayer(nn.Module):
         self.outer_linear3 = nn.Linear(hidden_dim, output_dim)
 
         # Dropout layer (Srivastava 2014, Hinton 2012)
-        self.dropout = nn.Dropout(dropout_rate)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x) -> torch.Tensor:
         """A forward pass through the KAN layer.
