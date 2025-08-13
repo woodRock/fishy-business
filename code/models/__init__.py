@@ -8,7 +8,7 @@ time series classification, image processing, and more.
 
 # models/__init__.py
 
-print("Initializing the 'models' package...")  # Optional: for verification
+
 
 # If you have submodules within 'models' that you want to expose
 # when someone does 'import models', you can do it here.
@@ -31,7 +31,7 @@ from .transformer import Transformer, MultiHeadAttention
 from .vae import VAE
 from .wavenet import WaveNet
 from .hybrid import Hybrid
-from .longformer import Longformer
+# from .longformer import Longformer
 from .performer import Performer
 from .moco import MoCoModel, MoCoLoss
 from .byol import BYOLModel, BYOLLoss

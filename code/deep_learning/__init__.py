@@ -5,7 +5,7 @@ It includes implementations of different neural network architectures suitable f
 time series classification, image processing, and more.
 """
 
-print("Initializing the 'deep-learning' package...")  # Optional: for verification
+
 
 # If you have submodules within 'deep-learning' that you want to expose
 # when someone does 'import deep-learning', you can do it here.

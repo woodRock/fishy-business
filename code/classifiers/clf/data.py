@@ -168,7 +168,10 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
         X, y = np.array(features), np.array(labels)
         # We don't want onehot encoding for multi-tree GP.
         # y = np.eye(2)[y]
-        return X, y
+        groups = np.array([f"{label}_{idx}" for idx, label in enumerate(y)])
+        le = LabelEncoder()
+        groups = le.fit_transform(groups)
+        return X, y, groups
     elif dataset == "instance-recognition-hard":
         data = data[
             ~data.iloc[:, 0]
@@ -188,7 +191,10 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
         n_classes = len(np.unique(y))
         # y = np.eye(n_classes)[y]
         print(f"n_classes: {n_classes}")
-        return X, y
+        groups = np.array([f"{label}_{idx}" for idx, label in enumerate(y)])
+        le = LabelEncoder()
+        groups = le.fit_transform(groups)
+        return X, y, groups
     else:
         # Return an excpetion if the dataset is not valid.
         raise ValueError(f"No valid dataset was specified: {dataset}")
@@ -213,8 +219,12 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
     n_classes = len(np.unique(y, axis=0))
     class_ratios = np.array(class_counts) / n_instances
 
+    groups = data["m/z"].apply(lambda x: x.split(" ")[0])
+    le = LabelEncoder()
+    groups = le.fit_transform(groups)
+
     logger.info(f"Class Counts: {class_counts}, Class Ratios: {class_ratios}")
     logger.info(f"Number of features: {n_features}")
     logger.info(f"Number of instances: {n_instances}")
     logger.info(f"Number of classes {n_classes}.")
-    return X, y
+    return X, y, groups

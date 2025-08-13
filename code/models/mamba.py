@@ -108,7 +108,6 @@ class MambaBlock(nn.Module):
             torch.Tensor: the output tensor.
         """
         B, L, D = x.shape
-
         x = self.layer_norm(x)  # Layer normalization
 
         x_in = self.in_proj(x)
@@ -142,32 +141,18 @@ class MambaBlock(nn.Module):
 class Mamba(nn.Module):
     def __init__(
         self,
+        input_dim: int,
         d_model: int,
         d_state: int,
         d_conv: int,
         expand: int,
         depth: int,
-        n_classes=2,
         dropout: float = 0.2,
         layer_norm_eps: float = 1e-5,
         spectral_norm: bool = True,
     ):
-        """Mamba model
-
-        This model implements the Mamba architecture with multiple Mamba blocks.
-
-        Args:
-            d_model (int): the dimensions of the model.
-            d_state (int): the dimensions of the state.
-            d_conv (int): the dimensions of the convolution.
-            expand (int): the expansion factor.
-            depth (int): the depth of the model.
-            n_classes (int): the number of classes.
-            dropout (float): the dropout rate.
-            layer_norm_eps (float): the layer normalization epsilon.
-            spectral_norm (bool): whether to apply spectral normalization.
-        """
         super().__init__()
+        self.embedding_layer = nn.Linear(input_dim, d_model)
         self.layers = nn.ModuleList(
             [
                 MambaBlock(d_model, d_state, d_conv, expand, dropout, layer_norm_eps)
@@ -176,10 +161,10 @@ class Mamba(nn.Module):
         )
         # Dropout (Srivastava 2014, Hinton 2012)
         self.dropout = nn.Dropout(dropout)
-        self.fc = nn.Linear(d_model, n_classes)
 
         if spectral_norm:
-            self.fc = nn.utils.spectral_norm(self.fc)
+            # No self.fc, so apply spectral norm to a dummy layer or remove if not needed
+            pass # Removed self.fc, so no spectral norm here
 
         # Layer normalization (Ba 2016)
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
@@ -193,14 +178,14 @@ class Mamba(nn.Module):
         Returns:
             torch.Tensor: the output tensor.
         """
+        x = self.embedding_layer(x) # Apply embedding layer first
         x = x.unsqueeze(1).repeat(1, 100, 1)
 
         for layer in self.layers:
             residual = x
             x = layer(x)
-            x = x + residual  # Residual connection (He 2016)
-            x = self.dropout(x)  # Dropout (Srivastava 2014, Hinton 2012)
+            x = x + residual
+            x = self.dropout(x)
 
-        x = self.layer_norm(x)  # Final layer normalization (Ba 2016)
-        x = self.fc(x[:, 0, :])
-        return x
+        x = self.layer_norm(x)
+        return x[:, 0, :]

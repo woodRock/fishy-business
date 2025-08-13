@@ -13,7 +13,7 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
+from sklearn.model_selection import StratifiedKFold, GridSearchCV, StratifiedGroupKFold # Added StratifiedGroupKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
@@ -109,9 +109,9 @@ def main(dataset="species"):
     print(
         f"Starting Decision Tree Classifier GridSearchCV script for dataset: {dataset}..."
     )  # Updated
-    X, y = load_dataset(dataset=dataset)
-    X = pd.DataFrame(X)
-    y = pd.Series(y)
+    X_original, y_original, groups_original = load_dataset(dataset=dataset) # Modified
+    X = pd.DataFrame(X_original) # Modified
+    y = pd.Series(y_original) # Modified
 
     numerical_features = X.select_dtypes(include=np.number).columns.tolist()
     categorical_features = X.select_dtypes(
@@ -176,32 +176,17 @@ def main(dataset="species"):
     print(f"Defined parameter grid for GridSearchCV (Decision Tree).")
     # -------------------------------
 
-    # --- CV and Scorer Definition (remains the same) ---
-    min_class_count = y.value_counts().min()
-    n_cv_splits = 3 if dataset == "part" else 5
-    actual_n_splits = min(n_cv_splits, min_class_count)
-
-    if actual_n_splits < n_cv_splits:
-        print(
-            f"Warning: The smallest class has only {min_class_count} members. "
-            f"Reducing n_splits for StratifiedKFold from {n_cv_splits} to {actual_n_splits}."
-        )
-    if actual_n_splits < 2:
-        print(
-            f"Error: The smallest class has only {min_class_count} members. "
-            f"Cannot perform cross-validation with n_splits={actual_n_splits}. Halting script for dataset {dataset}."
-        )
-        return
-
-    cv = StratifiedKFold(
-        n_splits=actual_n_splits, shuffle=True, random_state=random_seed
+    # --- CV and Scorer Definition (Updated for StratifiedGroupKFold) ---
+    n_cv_splits = 3 # Fixed to 3 as per request
+    cv = StratifiedGroupKFold(
+        n_splits=n_cv_splits, shuffle=True, random_state=random_seed
     )
     balanced_accuracy_scorer = make_scorer(balanced_accuracy_score)
     # --------------------------------
 
     # --- GridSearchCV Execution ---
     print(
-        f"Starting GridSearchCV for Decision Tree Classifier using {actual_n_splits}-fold CV..."  # Updated
+        f"Starting GridSearchCV for Decision Tree Classifier using {n_cv_splits}-fold CV..."  # Updated
     )
     print("This may take a few minutes...")
     grid_search = GridSearchCV(
@@ -214,7 +199,7 @@ def main(dataset="species"):
     )
 
     try:
-        grid_search.fit(X, y)
+        grid_search.fit(X, y, groups=groups_original)
 
         print("\n--- GridSearchCV Results for Decision Tree Classifier ---")  # Updated
         best_score = grid_search.best_score_
