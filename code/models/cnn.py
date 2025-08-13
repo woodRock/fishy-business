@@ -103,13 +103,9 @@ class CNN(nn.Module):
 
         # Convolutional layers
         x = self.conv_layers(x)
-
-        # Flatten the output
-        x = self.flatten(x)
-
-        # Fully connected layers
+        # Flatten the output of the convolutional layers
+        x = x.contiguous().view(x.size(0), -1) # Added .contiguous()
         x = self.fc_layers(x)
-
         return x
 
 

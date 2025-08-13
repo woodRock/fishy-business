@@ -1,0 +1,60 @@
+{
+    "config": {
+        "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        "model": "mamba",
+        "dataset": "instance-recognition",
+        "run": 0,
+        "output": "logs/results_base",
+        "data_augmentation": false,
+        "masked_spectra_modelling": false,
+        "next_spectra_prediction": false,
+        "next_peak_prediction": false,
+        "spectrum_denoising_autoencoding": false,
+        "peak_parameter_regression": false,
+        "spectrum_segment_reordering": false,
+        "contrastive_transformation_invariance_learning": false,
+        "early_stopping": 20,
+        "dropout": 0.2,
+        "label_smoothing": 0.1,
+        "epochs": 100,
+        "learning_rate": 0.0001,
+        "batch_size": 64,
+        "hidden_dimension": 128,
+        "num_layers": 4,
+        "num_heads": 4,
+        "num_augmentations": 5,
+        "noise_level": 0.1,
+        "shift_enabled": false,
+        "scale_enabled": false
+    },
+    "stats": {
+        "train_loss": 0.0,
+        "train_accuracy": 0.5,
+        "val_loss": 0.0,
+        "val_accuracy": 0.5,
+        "epoch": 0.0
+    },
+    "folds": [
+        {
+            "train_loss": 0.0,
+            "train_accuracy": 0.5,
+            "val_loss": 0.0,
+            "val_accuracy": 0.5,
+            "epoch": 0
+        },
+        {
+            "train_loss": 0.0,
+            "train_accuracy": 0.5,
+            "val_loss": 0.0,
+            "val_accuracy": 0.5,
+            "epoch": 0
+        },
+        {
+            "train_loss": 0.0,
+            "train_accuracy": 0.5,
+            "val_loss": 0.0,
+            "val_accuracy": 0.5,
+            "epoch": 0
+        }
+    ]
+}
