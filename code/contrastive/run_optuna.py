@@ -10,7 +10,7 @@ import numpy as np
 import argparse
 
 # Add the parent directory to the Python path to import contrastive
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from contrastive.main import ContrastiveConfig, main as contrastive_main
 
@@ -18,8 +18,11 @@ from contrastive.main import ContrastiveConfig, main as contrastive_main
 optuna.logging.get_logger("optuna").addHandler(logging.StreamHandler(sys.stdout))
 
 # Configure logging for the training pipeline
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 def objective(trial: optuna.Trial, encoder_type: str) -> float:
     """Optuna objective function to optimize hyperparameters for a given encoder type."""
@@ -33,26 +36,28 @@ def objective(trial: optuna.Trial, encoder_type: str) -> float:
     dropout = trial.suggest_float("dropout", 0.1, 0.5)
 
     # Encoder-specific hyperparameters
-    if encoder_type == 'transformer':
+    if encoder_type == "transformer":
         num_layers = trial.suggest_int("num_layers", 1, 6)
         num_heads = trial.suggest_categorical("num_heads", [2, 4, 8])
-        num_inner_functions = 10 # Default
-    elif encoder_type == 'cnn':
+        num_inner_functions = 10  # Default
+    elif encoder_type == "cnn":
         num_layers = trial.suggest_int("num_layers", 2, 6)
         num_heads = 8  # Default
-        num_inner_functions = 10 # Default
-    elif encoder_type == 'kan':
+        num_inner_functions = 10  # Default
+    elif encoder_type == "kan":
         num_layers = trial.suggest_int("num_layers", 1, 5)
-        num_inner_functions = trial.suggest_categorical("num_inner_functions", [5, 10, 15])
-        num_heads = 8 # Default
-    elif encoder_type == 'lstm':
+        num_inner_functions = trial.suggest_categorical(
+            "num_inner_functions", [5, 10, 15]
+        )
+        num_heads = 8  # Default
+    elif encoder_type == "lstm":
         num_layers = trial.suggest_int("num_layers", 1, 3)
-        num_heads = 8 # Default
-        num_inner_functions = 10 # Default
-    elif encoder_type == 'rcnn':
-        num_layers = 6 # Default
-        num_heads = 8 # Default
-        num_inner_functions = 10 # Default
+        num_heads = 8  # Default
+        num_inner_functions = 10  # Default
+    elif encoder_type == "rcnn":
+        num_layers = 6  # Default
+        num_heads = 8  # Default
+        num_inner_functions = 10  # Default
     else:
         raise ValueError(f"Unsupported encoder_type: {encoder_type}")
 
@@ -62,9 +67,13 @@ def objective(trial: optuna.Trial, encoder_type: str) -> float:
     scale_enabled = trial.suggest_categorical("scale_enabled", [True, False])
     crop_enabled = trial.suggest_categorical("crop_enabled", [True, False])
     flip_enabled = trial.suggest_categorical("flip_enabled", [True, False])
-    permutation_enabled = trial.suggest_categorical("permutation_enabled", [True, False])
-    
-    noise_level = trial.suggest_float("noise_level", 0.01, 0.2) if noise_enabled else 0.0
+    permutation_enabled = trial.suggest_categorical(
+        "permutation_enabled", [True, False]
+    )
+
+    noise_level = (
+        trial.suggest_float("noise_level", 0.01, 0.2) if noise_enabled else 0.0
+    )
     crop_size = trial.suggest_float("crop_size", 0.5, 0.9) if crop_enabled else 1.0
 
     # 2. Create ContrastiveConfig instance
@@ -102,14 +111,29 @@ def objective(trial: optuna.Trial, encoder_type: str) -> float:
     if "val_accuracy" in stats and "mean" in stats["val_accuracy"]:
         return -stats["val_accuracy"]["mean"]
     else:
-        return float('inf')
+        return float("inf")
+
 
 def main():
     """Main function to run the Optuna study."""
-    parser = argparse.ArgumentParser(description="Run Optuna optimization for SimCLR with a specified encoder.")
-    parser.add_argument("encoder_type", type=str, choices=['cnn', 'kan', 'lstm', 'rcnn', 'transformer'], help="The encoder type to optimize.")
-    parser.add_argument("--n_trials", type=int, default=10, help="Number of Optuna trials.")
-    parser.add_argument("--timeout", type=int, default=3600, help="Timeout for the Optuna study in seconds.")
+    parser = argparse.ArgumentParser(
+        description="Run Optuna optimization for SimCLR with a specified encoder."
+    )
+    parser.add_argument(
+        "encoder_type",
+        type=str,
+        choices=["cnn", "kan", "lstm", "rcnn", "transformer"],
+        help="The encoder type to optimize.",
+    )
+    parser.add_argument(
+        "--n_trials", type=int, default=10, help="Number of Optuna trials."
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=3600,
+        help="Timeout for the Optuna study in seconds.",
+    )
     args = parser.parse_args()
 
     encoder_type = args.encoder_type
@@ -119,8 +143,15 @@ def main():
     os.makedirs("results", exist_ok=True)
 
     # Create and run the Optuna study
-    study = optuna.create_study(direction="minimize", study_name=f"contrastive_simclr_{encoder_type}_optimization")
-    study.optimize(lambda trial: objective(trial, encoder_type), n_trials=args.n_trials, timeout=args.timeout)
+    study = optuna.create_study(
+        direction="minimize",
+        study_name=f"contrastive_simclr_{encoder_type}_optimization",
+    )
+    study.optimize(
+        lambda trial: objective(trial, encoder_type),
+        n_trials=args.n_trials,
+        timeout=args.timeout,
+    )
 
     print(f"\nOptimization for {encoder_type} finished.")
     best_trial = study.best_trial
@@ -166,7 +197,7 @@ def main():
 
     # Construct the results dictionary
     results_to_save = {
-        "config": {k: v for k, v in config.__dict__.items() if not k.startswith('_')},
+        "config": {k: v for k, v in config.__dict__.items() if not k.startswith("_")},
         "stats": {
             "train_loss": final_stats.get("train_loss", {}),
             "train_accuracy": final_stats.get("train_accuracy", {}),
@@ -182,7 +213,7 @@ def main():
     with open(config_path, "w") as f:
         config_to_save = {
             "hyperparameters": best_trial.params,
-            "validation_score": -best_trial.value
+            "validation_score": -best_trial.value,
         }
         json.dump(config_to_save, f, indent=4)
     logger.info(f"Best hyperparameters for {encoder_type} saved to {config_path}")
@@ -192,6 +223,7 @@ def main():
     with open(results_path, "w") as f:
         json.dump(results_to_save, f, indent=4)
     logger.info(f"Final statistics for {encoder_type} saved to {results_path}")
+
 
 if __name__ == "__main__":
     main()
