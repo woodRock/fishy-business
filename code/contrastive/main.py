@@ -87,7 +87,7 @@ class ContrastiveConfig:
     num_heads: int = 8
     hidden_dim: int = 256
     num_layers: int = 6
-    num_inner_functions: int = 10 # Added
+    num_inner_functions: int = 10  # Added
     dropout: float = 0.18
     num_runs: int = 30
     patience: int = 100
@@ -702,7 +702,9 @@ def run_single_training(
     if best_model_state_path and os.path.exists(best_model_state_path):
         model.load_state_dict(torch.load(best_model_state_path))
     else:
-        logging.warning(f"No best model saved for run {run_id}. Returning model from last epoch.")
+        logging.warning(
+            f"No best model saved for run {run_id}. Returning model from last epoch."
+        )
 
     return model, best_metrics, best_threshold
 
