@@ -87,6 +87,7 @@ class ContrastiveConfig:
     num_heads: int = 8
     hidden_dim: int = 256
     num_layers: int = 6
+    num_inner_functions: int = 10 # Added
     dropout: float = 0.18
     num_runs: int = 30
     patience: int = 100
@@ -208,9 +209,11 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
     elif config.encoder_type == "kan":
         args.update(
             {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
                 "hidden_dim": config.hidden_dim,
                 "num_layers": config.num_layers,
-                "num_inner_functions": 10,
+                "num_inner_functions": config.num_inner_functions,
                 "dropout_rate": args.pop("dropout"),  # Rename dropout to dropout_rate
             }
         )
@@ -653,6 +656,9 @@ def run_single_training(
     patience_counter = 0
     best_threshold = 0.5
 
+    # Initialize best_model_state_path to None
+    best_model_state_path = None
+
     for epoch in range(config.num_epochs):
         train_loss, train_acc = trainer.train_epoch(train_loader)
         val_loss, val_acc = trainer.evaluate_model(val_loader)
@@ -667,9 +673,9 @@ def run_single_training(
                 "val_accuracy": val_acc,
                 "epoch": epoch,
             }
-            torch.save(
-                model.state_dict(), f"model_{config.encoder_type}_run_{run_id}.pth"
-            )
+            # Save the model state only if it's the best so far
+            best_model_state_path = f"model_{config.encoder_type}_run_{run_id}.pth"
+            torch.save(model.state_dict(), best_model_state_path)
             patience_counter = 0
         else:
             patience_counter += 1
@@ -680,7 +686,12 @@ def run_single_training(
         if (epoch + 1) % 10 == 0:
             logging.info(f"Fold {run_id+1}, Epoch {epoch+1}: Val Acc: {val_acc:.2f}%")
 
-    model.load_state_dict(torch.load(f"model_{config.encoder_type}_run_{run_id}.pth"))
+    # Load the best model state if it was saved, otherwise return the last state
+    if best_model_state_path and os.path.exists(best_model_state_path):
+        model.load_state_dict(torch.load(best_model_state_path))
+    else:
+        logging.warning(f"No best model saved for run {run_id}. Returning model from last epoch.")
+
     return model, best_metrics, best_threshold
 
 

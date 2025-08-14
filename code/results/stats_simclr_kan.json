@@ -1,17 +1,18 @@
 {
     "config": {
-        "temperature": 0.55,
+        "temperature": 0.15806966488350355,
         "projection_dim": 256,
-        "embedding_dim": 256,
-        "learning_rate": 3.5e-05,
+        "embedding_dim": 128,
+        "learning_rate": 0.0002294979959180961,
         "weight_decay": 1e-06,
         "batch_size": 16,
-        "num_epochs": 1000,
+        "num_epochs": 540,
         "input_dim": 2080,
         "num_heads": 8,
         "hidden_dim": 256,
-        "num_layers": 6,
-        "dropout": 0.18,
+        "num_layers": 1,
+        "num_inner_functions": 10,
+        "dropout": 0.40109060640484784,
         "num_runs": 3,
         "patience": 100,
         "encoder_type": "kan",
@@ -26,7 +27,15 @@
         "simsiam_projection_dim": 2048,
         "simsiam_hidden_dim": 512,
         "barlow_twins_projection_dim": 8192,
-        "barlow_twins_lambda": 0.005
+        "barlow_twins_lambda": 0.005,
+        "noise_enabled": false,
+        "shift_enabled": true,
+        "scale_enabled": true,
+        "crop_enabled": false,
+        "flip_enabled": true,
+        "permutation_enabled": true,
+        "noise_level": 0.0,
+        "crop_size": 1.0
     },
     "stats": {
         "train_loss": {
@@ -34,8 +43,8 @@
             "std": NaN
         },
         "train_accuracy": {
-            "mean": 0.5347222222222222,
-            "std": 0.0049104637582398965
+            "mean": 0.5416666666666666,
+            "std": 0.0
         },
         "val_loss": {
             "mean": NaN,
@@ -53,7 +62,7 @@
     "folds": [
         {
             "train_loss": NaN,
-            "train_accuracy": 0.53125,
+            "train_accuracy": 0.5416666666666666,
             "val_loss": NaN,
             "val_accuracy": 0.5,
             "epoch": 0
@@ -67,7 +76,7 @@
         },
         {
             "train_loss": NaN,
-            "train_accuracy": 0.53125,
+            "train_accuracy": 0.5416666666666666,
             "val_loss": NaN,
             "val_accuracy": 0.5,
             "epoch": 0

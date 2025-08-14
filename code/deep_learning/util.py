@@ -345,7 +345,7 @@ class DataAugmenter:
         """
         flipped_batch = X_batch.copy()
         if np.random.rand() < 0.5:  # 50% chance to flip
-            flipped_batch = np.flip(flipped_batch, axis=1)
+            flipped_batch = np.flip(flipped_batch, axis=1).copy()
         return flipped_batch
 
     def _random_permutation(self, X_batch: np.ndarray) -> np.ndarray:
@@ -360,7 +360,7 @@ class DataAugmenter:
         permuted_batch = X_batch.copy()
         n_samples, n_features = X_batch.shape
         for i in range(n_samples):
-            permuted_batch[i] = np.random.permutation(permuted_batch[i])
+            permuted_batch[i] = np.random.permutation(permuted_batch[i]).copy()
         return permuted_batch
 
     def _apply_augmentations_to_batch(self, X_batch: np.ndarray) -> np.ndarray:
