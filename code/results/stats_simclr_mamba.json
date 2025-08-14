@@ -1,0 +1,84 @@
+{
+    "config": {
+        "temperature": 0.55,
+        "projection_dim": 256,
+        "embedding_dim": 256,
+        "learning_rate": 3.5e-05,
+        "weight_decay": 1e-06,
+        "batch_size": 16,
+        "num_epochs": 1000,
+        "input_dim": 2080,
+        "num_heads": 8,
+        "hidden_dim": 256,
+        "num_layers": 6,
+        "dropout": 0.18,
+        "num_runs": 3,
+        "patience": 100,
+        "encoder_type": "mamba",
+        "contrastive_method": "simclr",
+        "moco_dim": 256,
+        "moco_k": 65536,
+        "moco_m": 0.999,
+        "moco_mlp": false,
+        "byol_projection_dim": 256,
+        "byol_hidden_dim": 4096,
+        "byol_m": 0.996,
+        "simsiam_projection_dim": 2048,
+        "simsiam_hidden_dim": 512,
+        "barlow_twins_projection_dim": 8192,
+        "barlow_twins_lambda": 0.005,
+        "noise_enabled": false,
+        "shift_enabled": false,
+        "scale_enabled": false,
+        "crop_enabled": false,
+        "flip_enabled": false,
+        "permutation_enabled": false,
+        "noise_level": 0.1,
+        "crop_size": 0.8
+    },
+    "stats": {
+        "train_loss": {
+            "mean": 3.399852580494351,
+            "std": 0.010183311402749856
+        },
+        "train_accuracy": {
+            "mean": 0.5173611111111112,
+            "std": 0.004910463758239948
+        },
+        "val_loss": {
+            "mean": 3.407840463850233,
+            "std": 0.016957526189133043
+        },
+        "val_accuracy": {
+            "mean": 0.5625,
+            "std": 0.01701034543599428
+        },
+        "epoch": {
+            "mean": 33.333333333333336,
+            "std": 15.326085243430198
+        }
+    },
+    "folds": [
+        {
+            "train_loss": 3.3892903327941895,
+            "train_accuracy": 0.5208333333333334,
+            "val_loss": 3.4304556846618652,
+            "val_accuracy": 0.5416666666666667,
+            "epoch": 55
+        },
+        {
+            "train_loss": 3.4136118491490683,
+            "train_accuracy": 0.5208333333333334,
+            "val_loss": 3.4034430185953775,
+            "val_accuracy": 0.5833333333333334,
+            "epoch": 23
+        },
+        {
+            "train_loss": 3.396655559539795,
+            "train_accuracy": 0.5104166666666666,
+            "val_loss": 3.389622688293457,
+            "val_accuracy": 0.5625,
+            "epoch": 22
+        }
+    ]
+}
