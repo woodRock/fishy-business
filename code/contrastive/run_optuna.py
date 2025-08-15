@@ -197,7 +197,7 @@ def main():
 
     # Construct the results dictionary
     results_to_save = {
-        "config": {k: v for k, v in config.__dict__.items() if not k.startswith('_')},
+        "config": {k: v for k, v in config.__dict__.items() if not k.startswith("_")},
         "stats": {
             "train_loss": final_stats.get("train_loss", {}),
             "train_accuracy": final_stats.get("train_accuracy", {}),
