@@ -122,6 +122,7 @@ class ContrastiveConfig:
     permutation_enabled: bool = False
     noise_level: float = 0.1
     crop_size: float = 0.8  # Added
+    trial_number: Optional[int] = None # For unique model saving in Optuna trials
 
 
 class VAEEncoderWrapper(nn.Module):
@@ -382,6 +383,10 @@ class ContrastiveTrainer:
         self, data_loader: DataLoader, is_training: bool
     ) -> Tuple[float, float]:
         """Runs a single epoch of training or evaluation."""
+        if len(data_loader) == 0:
+            logging.warning("Data loader is empty, skipping epoch.")
+            return 0.0, 0.0
+
         self.model.train(is_training)
         total_loss = 0.0
         all_h1, all_h2, all_labels = [], [], []
@@ -686,7 +691,10 @@ def run_single_training(
                 "epoch": epoch,
             }
             # Save the model state only if it's the best so far
-            best_model_state_path = f"model_{config.encoder_type}_run_{run_id}.pth"
+            if config.trial_number is not None:
+                best_model_state_path = f"model_{config.encoder_type}_run_{run_id}_trial_{config.trial_number}.pth"
+            else:
+                best_model_state_path = f"model_{config.encoder_type}_run_{run_id}.pth"
             torch.save(model.state_dict(), best_model_state_path)
             patience_counter = 0
         else:
@@ -701,6 +709,8 @@ def run_single_training(
     # Load the best model state if it was saved, otherwise return the last state
     if best_model_state_path and os.path.exists(best_model_state_path):
         model.load_state_dict(torch.load(best_model_state_path))
+        # Clean up the temporary model file
+        os.remove(best_model_state_path)
     else:
         logging.warning(
             f"No best model saved for run {run_id}. Returning model from last epoch."
@@ -735,7 +745,7 @@ def main(config: ContrastiveConfig) -> Dict:
     groups = preprocessor.extract_groups(filtered_data)
 
     # --- Split into (Train + Val) and Test sets ---
-    sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 80/20 split
+    sgkf_test_split = StratifiedGroupKFold(n_splits=2)  # 80/20 split
     train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
 
     X_train_val, X_test = features[train_val_indices], features[test_indices]

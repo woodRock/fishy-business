@@ -1,19 +1,19 @@
 {
     "config": {
-        "temperature": 0.29063452579262367,
+        "temperature": 0.387189763973648,
         "projection_dim": 256,
         "embedding_dim": 256,
-        "learning_rate": 0.0005679322945498316,
+        "learning_rate": 6.089290097637507e-05,
         "weight_decay": 1e-06,
-        "batch_size": 32,
-        "num_epochs": 375,
+        "batch_size": 64,
+        "num_epochs": 945,
         "input_dim": 2080,
-        "num_heads": 8,
-        "hidden_dim": 256,
-        "num_layers": 5,
+        "num_heads": 2,
+        "hidden_dim": 128,
+        "num_layers": 4,
         "num_inner_functions": 10,
-        "dropout": 0.48991175948539684,
-        "num_runs": 3,
+        "dropout": 0.4334356844231323,
+        "num_runs": 2,
         "patience": 100,
         "encoder_type": "transformer",
         "contrastive_method": "simclr",
@@ -32,32 +32,20 @@
         "shift_enabled": false,
         "scale_enabled": false,
         "crop_enabled": true,
-        "flip_enabled": false,
+        "flip_enabled": true,
         "permutation_enabled": false,
-        "noise_level": 0.0984100262799093,
-        "crop_size": 0.537691257614809
+        "noise_level": 0.12562810079780276,
+        "crop_size": 0.6422392027258355,
+        "trial_number": null
     },
     "stats": {
-        "train_loss": {
-            "mean": 3.938292211956448,
-            "std": 0.059125924811156014
-        },
-        "train_accuracy": {
-            "mean": 0.7256944444444445,
-            "std": 0.01964185503295969
-        },
-        "val_loss": {
-            "mean": 4.21902322769165,
-            "std": 0.029301118939132037
-        },
-        "val_accuracy": {
-            "mean": 0.90625,
-            "std": 0.0
-        },
-        "epoch": {
-            "mean": 53.666666666666664,
-            "std": 13.072447700751718
-        }
+        "train_loss": {},
+        "train_accuracy": {},
+        "val_loss": {},
+        "val_accuracy": {},
+        "epoch": {},
+        "test_loss": 0.0,
+        "test_accuracy": 0.0
     },
     "folds": []
 }

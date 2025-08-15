@@ -99,9 +99,10 @@ def objective(trial: optuna.Trial, encoder_type: str) -> float:
         noise_level=noise_level,
         crop_size=crop_size,
         input_dim=2080,
-        num_runs=3,
+        num_runs=2,
         patience=100,
         weight_decay=1e-6,
+        trial_number=trial.number,  # Add trial number
     )
 
     # 3. Run the main training function
@@ -188,7 +189,7 @@ def main():
         noise_level=best_params.get("noise_level", 0.0) if noise_enabled else 0.0,
         crop_size=best_params.get("crop_size", 1.0) if crop_enabled else 1.0,
         input_dim=2080,
-        num_runs=3,
+        num_runs=2,
         patience=100,
         weight_decay=1e-6,
     )
