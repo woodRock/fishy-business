@@ -741,7 +741,8 @@ def main(config: ContrastiveConfig) -> Dict:
     # Load and preprocess data
     data_config = DataConfig(
         batch_size=config.batch_size,
-        data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        # data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        data_path="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
     )
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
@@ -751,7 +752,7 @@ def main(config: ContrastiveConfig) -> Dict:
     groups = preprocessor.extract_groups(filtered_data)
 
     # --- Split into (Train + Val) and Test sets ---
-    sgkf_test_split = StratifiedGroupKFold(n_splits=data_config.num_runs)  # 80/20 split
+    sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 80/20 split
     train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
 
     X_train_val, X_test = features[train_val_indices], features[test_indices]
