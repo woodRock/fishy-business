@@ -28,7 +28,7 @@ def objective(trial: optuna.Trial, encoder_type: str) -> float:
     """Optuna objective function to optimize hyperparameters for a given encoder type."""
     # 1. Suggest hyperparameters for ContrastiveConfig
     learning_rate = trial.suggest_float("learning_rate", 1e-5, 1e-3, log=True)
-    batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
+    batch_size = trial.suggest_categorical("batch_size", [16, 32])
     num_epochs = trial.suggest_int("num_epochs", 100, 1000)
     temperature = trial.suggest_float("temperature", 0.05, 0.5, log=True)
     embedding_dim = trial.suggest_categorical("embedding_dim", [128, 256, 512])
