@@ -197,13 +197,15 @@ def main():
 
     # Construct the results dictionary
     results_to_save = {
-        "config": {k: v for k, v in config.__dict__.items() if not k.startswith("_")},
+        "config": {k: v for k, v in config.__dict__.items() if not k.startswith('_')},
         "stats": {
             "train_loss": final_stats.get("train_loss", {}),
             "train_accuracy": final_stats.get("train_accuracy", {}),
             "val_loss": final_stats.get("val_loss", {}),
             "val_accuracy": final_stats.get("val_accuracy", {}),
             "epoch": final_stats.get("epoch", {}),
+            "test_loss": final_stats.get("test_loss", 0.0),
+            "test_accuracy": final_stats.get("test_accuracy", 0.0),
         },
         "folds": final_stats.get("folds", []),
     }
