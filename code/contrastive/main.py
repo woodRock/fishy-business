@@ -739,7 +739,8 @@ def main(config: ContrastiveConfig) -> Dict:
     # Load and preprocess data once
     data_config = DataConfig(
         batch_size=config.batch_size,
-        data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        # data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        data_path="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
     )
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
