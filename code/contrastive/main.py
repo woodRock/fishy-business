@@ -710,38 +710,20 @@ def run_single_training(
 
 
 def main(config: ContrastiveConfig) -> Dict:
-    """Orchestrates the training and evaluation of contrastive learning models using Group K-fold cross-validation.
-
-    This function sets up the environment, loads and preprocesses data, and then
-    iterates through multiple cross-validation folds. For each fold, it trains
-    a contrastive learning model (e.g., SimCLR, MoCo, BYOL, SimSiam, Barlow Twins)
-    with a specified encoder architecture (e.g., Transformer, CNN, LSTM).
-    It collects and logs training and validation metrics, and saves the best
-    performing model across all runs.
-
-    Args:
-        config (ContrastiveConfig): An object containing all configuration
-            parameters for the contrastive learning experiment, including
-            model architecture, training hyperparameters, and cross-validation
-            settings.
     """
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    device = torch.device(
-        "cuda"
-        if torch.cuda.is_available()
-        else "mps" if torch.backends.mps.is_available() else "cpu"
-    )
-    logging.info(f"Using device: {device}")
-    print(f"Actual device being used: {device}")
+    Orchestrates the training, validation, and testing of contrastive learning models.
 
-    # Load and preprocess data once
-    data_config = DataConfig(
-        batch_size=config.batch_size,
-        # data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
-        data_path="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
-    )
+    This function implements a robust evaluation methodology by first splitting the data
+    into a training/validation set and a held-out test set. It then performs
+    k-fold cross-validation on the training/validation set to find the best model,
+    which is finally evaluated on the test set for an unbiased performance estimate.
+    """
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+    logging.info(f"Using device: {device}")
+
+    # Load and preprocess data
+    data_config = DataConfig(batch_size=config.batch_size)
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
     filtered_data = preprocessor.filter_data(data, data_config.dataset_name)
@@ -749,11 +731,19 @@ def main(config: ContrastiveConfig) -> Dict:
     labels = preprocessor.encode_labels(filtered_data, data_config.dataset_name)
     groups = preprocessor.extract_groups(filtered_data)
 
-    # Group K-fold cross-validation setup
-    k_folds = config.num_runs
-    sgkf = StratifiedGroupKFold(n_splits=k_folds)
+    # --- Split into (Train + Val) and Test sets ---
+    sgkf_test_split = StratifiedGroupKFold(n_splits=5)  # 80/20 split
+    train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
 
-    # Create the full contrastive model and its loss function
+    X_train_val, X_test = features[train_val_indices], features[test_indices]
+    y_train_val, y_test = labels[train_val_indices], labels[test_indices]
+    groups_train_val = groups[train_val_indices]
+
+    logging.info(f"Data split: {len(X_train_val)} train/val samples, {len(X_test)} test samples.")
+
+    # --- Cross-validation on the (Train + Val) set ---
+    k_folds = config.num_runs
+    sgkf_cv = StratifiedGroupKFold(n_splits=k_folds)
     base_model, loss_fn = create_contrastive_model(config)
 
     os.makedirs("results", exist_ok=True)
@@ -763,92 +753,57 @@ def main(config: ContrastiveConfig) -> Dict:
     best_overall_model = None
     best_overall_val_acc = float("-inf")
 
-    for fold, (train_index, val_index) in enumerate(
-        sgkf.split(features, np.argmax(labels, axis=1), groups=groups)
-    ):
+    for fold, (train_index, val_index) in enumerate(sgkf_cv.split(X_train_val, np.argmax(y_train_val, axis=1), groups=groups_train_val)):
         logging.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
-
-        X_train, X_val = features[train_index], features[val_index]
-        y_train, y_val = labels[train_index], labels[val_index]
+        X_train, X_val = X_train_val[train_index], X_train_val[val_index]
+        y_train, y_val = y_train_val[train_index], y_train_val[val_index]
 
         train_dataset = SiameseDataset(X_train, y_train)
         val_dataset = SiameseDataset(X_val, y_val)
-
-        num_train_pos = (
-            np.sum(np.argmax(train_dataset.pair_labels, axis=1) == 1)
-            if len(train_dataset) > 0
-            else 0
-        )
-        num_val_pos = (
-            np.sum(np.argmax(val_dataset.pair_labels, axis=1) == 1)
-            if len(val_dataset) > 0
-            else 0
-        )
-        logging.info(
-            f"Generated pairs. Train: {len(train_dataset)} (Positive: {num_train_pos}). Val: {len(val_dataset)} (Positive: {num_val_pos})"
-        )
-
-        if len(val_dataset) == 0 or num_val_pos == 0:
-            logging.warning(
-                f"Fold {fold + 1} has no validation pairs or no positive validation pairs. Skipping."
-            )
-            continue
-
-        train_sampler = BalancedBatchSampler(
-            train_dataset.pair_labels, config.batch_size
-        )
+        
+        # ... (data loader setup as before)
+        train_sampler = BalancedBatchSampler(train_dataset.pair_labels, config.batch_size)
         val_sampler = BalancedBatchSampler(val_dataset.pair_labels, config.batch_size)
-
-        if len(train_sampler) == 0 or len(val_sampler) == 0:
-            logging.warning(
-                f"Fold {fold + 1} has insufficient pairs to form a batch. Skipping."
-            )
-            continue
-
         train_loader = DataLoader(train_dataset, batch_sampler=train_sampler)
         val_loader = DataLoader(val_dataset, batch_sampler=val_sampler)
 
-        model, metrics, threshold = run_single_training(
-            config,
-            fold,
-            device,
-            train_loader,
-            val_loader,
-            base_model,
-            loss_fn,  # Pass loss_fn
-        )
+        model, metrics, threshold = run_single_training(config, fold, device, train_loader, val_loader, base_model, loss_fn)
 
         if metrics:
             all_fold_metrics.append(metrics)
             if metrics["val_accuracy"] > best_overall_val_acc:
                 best_overall_val_acc = metrics["val_accuracy"]
                 best_overall_model = copy.deepcopy(model)
-                torch.save(
-                    best_overall_model.state_dict(),
-                    f"best_model_{config.contrastive_method}_{config.encoder_type}_overall.pth",
-                )
+                torch.save(best_overall_model.state_dict(), f"best_model_{config.contrastive_method}_{config.encoder_type}_overall.pth")
 
+    # --- Final Evaluation on the Test Set ---
+    test_loss, test_accuracy = 0.0, 0.0
+    if best_overall_model:
+        test_dataset = SiameseDataset(X_test, y_test)
+        if len(test_dataset) > 0:
+            test_sampler = BalancedBatchSampler(test_dataset.pair_labels, config.batch_size)
+            if len(test_sampler) > 0:
+                test_loader = DataLoader(test_dataset, batch_sampler=test_sampler)
+                trainer = ContrastiveTrainer(best_overall_model, loss_fn, config, device)
+                test_loss, test_accuracy = trainer.evaluate_model(test_loader)
+                logging.info(f"Final Test Set Evaluation - Loss: {test_loss:.4f}, Accuracy: {test_accuracy:.4f}")
+
+    # --- Save results ---
     if all_fold_metrics:
         stats = {
-            key: {
-                "mean": np.mean([m[key] for m in all_fold_metrics]),
-                "std": np.std([m[key] for m in all_fold_metrics]),
-            }
+            key: {"mean": np.mean([m[key] for m in all_fold_metrics]), "std": np.std([m[key] for m in all_fold_metrics])}
             for key in all_fold_metrics[0]
         }
+        stats['test_loss'] = test_loss
+        stats['test_accuracy'] = test_accuracy
+        
         logging.info(f"Cross-validation statistics for {config.encoder_type}: {stats}")
-        with open(
-            f"results/stats_{config.contrastive_method}_{config.encoder_type}.json", "w"
-        ) as f:
-            json.dump(
-                {"config": asdict(config), "stats": stats, "folds": all_fold_metrics},
-                f,
-                indent=4,
-            )
-        return stats  # Return the stats dictionary
+        with open(f"results/stats_{config.contrastive_method}_{config.encoder_type}.json", "w") as f:
+            json.dump({"config": asdict(config), "stats": stats, "folds": all_fold_metrics}, f, indent=4)
+        return stats
     else:
         logging.warning("No folds completed successfully to aggregate metrics.")
-        return {}  # Return empty dict if no metrics
+        return {}
 
 
 if __name__ == "__main__":
