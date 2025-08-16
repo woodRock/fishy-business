@@ -1,18 +1,18 @@
 {
     "config": {
-        "temperature": 0.09027935951906466,
+        "temperature": 0.4307473065515662,
         "projection_dim": 256,
         "embedding_dim": 256,
-        "learning_rate": 0.0009752288725176678,
+        "learning_rate": 0.0007115777439113662,
         "weight_decay": 1e-06,
         "batch_size": 32,
-        "num_epochs": 993,
+        "num_epochs": 185,
         "input_dim": 2080,
-        "num_heads": 4,
-        "hidden_dim": 128,
-        "num_layers": 6,
+        "num_heads": 2,
+        "hidden_dim": 512,
+        "num_layers": 2,
         "num_inner_functions": 10,
-        "dropout": 0.10813183982446002,
+        "dropout": 0.28671596870439187,
         "num_runs": 2,
         "patience": 100,
         "encoder_type": "transformer",
@@ -30,52 +30,37 @@
         "barlow_twins_lambda": 0.005,
         "noise_enabled": true,
         "shift_enabled": false,
-        "scale_enabled": true,
+        "scale_enabled": false,
         "crop_enabled": false,
         "flip_enabled": false,
         "permutation_enabled": false,
-        "noise_level": 0.012546353364345023,
+        "noise_level": 0.08998816995581424,
         "crop_size": 1.0,
-        "trial_number": 10
+        "trial_number": null
     },
     "stats": {
         "train_loss": {
-            "mean": 5.141571521759033,
-            "std": 0.2173295021057129
+            "mean": 3.851044178009033,
+            "std": 0.11697196960449219
         },
         "train_accuracy": {
             "mean": 0.9375,
-            "std": 0.03125
+            "std": 0.0625
         },
         "val_loss": {
-            "mean": 5.407015800476074,
-            "std": 0.04766559600830078
+            "mean": 4.099403619766235,
+            "std": 0.0181276798248291
         },
         "val_accuracy": {
-            "mean": 0.859375,
-            "std": 0.015625
+            "mean": 0.90625,
+            "std": 0.03125
         },
         "epoch": {
-            "mean": 12.0,
-            "std": 0.0
+            "mean": 26.5,
+            "std": 14.5
         },
-        "test_loss": 5.722691535949707,
+        "test_loss": 4.19024658203125,
         "test_accuracy": 0.625
     },
-    "folds": [
-        {
-            "train_loss": 5.358901023864746,
-            "train_accuracy": 0.96875,
-            "val_loss": 5.359350204467773,
-            "val_accuracy": 0.84375,
-            "epoch": 12
-        },
-        {
-            "train_loss": 4.92424201965332,
-            "train_accuracy": 0.90625,
-            "val_loss": 5.454681396484375,
-            "val_accuracy": 0.875,
-            "epoch": 12
-        }
-    ]
+    "folds": []
 }
