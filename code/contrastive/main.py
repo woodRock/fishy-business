@@ -122,7 +122,7 @@ class ContrastiveConfig:
     permutation_enabled: bool = False
     noise_level: float = 0.1
     crop_size: float = 0.8  # Added
-    trial_number: Optional[int] = None # For unique model saving in Optuna trials
+    trial_number: Optional[int] = None  # For unique model saving in Optuna trials
 
 
 class VAEEncoderWrapper(nn.Module):
@@ -753,8 +753,6 @@ def main(config: ContrastiveConfig) -> Dict:
 
     # --- Split into (Train + Val) and Test sets ---
     sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 80/20 split
-    train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
-
     X_train_val, X_test = features[train_val_indices], features[test_indices]
     y_train_val, y_test = labels[train_val_indices], labels[test_indices]
     groups_train_val = groups[train_val_indices]
