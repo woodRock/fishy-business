@@ -658,10 +658,10 @@ def run_single_training(
     run_id: int,
     device: torch.device,
     train_loader: DataLoader,
-    val_loader: DataLoader,
-    base_model: SimCLRModel,
+    val_loader: Optional[DataLoader],
+    base_model: nn.Module,  # Changed from SimCLRModel to nn.Module for generality
     loss_fn: Optional[nn.Module] = None,
-) -> Tuple[SimCLRModel, Dict, float]:
+) -> Tuple[nn.Module, Dict, float]:
     """Executes a single training run for a given fold."""
     logging.info(f"Starting training for fold {run_id + 1}/{config.num_runs}")
     model = copy.deepcopy(base_model).to(device)
@@ -678,33 +678,37 @@ def run_single_training(
 
     for epoch in range(config.num_epochs):
         train_loss, train_acc = trainer.train_epoch(train_loader)
-        val_loss, val_acc = trainer.evaluate_model(val_loader)
 
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
-            best_threshold = trainer.best_threshold
-            best_metrics = {
-                "train_loss": train_loss,
-                "train_accuracy": train_acc,
-                "val_loss": val_loss,
-                "val_accuracy": val_acc,
-                "epoch": epoch,
-            }
-            # Save the model state only if it's the best so far
-            if config.trial_number is not None:
-                best_model_state_path = f"model_{config.encoder_type}_run_{run_id}_trial_{config.trial_number}.pth"
+        if val_loader:
+            val_loss, val_acc = trainer.evaluate_model(val_loader)
+
+            if val_acc > best_val_acc:
+                best_val_acc = val_acc
+                best_threshold = trainer.best_threshold
+                best_metrics = {
+                    "train_loss": train_loss,
+                    "train_accuracy": train_acc,
+                    "val_loss": val_loss,
+                    "val_accuracy": val_acc,
+                    "epoch": epoch,
+                }
+                if config.trial_number is not None:
+                    best_model_state_path = f"model_{config.encoder_type}_run_{run_id}_trial_{config.trial_number}.pth"
+                else:
+                    best_model_state_path = f"model_{config.encoder_type}_run_{run_id}.pth"
+                torch.save(model.state_dict(), best_model_state_path)
+                patience_counter = 0
             else:
-                best_model_state_path = f"model_{config.encoder_type}_run_{run_id}.pth"
-            torch.save(model.state_dict(), best_model_state_path)
-            patience_counter = 0
-        else:
-            patience_counter += 1
-            if patience_counter >= config.patience:
-                logging.info(f"Early stopping at epoch {epoch+1}")
-                break
+                patience_counter += 1
+                if patience_counter >= config.patience:
+                    logging.info(f"Early stopping at epoch {epoch+1}")
+                    break
 
-        if (epoch + 1) % 10 == 0:
-            logging.info(f"Fold {run_id+1}, Epoch {epoch+1}: Val Acc: {val_acc:.2f}%")
+            if (epoch + 1) % 10 == 0:
+                logging.info(f"Fold {run_id+1}, Epoch {epoch+1}: Val Acc: {val_acc:.2f}%")
+        else: # If no val_loader, just log training progress
+            if (epoch + 1) % 10 == 0:
+                logging.info(f"Run {run_id+1}, Epoch {epoch+1}: Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
 
     # Load the best model state if it was saved, otherwise return the last state
     if best_model_state_path and os.path.exists(best_model_state_path):
@@ -738,11 +742,15 @@ def main(config: ContrastiveConfig) -> Dict:
     )
     logging.info(f"Using device: {device}")
 
+    # Data paths, one for local and one for cluster.
+    data_path = "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx"
+    if not os.path.exists(data_path):
+        data_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
+
     # Load and preprocess data
     data_config = DataConfig(
         batch_size=config.batch_size,
-        # data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
-        data_path="/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
+        data_path=data_path,
     )
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
@@ -752,7 +760,8 @@ def main(config: ContrastiveConfig) -> Dict:
     groups = preprocessor.extract_groups(filtered_data)
 
     # --- Split into (Train + Val) and Test sets ---
-    sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 80/20 split
+    sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 67/33 split
+    train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
     X_train_val, X_test = features[train_val_indices], features[test_indices]
     y_train_val, y_test = labels[train_val_indices], labels[test_indices]
     groups_train_val = groups[train_val_indices]
