@@ -695,7 +695,9 @@ def run_single_training(
                 if config.trial_number is not None:
                     best_model_state_path = f"model_{config.encoder_type}_run_{run_id}_trial_{config.trial_number}.pth"
                 else:
-                    best_model_state_path = f"model_{config.encoder_type}_run_{run_id}.pth"
+                    best_model_state_path = (
+                        f"model_{config.encoder_type}_run_{run_id}.pth"
+                    )
                 torch.save(model.state_dict(), best_model_state_path)
                 patience_counter = 0
             else:
@@ -705,10 +707,14 @@ def run_single_training(
                     break
 
             if (epoch + 1) % 10 == 0:
-                logging.info(f"Fold {run_id+1}, Epoch {epoch+1}: Val Acc: {val_acc:.2f}%")
-        else: # If no val_loader, just log training progress
+                logging.info(
+                    f"Fold {run_id+1}, Epoch {epoch+1}: Val Acc: {val_acc:.2f}%"
+                )
+        else:  # If no val_loader, just log training progress
             if (epoch + 1) % 10 == 0:
-                logging.info(f"Run {run_id+1}, Epoch {epoch+1}: Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
+                logging.info(
+                    f"Run {run_id+1}, Epoch {epoch+1}: Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}"
+                )
 
     # Load the best model state if it was saved, otherwise return the last state
     if best_model_state_path and os.path.exists(best_model_state_path):
@@ -761,7 +767,9 @@ def main(config: ContrastiveConfig) -> Dict:
 
     # --- Split into (Train + Val) and Test sets ---
     sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 67/33 split
-    train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
+    train_val_indices, test_indices = next(
+        sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups)
+    )
     X_train_val, X_test = features[train_val_indices], features[test_indices]
     y_train_val, y_test = labels[train_val_indices], labels[test_indices]
     groups_train_val = groups[train_val_indices]

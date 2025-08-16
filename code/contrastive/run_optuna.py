@@ -134,20 +134,25 @@ def objective(trial: optuna.Trial, encoder_type: str) -> float:
 def run_with_config(config_path, encoder_type):
     """Runs a single training and evaluation with a given config file."""
     # 1. Load config file
-    with open(config_path, 'r') as f:
+    with open(config_path, "r") as f:
         saved_config = json.load(f)
-    hyperparameters = saved_config['hyperparameters']
+    hyperparameters = saved_config["hyperparameters"]
 
     # 2. Create ContrastiveConfig
     config = ContrastiveConfig(
-        encoder_type=encoder_type,
-        contrastive_method="simclr",
-        **hyperparameters
+        encoder_type=encoder_type, contrastive_method="simclr", **hyperparameters
     )
 
     # 3. Load data and split
-    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-    data_config = DataConfig(batch_size=config.batch_size, data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx")
+    device = torch.device(
+        "cuda"
+        if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available() else "cpu"
+    )
+    data_config = DataConfig(
+        batch_size=config.batch_size,
+        data_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+    )
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
     filtered_data = preprocessor.filter_data(data, data_config.dataset_name)
@@ -156,14 +161,18 @@ def run_with_config(config_path, encoder_type):
     groups = preprocessor.extract_groups(filtered_data)
 
     sgkf_test_split = StratifiedGroupKFold(n_splits=3)
-    train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
+    train_val_indices, test_indices = next(
+        sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups)
+    )
 
     X_train_val, X_test = features[train_val_indices], features[test_indices]
     y_train_val, y_test = labels[train_val_indices], labels[test_indices]
 
     # 4. Create DataLoaders
     train_val_dataset = SiameseDataset(X_train_val, y_train_val)
-    train_val_sampler = BalancedBatchSampler(train_val_dataset.pair_labels, config.batch_size)
+    train_val_sampler = BalancedBatchSampler(
+        train_val_dataset.pair_labels, config.batch_size
+    )
     train_val_loader = DataLoader(train_val_dataset, batch_sampler=train_val_sampler)
 
     test_dataset = SiameseDataset(X_test, y_test)
@@ -172,7 +181,9 @@ def run_with_config(config_path, encoder_type):
 
     # 5. Create and train the model
     base_model, loss_fn = create_contrastive_model(config)
-    model, _, _ = run_single_training(config, 0, device, train_val_loader, None, base_model, loss_fn)
+    model, _, _ = run_single_training(
+        config, 0, device, train_val_loader, None, base_model, loss_fn
+    )
 
     # 6. Evaluate on the test set
     trainer = ContrastiveTrainer(model, loss_fn, config, device)
@@ -184,17 +195,20 @@ def run_with_config(config_path, encoder_type):
 
     # 7. Save results
     results_to_save = {
-        "config": {k: v for k, v in config.__dict__.items() if not k.startswith('_')},
+        "config": {k: v for k, v in config.__dict__.items() if not k.startswith("_")},
         "stats": {
             "test_loss": test_loss,
             "test_accuracy": test_accuracy,
         },
         "folds": [],
     }
-    results_path = os.path.join("results", f"stats_simclr_{encoder_type}_from_config.json")
+    results_path = os.path.join(
+        "results", f"stats_simclr_{encoder_type}_from_config.json"
+    )
     with open(results_path, "w") as f:
         json.dump(results_to_save, f, indent=4)
     logger.info(f"Final statistics saved to {results_path}")
+
 
 def run_hpo(args):
     encoder_type = args.encoder_type
@@ -287,6 +301,7 @@ def run_hpo(args):
         json.dump(results_to_save, f, indent=4)
     logger.info(f"Final statistics for {encoder_type} saved to {results_path}")
 
+
 def main():
     """Main function to run the Optuna study."""
     parser = argparse.ArgumentParser(
@@ -307,7 +322,12 @@ def main():
         default=3600,
         help="Timeout for the Optuna study in seconds.",
     )
-    parser.add_argument("--config", type=str, default=None, help="Path to a config file to run directly without HPO.")
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to a config file to run directly without HPO.",
+    )
     args = parser.parse_args()
 
     if args.config:
