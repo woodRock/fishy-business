@@ -1,0 +1,157 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\begin{document}
+
+\section*{Results for Barlow Twins}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model & Train Acc & Val Acc & Test Acc & Best Epoch \\
+\midrule
+CNN & 0.55 & 0.69 & 0.50 & 55 \\
+ENSEMBLE & 0.69 & 0.88 & 0.56 & 11 \\
+KAN & 0.55 & 0.50 & 0.50 & 0 \\
+MAMBA & 0.69 & 0.88 & 0.69 & 264 \\
+MOE & 0.70 & 1.00 & 0.50 & 36 \\
+RCNN & 0.55 & 0.75 & 0.44 & 30 \\
+TRANSFORMER & 0.71 & 0.94 & 0.50 & 18 \\
+VAE & 0.50 & 0.50 & 0.50 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Results for Barlow Twins}
+\label{tab:barlow_twins}
+\end{table}
+
+\section*{Results for Byol}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model & Train Acc & Val Acc & Test Acc & Best Epoch \\
+\midrule
+CNN & 0.56 & 0.50 & 0.50 & 1 \\
+ENSEMBLE & 0.73 & 1.00 & 0.69 & 47 \\
+KAN & 0.53 & 0.50 & 0.50 & 0 \\
+MAMBA & 0.53 & 0.56 & 0.44 & 72 \\
+MOE & 0.66 & 0.94 & 0.75 & 61 \\
+RCNN & 0.58 & 0.75 & 0.63 & 63 \\
+TRANSFORMER & 0.69 & 0.88 & 0.63 & 4 \\
+VAE & 0.50 & 0.50 & 0.50 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Results for Byol}
+\label{tab:byol}
+\end{table}
+
+\section*{Results for Moco}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model & Train Acc & Val Acc & Test Acc & Best Epoch \\
+\midrule
+CNN & 0.55 & 0.50 & 0.50 & 0 \\
+ENSEMBLE & 0.70 & 0.88 & 0.75 & 20 \\
+KAN & 0.54 & 0.50 & 0.50 & 0 \\
+MAMBA & 0.55 & 0.50 & 0.50 & 0 \\
+MOE & 0.69 & 0.94 & 0.75 & 38 \\
+RCNN & 0.51 & 0.69 & 0.44 & 12 \\
+TRANSFORMER & 0.65 & 0.94 & 0.50 & 9 \\
+VAE & 0.50 & 0.50 & 0.50 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Results for Moco}
+\label{tab:moco}
+\end{table}
+
+\section*{Results for Simclr}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model & Train Acc & Val Acc & Test Acc & Best Epoch \\
+\midrule
+CNN & 0.67 & 0.94 & 0.50 & 163 \\
+ENSEMBLE & 0.85 & 1.00 & 0.88 & 76 \\
+KAN & 0.53 & 0.50 & 0.50 & 0 \\
+MAMBA & 0.53 & 0.69 & 0.44 & 12 \\
+MOE & 0.74 & 0.94 & 0.88 & 16 \\
+RCNN & 0.55 & 0.69 & 0.56 & 87 \\
+TRANSFORMER & 0.73 & 0.94 & 0.56 & 37 \\
+VAE & 0.51 & 0.81 & 0.50 & 37 \\
+\bottomrule
+\end{tabular}
+\caption{Results for Simclr}
+\label{tab:simclr}
+\end{table}
+
+\section*{Results for Simsiam}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model & Train Acc & Val Acc & Test Acc & Best Epoch \\
+\midrule
+CNN & 0.58 & 0.50 & 0.50 & 0 \\
+ENSEMBLE & 0.75 & 0.88 & 0.75 & 13 \\
+KAN & 0.51 & 0.50 & 0.50 & 0 \\
+MAMBA & 0.55 & 0.50 & 0.50 & 0 \\
+MOE & 0.67 & 0.88 & 0.69 & 3 \\
+RCNN & 0.53 & 0.63 & 0.44 & 3 \\
+TRANSFORMER & 0.66 & 0.94 & 0.56 & 43 \\
+VAE & 0.50 & 0.50 & 0.50 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Results for Simsiam}
+\label{tab:simsiam}
+\end{table}
+
+\section*{Results for Instance Recognition}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Model & Train Acc & Val Acc & Test Acc & Best Epoch \\
+\midrule
+CNN & 0.52 & 0.56 & 0.52 & 0 \\
+ENSEMBLE & 1.00 & 0.71 & 0.71 & 19 \\
+KAN & 0.47 & 0.51 & 0.49 & 0 \\
+MAMBA & 0.50 & 0.50 & 0.50 & 0 \\
+MOE & 1.00 & 0.68 & 0.68 & 16 \\
+RCNN & 0.50 & 0.50 & 0.50 & 0 \\
+TRANSFORMER & 1.00 & 0.57 & 0.71 & 13 \\
+VAE & 0.50 & 0.50 & 0.50 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Results for Instance Recognition}
+\label{tab:instance_recognition}
+\end{table}
+
+\section*{Binary Classification Results}
+\begin{table}[h!]
+\centering
+\begin{tabular}{lcc}
+\toprule
+& \multicolumn{2}{c}{Binary Classification} \\
+\cmidrule(lr){2-3}
+Method & Train & Test \\
+\midrule
+OPLS-DA & 57.08 $\pm$ 1.46 & 53.19 $\pm$ 2.22 \\
+KNN & 100.00 $\pm$ 0.00 & 55.69 $\pm$ 2.74 \\
+DT & 100.00 $\pm$ 0.00 & 51.77 $\pm$ 1.43 \\
+LDA & 89.13 $\pm$ 1.15 & 56.35 $\pm$ 2.70 \\
+NB & 66.95 $\pm$ 2.54 & 55.01 $\pm$ 3.26 \\
+RF & 99.87 $\pm$ 0.33 & 50.02 $\pm$ 0.14 \\
+SVM & 92.44 $\pm$ 1.05 & 54.19 $\pm$ 2.87 \\
+LR & 91.41 $\pm$ 1.19 & 53.90 $\pm$ 3.12 \\
+Ensemble & 95.05 $\pm$ 0.99 & 54.14 $\pm$ 2.81 \\
+\bottomrule
+\end{tabular}
+\caption{Binary Classification Balanced Classification Accuracy (\%)}
+\label{tab:binary_results}
+\end{table}
+
+\end{document}

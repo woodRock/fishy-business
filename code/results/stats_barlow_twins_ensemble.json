@@ -14,8 +14,8 @@
         "num_inner_functions": 10,
         "dropout": 0.18,
         "patience": 100,
-        "encoder_type": "kan",
-        "contrastive_method": "simclr",
+        "encoder_type": "ensemble",
+        "contrastive_method": "barlow_twins",
         "moco_dim": 256,
         "moco_k": 65536,
         "moco_m": 0.999,
@@ -38,12 +38,12 @@
         "trial_number": null
     },
     "stats": {
-        "train_loss": NaN,
-        "train_accuracy": 0.525,
-        "val_loss": NaN,
-        "val_accuracy": 0.5,
-        "best_epoch": 0,
-        "test_loss": NaN,
-        "test_accuracy": 0.5
+        "train_loss": 28024.871484375,
+        "train_accuracy": 0.6875,
+        "val_loss": 29676.935546875,
+        "val_accuracy": 0.875,
+        "best_epoch": 11,
+        "test_loss": 26526.025390625,
+        "test_accuracy": 0.5625
     }
 }

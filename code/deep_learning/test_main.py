@@ -4,6 +4,9 @@ import unittest
 from unittest.mock import patch, MagicMock
 import torch
 import torch.nn as nn
+import pandas as pd
+import numpy as np
+import os
 from deep_learning.main import (
     TrainingConfig,
     ModelTrainer,
@@ -43,8 +46,25 @@ class TestDeepLearning(unittest.TestCase):
             "noise_level": 0.1,
             "shift_enabled": False,
             "scale_enabled": False,
+            "crop_enabled": False,
+            "flip_enabled": False,
+            "permutation_enabled": False,
+            "crop_size": 0.8,
+            "k_folds": 2,
         }
         self.config = TrainingConfig(**self.args)
+
+        # Create a dummy excel file
+        data = {
+            'm/z': [f'sample{i} H' if i % 2 == 0 else f'sample{i} M' for i in range(4)],
+            **{f'feature_{j}': np.random.rand(4) for j in range(20)},
+        }
+        df = pd.DataFrame(data)
+        df.to_excel('dummy.xlsx', index=False)
+
+
+    def tearDown(self):
+        os.remove("dummy.xlsx")
 
     @patch("deep_learning.main.ModelTrainer._setup_logging")
     def test_trainer_initialization(self, mock_setup_logging):
@@ -52,11 +72,11 @@ class TestDeepLearning(unittest.TestCase):
         trainer = ModelTrainer(self.config)
         self.assertEqual(trainer.config, self.config)
         self.assertEqual(trainer.n_classes, 2)
-        self.assertEqual(trainer.n_features, 2080)
+        self.assertEqual(trainer.n_features, 20)
 
     def test_create_model_valid(self):
         """Test creating a valid model from the registry."""
-        model = create_model(self.config, input_dim=2080, output_dim=2)
+        model = create_model(self.config, input_dim=20, output_dim=2)
         self.assertIsInstance(model, nn.Module)
         self.assertIsInstance(model, MODEL_REGISTRY[self.config.model])
 
@@ -64,22 +84,15 @@ class TestDeepLearning(unittest.TestCase):
         """Test that creating an invalid model raises a ValueError."""
         self.config.model = "invalid_model"
         with self.assertRaises(ValueError):
-            create_model(self.config, input_dim=2080, output_dim=2)
+            create_model(self.config, input_dim=20, output_dim=2)
 
-    @patch("deep_learning.main.create_data_module")
     @patch("deep_learning.main.PreTrainer")
     @patch("deep_learning.main.ModelTrainer._setup_logging")
     def test_pre_train(
-        self, mock_setup_logging, mock_pre_trainer, mock_create_data_module
+        self, mock_setup_logging, mock_pre_trainer
     ):
         """Test the pre-training phase."""
         # Setup mocks
-        mock_data_module = MagicMock()
-        mock_train_loader = MagicMock()
-        mock_val_loader = MagicMock()
-        mock_data_module.setup.return_value = (mock_train_loader, mock_val_loader)
-        mock_create_data_module.return_value = mock_data_module
-
         mock_pre_trainer_instance = MagicMock()
         mock_pre_trainer.return_value = mock_pre_trainer_instance
         mock_pre_trainer_instance.pre_train_masked_spectra.return_value = MagicMock(
@@ -88,37 +101,27 @@ class TestDeepLearning(unittest.TestCase):
 
         # Initialize trainer and run pre-training
         trainer = ModelTrainer(self.config)
-        trainer.data_module = mock_data_module
         pre_trained_model = trainer.pre_train()
 
         # Assertions
-        mock_create_data_module.assert_not_called()  # data_module is set manually
         mock_pre_trainer.assert_called_once()
         mock_pre_trainer_instance.pre_train_masked_spectra.assert_called_once()
         self.assertIsInstance(pre_trained_model, nn.Module)
 
-    @patch("deep_learning.main.create_data_module")
     @patch("deep_learning.main.train_model")
     @patch("deep_learning.main.ModelTrainer._setup_logging")
-    def test_train(self, mock_setup_logging, mock_train_model, mock_create_data_module):
+    def test_train(self, mock_setup_logging, mock_train_model):
         """Test the fine-tuning phase."""
         # Setup mocks
-        mock_data_module = MagicMock()
-        mock_train_loader = MagicMock()
-        mock_data_module.get_train_dataloader.return_value = mock_train_loader
-        mock_create_data_module.return_value = mock_data_module
-
         mock_trained_model = MagicMock(spec=nn.Module)
-        mock_train_model.return_value = (mock_trained_model, {})
+        mock_train_model.return_value = (mock_trained_model, {'accuracy': 0.9})
 
         # Initialize trainer and run fine-tuning
         trainer = ModelTrainer(self.config)
-        trainer.data_module = mock_data_module
         final_model = trainer.train()
 
         # Assertions
-        mock_create_data_module.assert_not_called()  # data_module is set manually
-        mock_train_model.assert_called_once()
+        self.assertEqual(mock_train_model.call_count, self.config.k_folds)
         self.assertIsInstance(final_model, nn.Module)
 
 

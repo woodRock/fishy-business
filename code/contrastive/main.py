@@ -31,9 +31,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from sklearn.metrics import balanced_accuracy_score
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from models import (
     Transformer,
@@ -76,6 +76,7 @@ from .util import DataConfig, DataPreprocessor, SiameseDataset, BalancedBatchSam
 class ContrastiveConfig:
     """Configuration for contrastive model training."""
 
+    num_runs: int = 1
     temperature: float = 0.55
     projection_dim: int = 256
     embedding_dim: int = 256
@@ -89,7 +90,6 @@ class ContrastiveConfig:
     num_layers: int = 6
     num_inner_functions: int = 10  # Added
     dropout: float = 0.18
-    num_runs: int = 30
     patience: int = 100
     encoder_type: str = "transformer"
     contrastive_method: str = "simclr"  # New: specifies the contrastive learning method
@@ -225,6 +225,8 @@ def create_backbone_encoder(config: ContrastiveConfig) -> nn.Module:
     elif config.encoder_type == "moe":
         args.update(
             {
+                "input_dim": config.input_dim,
+                "output_dim": config.embedding_dim,
                 "hidden_dim": config.hidden_dim,
                 "num_layers": config.num_layers,
                 "num_heads": config.num_heads,
@@ -436,16 +438,16 @@ class ContrastiveTrainer:
                         h1, h2 = self.model(x1_aug, x2_aug)
                         loss = self.loss_fn(h1, h2)
                     elif self.config.contrastive_method == "moco":
-                        q, k, queue = self.model(x1, x2)
+                        q, k, queue = self.model(x1_aug, x2_aug)
                         loss = self.loss_fn(q, k, queue)
                     elif self.config.contrastive_method == "byol":
-                        p1, z2, p2, z1 = self.model(x1, x2)
+                        p1, z2, p2, z1 = self.model(x1_aug, x2_aug)
                         loss = self.loss_fn(p1, z2, p2, z1)
                     elif self.config.contrastive_method == "simsiam":
-                        p1, z2, p2, z1 = self.model(x1, x2)
+                        p1, z2, p2, z1 = self.model(x1_aug, x2_aug)
                         loss = self.loss_fn(p1, z2, p2, z1)
                     elif self.config.contrastive_method == "barlow_twins":
-                        z1, z2 = self.model(x1, x2)
+                        z1, z2 = self.model(x1_aug, x2_aug)
                         loss = self.loss_fn(z1, z2)
                     else:
                         raise ValueError(
@@ -663,7 +665,7 @@ def run_single_training(
     loss_fn: Optional[nn.Module] = None,
 ) -> Tuple[nn.Module, Dict, float]:
     """Executes a single training run for a given fold."""
-    logging.info(f"Starting training for fold {run_id + 1}/{config.num_runs}")
+    logging.info(f"Starting training run {run_id + 1}")
     model = copy.deepcopy(base_model).to(device)
     trainer = ContrastiveTrainer(
         model=model, loss_fn=loss_fn, config=config, device=device
@@ -725,12 +727,7 @@ def run_single_training(
 
 def main(config: ContrastiveConfig) -> Dict:
     """
-    Orchestrates the training, validation, and testing of contrastive learning models.
-
-    This function implements a robust evaluation methodology by first splitting the data
-    into a training/validation set and a held-out test set. It then performs
-    k-fold cross-validation on the training/validation set to find the best model,
-    which is finally evaluated on the test set for an unbiased performance estimate.
+    Orchestrates the training, validation, and testing of contrastive learning models over multiple runs.
     """
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -757,108 +754,109 @@ def main(config: ContrastiveConfig) -> Dict:
     filtered_data = preprocessor.filter_data(data, data_config.dataset_name)
     features = filtered_data.drop("m/z", axis=1).to_numpy()
     labels = preprocessor.encode_labels(filtered_data, data_config.dataset_name)
-    groups = preprocessor.extract_groups(filtered_data)
 
-    # --- Split into (Train + Val) and Test sets ---
-    sgkf_test_split = StratifiedGroupKFold(n_splits=3)  # 67/33 split
-    train_val_indices, test_indices = next(sgkf_test_split.split(features, np.argmax(labels, axis=1), groups=groups))
-    X_train_val, X_test = features[train_val_indices], features[test_indices]
-    y_train_val, y_test = labels[train_val_indices], labels[test_indices]
-    groups_train_val = groups[train_val_indices]
+    # --- Create full Siamese Dataset before splitting ---
+    full_dataset = SiameseDataset(features, labels)
+    
+    # --- Stratified Split of Pairs ---
+    pair_indices = np.arange(len(full_dataset))
+    pair_labels_for_stratify = np.argmax(full_dataset.pair_labels, axis=1)
 
-    logging.info(
-        f"Data split: {len(X_train_val)} train/val samples, {len(X_test)} test samples."
+    # Split into train+val (80%) and test (20%)
+    train_val_indices, test_indices = train_test_split(
+        pair_indices, test_size=0.2, random_state=42, stratify=pair_labels_for_stratify
     )
 
-    # --- Cross-validation on the (Train + Val) set ---
-    k_folds = config.num_runs
-    sgkf_cv = StratifiedGroupKFold(n_splits=k_folds)
-    base_model, loss_fn = create_contrastive_model(config)
+    # Split train+val into train (60% of total) and val (20% of total)
+    train_indices, val_indices = train_test_split(
+        train_val_indices, test_size=0.25, random_state=42, stratify=pair_labels_for_stratify[train_val_indices]
+    )
+
+    train_dataset = Subset(full_dataset, train_indices)
+    val_dataset = Subset(full_dataset, val_indices)
+    test_dataset = Subset(full_dataset, test_indices)
+
+    logging.info(
+        f"Data split: {len(train_dataset)} train pairs, {len(val_dataset)} validation pairs, {len(test_dataset)} test pairs."
+    )
+
+    # --- Create DataLoaders with BalancedBatchSampler ---
+    train_pair_labels = full_dataset.pair_labels[train_indices]
+    val_pair_labels = full_dataset.pair_labels[val_indices]
+    test_pair_labels = full_dataset.pair_labels[test_indices]
+
+    train_sampler = BalancedBatchSampler(train_pair_labels, config.batch_size)
+    val_sampler = BalancedBatchSampler(val_pair_labels, config.batch_size)
+    test_sampler = BalancedBatchSampler(test_pair_labels, config.batch_size)
+
+    train_loader = DataLoader(train_dataset, batch_sampler=train_sampler)
+    val_loader = DataLoader(val_dataset, batch_sampler=val_sampler)
+    test_loader = DataLoader(test_dataset, batch_sampler=test_sampler)
 
     os.makedirs("results", exist_ok=True)
     os.makedirs("figures", exist_ok=True)
 
-    all_fold_metrics = []
-    best_overall_model = None
-    best_overall_val_acc = float("-inf")
-
-    for fold, (train_index, val_index) in enumerate(
-        sgkf_cv.split(
-            X_train_val, np.argmax(y_train_val, axis=1), groups=groups_train_val
-        )
-    ):
-        logging.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
-        X_train, X_val = X_train_val[train_index], X_train_val[val_index]
-        y_train, y_val = y_train_val[train_index], y_train_val[val_index]
-
-        train_dataset = SiameseDataset(X_train, y_train)
-        val_dataset = SiameseDataset(X_val, y_val)
-
-        # ... (data loader setup as before)
-        train_sampler = BalancedBatchSampler(
-            train_dataset.pair_labels, config.batch_size
-        )
-        val_sampler = BalancedBatchSampler(val_dataset.pair_labels, config.batch_size)
-        train_loader = DataLoader(train_dataset, batch_sampler=train_sampler)
-        val_loader = DataLoader(val_dataset, batch_sampler=val_sampler)
-
-        model, metrics, threshold = run_single_training(
-            config, fold, device, train_loader, val_loader, base_model, loss_fn
+    all_runs_stats = []
+    for i in range(config.num_runs):
+        logging.info(f"--- Starting Run {i+1}/{config.num_runs} ---")
+        
+        base_model, loss_fn = create_contrastive_model(config)
+        
+        best_model, best_metrics, best_threshold = run_single_training(
+            config, i, device, train_loader, val_loader, base_model, loss_fn
         )
 
-        if metrics:
-            all_fold_metrics.append(metrics)
-            if metrics["val_accuracy"] > best_overall_val_acc:
-                best_overall_val_acc = metrics["val_accuracy"]
-                best_overall_model = copy.deepcopy(model)
-                torch.save(
-                    best_overall_model.state_dict(),
-                    f"best_model_{config.contrastive_method}_{config.encoder_type}_overall.pth",
-                )
-
-    # --- Final Evaluation on the Test Set ---
-    test_loss, test_accuracy = 0.0, 0.0
-    if best_overall_model:
-        test_dataset = SiameseDataset(X_test, y_test)
-        if len(test_dataset) > 0:
-            test_sampler = BalancedBatchSampler(
-                test_dataset.pair_labels, config.batch_size
-            )
-            if len(test_sampler) > 0:
-                test_loader = DataLoader(test_dataset, batch_sampler=test_sampler)
-                trainer = ContrastiveTrainer(
-                    best_overall_model, loss_fn, config, device
-                )
+        # --- Final Evaluation on the Test Set ---
+        test_loss, test_accuracy = 0.0, 0.0
+        if best_model:
+            if len(test_dataset) > 0 and len(test_loader) > 0:
+                trainer = ContrastiveTrainer(best_model, loss_fn, config, device)
+                trainer.best_threshold = best_threshold
                 test_loss, test_accuracy = trainer.evaluate_model(test_loader)
                 logging.info(
-                    f"Final Test Set Evaluation - Loss: {test_loss:.4f}, Accuracy: {test_accuracy:.4f}"
+                    f"Run {i+1} Test Set Evaluation - Loss: {test_loss:.4f}, Accuracy: {test_accuracy:.4f}"
                 )
+            else:
+                logging.warning("Test loader is empty. Skipping final evaluation.")
+        
+        if best_metrics:
+            stats = {
+                "train_loss": best_metrics.get("train_loss"),
+                "train_accuracy": best_metrics.get("train_accuracy"),
+                "val_loss": best_metrics.get("val_loss"),
+                "val_accuracy": best_metrics.get("val_accuracy"),
+                "best_epoch": best_metrics.get("epoch"),
+                "test_loss": test_loss,
+                "test_accuracy": test_accuracy,
+            }
+            all_runs_stats.append(stats)
+
+    if not all_runs_stats:
+        logging.warning("No runs were completed successfully.")
+        return {}
+
+    # --- Averaging Results ---
+    avg_stats = {}
+    std_stats = {}
+    metric_keys = all_runs_stats[0].keys()
+    
+    for key in metric_keys:
+        values = [run[key] for run in all_runs_stats if run.get(key) is not None]
+        if values:
+            avg_stats[key] = np.mean(values)
+            std_stats[key] = np.std(values)
+
+    logging.info(f"Averaged stats over {config.num_runs} runs: {avg_stats}")
+    logging.info(f"Standard deviation of stats over {config.num_runs} runs: {std_stats}")
 
     # --- Save results ---
-    if all_fold_metrics:
-        stats = {
-            key: {
-                "mean": np.mean([m[key] for m in all_fold_metrics]),
-                "std": np.std([m[key] for m in all_fold_metrics]),
-            }
-            for key in all_fold_metrics[0]
-        }
-        stats["test_loss"] = test_loss
-        stats["test_accuracy"] = test_accuracy
+    with open(
+        f"results/stats_{config.contrastive_method}_{config.encoder_type}_{config.num_runs}_runs.json",
+        "w",
+    ) as f:
+        json.dump({"config": asdict(config), "runs": all_runs_stats, "stats": avg_stats, "std_dev": std_stats}, f, indent=4)
 
-        logging.info(f"Cross-validation statistics for {config.encoder_type}: {stats}")
-        with open(
-            f"results/stats_{config.contrastive_method}_{config.encoder_type}.json", "w"
-        ) as f:
-            json.dump(
-                {"config": asdict(config), "stats": stats, "folds": all_fold_metrics},
-                f,
-                indent=4,
-            )
-        return stats
-    else:
-        logging.warning("No folds completed successfully to aggregate metrics.")
-        return {}
+    return avg_stats
 
 
 if __name__ == "__main__":
@@ -870,12 +868,6 @@ if __name__ == "__main__":
         default="transformer",
         choices=ENCODER_REGISTRY.keys(),
     )
-    parser.add_argument(
-        "--num_runs",
-        type=int,
-        default=3,
-        help="Number of folds for cross-validation (k).",
-    )
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--learning_rate", type=float, default=3.5e-5)
     parser.add_argument(
@@ -885,14 +877,15 @@ if __name__ == "__main__":
         choices=CONTRASTIVE_MODEL_REGISTRY.keys(),
         help="Contrastive learning method to use (e.g., simclr, moco, byol)",
     )
+    parser.add_argument("--num_runs", type=int, default=1, help="Number of runs to average results over.")
     # Add other config arguments as needed
     args = parser.parse_args()
 
     config = ContrastiveConfig(
         encoder_type=args.encoder_type,
-        num_runs=args.num_runs,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate,
         contrastive_method=args.contrastive_method,
+        num_runs=args.num_runs,
     )
     main(config)

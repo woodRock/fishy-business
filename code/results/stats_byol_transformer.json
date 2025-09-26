@@ -11,8 +11,8 @@
         "num_heads": 8,
         "hidden_dim": 256,
         "num_layers": 6,
+        "num_inner_functions": 10,
         "dropout": 0.18,
-        "num_runs": 3,
         "patience": 100,
         "encoder_type": "transformer",
         "contrastive_method": "byol",
@@ -26,51 +26,24 @@
         "simsiam_projection_dim": 2048,
         "simsiam_hidden_dim": 512,
         "barlow_twins_projection_dim": 8192,
-        "barlow_twins_lambda": 0.005
+        "barlow_twins_lambda": 0.005,
+        "noise_enabled": false,
+        "shift_enabled": false,
+        "scale_enabled": false,
+        "crop_enabled": false,
+        "flip_enabled": false,
+        "permutation_enabled": false,
+        "noise_level": 0.1,
+        "crop_size": 0.8,
+        "trial_number": null
     },
     "stats": {
-        "train_loss": {
-            "mean": 1.0334819985760584,
-            "std": 0.16892443765980042
-        },
-        "train_accuracy": {
-            "mean": 0.701388888888889,
-            "std": 0.021404215288086746
-        },
-        "val_loss": {
-            "mean": 1.1384227805667453,
-            "std": 0.11332917720211268
-        },
-        "val_accuracy": {
-            "mean": 0.8402777777777778,
-            "std": 0.08038775626937655
-        },
-        "epoch": {
-            "mean": 82.66666666666667,
-            "std": 74.52218163443388
-        }
-    },
-    "folds": [
-        {
-            "train_loss": 1.1030062238375347,
-            "train_accuracy": 0.6979166666666666,
-            "val_loss": 1.1636542876561482,
-            "val_accuracy": 0.7291666666666667,
-            "epoch": 33
-        },
-        {
-            "train_loss": 0.8007855912049612,
-            "train_accuracy": 0.7291666666666667,
-            "val_loss": 0.988738497098287,
-            "val_accuracy": 0.875,
-            "epoch": 188
-        },
-        {
-            "train_loss": 1.1966541806856792,
-            "train_accuracy": 0.6770833333333334,
-            "val_loss": 1.2628755569458008,
-            "val_accuracy": 0.9166666666666667,
-            "epoch": 27
-        }
-    ]
+        "train_loss": 1.874342679977417,
+        "train_accuracy": 0.6875,
+        "val_loss": 1.8962059020996094,
+        "val_accuracy": 0.875,
+        "best_epoch": 4,
+        "test_loss": 1.9085125923156738,
+        "test_accuracy": 0.625
+    }
 }

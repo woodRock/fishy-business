@@ -15,7 +15,7 @@
         "dropout": 0.18,
         "patience": 100,
         "encoder_type": "kan",
-        "contrastive_method": "simclr",
+        "contrastive_method": "byol",
         "moco_dim": 256,
         "moco_k": 65536,
         "moco_m": 0.999,

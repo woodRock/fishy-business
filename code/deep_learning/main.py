@@ -37,7 +37,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 from models import (
     Transformer,
@@ -59,7 +62,7 @@ from models import (
     Diffusion,
 )
 from .pre_training import PreTrainer, PreTrainingConfig
-from .train import train_model
+from .train import train_model, evaluate_model
 from .util import create_data_module, AugmentationConfig, CustomDataset, SiameseDataset
 
 # ## 2. Configuration
@@ -99,6 +102,7 @@ class TrainingConfig:
     noise_level: float
     shift_enabled: bool
     scale_enabled: bool
+    k_folds: int
     # New augmentation parameters
     crop_enabled: bool = False
     flip_enabled: bool = False
@@ -135,6 +139,24 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
 }
 
 
+class SiameseWrapper(nn.Module):
+    def __init__(self, base_model, embedding_dim):
+        super().__init__()
+        self.base_model = base_model
+        self.classifier = nn.Sequential(
+            nn.Linear(embedding_dim, 64),
+            nn.ReLU(inplace=True),
+            nn.Linear(64, 2) # 2 classes: same/different
+        )
+
+    def forward(self, x1, x2):
+        emb1 = self.base_model(x1)
+        emb2 = self.base_model(x2)
+        diff = torch.abs(emb1 - emb2)
+        return self.classifier(diff)
+
+
+
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
     Creates a model instance based on the model specified in the config.
@@ -155,7 +177,52 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     # Common arguments for most models
     model_args = {"dropout": config.dropout}
 
-    # Model-specific argument mapping
+    if "instance-recognition" in config.dataset:
+        embedding_dim = config.hidden_dimension
+        # For instance recognition, we wrap standard models in a SiameseWrapper.
+        # The base model should act as a feature extractor, so its output dim is the embedding dim.
+
+        if config.model == "mamba":
+            mamba_model = Mamba(
+                input_dim=input_dim,
+                d_model=config.hidden_dimension,
+                d_state=config.hidden_dimension,
+                d_conv=4,
+                expand=2,
+                depth=config.num_layers,
+            )
+            return SiameseMamba(mamba_model)
+        
+        if config.model == "vae":
+            vae_model = VAE(
+                input_size=input_dim,
+                num_classes=output_dim, # VAE is special, uses output_dim for its own classification head
+                latent_dim=config.hidden_dimension,
+                **model_args,
+            )
+            return SiameseVAE(vae_model)
+
+        # Generic wrapper for other models
+        if config.model == "transformer":
+            base_model = Transformer(input_dim=input_dim, output_dim=embedding_dim, num_layers=config.num_layers, num_heads=config.num_heads, hidden_dim=config.hidden_dimension, **model_args)
+        elif config.model == "ensemble":
+            # Ensemble model is not a feature extractor in the same way, this might not be a meaningful siamese adaptation.
+            # For now, we create it to output embeddings.
+            base_model = Ensemble(input_dim=input_dim, output_dim=embedding_dim, hidden_dim=config.hidden_dimension, dropout=config.dropout)
+        elif config.model == "lstm":
+            base_model = LSTM(input_dim=input_dim, output_dim=embedding_dim, hidden_dim=config.hidden_dimension, num_layers=config.num_layers, **model_args)
+        elif config.model in ["cnn", "rcnn"]:
+            base_model = model_class(input_dim=input_dim, output_dim=embedding_dim, **model_args)
+        elif config.model == "kan":
+            base_model = KAN(input_dim=input_dim, output_dim=embedding_dim, hidden_dim=config.hidden_dimension, num_layers=config.num_layers, dropout_rate=config.dropout, num_inner_functions=10)
+        elif config.model == "moe":
+            base_model = MOE(input_dim=input_dim, output_dim=embedding_dim, num_heads=config.num_heads, num_layers=config.num_layers, hidden_dim=config.hidden_dimension, num_experts=4, k=2)
+        else: # For models like Dense, ODE, RWKV, TCN, WaveNet
+            base_model = model_class(input_dim=input_dim, output_dim=embedding_dim, **model_args)
+
+        return SiameseWrapper(base_model, embedding_dim)
+
+    # Original logic for non-instance-recognition datasets
     if config.model == "transformer":
         model_args.update(
             {
@@ -171,11 +238,6 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             output_dim=output_dim,
             hidden_dim=config.hidden_dimension,
             dropout=config.dropout,
-            device=(
-                "cuda"
-                if torch.cuda.is_available()
-                else "mps" if torch.backends.mps.is_available() else "cpu"
-            ),
         )
     elif config.model == "lstm":
         model_args.update(
@@ -185,25 +247,14 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     elif config.model in ["cnn", "rcnn"]:
         return model_class(input_dim=input_dim, output_dim=output_dim, **model_args)
     elif config.model == "mamba":
-        if "instance-recognition" in config.dataset:
-            mamba_model = Mamba(
-                input_dim=input_dim,
-                d_model=config.hidden_dimension,
-                d_state=config.hidden_dimension,
-                d_conv=4,
-                expand=2,
-                depth=config.num_layers,
-            )
-            return SiameseMamba(mamba_model)
-        else:
-            return Mamba(
-                input_dim=input_dim,
-                d_model=config.hidden_dimension,
-                d_state=config.hidden_dimension,
-                d_conv=4,
-                expand=2,
-                depth=config.num_layers,
-            )
+        return Mamba(
+            input_dim=input_dim,
+            d_model=config.hidden_dimension,
+            d_state=config.hidden_dimension,
+            d_conv=4,
+            expand=2,
+            depth=config.num_layers,
+        )
     elif config.model == "kan":
         return KAN(
             input_dim=input_dim,
@@ -214,21 +265,12 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             num_inner_functions=10,
         )
     elif config.model == "vae":
-        if "instance-recognition" in config.dataset:
-            vae_model = VAE(
-                input_size=input_dim,
-                num_classes=output_dim,
-                latent_dim=config.hidden_dimension,
-                **model_args,
-            )
-            return SiameseVAE(vae_model)
-        else:
-            return VAE(
-                input_size=input_dim,
-                num_classes=output_dim,
-                latent_dim=config.hidden_dimension,
-                **model_args,
-            )
+        return VAE(
+            input_size=input_dim,
+            num_classes=output_dim,
+            latent_dim=config.hidden_dimension,
+            **model_args,
+        )
     elif config.model == "moe":
         return MOE(
             input_dim=input_dim,
@@ -338,6 +380,8 @@ class ModelTrainer:
         if self.config.dataset not in self.N_CLASSES_PER_DATASET:
             raise ValueError(f"Invalid dataset: {self.config.dataset}")
         self.n_classes = self.N_CLASSES_PER_DATASET[self.config.dataset]
+        if "instance-recognition" in self.config.dataset:
+            self.n_classes = 2
         self.data_module = create_data_module(
             file_path=config.file_path,
             dataset_name=config.dataset,
@@ -485,148 +529,114 @@ class ModelTrainer:
                 f"Weight chaining failed: {e}. Model will train from scratch."
             )
 
+    def perform_ordinal_analysis(self, predictions: Dict[str, np.ndarray], fold: int):
+        """
+        Performs ordinal analysis on the predictions for the 'oil' dataset.
+
+        Args:
+            predictions: A dictionary containing the true labels and predicted labels.
+            fold: The current fold number.
+        """
+        if not predictions:
+            self.logger.warning(f"Fold {fold + 1}: No predictions to analyze.")
+            return
+
+        true_labels = predictions["labels"]
+        pred_labels = predictions["preds"]
+
+        # Calculate Mean Absolute Error
+        mae = np.mean(np.abs(true_labels - pred_labels))
+        self.logger.info(f"Fold {fold + 1} Ordinal MAE: {mae:.4f}")
+
+        # Plot histogram of prediction errors
+        errors = pred_labels - true_labels
+        plt.figure()
+        plt.hist(errors, bins=np.arange(errors.min(), errors.max() + 2) - 0.5, rwidth=0.8)
+        plt.xlabel("Prediction Error (Predicted - True)")
+        plt.ylabel("Frequency")
+        plt.title(f"Fold {fold + 1} Prediction Error Distribution for Oil Dataset")
+        plot_path = Path(self.config.output).parent / f"oil_prediction_error_fold_{self.config.run}_{fold + 1}.png"
+        plt.savefig(plot_path)
+        plt.close()
+        self.logger.info(f"Saved prediction error plot to {plot_path}")
+
+        # Create and plot confusion matrix
+        cm = confusion_matrix(true_labels, pred_labels)
+        plt.figure(figsize=(10, 7))
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+        plt.xlabel("Predicted Label")
+        plt.ylabel("True Label")
+        plt.title(f"Fold {fold + 1} Confusion Matrix for Oil Dataset")
+        cm_plot_path = Path(self.config.output).parent / f"oil_confusion_matrix_fold_{self.config.run}_{fold + 1}.png"
+        plt.savefig(cm_plot_path)
+        plt.close()
+        self.logger.info(f"Saved confusion matrix plot to {cm_plot_path}")
+
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> nn.Module:
         """
-        Executes the main fine-tuning phase using Group k-fold cross-validation.
+        Executes the main fine-tuning phase.
+        For 'instance-recognition' datasets, it uses a train/validation/test split on the pairs.
+        For all other datasets, it uses k-fold cross-validation on the samples.
 
         Args:
             pre_trained_model: An optional pre-trained model to adapt for fine-tuning.
 
         Returns:
-            The final trained model instance (from the last fold).
+            The final trained model instance.
         """
-        dataset_name_str = self.data_module.processor.dataset_type.name.lower().replace(
-            "_", "-"
-        )
-        if "instance-recognition" in dataset_name_str:
-            self.logger.info(
-                "Starting main fine-tuning phase with Stratified Group K-Fold Cross-Validation"
-            )
-        else:
-            self.logger.info(
-                "Starting main fine-tuning phase with Stratified K-Fold Cross-Validation"
-            )
+        from sklearn.model_selection import train_test_split
+        from torch.utils.data import Subset
 
         if self.data_module is None:
             self.logger.error("Fine-tuning DataModule not set.")
             return create_model(self.config, self.n_features, self.n_classes)
 
-        # Get full dataset from DataModule
-        full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
-        full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
+        if "instance-recognition" in self.config.dataset:
+            # --- Train/Validation/Test Split Logic for Siamese Pairs ---
+            self.logger.info("Using Train/Validation/Test split on Siamese pairs for instance-recognition.")
 
-        k_folds = 3  # User requested k=3
+            # 1. Create a single SiameseDataset from all data
+            full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
+            full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
+            full_siamese_dataset = SiameseDataset(full_dataset_samples, full_dataset_labels)
 
-        if "instance-recognition" in dataset_name_str:
-            full_dataset_groups = self.data_module.processor.extract_groups(
-                self.data_module.filtered_data
+            # 2. Stratified split on pairs
+            pair_indices = np.arange(len(full_siamese_dataset))
+            pair_labels_for_stratify = full_siamese_dataset.paired_labels.cpu().numpy().flatten()
+
+            train_val_indices, test_indices = train_test_split(
+                pair_indices, test_size=0.2, random_state=self.config.run, stratify=pair_labels_for_stratify
             )
-            cv_splitter = StratifiedGroupKFold(n_splits=k_folds)
-            split_args = (
-                full_dataset_samples,
-                np.argmax(full_dataset_labels, axis=1),
-                full_dataset_groups,
-            )
-        else:
-            cv_splitter = StratifiedKFold(
-                n_splits=k_folds, shuffle=True, random_state=self.config.run
-            )
-            split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1))
-
-        all_fold_metrics = []
-        final_trained_model = None  # To store the model from the last fold
-
-        for fold, (train_index, val_index) in enumerate(cv_splitter.split(*split_args)):
-            self.logger.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
-
-            X_train, X_val = (
-                full_dataset_samples[train_index],
-                full_dataset_samples[val_index],
-            )
-            y_train, y_val = (
-                full_dataset_labels[train_index],
-                full_dataset_labels[val_index],
+            train_indices, val_indices = train_test_split(
+                train_val_indices, test_size=0.25, random_state=self.config.run, stratify=pair_labels_for_stratify[train_val_indices]
             )
 
-            # Determine dataset class (e.g. Siamese for instance recognition)
-            dataset_name_str = (
-                self.data_module.processor.dataset_type.name.lower().replace("_", "-")
-            )
-            dataset_class = (
-                SiameseDataset
-                if "instance-recognition" in dataset_name_str
-                else CustomDataset
-            )
+            train_dataset = Subset(full_siamese_dataset, train_indices)
+            val_dataset = Subset(full_siamese_dataset, val_indices)
+            test_dataset = Subset(full_siamese_dataset, test_indices)
+            
+            self.logger.info(f"Data split: {len(train_dataset)} train pairs, {len(val_dataset)} validation pairs, {len(test_dataset)} test pairs.")
 
-            train_dataset = dataset_class(X_train, y_train)
-            val_dataset = dataset_class(X_val, y_val)
-
-            # Check for empty datasets or lack of positive pairs for Siamese
-            if isinstance(train_dataset, SiameseDataset):
-                num_train_pairs = len(train_dataset)
-                num_train_pos_pairs = np.sum(
-                    train_dataset.paired_labels.cpu().numpy() == 1
-                )
-                self.logger.info(
-                    f"Train pairs: {num_train_pairs} (Positive: {num_train_pos_pairs})"
-                )
-                if num_train_pairs == 0 or num_train_pos_pairs == 0:
-                    self.logger.warning(
-                        f"Fold {fold + 1} train set has no pairs or no positive pairs. Skipping fold."
-                    )
-                    continue
-            else:
-                self.logger.info(f"Train samples: {len(train_dataset)}")
-
-            if isinstance(val_dataset, SiameseDataset):
-                num_val_pairs = len(val_dataset)
-                num_val_pos_pairs = np.sum(val_dataset.paired_labels.cpu().numpy() == 1)
-                self.logger.info(
-                    f"Validation pairs: {num_val_pairs} (Positive: {num_val_pos_pairs})"
-                )
-                if num_val_pairs == 0 or num_val_pos_pairs == 0:
-                    self.logger.warning(
-                        f"Fold {fold + 1} validation set has no pairs or no positive pairs. Skipping fold."
-                    )
-                    continue
-            else:
-                self.logger.info(f"Validation samples: {len(val_dataset)}")
-
+            # 3. Create DataLoaders
             pin_memory_val = True if self.device.type == "cuda" else False
-            train_loader = DataLoader(
-                train_dataset,
-                batch_size=self.config.batch_size,
-                shuffle=True,
-                num_workers=4,
-                pin_memory=pin_memory_val,
-            )
-            val_loader = DataLoader(
-                val_dataset,
-                batch_size=self.config.batch_size,
-                shuffle=False,
-                num_workers=4,
-                pin_memory=pin_memory_val,
-            )  # No shuffle for val
+            train_loader = DataLoader(train_dataset, batch_size=self.config.batch_size, shuffle=True, num_workers=4, pin_memory=pin_memory_val)
+            val_loader = DataLoader(val_dataset, batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory_val)
+            test_loader = DataLoader(test_dataset, batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory_val)
 
-            model_to_finetune = create_model(
-                self.config, self.n_features, self.n_classes
-            ).to(self.device)
-
+            # 4. Create Model and Optimizer
+            model_to_finetune = create_model(self.config, self.n_features, self.n_classes).to(self.device)
             if pre_trained_model:
                 self.logger.info("Transferring pre-trained weights for fine-tuning.")
-                self._adapt_pretrained_model_for_finetuning(
-                    model_to_finetune, pre_trained_model
-                )
-
+                self._adapt_pretrained_model_for_finetuning(model_to_finetune, pre_trained_model)
+            
             criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-            optimizer = torch.optim.AdamW(
-                model_to_finetune.parameters(), lr=self.config.learning_rate
-            )
+            optimizer = torch.optim.AdamW(model_to_finetune.parameters(), lr=self.config.learning_rate)
 
-            trained_model_instance, metrics = train_model(
+            # 5. Train Model
+            trained_model, train_val_metrics = train_model(
                 model=model_to_finetune,
                 train_loader=train_loader,
-                val_loader=val_loader,  # Pass validation loader
+                val_loader=val_loader,
                 criterion=criterion,
                 optimizer=optimizer,
                 num_epochs=self.config.epochs,
@@ -634,38 +644,179 @@ class ModelTrainer:
                 is_augmented=self.config.data_augmentation,
                 device=self.device,
             )
-            all_fold_metrics.append(metrics)
-            final_trained_model = trained_model_instance  # Keep the last one
 
-        self.logger.info("Cross-Validation finished.")
-
-        if all_fold_metrics:
-            # Aggregate and log cross-validation results
-            stats = {
-                k: np.mean([m[k] for m in all_fold_metrics])
-                for k in all_fold_metrics[0]
+            # 6. Evaluate on Test Set
+            self.logger.info("Evaluating on the test set.")
+            test_results = evaluate_model(trained_model, test_loader, criterion, self.device)
+            
+            # 7. Save Results
+            final_metrics = {
+                "train_loss": train_val_metrics.get("train_loss"),
+                "train_accuracy": train_val_metrics.get("train_accuracy"),
+                "val_loss": train_val_metrics.get("val_loss"),
+                "val_accuracy": train_val_metrics.get("val_accuracy"),
+                "best_epoch": train_val_metrics.get("epoch"),
+                "test_loss": test_results.get("loss"),
+                "test_accuracy": test_results.get("metrics", {}).get("balanced_accuracy"),
             }
-            self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
-            # Save aggregated metrics to a file
+            
+            self.logger.info(f"Final metrics: {final_metrics}")
             results_dir = Path("results")
             results_dir.mkdir(parents=True, exist_ok=True)
             file_name = f"stats_{self.config.model}_{self.config.dataset}.json"
             file_path = results_dir / file_name
             with open(file_path, "w") as f:
-                json.dump(
-                    {
-                        "config": asdict(self.config),
-                        "stats": stats,
-                        "folds": all_fold_metrics,
-                    },
-                    f,
-                    indent=4,
-                )
-            self.logger.info(f"Aggregated metrics saved to {file_path}")
-        else:
-            self.logger.warning("No folds completed successfully to aggregate metrics.")
+                json.dump({"config": asdict(self.config), "stats": final_metrics}, f, indent=4)
+            self.logger.info(f"Final metrics saved to {file_path}")
 
-        return final_trained_model
+            return trained_model
+
+        else:
+            # --- K-Fold Cross-Validation Logic (unchanged) ---
+            full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
+            full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
+            self.logger.info("Starting main fine-tuning phase with Stratified K-Fold Cross-Validation")
+            k_folds = self.config.k_folds
+            cv_splitter = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
+            split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1))
+
+            all_fold_metrics = []
+            final_trained_model = None  # To store the model from the last fold
+
+            for fold, (train_index, val_index) in enumerate(cv_splitter.split(*split_args)):
+                self.logger.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
+
+                X_train, X_val = (
+                    full_dataset_samples[train_index],
+                    full_dataset_samples[val_index],
+                )
+                y_train, y_val = (
+                    full_dataset_labels[train_index],
+                    full_dataset_labels[val_index],
+                )
+
+                # Determine dataset class (e.g. Siamese for instance recognition)
+                dataset_name_str = (
+                    self.data_module.processor.dataset_type.name.lower().replace("_", "-")
+                )
+                dataset_class = (
+                    SiameseDataset
+                    if "instance-recognition" in dataset_name_str
+                    else CustomDataset
+                )
+
+                train_dataset = dataset_class(X_train, y_train)
+                val_dataset = dataset_class(X_val, y_val)
+
+                # Check for empty datasets or lack of positive pairs for Siamese
+                if isinstance(train_dataset, SiameseDataset):
+                    num_train_pairs = len(train_dataset)
+                    num_train_pos_pairs = np.sum(
+                        train_dataset.paired_labels.cpu().numpy() == 1
+                    )
+                    self.logger.info(
+                        f"Train pairs: {num_train_pairs} (Positive: {num_train_pos_pairs})"
+                    )
+                    if num_train_pairs == 0 or num_train_pos_pairs == 0:
+                        self.logger.warning(
+                            f"Fold {fold + 1} train set has no pairs or no positive pairs. Skipping fold."
+                        )
+                        continue
+                else:
+                    self.logger.info(f"Train samples: {len(train_dataset)}")
+
+                if isinstance(val_dataset, SiameseDataset):
+                    num_val_pairs = len(val_dataset)
+                    num_val_pos_pairs = np.sum(val_dataset.paired_labels.cpu().numpy() == 1)
+                    self.logger.info(
+                        f"Validation pairs: {num_val_pairs} (Positive: {num_val_pos_pairs})"
+                    )
+                    if num_val_pairs == 0 or num_val_pos_pairs == 0:
+                        self.logger.warning(
+                            f"Fold {fold + 1} validation set has no pairs or no positive pairs. Skipping fold."
+                        )
+                        continue
+                else:
+                    self.logger.info(f"Validation samples: {len(val_dataset)}")
+
+                pin_memory_val = True if self.device.type == "cuda" else False
+                train_loader = DataLoader(
+                    train_dataset,
+                    batch_size=self.config.batch_size,
+                    shuffle=True,
+                    num_workers=4,
+                    pin_memory=pin_memory_val,
+                )
+                val_loader = DataLoader(
+                    val_dataset,
+                    batch_size=self.config.batch_size,
+                    shuffle=False,
+                    num_workers=4,
+                    pin_memory=pin_memory_val,
+                )  # No shuffle for val
+
+                model_to_finetune = create_model(
+                    self.config, self.n_features, self.n_classes
+                ).to(self.device)
+
+                if pre_trained_model:
+                    self.logger.info("Transferring pre-trained weights for fine-tuning.")
+                    self._adapt_pretrained_model_for_finetuning(
+                        model_to_finetune, pre_trained_model
+                    )
+
+                criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+                optimizer = torch.optim.AdamW(
+                    model_to_finetune.parameters(), lr=self.config.learning_rate
+                )
+
+                trained_model_instance, metrics = train_model(
+                    model=model_to_finetune,
+                    train_loader=train_loader,
+                    val_loader=val_loader,  # Pass validation loader
+                    criterion=criterion,
+                    optimizer=optimizer,
+                    num_epochs=self.config.epochs,
+                    patience=self.config.early_stopping,
+                    is_augmented=self.config.data_augmentation,
+                    device=self.device,
+                )
+                if self.config.dataset == "oil" and "best_val_predictions" in metrics:
+                    self.perform_ordinal_analysis(metrics["best_val_predictions"], fold)
+                    del metrics["best_val_predictions"]
+
+                all_fold_metrics.append(metrics)
+                final_trained_model = trained_model_instance  # Keep the last one
+
+            self.logger.info("Cross-Validation finished.")
+
+            if all_fold_metrics:
+                # Aggregate and log cross-validation results
+                stats = {
+                    k: np.mean([m[k] for m in all_fold_metrics])
+                    for k in all_fold_metrics[0]
+                }
+                self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
+                # Save aggregated metrics to a file
+                results_dir = Path("results")
+                results_dir.mkdir(parents=True, exist_ok=True)
+                file_name = f"stats_{self.config.model}_{self.config.dataset}.json"
+                file_path = results_dir / file_name
+                with open(file_path, "w") as f:
+                    json.dump(
+                        {
+                            "config": asdict(self.config),
+                            "stats": stats,
+                            "folds": all_fold_metrics,
+                        },
+                        f,
+                        indent=4,
+                    )
+                self.logger.info(f"Aggregated metrics saved to {file_path}")
+            else:
+                self.logger.warning("No folds completed successfully to aggregate metrics.")
+
+            return final_trained_model
 
 
 # ## 5. Argument Parsing
@@ -749,6 +900,10 @@ def parse_arguments() -> argparse.Namespace:
         type=float,
         default=0.1,
         help="Label smoothing alpha",
+    )
+
+    parser.add_argument(
+        "-kf", "--k-folds", type=int, default=3, help="Number of folds for cross-validation"
     )
 
     # Model architecture
