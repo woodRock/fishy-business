@@ -124,7 +124,10 @@ def train_model(
         if fold_results["best_model_state"] is not None:
             final_model.load_state_dict(fold_results["best_model_state"])
         # The metrics dict from _train_fold is what we want.
-        return final_model, fold_results["best_fold_metrics"]
+        metrics = fold_results["best_fold_metrics"]
+        if "best_val_predictions" in fold_results and fold_results["best_val_predictions"] is not None:
+            metrics["best_val_predictions"] = fold_results["best_val_predictions"]
+        return final_model, metrics
 
     pristine_model_template_cpu = copy.deepcopy(model).cpu()
 
@@ -652,7 +655,7 @@ def _train_fold(
     """
     best_val_accuracy = float("-inf")
     epochs_no_improve = 0
-    best_model_state_cpu, best_fold_metrics = None, None
+    best_model_state_cpu, best_fold_metrics, best_val_predictions = None, None, None
     epoch_log = {
         "train_losses": [],
         "val_losses": [],
@@ -697,6 +700,7 @@ def _train_fold(
                 ),
                 "epoch": epoch,
             }
+            best_val_predictions = val_results["predictions"]
             epochs_no_improve = 0
             logger.debug(f"E{epoch+1}: New best val_acc: {best_val_accuracy:.4f}")
         else:
@@ -749,7 +753,23 @@ def _train_fold(
         "best_model_state": best_model_state_cpu,
         "best_fold_metrics": best_fold_metrics,
         "epoch_metrics": epoch_log,
+        "best_val_predictions": best_val_predictions,
     }
+
+
+def evaluate_model(
+    model: nn.Module,
+    loader: DataLoader,
+    criterion: nn.Module,
+    device: str,
+) -> Dict:
+    """Evaluates a model on a given data loader."""
+    model.eval()
+    with torch.no_grad():
+        results = _run_epoch(
+            model, loader, criterion, None, device, is_training=False
+        )
+    return results
 
 
 def _run_epoch(

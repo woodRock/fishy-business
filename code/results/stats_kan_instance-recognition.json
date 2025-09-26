@@ -1,6 +1,6 @@
 {
     "config": {
-        "file_path": "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx",
+        "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
         "model": "kan",
         "dataset": "instance-recognition",
         "run": 0,
@@ -25,36 +25,20 @@
         "num_augmentations": 5,
         "noise_level": 0.1,
         "shift_enabled": false,
-        "scale_enabled": false
+        "scale_enabled": false,
+        "k_folds": 3,
+        "crop_enabled": false,
+        "flip_enabled": false,
+        "permutation_enabled": false,
+        "crop_size": 0.8
     },
     "stats": {
-        "train_loss": 0.43926207816347157,
-        "train_accuracy": 0.5896604938271605,
-        "val_loss": 0.48849888988163165,
-        "val_accuracy": 0.6240079365079365,
-        "epoch": 29.0
-    },
-    "folds": [
-        {
-            "train_loss": 0.2705992853387873,
-            "train_accuracy": 0.631712962962963,
-            "val_loss": 0.33912322400272754,
-            "val_accuracy": 0.6676587301587302,
-            "epoch": 43
-        },
-        {
-            "train_loss": 0.780226357862459,
-            "train_accuracy": 0.5504629629629629,
-            "val_loss": 0.711275691571443,
-            "val_accuracy": 0.5,
-            "epoch": 0
-        },
-        {
-            "train_loss": 0.26696059128916855,
-            "train_accuracy": 0.5868055555555556,
-            "val_loss": 0.41509775407072425,
-            "val_accuracy": 0.7043650793650793,
-            "epoch": 44
-        }
-    ]
+        "train_loss": 0.5918619516466618,
+        "train_accuracy": 0.46933573478234325,
+        "val_loss": 0.6952502665687681,
+        "val_accuracy": 0.5085513078470825,
+        "best_epoch": 0,
+        "test_loss": 0.6950325593352318,
+        "test_accuracy": 0.4928284566838783
+    }
 }

@@ -25,36 +25,20 @@
         "num_augmentations": 5,
         "noise_level": 0.1,
         "shift_enabled": false,
-        "scale_enabled": false
+        "scale_enabled": false,
+        "k_folds": 3,
+        "crop_enabled": false,
+        "flip_enabled": false,
+        "permutation_enabled": false,
+        "crop_size": 0.8
     },
     "stats": {
         "train_loss": 0.0,
         "train_accuracy": 0.5,
         "val_loss": 0.0,
         "val_accuracy": 0.5,
-        "epoch": 0.0
-    },
-    "folds": [
-        {
-            "train_loss": 0.0,
-            "train_accuracy": 0.5,
-            "val_loss": 0.0,
-            "val_accuracy": 0.5,
-            "epoch": 0
-        },
-        {
-            "train_loss": 0.0,
-            "train_accuracy": 0.5,
-            "val_loss": 0.0,
-            "val_accuracy": 0.5,
-            "epoch": 0
-        },
-        {
-            "train_loss": 0.0,
-            "train_accuracy": 0.5,
-            "val_loss": 0.0,
-            "val_accuracy": 0.5,
-            "epoch": 0
-        }
-    ]
+        "best_epoch": 0,
+        "test_loss": 0.0,
+        "test_accuracy": 0.5
+    }
 }

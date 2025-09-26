@@ -1,7 +1,7 @@
 {
     "config": {
         "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
-        "model": "transformer",
+        "model": "ensemble",
         "dataset": "instance-recognition",
         "run": 0,
         "output": "logs/results_base",
@@ -33,12 +33,12 @@
         "crop_size": 0.8
     },
     "stats": {
-        "train_loss": 0.20366094079152947,
+        "train_loss": 0.19960188762626846,
         "train_accuracy": 1.0,
-        "val_loss": 0.25612759336450097,
-        "val_accuracy": 0.5704225352112676,
-        "best_epoch": 13,
-        "test_loss": 0.23758391290903091,
-        "test_accuracy": 0.7132816982214573
+        "val_loss": 0.24163692104839765,
+        "val_accuracy": 0.7142857142857143,
+        "best_epoch": 19,
+        "test_loss": 0.2363366335630417,
+        "test_accuracy": 0.7142857142857143
     }
 }

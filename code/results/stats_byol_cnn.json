@@ -14,8 +14,8 @@
         "num_inner_functions": 10,
         "dropout": 0.18,
         "patience": 100,
-        "encoder_type": "kan",
-        "contrastive_method": "simclr",
+        "encoder_type": "cnn",
+        "contrastive_method": "byol",
         "moco_dim": 256,
         "moco_k": 65536,
         "moco_m": 0.999,
@@ -38,11 +38,11 @@
         "trial_number": null
     },
     "stats": {
-        "train_loss": NaN,
-        "train_accuracy": 0.525,
+        "train_loss": 1.9634145736694335,
+        "train_accuracy": 0.5625,
         "val_loss": NaN,
         "val_accuracy": 0.5,
-        "best_epoch": 0,
+        "best_epoch": 1,
         "test_loss": NaN,
         "test_accuracy": 0.5
     }
