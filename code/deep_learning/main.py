@@ -146,7 +146,7 @@ class SiameseWrapper(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(embedding_dim, 64),
             nn.ReLU(inplace=True),
-            nn.Linear(64, 2) # 2 classes: same/different
+            nn.Linear(64, 2),  # 2 classes: same/different
         )
 
     def forward(self, x1, x2):
@@ -154,7 +154,6 @@ class SiameseWrapper(nn.Module):
         emb2 = self.base_model(x2)
         diff = torch.abs(emb1 - emb2)
         return self.classifier(diff)
-
 
 
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
@@ -192,11 +191,11 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
                 depth=config.num_layers,
             )
             return SiameseMamba(mamba_model)
-        
+
         if config.model == "vae":
             vae_model = VAE(
                 input_size=input_dim,
-                num_classes=output_dim, # VAE is special, uses output_dim for its own classification head
+                num_classes=output_dim,  # VAE is special, uses output_dim for its own classification head
                 latent_dim=config.hidden_dimension,
                 **model_args,
             )
@@ -204,21 +203,58 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
 
         # Generic wrapper for other models
         if config.model == "transformer":
-            base_model = Transformer(input_dim=input_dim, output_dim=embedding_dim, num_layers=config.num_layers, num_heads=config.num_heads, hidden_dim=config.hidden_dimension, **model_args)
+            base_model = Transformer(
+                input_dim=input_dim,
+                output_dim=embedding_dim,
+                num_layers=config.num_layers,
+                num_heads=config.num_heads,
+                hidden_dim=config.hidden_dimension,
+                **model_args,
+            )
         elif config.model == "ensemble":
             # Ensemble model is not a feature extractor in the same way, this might not be a meaningful siamese adaptation.
             # For now, we create it to output embeddings.
-            base_model = Ensemble(input_dim=input_dim, output_dim=embedding_dim, hidden_dim=config.hidden_dimension, dropout=config.dropout)
+            base_model = Ensemble(
+                input_dim=input_dim,
+                output_dim=embedding_dim,
+                hidden_dim=config.hidden_dimension,
+                dropout=config.dropout,
+            )
         elif config.model == "lstm":
-            base_model = LSTM(input_dim=input_dim, output_dim=embedding_dim, hidden_dim=config.hidden_dimension, num_layers=config.num_layers, **model_args)
+            base_model = LSTM(
+                input_dim=input_dim,
+                output_dim=embedding_dim,
+                hidden_dim=config.hidden_dimension,
+                num_layers=config.num_layers,
+                **model_args,
+            )
         elif config.model in ["cnn", "rcnn"]:
-            base_model = model_class(input_dim=input_dim, output_dim=embedding_dim, **model_args)
+            base_model = model_class(
+                input_dim=input_dim, output_dim=embedding_dim, **model_args
+            )
         elif config.model == "kan":
-            base_model = KAN(input_dim=input_dim, output_dim=embedding_dim, hidden_dim=config.hidden_dimension, num_layers=config.num_layers, dropout_rate=config.dropout, num_inner_functions=10)
+            base_model = KAN(
+                input_dim=input_dim,
+                output_dim=embedding_dim,
+                hidden_dim=config.hidden_dimension,
+                num_layers=config.num_layers,
+                dropout_rate=config.dropout,
+                num_inner_functions=10,
+            )
         elif config.model == "moe":
-            base_model = MOE(input_dim=input_dim, output_dim=embedding_dim, num_heads=config.num_heads, num_layers=config.num_layers, hidden_dim=config.hidden_dimension, num_experts=4, k=2)
-        else: # For models like Dense, ODE, RWKV, TCN, WaveNet
-            base_model = model_class(input_dim=input_dim, output_dim=embedding_dim, **model_args)
+            base_model = MOE(
+                input_dim=input_dim,
+                output_dim=embedding_dim,
+                num_heads=config.num_heads,
+                num_layers=config.num_layers,
+                hidden_dim=config.hidden_dimension,
+                num_experts=4,
+                k=2,
+            )
+        else:  # For models like Dense, ODE, RWKV, TCN, WaveNet
+            base_model = model_class(
+                input_dim=input_dim, output_dim=embedding_dim, **model_args
+            )
 
         return SiameseWrapper(base_model, embedding_dim)
 
@@ -551,11 +587,16 @@ class ModelTrainer:
         # Plot histogram of prediction errors
         errors = pred_labels - true_labels
         plt.figure()
-        plt.hist(errors, bins=np.arange(errors.min(), errors.max() + 2) - 0.5, rwidth=0.8)
+        plt.hist(
+            errors, bins=np.arange(errors.min(), errors.max() + 2) - 0.5, rwidth=0.8
+        )
         plt.xlabel("Prediction Error (Predicted - True)")
         plt.ylabel("Frequency")
         plt.title(f"Fold {fold + 1} Prediction Error Distribution for Oil Dataset")
-        plot_path = Path(self.config.output).parent / f"oil_prediction_error_fold_{self.config.run}_{fold + 1}.png"
+        plot_path = (
+            Path(self.config.output).parent
+            / f"oil_prediction_error_fold_{self.config.run}_{fold + 1}.png"
+        )
         plt.savefig(plot_path)
         plt.close()
         self.logger.info(f"Saved prediction error plot to {plot_path}")
@@ -567,7 +608,10 @@ class ModelTrainer:
         plt.xlabel("Predicted Label")
         plt.ylabel("True Label")
         plt.title(f"Fold {fold + 1} Confusion Matrix for Oil Dataset")
-        cm_plot_path = Path(self.config.output).parent / f"oil_confusion_matrix_fold_{self.config.run}_{fold + 1}.png"
+        cm_plot_path = (
+            Path(self.config.output).parent
+            / f"oil_confusion_matrix_fold_{self.config.run}_{fold + 1}.png"
+        )
         plt.savefig(cm_plot_path)
         plt.close()
         self.logger.info(f"Saved confusion matrix plot to {cm_plot_path}")
@@ -593,44 +637,82 @@ class ModelTrainer:
 
         if "instance-recognition" in self.config.dataset:
             # --- Train/Validation/Test Split Logic for Siamese Pairs ---
-            self.logger.info("Using Train/Validation/Test split on Siamese pairs for instance-recognition.")
+            self.logger.info(
+                "Using Train/Validation/Test split on Siamese pairs for instance-recognition."
+            )
 
             # 1. Create a single SiameseDataset from all data
             full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
             full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
-            full_siamese_dataset = SiameseDataset(full_dataset_samples, full_dataset_labels)
+            full_siamese_dataset = SiameseDataset(
+                full_dataset_samples, full_dataset_labels
+            )
 
             # 2. Stratified split on pairs
             pair_indices = np.arange(len(full_siamese_dataset))
-            pair_labels_for_stratify = full_siamese_dataset.paired_labels.cpu().numpy().flatten()
+            pair_labels_for_stratify = (
+                full_siamese_dataset.paired_labels.cpu().numpy().flatten()
+            )
 
             train_val_indices, test_indices = train_test_split(
-                pair_indices, test_size=0.2, random_state=self.config.run, stratify=pair_labels_for_stratify
+                pair_indices,
+                test_size=0.2,
+                random_state=self.config.run,
+                stratify=pair_labels_for_stratify,
             )
             train_indices, val_indices = train_test_split(
-                train_val_indices, test_size=0.25, random_state=self.config.run, stratify=pair_labels_for_stratify[train_val_indices]
+                train_val_indices,
+                test_size=0.25,
+                random_state=self.config.run,
+                stratify=pair_labels_for_stratify[train_val_indices],
             )
 
             train_dataset = Subset(full_siamese_dataset, train_indices)
             val_dataset = Subset(full_siamese_dataset, val_indices)
             test_dataset = Subset(full_siamese_dataset, test_indices)
-            
-            self.logger.info(f"Data split: {len(train_dataset)} train pairs, {len(val_dataset)} validation pairs, {len(test_dataset)} test pairs.")
+
+            self.logger.info(
+                f"Data split: {len(train_dataset)} train pairs, {len(val_dataset)} validation pairs, {len(test_dataset)} test pairs."
+            )
 
             # 3. Create DataLoaders
             pin_memory_val = True if self.device.type == "cuda" else False
-            train_loader = DataLoader(train_dataset, batch_size=self.config.batch_size, shuffle=True, num_workers=4, pin_memory=pin_memory_val)
-            val_loader = DataLoader(val_dataset, batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory_val)
-            test_loader = DataLoader(test_dataset, batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=pin_memory_val)
+            train_loader = DataLoader(
+                train_dataset,
+                batch_size=self.config.batch_size,
+                shuffle=True,
+                num_workers=4,
+                pin_memory=pin_memory_val,
+            )
+            val_loader = DataLoader(
+                val_dataset,
+                batch_size=self.config.batch_size,
+                shuffle=False,
+                num_workers=4,
+                pin_memory=pin_memory_val,
+            )
+            test_loader = DataLoader(
+                test_dataset,
+                batch_size=self.config.batch_size,
+                shuffle=False,
+                num_workers=4,
+                pin_memory=pin_memory_val,
+            )
 
             # 4. Create Model and Optimizer
-            model_to_finetune = create_model(self.config, self.n_features, self.n_classes).to(self.device)
+            model_to_finetune = create_model(
+                self.config, self.n_features, self.n_classes
+            ).to(self.device)
             if pre_trained_model:
                 self.logger.info("Transferring pre-trained weights for fine-tuning.")
-                self._adapt_pretrained_model_for_finetuning(model_to_finetune, pre_trained_model)
-            
+                self._adapt_pretrained_model_for_finetuning(
+                    model_to_finetune, pre_trained_model
+                )
+
             criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-            optimizer = torch.optim.AdamW(model_to_finetune.parameters(), lr=self.config.learning_rate)
+            optimizer = torch.optim.AdamW(
+                model_to_finetune.parameters(), lr=self.config.learning_rate
+            )
 
             # 5. Train Model
             trained_model, train_val_metrics = train_model(
@@ -647,8 +729,10 @@ class ModelTrainer:
 
             # 6. Evaluate on Test Set
             self.logger.info("Evaluating on the test set.")
-            test_results = evaluate_model(trained_model, test_loader, criterion, self.device)
-            
+            test_results = evaluate_model(
+                trained_model, test_loader, criterion, self.device
+            )
+
             # 7. Save Results
             final_metrics = {
                 "train_loss": train_val_metrics.get("train_loss"),
@@ -657,16 +741,20 @@ class ModelTrainer:
                 "val_accuracy": train_val_metrics.get("val_accuracy"),
                 "best_epoch": train_val_metrics.get("epoch"),
                 "test_loss": test_results.get("loss"),
-                "test_accuracy": test_results.get("metrics", {}).get("balanced_accuracy"),
+                "test_accuracy": test_results.get("metrics", {}).get(
+                    "balanced_accuracy"
+                ),
             }
-            
+
             self.logger.info(f"Final metrics: {final_metrics}")
             results_dir = Path("results")
             results_dir.mkdir(parents=True, exist_ok=True)
             file_name = f"stats_{self.config.model}_{self.config.dataset}.json"
             file_path = results_dir / file_name
             with open(file_path, "w") as f:
-                json.dump({"config": asdict(self.config), "stats": final_metrics}, f, indent=4)
+                json.dump(
+                    {"config": asdict(self.config), "stats": final_metrics}, f, indent=4
+                )
             self.logger.info(f"Final metrics saved to {file_path}")
 
             return trained_model
@@ -675,15 +763,21 @@ class ModelTrainer:
             # --- K-Fold Cross-Validation Logic (unchanged) ---
             full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
             full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
-            self.logger.info("Starting main fine-tuning phase with Stratified K-Fold Cross-Validation")
+            self.logger.info(
+                "Starting main fine-tuning phase with Stratified K-Fold Cross-Validation"
+            )
             k_folds = self.config.k_folds
-            cv_splitter = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
+            cv_splitter = StratifiedKFold(
+                n_splits=k_folds, shuffle=True, random_state=self.config.run
+            )
             split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1))
 
             all_fold_metrics = []
             final_trained_model = None  # To store the model from the last fold
 
-            for fold, (train_index, val_index) in enumerate(cv_splitter.split(*split_args)):
+            for fold, (train_index, val_index) in enumerate(
+                cv_splitter.split(*split_args)
+            ):
                 self.logger.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
 
                 X_train, X_val = (
@@ -697,7 +791,9 @@ class ModelTrainer:
 
                 # Determine dataset class (e.g. Siamese for instance recognition)
                 dataset_name_str = (
-                    self.data_module.processor.dataset_type.name.lower().replace("_", "-")
+                    self.data_module.processor.dataset_type.name.lower().replace(
+                        "_", "-"
+                    )
                 )
                 dataset_class = (
                     SiameseDataset
@@ -727,7 +823,9 @@ class ModelTrainer:
 
                 if isinstance(val_dataset, SiameseDataset):
                     num_val_pairs = len(val_dataset)
-                    num_val_pos_pairs = np.sum(val_dataset.paired_labels.cpu().numpy() == 1)
+                    num_val_pos_pairs = np.sum(
+                        val_dataset.paired_labels.cpu().numpy() == 1
+                    )
                     self.logger.info(
                         f"Validation pairs: {num_val_pairs} (Positive: {num_val_pos_pairs})"
                     )
@@ -760,12 +858,16 @@ class ModelTrainer:
                 ).to(self.device)
 
                 if pre_trained_model:
-                    self.logger.info("Transferring pre-trained weights for fine-tuning.")
+                    self.logger.info(
+                        "Transferring pre-trained weights for fine-tuning."
+                    )
                     self._adapt_pretrained_model_for_finetuning(
                         model_to_finetune, pre_trained_model
                     )
 
-                criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+                criterion = nn.CrossEntropyLoss(
+                    label_smoothing=self.config.label_smoothing
+                )
                 optimizer = torch.optim.AdamW(
                     model_to_finetune.parameters(), lr=self.config.learning_rate
                 )
@@ -814,7 +916,9 @@ class ModelTrainer:
                     )
                 self.logger.info(f"Aggregated metrics saved to {file_path}")
             else:
-                self.logger.warning("No folds completed successfully to aggregate metrics.")
+                self.logger.warning(
+                    "No folds completed successfully to aggregate metrics."
+                )
 
             return final_trained_model
 
@@ -903,7 +1007,11 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "-kf", "--k-folds", type=int, default=3, help="Number of folds for cross-validation"
+        "-kf",
+        "--k-folds",
+        type=int,
+        default=3,
+        help="Number of folds for cross-validation",
     )
 
     # Model architecture

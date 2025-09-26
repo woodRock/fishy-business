@@ -763,7 +763,7 @@ def main(config: ContrastiveConfig) -> Dict:
 
     # --- Create full Siamese Dataset before splitting ---
     full_dataset = SiameseDataset(features, labels)
-    
+
     # --- Stratified Split of Pairs ---
     pair_indices = np.arange(len(full_dataset))
     pair_labels_for_stratify = np.argmax(full_dataset.pair_labels, axis=1)
@@ -775,7 +775,10 @@ def main(config: ContrastiveConfig) -> Dict:
 
     # Split train+val into train (60% of total) and val (20% of total)
     train_indices, val_indices = train_test_split(
-        train_val_indices, test_size=0.25, random_state=42, stratify=pair_labels_for_stratify[train_val_indices]
+        train_val_indices,
+        test_size=0.25,
+        random_state=42,
+        stratify=pair_labels_for_stratify[train_val_indices],
     )
 
     train_dataset = Subset(full_dataset, train_indices)
@@ -805,9 +808,9 @@ def main(config: ContrastiveConfig) -> Dict:
     all_runs_stats = []
     for i in range(config.num_runs):
         logging.info(f"--- Starting Run {i+1}/{config.num_runs} ---")
-        
+
         base_model, loss_fn = create_contrastive_model(config)
-        
+
         best_model, best_metrics, best_threshold = run_single_training(
             config, i, device, train_loader, val_loader, base_model, loss_fn
         )
@@ -824,7 +827,7 @@ def main(config: ContrastiveConfig) -> Dict:
                 )
             else:
                 logging.warning("Test loader is empty. Skipping final evaluation.")
-        
+
         if best_metrics:
             stats = {
                 "train_loss": best_metrics.get("train_loss"),
@@ -845,7 +848,7 @@ def main(config: ContrastiveConfig) -> Dict:
     avg_stats = {}
     std_stats = {}
     metric_keys = all_runs_stats[0].keys()
-    
+
     for key in metric_keys:
         values = [run[key] for run in all_runs_stats if run.get(key) is not None]
         if values:
@@ -853,14 +856,25 @@ def main(config: ContrastiveConfig) -> Dict:
             std_stats[key] = np.std(values)
 
     logging.info(f"Averaged stats over {config.num_runs} runs: {avg_stats}")
-    logging.info(f"Standard deviation of stats over {config.num_runs} runs: {std_stats}")
+    logging.info(
+        f"Standard deviation of stats over {config.num_runs} runs: {std_stats}"
+    )
 
     # --- Save results ---
     with open(
         f"results/stats_{config.contrastive_method}_{config.encoder_type}_{config.num_runs}_runs.json",
         "w",
     ) as f:
-        json.dump({"config": asdict(config), "runs": all_runs_stats, "stats": avg_stats, "std_dev": std_stats}, f, indent=4)
+        json.dump(
+            {
+                "config": asdict(config),
+                "runs": all_runs_stats,
+                "stats": avg_stats,
+                "std_dev": std_stats,
+            },
+            f,
+            indent=4,
+        )
 
     return avg_stats
 
@@ -883,7 +897,12 @@ if __name__ == "__main__":
         choices=CONTRASTIVE_MODEL_REGISTRY.keys(),
         help="Contrastive learning method to use (e.g., simclr, moco, byol)",
     )
-    parser.add_argument("--num_runs", type=int, default=1, help="Number of runs to average results over.")
+    parser.add_argument(
+        "--num_runs",
+        type=int,
+        default=1,
+        help="Number of runs to average results over.",
+    )
     # Add other config arguments as needed
     args = parser.parse_args()
 
