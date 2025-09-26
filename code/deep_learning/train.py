@@ -125,7 +125,10 @@ def train_model(
             final_model.load_state_dict(fold_results["best_model_state"])
         # The metrics dict from _train_fold is what we want.
         metrics = fold_results["best_fold_metrics"]
-        if "best_val_predictions" in fold_results and fold_results["best_val_predictions"] is not None:
+        if (
+            "best_val_predictions" in fold_results
+            and fold_results["best_val_predictions"] is not None
+        ):
             metrics["best_val_predictions"] = fold_results["best_val_predictions"]
         return final_model, metrics
 
@@ -766,9 +769,7 @@ def evaluate_model(
     """Evaluates a model on a given data loader."""
     model.eval()
     with torch.no_grad():
-        results = _run_epoch(
-            model, loader, criterion, None, device, is_training=False
-        )
+        results = _run_epoch(model, loader, criterion, None, device, is_training=False)
     return results
 
 

@@ -56,12 +56,11 @@ class TestDeepLearning(unittest.TestCase):
 
         # Create a dummy excel file
         data = {
-            'm/z': [f'sample{i} H' if i % 2 == 0 else f'sample{i} M' for i in range(4)],
-            **{f'feature_{j}': np.random.rand(4) for j in range(20)},
+            "m/z": [f"sample{i} H" if i % 2 == 0 else f"sample{i} M" for i in range(4)],
+            **{f"feature_{j}": np.random.rand(4) for j in range(20)},
         }
         df = pd.DataFrame(data)
-        df.to_excel('dummy.xlsx', index=False)
-
+        df.to_excel("dummy.xlsx", index=False)
 
     def tearDown(self):
         os.remove("dummy.xlsx")
@@ -88,9 +87,7 @@ class TestDeepLearning(unittest.TestCase):
 
     @patch("deep_learning.main.PreTrainer")
     @patch("deep_learning.main.ModelTrainer._setup_logging")
-    def test_pre_train(
-        self, mock_setup_logging, mock_pre_trainer
-    ):
+    def test_pre_train(self, mock_setup_logging, mock_pre_trainer):
         """Test the pre-training phase."""
         # Setup mocks
         mock_pre_trainer_instance = MagicMock()
@@ -114,7 +111,7 @@ class TestDeepLearning(unittest.TestCase):
         """Test the fine-tuning phase."""
         # Setup mocks
         mock_trained_model = MagicMock(spec=nn.Module)
-        mock_train_model.return_value = (mock_trained_model, {'accuracy': 0.9})
+        mock_train_model.return_value = (mock_trained_model, {"accuracy": 0.9})
 
         # Initialize trainer and run fine-tuning
         trainer = ModelTrainer(self.config)
