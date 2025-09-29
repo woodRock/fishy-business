@@ -325,23 +325,30 @@ class MixtureOfExperts(nn.Module):
                 self.expert_usage_counts[i] += torch.sum(expert_indices == i).item()
             self.total_tokens += expert_indices.numel()
 
-            # Process with selected experts
-            expert_outputs = torch.zeros_like(x_flat)
-            for i, expert in enumerate(self.experts):
-                mask = (expert_indices == i).any(dim=-1)
-                if mask.any():
-                    expert_outputs[mask] += expert(x_flat[mask])
+            # Vectorized processing of experts
+            final_output = torch.zeros_like(x_flat)
+            flat_expert_indices = expert_indices.flatten()
+            flat_gate_scores = gate_scores.flatten()
 
-            combined_output = torch.zeros_like(x_flat)
-            for i in range(self.k):
-                expert_idx = expert_indices[:, i]
-                gate_score = gate_scores[:, i].unsqueeze(-1)
-                combined_output += gate_score * torch.stack(
-                    [
-                        self.experts[idx](x_flat[batch_idx : batch_idx + 1])
-                        for batch_idx, idx in enumerate(expert_idx)
-                    ]
-                ).squeeze(1)
+            # Create a tensor of batch indices
+            batch_indices = torch.arange(x_flat.size(0), device=x_flat.device).repeat_interleave(self.k)
+
+            for i, expert in enumerate(self.experts):
+                # Find all instances where this expert was selected
+                expert_mask = flat_expert_indices == i
+                if expert_mask.any():
+                    # Get the batch indices and gate scores for these instances
+                    selected_batch_indices = batch_indices[expert_mask]
+                    selected_gate_scores = flat_gate_scores[expert_mask].unsqueeze(1)
+
+                    # Process the inputs for this expert in a single batch
+                    expert_input = x_flat[selected_batch_indices]
+                    expert_output = expert(expert_input)
+
+                    # Weight the expert output by the gate scores and add to the final output
+                    final_output.index_add_(0, selected_batch_indices, expert_output * selected_gate_scores)
+
+            combined_output = final_output
 
         return combined_output.view(batch_size, seq_len, d_model)
 

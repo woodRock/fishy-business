@@ -1,3 +1,4 @@
-2025-09-29 19:13:20,403 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
-2025-09-29 19:13:24,559 - INFO - Loaded data with shape: (306, 2081)
-2025-09-29 19:13:24,562 - INFO - Filtered data shape: (72, 2081)
+2025-09-29 19:53:19,337 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
+2025-09-29 19:53:23,283 - INFO - Loaded data with shape: (306, 2081)
+2025-09-29 19:53:23,286 - INFO - Filtered data shape: (72, 2081)
+2025-09-29 19:55:40,583 - INFO - E10 TL:0.219 VL:0.267 VAcur:0.534 BestVAcur:0.536
