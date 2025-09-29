@@ -24,6 +24,7 @@ from sklearn.metrics import (
 
 from models import Transformer, VAE
 from .util import DataAugmenter, AugmentationConfig, SiameseDataset
+from .losses import levels_from_labelbatch
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[
@@ -82,6 +83,8 @@ def train_model(
     is_augmented: bool = False,
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
     val_loader: Optional[DataLoader] = None,
+    use_coral: bool = False,
+    num_classes: Optional[int] = None,
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model. If val_loader is provided, it performs a single training run.
     Otherwise, it performs k-fold cross-validation with multiple independent runs.
@@ -98,6 +101,8 @@ def train_model(
         is_augmented (bool): Whether to apply data augmentation during training.
         device (str): Device to use for training ('cuda', 'cpu', 'mps').
         val_loader (Optional[DataLoader]): DataLoader for the validation dataset. If provided, k-fold CV is skipped.
+        use_coral (bool): Whether to use CORAL loss for ordinal classification.
+        num_classes (Optional[int]): Number of classes for CORAL loss.
 
     Returns:
         Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of metrics.
@@ -117,6 +122,8 @@ def train_model(
             patience,
             device,
             logger,
+            use_coral,
+            num_classes,
         )
         # The return type of train_model is Tuple[nn.Module, Dict].
         # _train_fold returns a Dict. I need to load the best model state and return it.
@@ -351,6 +358,8 @@ def _train_single_split(
     device: str,
     logger: logging.Logger,
     n_runs: int = 30,
+    use_coral: bool = False,
+    num_classes: Optional[int] = None,
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model using a single split with multiple independent runs.
 
@@ -365,6 +374,8 @@ def _train_single_split(
         device (str): Device to use for training ('cuda', 'cpu', 'mps').
         logger (logging.Logger): Logger instance for logging information.
         n_runs (int): Number of independent runs to perform.
+        use_coral (bool): Whether to use CORAL loss for ordinal classification.
+        num_classes (Optional[int]): Number of classes for CORAL loss.
 
     Returns:
         Tuple[nn.Module, Dict]: The trained model on the specified device and a dictionary of
@@ -430,7 +441,10 @@ def _train_single_split(
             patience,
             device,
             logger,
+            use_coral,
+            num_classes,
         )
+
 
         current_run_best_accuracy = run_results["best_accuracy"]
 
@@ -638,6 +652,8 @@ def _train_fold(
     patience: int,
     device: str,
     logger: logging.Logger,
+    use_coral: bool = False,
+    num_classes: Optional[int] = None,
 ) -> Dict:
     """Trains a model for a single fold of cross-validation.
 
@@ -651,6 +667,8 @@ def _train_fold(
         patience (int): Number of epochs with no improvement after which training will be stopped.
         device (str): Device to use for training ('cuda', 'cpu', 'mps').
         logger (logging.Logger): Logger instance for logging information.
+        use_coral (bool): Whether to use CORAL loss for ordinal classification.
+        num_classes (Optional[int]): Number of classes for CORAL loss.
 
     Returns:
         Dict: A dictionary containing the best validation accuracy, the best model state,
@@ -671,13 +689,13 @@ def _train_fold(
     ):
         model.train()
         train_results = _run_epoch(
-            model, train_loader, criterion, optimizer, device, is_training=True
+            model, train_loader, criterion, optimizer, device, is_training=True, use_coral=use_coral, num_classes=num_classes
         )
 
         model.eval()
         with torch.no_grad():
             val_results = _run_epoch(
-                model, val_loader, criterion, None, device, is_training=False
+                model, val_loader, criterion, None, device, is_training=False, use_coral=use_coral, num_classes=num_classes
             )
 
         epoch_log["train_losses"].append(train_results["loss"])
@@ -765,11 +783,13 @@ def evaluate_model(
     loader: DataLoader,
     criterion: nn.Module,
     device: str,
+    use_coral: bool = False,
+    num_classes: Optional[int] = None,
 ) -> Dict:
     """Evaluates a model on a given data loader."""
     model.eval()
     with torch.no_grad():
-        results = _run_epoch(model, loader, criterion, None, device, is_training=False)
+        results = _run_epoch(model, loader, criterion, None, device, is_training=False, use_coral=use_coral, num_classes=num_classes)
     return results
 
 
@@ -780,6 +800,8 @@ def _run_epoch(
     optimizer: Optional[optim.Optimizer],
     device: str,
     is_training: bool,
+    use_coral: bool = False,
+    num_classes: Optional[int] = None,
 ) -> Dict:
     """Runs a single epoch of training or validation."""
     total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
@@ -822,9 +844,16 @@ def _run_epoch(
         else:
             actual_indices = labels_on_device
 
-        loss = criterion(
-            outputs, actual_indices.long()
-        )  # Ensure long type for CrossEntropy
+        if use_coral:
+            levels = levels_from_labelbatch(
+                actual_indices, num_classes=num_classes, dtype=torch.float32
+            ).to(device)
+            loss = criterion(outputs, levels)
+        else:
+            loss = criterion(
+                outputs, actual_indices.long()
+            )  # Ensure long type for CrossEntropy
+
         if is_training:
             loss.backward()
             optimizer.step()
@@ -840,8 +869,14 @@ def _run_epoch(
         )
 
         # Process labels and predictions for metrics
-        probs = torch.softmax(outputs, dim=1)
-        predicted_indices = outputs.argmax(dim=1)
+        if use_coral:
+            predicted_indices = torch.sum(
+                torch.round(torch.sigmoid(outputs)), dim=1
+            ).long()
+            probs = torch.sigmoid(outputs)
+        else:
+            probs = torch.softmax(outputs, dim=1)
+            predicted_indices = outputs.argmax(dim=1)
 
         all_labels_np.append(actual_indices.cpu().numpy())
         all_preds_np.append(predicted_indices.cpu().numpy())
@@ -852,7 +887,7 @@ def _run_epoch(
     final_preds = np.concatenate(all_preds_np)
     final_probs = np.concatenate(all_probs_np)
 
-    metrics = _calculate_metrics(final_labels, final_preds, final_probs)
+    metrics = _calculate_metrics(final_labels, final_preds, final_probs, use_coral=use_coral, num_classes=num_classes)
     return {
         "loss": avg_loss,
         "metrics": metrics,
@@ -865,7 +900,7 @@ def _run_epoch(
 
 
 def _calculate_metrics(  # Minor cleanup for NaN handling
-    y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None
+    y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None, use_coral: bool = False, num_classes: Optional[int] = None
 ) -> MetricsDict:
     """Calculates various metrics based on true labels, predicted labels, and predicted probabilities.
 
@@ -873,6 +908,8 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
         y_true (np.ndarray): True labels.
         y_pred (np.ndarray): Predicted labels.
         y_prob (Optional[np.ndarray]): Predicted probabilities for each class, if available.
+        use_coral (bool): Whether to use CORAL loss for ordinal classification.
+        num_classes (Optional[int]): Number of classes.
 
     Returns:
         MetricsDict: A dictionary containing calculated metrics such as balanced accuracy, precision, recall, F
@@ -905,9 +942,10 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
     if (
         y_prob is not None and y_true.size > 0 and len(np.unique(y_true)) > 0
     ):  # Basic checks for valid AUC calculation
-        n_classes = y_prob.shape[1]
-        if n_classes == 2:
-            metrics["auc_roc"] = roc_curve_auc(y_true, y_prob[:, 1])
+        n_classes = num_classes if num_classes is not None else (y_prob.shape[1] + 1 if use_coral else y_prob.shape[1])
+        if n_classes == 2 and not use_coral:
+            y_prob_for_auc = y_prob[:, 1] if y_prob.shape[1] == 2 else y_prob.flatten()
+            metrics["auc_roc"] = roc_curve_auc(y_true, y_prob_for_auc)
         elif n_classes > 2:
             y_true_onehot = np.eye(n_classes)[y_true.astype(int)]
             aucs = [
@@ -916,7 +954,7 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
                     y_prob[:, i],
                     class_present=(i in np.unique(y_true)),
                 )
-                for i in range(n_classes)
+                for i in range(y_prob.shape[1])
             ]
             valid_aucs = [a for a in aucs if not np.isnan(a)]
             metrics["auc_roc"] = np.mean(valid_aucs) if valid_aucs else float("nan")

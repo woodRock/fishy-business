@@ -1,0 +1,80 @@
+{
+    "config": {
+        "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        "model": "transformer",
+        "dataset": "oil",
+        "run": 0,
+        "output": "logs/results_base",
+        "data_augmentation": false,
+        "masked_spectra_modelling": false,
+        "next_spectra_prediction": false,
+        "next_peak_prediction": false,
+        "spectrum_denoising_autoencoding": false,
+        "peak_parameter_regression": false,
+        "spectrum_segment_reordering": false,
+        "contrastive_transformation_invariance_learning": false,
+        "early_stopping": 20,
+        "dropout": 0.2,
+        "label_smoothing": 0.1,
+        "epochs": 100,
+        "learning_rate": 0.0001,
+        "batch_size": 64,
+        "hidden_dimension": 128,
+        "num_layers": 4,
+        "num_heads": 4,
+        "num_augmentations": 5,
+        "noise_level": 0.1,
+        "shift_enabled": false,
+        "scale_enabled": false,
+        "k_folds": 5,
+        "use_coral": false,
+        "crop_enabled": false,
+        "flip_enabled": false,
+        "permutation_enabled": false,
+        "crop_size": 0.8
+    },
+    "stats": {
+        "train_loss": 0.8773848425114508,
+        "train_accuracy": 0.8341496598639455,
+        "val_loss": 2.1467398166656495,
+        "val_accuracy": 0.41904761904761906,
+        "epoch": 12.8
+    },
+    "folds": [
+        {
+            "train_loss": 0.5458416676521302,
+            "train_accuracy": 1.0,
+            "val_loss": 1.5822348594665527,
+            "val_accuracy": 0.5833333333333334,
+            "epoch": 13
+        },
+        {
+            "train_loss": 0.4728718824905924,
+            "train_accuracy": 1.0,
+            "val_loss": 1.6173677444458008,
+            "val_accuracy": 0.4642857142857143,
+            "epoch": 24
+        },
+        {
+            "train_loss": 2.2840885502277035,
+            "train_accuracy": 0.17074829931972785,
+            "val_loss": 2.8251535892486572,
+            "val_accuracy": 0.29761904761904756,
+            "epoch": 0
+        },
+        {
+            "train_loss": 0.4798580747429687,
+            "train_accuracy": 1.0,
+            "val_loss": 2.3383166790008545,
+            "val_accuracy": 0.380952380952381,
+            "epoch": 20
+        },
+        {
+            "train_loss": 0.6042640374438597,
+            "train_accuracy": 1.0,
+            "val_loss": 2.370626211166382,
+            "val_accuracy": 0.369047619047619,
+            "epoch": 7
+        }
+    ]
+}
