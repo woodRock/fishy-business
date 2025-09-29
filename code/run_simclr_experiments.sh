@@ -3,7 +3,7 @@
 # Author: Gemini
 
 # ENCODERS=("cnn" "ensemble" "transformer" "kan" "mamba" "moe" "rcnn" "vae")
-ENCODERS=("mamba" "moe" "rcnn" "vae")
+ENCODERS=("moe" "rcnn" "vae")
 
 
 for encoder in "${ENCODERS[@]}"; do
