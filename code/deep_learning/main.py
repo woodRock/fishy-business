@@ -143,9 +143,6 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
 }
 
 
-
-
-
 class SiameseWrapper(nn.Module):
     def __init__(self, base_model, embedding_dim):
         super().__init__()
@@ -722,7 +719,9 @@ class ModelTrainer:
             if self.config.use_coral:
                 criterion = coral_loss
             else:
-                criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+                criterion = nn.CrossEntropyLoss(
+                    label_smoothing=self.config.label_smoothing
+                )
             optimizer = torch.optim.AdamW(
                 model_to_finetune.parameters(), lr=self.config.learning_rate
             )
@@ -745,7 +744,12 @@ class ModelTrainer:
             # 6. Evaluate on Test Set
             self.logger.info("Evaluating on the test set.")
             test_results = evaluate_model(
-                trained_model, test_loader, criterion, self.device, self.config.use_coral, self.n_classes
+                trained_model,
+                test_loader,
+                criterion,
+                self.device,
+                self.config.use_coral,
+                self.n_classes,
             )
 
             # 7. Save Results
@@ -1092,16 +1096,16 @@ def main() -> None:
     trainer_instance = None
     try:
         args = parse_arguments()
-        
+
         if "instance-recognition" in args.dataset and args.num_runs > 1:
             all_runs_metrics = []
             base_config = TrainingConfig.from_args(args)
-            
+
             for i in range(args.num_runs):
                 print(f"--- Starting Run {i + 1}/{args.num_runs} ---")
                 args.run = i
                 config = TrainingConfig.from_args(args)
-                
+
                 trainer_instance = ModelTrainer(config)
                 logger = trainer_instance.logger
                 logger.info(f"Training configuration for run {i+1}: {config}")
@@ -1110,7 +1114,8 @@ def main() -> None:
 
                 # --- Pre-training Phase ---
                 any_pretrain_task_enabled = any(
-                    getattr(config, task[0]) for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
+                    getattr(config, task[0])
+                    for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
                 )
                 pre_trained_model = None
                 if any_pretrain_task_enabled:
@@ -1133,7 +1138,7 @@ def main() -> None:
                     k: np.std([m[k] for m in all_runs_metrics if m.get(k) is not None])
                     for k in all_runs_metrics[0]
                 }
-                
+
                 logger.info(f"Average metrics over {args.num_runs} runs: {stats}")
                 logger.info(f"Standard deviation over {args.num_runs} runs: {std_dev}")
 
@@ -1141,10 +1146,10 @@ def main() -> None:
                 results_dir.mkdir(parents=True, exist_ok=True)
                 file_name = f"stats_{base_config.model}_{base_config.dataset}_{args.num_runs}_runs.json"
                 file_path = results_dir / file_name
-                
+
                 # Use a fresh config for saving, but with num_runs set
                 final_config_dict = asdict(base_config)
-                final_config_dict['num_runs'] = args.num_runs
+                final_config_dict["num_runs"] = args.num_runs
 
                 with open(file_path, "w") as f:
                     json.dump(
@@ -1168,7 +1173,8 @@ def main() -> None:
             logger.info("Starting training pipeline")
 
             any_pretrain_task_enabled = any(
-                getattr(config, task[0]) for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
+                getattr(config, task[0])
+                for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
             )
             pre_trained_model = None
             if any_pretrain_task_enabled:
@@ -1177,18 +1183,18 @@ def main() -> None:
                 logger.info("Skipping pre-training phase.")
 
             final_metrics = trainer_instance.train(pre_trained_model)
-            
+
             # Save single run results if not handled by train()
             if "instance-recognition" in config.dataset:
-                 results_dir = Path("results")
-                 results_dir.mkdir(parents=True, exist_ok=True)
-                 file_name = f"stats_{config.model}_{config.dataset}.json"
-                 file_path = results_dir / file_name
-                 with open(file_path, "w") as f:
-                     json.dump(
-                         {"config": asdict(config), "stats": final_metrics}, f, indent=4
-                     )
-                 logger.info(f"Final metrics saved to {file_path}")
+                results_dir = Path("results")
+                results_dir.mkdir(parents=True, exist_ok=True)
+                file_name = f"stats_{config.model}_{config.dataset}.json"
+                file_path = results_dir / file_name
+                with open(file_path, "w") as f:
+                    json.dump(
+                        {"config": asdict(config), "stats": final_metrics}, f, indent=4
+                    )
+                logger.info(f"Final metrics saved to {file_path}")
 
             logger.info("Training pipeline completed.")
 

@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
 
-def coral_loss(logits, levels, importance_weights=None, reduction='mean'):
+
+def coral_loss(logits, levels, importance_weights=None, reduction="mean"):
     """Computes the CORAL loss.
     Source: https://github.com/Raschka-research-group/corn-ordinal-regression/blob/main/coral_pytorch/losses.py
 
@@ -33,21 +34,23 @@ def coral_loss(logits, levels, importance_weights=None, reduction='mean'):
     if not logits.shape == levels.shape:
         raise ValueError("Please provide logits and levels of equal shape.")
 
-    term1 = (F.logsigmoid(logits) * levels
-             + (F.logsigmoid(logits) - logits) * (1 - levels))
+    term1 = F.logsigmoid(logits) * levels + (F.logsigmoid(logits) - logits) * (
+        1 - levels
+    )
 
     if importance_weights is not None:
         term1 *= importance_weights.view(-1, 1)
 
     loss = -torch.sum(term1, dim=1)
 
-    if reduction == 'mean':
+    if reduction == "mean":
         loss = torch.mean(loss)
-    elif reduction == 'sum':
+    elif reduction == "sum":
         loss = torch.sum(loss)
     elif reduction is not None:
-        raise ValueError("Invalid value for `reduction`. Should be 'mean', "
-                         "'sum', or None.")
+        raise ValueError(
+            "Invalid value for `reduction`. Should be 'mean', " "'sum', or None."
+        )
     return loss
 
 
