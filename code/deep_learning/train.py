@@ -445,7 +445,6 @@ def _train_single_split(
             num_classes,
         )
 
-
         current_run_best_accuracy = run_results["best_accuracy"]
 
         all_runs_metrics_accumulator.append(
@@ -689,13 +688,27 @@ def _train_fold(
     ):
         model.train()
         train_results = _run_epoch(
-            model, train_loader, criterion, optimizer, device, is_training=True, use_coral=use_coral, num_classes=num_classes
+            model,
+            train_loader,
+            criterion,
+            optimizer,
+            device,
+            is_training=True,
+            use_coral=use_coral,
+            num_classes=num_classes,
         )
 
         model.eval()
         with torch.no_grad():
             val_results = _run_epoch(
-                model, val_loader, criterion, None, device, is_training=False, use_coral=use_coral, num_classes=num_classes
+                model,
+                val_loader,
+                criterion,
+                None,
+                device,
+                is_training=False,
+                use_coral=use_coral,
+                num_classes=num_classes,
             )
 
         epoch_log["train_losses"].append(train_results["loss"])
@@ -789,7 +802,16 @@ def evaluate_model(
     """Evaluates a model on a given data loader."""
     model.eval()
     with torch.no_grad():
-        results = _run_epoch(model, loader, criterion, None, device, is_training=False, use_coral=use_coral, num_classes=num_classes)
+        results = _run_epoch(
+            model,
+            loader,
+            criterion,
+            None,
+            device,
+            is_training=False,
+            use_coral=use_coral,
+            num_classes=num_classes,
+        )
     return results
 
 
@@ -887,7 +909,13 @@ def _run_epoch(
     final_preds = np.concatenate(all_preds_np)
     final_probs = np.concatenate(all_probs_np)
 
-    metrics = _calculate_metrics(final_labels, final_preds, final_probs, use_coral=use_coral, num_classes=num_classes)
+    metrics = _calculate_metrics(
+        final_labels,
+        final_preds,
+        final_probs,
+        use_coral=use_coral,
+        num_classes=num_classes,
+    )
     return {
         "loss": avg_loss,
         "metrics": metrics,
@@ -900,7 +928,11 @@ def _run_epoch(
 
 
 def _calculate_metrics(  # Minor cleanup for NaN handling
-    y_true: np.ndarray, y_pred: np.ndarray, y_prob: Optional[np.ndarray] = None, use_coral: bool = False, num_classes: Optional[int] = None
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    y_prob: Optional[np.ndarray] = None,
+    use_coral: bool = False,
+    num_classes: Optional[int] = None,
 ) -> MetricsDict:
     """Calculates various metrics based on true labels, predicted labels, and predicted probabilities.
 
@@ -942,7 +974,11 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
     if (
         y_prob is not None and y_true.size > 0 and len(np.unique(y_true)) > 0
     ):  # Basic checks for valid AUC calculation
-        n_classes = num_classes if num_classes is not None else (y_prob.shape[1] + 1 if use_coral else y_prob.shape[1])
+        n_classes = (
+            num_classes
+            if num_classes is not None
+            else (y_prob.shape[1] + 1 if use_coral else y_prob.shape[1])
+        )
         if n_classes == 2 and not use_coral:
             y_prob_for_auc = y_prob[:, 1] if y_prob.shape[1] == 2 else y_prob.flatten()
             metrics["auc_roc"] = roc_curve_auc(y_true, y_prob_for_auc)
