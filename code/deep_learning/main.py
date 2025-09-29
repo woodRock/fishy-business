@@ -36,6 +36,7 @@ from typing import Dict, Optional, Tuple, List, Any, Callable, Type
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from sklearn.model_selection import StratifiedKFold
 import matplotlib.pyplot as plt
@@ -64,6 +65,7 @@ from models import (
 from .pre_training import PreTrainer, PreTrainingConfig
 from .train import train_model, evaluate_model
 from .util import create_data_module, AugmentationConfig, CustomDataset, SiameseDataset
+from .losses import coral_loss, levels_from_labelbatch
 
 # ## 2. Configuration
 # --------------------
@@ -103,6 +105,8 @@ class TrainingConfig:
     shift_enabled: bool
     scale_enabled: bool
     k_folds: int
+    num_runs: int = 1
+    use_coral: bool = False
     # New augmentation parameters
     crop_enabled: bool = False
     flip_enabled: bool = False
@@ -139,6 +143,9 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
 }
 
 
+
+
+
 class SiameseWrapper(nn.Module):
     def __init__(self, base_model, embedding_dim):
         super().__init__()
@@ -172,6 +179,9 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     model_class = MODEL_REGISTRY.get(config.model)
     if not model_class:
         raise ValueError(f"Invalid model type: {config.model}")
+
+    if config.use_coral:
+        output_dim = output_dim - 1
 
     # Common arguments for most models
     model_args = {"dropout": config.dropout}
@@ -709,7 +719,10 @@ class ModelTrainer:
                     model_to_finetune, pre_trained_model
                 )
 
-            criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+            if self.config.use_coral:
+                criterion = coral_loss
+            else:
+                criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
             optimizer = torch.optim.AdamW(
                 model_to_finetune.parameters(), lr=self.config.learning_rate
             )
@@ -725,12 +738,14 @@ class ModelTrainer:
                 patience=self.config.early_stopping,
                 is_augmented=self.config.data_augmentation,
                 device=self.device,
+                use_coral=self.config.use_coral,
+                num_classes=self.n_classes,
             )
 
             # 6. Evaluate on Test Set
             self.logger.info("Evaluating on the test set.")
             test_results = evaluate_model(
-                trained_model, test_loader, criterion, self.device
+                trained_model, test_loader, criterion, self.device, self.config.use_coral, self.n_classes
             )
 
             # 7. Save Results
@@ -747,17 +762,8 @@ class ModelTrainer:
             }
 
             self.logger.info(f"Final metrics: {final_metrics}")
-            results_dir = Path("results")
-            results_dir.mkdir(parents=True, exist_ok=True)
-            file_name = f"stats_{self.config.model}_{self.config.dataset}.json"
-            file_path = results_dir / file_name
-            with open(file_path, "w") as f:
-                json.dump(
-                    {"config": asdict(self.config), "stats": final_metrics}, f, indent=4
-                )
-            self.logger.info(f"Final metrics saved to {file_path}")
 
-            return trained_model
+            return final_metrics
 
         else:
             # --- K-Fold Cross-Validation Logic (unchanged) ---
@@ -865,9 +871,12 @@ class ModelTrainer:
                         model_to_finetune, pre_trained_model
                     )
 
-                criterion = nn.CrossEntropyLoss(
-                    label_smoothing=self.config.label_smoothing
-                )
+                if self.config.use_coral:
+                    criterion = coral_loss
+                else:
+                    criterion = nn.CrossEntropyLoss(
+                        label_smoothing=self.config.label_smoothing
+                    )
                 optimizer = torch.optim.AdamW(
                     model_to_finetune.parameters(), lr=self.config.learning_rate
                 )
@@ -882,9 +891,14 @@ class ModelTrainer:
                     patience=self.config.early_stopping,
                     is_augmented=self.config.data_augmentation,
                     device=self.device,
+                    use_coral=self.config.use_coral,
+                    num_classes=self.n_classes,
                 )
-                if self.config.dataset == "oil" and "best_val_predictions" in metrics:
-                    self.perform_ordinal_analysis(metrics["best_val_predictions"], fold)
+                if "best_val_predictions" in metrics:
+                    if self.config.dataset == "oil":
+                        self.perform_ordinal_analysis(
+                            metrics["best_val_predictions"], fold
+                        )
                     del metrics["best_val_predictions"]
 
                 all_fold_metrics.append(metrics)
@@ -920,7 +934,7 @@ class ModelTrainer:
                     "No folds completed successfully to aggregate metrics."
                 )
 
-            return final_trained_model
+            return stats
 
 
 # ## 5. Argument Parsing
@@ -965,6 +979,13 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "-r", "--run", type=int, default=0, help="Run identifier for logging"
+    )
+    parser.add_argument(
+        "-nr",
+        "--num-runs",
+        type=int,
+        default=1,
+        help="Number of runs for instance-recognition",
     )
     parser.add_argument(
         "-o",
@@ -1048,6 +1069,11 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--scale-enabled", action="store_true", help="Enable scale augmentation"
     )
+    parser.add_argument(
+        "--use-coral",
+        action="store_true",
+        help="Use CORAL loss for ordinal classification",
+    )
 
     return parser.parse_args()
 
@@ -1066,32 +1092,107 @@ def main() -> None:
     trainer_instance = None
     try:
         args = parse_arguments()
-        config = TrainingConfig.from_args(args)
+        
+        if "instance-recognition" in args.dataset and args.num_runs > 1:
+            all_runs_metrics = []
+            base_config = TrainingConfig.from_args(args)
+            
+            for i in range(args.num_runs):
+                print(f"--- Starting Run {i + 1}/{args.num_runs} ---")
+                args.run = i
+                config = TrainingConfig.from_args(args)
+                
+                trainer_instance = ModelTrainer(config)
+                logger = trainer_instance.logger
+                logger.info(f"Training configuration for run {i+1}: {config}")
+                logger.info(f"Using device: {trainer_instance.device}")
+                logger.info("Starting training pipeline")
 
-        trainer_instance = ModelTrainer(config)
-        logger = trainer_instance.logger
-        logger.info(f"Training configuration: {config}")
-        logger.info(f"Using device: {trainer_instance.device}")
-        logger.info("Starting training pipeline")
+                # --- Pre-training Phase ---
+                any_pretrain_task_enabled = any(
+                    getattr(config, task[0]) for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
+                )
+                pre_trained_model = None
+                if any_pretrain_task_enabled:
+                    pre_trained_model = trainer_instance.pre_train()
+                else:
+                    logger.info("Skipping pre-training phase.")
 
-        # --- Pre-training Phase ---
-        any_pretrain_task_enabled = any(
-            getattr(config, task[0]) for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
-        )
-        pre_trained_model = None
-        if any_pretrain_task_enabled:
-            pre_trained_model = trainer_instance.pre_train()
+                # --- Fine-tuning Phase ---
+                metrics = trainer_instance.train(pre_trained_model)
+                all_runs_metrics.append(metrics)
+                logger.info(f"Run {i+1} completed.")
+
+            # --- Aggregate Results ---
+            if all_runs_metrics:
+                stats = {
+                    k: np.mean([m[k] for m in all_runs_metrics if m.get(k) is not None])
+                    for k in all_runs_metrics[0]
+                }
+                std_dev = {
+                    k: np.std([m[k] for m in all_runs_metrics if m.get(k) is not None])
+                    for k in all_runs_metrics[0]
+                }
+                
+                logger.info(f"Average metrics over {args.num_runs} runs: {stats}")
+                logger.info(f"Standard deviation over {args.num_runs} runs: {std_dev}")
+
+                results_dir = Path("results")
+                results_dir.mkdir(parents=True, exist_ok=True)
+                file_name = f"stats_{base_config.model}_{base_config.dataset}_{args.num_runs}_runs.json"
+                file_path = results_dir / file_name
+                
+                # Use a fresh config for saving, but with num_runs set
+                final_config_dict = asdict(base_config)
+                final_config_dict['num_runs'] = args.num_runs
+
+                with open(file_path, "w") as f:
+                    json.dump(
+                        {
+                            "config": final_config_dict,
+                            "runs": all_runs_metrics,
+                            "stats": stats,
+                            "std_dev": std_dev,
+                        },
+                        f,
+                        indent=4,
+                    )
+                logger.info(f"Aggregated metrics saved to {file_path}")
         else:
-            logger.info("Skipping pre-training phase.")
+            # Original single-run logic
+            config = TrainingConfig.from_args(args)
+            trainer_instance = ModelTrainer(config)
+            logger = trainer_instance.logger
+            logger.info(f"Training configuration: {config}")
+            logger.info(f"Using device: {trainer_instance.device}")
+            logger.info("Starting training pipeline")
 
-        # --- Fine-tuning Phase ---
-        final_trained_model = trainer_instance.train(pre_trained_model)
-        logger.info(
-            f"Training pipeline completed. Final model: {type(final_trained_model).__name__}"
-        )
+            any_pretrain_task_enabled = any(
+                getattr(config, task[0]) for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
+            )
+            pre_trained_model = None
+            if any_pretrain_task_enabled:
+                pre_trained_model = trainer_instance.pre_train()
+            else:
+                logger.info("Skipping pre-training phase.")
+
+            final_metrics = trainer_instance.train(pre_trained_model)
+            
+            # Save single run results if not handled by train()
+            if "instance-recognition" in config.dataset:
+                 results_dir = Path("results")
+                 results_dir.mkdir(parents=True, exist_ok=True)
+                 file_name = f"stats_{config.model}_{config.dataset}.json"
+                 file_path = results_dir / file_name
+                 with open(file_path, "w") as f:
+                     json.dump(
+                         {"config": asdict(config), "stats": final_metrics}, f, indent=4
+                     )
+                 logger.info(f"Final metrics saved to {file_path}")
+
+            logger.info("Training pipeline completed.")
 
     except Exception as e:
-        # Use the instance's logger if available, otherwise use a default logger.
         current_logger = getattr(
             trainer_instance, "logger", logging.getLogger(__name__)
         )
