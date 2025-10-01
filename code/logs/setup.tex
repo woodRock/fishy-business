@@ -1,0 +1,124 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+\geometry{a4paper, margin=1in}
+
+\title{Experimental Setup for Contrastive Learning with SimCLR}
+\author{Gemini}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+This document outlines the experimental setup for the SimCLR (Simple Framework for Contrastive Learning of Visual Representations) model as implemented in the \texttt{contrastive/main.py} script. The setup is designed for training and evaluating various encoder backbones using the SimCLR contrastive learning method.
+
+\section{Experimental Setup}
+The core of the experimental setup is the \texttt{contrastive/main.py} script, which orchestrates the data loading, model training, and evaluation.
+
+\subsection{Execution}
+The script is executed from the command line, allowing for the configuration of various hyperparameters. An example execution command is:
+\begin{verbatim}
+python3 -m contrastive.main --encoder_type transformer --contrastive_method simclr 
+--num_runs 3 --batch_size 16
+\end{verbatim}
+
+\subsection{Configuration}
+A centralized \texttt{ContrastiveConfig} dataclass manages the hyperparameters for the training process. This allows for easy modification and tracking of experimental settings.
+
+\subsection{Dataset and Data Loading}
+\begin{itemize}
+    \item \textbf{Dataset:} The \texttt{SiameseDataset} class from \texttt{contrastive/util.py} is used to generate pairs of spectra. Positive pairs consist of two spectra from the same class, while negative pairs consist of spectra from different classes.
+    \item \textbf{Data Splitting:} The dataset is split into training (60\%), validation (20\%), and test (20\%) sets using a stratified split to maintain the ratio of positive to negative pairs.
+    \item \textbf{Batch Sampling:} A \texttt{BalancedBatchSampler} is employed to ensure that each batch contains an equal number of positive and negative pairs, which is crucial for effective contrastive learning.
+\end{itemize}
+
+\section{SimCLR Model}
+The SimCLR model architecture consists of two main components: a backbone encoder and a projection head.
+
+\subsection{Backbone Encoder}
+A factory function, \texttt{create\_backbone\_encoder}, dynamically creates the encoder based on the \texttt{encoder\_type} specified in the configuration. A variety of encoder architectures are supported, including:
+\begin{itemize}
+    \item Transformer
+    \item CNN
+    \item Ensemble
+    \item RCNN
+    \item LSTM
+    \item Mamba
+    \item KAN
+    \item VAE
+    \item MOE
+\end{itemize}
+
+\subsection{Projection Head}
+The output of the encoder is fed into a non-linear projection head, defined in \texttt{models/simclr.py}. This head maps the representations to a latent space where the contrastive loss is applied. The architecture of the projection head is as follows:
+\begin{itemize}
+    \item LayerNorm
+    \item Linear layer
+    \item BatchNorm1d
+    \item ReLU
+    \item Linear layer
+    \item BatchNorm1d
+    \item ReLU
+    \item Linear layer
+\end{itemize}
+The final output is L2-normalized.
+
+\section{Loss Function}
+The model is trained using the Normalized Temperature-scaled Cross-Entropy (NT-Xent) loss, as defined in \texttt{SimCLRLoss} in \texttt{models/simclr.py}. The temperature parameter, which scales the cosine similarity scores, is a key hyperparameter.
+
+\section{Training}
+The training process is managed by the \texttt{ContrastiveTrainer} class.
+\begin{itemize}
+    \item \textbf{Optimizer:} The AdamW optimizer is used for training.
+    \item \textbf{Learning Rate Scheduler:} A \texttt{OneCycleLR} scheduler is used to manage the learning rate throughout the training process, with a warm-up phase followed by a cosine annealing phase.
+    \item \textbf{Mixed Precision:} Automatic Mixed Precision (AMP) is used via \texttt{torch.amp.GradScaler} to speed up training on compatible hardware.
+    \item \textbf{Early Stopping:} Training is stopped if the validation accuracy does not improve for a specified number of epochs (patience).
+\end{itemize}
+
+\section{Augmentations}
+The \texttt{DataAugmenter} class provides several data augmentation techniques. However, it is important to note that in the default \texttt{ContrastiveConfig}, all augmentations are disabled. The available augmentations are:
+\begin{itemize}
+    \item Noise
+    \item Shift
+    \item Scale
+    \item Crop
+    \item Flip
+    \item Permutation
+\end{itemize}
+
+\section{Default Parameter Settings}
+The following table summarizes the key default parameter settings for the SimCLR experiments as defined in the \texttt{ContrastiveConfig} dataclass.
+
+\begin{longtable}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Default Value} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+contrastive\_method & simclr \\
+num\_runs & 1 \\
+temperature & 0.55 \\
+projection\_dim & 256 \\
+embedding\_dim & 256 \\
+learning\_rate & 3.5e-5 \\
+weight\_decay & 1e-6 \\
+batch\_size & 16 \\
+num\_epochs & 1000 \\
+patience & 100 \\
+encoder\_type & transformer \\
+dropout & 0.18 \\
+noise\_enabled & False \\
+shift\_enabled & False \\
+scale\_enabled & False \\
+crop\_enabled & False \\
+flip\_enabled & False \\
+permutation\_enabled & False \\
+\end{longtable}
+
+\end{document}
