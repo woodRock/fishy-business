@@ -331,7 +331,9 @@ class MixtureOfExperts(nn.Module):
             flat_gate_scores = gate_scores.flatten()
 
             # Create a tensor of batch indices
-            batch_indices = torch.arange(x_flat.size(0), device=x_flat.device).repeat_interleave(self.k)
+            batch_indices = torch.arange(
+                x_flat.size(0), device=x_flat.device
+            ).repeat_interleave(self.k)
 
             for i, expert in enumerate(self.experts):
                 # Find all instances where this expert was selected
@@ -346,7 +348,9 @@ class MixtureOfExperts(nn.Module):
                     expert_output = expert(expert_input)
 
                     # Weight the expert output by the gate scores and add to the final output
-                    final_output.index_add_(0, selected_batch_indices, expert_output * selected_gate_scores)
+                    final_output.index_add_(
+                        0, selected_batch_indices, expert_output * selected_gate_scores
+                    )
 
             combined_output = final_output
 
