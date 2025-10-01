@@ -77,12 +77,12 @@ class ContrastiveConfig:
     """Configuration for contrastive model training."""
 
     num_runs: int = 1
-    temperature: float = 0.55
+    temperature: float = 0.1
     projection_dim: int = 256
     embedding_dim: int = 256
     learning_rate: float = 3.5e-5
     weight_decay: float = 1e-6
-    batch_size: int = 16
+    batch_size: int = 32
     num_epochs: int = 1000
     input_dim: int = 2080
     num_heads: int = 8
@@ -114,12 +114,12 @@ class ContrastiveConfig:
     barlow_twins_lambda: float = 5e-3
 
     # Augmentation parameters
-    noise_enabled: bool = False
-    shift_enabled: bool = False
-    scale_enabled: bool = False
-    crop_enabled: bool = False
-    flip_enabled: bool = False
-    permutation_enabled: bool = False
+    noise_enabled: bool = True
+    shift_enabled: bool = True
+    scale_enabled: bool = True
+    crop_enabled: bool = True
+    flip_enabled: bool = True
+    permutation_enabled: bool = True
     noise_level: float = 0.1
     crop_size: float = 0.8  # Added
     trial_number: Optional[int] = None  # For unique model saving in Optuna trials
