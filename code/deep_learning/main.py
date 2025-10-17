@@ -63,9 +63,9 @@ from models import (
     Diffusion,
 )
 from .pre_training import PreTrainer, PreTrainingConfig
-from .train import train_model, evaluate_model
+from .train_fixed import train_model, evaluate_model
 from .util import create_data_module, AugmentationConfig, CustomDataset, SiameseDataset
-from .losses import coral_loss, levels_from_labelbatch
+from .losses import coral_loss, cumulative_link_loss, levels_from_labelbatch
 
 # ## 2. Configuration
 # --------------------
@@ -107,6 +107,8 @@ class TrainingConfig:
     k_folds: int
     num_runs: int = 1
     use_coral: bool = False
+    use_cumulative_link: bool = False
+    regression: bool = False
     # New augmentation parameters
     crop_enabled: bool = False
     flip_enabled: bool = False
@@ -177,8 +179,10 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     if not model_class:
         raise ValueError(f"Invalid model type: {config.model}")
 
-    if config.use_coral:
+    print(f"Initial output_dim: {output_dim}")
+    if config.use_coral or config.use_cumulative_link:
         output_dim = output_dim - 1
+    print(f"Final output_dim: {output_dim}")
 
     # Common arguments for most models
     model_args = {"dropout": config.dropout}
@@ -292,6 +296,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     elif config.model == "mamba":
         return Mamba(
             input_dim=input_dim,
+            output_dim=output_dim, # Pass output_dim
             d_model=config.hidden_dimension,
             d_state=config.hidden_dimension,
             d_conv=4,
@@ -420,14 +425,23 @@ class ModelTrainer:
             if torch.cuda.is_available()
             else "mps" if torch.backends.mps.is_available() else "cpu"
         )
-        if self.config.dataset not in self.N_CLASSES_PER_DATASET:
-            raise ValueError(f"Invalid dataset: {self.config.dataset}")
-        self.n_classes = self.N_CLASSES_PER_DATASET[self.config.dataset]
-        if "instance-recognition" in self.config.dataset:
-            self.n_classes = 2
+
+        dataset_name = self.config.dataset
+        if self.config.regression and self.config.dataset == "oil":
+            dataset_name = "oil_regression"
+
+        if self.config.regression:
+            self.n_classes = 1
+        else:
+            if dataset_name not in self.N_CLASSES_PER_DATASET:
+                raise ValueError(f"Invalid dataset: {dataset_name}")
+            self.n_classes = self.N_CLASSES_PER_DATASET[dataset_name]
+            if "instance-recognition" in dataset_name:
+                self.n_classes = 2
+
         self.data_module = create_data_module(
             file_path=config.file_path,
-            dataset_name=config.dataset,
+            dataset_name=dataset_name,
             batch_size=config.batch_size,
             augmentation_config=config,
         )
@@ -572,9 +586,9 @@ class ModelTrainer:
                 f"Weight chaining failed: {e}. Model will train from scratch."
             )
 
-    def perform_ordinal_analysis(self, predictions: Dict[str, np.ndarray], fold: int):
+    def analyze_oil_predictions(self, predictions: Dict[str, np.ndarray], fold: int):
         """
-        Performs ordinal analysis on the predictions for the 'oil' dataset.
+        Performs analysis on the predictions for the 'oil' dataset, supporting both regression and ordinal classification.
 
         Args:
             predictions: A dictionary containing the true labels and predicted labels.
@@ -587,11 +601,34 @@ class ModelTrainer:
         true_labels = predictions["labels"]
         pred_labels = predictions["preds"]
 
-        # Calculate Mean Absolute Error
-        mae = np.mean(np.abs(true_labels - pred_labels))
-        self.logger.info(f"Fold {fold + 1} Ordinal MAE: {mae:.4f}")
+        if self.config.regression:
+            from sklearn.metrics import r2_score
+            # Calculate Mean Absolute Error
+            mae = np.mean(np.abs(true_labels - pred_labels))
+            self.logger.info(f"Fold {fold + 1} Regression MAE: {mae:.4f}")
+            # Calculate R2 Score
+            r2 = r2_score(true_labels, pred_labels)
+            self.logger.info(f"Fold {fold + 1} Regression R2 Score: {r2:.4f}")
+        else:
+            # Calculate Mean Absolute Error for ordinal classification
+            mae = np.mean(np.abs(true_labels - pred_labels))
+            self.logger.info(f"Fold {fold + 1} Ordinal MAE: {mae:.4f}")
+            # Create and plot confusion matrix for ordinal classification
+            cm = confusion_matrix(true_labels, pred_labels)
+            plt.figure(figsize=(10, 7))
+            sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+            plt.xlabel("Predicted Label")
+            plt.ylabel("True Label")
+            plt.title(f"Fold {fold + 1} Confusion Matrix for Oil Dataset")
+            cm_plot_path = (
+                Path(self.config.output).parent
+                / f"oil_confusion_matrix_fold_{self.config.run}_{fold + 1}.png"
+            )
+            plt.savefig(cm_plot_path)
+            plt.close()
+            self.logger.info(f"Saved confusion matrix plot to {cm_plot_path}")
 
-        # Plot histogram of prediction errors
+        # Plot histogram of prediction errors (useful for both regression and ordinal)
         errors = pred_labels - true_labels
         plt.figure()
         plt.hist(
@@ -607,21 +644,6 @@ class ModelTrainer:
         plt.savefig(plot_path)
         plt.close()
         self.logger.info(f"Saved prediction error plot to {plot_path}")
-
-        # Create and plot confusion matrix
-        cm = confusion_matrix(true_labels, pred_labels)
-        plt.figure(figsize=(10, 7))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
-        plt.xlabel("Predicted Label")
-        plt.ylabel("True Label")
-        plt.title(f"Fold {fold + 1} Confusion Matrix for Oil Dataset")
-        cm_plot_path = (
-            Path(self.config.output).parent
-            / f"oil_confusion_matrix_fold_{self.config.run}_{fold + 1}.png"
-        )
-        plt.savefig(cm_plot_path)
-        plt.close()
-        self.logger.info(f"Saved confusion matrix plot to {cm_plot_path}")
 
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> nn.Module:
         """
@@ -716,7 +738,9 @@ class ModelTrainer:
                     model_to_finetune, pre_trained_model
                 )
 
-            if self.config.use_coral:
+            if self.config.regression:
+                criterion = nn.MSELoss()
+            elif self.config.use_coral:
                 criterion = coral_loss
             else:
                 criterion = nn.CrossEntropyLoss(
@@ -739,6 +763,7 @@ class ModelTrainer:
                 device=self.device,
                 use_coral=self.config.use_coral,
                 num_classes=self.n_classes,
+                regression=self.config.regression,
             )
 
             # 6. Evaluate on Test Set
@@ -750,6 +775,7 @@ class ModelTrainer:
                 self.device,
                 self.config.use_coral,
                 self.n_classes,
+                regression=self.config.regression,
             )
 
             # 7. Save Results
@@ -875,8 +901,14 @@ class ModelTrainer:
                         model_to_finetune, pre_trained_model
                     )
 
-                if self.config.use_coral:
+                if self.config.regression:
+                    criterion = nn.MSELoss()
+                elif self.config.use_coral:
                     criterion = coral_loss
+                elif self.config.use_cumulative_link:
+                    criterion = lambda logits, labels: cumulative_link_loss(
+                        logits, labels, self.n_classes
+                    )
                 else:
                     criterion = nn.CrossEntropyLoss(
                         label_smoothing=self.config.label_smoothing
@@ -896,11 +928,13 @@ class ModelTrainer:
                     is_augmented=self.config.data_augmentation,
                     device=self.device,
                     use_coral=self.config.use_coral,
+                    use_cumulative_link=self.config.use_cumulative_link,
                     num_classes=self.n_classes,
+                    regression=self.config.regression,
                 )
                 if "best_val_predictions" in metrics:
                     if self.config.dataset == "oil":
-                        self.perform_ordinal_analysis(
+                        self.analyze_oil_predictions(
                             metrics["best_val_predictions"], fold
                         )
                     del metrics["best_val_predictions"]
@@ -920,7 +954,17 @@ class ModelTrainer:
                 # Save aggregated metrics to a file
                 results_dir = Path("results")
                 results_dir.mkdir(parents=True, exist_ok=True)
-                file_name = f"stats_{self.config.model}_{self.config.dataset}.json"
+
+                if self.config.regression:
+                    suffix = "regression"
+                elif self.config.use_coral:
+                    suffix = "coral"
+                elif self.config.use_cumulative_link:
+                    suffix = "cumulative_link"
+                else:
+                    suffix = "classification"
+
+                file_name = f"stats_{self.config.model}_{self.config.dataset}_{suffix}.json"
                 file_path = results_dir / file_name
                 with open(file_path, "w") as f:
                     json.dump(
@@ -1077,6 +1121,18 @@ def parse_arguments() -> argparse.Namespace:
         "--use-coral",
         action="store_true",
         help="Use CORAL loss for ordinal classification",
+    )
+
+    parser.add_argument(
+        "--use-cumulative-link",
+        action="store_true",
+        help="Use Cumulative Link loss for ordinal classification",
+    )
+
+    parser.add_argument(
+        "--regression",
+        action="store_true",
+        help="Perform oil classification as a regression task.",
     )
 
     return parser.parse_args()

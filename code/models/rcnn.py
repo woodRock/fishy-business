@@ -41,68 +41,6 @@ import torch
 import torch.nn as nn
 
 
-class ResidualBlock(nn.Module):
-    """Residual block for the RCNN model. This block includes two convolutional layers with batch normalization,
-    ReLU activation, and dropout for regularization. It also includes a shortcut connection to add the input to the output,
-    allowing for better gradient flow and feature reuse."""
-
-    def __init__(
-        self, in_channels, out_channels, dropout=0.2, downsample=False
-    ) -> None:
-        """Initialize the ResidualBlock.
-
-        Args:
-            in_channels (int): Number of input channels.
-            out_channels (int): Number of output channels.
-            dropout (float): Dropout rate for regularization. Defaults to 0.2.
-            downsample (bool): Whether to downsample the input. Defaults to False.
-        """
-        super(ResidualBlock, self).__init__()
-        stride = 2 if downsample else 1
-
-        self.conv1 = nn.Conv1d(
-            in_channels, out_channels, kernel_size=3, stride=stride, padding=1
-        )
-        self.bn1 = nn.BatchNorm1d(out_channels)
-        self.relu = nn.ReLU()
-        self.conv2 = nn.Conv1d(
-            out_channels, out_channels, kernel_size=3, stride=1, padding=1
-        )
-        self.bn2 = nn.BatchNorm1d(out_channels)
-        self.dropout = nn.Dropout(p=dropout)
-
-        # Shortcut path: if in_channels and out_channels differ, adjust with a 1x1 conv
-        self.shortcut = nn.Sequential()
-        if in_channels != out_channels or downsample:
-            self.shortcut = nn.Sequential(
-                nn.Conv1d(
-                    in_channels, out_channels, kernel_size=1, stride=stride, padding=0
-                ),
-                nn.BatchNorm1d(out_channels),
-            )
-
-    def forward(self, x):
-        """Forward pass through the residual block.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_channels, seq_length
-
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, out_channels, seq_length).
-        """
-        residual = self.shortcut(x)  # Match dimensions
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.dropout(out)
-
-        out += residual  # Add the shortcut (residual) connection
-        out = self.relu(out)
-        return out
-
-
 class RCNN(nn.Module):
     """Residual Convolutional Neural Network (RCNN) for classification.
     This model consists of multiple residual blocks followed by fully connected layers.
@@ -110,28 +48,36 @@ class RCNN(nn.Module):
     The architecture is designed to handle 1D input data, such as time series or sequential data.
     """
 
-    def __init__(self, input_dim, output_dim, dropout=0.5) -> None:
+    def __init__(self, input_dim: int = 1023, output_dim: int = 7, dropout: float = 0.5) -> None:
         """Initialize the RCNN model.
 
         Args:
-            input_size (int): Size of the input features.
-            num_classes (int): Number of output classes.
+            input_dim (int): Size of the input features.
+            output_dim (int): Number of output classes.
             dropout (float): Dropout rate for regularization. Defaults to 0.5.
         """
         super(RCNN, self).__init__()
 
         self.conv_layers = nn.Sequential(
-            ResidualBlock(1, 32, dropout=dropout),  # First block expects 1 channel
-            ResidualBlock(32, 64, dropout=dropout, downsample=True),  # Downsample here
-            ResidualBlock(64, 128, dropout=dropout),
-            ResidualBlock(
-                128, 256, dropout=dropout, downsample=True
-            ),  # Downsample here
-            nn.AdaptiveMaxPool1d(4),  # Fixed output size to 4
+            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(32),
+            nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.Dropout(p=dropout),
+            nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(128),
+            nn.Conv1d(128, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=2),
         )
 
         self.flatten = nn.Flatten()
-        self.flat_features = 256 * 4  # Adjusted based on the pooling layer
+        
+        # Calculate the size of the flattened features after convolutions
+        self.flat_features = 256 * (input_dim // 4)
 
         self.fc_layers = nn.Sequential(
             nn.Linear(self.flat_features, 256),
@@ -150,8 +96,12 @@ class RCNN(nn.Module):
             torch.Tensor: Output tensor of shape (batch_size, num_classes),
             where num_classes is the number of output classes.
         """
-        x = x.unsqueeze(1)  # Add channel dimension
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
         x = self.conv_layers(x)
-        x = self.flatten(x)
+        x = x.contiguous().view(x.size(0), -1)
         x = self.fc_layers(x)
         return x
+
+
+__all__ = ["RCNN"]

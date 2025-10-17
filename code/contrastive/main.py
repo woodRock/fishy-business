@@ -32,6 +32,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, Subset
+import torch.utils.data
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
@@ -77,12 +78,12 @@ class ContrastiveConfig:
     """Configuration for contrastive model training."""
 
     num_runs: int = 1
-    temperature: float = 0.1
+    temperature: float = 0.55
     projection_dim: int = 256
     embedding_dim: int = 256
-    learning_rate: float = 3.5e-5
+    learning_rate: float = 3e-4
     weight_decay: float = 1e-6
-    batch_size: int = 32
+    batch_size: int = 16
     num_epochs: int = 1000
     input_dim: int = 2080
     num_heads: int = 8
@@ -96,7 +97,6 @@ class ContrastiveConfig:
 
     # MoCo specific
     moco_dim: int = 256
-    moco_k: int = 65536
     moco_m: float = 0.999
     moco_mlp: bool = False
 
@@ -114,15 +114,16 @@ class ContrastiveConfig:
     barlow_twins_lambda: float = 5e-3
 
     # Augmentation parameters
-    noise_enabled: bool = True
-    shift_enabled: bool = True
-    scale_enabled: bool = True
-    crop_enabled: bool = True
-    flip_enabled: bool = True
-    permutation_enabled: bool = True
+    noise_enabled: bool = False
+    shift_enabled: bool = False
+    scale_enabled: bool = False
+    crop_enabled: bool = False
+    flip_enabled: bool = False 
+    permutation_enabled: bool = False
     noise_level: float = 0.1
     crop_size: float = 0.8  # Added
     trial_number: Optional[int] = None  # For unique model saving in Optuna trials
+    gradient_accumulation_steps: int = 1 # New: for gradient accumulation
 
 
 class VAEEncoderWrapper(nn.Module):
@@ -304,7 +305,6 @@ def create_contrastive_model(
             encoder=backbone_encoder,
             encoder_output_dim=config.embedding_dim,
             dim=config.moco_dim,
-            K=config.moco_k,
             m=config.moco_m,
             T=config.temperature,
             mlp=config.moco_mlp,
@@ -409,27 +409,11 @@ class ContrastiveTrainer:
 
         context = torch.no_grad() if not is_training else torch.enable_grad()
         with context:
-            for x1_raw, x2_raw, labels in data_loader:
+            for batch_idx, (x1_raw, x2_raw, labels) in enumerate(data_loader):
                 # Apply augmentations to x1_raw and x2_raw
-                # DataAugmenter methods expect numpy arrays, so convert
-                x1_np = x1_raw.cpu().numpy()
-                x2_np = x2_raw.cpu().numpy()
-
-                # Apply augmentations to create two views
-                x1_aug = (
-                    torch.from_numpy(
-                        data_augmenter._apply_augmentations_to_batch(x1_np)
-                    )
-                    .float()
-                    .to(self.device)
-                )
-                x2_aug = (
-                    torch.from_numpy(
-                        data_augmenter._apply_augmentations_to_batch(x2_np)
-                    )
-                    .float()
-                    .to(self.device)
-                )
+                # DataAugmenter methods now expect PyTorch tensors
+                x1_aug = data_augmenter._apply_augmentations_to_batch(x1_raw.float().to(self.device))
+                x2_aug = data_augmenter._apply_augmentations_to_batch(x2_raw.float().to(self.device))
                 labels = labels.float().to(self.device)
 
                 with torch.amp.autocast(self.device.type):
@@ -454,18 +438,23 @@ class ContrastiveTrainer:
                             f"Unhandled contrastive method for forward pass: {self.config.contrastive_method}"
                         )
 
-                if is_training:
-                    self.optimizer.zero_grad()
-                    self.scaler.scale(loss).backward()
-                    self.scaler.unscale_(self.optimizer)
-                    torch.nn.utils.clip_grad_norm_(
-                        self.model.parameters(), max_norm=1.0
-                    )
-                    self.scaler.step(self.optimizer)
-                    self.scaler.update()
-                    self.scheduler.step()
+                # Scale loss for gradient accumulation
+                loss = loss / self.config.gradient_accumulation_steps
 
-                total_loss += loss.item()
+                if is_training:
+                    self.scaler.scale(loss).backward()
+
+                    if (batch_idx + 1) % self.config.gradient_accumulation_steps == 0:
+                        self.scaler.unscale_(self.optimizer)
+                        torch.nn.utils.clip_grad_norm_(
+                            self.model.parameters(), max_norm=1.0
+                        )
+                        self.scaler.step(self.optimizer)
+                        self.scaler.update()
+                        self.optimizer.zero_grad()
+                        self.scheduler.step()
+
+                total_loss += loss.item() * self.config.gradient_accumulation_steps # Accumulate original loss value
                 # Collect embeddings for accuracy calculation
                 if self.config.contrastive_method == "simclr":
                     all_h1.append(h1.detach())
@@ -733,7 +722,8 @@ def run_single_training(
 
 def main(config: ContrastiveConfig) -> Dict:
     """
-    Orchestrates the training, validation, and testing of contrastive learning models over multiple runs.
+    Orchestrates the training, validation, and testing of contrastive learning models
+    using 5-fold cross-validation.
     """
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -745,88 +735,94 @@ def main(config: ContrastiveConfig) -> Dict:
     )
     logging.info(f"Using device: {device}")
 
-    # Data paths, one for local and one for cluster.
+    # Data paths
     data_path = "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx"
     if not os.path.exists(data_path):
         data_path = "/vol/ecrg-solar/woodj4/fishy-business/data/REIMS.xlsx"
 
     # Load and preprocess data
-    data_config = DataConfig(
-        batch_size=config.batch_size,
-        data_path=data_path,
-    )
+    data_config = DataConfig(batch_size=config.batch_size, data_path=data_path)
     preprocessor = DataPreprocessor()
     data = preprocessor.load_data(data_config)
     filtered_data = preprocessor.filter_data(data, data_config.dataset_name)
     features = filtered_data.drop("m/z", axis=1).to_numpy()
     labels = preprocessor.encode_labels(filtered_data, data_config.dataset_name)
 
-    # --- Create full Siamese Dataset before splitting ---
+    # Create full Siamese Dataset before splitting
     full_dataset = SiameseDataset(features, labels)
-
-    # --- Stratified Split of Pairs ---
     pair_indices = np.arange(len(full_dataset))
     pair_labels_for_stratify = np.argmax(full_dataset.pair_labels, axis=1)
 
-    # Split into train+val (80%) and test (20%)
+    # Set random seed for reproducibility
+    RANDOM_SEED = 42
+    np.random.seed(RANDOM_SEED)
+    torch.manual_seed(RANDOM_SEED)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(RANDOM_SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    # --- Stratified split for held-out test set (20%) ---
     train_val_indices, test_indices = train_test_split(
-        pair_indices, test_size=0.2, random_state=42, stratify=pair_labels_for_stratify
+        pair_indices,
+        test_size=0.2,
+        random_state=RANDOM_SEED,
+        stratify=pair_labels_for_stratify, 
     )
 
-    # Split train+val into train (60% of total) and val (20% of total)
-    train_indices, val_indices = train_test_split(
-        train_val_indices,
-        test_size=0.25,
-        random_state=42,
-        stratify=pair_labels_for_stratify[train_val_indices],
-    )
-
-    train_dataset = Subset(full_dataset, train_indices)
-    val_dataset = Subset(full_dataset, val_indices)
     test_dataset = Subset(full_dataset, test_indices)
-
-    logging.info(
-        f"Data split: {len(train_dataset)} train pairs, {len(val_dataset)} validation pairs, {len(test_dataset)} test pairs."
-    )
-
-    # --- Create DataLoaders with BalancedBatchSampler ---
-    train_pair_labels = full_dataset.pair_labels[train_indices]
-    val_pair_labels = full_dataset.pair_labels[val_indices]
     test_pair_labels = full_dataset.pair_labels[test_indices]
-
-    train_sampler = BalancedBatchSampler(train_pair_labels, config.batch_size)
-    val_sampler = BalancedBatchSampler(val_pair_labels, config.batch_size)
     test_sampler = BalancedBatchSampler(test_pair_labels, config.batch_size)
+    pin_memory = True if device.type == 'cuda' else False
+    test_loader = DataLoader(test_dataset, batch_sampler=test_sampler, num_workers=4, pin_memory=pin_memory)
+    logging.info(f"Held-out test set size: {len(test_dataset)} pairs.")
 
-    train_loader = DataLoader(train_dataset, batch_sampler=train_sampler)
-    val_loader = DataLoader(val_dataset, batch_sampler=val_sampler)
-    test_loader = DataLoader(test_dataset, batch_sampler=test_sampler)
+    train_val_labels_for_split = pair_labels_for_stratify[train_val_indices]
 
+    all_run_stats = []
     os.makedirs("results", exist_ok=True)
-    os.makedirs("figures", exist_ok=True)
 
-    all_runs_stats = []
-    for i in range(config.num_runs):
-        logging.info(f"--- Starting Run {i+1}/{config.num_runs} ---")
+    for run_id in range(config.num_runs):
+        logging.info(f"--- Starting Run {run_id + 1}/{config.num_runs} ---")
+
+        # Split data into training and validation for this run
+        train_indices, val_indices = train_test_split(
+            train_val_indices,
+            test_size=0.2, # Assuming 80/20 split for train/val from the train_val_indices
+            random_state=RANDOM_SEED, #+ run_id, # Vary seed for different splits
+            stratify=train_val_labels_for_split,
+        )
+
+        train_dataset = Subset(full_dataset, train_indices)
+        val_dataset = Subset(full_dataset, val_indices)
+
+        train_labels = full_dataset.pair_labels[train_indices]
+        val_labels = full_dataset.pair_labels[val_indices]
+
+        train_sampler = BalancedBatchSampler(train_labels, config.batch_size)
+        val_sampler = BalancedBatchSampler(val_labels, config.batch_size)
+
+        pin_memory = True if device.type == 'cuda' else False
+        train_loader = DataLoader(train_dataset, batch_sampler=train_sampler, num_workers=4, pin_memory=pin_memory)
+        val_loader = DataLoader(val_dataset, batch_sampler=val_sampler, num_workers=4, pin_memory=pin_memory)
+
+        logging.info(f"Run {run_id+1} - Train size: {len(train_dataset)}, Val size: {len(val_dataset)}")
 
         base_model, loss_fn = create_contrastive_model(config)
 
         best_model, best_metrics, best_threshold = run_single_training(
-            config, i, device, train_loader, val_loader, base_model, loss_fn
+            config, run_id, device, train_loader, val_loader, base_model, loss_fn
         )
 
-        # --- Final Evaluation on the Test Set ---
+        # --- Final Evaluation on the Held-Out Test Set ---
         test_loss, test_accuracy = 0.0, 0.0
         if best_model:
-            if len(test_dataset) > 0 and len(test_loader) > 0:
-                trainer = ContrastiveTrainer(best_model, loss_fn, config, device)
-                trainer.best_threshold = best_threshold
-                test_loss, test_accuracy = trainer.evaluate_model(test_loader)
-                logging.info(
-                    f"Run {i+1} Test Set Evaluation - Loss: {test_loss:.4f}, Accuracy: {test_accuracy:.4f}"
-                )
-            else:
-                logging.warning("Test loader is empty. Skipping final evaluation.")
+            trainer = ContrastiveTrainer(best_model, loss_fn, config, device)
+            trainer.best_threshold = best_threshold
+            test_loss, test_accuracy = trainer.evaluate_model(test_loader)
+            logging.info(
+                f"Run {run_id+1} Test Set Evaluation - Loss: {test_loss:.4f}, Accuracy: {test_accuracy:.4f}"
+            )
 
         if best_metrics:
             stats = {
@@ -838,54 +834,51 @@ def main(config: ContrastiveConfig) -> Dict:
                 "test_loss": test_loss,
                 "test_accuracy": test_accuracy,
             }
-            all_runs_stats.append(stats)
+            all_run_stats.append(stats)
 
-    if not all_runs_stats:
+    if not all_run_stats:
         logging.warning("No runs were completed successfully.")
         return {}
 
-    # --- Averaging Results ---
+    # --- Averaging Results Across Runs ---
     avg_stats = {}
     std_stats = {}
-    metric_keys = all_runs_stats[0].keys()
+    metric_keys = all_run_stats[0].keys()
 
     for key in metric_keys:
-        values = [run[key] for run in all_runs_stats if run.get(key) is not None]
+        values = [run[key] for run in all_run_stats if run.get(key) is not None]
         if values:
             avg_stats[key] = np.mean(values)
             std_stats[key] = np.std(values)
 
     logging.info(f"Averaged stats over {config.num_runs} runs: {avg_stats}")
-    logging.info(
-        f"Standard deviation of stats over {config.num_runs} runs: {std_stats}"
-    )
+    logging.info(f"Standard deviation of stats over {config.num_runs} runs: {std_stats}")
 
     # --- Save results ---
-    with open(
-        f"results/stats_{config.contrastive_method}_{config.encoder_type}_{config.num_runs}_runs.json",
-        "w",
-    ) as f:
+    results_filename = f"results/stats_{config.contrastive_method}_{config.encoder_type}_{config.num_runs}_runs.json"
+    with open(results_filename, "w") as f:
         json.dump(
             {
                 "config": asdict(config),
-                "runs": all_runs_stats,
-                "stats": avg_stats,
-                "std_dev": std_stats,
+                "runs": all_run_stats,
+                "stats_mean": avg_stats,
+                "stats_std": std_stats,
             },
             f,
             indent=4,
         )
+    logging.info(f"Results saved to {results_filename}")
 
     return avg_stats
 
 
 if __name__ == "__main__":
     """Entry point for the script."""
-    parser = argparse.ArgumentParser(description="Train SimCLR models.")
+    parser = argparse.ArgumentParser(description="Train contrastive models with 5-fold cross-validation.")
     parser.add_argument(
         "--encoder_type",
         type=str,
-        default="transformer",
+        default="cnn",
         choices=ENCODER_REGISTRY.keys(),
     )
     parser.add_argument("--batch_size", type=int, default=16)
@@ -897,13 +890,8 @@ if __name__ == "__main__":
         choices=CONTRASTIVE_MODEL_REGISTRY.keys(),
         help="Contrastive learning method to use (e.g., simclr, moco, byol)",
     )
-    parser.add_argument(
-        "--num_runs",
-        type=int,
-        default=1,
-        help="Number of runs to average results over.",
-    )
-    # Add other config arguments as needed
+    parser.add_argument("--num_runs", type=int, default=1, help="Number of independent training runs.")
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=1, help="Number of steps to accumulate gradients before updating model parameters.")
     args = parser.parse_args()
 
     config = ContrastiveConfig(
@@ -912,5 +900,12 @@ if __name__ == "__main__":
         learning_rate=args.learning_rate,
         contrastive_method=args.contrastive_method,
         num_runs=args.num_runs,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+        noise_enabled=True,
+        shift_enabled=True,
+        scale_enabled=True,
+        crop_enabled=True,
+        flip_enabled=True,
+        permutation_enabled=True,
     )
     main(config)

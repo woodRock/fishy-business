@@ -32,14 +32,10 @@ class DataPreprocessor:
 
     @staticmethod
     def load_data(config: DataConfig) -> pd.DataFrame:
-        path_input = config.data_path
-        path = (
-            Path(path_input).expanduser()
-            if isinstance(path_input, str)
-            else Path(os.path.join(*path_input)).expanduser()
-        )
+        path = Path(config.data_path).expanduser()
+        if not path.is_absolute():
+            raise ValueError("Data path must be absolute")
 
-        print(f"Attempting to load data from: {path}")
         if not path.exists():
             raise FileNotFoundError(
                 f"Data file not found at the specified path: {path}"

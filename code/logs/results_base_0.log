@@ -1,4 +1,13 @@
-2025-09-29 19:53:19,337 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
-2025-09-29 19:53:23,283 - INFO - Loaded data with shape: (306, 2081)
-2025-09-29 19:53:23,286 - INFO - Filtered data shape: (72, 2081)
-2025-09-29 19:55:40,583 - INFO - E10 TL:0.219 VL:0.267 VAcur:0.534 BestVAcur:0.536
+2025-10-16 23:52:59,398 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
+2025-10-16 23:53:03,361 - INFO - Loaded data with shape: (306, 2081)
+2025-10-16 23:53:03,363 - INFO - Filtered data shape: (279, 2081)
+2025-10-16 23:54:00,703 - INFO - E10 TL:27.824 VL:199.089 VAcur:-inf BestVAcur:-inf
+2025-10-16 23:54:58,331 - INFO - Early stopping: E20, Best val_acc: -inf
+2025-10-16 23:55:56,779 - INFO - E10 TL:39.370 VL:590.069 VAcur:-inf BestVAcur:-inf
+2025-10-16 23:56:58,068 - INFO - Early stopping: E20, Best val_acc: -inf
+2025-10-16 23:58:03,218 - INFO - E10 TL:36.278 VL:237.304 VAcur:-inf BestVAcur:-inf
+2025-10-16 23:59:09,128 - INFO - Early stopping: E20, Best val_acc: -inf
+2025-10-17 00:00:18,201 - INFO - E10 TL:54.482 VL:165.548 VAcur:-inf BestVAcur:-inf
+2025-10-17 00:01:23,106 - INFO - Early stopping: E20, Best val_acc: -inf
+2025-10-17 00:02:29,152 - INFO - E10 TL:30.582 VL:341.772 VAcur:-inf BestVAcur:-inf
+2025-10-17 00:03:34,522 - INFO - Early stopping: E20, Best val_acc: -inf

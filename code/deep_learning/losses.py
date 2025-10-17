@@ -56,28 +56,56 @@ def coral_loss(logits, levels, importance_weights=None, reduction="mean"):
 
 def levels_from_labelbatch(labels, num_classes, dtype=None):
     """
-    Converts a batch of integer labels to extended binary levels.
-    Source: https://github.com/Raschka-research-group/corn-ordinal-regression/blob/main/coral_pytorch/dataset.py
+    Converts a batch of integer labels to extended binary levels for CORAL.
+    Vectorized implementation.
+    """
+    if not isinstance(labels, torch.Tensor):
+        labels = torch.tensor(labels)
+        
+    # Ensure labels are long integers for comparison
+    labels = labels.long()
+
+    # Create a tensor of shape (batch_size, num_classes - 1) with values 0, 1, 2, ...
+    rank = torch.arange(num_classes - 1, device=labels.device, dtype=labels.dtype).expand(labels.size(0), -1)
+
+    # Create a mask where rank < labels
+    levels = (rank < labels.unsqueeze(1)).to(dtype=dtype)
+
+    return levels
+
+
+def cumulative_link_loss(logits, labels, num_classes, reduction="mean"):
+    """
+    Computes the Cumulative Link loss.
+
+    This loss treats ordinal regression as K-1 binary classification problems.
+    For each class boundary, it predicts whether the true label is beyond that boundary.
 
     Parameters
     ----------
+    logits : torch.tensor, shape=(n_examples, n_classes-1)
+        Outputs from the model.
     labels : torch.tensor, shape=(n_examples,)
-        A batch of integer labels.
-
+        True integer labels.
     num_classes : int
-        The number of classes.
-
-    dtype : torch.dtype, optional (default=None)
-        The desired output data type.
+        The total number of ordinal classes.
+    reduction : str or None (default='mean')
+        Type of reduction to apply to the loss.
 
     Returns
     ----------
-    levels : torch.tensor, shape=(n_examples, num_classes-1)
-        The labels in the extended binary format.
-
+    loss : torch.tensor
+        The computed loss value.
     """
-    levels = []
-    for label in labels:
-        level = [1] * label.item() + [0] * (num_classes - 1 - label.item())
-        levels.append(level)
-    return torch.tensor(levels, dtype=dtype)
+    # Convert integer labels to cumulative binary format, e.g., for 5 classes:
+    # 0 -> [0, 0, 0, 0]
+    # 1 -> [1, 0, 0, 0]
+    # 2 -> [1, 1, 0, 0]
+    # 3 -> [1, 1, 1, 0]
+    # 4 -> [1, 1, 1, 1]
+    cumulative_labels = levels_from_labelbatch(labels, num_classes, dtype=logits.dtype).to(logits.device)
+
+    if not logits.shape == cumulative_labels.shape:
+        raise ValueError("Shape of logits and cumulative_labels must be the same.")
+
+    return F.binary_cross_entropy_with_logits(logits, cumulative_labels, reduction=reduction)
