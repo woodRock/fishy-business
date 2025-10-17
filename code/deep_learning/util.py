@@ -7,6 +7,7 @@ from enum import Enum, auto
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union, Callable, Any
+import re
 
 import numpy as np
 import pandas as pd
@@ -200,13 +201,17 @@ class SiameseDataset(BaseDataset):
         # Initialize with original data to allow BaseDataset to convert them to tensors
         super().__init__(samples, labels)
         # Now self.samples and self.labels are tensors. Generate pairs from these.
-        self.X1, self.X2, self.paired_labels = self._generate_pairs_vectorized(
-            self.samples, self.labels
-        )
+        (
+            self.X1,
+            self.X2,
+            self.paired_labels,
+            self.y1,
+            self.y2,
+        ) = self._generate_pairs_vectorized(self.samples, self.labels)
 
     def _generate_pairs_vectorized(
         self, original_samples: torch.Tensor, original_labels: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Generates differing pairs for contrastive learning in a vectorized way.
 
         This method creates all possible unique pairs from the input samples and
@@ -220,10 +225,12 @@ class SiameseDataset(BaseDataset):
             original_labels (torch.Tensor): Original labels tensor of shape (num_samples, num_classes) or (num_samples,).
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing:
                 - X1: Tensor of shape (num_pairs, num_features) with the first samples of the pairs.
                 - X2: Tensor of shape (num_pairs, num_features) with the second samples of the pairs.
                 - pair_labels_tensor: Tensor of shape (num_pairs, 1) with labels indicating if pairs are from the same class (1.0) or different (0.0).
+                - y1: Tensor of shape (num_pairs, num_classes) with the class labels of the first samples.
+                - y2: Tensor of shape (num_pairs, num_classes) with the class labels of the second samples.
         """
         n_samples = original_samples.shape[0]
         if n_samples < 2:
@@ -235,6 +242,8 @@ class SiameseDataset(BaseDataset):
                     (0, original_samples.shape[1]), dtype=original_samples.dtype
                 ),
                 torch.empty((0, 1), dtype=torch.float32),
+                torch.empty((0, original_labels.shape[1]), dtype=original_labels.dtype),
+                torch.empty((0, original_labels.shape[1]), dtype=original_labels.dtype),
             )
 
         # Create all possible (i, j) indices where i != j
@@ -257,7 +266,7 @@ class SiameseDataset(BaseDataset):
         # Shape: (num_pairs, 1) for compatibility with BCEWithLogitsLoss
         pair_labels_tensor = same_label_mask.to(torch.float32).unsqueeze(1)
 
-        return X1, X2, pair_labels_tensor
+        return X1, X2, pair_labels_tensor, y1, y2
 
     def __len__(self) -> int:
         """Returns the number of pairs in the dataset.
@@ -267,16 +276,18 @@ class SiameseDataset(BaseDataset):
         """
         return self.paired_labels.shape[0]
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def __getitem__(
+        self, idx: int
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """Retrieves a pair of samples and their corresponding label by index.
 
         Args:
             idx (int): Index of the pair to retrieve.
 
         Returns:
-            Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing the first sample, the second sample, and their label.
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing the first sample, the second sample, their pair label, the first sample's class label, and the second sample's class label.
         """
-        return self.X1[idx], self.X2[idx], self.paired_labels[idx]
+        return self.X1[idx], self.X2[idx], self.paired_labels[idx], self.y1[idx], self.y2[idx]
 
 
 class DataAugmenter:
@@ -302,86 +313,86 @@ class DataAugmenter:
         """
         self.config = config
 
-    def _random_crop(self, X_batch: np.ndarray) -> np.ndarray:
+    def _random_crop(self, X_batch: torch.Tensor) -> torch.Tensor:
         """Randomly crops a portion of the spectra.
 
         Args:
-            X_batch: A NumPy array representing a batch of samples.
+            X_batch: A PyTorch tensor representing a batch of samples.
 
         Returns:
-            A NumPy array containing the cropped batch of samples.
+            A PyTorch tensor containing the cropped batch of samples.
         """
         n_samples, n_features = X_batch.shape
-        cropped_batch = np.zeros_like(X_batch)
+        cropped_batch = torch.zeros_like(X_batch, device=X_batch.device)
         for i in range(n_samples):
             spectrum = X_batch[i]
             crop_len = int(n_features * self.config.crop_size)
             if crop_len == 0:  # Handle case where crop_size is too small
                 cropped_batch[i] = spectrum
                 continue
-            start = np.random.randint(0, n_features - crop_len + 1)
+            
+            # Ensure start index is valid
+            if n_features - crop_len + 1 <= 0: # If crop_len is >= n_features, no valid range for start
+                start = 0
+            else:
+                start = torch.randint(0, n_features - crop_len + 1, (1,)).item()
+            
             end = start + crop_len
             cropped_spectrum = spectrum[start:end]
+            
             # Pad back to original size
-            if start > 0:
-                cropped_spectrum = np.pad(
-                    cropped_spectrum, (start, n_features - end), "constant"
-                )
-            else:
-                cropped_spectrum = np.pad(
-                    cropped_spectrum, (0, n_features - end), "constant"
-                )
-            cropped_batch[i] = cropped_spectrum
+            # F.pad expects (padding_left, padding_right, padding_top, padding_bottom, ...)
+            # For 1D tensor, it's (padding_left, padding_right)
+            padding_left = start
+            padding_right = n_features - end
+            cropped_batch[i] = F.pad(cropped_spectrum, (padding_left, padding_right), "constant", 0)
         return cropped_batch
 
-    def _random_flip(self, X_batch: np.ndarray) -> np.ndarray:
+    def _random_flip(self, X_batch: torch.Tensor) -> torch.Tensor:
         """Randomly flips the spectra horizontally.
 
         Args:
-            X_batch: A NumPy array representing a batch of samples.
+            X_batch: A PyTorch tensor representing a batch of samples.
 
         Returns:
-            A NumPy array containing the flipped batch of samples.
+            A PyTorch tensor containing the flipped batch of samples.
         """
-        flipped_batch = X_batch.copy()
-        if np.random.rand() < 0.5:  # 50% chance to flip
-            flipped_batch = np.flip(flipped_batch, axis=1).copy()
+        flipped_batch = X_batch.clone()
+        if torch.rand(1).item() < 0.5:  # 50% chance to flip
+            flipped_batch = torch.flip(flipped_batch, dims=[1])
         return flipped_batch
 
-    def _random_permutation(self, X_batch: np.ndarray) -> np.ndarray:
+    def _random_permutation(self, X_batch: torch.Tensor) -> torch.Tensor:
         """Randomly permutes the features of the spectra.
 
         Args:
-            X_batch: A NumPy array representing a batch of samples.
+            X_batch: A PyTorch tensor representing a batch of samples.
 
         Returns:
-            A NumPy array containing the permuted batch of samples.
+            A PyTorch tensor containing the permuted batch of samples.
         """
-        permuted_batch = X_batch.copy()
+        permuted_batch = X_batch.clone()
         n_samples, n_features = X_batch.shape
         for i in range(n_samples):
-            permuted_batch[i] = np.random.permutation(permuted_batch[i]).copy()
+            idx = torch.randperm(n_features, device=X_batch.device)
+            permuted_batch[i] = permuted_batch[i, idx]
         return permuted_batch
 
-    def _apply_augmentations_to_batch(self, X_batch: np.ndarray) -> np.ndarray:
+    def _apply_augmentations_to_batch(self, X_batch: torch.Tensor) -> torch.Tensor:
         """Applies configured augmentations to a batch of samples.
 
         Args:
-            X_batch: A NumPy array representing a batch of samples to be augmented.
+            X_batch: A PyTorch tensor representing a batch of samples to be augmented.
 
         Returns:
-            A NumPy array containing the augmented batch of samples.
+            A PyTorch tensor containing the augmented batch of samples.
         """
-        X_augmented_batch = X_batch.copy()  # Augment from fresh copies
+        X_augmented_batch = X_batch.clone()  # Augment from fresh copies
         n_samples, n_features = X_augmented_batch.shape
 
         if self.config.noise_enabled:
-            # Assuming noise_level is a fraction of std dev of each feature if not absolute
-            # For simplicity, using a global noise level relative to overall data std or a fixed value
-            # noise_std = self.config.noise_level * np.std(X_batch) # Global std based noise
-            # Or interpret noise_level as an absolute standard deviation
-            noise = np.random.normal(
-                loc=0, scale=self.config.noise_level, size=X_augmented_batch.shape
+            noise = torch.normal(
+                mean=0, std=self.config.noise_level, size=X_augmented_batch.shape, device=X_batch.device
             )
             X_augmented_batch += noise
 
@@ -389,18 +400,18 @@ class DataAugmenter:
             for k in range(n_samples):  # Shift must be per-sample
                 shift_amount = int(
                     n_features
-                    * np.random.uniform(
+                    * torch.empty(1).uniform_(
                         -self.config.shift_range, self.config.shift_range
-                    )
+                    ).item()
                 )
                 if n_features > 0:  # Avoid error on empty features
-                    X_augmented_batch[k] = np.roll(X_augmented_batch[k], shift_amount)
+                    X_augmented_batch[k] = torch.roll(X_augmented_batch[k], shifts=shift_amount, dims=0)
 
         if self.config.scale_enabled:
             for k in range(n_samples):  # Scale per-sample
-                scale_factor = np.random.uniform(
+                scale_factor = torch.empty(1).uniform_(
                     1 - self.config.scale_range, 1 + self.config.scale_range
-                )
+                ).item()
                 X_augmented_batch[k] *= scale_factor
 
         if self.config.crop_enabled:
@@ -433,6 +444,8 @@ class DataAugmenter:
         if not self.config.enabled or self.config.num_augmentations == 0:
             return dataloader
 
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
         all_samples = []
         all_labels = []
         for samples, labels in dataloader:
@@ -442,35 +455,37 @@ class DataAugmenter:
         if not all_samples:
             return dataloader  # Return original if no samples
 
-        all_samples = torch.cat(all_samples, dim=0).cpu().numpy()
-        all_labels = torch.cat(all_labels, dim=0).cpu().numpy()
+        all_samples_tensor = torch.cat(all_samples, dim=0).to(device)
+        all_labels_tensor = torch.cat(all_labels, dim=0)
 
-        augmented_samples = []
-        augmented_labels = []
-
+        augmented_samples_list = [all_samples_tensor]
+        
         for _ in range(self.config.num_augmentations):
-            # Apply augmentations to the entire batch of samples
-            aug_samples = self._apply_augmentations_to_batch(all_samples)
-            augmented_samples.append(aug_samples)
-            augmented_labels.append(
-                all_labels
-            )  # Labels remain the same for augmented data
+            # Apply augmentations to the entire batch of samples on the specified device
+            aug_samples = self._apply_augmentations_to_batch(all_samples_tensor)
+            augmented_samples_list.append(aug_samples)
 
-        combined_samples = np.concatenate([all_samples] + augmented_samples, axis=0)
-        combined_labels = np.concatenate([all_labels] + augmented_labels, axis=0)
+        # Combine original and augmented samples
+        combined_samples = torch.cat(augmented_samples_list, dim=0)
+        
+        # Repeat labels for each augmentation
+        combined_labels = all_labels_tensor.repeat(self.config.num_augmentations + 1, 1)
 
-        # Shuffle the combined dataset
-        permutation = np.random.permutation(len(combined_samples))
+        # Shuffle the combined dataset on the device
+        permutation = torch.randperm(combined_samples.size(0), device=device)
         combined_samples = combined_samples[permutation]
         combined_labels = combined_labels[permutation]
 
+        # Move data to CPU for NumPy conversion and Dataset creation
+        combined_samples_cpu = combined_samples.cpu().numpy()
+        combined_labels_cpu = combined_labels.cpu().numpy()
+
         # Create a new DataLoader from the combined dataset
-        # Assuming CustomDataset is suitable for augmented data
-        new_dataset = CustomDataset(combined_samples, combined_labels)
+        new_dataset = CustomDataset(combined_samples_cpu, combined_labels_cpu)
         new_dataloader = DataLoader(
             new_dataset,
             batch_size=dataloader.batch_size,
-            shuffle=True,
+            shuffle=True,  # Data is already shuffled, but this doesn't hurt
             num_workers=dataloader.num_workers,
             pin_memory=dataloader.pin_memory,
         )
@@ -540,6 +555,7 @@ class DataProcessor:
             ),
             DatasetType.PART: self._create_one_hot_encoder(self._PART_CATEGORIES),
             DatasetType.OIL: self._create_one_hot_encoder(self._OIL_CATEGORIES),
+            DatasetType.OIL_REGRESSION: lambda x: float(re.search(r'MO\s*([\d\.]+)', x).group(1)) if re.search(r'MO\s*([\d\.]+)', x) else None,
             DatasetType.OIL_SIMPLE: lambda x: (
                 [1.0, 0.0] if "MO" in x else ([0.0, 1.0] if x.strip() else None)
             ),  # Crude check for non-MO

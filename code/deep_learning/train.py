@@ -20,6 +20,9 @@ from sklearn.metrics import (
     f1_score,
     auc,
     roc_curve,
+    mean_absolute_error,
+    r2_score,
+    mean_squared_error,
 )
 
 from models import Transformer, VAE
@@ -85,6 +88,7 @@ def train_model(
     val_loader: Optional[DataLoader] = None,
     use_coral: bool = False,
     num_classes: Optional[int] = None,
+    regression: bool = False,
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model. If val_loader is provided, it performs a single training run.
     Otherwise, it performs k-fold cross-validation with multiple independent runs.
@@ -124,6 +128,7 @@ def train_model(
             logger,
             use_coral,
             num_classes,
+            regression,
         )
         # The return type of train_model is Tuple[nn.Module, Dict].
         # _train_fold returns a Dict. I need to load the best model state and return it.
@@ -169,6 +174,9 @@ def train_model(
             device,
             logger,
             n_runs,
+            use_coral,
+            num_classes,
+            regression,
         )
 
     all_runs_metrics_accumulator = []
@@ -359,7 +367,9 @@ def _train_single_split(
     logger: logging.Logger,
     n_runs: int = 30,
     use_coral: bool = False,
+    use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
+    regression: bool = False,
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model using a single split with multiple independent runs.
 
@@ -652,7 +662,9 @@ def _train_fold(
     device: str,
     logger: logging.Logger,
     use_coral: bool = False,
+    use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
+    regression: bool = False,
 ) -> Dict:
     """Trains a model for a single fold of cross-validation.
 
@@ -696,6 +708,7 @@ def _train_fold(
             is_training=True,
             use_coral=use_coral,
             num_classes=num_classes,
+            regression=regression,
         )
 
         model.eval()
@@ -709,6 +722,7 @@ def _train_fold(
                 is_training=False,
                 use_coral=use_coral,
                 num_classes=num_classes,
+                regression=regression,
             )
 
         epoch_log["train_losses"].append(train_results["loss"])
@@ -798,6 +812,7 @@ def evaluate_model(
     device: str,
     use_coral: bool = False,
     num_classes: Optional[int] = None,
+    regression: bool = False,
 ) -> Dict:
     """Evaluates a model on a given data loader."""
     model.eval()
@@ -811,6 +826,7 @@ def evaluate_model(
             is_training=False,
             use_coral=use_coral,
             num_classes=num_classes,
+            regression=regression,
         )
     return results
 
@@ -824,6 +840,7 @@ def _run_epoch(
     is_training: bool,
     use_coral: bool = False,
     num_classes: Optional[int] = None,
+    regression: bool = False,
 ) -> Dict:
     """Runs a single epoch of training or validation."""
     total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
@@ -857,7 +874,9 @@ def _run_epoch(
             outputs = model(inputs)
 
         # Prepare labels for loss and metrics
-        if (
+        if regression:
+            actual_indices = labels_on_device.squeeze(-1).float()
+        elif (
             labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1
         ):  # one-hot to index
             actual_indices = labels_on_device.argmax(dim=1)
@@ -866,7 +885,9 @@ def _run_epoch(
         else:
             actual_indices = labels_on_device
 
-        if use_coral:
+        if regression:
+            loss = criterion(outputs.squeeze(), actual_indices)
+        elif use_coral:
             levels = levels_from_labelbatch(
                 actual_indices, num_classes=num_classes, dtype=torch.float32
             ).to(device)
@@ -891,7 +912,10 @@ def _run_epoch(
         )
 
         # Process labels and predictions for metrics
-        if use_coral:
+        if regression:
+            predicted_indices = outputs.squeeze()
+            probs = None
+        elif use_coral:
             predicted_indices = torch.sum(
                 torch.round(torch.sigmoid(outputs)), dim=1
             ).long()
@@ -901,13 +925,14 @@ def _run_epoch(
             predicted_indices = outputs.argmax(dim=1)
 
         all_labels_np.append(actual_indices.cpu().numpy())
-        all_preds_np.append(predicted_indices.cpu().numpy())
-        all_probs_np.append(probs.detach().cpu().numpy())
+        all_preds_np.append(predicted_indices.detach().cpu().numpy())
+        if probs is not None:
+            all_probs_np.append(probs.detach().cpu().numpy())
 
     avg_loss = total_loss / len(loader.dataset)
     final_labels = np.concatenate(all_labels_np)
     final_preds = np.concatenate(all_preds_np)
-    final_probs = np.concatenate(all_probs_np)
+    final_probs = np.concatenate(all_probs_np) if all_probs_np else None
 
     metrics = _calculate_metrics(
         final_labels,
@@ -915,6 +940,7 @@ def _run_epoch(
         final_probs,
         use_coral=use_coral,
         num_classes=num_classes,
+        regression=regression,
     )
     return {
         "loss": avg_loss,
@@ -933,6 +959,7 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
     y_prob: Optional[np.ndarray] = None,
     use_coral: bool = False,
     num_classes: Optional[int] = None,
+    regression: bool = False,
 ) -> MetricsDict:
     """Calculates various metrics based on true labels, predicted labels, and predicted probabilities.
 
@@ -942,13 +969,26 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
         y_prob (Optional[np.ndarray]): Predicted probabilities for each class, if available.
         use_coral (bool): Whether to use CORAL loss for ordinal classification.
         num_classes (Optional[int]): Number of classes.
+        regression (bool): Whether the task is regression.
 
     Returns:
-        MetricsDict: A dictionary containing calculated metrics such as balanced accuracy, precision, recall, F
+        MetricsDict: A dictionary containing calculated metrics.
     """
+    if regression:
+        mae = mean_absolute_error(y_true, y_pred)
+        metrics: MetricsDict = {
+            "mae": mae,
+            "mse": mean_squared_error(y_true, y_pred),
+            "r2": r2_score(y_true, y_pred),
+            "balanced_accuracy": -mae,
+        }
+        return metrics
+
     labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
     metrics: MetricsDict = {
         "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
+        "mae": mean_absolute_error(y_true, y_pred),
+        "mse": mean_squared_error(y_true, y_pred),
         "precision": precision_score(
             y_true,
             y_pred,
@@ -977,46 +1017,8 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
         n_classes = (
             num_classes
             if num_classes is not None
-            else (y_prob.shape[1] + 1 if use_coral else y_prob.shape[1])
+            else (y_prob.shape[1] + 1 if (use_coral or use_cumulative_link) else y_prob.shape[1])
         )
-        if n_classes == 2 and not use_coral:
+        if n_classes == 2 and not (use_coral or use_cumulative_link):
             y_prob_for_auc = y_prob[:, 1] if y_prob.shape[1] == 2 else y_prob.flatten()
             metrics["auc_roc"] = roc_curve_auc(y_true, y_prob_for_auc)
-        elif n_classes > 2:
-            y_true_onehot = np.eye(n_classes)[y_true.astype(int)]
-            aucs = [
-                roc_curve_auc(
-                    y_true_onehot[:, i],
-                    y_prob[:, i],
-                    class_present=(i in np.unique(y_true)),
-                )
-                for i in range(y_prob.shape[1])
-            ]
-            valid_aucs = [a for a in aucs if not np.isnan(a)]
-            metrics["auc_roc"] = np.mean(valid_aucs) if valid_aucs else float("nan")
-        else:
-            metrics["auc_roc"] = float("nan")  # Should not happen with >0 classes
-    else:
-        metrics["auc_roc"] = float("nan")
-    return metrics
-
-
-def roc_curve_auc(
-    y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True
-) -> float:
-    """Calculates the AUC-ROC for a specific class.
-
-    Args:
-        y_true_class (np.ndarray): True labels for the specific class.
-        y_prob_class (np.ndarray): Predicted probabilities for the specific class.
-        class_present (bool): Whether the class is present in the true labels.
-
-    Returns:
-        float: The AUC-ROC value for the class, or NaN if the class is not present or not enough classes are available.
-    """
-    if (
-        not class_present or len(np.unique(y_true_class)) < 2
-    ):  # Not enough classes or class not present
-        return float("nan")
-    fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
-    return auc(fpr, tpr)

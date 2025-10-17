@@ -142,6 +142,7 @@ class Mamba(nn.Module):
     def __init__(
         self,
         input_dim: int,
+        output_dim: int,  # Added output_dim
         d_model: int,
         d_state: int,
         d_conv: int,
@@ -159,15 +160,9 @@ class Mamba(nn.Module):
                 for _ in range(depth)
             ]
         )
-        # Dropout (Srivastava 2014, Hinton 2012)
         self.dropout = nn.Dropout(dropout)
-
-        if spectral_norm:
-            # No self.fc, so apply spectral norm to a dummy layer or remove if not needed
-            pass  # Removed self.fc, so no spectral norm here
-
-        # Layer normalization (Ba 2016)
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
+        self.fc = nn.Linear(d_model, output_dim)  # Final classification layer
 
     def forward(self, x):
         """Forward pass
@@ -178,8 +173,12 @@ class Mamba(nn.Module):
         Returns:
             torch.Tensor: the output tensor.
         """
-        x = self.embedding_layer(x)  # Apply embedding layer first
-        x = x.unsqueeze(1).repeat(1, 100, 1)
+        x = self.embedding_layer(x)
+        # Mamba expects a sequence, but our input is a single vector.
+        # We can treat it as a sequence of length 1, but some implementations
+        # expect a longer sequence. Repeating the input is a simple way to handle this.
+        if x.dim() == 2:
+            x = x.unsqueeze(1).repeat(1, 100, 1) # B, L, D
 
         for layer in self.layers:
             residual = x
@@ -188,7 +187,9 @@ class Mamba(nn.Module):
             x = self.dropout(x)
 
         x = self.layer_norm(x)
-        return x[:, 0, :]
+        x = x[:, 0, :]  # Take the output of the first token
+        x = self.fc(x) # Project to output dimension
+        return x
 
 
 class SiameseMamba(nn.Module):
