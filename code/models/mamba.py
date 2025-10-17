@@ -178,7 +178,7 @@ class Mamba(nn.Module):
         # We can treat it as a sequence of length 1, but some implementations
         # expect a longer sequence. Repeating the input is a simple way to handle this.
         if x.dim() == 2:
-            x = x.unsqueeze(1).repeat(1, 100, 1) # B, L, D
+            x = x.unsqueeze(1).repeat(1, 100, 1)  # B, L, D
 
         for layer in self.layers:
             residual = x
@@ -188,7 +188,7 @@ class Mamba(nn.Module):
 
         x = self.layer_norm(x)
         x = x[:, 0, :]  # Take the output of the first token
-        x = self.fc(x) # Project to output dimension
+        x = self.fc(x)  # Project to output dimension
         return x
 
 

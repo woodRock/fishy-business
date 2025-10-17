@@ -287,7 +287,13 @@ class SiameseDataset(BaseDataset):
         Returns:
             Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing the first sample, the second sample, their pair label, the first sample's class label, and the second sample's class label.
         """
-        return self.X1[idx], self.X2[idx], self.paired_labels[idx], self.y1[idx], self.y2[idx]
+        return (
+            self.X1[idx],
+            self.X2[idx],
+            self.paired_labels[idx],
+            self.y1[idx],
+            self.y2[idx],
+        )
 
 
 class DataAugmenter:
@@ -330,22 +336,26 @@ class DataAugmenter:
             if crop_len == 0:  # Handle case where crop_size is too small
                 cropped_batch[i] = spectrum
                 continue
-            
+
             # Ensure start index is valid
-            if n_features - crop_len + 1 <= 0: # If crop_len is >= n_features, no valid range for start
+            if (
+                n_features - crop_len + 1 <= 0
+            ):  # If crop_len is >= n_features, no valid range for start
                 start = 0
             else:
                 start = torch.randint(0, n_features - crop_len + 1, (1,)).item()
-            
+
             end = start + crop_len
             cropped_spectrum = spectrum[start:end]
-            
+
             # Pad back to original size
             # F.pad expects (padding_left, padding_right, padding_top, padding_bottom, ...)
             # For 1D tensor, it's (padding_left, padding_right)
             padding_left = start
             padding_right = n_features - end
-            cropped_batch[i] = F.pad(cropped_spectrum, (padding_left, padding_right), "constant", 0)
+            cropped_batch[i] = F.pad(
+                cropped_spectrum, (padding_left, padding_right), "constant", 0
+            )
         return cropped_batch
 
     def _random_flip(self, X_batch: torch.Tensor) -> torch.Tensor:
@@ -392,7 +402,10 @@ class DataAugmenter:
 
         if self.config.noise_enabled:
             noise = torch.normal(
-                mean=0, std=self.config.noise_level, size=X_augmented_batch.shape, device=X_batch.device
+                mean=0,
+                std=self.config.noise_level,
+                size=X_augmented_batch.shape,
+                device=X_batch.device,
             )
             X_augmented_batch += noise
 
@@ -400,18 +413,22 @@ class DataAugmenter:
             for k in range(n_samples):  # Shift must be per-sample
                 shift_amount = int(
                     n_features
-                    * torch.empty(1).uniform_(
-                        -self.config.shift_range, self.config.shift_range
-                    ).item()
+                    * torch.empty(1)
+                    .uniform_(-self.config.shift_range, self.config.shift_range)
+                    .item()
                 )
                 if n_features > 0:  # Avoid error on empty features
-                    X_augmented_batch[k] = torch.roll(X_augmented_batch[k], shifts=shift_amount, dims=0)
+                    X_augmented_batch[k] = torch.roll(
+                        X_augmented_batch[k], shifts=shift_amount, dims=0
+                    )
 
         if self.config.scale_enabled:
             for k in range(n_samples):  # Scale per-sample
-                scale_factor = torch.empty(1).uniform_(
-                    1 - self.config.scale_range, 1 + self.config.scale_range
-                ).item()
+                scale_factor = (
+                    torch.empty(1)
+                    .uniform_(1 - self.config.scale_range, 1 + self.config.scale_range)
+                    .item()
+                )
                 X_augmented_batch[k] *= scale_factor
 
         if self.config.crop_enabled:
@@ -459,7 +476,7 @@ class DataAugmenter:
         all_labels_tensor = torch.cat(all_labels, dim=0)
 
         augmented_samples_list = [all_samples_tensor]
-        
+
         for _ in range(self.config.num_augmentations):
             # Apply augmentations to the entire batch of samples on the specified device
             aug_samples = self._apply_augmentations_to_batch(all_samples_tensor)
@@ -467,7 +484,7 @@ class DataAugmenter:
 
         # Combine original and augmented samples
         combined_samples = torch.cat(augmented_samples_list, dim=0)
-        
+
         # Repeat labels for each augmentation
         combined_labels = all_labels_tensor.repeat(self.config.num_augmentations + 1, 1)
 
@@ -555,7 +572,11 @@ class DataProcessor:
             ),
             DatasetType.PART: self._create_one_hot_encoder(self._PART_CATEGORIES),
             DatasetType.OIL: self._create_one_hot_encoder(self._OIL_CATEGORIES),
-            DatasetType.OIL_REGRESSION: lambda x: float(re.search(r'MO\s*([\d\.]+)', x).group(1)) if re.search(r'MO\s*([\d\.]+)', x) else None,
+            DatasetType.OIL_REGRESSION: lambda x: (
+                float(re.search(r"MO\s*([\d\.]+)", x).group(1))
+                if re.search(r"MO\s*([\d\.]+)", x)
+                else None
+            ),
             DatasetType.OIL_SIMPLE: lambda x: (
                 [1.0, 0.0] if "MO" in x else ([0.0, 1.0] if x.strip() else None)
             ),  # Crude check for non-MO

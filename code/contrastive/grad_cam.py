@@ -41,7 +41,7 @@ class ContrastiveGradCAM:
         # The "score" is the cosine similarity
         with torch.no_grad():
             h2 = self.model.encoder(input2)
-        
+
         similarity = torch.nn.functional.cosine_similarity(h1, h2, dim=-1).mean()
 
         # Zero gradients
@@ -79,6 +79,7 @@ class ContrastiveGradCAM:
 
     def remove_hooks(self):
         self.grad_cam.remove_hooks()
+
 
 def visualize_gradcam(features, cam_map, title="Grad-CAM Analysis"):
     """
@@ -125,6 +126,7 @@ def visualize_gradcam(features, cam_map, title="Grad-CAM Analysis"):
 
     return fig
 
+
 def analyze_contrastive_gradcam(
     model: SimCLRModel,
     data_loader: DataLoader,
@@ -155,7 +157,9 @@ def analyze_contrastive_gradcam(
         # Generate CAM for positive pairs
         for j in range(x1.shape[0]):
             if torch.argmax(labels[j]) == 1:
-                cam1 = contrastive_grad_cam.generate_cam(x1[j].unsqueeze(0), x2[j].unsqueeze(0))
+                cam1 = contrastive_grad_cam.generate_cam(
+                    x1[j].unsqueeze(0), x2[j].unsqueeze(0)
+                )
                 if cam1 is not None:
                     positive_cams.append(cam1.cpu().numpy())
                     sample_count += 1
@@ -166,10 +170,11 @@ def analyze_contrastive_gradcam(
         avg_cam = np.mean(positive_cams, axis=0)
         # get a sample feature to visualize
         features, _, _ = next(iter(data_loader))
-        fig = visualize_gradcam(features.mean(dim=0), avg_cam, title="Average Grad-CAM for Positive Pairs")
+        fig = visualize_gradcam(
+            features.mean(dim=0), avg_cam, title="Average Grad-CAM for Positive Pairs"
+        )
         plt.figure(fig.number)
         plt.savefig(f"{output_dir}/average_positive_grad_cam.png")
         plt.close()
 
     contrastive_grad_cam.remove_hooks()
-
