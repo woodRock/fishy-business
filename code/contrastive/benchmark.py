@@ -1,4 +1,3 @@
-
 import argparse
 import time
 import torch
@@ -49,7 +48,7 @@ def benchmark(model_name: str) -> pd.DataFrame:
 
     dataset = SiameseDataset(features, labels)
     data_loader = DataLoader(dataset, batch_size=data_config.batch_size)
-    
+
     n_features = features.shape[1]
 
     # --- Training Time Measurement ---
@@ -67,7 +66,7 @@ def benchmark(model_name: str) -> pd.DataFrame:
         loss = criterion(output, torch.zeros_like(output))
         loss.backward()
         optimizer.step()
-        break # Only need one batch for timing
+        break  # Only need one batch for timing
     training_time = time.time() - start_time
 
     # --- Inference Time Measurement ---
@@ -77,7 +76,7 @@ def benchmark(model_name: str) -> pd.DataFrame:
         for x1, x2, _ in data_loader:
             x1 = x1.to(device)
             model(x1)
-            break # Only need one batch for timing
+            break  # Only need one batch for timing
     inference_time = time.time() - start_time
 
     # Memory usage

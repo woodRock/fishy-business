@@ -48,7 +48,9 @@ class RCNN(nn.Module):
     The architecture is designed to handle 1D input data, such as time series or sequential data.
     """
 
-    def __init__(self, input_dim: int = 1023, output_dim: int = 7, dropout: float = 0.5) -> None:
+    def __init__(
+        self, input_dim: int = 1023, output_dim: int = 7, dropout: float = 0.5
+    ) -> None:
         """Initialize the RCNN model.
 
         Args:
@@ -75,7 +77,7 @@ class RCNN(nn.Module):
         )
 
         self.flatten = nn.Flatten()
-        
+
         # Calculate the size of the flattened features after convolutions
         self.flat_features = 256 * (input_dim // 4)
 

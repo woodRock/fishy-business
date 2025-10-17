@@ -296,7 +296,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     elif config.model == "mamba":
         return Mamba(
             input_dim=input_dim,
-            output_dim=output_dim, # Pass output_dim
+            output_dim=output_dim,  # Pass output_dim
             d_model=config.hidden_dimension,
             d_state=config.hidden_dimension,
             d_conv=4,
@@ -603,6 +603,7 @@ class ModelTrainer:
 
         if self.config.regression:
             from sklearn.metrics import r2_score
+
             # Calculate Mean Absolute Error
             mae = np.mean(np.abs(true_labels - pred_labels))
             self.logger.info(f"Fold {fold + 1} Regression MAE: {mae:.4f}")
@@ -964,7 +965,9 @@ class ModelTrainer:
                 else:
                     suffix = "classification"
 
-                file_name = f"stats_{self.config.model}_{self.config.dataset}_{suffix}.json"
+                file_name = (
+                    f"stats_{self.config.model}_{self.config.dataset}_{suffix}.json"
+                )
                 file_path = results_dir / file_name
                 with open(file_path, "w") as f:
                     json.dump(

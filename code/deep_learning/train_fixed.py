@@ -107,17 +107,15 @@ def train_model(
 
     train_data_augmenter = None
     if is_augmented:
-        aug_config = (
-            AugmentationConfig(
-                enabled=True,
-                num_augmentations=5,
-                noise_enabled=True,
-                shift_enabled=True,
-                scale_enabled=True,
-                noise_level=0.1,
-                shift_range=0.1,
-                scale_range=0.1,
-            )
+        aug_config = AugmentationConfig(
+            enabled=True,
+            num_augmentations=5,
+            noise_enabled=True,
+            shift_enabled=True,
+            scale_enabled=True,
+            noise_level=0.1,
+            shift_range=0.1,
+            scale_range=0.1,
         )
         train_data_augmenter = DataAugmenter(aug_config)
 
@@ -368,9 +366,7 @@ def _train_single_split(
         )
 
         if run_idx == 0:
-            logger.info(
-                f"Training set size: {len(run_train_loader.dataset)}"
-            )
+            logger.info(f"Training set size: {len(run_train_loader.dataset)}")
             logger.info(f"Validation set size: {len(run_val_loader.dataset)}")
 
         if train_data_augmenter:
@@ -688,9 +684,7 @@ def _run_epoch(
 
         if regression:
             actual_indices = labels_on_device.squeeze(-1).float()
-        elif (
-            labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1
-        ):
+        elif labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1:
             actual_indices = labels_on_device.argmax(dim=1)
         elif labels_on_device.dim() > 1:
             actual_indices = labels_on_device.squeeze(-1)
@@ -707,9 +701,7 @@ def _run_epoch(
         elif use_cumulative_link:
             loss = criterion(outputs, actual_indices.long())
         else:
-            loss = criterion(
-                outputs, actual_indices.long()
-            )
+            loss = criterion(outputs, actual_indices.long())
 
         if is_training:
             loss.backward()
@@ -729,9 +721,7 @@ def _run_epoch(
             predicted_indices = outputs.squeeze()
             probs = None
         elif use_coral or use_cumulative_link:
-            predicted_indices = torch.sum(
-                (torch.sigmoid(outputs) > 0.5), dim=1
-            ).long()
+            predicted_indices = torch.sum((torch.sigmoid(outputs) > 0.5), dim=1).long()
             probs = torch.sigmoid(outputs)
         else:
             probs = torch.softmax(outputs, dim=1)
@@ -787,7 +777,9 @@ def _calculate_metrics(
         rounded_preds = np.round(y_pred).astype(int)
         # Ensure y_true is also integer type for comparison
         y_true_int = y_true.astype(int)
-        metrics["balanced_accuracy"] = balanced_accuracy_score(y_true_int, rounded_preds)
+        metrics["balanced_accuracy"] = balanced_accuracy_score(
+            y_true_int, rounded_preds
+        )
         return metrics
 
     labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
@@ -817,13 +809,15 @@ def _calculate_metrics(
             labels=labels_for_scoring,
         ),
     }
-    if (
-        y_prob is not None and y_true.size > 0 and len(np.unique(y_true)) > 0
-    ):
+    if y_prob is not None and y_true.size > 0 and len(np.unique(y_true)) > 0:
         n_classes = (
             num_classes
             if num_classes is not None
-            else (y_prob.shape[1] + 1 if (use_coral or use_cumulative_link) else y_prob.shape[1])
+            else (
+                y_prob.shape[1] + 1
+                if (use_coral or use_cumulative_link)
+                else y_prob.shape[1]
+            )
         )
         if n_classes == 2 and not (use_coral or use_cumulative_link):
             y_prob_for_auc = y_prob[:, 1] if y_prob.shape[1] == 2 else y_prob.flatten()
@@ -851,9 +845,7 @@ def roc_curve_auc(
     y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True
 ) -> float:
     """Calculates the AUC-ROC for a specific class."""
-    if (
-        not class_present or len(np.unique(y_true_class)) < 2
-    ):
+    if not class_present or len(np.unique(y_true_class)) < 2:
         return float("nan")
     fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
     return auc(fpr, tpr)

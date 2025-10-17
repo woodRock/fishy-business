@@ -1017,7 +1017,11 @@ def _calculate_metrics(  # Minor cleanup for NaN handling
         n_classes = (
             num_classes
             if num_classes is not None
-            else (y_prob.shape[1] + 1 if (use_coral or use_cumulative_link) else y_prob.shape[1])
+            else (
+                y_prob.shape[1] + 1
+                if (use_coral or use_cumulative_link)
+                else y_prob.shape[1]
+            )
         )
         if n_classes == 2 and not (use_coral or use_cumulative_link):
             y_prob_for_auc = y_prob[:, 1] if y_prob.shape[1] == 2 else y_prob.flatten()

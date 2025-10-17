@@ -118,12 +118,12 @@ class ContrastiveConfig:
     shift_enabled: bool = False
     scale_enabled: bool = False
     crop_enabled: bool = False
-    flip_enabled: bool = False 
+    flip_enabled: bool = False
     permutation_enabled: bool = False
     noise_level: float = 0.1
     crop_size: float = 0.8  # Added
     trial_number: Optional[int] = None  # For unique model saving in Optuna trials
-    gradient_accumulation_steps: int = 1 # New: for gradient accumulation
+    gradient_accumulation_steps: int = 1  # New: for gradient accumulation
 
 
 class VAEEncoderWrapper(nn.Module):
@@ -412,8 +412,12 @@ class ContrastiveTrainer:
             for batch_idx, (x1_raw, x2_raw, labels) in enumerate(data_loader):
                 # Apply augmentations to x1_raw and x2_raw
                 # DataAugmenter methods now expect PyTorch tensors
-                x1_aug = data_augmenter._apply_augmentations_to_batch(x1_raw.float().to(self.device))
-                x2_aug = data_augmenter._apply_augmentations_to_batch(x2_raw.float().to(self.device))
+                x1_aug = data_augmenter._apply_augmentations_to_batch(
+                    x1_raw.float().to(self.device)
+                )
+                x2_aug = data_augmenter._apply_augmentations_to_batch(
+                    x2_raw.float().to(self.device)
+                )
                 labels = labels.float().to(self.device)
 
                 with torch.amp.autocast(self.device.type):
@@ -454,7 +458,9 @@ class ContrastiveTrainer:
                         self.optimizer.zero_grad()
                         self.scheduler.step()
 
-                total_loss += loss.item() * self.config.gradient_accumulation_steps # Accumulate original loss value
+                total_loss += (
+                    loss.item() * self.config.gradient_accumulation_steps
+                )  # Accumulate original loss value
                 # Collect embeddings for accuracy calculation
                 if self.config.contrastive_method == "simclr":
                     all_h1.append(h1.detach())
@@ -767,14 +773,16 @@ def main(config: ContrastiveConfig) -> Dict:
         pair_indices,
         test_size=0.2,
         random_state=RANDOM_SEED,
-        stratify=pair_labels_for_stratify, 
+        stratify=pair_labels_for_stratify,
     )
 
     test_dataset = Subset(full_dataset, test_indices)
     test_pair_labels = full_dataset.pair_labels[test_indices]
     test_sampler = BalancedBatchSampler(test_pair_labels, config.batch_size)
-    pin_memory = True if device.type == 'cuda' else False
-    test_loader = DataLoader(test_dataset, batch_sampler=test_sampler, num_workers=4, pin_memory=pin_memory)
+    pin_memory = True if device.type == "cuda" else False
+    test_loader = DataLoader(
+        test_dataset, batch_sampler=test_sampler, num_workers=4, pin_memory=pin_memory
+    )
     logging.info(f"Held-out test set size: {len(test_dataset)} pairs.")
 
     train_val_labels_for_split = pair_labels_for_stratify[train_val_indices]
@@ -788,8 +796,8 @@ def main(config: ContrastiveConfig) -> Dict:
         # Split data into training and validation for this run
         train_indices, val_indices = train_test_split(
             train_val_indices,
-            test_size=0.2, # Assuming 80/20 split for train/val from the train_val_indices
-            random_state=RANDOM_SEED, #+ run_id, # Vary seed for different splits
+            test_size=0.2,  # Assuming 80/20 split for train/val from the train_val_indices
+            random_state=RANDOM_SEED,  # + run_id, # Vary seed for different splits
             stratify=train_val_labels_for_split,
         )
 
@@ -802,11 +810,20 @@ def main(config: ContrastiveConfig) -> Dict:
         train_sampler = BalancedBatchSampler(train_labels, config.batch_size)
         val_sampler = BalancedBatchSampler(val_labels, config.batch_size)
 
-        pin_memory = True if device.type == 'cuda' else False
-        train_loader = DataLoader(train_dataset, batch_sampler=train_sampler, num_workers=4, pin_memory=pin_memory)
-        val_loader = DataLoader(val_dataset, batch_sampler=val_sampler, num_workers=4, pin_memory=pin_memory)
+        pin_memory = True if device.type == "cuda" else False
+        train_loader = DataLoader(
+            train_dataset,
+            batch_sampler=train_sampler,
+            num_workers=4,
+            pin_memory=pin_memory,
+        )
+        val_loader = DataLoader(
+            val_dataset, batch_sampler=val_sampler, num_workers=4, pin_memory=pin_memory
+        )
 
-        logging.info(f"Run {run_id+1} - Train size: {len(train_dataset)}, Val size: {len(val_dataset)}")
+        logging.info(
+            f"Run {run_id+1} - Train size: {len(train_dataset)}, Val size: {len(val_dataset)}"
+        )
 
         base_model, loss_fn = create_contrastive_model(config)
 
@@ -852,7 +869,9 @@ def main(config: ContrastiveConfig) -> Dict:
             std_stats[key] = np.std(values)
 
     logging.info(f"Averaged stats over {config.num_runs} runs: {avg_stats}")
-    logging.info(f"Standard deviation of stats over {config.num_runs} runs: {std_stats}")
+    logging.info(
+        f"Standard deviation of stats over {config.num_runs} runs: {std_stats}"
+    )
 
     # --- Save results ---
     results_filename = f"results/stats_{config.contrastive_method}_{config.encoder_type}_{config.num_runs}_runs.json"
@@ -874,7 +893,9 @@ def main(config: ContrastiveConfig) -> Dict:
 
 if __name__ == "__main__":
     """Entry point for the script."""
-    parser = argparse.ArgumentParser(description="Train contrastive models with 5-fold cross-validation.")
+    parser = argparse.ArgumentParser(
+        description="Train contrastive models with 5-fold cross-validation."
+    )
     parser.add_argument(
         "--encoder_type",
         type=str,
@@ -890,8 +911,15 @@ if __name__ == "__main__":
         choices=CONTRASTIVE_MODEL_REGISTRY.keys(),
         help="Contrastive learning method to use (e.g., simclr, moco, byol)",
     )
-    parser.add_argument("--num_runs", type=int, default=1, help="Number of independent training runs.")
-    parser.add_argument("--gradient_accumulation_steps", type=int, default=1, help="Number of steps to accumulate gradients before updating model parameters.")
+    parser.add_argument(
+        "--num_runs", type=int, default=1, help="Number of independent training runs."
+    )
+    parser.add_argument(
+        "--gradient_accumulation_steps",
+        type=int,
+        default=1,
+        help="Number of steps to accumulate gradients before updating model parameters.",
+    )
     args = parser.parse_args()
 
     config = ContrastiveConfig(

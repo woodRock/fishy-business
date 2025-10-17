@@ -61,12 +61,14 @@ def levels_from_labelbatch(labels, num_classes, dtype=None):
     """
     if not isinstance(labels, torch.Tensor):
         labels = torch.tensor(labels)
-        
+
     # Ensure labels are long integers for comparison
     labels = labels.long()
 
     # Create a tensor of shape (batch_size, num_classes - 1) with values 0, 1, 2, ...
-    rank = torch.arange(num_classes - 1, device=labels.device, dtype=labels.dtype).expand(labels.size(0), -1)
+    rank = torch.arange(
+        num_classes - 1, device=labels.device, dtype=labels.dtype
+    ).expand(labels.size(0), -1)
 
     # Create a mask where rank < labels
     levels = (rank < labels.unsqueeze(1)).to(dtype=dtype)
@@ -103,9 +105,13 @@ def cumulative_link_loss(logits, labels, num_classes, reduction="mean"):
     # 2 -> [1, 1, 0, 0]
     # 3 -> [1, 1, 1, 0]
     # 4 -> [1, 1, 1, 1]
-    cumulative_labels = levels_from_labelbatch(labels, num_classes, dtype=logits.dtype).to(logits.device)
+    cumulative_labels = levels_from_labelbatch(
+        labels, num_classes, dtype=logits.dtype
+    ).to(logits.device)
 
     if not logits.shape == cumulative_labels.shape:
         raise ValueError("Shape of logits and cumulative_labels must be the same.")
 
-    return F.binary_cross_entropy_with_logits(logits, cumulative_labels, reduction=reduction)
+    return F.binary_cross_entropy_with_logits(
+        logits, cumulative_labels, reduction=reduction
+    )
