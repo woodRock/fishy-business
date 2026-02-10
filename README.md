@@ -2,18 +2,20 @@
 ## A Doctoral Thesis by Jesse Wood
 
 [![Documentation Status](https://readthedocs.org/projects/fishy-business/badge/?version=latest)](https://fishy-business.readthedocs.io/en/latest/?badge=latest)
-[![Pylint](https://github.com/woodRock/fishy-business/actions/workflows/pylint.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/pylint.yml)
+[![Doctests](https://github.com/woodRock/fishy-business/actions/workflows/doctests.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/doctests.yml)
 
-This repository contains the source code and documentation for my PhD research on spectral data analysis for fish species and oil classification.
+A configuration-driven framework for the analysis of spectral data using Deep Learning, Classic Machine Learning, and Evolutionary Algorithms.
 
-## Getting Started
+## Key Features
 
-### Prerequisites
+- **Configuration-Driven Architecture**: Add new datasets, models, or tasks by simply editing YAML files in `fishy/configs/`.
+- **Unified Training Engine**: Centralized `Trainer` class handles loops, metrics, and early stopping consistently across all experiments.
+- **Self-Supervised Learning**: Modular `PreTrainingOrchestrator` with support for 7+ pretext tasks (Masked Spectra, Denoising, etc.).
+- **Contrastive Suite**: Implementation of SimCLR, SimSiam, BYOL, Barlow Twins, and MoCo.
+- **Advanced Workflows**: Sequential transfer learning and Genetic Programming (GP) experiments.
+- **Automated Verification**: Integrated `doctests` ensure documentation examples always stay functional.
 
-- Python 3.9 or higher.
-- `pip` (Python package installer).
-
-### Installation
+## Installation
 
 1.  **Clone the repository:**
     ```bash
@@ -22,74 +24,62 @@ This repository contains the source code and documentation for my PhD research o
     ```
 
 2.  **Install dependencies:**
-    It is recommended to use a virtual environment:
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
     pip install -r requirements.txt
     ```
 
 ## Usage
 
-The project features a unified CLI entry point via `main.py`. You can run experiments, benchmarks, and analysis using subcommands.
+The framework provides a unified CLI via `main.py`.
 
-### Run Training Pipeline
-Train a deep learning model on a specific dataset:
+### Standard Training (Classification)
 ```bash
-python3 main.py train --model transformer --dataset species --epochs 50
+python3 main.py train --model transformer --dataset species
 ```
 
-### Benchmark Models
-Compare performance across multiple architectures:
+### Self-Supervised Pre-training
 ```bash
-python3 main.py benchmark transformer cnn mamba moe
+python3 main.py pretrain --model mamba --masked-spectra-modelling --next-peak-prediction
 ```
 
-### Sequential Transfer Learning
-Transfer weights across datasets:
+### Ordinal & Standard Regression
 ```bash
-python3 main.py transfer --model transformer --transfer-datasets oil --target-dataset part
+python3 main.py ordinal --model lstm --dataset oil --use-coral
 ```
 
-### Model Explainability (XAI)
-Generate LIME or Grad-CAM visualizations:
+### Contrastive Learning
 ```bash
-python3 main.py xai --method gradcam --dataset part --instance frames
+python3 main.py contrastive --method simclr --encoder transformer
 ```
 
-### Evolutionary Experiments
-Run Genetic Programming classification:
+### Benchmarking & Statistical Analysis
+Run the full suite with paired t-tests against OPLS-DA baselines:
 ```bash
-python3 main.py evolutionary --dataset species --generations 20
+python3 main.py run_all --num-runs 30
 ```
 
-For more options and help, run:
+## Extending the Framework
+
+The library is designed to be extended without modifying core logic:
+- **New Dataset**: Add an entry to `fishy/configs/datasets.yaml` with filtering rules and label encoding type.
+- **New Model**: Add the class path and default hyperparameters to `fishy/configs/models.yaml`.
+- **New Pre-training Task**: Define the method and hyperparameters in `fishy/configs/pre_training.yaml`.
+
+## Programmatic Usage
+
+For advanced usage in Python scripts, see the `examples/` directory:
+- `01_programmatic_training.py`: High-level orchestration.
+- `02_data_module_exploration.py`: Dynamic data loading.
+- `03_low_level_trainer.py`: Custom PyTorch model training.
+
+## Testing & Documentation
+
+Run the live documentation tests:
 ```bash
-python3 main.py --help
+pytest --doctest-modules fishy/
 ```
 
-## Repository Organization
-
-```
-.
-├── fishy/                  # Main research package
-│   ├── _core/              # Core configuration and model factory
-│   ├── analysis/           # Explainability tools (LIME, Grad-CAM)
-│   ├── cli/                # Command-line interface implementation
-│   ├── data/               # Data loading, processing, and augmentation
-│   ├── engine/             # Execution engine (Training loops, losses)
-│   ├── experiments/        # High-level experiment orchestrators
-│   └── models/             # Model architectures (Deep, Classic, Evo)
-├── main.py                 # Unified CLI entry point
-├── data/                   # Raw data files (e.g., REIMS.xlsx)
-├── docs/                   # Documentation and PhD notes
-├── outputs/                # Artifacts from runs (figures, logs, checkpoints)
-└── requirements.txt        # Python dependencies
-```
-
-## Documentation
-
-Comprehensive project documentation is available at [Read the Docs](https://fishy-business.readthedocs.io/en/latest/).
+Comprehensive documentation is available at [Read the Docs](https://fishy-business.readthedocs.io/en/latest/).
 
 ## License
 

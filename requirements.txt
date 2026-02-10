@@ -11,5 +11,6 @@ lime
 deap
 pygraphviz
 xgboost
-wandbpyyaml
+wandb
+pyyaml
 pytest
