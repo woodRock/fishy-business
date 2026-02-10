@@ -16,6 +16,7 @@ DEFAULT_DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 from fishy._core.config import TrainingConfig
 from fishy.experiments.deep_training import ModelTrainer, run_training_pipeline
+from fishy.experiments.classic_training import run_classic_experiment
 from fishy.experiments.benchmark import run_benchmark
 from fishy.experiments.transfer import run_sequential_transfer_learning
 from fishy.experiments.evolutionary import run_gp_experiment
@@ -38,9 +39,12 @@ def setup_base_parser():
 def add_train_args(subparsers):
     train_parser = subparsers.add_parser("train", help="Run the model training pipeline")
     
+    # Combined list of deep and classic models
+    all_models = list(MODEL_REGISTRY.keys()) + ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "opls-da"]
+    
     train_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     train_parser.add_argument("-d", "--dataset", type=str, default="species", choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(), help="Dataset name")
-    train_parser.add_argument("-m", "--model", type=str, default="transformer", choices=MODEL_REGISTRY.keys(), help="Model type")
+    train_parser.add_argument("-m", "--model", type=str, default="transformer", choices=all_models, help="Model type")
     train_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
     train_parser.add_argument("-nr", "--num-runs", type=int, default=1, help="Number of independent runs")
     train_parser.add_argument("-o", "--output", type=str, default="logs/results_base", help="Output log path")
@@ -107,6 +111,16 @@ def add_contrastive_args(subparsers):
     cont_parser.add_argument("-epochs", "--epochs", type=int, default=100, help="Number of epochs")
 
 def handle_train(args):
+    classic_models = ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "opls-da"]
+    if args.model.lower() in classic_models:
+        run_classic_experiment(
+            model_name=args.model,
+            dataset_name=args.dataset,
+            run_id=args.run,
+            file_path=args.file_path
+        )
+        return
+
     if "instance-recognition" in args.dataset and args.num_runs > 1:
         all_runs_metrics = []
         base_config = TrainingConfig.from_args(args)
@@ -118,35 +132,9 @@ def handle_train(args):
             config = TrainingConfig.from_args(args_copy)
             metrics = run_training_pipeline(config)
             all_runs_metrics.append(metrics)
-
-        if all_runs_metrics:
-            stats = {k: np.mean([m[k] for m in all_runs_metrics if m.get(k) is not None]) for k in all_runs_metrics[0]}
-            std_dev = {k: np.std([m[k] for m in all_runs_metrics if m.get(k) is not None]) for k in all_runs_metrics[0]}
-            
-            results_dir = Path(base_config.output)
-            if not base_config.output.endswith("/"):
-                results_dir = results_dir.parent
-            results_dir.mkdir(parents=True, exist_ok=True)
-            
-            file_name = f"stats_{base_config.model}_{base_config.dataset}_{args.num_runs}_runs.json"
-            file_path = results_dir / file_name
-            with open(file_path, "w") as f:
-                json.dump({"config": asdict(base_config), "runs": all_runs_metrics, "stats": stats, "std_dev": std_dev}, f, indent=4)
-            print(f"Aggregated metrics saved to {file_path}")
     else:
         config = TrainingConfig.from_args(args)
-        metrics = run_training_pipeline(config)
-        if "instance-recognition" in config.dataset:
-            results_dir = Path(config.output)
-            if not config.output.endswith("/"):
-                results_dir = results_dir.parent
-            results_dir.mkdir(parents=True, exist_ok=True)
-            
-            file_name = f"stats_{config.model}_{config.dataset}.json"
-            file_path = results_dir / file_name
-            with open(file_path, "w") as f:
-                json.dump({"config": asdict(config), "stats": metrics}, f, indent=4)
-            print(f"Metrics saved to {file_path}")
+        run_training_pipeline(config)
 
 def handle_xai(args):
     t_cfg = TrainingConfig(

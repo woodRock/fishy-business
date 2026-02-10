@@ -29,6 +29,7 @@ from fishy.models.deep.wavenet import WaveNet
 from fishy.models.deep.hybrid import Hybrid
 from fishy.models.deep.performer import Performer
 from fishy.models.deep.ordinal import TransformerOrdinal
+from fishy.models.deep.ensemble import Ensemble
 
 from fishy._core.config import TrainingConfig
 
@@ -49,6 +50,7 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "hybrid": Hybrid,
     "performer": Performer,
     "ordinal": TransformerOrdinal,
+    "ensemble": Ensemble,
 }
 
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
@@ -88,6 +90,8 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         return Dense(input_dim, output_dim, config.hidden_dimension)
     elif model_name == "moe":
         return MOE(input_dim, output_dim, config.hidden_dimension, config.num_layers)
+    elif model_name == "ensemble":
+        return Ensemble(input_dim, config.hidden_dimension, output_dim, config.dropout)
     
     # Fallback for models that might take (input_dim, output_dim)
     try:

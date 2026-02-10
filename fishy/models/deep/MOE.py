@@ -393,16 +393,24 @@ class MOE(nn.Module):
             use_majority_voting (bool): whether to use majority voting instead of top-k routing.
         """
         super().__init__()
+        
+        # Project input to a fixed model dimension that is divisible by num_heads
+        self.d_model = hidden_dim # Use hidden_dim as d_model for simplicity
+        if self.d_model % num_heads != 0:
+            # Adjust d_model if necessary
+            self.d_model = ((self.d_model // num_heads) + 1) * num_heads
+            
+        self.embedding = nn.Linear(input_dim, self.d_model)
 
         self.attention_layers = nn.ModuleList(
-            [MultiHeadAttention(input_dim, num_heads) for _ in range(num_layers)]
+            [MultiHeadAttention(self.d_model, num_heads) for _ in range(num_layers)]
         )
 
         # Replace feed-forward with MoE
         self.moe_layers = nn.ModuleList(
             [
                 MixtureOfExperts(
-                    input_dim=input_dim,
+                    input_dim=self.d_model,
                     hidden_dim=hidden_dim,
                     num_experts=num_experts,
                     k=k,
@@ -413,10 +421,10 @@ class MOE(nn.Module):
             ]
         )
 
-        self.layer_norm1 = nn.LayerNorm(input_dim)
-        self.layer_norm2 = nn.LayerNorm(input_dim)
+        self.layer_norm1 = nn.LayerNorm(self.d_model)
+        self.layer_norm2 = nn.LayerNorm(self.d_model)
         self.dropout = nn.Dropout(dropout)
-        self.fc_out = nn.Linear(input_dim, output_dim)
+        self.fc_out = nn.Linear(self.d_model, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the MOE model.
@@ -431,6 +439,8 @@ class MOE(nn.Module):
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         if x.dim() == 2:
             x = x.unsqueeze(1)
+            
+        x = self.embedding(x)
 
         # Apply attention and MoE layers with residual connections
         for attention, moe in zip(self.attention_layers, self.moe_layers):

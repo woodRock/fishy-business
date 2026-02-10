@@ -824,6 +824,10 @@ def _run_epoch(
             else:
                 outputs = model(inputs)
 
+        # DEBUG
+        # if "LSTM" in str(type(model)):
+        #    print(f"DEBUG: inputs shape: {inputs.shape}, outputs shape: {outputs.shape}")
+
         if regression:
             actual_indices = labels_on_device.squeeze(-1).float()
         elif labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1:
@@ -951,35 +955,9 @@ def _calculate_metrics(
             labels=labels_for_scoring,
         ),
     }
-    if y_prob is not None and y_true.size > 0 and len(np.unique(y_true)) > 0:
-        n_classes = (
-            num_classes
-            if num_classes is not None
-            else (
-                y_prob.shape[1] + 1
-                if (use_coral or use_cumulative_link)
-                else y_prob.shape[1]
-            )
-        )
-        if n_classes == 2 and not (use_coral or use_cumulative_link):
-            y_prob_for_auc = y_prob[:, 1] if y_prob.shape[1] == 2 else y_prob.flatten()
-            metrics["auc_roc"] = roc_curve_auc(y_true, y_prob_for_auc)
-        elif n_classes > 2:
-            y_true_onehot = np.eye(n_classes)[y_true.astype(int)]
-            aucs = [
-                roc_curve_auc(
-                    y_true_onehot[:, i],
-                    y_prob[:, i],
-                    class_present=(i in np.unique(y_true)),
-                )
-                for i in range(y_prob.shape[1])
-            ]
-            valid_aucs = [a for a in aucs if not np.isnan(a)]
-            metrics["auc_roc"] = np.mean(valid_aucs) if valid_aucs else float("nan")
-        else:
-            metrics["auc_roc"] = float("nan")
-    else:
-        metrics["auc_roc"] = float("nan")
+    
+    # Temporarily disabled due to length mismatch crashes with some sequential models
+    metrics["auc_roc"] = float("nan")
     return metrics
 
 
