@@ -23,6 +23,7 @@ from fishy.models.contrastive.simsiam import SimSiamModel, SimSiamLoss
 from fishy.models.contrastive.barlow_twins import BarlowTwinsModel, BarlowTwinsLoss
 from fishy._core.factory import create_model, MODEL_REGISTRY
 from fishy._core.config import TrainingConfig
+from fishy._core.utils import RunContext
 
 @dataclass
 class ContrastiveConfig:
@@ -43,8 +44,11 @@ class ContrastiveConfig:
 class ContrastiveTrainer:
     def __init__(self, config: ContrastiveConfig):
         self.config = config
+        self.ctx = RunContext(experiment_name=f"contrastive_{config.contrastive_method}")
+        self.logger = self.ctx.logger
+        self.ctx.save_config(config)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"Using device: {self.device}")
+        self.logger.info(f"Using device: {self.device}")
 
     def setup(self):
         # Data Module
@@ -91,6 +95,7 @@ class ContrastiveTrainer:
 
     def train(self):
         self.model.train()
+        history = {"loss": []}
         for epoch in range(self.config.num_epochs):
             total_loss = 0
             for batch_idx, (x1, x2, _) in enumerate(self.train_loader):
@@ -105,8 +110,16 @@ class ContrastiveTrainer:
                 total_loss += loss.item()
             
             avg_loss = total_loss / len(self.train_loader)
+            history["loss"].append(avg_loss)
+            self.ctx.log_metric(epoch + 1, {"loss": avg_loss})
+            
             if (epoch + 1) % 10 == 0 or epoch == 0:
-                print(f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}")
+                self.logger.info(f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}")
+
+        # Save results
+        self.ctx.save_results(history, filename="training_history.json")
+        torch.save(self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth"))
+        self.logger.info("Contrastive training finished and model saved.")
 
 def run_contrastive_experiment(config: ContrastiveConfig):
     """

@@ -20,14 +20,15 @@ from fishy.models.evolutionary.operators import xmate, xmut, staticLimit
 from fishy.models.evolutionary.gp import train, save_model, load_model
 from fishy.models.evolutionary.gp_data import load_dataset
 from fishy.models.evolutionary.gp_plot import plot_tsne, plot_gp_tree
+from fishy._core.utils import RunContext
 
 def run_gp_experiment(
     dataset: str = "species",
     generations: int = 10,
     population: int = 1023,
     run: int = 0,
-    file_path: str = "outputs/checkpoints/embedded-gp.pth",
-    output_log: str = "outputs/logs/evolutionary/results",
+    file_path: str = None,
+    output_log: str = "evolutionary",
     load_checkpoint: bool = False,
     data_file_path: str = None
 ):
@@ -44,15 +45,16 @@ def run_gp_experiment(
         population (int): Size of the population.
         run (int): Run identifier for random seeding and logging.
         file_path (str): File path to save/load model checkpoints.
-        output_log (str): Base path for output log files.
+        output_log (str): experiment name for RunContext.
         load_checkpoint (bool): If True, attempts to resume from a checkpoint at ``file_path``.
         data_file_path (str): Optional path to the dataset excel file.
     """
-    os.makedirs(os.path.dirname(output_log), exist_ok=True)
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    ctx = RunContext(experiment_name=f"evolutionary_{dataset}", run_id=run)
+    logger = ctx.logger
     
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(filename=f"{output_log}_{run}.log", level=logging.INFO, filemode="w")
+    # If file_path is not provided, use a default in the checkpoint dir
+    if file_path is None:
+        file_path = str(ctx.get_checkpoint_path("gp_model.pth"))
 
     np.random.seed(run)
 
@@ -91,7 +93,10 @@ def run_gp_experiment(
     k = 3 if dataset in ["part", "cross-species-hard"] else 5
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
-    for train_index, test_index in skf.split(X, y):
+    fold_metrics = []
+
+    for fold_idx, (train_index, test_index) in enumerate(skf.split(X, y)):
+        logger.info(f"Starting Fold {fold_idx + 1}/{k}")
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
 
@@ -109,12 +114,19 @@ def run_gp_experiment(
         toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=6))
         toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=6))
 
+        fold_checkpoint = ctx.get_checkpoint_path(f"gp_model_fold_{fold_idx+1}.pth")
+
         if load_checkpoint and os.path.isfile(file_path):
             pop, log, hof = load_model(file_path=file_path, toolbox=toolbox, generations=10)
         else:
             pop, log, hof = train(generations=generations, population=population, run=run, toolbox=toolbox)
 
-        save_model(file_path=file_path, population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run)
+        save_model(file_path=str(fold_checkpoint), population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run)
         
         best = hof[0]
-        evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test)
+        acc = evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test)
+        fold_metrics.append({"fold": fold_idx + 1, "accuracy": acc})
+        ctx.log_metric(fold_idx + 1, {"test_accuracy": acc})
+
+    ctx.save_results({"fold_results": fold_metrics, "average_accuracy": np.mean([m["accuracy"] for m in fold_metrics])})
+    logger.info(f"GP Experiment finished. Average Accuracy: {np.mean([m['accuracy'] for m in fold_metrics]):.4f}")

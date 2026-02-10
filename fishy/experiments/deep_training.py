@@ -21,6 +21,7 @@ import seaborn as sns
 
 from fishy._core.config import TrainingConfig
 from fishy._core.factory import create_model
+from fishy._core.utils import RunContext
 from fishy.experiments.pre_training import PreTrainer, PreTrainingConfig
 from fishy.engine.training_loops import train_model, evaluate_model
 from fishy.data.module import create_data_module
@@ -91,7 +92,10 @@ class ModelTrainer:
 
     def __init__(self, config: TrainingConfig):
         self.config = config
-        self.logger = self._setup_logging()
+        self.ctx = RunContext(experiment_name=f"deep_training_{config.dataset}", run_id=config.run)
+        self.logger = self.ctx.logger
+        self.ctx.save_config(config)
+        
         self.device = torch.device(
             "cuda"
             if torch.cuda.is_available()
@@ -119,33 +123,6 @@ class ModelTrainer:
         )
         self.data_module.setup()
         self.n_features = self.data_module.get_input_dim()
-
-    def _setup_logging(self) -> logging.Logger:
-        output_path = Path(self.config.output)
-        if self.config.output.endswith("/"):
-            log_dir = output_path
-            log_base = "results"
-        else:
-            log_dir = output_path.parent
-            log_base = output_path.name
-
-        log_file = log_dir / f"{log_base}_{self.config.run}.log"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        logging.basicConfig(
-            filename=log_file,
-            level=logging.INFO,
-            filemode="w",
-            format="%(asctime)s - %(levelname)s - %(message)s",
-        )
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        )
-        logger = logging.getLogger(__name__)
-        if not logger.handlers:
-            logger.addHandler(console_handler)
-        logger.propagate = False
-        return logger
 
     def pre_train(self) -> Optional[nn.Module]:
         self.logger.info("Evaluating pre-training phase")
@@ -208,6 +185,12 @@ class ModelTrainer:
             start_time = time.time()
             trained_model = getattr(pre_trainer, method)(*call_args, **kwargs)
             self.logger.info(f"{flag} training time: {time.time() - start_time:.2f}s")
+            
+            # Save pre-trained checkpoint
+            checkpoint_path = self.ctx.get_checkpoint_path(f"pretrained_{flag}.pth")
+            torch.save(trained_model.state_dict(), checkpoint_path)
+            self.logger.info(f"Pre-trained weights for {flag} saved to {checkpoint_path}")
+            
             model_after_last_task = trained_model
 
         self.logger.info("Pre-training completed.")
@@ -271,13 +254,8 @@ class ModelTrainer:
             plt.xlabel("Predicted Label")
             plt.ylabel("True Label")
             plt.title(f"Fold {fold + 1} Confusion Matrix for Oil Dataset")
-            cm_plot_path = (
-                Path(self.config.output).parent
-                / f"oil_confusion_matrix_fold_{self.config.run}_{fold + 1}.png"
-            )
-            plt.savefig(cm_plot_path)
+            self.ctx.save_figure(plt, f"oil_confusion_matrix_fold_{fold + 1}.png")
             plt.close()
-            self.logger.info(f"Saved confusion matrix plot to {cm_plot_path}")
 
         errors = pred_labels - true_labels
         plt.figure()
@@ -287,13 +265,8 @@ class ModelTrainer:
         plt.xlabel("Prediction Error (Predicted - True)")
         plt.ylabel("Frequency")
         plt.title(f"Fold {fold + 1} Prediction Error Distribution for Oil Dataset")
-        plot_path = (
-            Path(self.config.output).parent
-            / f"oil_prediction_error_fold_{self.config.run}_{fold + 1}.png"
-        )
-        plt.savefig(plot_path)
+        self.ctx.save_figure(plt, f"oil_prediction_error_fold_{fold + 1}.png")
         plt.close()
-        self.logger.info(f"Saved prediction error plot to {plot_path}")
 
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> nn.Module:
         from sklearn.model_selection import train_test_split
@@ -421,7 +394,8 @@ class ModelTrainer:
                 ),
             }
 
-            self.logger.info(f"Final metrics: {final_metrics}")
+            self.ctx.save_results(final_metrics, filename="final_metrics.json")
+            torch.save(trained_model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth"))
             return final_metrics
 
         else:
@@ -549,40 +523,33 @@ class ModelTrainer:
                     del metrics["best_val_predictions"]
 
                 all_fold_metrics.append(metrics)
+                
+                # Save fold model
+                torch.save(trained_model_instance.state_dict(), self.ctx.get_checkpoint_path(f"model_fold_{fold+1}.pth"))
 
             self.logger.info("Cross-Validation finished.")
 
             if all_fold_metrics:
                 stats = {
-                    k: np.mean([m[k] for m in all_fold_metrics])
-                    for k in all_fold_metrics[0]
+                    k: np.mean([m[k] for m in all_fold_metrics if isinstance(m[k], (int, float))])
+                    for k in all_fold_metrics[0] if isinstance(all_fold_metrics[0][k], (int, float))
                 }
                 self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
                 
-                # Use output path from config
-                results_dir = Path(self.config.output)
-                if not self.config.output.endswith("/"):
-                    results_dir = results_dir.parent
-                results_dir.mkdir(parents=True, exist_ok=True)
-
                 suffix = "classification"
                 if self.config.regression: suffix = "regression"
                 elif self.config.use_coral: suffix = "coral"
                 elif self.config.use_cumulative_link: suffix = "cumulative_link"
 
-                file_name = f"stats_{self.config.model}_{self.config.dataset}_{suffix}.json"
-                file_path = results_dir / file_name
-                with open(file_path, "w") as f:
-                    json.dump(
-                        {
-                            "config": asdict(self.config),
-                            "stats": stats,
-                            "folds": all_fold_metrics,
-                        },
-                        f,
-                        indent=4,
-                    )
-                self.logger.info(f"Aggregated metrics saved to {file_path}")
+                file_name = f"aggregated_stats_{suffix}.json"
+                self.ctx.save_results(
+                    {
+                        "config": asdict(self.config),
+                        "stats": stats,
+                        "folds": all_fold_metrics,
+                    },
+                    filename=file_name
+                )
                 return stats
             else:
                 self.logger.warning("No folds completed successfully.")

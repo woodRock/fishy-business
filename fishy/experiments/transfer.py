@@ -25,6 +25,7 @@ from fishy.engine.training_loops import train_with_tracking
 from fishy.data.module import create_data_module
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
+from fishy._core.utils import RunContext
 
 def run_sequential_transfer_learning(
     model_name: str,
@@ -43,9 +44,15 @@ def run_sequential_transfer_learning(
     """
     Performs sequential transfer learning across multiple datasets.
     """
+    ctx = RunContext(experiment_name=f"transfer_{model_name}_{target_dataset}")
+    logger = ctx.logger
+    
     history = {"transfer": {}, "finetune": {}}
     device_obj = torch.device(device)
     data_path = file_path if file_path else str(Path(__file__).resolve().parent.parent.parent / "data" / "REIMS.xlsx")
+
+    logger.info(f"Starting sequential transfer learning for model: {model_name}")
+    logger.info(f"Target dataset: {target_dataset}")
 
     # Initial data module to get dimensions
     data_module = create_data_module(
@@ -59,7 +66,7 @@ def run_sequential_transfer_learning(
     # We need to handle the output_dim changing.
     # Initial model creation
     config = TrainingConfig(
-        file_path="", model=model_name, dataset=transfer_datasets[0], 
+        file_path=data_path, model=model_name, dataset=transfer_datasets[0], 
         run=0, output="", data_augmentation=False, 
         masked_spectra_modelling=False, next_spectra_prediction=False,
         next_peak_prediction=False, spectrum_denoising_autoencoding=False,
@@ -71,16 +78,17 @@ def run_sequential_transfer_learning(
         num_augmentations=0, noise_level=0.0, shift_enabled=False,
         scale_enabled=False, k_folds=1
     )
+    ctx.save_config(config)
 
     # Determine initial num_classes
     from fishy.experiments.deep_training import ModelTrainer
     num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(transfer_datasets[0], 2)
     model = create_model(config, input_dim, num_classes).to(device_obj)
-    print(f"Model {model_name} initialized on {device}")
+    logger.info(f"Model {model_name} initialized on {device}")
 
     # Sequential transfer learning
     for i, dataset_name in enumerate(transfer_datasets):
-        print(f"\nPhase {i+1}: Transfer Learning on '{dataset_name}'")
+        logger.info(f"Phase {i+1}: Transfer Learning on '{dataset_name}'")
         
         data_module = create_data_module(
             file_path=data_path,
@@ -98,8 +106,6 @@ def run_sequential_transfer_learning(
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
         # Adapt output layer if necessary
-        # This assumes models have a 'fc_out' or similar. 
-        # For simplicity in this wrapper, we try to adapt based on common names.
         current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
         
         output_layer = None
@@ -114,7 +120,7 @@ def run_sequential_transfer_learning(
                 in_features = output_layer.in_features
                 new_layer = nn.Linear(in_features, current_num_classes).to(device_obj)
                 setattr(model, layer_name, new_layer)
-                print(f"Adapted {layer_name} to {current_num_classes} classes")
+                logger.info(f"Adapted {layer_name} to {current_num_classes} classes")
 
         optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01)
         scheduler = ReduceLROnPlateau(optimizer, mode="max", patience=3, factor=0.5)
@@ -131,10 +137,10 @@ def run_sequential_transfer_learning(
         history["transfer"][dataset_name] = dataset_history
 
         if save_intermediate:
-            torch.save(model.state_dict(), f"model_transfer_{dataset_name}.pt")
+            torch.save(model.state_dict(), ctx.get_checkpoint_path(f"model_transfer_{dataset_name}.pth"))
 
     # Fine-tuning
-    print(f"\nFinal Phase: Fine-tuning on '{target_dataset}'")
+    logger.info(f"Final Phase: Fine-tuning on '{target_dataset}'")
     data_module = create_data_module(
         file_path=data_path,
         dataset_name=target_dataset,
@@ -164,7 +170,7 @@ def run_sequential_transfer_learning(
             in_features = output_layer.in_features
             new_layer = nn.Linear(in_features, current_num_classes).to(device_obj)
             setattr(model, layer_name, new_layer)
-            print(f"Adapted {layer_name} to {current_num_classes} classes")
+            logger.info(f"Adapted {layer_name} to {current_num_classes} classes")
 
     optimizer = AdamW(model.parameters(), lr=finetune_lr, weight_decay=0.01)
     scheduler = ReduceLROnPlateau(optimizer, mode="max", patience=5, factor=0.5)
@@ -187,13 +193,17 @@ def run_sequential_transfer_learning(
         for x, y in val_loader:
             x, y = x.to(device_obj), y.to(device_obj)
             outputs = model(x)
+            if isinstance(outputs, tuple): outputs = outputs[0]
             _, predicted = torch.max(outputs, 1)
             true_labels = torch.argmax(y, dim=1)
             all_preds.extend(predicted.cpu().numpy())
             all_labels.extend(true_labels.cpu().numpy())
 
     final_acc = balanced_accuracy_score(all_labels, all_preds)
-    print(f"\nFinal Balanced Accuracy: {final_acc*100:.2f}%")
+    logger.info(f"Final Balanced Accuracy: {final_acc*100:.2f}%")
+    
+    ctx.save_results({"history": history, "final_balanced_accuracy": final_acc}, filename="transfer_results.json")
+    torch.save(model.state_dict(), ctx.get_checkpoint_path("final_transfer_model.pth"))
     
     return model, history
 

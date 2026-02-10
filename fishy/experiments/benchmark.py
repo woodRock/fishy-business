@@ -19,6 +19,7 @@ from fishy.data.classic_loader import load_dataset
 from fishy.engine.training_loops import train_model
 from fishy._core.factory import create_model, MODEL_REGISTRY
 from fishy._core.config import TrainingConfig
+from fishy._core.utils import RunContext
 
 def get_device() -> torch.device:
     """
@@ -53,6 +54,8 @@ def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: s
     Returns:
         pd.DataFrame: A DataFrame containing the benchmarking metrics for all models and datasets.
     """
+    ctx = RunContext(experiment_name="benchmark")
+    logger = ctx.logger
     device = get_device()
     datasets = ["species", "part", "oil", "cross-species"]
     all_results = []
@@ -60,7 +63,7 @@ def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: s
     for model_name in model_names:
         model_results = []
         for dataset_name in datasets:
-            print(f"Benchmarking {model_name} on {dataset_name}...")
+            logger.info(f"Benchmarking {model_name} on {dataset_name}...")
 
             # Load data
             X, y, _ = load_dataset(dataset_name, file_path=file_path)
@@ -91,7 +94,7 @@ def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: s
 
             # --- Warm-up ---
             if warmup_epochs > 0:
-                print(f"Running {warmup_epochs} warm-up epochs...")
+                logger.info(f"Running {warmup_epochs} warm-up epochs...")
                 warmup_model = create_model(config, n_features, n_classes).to(device)
                 train_model(
                     warmup_model,
@@ -141,9 +144,9 @@ def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: s
             all_results.append(res)
         
         df = pd.DataFrame(model_results)
-        df.to_csv(f"benchmark_results_{model_name}.csv", index=False)
+        ctx.save_dataframe(df, f"benchmark_results_{model_name}.csv")
 
     final_df = pd.DataFrame(all_results)
-    final_df.to_csv(output_file, index=False)
-    print(f"All benchmark results saved to {output_file}")
+    ctx.save_dataframe(final_df, output_file)
+    logger.info(f"All benchmark results saved to {ctx.result_dir / output_file}")
     return final_df

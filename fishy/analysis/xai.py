@@ -31,6 +31,7 @@ from fishy.engine.training_loops import train_model
 from fishy.data.module import create_data_module
 from fishy._core.config import TrainingConfig
 from fishy._core.factory import create_model
+from fishy._core.utils import RunContext
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class ExplainerConfig:
     """
     num_features: int = 5
     num_samples: int = 100
-    output_dir: Path = Path("../../outputs/figures/xai")
+    output_dir: Path = Path("outputs/xai")
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     random_seed: int = 42
 
@@ -201,7 +202,8 @@ def run_lime_explanation(
     data_module: Any,
     explainer_config: ExplainerConfig,
     instance_name: str,
-    target_label: List[float]
+    target_label: List[float],
+    ctx: RunContext
 ):
     """
     Generates LIME explanation for a model prediction.
@@ -213,6 +215,7 @@ def run_lime_explanation(
         explainer_config (ExplainerConfig): Configuration for the explainer.
         instance_name (str): Identifier for the instance being explained.
         target_label (List[float]): Target label to explain.
+        ctx (RunContext): context for saving results.
     """
     wrapper = ModelWrapper(model, explainer_config.device)
     train_loader = data_module.get_train_dataloader()
@@ -238,19 +241,19 @@ def run_lime_explanation(
         num_features=explainer_config.num_features
     )
     
-    output_path = explainer_config.output_dir / f"lime_{dataset_name}_{instance_name}.png"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = ctx.figure_dir / f"lime_{dataset_name}_{instance_name}.png"
     exp.as_pyplot_figure()
     plt.savefig(output_path)
     plt.close()
-    print(f"Saved LIME explanation to {output_path}")
+    ctx.logger.info(f"Saved LIME explanation to {output_path}")
 
 def run_gradcam_analysis(
     model: nn.Module,
     data_loader: torch.utils.data.DataLoader,
     device: str,
     output_dir: Path,
-    target_layer: Optional[nn.Module] = None
+    target_layer: Optional[nn.Module] = None,
+    ctx: Optional[RunContext] = None
 ):
     """
     Performs Grad-CAM analysis on a model using data from the loader.
@@ -261,6 +264,7 @@ def run_gradcam_analysis(
         device (str): Computation device.
         output_dir (Path): Directory to save results.
         target_layer (Optional[nn.Module]): Specific layer to target. If None, attempts to infer.
+        ctx: RunContext.
     """
     if target_layer is None:
         # Heuristic to find a good target layer (last Conv or last Attention)
@@ -279,14 +283,19 @@ def run_gradcam_analysis(
     cam_maps = gc.generate_cam(features)
     avg_cam = cam_maps.mean(dim=0).cpu().numpy()
     
-    output_dir.mkdir(parents=True, exist_ok=True)
     plt.figure(figsize=(10, 6))
     plt.plot(avg_cam)
     plt.title(f"Average Grad-CAM Importance ({target_layer.__class__.__name__})")
-    plt.savefig(output_dir / "avg_gradcam.png")
+    
+    if ctx:
+        ctx.save_figure(plt, "avg_gradcam.png")
+    else:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        plt.savefig(output_dir / "avg_gradcam.png")
+        print(f"Saved average Grad-CAM to {output_dir / 'avg_gradcam.png'}")
+        
     plt.close()
     gc.remove_hooks()
-    print(f"Saved average Grad-CAM to {output_dir / 'avg_gradcam.png'}")
 
 def explain_predictions(
     dataset_name: str,
@@ -309,6 +318,10 @@ def explain_predictions(
         target_label (List[float]): Target label.
         method (str): Explanation method ('lime' or 'gradcam').
     """
+    ctx = RunContext(experiment_name=f"xai_{method}_{dataset_name}")
+    ctx.save_config(training_config, filename="training_config.json")
+    ctx.save_config(explainer_config, filename="explainer_config.json")
+    
     from fishy.experiments.deep_training import ModelTrainer
     num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
     
@@ -325,6 +338,6 @@ def explain_predictions(
     # In real usage, you'd load a pre-trained model here
     # For now, we assume it's trained or we train briefly
     if method == "lime":
-        run_lime_explanation(dataset_name, model, data_module, explainer_config, instance_name, target_label)
+        run_lime_explanation(dataset_name, model, data_module, explainer_config, instance_name, target_label, ctx)
     elif method == "gradcam":
-        run_gradcam_analysis(model, data_module.get_train_dataloader(), explainer_config.device, explainer_config.output_dir)
+        run_gradcam_analysis(model, data_module.get_train_dataloader(), explainer_config.device, explainer_config.output_dir, ctx=ctx)
