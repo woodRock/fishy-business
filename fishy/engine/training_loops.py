@@ -1,4 +1,10 @@
-"""This module implements a training pipeline for deep learning models using PyTorch."""
+"""
+This module implements a training pipeline for deep learning models using PyTorch.
+
+It provides core functions for training models (`train_model`), running individual epochs (`_run_epoch`),
+and evaluating models (`evaluate_model`). It supports standard training, cross-validation, and
+sequential transfer learning workflows.
+"""
 
 from tqdm import tqdm
 import logging
@@ -26,9 +32,9 @@ from sklearn.metrics import (
 )
 
 from fishy.models.deep import Transformer, VAE
-from fishy.data.augmentation import DataAugmenter, AugmentationConfig
+from .losses import levels_from_labelbatch
+from fishy.data.augmentation import AugmentationConfig, DataAugmenter
 from fishy.data.datasets import SiameseDataset
-from fishy.engine.losses import levels_from_labelbatch
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List]
@@ -38,7 +44,11 @@ def transfer_learning(
     model_instance: Transformer,
     file_path: str = "transformer_checkpoint.pth",
 ) -> Transformer:
-    """Transfers learning weights from a checkpoint to a model instance for a specific dataset.
+    """
+    Transfers learning weights from a checkpoint to a model instance for a specific dataset.
+
+    This function loads pre-trained weights and adapts the final fully connected layer
+    to match the output dimension of the target dataset.
 
     Args:
         dataset_name (str): Name of the dataset for which the model is being adapted.
@@ -47,6 +57,10 @@ def transfer_learning(
 
     Returns:
         Transformer: The model instance with adapted weights for the specified dataset.
+
+    Raises:
+        ValueError: If the dataset name is invalid.
+        FileNotFoundError: If the checkpoint file does not exist.
     """
     logger = logging.getLogger(__name__)
     output_dims_map = {
@@ -72,7 +86,6 @@ def transfer_learning(
     output_dim = output_dims_map[dataset_name]
 
     # Adapt the final layer (assuming 'fc' is the name)
-    # This part is model-specific; for a generic Transformer, the output layer name might vary.
     if "fc.weight" in checkpoint and "fc.bias" in checkpoint:
         if dataset_name in [
             "species",
@@ -80,15 +93,13 @@ def transfer_learning(
         ]:  # Example: truncate if new output_dim is smaller
             checkpoint["fc.weight"] = checkpoint["fc.weight"][:output_dim]
             checkpoint["fc.bias"] = checkpoint["fc.bias"][:output_dim]
-        else:  # Example: re-initialize for other cases (or use a more sophisticated strategy)
+        else:  # Example: re-initialize for other cases
             original_fc_shape = checkpoint["fc.weight"].shape
             checkpoint["fc.weight"] = nn.init.xavier_uniform_(
                 torch.empty(output_dim, original_fc_shape[1])
             )
             checkpoint["fc.bias"] = torch.zeros(output_dim)
 
-        # If model_instance's fc layer has a different dimension, direct loading might fail.
-        # Re-initialize the model's fc layer to match new output_dim before loading state_dict if needed.
         if (
             hasattr(model_instance, "fc")
             and model_instance.fc.out_features != output_dim
@@ -109,13 +120,23 @@ def transfer_learning(
     )
     return model_instance
 
-# Helper to re-initialize model and optimizer for a new fold/run
 def _reinitialize_model_and_optimizer(
     pristine_template_cpu: nn.Module,
     base_optimizer_instance: optim.Optimizer,
     device: str,
 ) -> Tuple[nn.Module, optim.Optimizer]:
-    """Re-initializes a model and optimizer for a new fold or run."""
+    """
+    Re-initializes a model and optimizer for a new fold or run.
+
+    Args:
+        pristine_template_cpu (nn.Module): A copy of the model template in CPU memory.
+        base_optimizer_instance (optim.Optimizer): An instance of the optimizer to use as a template.
+        device (str): The device to which the model should be moved.
+
+    Returns:
+        Tuple[nn.Module, optim.Optimizer]: A new model instance on the specified device and
+        a new optimizer instance initialized with the model's parameters.
+    """
     new_model_gpu = copy.deepcopy(pristine_template_cpu).to(device)
 
     optimizer_defaults = base_optimizer_instance.defaults.copy()
@@ -147,7 +168,32 @@ def train_model(
     num_classes: Optional[int] = None,
     regression: bool = False,
 ) -> Tuple[nn.Module, Dict]:
-    """Trains a model."""
+    """
+    Trains a model.
+
+    If ``val_loader`` is provided, it performs a single training run.
+    Otherwise, it performs k-fold cross-validation with multiple independent runs.
+
+    Args:
+        model (nn.Module): The model to train.
+        train_loader (DataLoader): DataLoader for the training dataset.
+        criterion (nn.Module): Loss function.
+        optimizer (optim.Optimizer): Optimizer.
+        num_epochs (int): Number of epochs.
+        patience (int): Early stopping patience.
+        n_splits (int): Number of folds for CV.
+        n_runs (int): Number of independent runs for CV.
+        is_augmented (bool): Whether to use data augmentation.
+        device (str): Device to train on.
+        val_loader (Optional[DataLoader]): Validation DataLoader (if single run).
+        use_coral (bool): Use CORAL loss.
+        use_cumulative_link (bool): Use Cumulative Link loss.
+        num_classes (Optional[int]): Number of classes.
+        regression (bool): Whether this is a regression task.
+
+    Returns:
+        Tuple[nn.Module, Dict]: The trained model and a dictionary of metrics.
+    """
     logger = logging.getLogger(__name__)
 
     if val_loader:
@@ -315,94 +361,6 @@ def train_model(
         )
 
     return final_model_on_device, averaged_metrics
-
-
-def train_with_tracking(
-    model, train_loader, val_loader, optimizer, scheduler, num_epochs, device
-):
-    """Train model with detailed tracking of metrics, including balanced accuracy."""
-    criterion = nn.CrossEntropyLoss()
-
-    history = {
-        "train_loss": [],
-        "val_loss": [],
-        "train_acc": [],
-        "val_acc": [],
-        "train_balanced_acc": [],
-        "val_balanced_acc": [],
-        "learning_rates": [],
-    }
-
-    best_val_acc = 0
-    best_model = None
-
-    for epoch in range(num_epochs):
-        model.train()
-        train_loss, train_correct, train_total = 0, 0, 0
-        train_all_preds, train_all_labels = [], []
-
-        for batch_idx, (x, y) in enumerate(train_loader):
-            x, y = x.to(device), y.to(device)
-            optimizer.zero_grad()
-            outputs = model(x)
-            if isinstance(outputs, tuple): outputs = outputs[0]
-            loss = criterion(outputs, torch.argmax(y, dim=1))
-            loss.backward()
-            optimizer.step()
-
-            train_loss += loss.item()
-            _, predicted = torch.max(outputs, 1)
-            true_labels = torch.argmax(y, dim=1)
-            train_total += y.size(0)
-            train_correct += (predicted == true_labels).sum().item()
-            train_all_preds.extend(predicted.cpu().numpy())
-            train_all_labels.extend(true_labels.cpu().numpy())
-
-        epoch_train_loss = train_loss / len(train_loader)
-        epoch_train_acc = 100 * train_correct / train_total
-        epoch_train_balanced_acc = 100 * balanced_accuracy_score(train_all_labels, train_all_preds)
-
-        model.eval()
-        val_loss, val_correct, val_total = 0, 0, 0
-        val_all_preds, val_all_labels = [], []
-
-        with torch.no_grad():
-            for x, y in val_loader:
-                x, y = x.to(device), y.to(device)
-                outputs = model(x)
-                if isinstance(outputs, tuple): outputs = outputs[0]
-                loss = criterion(outputs, torch.argmax(y, dim=1))
-                val_loss += loss.item()
-                _, predicted = torch.max(outputs, 1)
-                true_labels = torch.argmax(y, dim=1)
-                val_total += y.size(0)
-                val_correct += (predicted == true_labels).sum().item()
-                val_all_preds.extend(predicted.cpu().numpy())
-                val_all_labels.extend(true_labels.cpu().numpy())
-
-        epoch_val_loss = val_loss / len(val_loader)
-        epoch_val_acc = 100 * val_correct / val_total
-        epoch_val_balanced_acc = 100 * balanced_accuracy_score(val_all_labels, val_all_preds)
-
-        scheduler.step(epoch_val_balanced_acc)
-
-        history["train_loss"].append(epoch_train_loss)
-        history["val_loss"].append(epoch_val_loss)
-        history["train_acc"].append(epoch_train_acc)
-        history["val_acc"].append(epoch_val_acc)
-        history["train_balanced_acc"].append(epoch_train_balanced_acc)
-        history["val_balanced_acc"].append(epoch_val_balanced_acc)
-        history["learning_rates"].append(optimizer.param_groups[0]["lr"])
-
-        if epoch_val_balanced_acc > best_val_acc:
-            best_val_acc = epoch_val_balanced_acc
-            best_model = copy.deepcopy(model.state_dict())
-
-        print(f"Epoch [{epoch+1}/{num_epochs}] TL:{epoch_train_loss:.4f} VL:{epoch_val_loss:.4f} VA:{epoch_val_acc:.2f}% VBA:{epoch_val_balanced_acc:.2f}%")
-
-    if best_model is not None:
-        model.load_state_dict(best_model)
-    return history
 
 
 def _calculate_averaged_metrics(
@@ -788,7 +746,22 @@ def evaluate_model(
     num_classes: Optional[int] = None,
     regression: bool = False,
 ) -> Dict:
-    """Evaluates a model on a given data loader."""
+    """
+    Evaluates a model on a given data loader.
+
+    Args:
+        model: The model to evaluate.
+        loader: The data loader.
+        criterion: The loss function.
+        device: The device to run evaluation on.
+        use_coral: Whether to use CORAL loss.
+        use_cumulative_link: Whether to use Cumulative Link loss.
+        num_classes: Number of classes.
+        regression: Whether it's a regression task.
+
+    Returns:
+        Dict: A dictionary containing loss, metrics, and predictions.
+    """
     model.eval()
     with torch.no_grad():
         results = _run_epoch(
@@ -1017,3 +990,107 @@ def roc_curve_auc(
         return float("nan")
     fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
     return auc(fpr, tpr)
+
+def train_with_tracking(
+    model, train_loader, val_loader, optimizer, scheduler, num_epochs, device
+):
+    """
+    Train model with detailed tracking of metrics, including balanced accuracy.
+
+    This function is designed for scenarios where detailed epoch-by-epoch tracking
+    of both training and validation metrics is required, such as in sequential transfer learning.
+
+    Args:
+        model: The model to train.
+        train_loader: DataLoader for training data.
+        val_loader: DataLoader for validation data.
+        optimizer: Optimizer.
+        scheduler: Learning rate scheduler.
+        num_epochs: Number of epochs.
+        device: Device to train on.
+
+    Returns:
+        Dict: A history dictionary containing lists of metrics over epochs.
+    """
+    criterion = nn.CrossEntropyLoss()
+
+    history = {
+        "train_loss": [],
+        "val_loss": [],
+        "train_acc": [],
+        "val_acc": [],
+        "train_balanced_acc": [],
+        "val_balanced_acc": [],
+        "learning_rates": [],
+    }
+
+    best_val_acc = 0
+    best_model = None
+
+    for epoch in range(num_epochs):
+        model.train()
+        train_loss, train_correct, train_total = 0, 0, 0
+        train_all_preds, train_all_labels = [], []
+
+        for batch_idx, (x, y) in enumerate(train_loader):
+            x, y = x.to(device), y.to(device)
+            optimizer.zero_grad()
+            outputs = model(x)
+            if isinstance(outputs, tuple): outputs = outputs[0]
+            loss = criterion(outputs, torch.argmax(y, dim=1))
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            _, predicted = torch.max(outputs, 1)
+            true_labels = torch.argmax(y, dim=1)
+            train_total += y.size(0)
+            train_correct += (predicted == true_labels).sum().item()
+            train_all_preds.extend(predicted.cpu().numpy())
+            train_all_labels.extend(true_labels.cpu().numpy())
+
+        epoch_train_loss = train_loss / len(train_loader)
+        epoch_train_acc = 100 * train_correct / train_total
+        epoch_train_balanced_acc = 100 * balanced_accuracy_score(train_all_labels, train_all_preds)
+
+        model.eval()
+        val_loss, val_correct, val_total = 0, 0, 0
+        val_all_preds, val_all_labels = [], []
+
+        with torch.no_grad():
+            for x, y in val_loader:
+                x, y = x.to(device), y.to(device)
+                outputs = model(x)
+                if isinstance(outputs, tuple): outputs = outputs[0]
+                loss = criterion(outputs, torch.argmax(y, dim=1))
+                val_loss += loss.item()
+                _, predicted = torch.max(outputs, 1)
+                true_labels = torch.argmax(y, dim=1)
+                val_total += y.size(0)
+                val_correct += (predicted == true_labels).sum().item()
+                val_all_preds.extend(predicted.cpu().numpy())
+                val_all_labels.extend(true_labels.cpu().numpy())
+
+        epoch_val_loss = val_loss / len(val_loader)
+        epoch_val_acc = 100 * val_correct / val_total
+        epoch_val_balanced_acc = 100 * balanced_accuracy_score(val_all_labels, val_all_preds)
+
+        scheduler.step(epoch_val_balanced_acc)
+
+        history["train_loss"].append(epoch_train_loss)
+        history["val_loss"].append(epoch_val_loss)
+        history["train_acc"].append(epoch_train_acc)
+        history["val_acc"].append(epoch_val_acc)
+        history["train_balanced_acc"].append(epoch_train_balanced_acc)
+        history["val_balanced_acc"].append(epoch_val_balanced_acc)
+        history["learning_rates"].append(optimizer.param_groups[0]["lr"])
+
+        if epoch_val_balanced_acc > best_val_acc:
+            best_val_acc = epoch_val_balanced_acc
+            best_model = copy.deepcopy(model.state_dict())
+
+        print(f"Epoch [{epoch+1}/{num_epochs}] TL:{epoch_train_loss:.4f} VL:{epoch_val_loss:.4f} VA:{epoch_val_acc:.2f}% VBA:{epoch_val_balanced_acc:.2f}%")
+
+    if best_model is not None:
+        model.load_state_dict(best_model)
+    return history

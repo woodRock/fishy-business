@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 Model factory for creating deep learning models.
+
+This module provides a centralized mechanism for instantiating various deep learning models
+based on a configuration object. It includes a registry of available models and helper functions
+to handle specific initialization requirements, such as wrapping models for Siamese networks
+used in instance recognition tasks.
 """
 
 import torch
@@ -47,6 +52,18 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
 }
 
 class SiameseWrapper(nn.Module):
+    """
+    A wrapper class that creates a Siamese network from a base encoder model.
+
+    This wrapper takes a base model (encoder) and creates a Siamese architecture
+    where two inputs are passed through the same encoder (sharing weights). The absolute
+    difference between their embeddings is then fed into a classifier to determine
+    similarity.
+
+    Args:
+        base_model (nn.Module): The encoder model to be shared.
+        embedding_dim (int): The dimensionality of the embeddings produced by the ``base_model``.
+    """
     def __init__(self, base_model, embedding_dim):
         super().__init__()
         self.base_model = base_model
@@ -57,6 +74,16 @@ class SiameseWrapper(nn.Module):
         )
 
     def forward(self, x1, x2):
+        """
+        Forward pass for the Siamese network.
+
+        Args:
+            x1 (torch.Tensor): The first input tensor.
+            x2 (torch.Tensor): The second input tensor.
+
+        Returns:
+            torch.Tensor: The output logits from the classifier indicating similarity (same/different).
+        """
         emb1 = self.base_model(x1)
         emb2 = self.base_model(x2)
         diff = torch.abs(emb1 - emb2)
@@ -64,7 +91,23 @@ class SiameseWrapper(nn.Module):
 
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
-    Creates a model instance based on the model specified in the config.
+    Creates and initializes a model instance based on the provided configuration.
+
+    This function handles the logic for selecting the correct model class from the registry,
+    adjusting output dimensions for specific loss functions (like CORAL or Cumulative Link),
+    and configuring model-specific parameters. It also handles the creation of Siamese networks
+    for instance recognition datasets.
+
+    Args:
+        config (TrainingConfig): The configuration object containing model type and hyperparameters.
+        input_dim (int): The number of input features (dimensionality of the input data).
+        output_dim (int): The number of output classes or target dimension.
+
+    Returns:
+        nn.Module: An instantiated and initialized PyTorch model.
+
+    Raises:
+        ValueError: If the specified model type in ``config.model`` is not found in the ``MODEL_REGISTRY``.
     """
     model_class = MODEL_REGISTRY.get(config.model)
     if not model_class:
@@ -98,6 +141,9 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             )
             return SiameseVAE(vae_model)
 
+        # ... (rest of the logic for other models wrapped in SiameseWrapper) ...
+        # For brevity in docs, we summarize: Instantiates base models and wraps them.
+        
         if config.model == "transformer":
             base_model = Transformer(
                 input_dim=input_dim,
@@ -152,6 +198,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
 
         return SiameseWrapper(base_model, embedding_dim)
 
+    # Standard model creation
     if config.model == "transformer":
         model_args.update(
             {

@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
 """
 Unified XAI module for deep learning model explanations using LIME and Grad-CAM.
+
+This module provides tools for explaining the predictions of deep learning models trained
+on spectral data. It implements two primary explanation methods:
+1.  **Grad-CAM (Gradient-weighted Class Activation Mapping)**: Visualizes which parts of the input spectrum
+    were most important for a specific prediction by analyzing the gradients flowing into a target layer.
+2.  **LIME (Local Interpretable Model-agnostic Explanations)**: Approximates the complex model locally
+    with an interpretable model to explain individual predictions.
+
+It also includes helper classes for configuring the explainers and wrapping models for compatibility.
 """
 
 import logging
@@ -27,7 +36,16 @@ from dataclasses import dataclass
 
 @dataclass
 class ExplainerConfig:
-    """Configuration for model explanation."""
+    """
+    Configuration for model explanation methods.
+
+    Attributes:
+        num_features (int): Number of top features to show in the explanation (LIME).
+        num_samples (int): Number of samples to generate for the local approximation (LIME).
+        output_dir (Path): Directory where explanation plots will be saved.
+        device (str): Device to run the model on ('cuda' or 'cpu').
+        random_seed (int): Seed for reproducibility.
+    """
     num_features: int = 5
     num_samples: int = 100
     output_dir: Path = Path("../../outputs/figures/xai")
@@ -37,7 +55,17 @@ class ExplainerConfig:
 # --- Grad-CAM Implementation ---
 
 class GradCAM:
-    """1D Grad-CAM implementation for analyzing spectral data models."""
+    """
+    1D Grad-CAM implementation for analyzing spectral data models.
+
+    Grad-CAM uses the gradients of any target concept (say, 'dog' in a classification network
+    or a sequence of words in captioning) flowing into the final convolutional layer to produce
+    a coarse localization map highlighting the important regions in the image (or spectrum) for predicting the concept.
+
+    Args:
+        model (nn.Module): The PyTorch model to explain.
+        target_layer (nn.Module): The specific layer within the model to analyze (e.g., the last convolutional or attention layer).
+    """
 
     def __init__(self, model: nn.Module, target_layer: nn.Module) -> None:
         self.model = model
@@ -48,16 +76,29 @@ class GradCAM:
         self.backward_hook = self.target_layer.register_full_backward_hook(self.save_gradient)
 
     def save_activation(self, module, input, output):
+        """Hook to capture forward activations."""
         self.activations = output[0].detach() if isinstance(output, tuple) else output.detach()
 
     def save_gradient(self, module, grad_input, grad_output):
+        """Hook to capture backward gradients."""
         self.gradients = grad_output[0].detach()
 
     def remove_hooks(self):
+        """Removes the forward and backward hooks from the model."""
         self.forward_hook.remove()
         self.backward_hook.remove()
 
     def generate_cam(self, input_tensor: torch.Tensor, target_class: Optional[int] = None):
+        """
+        Generates the Class Activation Map (CAM) for a given input.
+
+        Args:
+            input_tensor (torch.Tensor): The input spectrum/sample.
+            target_class (Optional[int]): The target class index to explain. If None, uses the predicted class.
+
+        Returns:
+            torch.Tensor: The computed CAM, normalized to [0, 1].
+        """
         self.model.eval()
         if input_tensor.dim() == 2:
             input_tensor = input_tensor.unsqueeze(1)
@@ -104,7 +145,16 @@ class GradCAM:
 # --- LIME Model Wrapper ---
 
 class ModelWrapper:
-    """Wrapper for neural network models to make them compatible with LIME."""
+    """
+    Wrapper for neural network models to make them compatible with LIME.
+
+    LIME expects models to have a `predict_proba` method that takes a numpy array
+    and returns probabilities. This wrapper adapts PyTorch models to this interface.
+
+    Args:
+        model (nn.Module): The PyTorch model.
+        device (str): The device to run inference on.
+    """
 
     def __init__(self, model: nn.Module, device: str) -> None:
         self.model = model.to(device)
@@ -112,6 +162,7 @@ class ModelWrapper:
         self.model.eval()
 
     def normalize_intensities(self, x: np.ndarray) -> np.ndarray:
+        """Min-max normalizes the input intensities."""
         if np.all(x == x[0]): return np.zeros_like(x)
         x_norm = np.zeros_like(x)
         for i in range(len(x)):
@@ -120,6 +171,15 @@ class ModelWrapper:
         return x_norm
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predicts class probabilities for the given input.
+
+        Args:
+            x (np.ndarray): Input samples.
+
+        Returns:
+            np.ndarray: Class probabilities.
+        """
         try:
             x_normalized = self.normalize_intensities(x)
             x_tensor = torch.tensor(x_normalized, dtype=torch.float32).to(self.device)
@@ -141,7 +201,17 @@ def run_lime_explanation(
     instance_name: str,
     target_label: List[float]
 ):
-    """Generates LIME explanation for a model prediction."""
+    """
+    Generates LIME explanation for a model prediction.
+
+    Args:
+        dataset_name (str): Name of the dataset.
+        model (nn.Module): The model to explain.
+        data_module (Any): Data module containing the dataset.
+        explainer_config (ExplainerConfig): Configuration for the explainer.
+        instance_name (str): Identifier for the instance being explained.
+        target_label (List[float]): Target label to explain.
+    """
     wrapper = ModelWrapper(model, explainer_config.device)
     train_loader = data_module.get_train_dataloader()
     features, labels = next(iter(train_loader))
@@ -180,7 +250,16 @@ def run_gradcam_analysis(
     output_dir: Path,
     target_layer: Optional[nn.Module] = None
 ):
-    """Performs Grad-CAM analysis on a model."""
+    """
+    Performs Grad-CAM analysis on a model using data from the loader.
+
+    Args:
+        model (nn.Module): The model to analyze.
+        data_loader (DataLoader): DataLoader providing samples for analysis.
+        device (str): Computation device.
+        output_dir (Path): Directory to save results.
+        target_layer (Optional[nn.Module]): Specific layer to target. If None, attempts to infer.
+    """
     if target_layer is None:
         # Heuristic to find a good target layer (last Conv or last Attention)
         for name, module in reversed(list(model.named_modules())):
@@ -216,7 +295,18 @@ def explain_predictions(
     target_label: List[float],
     method: str = "lime"
 ) -> None:
-    """Orchestrates XAI analysis."""
+    """
+    Orchestrates the XAI analysis workflow.
+
+    Args:
+        dataset_name (str): Name of the dataset.
+        model_name (str): Name of the model architecture.
+        training_config (TrainingConfig): Configuration used for model creation/training.
+        explainer_config (ExplainerConfig): Configuration for the explainer.
+        instance_name (str): Identifier for the instance.
+        target_label (List[float]): Target label.
+        method (str): Explanation method ('lime' or 'gradcam').
+    """
     from fishy.experiments.deep_training import ModelTrainer
     num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
     
