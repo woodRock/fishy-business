@@ -77,8 +77,20 @@ class RunContext:
         with open(path, "w") as f:
             json.dump(results, f, indent=4)
         self.logger.info(f"Metrics saved to {path}")
+        
         if self.wandb_run:
-            self.wandb_run.log(results, commit=False) # Log metrics to W&B
+            # Flatten "stats" for better W&B visibility and pinning
+            log_dict = {}
+            for k, v in results.items():
+                if k == "stats" and isinstance(v, dict):
+                    # Promote stats to top level
+                    log_dict.update(v)
+                elif isinstance(v, (int, float, str, bool)):
+                    log_dict[k] = v
+            
+            if log_dict:
+                self.wandb_run.log(log_dict, commit=False)
+            
             self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
 
     def save_config(self, config: Any, filename: str = "config.json"):

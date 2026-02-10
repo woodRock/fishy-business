@@ -669,8 +669,8 @@ def _train_fold(
             epoch_metrics = {
                 "epoch/train_loss": train_results["loss"],
                 "epoch/val_loss": val_results["loss"],
-                "epoch/train_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
-                "epoch/val_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
+                "epoch/train_balanced_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
+                "epoch/val_balanced_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
             }
             # Add other metrics if available
             for m_name in ["precision", "recall", "f1"]:
