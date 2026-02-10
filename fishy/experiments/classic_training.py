@@ -50,7 +50,7 @@ class ClassicTrainer:
         self.dataset_name = dataset_name
         self.run_id = run_id
         self.file_path = file_path
-        
+
         self.wandb_run = None
         if self.config.wandb_log:
             self.wandb_run = wandb.init(
@@ -100,41 +100,42 @@ class ClassicTrainer:
             y_train, y_test = y[train_idx], y[test_idx]
 
             clf = model_class()
-                        clf.fit(X_train, y_train)
-                        
-                        y_pred = clf.predict(X_test)
-                        acc = balanced_accuracy_score(y_test, y_pred)
-                        
-                        results.append(acc)
-                        self.ctx.log_metric(fold, {"balanced_accuracy": acc})
-                        self.logger.info(f"Fold {fold}: Balanced Accuracy = {acc:.4f}")
-            
-                        # Advanced Visualizations for W&B (last fold)
-                        if fold == 5 and self.ctx.wandb_run:
-                            # Attempt to get class names from the dataset if available, else use unique labels
-                            class_names = [str(c) for v in [np.unique(y)] for c in v]
-                            
-                            # Get probabilities if the classifier supports it
-                            y_probs = None
-                            if hasattr(clf, "predict_proba"):
-                                y_probs = clf.predict_proba(X_test)
-                            
-                            # 1. Log Summary Charts
-                            if y_probs is not None:
-                                self.ctx.log_summary_charts(y_test, y_probs, class_names)
-                            
-                            # 2. Log Prediction Table with Spectral Plots
-                            # Use X_test which are the spectra for this fold
-                            self.ctx.log_prediction_table(
-                                spectra=X_test,
-                                preds=y_pred,
-                                targets=y_test,
-                                probs=y_probs if y_probs is not None else np.eye(len(class_names))[y_pred],
-                                class_names=class_names,
-                                table_name="val_predictions_samples_last_fold"
-                            )
-            
-                    avg_acc = np.mean(results)        std_acc = np.std(results)
+            clf.fit(X_train, y_train)
+
+            y_pred = clf.predict(X_test)
+            acc = balanced_accuracy_score(y_test, y_pred)
+
+            results.append(acc)
+            self.ctx.log_metric(fold, {"balanced_accuracy": acc})
+            self.logger.info(f"Fold {fold}: Balanced Accuracy = {acc:.4f}")
+
+            # Advanced Visualizations for W&B (last fold)
+            if fold == 5 and self.ctx.wandb_run:
+                # Attempt to get class names from the dataset if available, else use unique labels
+                class_names = [str(c) for v in [np.unique(y)] for c in v]
+
+                # Get probabilities if the classifier supports it
+                y_probs = None
+                if hasattr(clf, "predict_proba"):
+                    y_probs = clf.predict_proba(X_test)
+
+                # 1. Log Summary Charts
+                if y_probs is not None:
+                    self.ctx.log_summary_charts(y_test, y_probs, class_names)
+
+                # 2. Log Prediction Table with Spectral Plots
+                # Use X_test which are the spectra for this fold
+                self.ctx.log_prediction_table(
+                    spectra=X_test,
+                    preds=y_pred,
+                    targets=y_test,
+                    probs=y_probs if y_probs is not None else np.eye(len(class_names))[y_pred],
+                    class_names=class_names,
+                    table_name="val_predictions_samples_last_fold"
+                )
+
+        avg_acc = np.mean(results)
+        std_acc = np.std(results)
         self.ctx.save_results(
             {
                 "fold_accuracies": results,
@@ -169,35 +170,36 @@ class ClassicTrainer:
 
             # LDA on top of OPLS
             clf = LinearDiscriminantAnalysis()
-                        clf.fit(X_train_opls, y_train)
-                        
-                        y_pred = clf.predict(X_test_opls)
-                        acc = balanced_accuracy_score(y_test, y_pred)
-                        
-                        results.append(acc)
-                        self.ctx.log_metric(fold, {"balanced_accuracy": acc})
-                        self.logger.info(f"Fold {fold}: Balanced Accuracy = {acc:.4f}")
-            
-                        # Advanced Visualizations for W&B (last fold)
-                        if fold == 5 and self.ctx.wandb_run:
-                            class_names = [str(c) for v in [np.unique(y)] for c in v]
-                            y_probs = None
-                            if hasattr(clf, "predict_proba"):
-                                y_probs = clf.predict_proba(X_test_opls)
-                            
-                            if y_probs is not None:
-                                self.ctx.log_summary_charts(y_test, y_probs, class_names)
-                            
-                            self.ctx.log_prediction_table(
-                                spectra=X_test, # Use original spectral features for plotting
-                                preds=y_pred,
-                                targets=y_test,
-                                probs=y_probs if y_probs is not None else np.eye(len(class_names))[y_pred],
-                                class_names=class_names,
-                                table_name="val_predictions_samples_last_fold"
-                            )
-            
-                    avg_acc = np.mean(results)        std_acc = np.std(results)
+            clf.fit(X_train_opls, y_train)
+
+            y_pred = clf.predict(X_test_opls)
+            acc = balanced_accuracy_score(y_test, y_pred)
+
+            results.append(acc)
+            self.ctx.log_metric(fold, {"balanced_accuracy": acc})
+            self.logger.info(f"Fold {fold}: Balanced Accuracy = {acc:.4f}")
+
+            # Advanced Visualizations for W&B (last fold)
+            if fold == 5 and self.ctx.wandb_run:
+                class_names = [str(c) for v in [np.unique(y)] for c in v]
+                y_probs = None
+                if hasattr(clf, "predict_proba"):
+                    y_probs = clf.predict_proba(X_test_opls)
+
+                if y_probs is not None:
+                    self.ctx.log_summary_charts(y_test, y_probs, class_names)
+
+                self.ctx.log_prediction_table(
+                    spectra=X_test, # Use original spectral features for plotting
+                    preds=y_pred,
+                    targets=y_test,
+                    probs=y_probs if y_probs is not None else np.eye(len(class_names))[y_pred],
+                    class_names=class_names,
+                    table_name="val_predictions_samples_last_fold"
+                )
+
+        avg_acc = np.mean(results)
+        std_acc = np.std(results)
         self.ctx.save_results(
             {
                 "fold_accuracies": results,
@@ -208,7 +210,6 @@ class ClassicTrainer:
         self.logger.info(
             f"Finished OPLS-DA. Average Balanced Accuracy: {avg_acc:.4f} ± {std_acc:.4f}"
         )
-
 
 def run_classic_experiment(config: TrainingConfig, model_name: str, dataset_name: str, run_id: int = 0, file_path: str = None):
     trainer = ClassicTrainer(config, model_name, dataset_name, run_id, file_path)

@@ -148,7 +148,7 @@ class ContrastiveTrainer:
             self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth")
         )
         self.logger.info("Contrastive training finished and model saved.")
-        
+
         # Advanced Visualizations for W&B
         if self.ctx.wandb_run:
             self.log_contrastive_visualizations()
@@ -157,34 +157,33 @@ class ContrastiveTrainer:
         """Logs a sample of Siamese pairs to W&B."""
         self.logger.info("Logging contrastive visualizations to W&B...")
         import matplotlib.pyplot as plt
-        
+
         columns = ["id", "pair_1", "pair_2", "relationship"]
         table = wandb.Table(columns=columns)
-        
+
         # Take a small sample of pairs
         num_samples = min(len(self.siamese_dataset), 20)
         for i in range(num_samples):
             x1, x2, label = self.siamese_dataset[i]
-            
+
             # Plot first spectrum
             plt.figure(figsize=(4, 3))
             plt.plot(x1.numpy())
             plt.axis('off')
             img1 = wandb.Image(plt)
             plt.close()
-            
+
             # Plot second spectrum
             plt.figure(figsize=(4, 3))
             plt.plot(x2.numpy())
             plt.axis('off')
             img2 = wandb.Image(plt)
             plt.close()
-            
+
             relationship = "Same Class" if label == 1 else "Different Class"
             table.add_data(i, img1, img2, relationship)
-            
-        self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
 
+        self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
 
 def run_contrastive_experiment(config: ContrastiveConfig):
     """

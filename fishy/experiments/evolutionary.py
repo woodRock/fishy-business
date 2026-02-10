@@ -82,7 +82,7 @@ def run_gp_experiment(
 
     ctx = RunContext(dataset=dataset, method="evolutionary", model_name="evolutionary_algorithm", wandb_run=wandb_run)
     logger = ctx.logger
-    
+
     try: # Start try block for wandb.finish
         # If file_path is not provided, use a default in the checkpoint dir
         if file_path is None:
@@ -92,7 +92,7 @@ def run_gp_experiment(
 
         n_features = 1023
         if dataset == "instance-recognition": n_features = 2046
-        
+
         n_classes_per_dataset = {
             "species": 2, "part": 6, "oil": 7, "cross-species": 3,
             "cross-species-hard": 15, "instance-recognition": 2,
@@ -154,7 +154,7 @@ def run_gp_experiment(
                 pop, log, hof = train(generations=generations, population=population, run=run, toolbox=toolbox)
 
             save_model(file_path=str(fold_checkpoint), population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run)
-            
+
             best = hof[0]
             acc = evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test)
             fold_metrics.append({"fold": fold_idx + 1, "accuracy": acc})

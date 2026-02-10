@@ -27,7 +27,6 @@ from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.data.augmentation import AugmentationConfig
 
-
 def setup_base_parser():
     parser = argparse.ArgumentParser(
         prog="fishy",
@@ -36,7 +35,6 @@ def setup_base_parser():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     return parser, subparsers
-
 
 def add_train_args(subparsers):
     train_parser = subparsers.add_parser(
@@ -142,7 +140,6 @@ def add_train_args(subparsers):
             help=f"Enable {task_flag}",
         )
 
-
 def add_benchmark_args(subparsers):
     bench_parser = subparsers.add_parser("benchmark", help="Benchmark multiple models")
     bench_parser.add_argument(
@@ -195,7 +192,6 @@ def add_xai_args(subparsers):
         choices=["lime", "gradcam"],
         help="XAI method",
     )
-
 
 def add_evolutionary_args(subparsers):
     evo_parser = subparsers.add_parser(
@@ -260,7 +256,6 @@ def handle_train(args):
         # config already created above
         run_training_pipeline(config)
 
-
 def handle_xai(args):
     t_cfg = TrainingConfig(
         file_path=DEFAULT_DATA_PATH,
@@ -301,7 +296,6 @@ def handle_xai(args):
         target_label=args.label if args.label else [1.0, 0.0],
         method=args.method,
     )
-
 
 def main():
     parser, subparsers = setup_base_parser()
@@ -372,7 +366,6 @@ def main():
     except Exception as e:
         logging.error(f"Error executing command {args.command}: {e}", exc_info=True)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

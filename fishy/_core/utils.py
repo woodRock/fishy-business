@@ -11,9 +11,9 @@ from pathlib import Path
 from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, Optional
 import pandas as pd
+import numpy as np
 import wandb
 import wandb.sdk.wandb_run
-
 
 class RunContext:
     """
@@ -26,10 +26,10 @@ class RunContext:
         self.method = method
         self.model_name = model_name
         self.wandb_run = wandb_run # Store the wandb run object
-        
+
         # New structured output directory: outputs/{dataset}/{method}/{model_name}_{timestamp}/
         self.run_dir = Path(base_output_dir) / dataset / method / f"{model_name}_{self.timestamp}"
-        
+
         self.log_dir = self.run_dir / "logs"
         self.result_dir = self.run_dir / "results"
         self.checkpoint_dir = self.run_dir / "checkpoints"
@@ -93,8 +93,7 @@ class RunContext:
             config_dict = config
         else:
             config_dict = {"config_summary": str(config)}
-            
-        
+
         # Convert Path objects to strings for JSON serialization
         def convert_paths_to_str(obj):
             if isinstance(obj, Path):
@@ -106,7 +105,7 @@ class RunContext:
             return obj
 
         config_dict = convert_paths_to_str(config_dict)
-            
+
         with open(path, 'w') as f:
             json.dump(config_dict, f, indent=4)
         self.logger.info(f"Configuration saved to {path}")
@@ -156,7 +155,7 @@ class RunContext:
         # For now, just log to info
         metrics_str = " - ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
         self.logger.info(f"Step {step}: {metrics_str}")
-        
+
         # Append to a csv for easy parsing later
         csv_path = self.result_dir / "step_metrics.csv"
         metrics_with_step = {"step": step, **metrics}
@@ -177,12 +176,12 @@ class RunContext:
                     class_names=class_names
                 )
             }, commit=False)
-            
+
             # 2. ROC Curve
             self.wandb_run.log({
                 "roc": wandb.plot.roc_curve(y_true, y_probs, labels=class_names)
             }, commit=False)
-            
+
             # 3. Precision-Recall Curve
             self.wandb_run.log({
                 "pr": wandb.plot.pr_curve(y_true, y_probs, labels=class_names)
@@ -195,7 +194,7 @@ class RunContext:
             import matplotlib.pyplot as plt
             columns = ["id", "spectrum", "prediction", "target", "confidence", "is_correct"]
             table = wandb.Table(columns=columns)
-            
+
             # Log a subset to avoid excessive data usage, but enough for meaningful inspection
             num_samples = min(len(spectra), 100)
             for i in range(num_samples):
@@ -205,11 +204,11 @@ class RunContext:
                 plt.title(f"Target: {class_names[targets[i]]}")
                 plt.xlabel("Wavelength/Feature")
                 plt.ylabel("Intensity")
-                
+
                 # Use a buffer to avoid saving many small files locally
                 img = wandb.Image(plt)
                 plt.close()
-                
+
                 table.add_data(
                     i, 
                     img, 
@@ -218,7 +217,6 @@ class RunContext:
                     float(probs[i].max()),
                     bool(preds[i] == targets[i])
                 )
-                
+
             self.wandb_run.log({table_name: table}, commit=False)
 
-    

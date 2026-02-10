@@ -29,7 +29,6 @@ from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
 
-
 def run_sequential_transfer_learning(
     model_name: str,
     transfer_datasets: List[str],
@@ -79,7 +78,7 @@ def run_sequential_transfer_learning(
 
     ctx = RunContext(dataset=target_dataset, method="transfer", model_name=model_name, wandb_run=wandb_run)
     logger = ctx.logger
-    
+
     try: # Start try block for wandb.finish
         history = {"transfer": {}, "finetune": {}}
         device_obj = torch.device(device)
@@ -96,7 +95,7 @@ def run_sequential_transfer_learning(
         )
         data_module.setup()
         input_dim = data_module.get_input_dim()
-        
+
         # We need to handle the output_dim changing.
         # Initial model creation
         config = TrainingConfig(
@@ -123,7 +122,7 @@ def run_sequential_transfer_learning(
         # Sequential transfer learning
         for i, dataset_name in enumerate(transfer_datasets):
             logger.info(f"Phase {i+1}: Transfer Learning on '{dataset_name}'")
-            
+
             data_module = create_data_module(
                 file_path=data_path,
                 dataset_name=dataset_name,
@@ -131,24 +130,24 @@ def run_sequential_transfer_learning(
             )
             data_module.setup()
             dataset = data_module.get_dataset()
-            
+
             val_size = int(val_split * len(dataset))
             train_size = len(dataset) - val_size
             train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
-            
+
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
             val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
             # Adapt output layer if necessary
             current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
-            
+
             output_layer = None
             for attr in ['fc_out', 'classifier', 'fc']:
                 if hasattr(model, attr):
                     output_layer = getattr(model, attr)
                     layer_name = attr
                     break
-            
+
             if output_layer and isinstance(output_layer, nn.Linear):
                 if output_layer.out_features != current_num_classes:
                     in_features = output_layer.in_features
@@ -182,11 +181,11 @@ def run_sequential_transfer_learning(
         )
         data_module.setup()
         target_data = data_module.get_dataset()
-        
+
         val_size = int(val_split * len(target_data))
         train_size = len(target_data) - val_size
         train_dataset, val_dataset = random_split(target_data, [train_size, val_size])
-        
+
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
@@ -198,7 +197,7 @@ def run_sequential_transfer_learning(
                 output_layer = getattr(model, attr)
                 layer_name = attr
                 break
-        
+
         if output_layer and isinstance(output_layer, nn.Linear):
             if output_layer.out_features != current_num_classes:
                 in_features = output_layer.in_features
@@ -235,10 +234,10 @@ def run_sequential_transfer_learning(
 
         final_acc = balanced_accuracy_score(all_labels, all_preds)
         logger.info(f"Final Balanced Accuracy: {final_acc*100:.2f}%")
-        
+
         ctx.save_results({"history": history, "final_balanced_accuracy": final_acc}, filename="transfer_results.json")
         torch.save(model.state_dict(), ctx.get_checkpoint_path("final_transfer_model.pth"))
-        
+
         return model, history
 
     finally:

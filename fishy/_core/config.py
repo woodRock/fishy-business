@@ -11,7 +11,6 @@ import argparse
 from dataclasses import dataclass
 from typing import Optional
 
-
 @dataclass
 class TrainingConfig:
     """

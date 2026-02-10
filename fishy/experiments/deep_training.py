@@ -29,7 +29,6 @@ from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
 
-
 class ModelTrainer:
     """
     Orchestrates the model training pipeline, from data setup to pre-training and fine-tuning.
@@ -404,15 +403,15 @@ class ModelTrainer:
                 class_names = [str(i) for i in range(self.n_classes)]
                 if hasattr(self.data_module, 'get_class_names'):
                     class_names = self.data_module.get_class_names()
-                
+
                 y_true = test_results["predictions"]["labels"]
                 y_preds = test_results["predictions"]["preds"]
                 y_probs = test_results["predictions"]["probs"]
-                
+
                 # 1. Log Summary Charts (Confusion Matrix, ROC, PR)
                 if not self.config.regression and y_probs is not None:
                     self.ctx.log_summary_charts(y_true, y_probs, class_names)
-                
+
                 # 2. Log Prediction Table with Spectral Plots
                 # Get a sample of spectra from the test loader
                 test_spectra, _ = next(iter(test_loader))
@@ -568,20 +567,20 @@ class ModelTrainer:
                         self.analyze_oil_predictions(
                             metrics["best_val_predictions"], fold
                         )
-                    
+
                     # Advanced Visualizations for W&B (last fold)
                     if fold == k_folds - 1 and self.ctx.wandb_run:
                         class_names = [str(i) for i in range(self.n_classes)]
                         if hasattr(self.data_module, 'get_class_names'):
                             class_names = self.data_module.get_class_names()
-                        
+
                         y_true = metrics["best_val_predictions"]["labels"]
                         y_preds = metrics["best_val_predictions"]["preds"]
                         y_probs = metrics["best_val_predictions"]["probs"]
-                        
+
                         if not self.config.regression and y_probs is not None:
                             self.ctx.log_summary_charts(y_true, y_probs, class_names)
-                        
+
                         val_spectra, _ = next(iter(val_loader))
                         val_spectra_np = val_spectra.cpu().numpy()
                         self.ctx.log_prediction_table(
@@ -640,7 +639,6 @@ class ModelTrainer:
             else:
                 self.logger.warning("No folds completed successfully.")
                 return {}
-
 
 def run_training_pipeline(config: TrainingConfig):
     """Executes the training pipeline for a given configuration."""

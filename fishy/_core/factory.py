@@ -53,7 +53,6 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "ensemble": Ensemble,
 }
 
-
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
     Factory function to create a model based on the configuration.
@@ -121,7 +120,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         return Mamba(input_dim, output_dim, d_model, d_state, d_conv, expand, depth, dropout)
     elif model_name == "ensemble":
         return Ensemble(input_dim, config.hidden_dimension, output_dim, config.dropout)
-    
+
     elif model_name == "vae":
         return VAE(
             input_size=input_dim,
