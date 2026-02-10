@@ -1,25 +1,8 @@
-# Keep the IP / Business Secrets from public access.
-code/data
-
-# Save some space on large datasets.
-code/cnn/data
-
 # Remove IDE specific configurations.
 .vscode
 
-# The folder containing the dataset.
-data
-
-# Transformer checkpoints are too big.
-code/transformer/checkpoints/*
-code/transformer/transformer_checkpoint.pth
-code/siamese/*
-
 # Cache for python
 */__pycache__
-code/evotorch/__pycache__
-code/gp/__pycache__
-code/transformer/__pycache__
 
 # Model weights for pytorch
 *.pth 
