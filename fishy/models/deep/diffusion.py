@@ -263,16 +263,19 @@ class Diffusion(nn.Module):
         return logits
 
     @torch.no_grad()
-    def sample(self, num_samples, device="cuda"):
+    def sample(self, num_samples, device=None):
         """Sample from the diffusion model.
 
         Args:
             num_samples (int): Number of samples to generate.
-            device (str): Device to run the sampling on (default: "cuda").
+            device (str): Device to run the sampling on (default: None, uses get_device()).
 
         Returns:
             torch.Tensor: Generated samples of shape (num_samples, input_dim).
         """
+        from fishy._core.utils import get_device
+        if device is None:
+            device = get_device()
         self.eval()
         x = torch.randn(num_samples, self.input_dim, device=device)
 

@@ -22,6 +22,7 @@ from sklearn.model_selection import StratifiedKFold
 from fishy.models.deep.transformer import Transformer
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
 from fishy.engine.trainer import Trainer
+from fishy._core.utils import get_device
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List]
@@ -150,7 +151,7 @@ def train_model(
     n_splits: int = 5,
     n_runs: int = 30,
     is_augmented: bool = False,
-    device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    device: Union[str, torch.device] = get_device(),
     val_loader: Optional[DataLoader] = None,
     use_coral: bool = False,
     use_cumulative_link: bool = False,
@@ -165,6 +166,10 @@ def train_model(
     Otherwise, it performs k-fold cross-validation with multiple independent runs.
     """
     logger = logging.getLogger(__name__)
+    
+    # Ensure device is a torch.device object
+    if isinstance(device, str):
+        device = torch.device(device)
 
     if val_loader:
         fold_results = _train_fold(
@@ -259,21 +264,21 @@ def train_model(
                 del fold_model_gpu
             if fold_optimizer:
                 del fold_optimizer
-            if device == "cuda":
+            if device.type == "cuda":
                 torch.cuda.empty_cache()
 
             fold_model_gpu, fold_optimizer = _reinitialize_model_and_optimizer(
-                pristine_model_template_cpu, optimizer, device
+                pristine_model_template_cpu, optimizer, str(device)
             )
 
-            num_workers = 0 if device == "mps" else (2 if device == "cuda" else 0)
+            num_workers = 0 if device.type == "mps" else (2 if device.type == "cuda" else 0)
             fold_train_loader, fold_val_loader = _create_fold_loaders(
                 dataset,
                 train_idx,
                 val_idx,
                 train_loader.batch_size,
                 num_workers=num_workers,
-                pin_memory=(device == "cuda"),
+                pin_memory=(device.type == "cuda"),
             )
 
             if train_data_augmenter:
@@ -306,7 +311,7 @@ def train_model(
             del fold_model_gpu
         if fold_optimizer:
             del fold_optimizer
-        if device == "cuda":
+        if device.type == "cuda":
             torch.cuda.empty_cache()
 
         all_runs_metrics_accumulator.append(
@@ -408,7 +413,7 @@ def _train_single_split(
     num_epochs: int,
     patience: int,
     train_data_augmenter: Optional[DataAugmenter],
-    device: str,
+    device: torch.device,
     logger: logging.Logger,
     n_runs: int = 30,
     use_coral: bool = False,
@@ -435,16 +440,16 @@ def _train_single_split(
             del current_run_model_gpu
         if current_run_optimizer:
             del current_run_optimizer
-        if device == "cuda":
+        if device.type == "cuda":
             torch.cuda.empty_cache()
 
         current_run_model_gpu, current_run_optimizer = (
             _reinitialize_model_and_optimizer(
-                pristine_model_template_cpu, base_optimizer_instance, device
+                pristine_model_template_cpu, base_optimizer_instance, str(device)
             )
         )
 
-        num_workers = 0 if device == "mps" else (2 if device == "cuda" else 0)
+        num_workers = 0 if device.type == "mps" else (2 if device.type == "cuda" else 0)
 
         all_labels = _extract_labels(dataset)
         skf_single = StratifiedKFold(n_splits=5, shuffle=True, random_state=run_idx)
@@ -456,7 +461,7 @@ def _train_single_split(
             val_idx,
             train_loader.batch_size,
             num_workers=num_workers,
-            pin_memory=(device == "cuda"),
+            pin_memory=(device.type == "cuda"),
         )
 
         if run_idx == 0:
@@ -503,7 +508,7 @@ def _train_single_split(
         del current_run_model_gpu
     if current_run_optimizer:
         del current_run_optimizer
-    if device == "cuda":
+    if device.type == "cuda":
         torch.cuda.empty_cache()
 
     averaged_metrics = _calculate_averaged_metrics(all_runs_metrics_accumulator, logger)
@@ -582,7 +587,7 @@ def _train_fold(
     optimizer: optim.Optimizer,
     num_epochs: int,
     patience: int,
-    device: str,
+    device: torch.device,
     logger: logging.Logger,
     use_coral: bool = False,
     use_cumulative_link: bool = False,
@@ -595,7 +600,7 @@ def _train_fold(
         model=model,
         criterion=criterion,
         optimizer=optimizer,
-        device=torch.device(device),
+        device=device,
         num_epochs=num_epochs,
         patience=patience,
         use_coral=use_coral,
@@ -612,7 +617,7 @@ def evaluate_model(
     model: nn.Module,
     loader: DataLoader,
     criterion: nn.Module,
-    device: str,
+    device: Union[str, torch.device] = get_device(),
     use_coral: bool = False,
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
@@ -621,6 +626,10 @@ def evaluate_model(
     """
     Evaluates a model on a given data loader using the Trainer class.
     """
+    # Ensure device is a torch.device object
+    if isinstance(device, str):
+        device = torch.device(device)
+
     # Create a dummy optimizer since it's not needed for evaluation
     optimizer = optim.Adam(model.parameters())
     
@@ -628,7 +637,7 @@ def evaluate_model(
         model=model,
         criterion=criterion,
         optimizer=optimizer,
-        device=torch.device(device),
+        device=device,
         num_epochs=1, # Not used for evaluation
         use_coral=use_coral,
         use_cumulative_link=use_cumulative_link,

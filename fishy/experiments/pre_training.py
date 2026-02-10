@@ -23,6 +23,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from fishy.models.deep.transformer import Transformer
+from fishy._core.utils import get_device
 
 # Type aliases
 T_Tensor = TypeVar("T_Tensor", bound=torch.Tensor)
@@ -55,7 +56,7 @@ class PreTrainingConfig:
     file_path: str = "transformer_checkpoint.pth"
     n_features: int = 2080
     chunk_size: int = 50
-    device: Device = "cuda" if torch.cuda.is_available() else "cpu"
+    device: Device = get_device()
     learning_rate: float = 1e-4
     noise_enabled: bool = False
     shift_enabled: bool = False

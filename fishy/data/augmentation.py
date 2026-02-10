@@ -8,6 +8,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from fishy.data.datasets import CustomDataset
+from fishy._core.utils import get_device
 
 @dataclass
 class AugmentationConfig:
@@ -89,7 +90,7 @@ class DataAugmenter:
         if not self.config.enabled or self.config.num_augmentations == 0:
             return dataloader
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = get_device()
         all_samples, all_labels = [], []
         for samples, labels in dataloader:
             all_samples.append(samples)

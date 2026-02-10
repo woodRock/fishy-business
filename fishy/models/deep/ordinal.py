@@ -13,6 +13,7 @@ from sklearn.metrics import balanced_accuracy_score
 
 
 from pathlib import Path
+from fishy._core.utils import get_device
 
 
 # -------------------------------------------------------------------
@@ -301,14 +302,12 @@ def evaluate(model, data_loader, device, method):
 if __name__ == "__main__":
     print("Starting the script...")
 
-    if torch.cuda.is_available():
-        device = "cuda"
+    device = get_device()
+    if device.type == "cuda":
         print("🚀 CUDA is available! Using GPU.")
-    elif torch.backends.mps.is_available():
-        device = "mps"
+    elif device.type == "mps":
         print("🚀 MPS is available! Using Apple Silicon GPU.")
     else:
-        device = "cpu"
         print("🐌 No GPU available, using CPU.")
 
     # --- Hyperparameters ---

@@ -57,6 +57,7 @@ class TrainingConfig:
     use_coral: bool = False
     use_cumulative_link: bool = False
     regression: bool = False
+    use_groups: bool = False # Added flag for Group-Aware Splitting
     # New augmentation parameters
     crop_enabled: bool = False
     flip_enabled: bool = False

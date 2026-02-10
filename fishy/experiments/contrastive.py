@@ -25,7 +25,7 @@ from fishy.data.contrastive_util import (
 )
 from fishy._core.factory import create_model, get_model_class
 from fishy._core.config import TrainingConfig
-from fishy._core.utils import RunContext
+from fishy._core.utils import RunContext, get_device
 from fishy._core.config_loader import load_config
 import wandb
 
@@ -77,7 +77,7 @@ class ContrastiveTrainer:
         )
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = get_device()
         self.logger.info(f"Using device: {self.device}")
 
     def setup(self):

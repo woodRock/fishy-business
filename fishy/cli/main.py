@@ -140,10 +140,12 @@ def _add_common_training_args(parser):
     parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     parser.add_argument("-d", "--dataset", type=str, default="species", choices=["species", "part", "oil", "cross-species", "cross-species-hard", "instance-recognition", "instance-recognition-hard"], help="Dataset name")
     parser.add_argument("-m", "--model", type=str, default="transformer", choices=all_models, help="Model architecture")
+    parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
     parser.add_argument("-e", "--epochs", type=int, help="Override default epochs")
     parser.add_argument("-bs", "--batch-size", type=int, help="Override default batch size")
     parser.add_argument("-lr", "--learning-rate", type=float, help="Override default learning rate")
     parser.add_argument("-kf", "--k-folds", type=int, default=3, help="K-folds")
+    parser.add_argument("--use-groups", action="store_true", help="Enable Group-Aware Splitting (avoids data leakage)")
     parser.add_argument("--wandb-log", action="store_true", help="Log to W&B")
     
     # Group advanced/hyperparameter overrides

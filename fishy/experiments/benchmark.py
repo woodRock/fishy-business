@@ -14,15 +14,8 @@ from fishy.data.classic_loader import load_dataset
 from fishy.engine.training_loops import train_model
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
-from fishy._core.utils import RunContext
+from fishy._core.utils import RunContext, get_device
 from fishy._core.config_loader import load_config
-
-
-def get_device() -> torch.device:
-    """Selects the best available device."""
-    if torch.backends.mps.is_available(): return torch.device("mps")
-    if torch.cuda.is_available(): return torch.device("cuda")
-    return torch.device("cpu")
 
 
 def run_benchmark(

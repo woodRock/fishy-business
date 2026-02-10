@@ -31,7 +31,7 @@ from fishy.engine.training_loops import train_model
 from fishy.data.module import create_data_module
 from fishy._core.config import TrainingConfig
 from fishy._core.factory import create_model
-from fishy._core.utils import RunContext
+from fishy._core.utils import RunContext, get_device
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class ExplainerConfig:
     num_features: int = 5
     num_samples: int = 100
     output_dir: Path = Path("outputs/xai")
-    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    device: str = str(get_device())
     random_seed: int = 42
 
 

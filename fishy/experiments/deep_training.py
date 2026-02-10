@@ -20,7 +20,7 @@ import seaborn as sns
 
 from fishy._core.config import TrainingConfig
 from fishy._core.factory import create_model
-from fishy._core.utils import RunContext
+from fishy._core.utils import RunContext, get_device
 from fishy.experiments.pre_training_orchestrator import PreTrainingOrchestrator
 from fishy.engine.training_loops import train_model, evaluate_model
 from fishy.data.module import create_data_module
@@ -97,11 +97,7 @@ class ModelTrainer:
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
 
-        self.device = torch.device(
-            "cuda"
-            if torch.cuda.is_available()
-            else "mps" if torch.backends.mps.is_available() else "cpu"
-        )
+        self.device = get_device()
 
         dataset_name = self.config.dataset
         if self.config.regression and self.config.dataset == "oil":
@@ -168,9 +164,9 @@ class ModelTrainer:
             train_val_indices, test_size=0.25, random_state=self.config.run, stratify=pair_labels_for_stratify[train_val_indices],
         )
 
-        train_loader = DataLoader(Subset(full_siamese_dataset, train_indices), batch_size=self.config.batch_size, shuffle=True, num_workers=4, pin_memory=True)
-        val_loader = DataLoader(Subset(full_siamese_dataset, val_indices), batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=True)
-        test_loader = DataLoader(Subset(full_siamese_dataset, test_indices), batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=True)
+        train_loader = DataLoader(Subset(full_siamese_dataset, train_indices), batch_size=self.config.batch_size, shuffle=True, num_workers=4, pin_memory=(self.device.type == "cuda"))
+        val_loader = DataLoader(Subset(full_siamese_dataset, val_indices), batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=(self.device.type == "cuda"))
+        test_loader = DataLoader(Subset(full_siamese_dataset, test_indices), batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=(self.device.type == "cuda"))
 
         model = create_model(self.config, self.n_features, self.n_classes).to(self.device)
         if pre_trained_model:
@@ -196,20 +192,30 @@ class ModelTrainer:
         return final_metrics
 
     def _train_kfold(self, pre_trained_model: Optional[nn.Module]) -> Dict[str, Any]:
-        """Standard K-Fold Cross-Validation training loop."""
+        """Standard K-Fold Cross-Validation training loop, with optional Group-Aware splitting."""
+        from sklearn.model_selection import StratifiedKFold, StratifiedGroupKFold
+        
         full_dataset_samples = self.data_module.get_dataset().samples.cpu().numpy()
         full_dataset_labels = self.data_module.get_dataset().labels.cpu().numpy()
         
         k_folds = self.config.k_folds
-        cv_splitter = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
-        split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1))
+        
+        if self.config.use_groups:
+            self.logger.info("Using StratifiedGroupKFold for cross-validation.")
+            cv_splitter = StratifiedGroupKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
+            groups = self.data_module.get_groups()
+            split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1), groups)
+        else:
+            self.logger.info("Using standard StratifiedKFold for cross-validation.")
+            cv_splitter = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
+            split_args = (full_dataset_samples, np.argmax(full_dataset_labels, axis=1))
 
         all_fold_metrics = []
         for fold, (train_index, val_index) in enumerate(cv_splitter.split(*split_args)):
             self.logger.info(f"--- Starting Fold {fold + 1}/{k_folds} ---")
             
-            train_loader = DataLoader(CustomDataset(full_dataset_samples[train_index], full_dataset_labels[train_index]), batch_size=self.config.batch_size, shuffle=True, num_workers=4, pin_memory=True)
-            val_loader = DataLoader(CustomDataset(full_dataset_samples[val_index], full_dataset_labels[val_index]), batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=True)
+            train_loader = DataLoader(CustomDataset(full_dataset_samples[train_index], full_dataset_labels[train_index]), batch_size=self.config.batch_size, shuffle=True, num_workers=4, pin_memory=(self.device.type == "cuda"))
+            val_loader = DataLoader(CustomDataset(full_dataset_samples[val_index], full_dataset_labels[val_index]), batch_size=self.config.batch_size, shuffle=False, num_workers=4, pin_memory=(self.device.type == "cuda"))
 
             model = create_model(self.config, self.n_features, self.n_classes).to(self.device)
             if pre_trained_model:

@@ -173,6 +173,13 @@ class DataModule:
         """Triggers the loading and preprocessing pipeline."""
         self.train_loader, self.raw_data, self.filtered_data = preprocess_data_pipeline(self.processor, self.file_path, self.is_pre_train, self.augmentation_config)
 
+    def get_groups(self) -> Optional[np.ndarray]:
+        """Returns group identifiers for the filtered data (usually from the first column)."""
+        if self.filtered_data is None: self.setup()
+        if self.filtered_data.empty: return None
+        # The first column in this dataset typically contains the instance names/groups
+        return self.filtered_data.iloc[:, 0].to_numpy()
+
     def get_dataset(self):
         """Returns the underlying PyTorch Dataset."""
         return self.train_loader.dataset if self.train_loader else CustomDataset(np.array([]), np.array([]))

@@ -27,7 +27,7 @@ from fishy.engine.trainer import Trainer  # Use Trainer
 from fishy.data.module import create_data_module
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
-from fishy._core.utils import RunContext
+from fishy._core.utils import RunContext, get_device
 
 
 def _adapt_trainer_output(trainer_output: Dict) -> Dict:
@@ -58,7 +58,7 @@ def run_sequential_transfer_learning(
     batch_size: int = 32,
     learning_rate: float = 1e-3,
     finetune_lr: float = 5e-4,
-    device: str = "cuda" if torch.cuda.is_available() else "cpu",
+    device: str = str(get_device()),
     save_intermediate: bool = False,
     val_split: float = 0.2,
     file_path: str = None,
@@ -108,7 +108,7 @@ def run_sequential_transfer_learning(
 
     try:  # Start try block for wandb.finish
         history = {"transfer": {}, "finetune": {}}
-        device_obj = torch.device(device)
+        device_obj = get_device()
         data_path = (
             file_path
             if file_path
