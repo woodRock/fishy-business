@@ -18,7 +18,10 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
 from fishy.data.classic_loader import load_dataset
-import umap
+try:
+    import umap
+except ImportError:
+    umap = None
 from sklearn.decomposition import PCA as pca
 from sklearn.manifold import TSNE as tsne
 
@@ -148,6 +151,6 @@ if __name__ == "__main__":
                 # Display the results of the 30 independent runs.
                 mean, std = np.mean(train_accs), np.std(train_accs)
                 logger.info(f"Classifier: {name}")
-                logger.info(f"training: {mean} +\- {std}")
+                logger.info(f"training: {mean} +/- {std}")
                 mean, std = np.mean(test_accs), np.std(test_accs)
-                logger.info(f"test: {mean} +\- {std}")  #
+                logger.info(f"test: {mean} +/- {std}")

@@ -151,6 +151,14 @@ def preprocess_data_pipeline(
 class DataModule:
     """
     High-level interface for data management in the training pipeline.
+
+    Examples:
+        >>> # Note: Setup requires a valid data file, so we just show initialization
+        >>> dm = DataModule(dataset_name="species", file_path="data/REIMS.xlsx", batch_size=32)
+        >>> dm.dataset_name_str
+        'species'
+        >>> dm.batch_size
+        32
     """
     def __init__(self, dataset_name: str, file_path: Union[str, Path], batch_size: int = 64, is_pre_train: bool = False, augmentation_config: Optional[AugmentationConfig] = None) -> None:
         self.dataset_name_str = dataset_name

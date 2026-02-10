@@ -1,6 +1,11 @@
 import torch
 import torch.nn as nn
-from transformers import LongformerModel, LongformerConfig
+
+try:
+    from transformers import LongformerModel, LongformerConfig
+except ImportError:
+    LongformerModel = None
+    LongformerConfig = None
 
 
 class Longformer(nn.Module):

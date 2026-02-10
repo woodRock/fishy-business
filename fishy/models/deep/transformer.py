@@ -130,7 +130,16 @@ class MultiHeadAttention(nn.Module):
 
 
 class Transformer(nn.Module):
-    """Transformer model for time series classification."""
+    """Transformer model for time series classification.
+
+    Examples:
+        >>> import torch
+        >>> model = Transformer(input_dim=10, output_dim=2, num_heads=2, hidden_dim=32)
+        >>> x = torch.randn(8, 10)  # batch of 8 spectra
+        >>> output = model(x)
+        >>> output.shape
+        torch.Size([8, 2])
+    """
 
     def __init__(
         self,

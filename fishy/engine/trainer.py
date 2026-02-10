@@ -33,6 +33,20 @@ from sklearn.metrics import (
 class Trainer:
     """
     Encapsulates the training, validation, and evaluation loops.
+
+    Examples:
+        >>> import torch.nn as nn
+        >>> import torch.optim as optim
+        >>> model = nn.Linear(10, 2)
+        >>> trainer = Trainer(
+        ...     model=model,
+        ...     criterion=nn.CrossEntropyLoss(),
+        ...     optimizer=optim.Adam(model.parameters()),
+        ...     device=torch.device("cpu"),
+        ...     num_epochs=1
+        ... )
+        >>> trainer.num_epochs
+        1
     """
 
     def __init__(

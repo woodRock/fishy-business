@@ -14,6 +14,20 @@ def load_config(config_name: str) -> Dict[str, Any]:
     """
     Loads a YAML configuration file from the configs directory.
     Uses caching to avoid redundant file I/O.
+
+    Args:
+        config_name (str): Name of the YAML file (without .yaml extension).
+
+    Returns:
+        Dict[str, Any]: The configuration data.
+
+    Examples:
+        >>> datasets = load_config("datasets")
+        >>> "species" in datasets
+        True
+        >>> models = load_config("models")
+        >>> "deep_models" in models
+        True
     """
     if config_name in _CONFIG_CACHE:
         return _CONFIG_CACHE[config_name]

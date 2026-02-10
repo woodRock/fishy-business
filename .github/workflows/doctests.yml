@@ -1,0 +1,30 @@
+name: Doctests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  run-doctests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        
+    - name: Run documentation tests
+      run: |
+        # Run pytest on the fishy package with doctest module enabled
+        # We set PYTHONPATH to current directory to ensure imports work correctly
+        export PYTHONPATH=$PYTHONPATH:.
+        pytest --doctest-modules fishy/
