@@ -1,0 +1,83 @@
+{
+    "config": {
+        "file_path": "/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        "model": "vae",
+        "dataset": "oil",
+        "run": 0,
+        "output": "logs/ordinal_comparison_vae_regression",
+        "data_augmentation": false,
+        "masked_spectra_modelling": false,
+        "next_spectra_prediction": false,
+        "next_peak_prediction": false,
+        "spectrum_denoising_autoencoding": false,
+        "peak_parameter_regression": false,
+        "spectrum_segment_reordering": false,
+        "contrastive_transformation_invariance_learning": false,
+        "early_stopping": 20,
+        "dropout": 0.2,
+        "label_smoothing": 0.1,
+        "epochs": 50,
+        "learning_rate": 0.0001,
+        "batch_size": 64,
+        "hidden_dimension": 128,
+        "num_layers": 4,
+        "num_heads": 4,
+        "num_augmentations": 5,
+        "noise_level": 0.1,
+        "shift_enabled": false,
+        "scale_enabled": false,
+        "k_folds": 5,
+        "num_runs": 1,
+        "use_coral": false,
+        "use_cumulative_link": false,
+        "regression": true,
+        "crop_enabled": false,
+        "flip_enabled": false,
+        "permutation_enabled": false,
+        "crop_size": 0.8
+    },
+    "stats": {
+        "train_loss": 439.4106800803005,
+        "train_accuracy": NaN,
+        "val_loss": 439.5451171875,
+        "val_accuracy": NaN,
+        "epoch": 19.0
+    },
+    "folds": [
+        {
+            "train_loss": 444.07152587890624,
+            "train_accuracy": NaN,
+            "val_loss": 421.4396057128906,
+            "val_accuracy": NaN,
+            "epoch": 19
+        },
+        {
+            "train_loss": 385.1519009429629,
+            "train_accuracy": NaN,
+            "val_loss": 658.569580078125,
+            "val_accuracy": NaN,
+            "epoch": 19
+        },
+        {
+            "train_loss": 456.47059918394183,
+            "train_accuracy": NaN,
+            "val_loss": 370.4420166015625,
+            "val_accuracy": NaN,
+            "epoch": 19
+        },
+        {
+            "train_loss": 474.6846425273631,
+            "train_accuracy": NaN,
+            "val_loss": 296.8572082519531,
+            "val_accuracy": NaN,
+            "epoch": 19
+        },
+        {
+            "train_loss": 436.6747318683284,
+            "train_accuracy": NaN,
+            "val_loss": 450.41717529296875,
+            "val_accuracy": NaN,
+            "epoch": 19
+        }
+    ]
+}

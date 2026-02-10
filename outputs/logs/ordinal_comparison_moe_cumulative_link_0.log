@@ -1,0 +1,3 @@
+2025-10-16 22:06:33,553 - INFO - Loading data from: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
+2025-10-16 22:06:37,772 - INFO - Loaded data with shape: (306, 2081)
+2025-10-16 22:06:37,775 - INFO - Filtered data shape: (126, 2081)

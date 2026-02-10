@@ -1,0 +1,183 @@
+# -*- coding: utf-8 -*-
+"""
+Unified CLI wrapper for the fishy business module.
+"""
+
+import argparse
+import logging
+import sys
+import json
+from dataclasses import asdict
+from pathlib import Path
+import numpy as np
+
+from fishy._core.config import TrainingConfig
+from fishy.experiments.deep_training import ModelTrainer, run_training_pipeline
+from fishy.experiments.benchmark import run_benchmark
+from fishy.experiments.transfer import run_sequential_transfer_learning
+from fishy.experiments.evolutionary import run_gp_experiment
+from fishy.experiments.contrastive import run_contrastive_experiment, ContrastiveConfig
+from fishy.analysis.xai import explain_predictions, ExplainerConfig
+from fishy._core.factory import MODEL_REGISTRY
+from fishy.data.module import create_data_module
+from fishy.data.datasets import CustomDataset, SiameseDataset
+from fishy.data.augmentation import AugmentationConfig
+
+def setup_base_parser():
+    parser = argparse.ArgumentParser(
+        prog="fishy", 
+        description="Unified Spectra Deep Learning CLI Tool",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    return parser, subparsers
+
+def add_train_args(subparsers):
+    train_parser = subparsers.add_parser("train", help="Run the model training pipeline")
+    
+    train_parser.add_argument("-fp", "--file-path", type=str, default="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx", help="Path to dataset")
+    train_parser.add_argument("-d", "--dataset", type=str, default="species", choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(), help="Dataset name")
+    train_parser.add_argument("-m", "--model", type=str, default="transformer", choices=MODEL_REGISTRY.keys(), help="Model type")
+    train_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
+    train_parser.add_argument("-nr", "--num-runs", type=int, default=1, help="Number of independent runs")
+    train_parser.add_argument("-o", "--output", type=str, default="logs/results_base", help="Output log path")
+    train_parser.add_argument("-e", "--epochs", type=int, default=100, help="Training epochs")
+    train_parser.add_argument("-bs", "--batch-size", type=int, default=64, help="Batch size")
+    train_parser.add_argument("-lr", "--learning-rate", type=float, default=1e-4, help="Learning rate")
+    train_parser.add_argument("-es", "--early-stopping", type=int, default=20, help="Early stopping patience")
+    train_parser.add_argument("-do", "--dropout", type=float, default=0.2, help="Dropout")
+    train_parser.add_argument("-ls", "--label-smoothing", type=float, default=0.1, help="Label smoothing")
+    train_parser.add_argument("-kf", "--k-folds", type=int, default=3, help="K-folds")
+    train_parser.add_argument("-hd", "--hidden-dimension", type=int, default=128, help="Hidden dimension")
+    train_parser.add_argument("-l", "--num-layers", type=int, default=4, help="Number of layers")
+    train_parser.add_argument("-nh", "--num-heads", type=int, default=4, help="Number of attention heads")
+    train_parser.add_argument("-da", "--data-augmentation", action="store_true", help="Enable augmentation")
+    train_parser.add_argument("--use-coral", action="store_true", help="Use CORAL loss")
+    train_parser.add_argument("--use-cumulative-link", action="store_true", help="Use Cumulative Link loss")
+    train_parser.add_argument("--regression", action="store_true", help="Perform regression")
+
+    for task_flag, _, _, _, _ in ModelTrainer.PRETRAIN_TASK_DEFINITIONS:
+        train_parser.add_argument(f"--{task_flag.replace('_', '-')}", action="store_true", help=f"Enable {task_flag}")
+
+def add_benchmark_args(subparsers):
+    bench_parser = subparsers.add_parser("benchmark", help="Benchmark multiple models")
+    bench_parser.add_argument("models", type=str, nargs="+", help="Models to benchmark")
+    bench_parser.add_argument("-w", "--warmup", type=int, default=0, help="Warmup epochs")
+    bench_parser.add_argument("-o", "--output", type=str, default="benchmark_results.csv", help="Output CSV path")
+
+def add_transfer_args(subparsers):
+    trans_parser = subparsers.add_parser("transfer", help="Sequential transfer learning")
+    trans_parser.add_argument("-m", "--model", type=str, required=True, choices=MODEL_REGISTRY.keys(), help="Model type")
+    trans_parser.add_argument("-td", "--transfer-datasets", type=str, nargs="+", required=True, help="Datasets for transfer")
+    trans_parser.add_argument("-target", "--target-dataset", type=str, required=True, help="Target dataset")
+    trans_parser.add_argument("-et", "--epochs-transfer", type=int, default=10, help="Epochs per transfer phase")
+    trans_parser.add_argument("-ef", "--epochs-finetune", type=int, default=20, help="Epochs for finetuning")
+    trans_parser.add_argument("-lr", "--learning-rate", type=float, default=1e-3, help="Learning rate")
+
+def add_xai_args(subparsers):
+    xai_parser = subparsers.add_parser("xai", help="Explain model predictions (LIME/Grad-CAM)")
+    xai_parser.add_argument("-d", "--dataset", type=str, default="part", help="Dataset name")
+    xai_parser.add_argument("-m", "--model", type=str, default="transformer", help="Model type")
+    xai_parser.add_argument("-i", "--instance", type=str, default="frames", help="Instance name to explain")
+    xai_parser.add_argument("-l", "--label", type=float, nargs="+", help="Target label vector")
+    xai_parser.add_argument("--method", type=str, default="lime", choices=["lime", "gradcam"], help="XAI method")
+
+def add_evolutionary_args(subparsers):
+    evo_parser = subparsers.add_parser("evolutionary", help="Run Genetic Programming experiments")
+    evo_parser.add_argument("-d", "--dataset", type=str, default="species", help="Dataset name")
+    evo_parser.add_argument("-g", "--generations", type=int, default=10, help="Number of generations")
+    evo_parser.add_argument("-p", "--population", type=int, default=1023, help="Population size")
+    evo_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
+
+def add_contrastive_args(subparsers):
+    cont_parser = subparsers.add_parser("contrastive", help="Run Contrastive Learning experiments")
+    cont_parser.add_argument("-m", "--method", type=str, default="simclr", help="Contrastive method")
+    cont_parser.add_argument("-e", "--encoder", type=str, default="transformer", help="Encoder type")
+    cont_parser.add_argument("-epochs", "--epochs", type=int, default=100, help="Number of epochs")
+
+def handle_train(args):
+    if "instance-recognition" in args.dataset and args.num_runs > 1:
+        all_runs_metrics = []
+        base_config = TrainingConfig.from_args(args)
+
+        for i in range(args.num_runs):
+            print(f"--- Starting Run {i + 1}/{args.num_runs} ---")
+            args.run = i
+            config = TrainingConfig.from_args(args)
+            metrics = run_training_pipeline(config)
+            all_runs_metrics.append(metrics)
+
+        if all_runs_metrics:
+            stats = {k: np.mean([m[k] for m in all_runs_metrics if m.get(k) is not None]) for k in all_runs_metrics[0]}
+            std_dev = {k: np.std([m[k] for m in all_runs_metrics if m.get(k) is not None]) for k in all_runs_metrics[0]}
+            results_dir = Path("results")
+            results_dir.mkdir(parents=True, exist_ok=True)
+            file_name = f"stats_{base_config.model}_{base_config.dataset}_{args.num_runs}_runs.json"
+            file_path = results_dir / file_name
+            with open(file_path, "w") as f:
+                json.dump({"config": asdict(base_config), "runs": all_runs_metrics, "stats": stats, "std_dev": std_dev}, f, indent=4)
+            print(f"Aggregated metrics saved to {file_path}")
+    else:
+        config = TrainingConfig.from_args(args)
+        metrics = run_training_pipeline(config)
+        if "instance-recognition" in config.dataset:
+            results_dir = Path("results")
+            results_dir.mkdir(parents=True, exist_ok=True)
+            file_name = f"stats_{config.model}_{config.dataset}.json"
+            file_path = results_dir / file_name
+            with open(file_path, "w") as f:
+                json.dump({"config": asdict(config), "stats": metrics}, f, indent=4)
+            print(f"Metrics saved to {file_path}")
+
+def main():
+    parser, subparsers = setup_base_parser()
+    add_train_args(subparsers)
+    add_benchmark_args(subparsers)
+    add_transfer_args(subparsers)
+    add_xai_args(subparsers)
+    add_evolutionary_args(subparsers)
+    add_contrastive_args(subparsers)
+    
+    args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        sys.exit(0)
+
+    try:
+        if args.command == "train":
+            handle_train(args)
+        elif args.command == "benchmark":
+            run_benchmark(args.models, warmup_epochs=args.warmup, output_file=args.output)
+        elif args.command == "transfer":
+            run_sequential_transfer_learning(
+                model_name=args.model,
+                transfer_datasets=args.transfer_datasets,
+                target_dataset=args.target_dataset,
+                num_epochs_transfer=args.epochs_transfer,
+                num_epochs_finetune=args.epochs_finetune,
+                learning_rate=args.learning_rate
+            )
+        elif args.command == "xai":
+            # ... (XAI handling) ...
+            pass
+        elif args.command == "evolutionary":
+            run_gp_experiment(
+                dataset=args.dataset,
+                generations=args.generations,
+                population=args.population,
+                run=args.run
+            )
+        elif args.command == "contrastive":
+            c_cfg = ContrastiveConfig(
+                contrastive_method=args.method,
+                encoder_type=args.encoder,
+                num_epochs=args.epochs
+            )
+            run_contrastive_experiment(c_cfg)
+    except Exception as e:
+        logging.error(f"Error executing command {args.command}: {e}", exc_info=True)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
