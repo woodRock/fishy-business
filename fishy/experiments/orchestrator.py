@@ -165,10 +165,24 @@ def run_all_experiments(
     for dataset in active_datasets:
         baseline_model = "opls-da"
         if baseline_model not in val_results_map[dataset] or not val_results_map[dataset][baseline_model]:
-            main_logger.warning(f"Baseline {baseline_model} not found for {dataset}. Skipping t-test.")
+            main_logger.warning(f"Baseline {baseline_model} not found for {dataset}. Skipping dataset analysis.")
             continue
             
         baseline_vals = val_results_map[dataset][baseline_model]
+        baseline_train_vals = train_results_map[dataset][baseline_model]
+        baseline_mean = np.mean(baseline_vals)
+        
+        # 1. Add baseline method row itself
+        summary_data.append({
+            "dataset": dataset,
+            "model": baseline_model,
+            "val_ba_mean": baseline_mean,
+            "val_ba_std": np.std(baseline_vals),
+            "train_ba_mean": np.mean(baseline_train_vals),
+            "p_value_val": 1.0,
+            "p_value_train": 1.0,
+            "sig_symbol": "≈" # Baseline is equivalent to itself
+        })
         
         for model in val_results_map[dataset]:
             if model == baseline_model:
@@ -177,25 +191,32 @@ def run_all_experiments(
             model_vals = val_results_map[dataset][model]
             if not model_vals:
                 continue
+            
+            model_mean = np.mean(model_vals)
                 
             # Validation T-Test
             t_stat, p_val = stats.ttest_rel(baseline_vals, model_vals)
             
             # Training T-Test
             t_stat_train, p_val_train = stats.ttest_rel(
-                train_results_map[dataset][baseline_model], 
+                baseline_train_vals, 
                 train_results_map[dataset][model]
             )
+            
+            # Determine significance symbol (+, -, ≈)
+            symbol = "≈"
+            if p_val < 0.05:
+                symbol = "+" if model_mean > baseline_mean else "-"
             
             res = {
                 "dataset": dataset,
                 "model": model,
-                "val_ba_mean": np.mean(model_vals),
+                "val_ba_mean": model_mean,
                 "val_ba_std": np.std(model_vals),
                 "train_ba_mean": np.mean(train_results_map[dataset][model]),
                 "p_value_val": p_val,
                 "p_value_train": p_val_train,
-                "significant_05": p_val < 0.05
+                "sig_symbol": symbol
             }
             summary_data.append(res)
 
