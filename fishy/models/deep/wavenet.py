@@ -5,7 +5,9 @@ It includes an initial causal convolutional layer, multiple residual blocks for 
 and a fully connected layer for classification. The architecture is designed to handle time series or other ordered
 data, leveraging the strengths of convolutional neural networks for sequential tasks.
 
+
 References:
+
 1. van den Oord, A., Dieleman, S., Zen, H.,
    Simonyan, K., Vinyals, O., Graves, A., ... & Kavukcuoglu, K. (2016).
    WaveNet: A generative model for raw audio.

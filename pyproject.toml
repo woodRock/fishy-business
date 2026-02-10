@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishy"
+version = "0.0.1"
+description = "Fishy business project for spectral data analysis"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "torch",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "tqdm",
+    "matplotlib",
+    "seaborn",
+    "openpyxl",
+    "lime",
+    "deap",
+    "pyopls",
+    "umap-learn",
+    "transformers",
+    "torchdiffeq"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fishy*"]

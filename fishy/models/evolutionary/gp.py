@@ -23,15 +23,15 @@ def SimpleGPWithElitism(
 ) -> Union[Iterable, Logbook]:
     """
     Elitism for Multi-Tree GP for Multi-Class classification.
-    A variation of the eaSimple method from the DEAP library that supports
 
-    Elitism ensures the best individuals (the elite) from each generation are
-    carried onto the next without alteration. This ensures the quality of the
-    best solution monotonically increases over time.
+    A variation of the eaSimple method from the DEAP library that supports
+    elitism. Elitism ensures the best individuals (the elite) from each
+    generation are carried onto the next without alteration. This ensures 
+    the quality of the best solution monotonically increases over time.
 
     Args:
         population (int): The number of individuals to evolve.
-        toolbox (deap.base.Toolbox): The toolbox containing the genetic operators.
+        toolbox (Toolbox): The toolbox containing the genetic operators.
         cxpb (float): The probability of a crossover between two individuals.
         mutpb (float): The probability of a random mutation within an individual.
         ngen (int): The number of genetations to evolve the population for.
@@ -40,8 +40,7 @@ def SimpleGPWithElitism(
         verbose (bool): Whether or not to print the logbook.
 
     Returns:
-        population (deap.base.Toolbox.population): The final population the algorithm has evolved.
-        logbook (deap.tools.Logbook): The logbook which can record important statistics.
+        Tuple[List, Logbook]: The final population and the logbook.
     """
     logger = logging.getLogger(__name__)
 

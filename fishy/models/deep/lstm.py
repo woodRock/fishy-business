@@ -4,7 +4,9 @@ This module implements a Long Short-Term Memory (LSTM) network for time series c
 It includes LSTM layers, dropout for regularization, and a fully connected layer for output.
 The architecture is designed to handle sequential data, such as time series or other ordered data.
 
+
 References:
+
 1. Hochreiter, S., & Schmidhuber, J. (1997).
     Long short-term memory.
     Neural computation, 9(8), 1735-1780.

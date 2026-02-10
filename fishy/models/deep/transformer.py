@@ -5,6 +5,7 @@ It is designed to handle variable-length sequences and can be used for tasks suc
 The architecture includes layer normalization, dropout for regularization, and a final fully connected layer for output.
 
 References:
+
 1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez,
     A. N., ... & Polosukhin, I. (2017).
     Attention is all you need.

@@ -6,7 +6,9 @@ It consists of multiple layers, each containing inner and outer functions that
 are vectorized for efficiency. The model is designed to handle high-dimensional
 input data and can be used for various tasks such as regression or classification.
 
+
 References:
+
 1. Liu, Z., Wang, Y., Vaidya, S., Ruehle, F.,
     Halverson, J., Soljačić, M., ... & Tegmark, M. (2024).
     Kan: Kolmogorov-arnold networks.

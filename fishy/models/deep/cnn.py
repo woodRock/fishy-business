@@ -4,7 +4,9 @@ This module implements a Convolutional Neural Network (CNN) for classification t
 It includes convolutional layers, batch normalization, dropout, and fully connected layers.
 The architecture is inspired by LeCun's work on handwritten digit recognition and includes
 modern techniques like GELU activation and dropout for regularization.
+
 References:
+
 1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998).
     Gradient-based learning applied to document recognition.
     Proceedings of the IEEE, 86(11), 2278-2324.

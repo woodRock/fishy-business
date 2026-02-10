@@ -1,4 +1,4 @@
-fishy.experiments.contrastive
+﻿fishy.experiments.contrastive
 =============================
 
 .. currentmodule:: fishy.experiments

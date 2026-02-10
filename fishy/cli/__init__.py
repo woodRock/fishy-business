@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
 """
-CLI module.
+Command-line interface.
 """
-
-from .main import main

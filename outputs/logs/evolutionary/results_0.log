@@ -1,0 +1,18 @@
+INFO:fishy.models.evolutionary.gp_data:Reading dataset fish: species
+ERROR:root:Error executing command evolutionary: [Errno 2] No such file or directory: '/vol/ecrg-solar/woodj4/fishy-business/data/REIMS_data.xlsx'
+Traceback (most recent call last):
+  File "/Users/woodj/Desktop/fishy-business/fishy/cli/main.py", line 210, in main
+    run_gp_experiment(
+  File "/Users/woodj/Desktop/fishy-business/fishy/experiments/evolutionary.py", line 66, in run_gp_experiment
+    X, y = load_dataset(dataset=dataset)
+  File "/Users/woodj/Desktop/fishy-business/fishy/models/evolutionary/gp_data.py", line 41, in load_dataset
+    data = pd.read_excel(path)
+  File "/Users/woodj/Library/Python/3.9/lib/python/site-packages/pandas/io/excel/_base.py", line 495, in read_excel
+    io = ExcelFile(
+  File "/Users/woodj/Library/Python/3.9/lib/python/site-packages/pandas/io/excel/_base.py", line 1550, in __init__
+    ext = inspect_excel_format(
+  File "/Users/woodj/Library/Python/3.9/lib/python/site-packages/pandas/io/excel/_base.py", line 1402, in inspect_excel_format
+    with get_handle(
+  File "/Users/woodj/Library/Python/3.9/lib/python/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/vol/ecrg-solar/woodj4/fishy-business/data/REIMS_data.xlsx'

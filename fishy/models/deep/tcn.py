@@ -4,7 +4,9 @@ This module implements a Temporal Convolutional Network (TCN) for time series cl
 It includes temporal blocks with dilated convolutions, batch normalization, ReLU activation,
 and dropout for regularization. The architecture is designed to handle 1D input data, such as time series or sequential data.
 
+
 References:
+
 1. Bai, S., Kolter, J. Z., & Koltun, V. (2018).
    An empirical evaluation of generic convolutional and recurrent networks for sequence modeling.
    arXiv preprint arXiv:1803.01271.

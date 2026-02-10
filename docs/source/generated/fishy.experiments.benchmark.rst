@@ -1,4 +1,4 @@
-fishy.experiments.benchmark
+﻿fishy.experiments.benchmark
 ===========================
 
 .. currentmodule:: fishy.experiments

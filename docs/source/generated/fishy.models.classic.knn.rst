@@ -7,4 +7,12 @@ fishy.models.classic.knn
 .. automodule:: fishy.models.classic.knn
 
    
+   .. rubric:: Classes
+
+   
+   .. autoclass:: knn
+      :members:
+      :show-inheritance:
+   
+   
    

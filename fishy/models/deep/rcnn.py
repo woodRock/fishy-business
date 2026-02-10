@@ -5,7 +5,9 @@ It includes convolutional layers, batch normalization, dropout, and fully connec
 The architecture is designed to handle 1D input data, such as time series or sequential data.
 It uses ReLU activation and dropout for regularization.
 
+
 References:
+
 1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998).
     Gradient-based learning applied to document recognition.
     Proceedings of the IEEE, 86(11), 2278-2324.

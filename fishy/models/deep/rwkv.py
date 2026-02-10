@@ -5,7 +5,9 @@ It includes linear layers for key, value, and output, and uses a recurrent mecha
 the hidden state based on the input features. The model is designed to handle sequential data
 and is suitable for tasks such as time series forecasting or classification.
 
+
 References:
+
 1. Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., & Tegmark, M. (2024).
    Kan: Kolmogorov-arnold networks.
    arXiv preprint arXiv:2404.19756.

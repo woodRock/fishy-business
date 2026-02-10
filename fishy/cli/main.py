@@ -52,6 +52,10 @@ def add_train_args(subparsers):
     train_parser.add_argument("-l", "--num-layers", type=int, default=4, help="Number of layers")
     train_parser.add_argument("-nh", "--num-heads", type=int, default=4, help="Number of attention heads")
     train_parser.add_argument("-da", "--data-augmentation", action="store_true", help="Enable augmentation")
+    train_parser.add_argument("--num-augmentations", type=int, default=5, help="Number of augmentations")
+    train_parser.add_argument("--noise-level", type=float, default=0.05, help="Noise level")
+    train_parser.add_argument("--shift-enabled", action="store_true", help="Enable shift")
+    train_parser.add_argument("--scale-enabled", action="store_true", help="Enable scale")
     train_parser.add_argument("--use-coral", action="store_true", help="Use CORAL loss")
     train_parser.add_argument("--use-cumulative-link", action="store_true", help="Use Cumulative Link loss")
     train_parser.add_argument("--regression", action="store_true", help="Perform regression")
@@ -102,8 +106,9 @@ def handle_train(args):
 
         for i in range(args.num_runs):
             print(f"--- Starting Run {i + 1}/{args.num_runs} ---")
-            args.run = i
-            config = TrainingConfig.from_args(args)
+            args_copy = argparse.Namespace(**vars(args))
+            args_copy.run = i
+            config = TrainingConfig.from_args(args_copy)
             metrics = run_training_pipeline(config)
             all_runs_metrics.append(metrics)
 
@@ -128,6 +133,47 @@ def handle_train(args):
             with open(file_path, "w") as f:
                 json.dump({"config": asdict(config), "stats": metrics}, f, indent=4)
             print(f"Metrics saved to {file_path}")
+
+def handle_xai(args):
+    t_cfg = TrainingConfig(
+        file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        model=args.model,
+        dataset=args.dataset,
+        run=0,
+        output="tmp/xai",
+        data_augmentation=False,
+        masked_spectra_modelling=False,
+        next_spectra_prediction=False,
+        next_peak_prediction=False,
+        spectrum_denoising_autoencoding=False,
+        peak_parameter_regression=False,
+        spectrum_segment_reordering=False,
+        contrastive_transformation_invariance_learning=False,
+        early_stopping=0,
+        dropout=0.0,
+        label_smoothing=0.0,
+        epochs=1,
+        learning_rate=1e-4,
+        batch_size=32,
+        hidden_dimension=128,
+        num_layers=2,
+        num_heads=2,
+        num_augmentations=0,
+        noise_level=0.0,
+        shift_enabled=False,
+        scale_enabled=False,
+        k_folds=1
+    )
+    e_cfg = ExplainerConfig(output_dir=Path("tmp/figures/xai"))
+    explain_predictions(
+        dataset_name=args.dataset,
+        model_name=args.model,
+        training_config=t_cfg,
+        explainer_config=e_cfg,
+        instance_name=args.instance,
+        target_label=args.label if args.label else [1.0, 0.0],
+        method=args.method
+    )
 
 def main():
     parser, subparsers = setup_base_parser()
@@ -159,8 +205,7 @@ def main():
                 learning_rate=args.learning_rate
             )
         elif args.command == "xai":
-            # ... (XAI handling) ...
-            pass
+            handle_xai(args)
         elif args.command == "evolutionary":
             run_gp_experiment(
                 dataset=args.dataset,

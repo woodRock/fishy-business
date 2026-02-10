@@ -1,4 +1,4 @@
-﻿fishy.models.classic.run\_opls
+fishy.models.classic.run\_opls
 ==============================
 
 .. currentmodule:: fishy.models.classic

@@ -5,7 +5,9 @@ It includes a series of blocks that process the input through multiple layers, a
 The model is designed to handle 1D input data, such as time series or sequential data.
 It uses sinusoidal position embeddings for time encoding and includes a classifier for output predictions.
 
+
 References:
+
 1. Ho, J., Jain, A., & Abbeel, P. (2020). Denoising diffusion probabilistic models.
    In Advances in Neural Information Processing Systems (pp. 6840-6851).
 2. Salimans, T., Ho, J., & Abbeel, P. (2022). Progressive distillation for fast sampling of diffusion models.

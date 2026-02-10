@@ -57,33 +57,33 @@ class TrainingConfig:
         crop_size (float): The proportion of the spectrum to keep during random cropping (default: 0.8).
     """
 
-    file_path: str
-    model: str
-    dataset: str
-    run: int
-    output: str
-    data_augmentation: bool
-    masked_spectra_modelling: bool
-    next_spectra_prediction: bool
-    next_peak_prediction: bool
-    spectrum_denoising_autoencoding: bool
-    peak_parameter_regression: bool
-    spectrum_segment_reordering: bool
-    contrastive_transformation_invariance_learning: bool
-    early_stopping: int
-    dropout: float
-    label_smoothing: float
-    epochs: int
-    learning_rate: float
-    batch_size: int
-    hidden_dimension: int
-    num_layers: int
-    num_heads: int
-    num_augmentations: int
-    noise_level: float
-    shift_enabled: bool
-    scale_enabled: bool
-    k_folds: int
+    file_path: str = ""
+    model: str = "transformer"
+    dataset: str = "species"
+    run: int = 0
+    output: str = "logs/results"
+    data_augmentation: bool = False
+    masked_spectra_modelling: bool = False
+    next_spectra_prediction: bool = False
+    next_peak_prediction: bool = False
+    spectrum_denoising_autoencoding: bool = False
+    peak_parameter_regression: bool = False
+    spectrum_segment_reordering: bool = False
+    contrastive_transformation_invariance_learning: bool = False
+    early_stopping: int = 20
+    dropout: float = 0.2
+    label_smoothing: float = 0.1
+    epochs: int = 100
+    learning_rate: float = 1e-4
+    batch_size: int = 64
+    hidden_dimension: int = 128
+    num_layers: int = 4
+    num_heads: int = 4
+    num_augmentations: int = 5
+    noise_level: float = 0.05
+    shift_enabled: bool = False
+    scale_enabled: bool = False
+    k_folds: int = 3
     num_runs: int = 1
     use_coral: bool = False
     use_cumulative_link: bool = False
@@ -105,4 +105,7 @@ class TrainingConfig:
         Returns:
             TrainingConfig: A configuration object populated with values from ``args``.
         """
-        return cls(**vars(args))
+        import dataclasses
+        valid_keys = {f.name for f in dataclasses.fields(cls)}
+        config_dict = {k: v for k, v in vars(args).items() if k in valid_keys}
+        return cls(**config_dict)

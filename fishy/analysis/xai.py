@@ -4,6 +4,7 @@ Unified XAI module for deep learning model explanations using LIME and Grad-CAM.
 
 This module provides tools for explaining the predictions of deep learning models trained
 on spectral data. It implements two primary explanation methods:
+
 1.  **Grad-CAM (Gradient-weighted Class Activation Mapping)**: Visualizes which parts of the input spectrum
     were most important for a specific prediction by analyzing the gradients flowing into a target layer.
 2.  **LIME (Local Interpretable Model-agnostic Explanations)**: Approximates the complex model locally
@@ -24,7 +25,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from lime.lime_tabular import LimeTabularExplainer
 
-from fishy.models.deep import Transformer, VAE
+from fishy.models.deep.transformer import Transformer
+from fishy.models.deep.vae import VAE
 from fishy.engine.training_loops import train_model
 from fishy.data.module import create_data_module
 from fishy._core.config import TrainingConfig

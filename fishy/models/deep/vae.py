@@ -4,7 +4,9 @@ This model combines a VAE for unsupervised learning with a classifier for superv
 It includes an encoder, decoder, and a classifier that predicts class probabilities based on the latent representation
 of the input data. The model is designed to handle high-dimensional input data and can be used for tasks such as anomaly detection or semi-supervised learning.
 
+
 References:
+
 1. Kingma, D. P., & Welling, M. (2013).
     Auto-encoding variational bayes.
     arXiv preprint arXiv:1312.6114.

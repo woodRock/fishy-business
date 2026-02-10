@@ -5,7 +5,9 @@ It includes an initial convolutional layer, ODE blocks for learning the dynamics
 and a fully connected layer for classification. The architecture is designed to handle
 sequential data, such as time series or other ordered data.
 
+
 References:
+
 1. Chen, T., Rubanova, Y., Bettencourt, J., & Dumoulin, J. (2018).
    Neural ordinary differential equations.
    In Advances in neural information processing systems (pp. 6571-6583).

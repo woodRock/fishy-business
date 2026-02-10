@@ -1,4 +1,5 @@
 """
+
 DenseNet-like model for classification tasks.
 
 This module implements a DenseNet-like architecture for classification tasks.
@@ -6,7 +7,9 @@ It includes dense blocks, transition layers, and fully connected layers.
 The architecture is designed to handle 1D input data, such as time series or sequential data.
 It uses batch normalization, ReLU activation, and dropout for regularization.
 
+
 References:
+
 1. Huang, G., Liu, Z., Van Der Maaten, L., & Weinberger, K. Q. (2017).
    Densely connected convolutional networks.
    In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 4700-4708).

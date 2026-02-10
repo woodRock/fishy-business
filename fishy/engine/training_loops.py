@@ -31,7 +31,8 @@ from sklearn.metrics import (
     r2_score,
 )
 
-from fishy.models.deep import Transformer, VAE
+from fishy.models.deep.transformer import Transformer
+from fishy.models.deep.vae import VAE
 from .losses import levels_from_labelbatch
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
 from fishy.data.datasets import SiameseDataset

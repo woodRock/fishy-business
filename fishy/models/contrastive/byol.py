@@ -5,6 +5,7 @@ The online network is updated with backpropagation, while the target network is 
 update mechanism. The model is designed for self-supervised learning tasks, particularly in computer vision.
 
 References:
+
 1.  Grill, J. B., Strub, F., Altché, F., Tallec, C., Richemond, P., Buchatskaya, E., ... & Valko, M. (2020).
     Bootstrap your own latent-a new approach to self-supervised learning.
     Advances in neural information processing systems, 33, 21271-21284.

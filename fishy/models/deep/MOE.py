@@ -7,6 +7,7 @@ while maintaining computational efficiency. The architecture is designed to hand
 data, such as time series or other ordered data.
 
 References:
+
 1. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez,
     A. N., ... & Polosukhin, I. (2017).
     Attention is all you need.

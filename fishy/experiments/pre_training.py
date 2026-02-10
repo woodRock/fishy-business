@@ -22,7 +22,7 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from fishy.models.deep import Transformer
+from fishy.models.deep.transformer import Transformer
 
 # Type aliases
 T_Tensor = TypeVar("T_Tensor", bound=torch.Tensor)

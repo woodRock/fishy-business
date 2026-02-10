@@ -1,4 +1,4 @@
-fishy.analysis.xai
+﻿fishy.analysis.xai
 ==================
 
 .. currentmodule:: fishy.analysis

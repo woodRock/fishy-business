@@ -1,7 +1,7 @@
 API Reference
 =============
 
-This is the auto-generated API reference for the ``fish`` library.
+This is the auto-generated API reference for the ``fishy`` library.
 
 .. autosummary::
    :toctree: generated/
@@ -9,10 +9,3 @@ This is the auto-generated API reference for the ``fish`` library.
    :recursive:
 
    fishy
-   fishy.data
-   fishy.models
-   fishy.engine
-   fishy.experiments
-   fishy.analysis
-   fishy.cli
-   fishy._core

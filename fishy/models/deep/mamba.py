@@ -4,7 +4,9 @@ This module implements the Mamba model, a linear-time sequence modeling architec
 with selective state spaces, as described in the paper by Gu and Dao (2023).
 It includes the Mamba block and the overall Mamba model class.
 
+
 References:
+
 1. Gu, A., & Dao, T. (2023).
     Mamba: Linear-time sequence modeling with selective state spaces.
     arXiv preprint arXiv:2312.00752.
