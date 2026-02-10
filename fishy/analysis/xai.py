@@ -318,7 +318,7 @@ def explain_predictions(
         target_label (List[float]): Target label.
         method (str): Explanation method ('lime' or 'gradcam').
     """
-    ctx = RunContext(experiment_name=f"xai_{method}_{dataset_name}")
+    ctx = RunContext(dataset=dataset_name, method=method, model_name=model_name)
     ctx.save_config(training_config, filename="training_config.json")
     ctx.save_config(explainer_config, filename="explainer_config.json")
     

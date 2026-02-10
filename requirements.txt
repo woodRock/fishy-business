@@ -11,3 +11,4 @@ lime
 deap
 pygraphviz
 xgboost
+wandb

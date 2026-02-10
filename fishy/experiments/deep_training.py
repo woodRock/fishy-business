@@ -9,6 +9,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 from typing import Dict, Optional, Tuple, List, Any, Callable
+import wandb
 
 import numpy as np
 import torch
@@ -92,7 +93,17 @@ class ModelTrainer:
 
     def __init__(self, config: TrainingConfig):
         self.config = config
-        self.ctx = RunContext(experiment_name=f"deep_training_{config.dataset}", run_id=config.run)
+        self.wandb_run = None
+        if self.config.wandb_log:
+            self.wandb_run = wandb.init(
+                project=self.config.wandb_project,
+                entity=self.config.wandb_entity,
+                config=asdict(self.config), # Pass TrainingConfig as W&B config
+                reinit=True, # Important for multiple runs in one script
+                group=f"{self.config.dataset}_{self.config.model}", # Group runs by dataset and model
+                job_type="training"
+            )
+        self.ctx = RunContext(dataset=config.dataset, method="deep", model_name=config.model, wandb_run=self.wandb_run)
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
         
@@ -563,18 +574,22 @@ def run_training_pipeline(config: TrainingConfig):
     logger.info(f"Using device: {trainer.device}")
     logger.info("Starting training pipeline")
 
-    # --- Pre-training Phase ---
-    any_pretrain_task_enabled = any(
-        getattr(config, task[0])
-        for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
-    )
-    pre_trained_model = None
-    if any_pretrain_task_enabled:
-        pre_trained_model = trainer.pre_train()
-    else:
-        logger.info("Skipping pre-training phase.")
+    try:
+        # --- Pre-training Phase ---
+        any_pretrain_task_enabled = any(
+            getattr(config, task[0])
+            for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
+        )
+        pre_trained_model = None
+        if any_pretrain_task_enabled:
+            pre_trained_model = trainer.pre_train()
+        else:
+            logger.info("Skipping pre-training phase.")
 
-    # --- Fine-tuning Phase ---
-    metrics = trainer.train(pre_trained_model)
-    logger.info("Training pipeline completed.")
-    return metrics
+        # --- Fine-tuning Phase ---
+        metrics = trainer.train(pre_trained_model)
+        logger.info("Training pipeline completed.")
+        return metrics
+    finally:
+        if trainer.wandb_run:
+            trainer.wandb_run.finish()

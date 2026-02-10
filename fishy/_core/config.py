@@ -9,6 +9,7 @@ instance directly from parsed command-line arguments.
 
 import argparse
 from dataclasses import dataclass
+from typing import Optional
 
 @dataclass
 class TrainingConfig:
@@ -93,6 +94,11 @@ class TrainingConfig:
     flip_enabled: bool = False
     permutation_enabled: bool = False
     crop_size: float = 0.8  # Default crop size
+
+    # Weights & Biases parameters
+    wandb_project: Optional[str] = "fishy-business"
+    wandb_entity: Optional[str] = "victoria-university-of-wellington"
+    wandb_log: bool = False
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "TrainingConfig":

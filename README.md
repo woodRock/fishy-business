@@ -84,7 +84,6 @@ python3 main.py --help
 ├── data/                   # Raw data files (e.g., REIMS.xlsx)
 ├── docs/                   # Documentation and PhD notes
 ├── outputs/                # Artifacts from runs (figures, logs, checkpoints)
-├── papers/                 # Free PDF versions of my published papers
 └── requirements.txt        # Python dependencies
 ```
 
