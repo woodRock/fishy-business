@@ -38,13 +38,14 @@ def run_sequential_transfer_learning(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
     save_intermediate: bool = False,
     val_split: float = 0.2,
+    file_path: str = None
 ):
     """
     Performs sequential transfer learning across multiple datasets.
     """
     history = {"transfer": {}, "finetune": {}}
     device_obj = torch.device(device)
-    data_path = str(Path(__file__).resolve().parent.parent.parent / "data" / "REIMS.xlsx")
+    data_path = file_path if file_path else str(Path(__file__).resolve().parent.parent.parent / "data" / "REIMS.xlsx")
 
     # Initial data module to get dimensions
     data_module = create_data_module(

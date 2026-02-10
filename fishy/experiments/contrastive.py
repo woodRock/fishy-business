@@ -37,12 +37,81 @@ class ContrastiveConfig:
     input_dim: int = 2080
     encoder_type: str = "transformer"
     contrastive_method: str = "simclr"
+    file_path: str = ""
+    dropout: float = 0.1
+
+class ContrastiveTrainer:
+    def __init__(self, config: ContrastiveConfig):
+        self.config = config
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Using device: {self.device}")
+
+    def setup(self):
+        # Data Module
+        self.data_module = create_data_module(
+            file_path=self.config.file_path,
+            dataset_name="species",
+            batch_size=self.config.batch_size,
+        )
+        self.data_module.setup()
+        self.input_dim = self.data_module.get_input_dim()
+        
+        # Encoder creation
+        # We need a TrainingConfig for create_model
+        t_cfg = TrainingConfig(
+            model=self.config.encoder_type,
+            hidden_dimension=self.config.embedding_dim,
+            num_layers=4, # Default layers
+            num_heads=4   # Default heads
+        )
+        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(self.device)
+        
+        # Contrastive Model
+        if self.config.contrastive_method == "simclr":
+            self.model = SimCLRModel(encoder, self.config).to(self.device)
+            self.criterion = SimCLRLoss(temperature=self.config.temperature)
+        else:
+            raise ValueError(f"Unsupported contrastive method: {self.config.contrastive_method}")
+
+        self.optimizer = optim.AdamW(
+            self.model.parameters(), 
+            lr=self.config.learning_rate, 
+            weight_decay=self.config.weight_decay
+        )
+        
+        # Prepare Siamese Dataset for contrastive
+        samples = self.data_module.get_dataset().samples.cpu().numpy()
+        labels = self.data_module.get_dataset().labels.cpu().numpy()
+        self.siamese_dataset = SiameseDataset(samples, labels)
+        self.train_loader = DataLoader(
+            self.siamese_dataset, 
+            batch_size=self.config.batch_size, 
+            shuffle=True
+        )
+
+    def train(self):
+        self.model.train()
+        for epoch in range(self.config.num_epochs):
+            total_loss = 0
+            for batch_idx, (x1, x2, _) in enumerate(self.train_loader):
+                x1, x2 = x1.to(self.device), x2.to(self.device)
+                
+                self.optimizer.zero_grad()
+                z1, z2 = self.model(x1, x2)
+                loss = self.criterion(z1, z2)
+                loss.backward()
+                self.optimizer.step()
+                
+                total_loss += loss.item()
+            
+            avg_loss = total_loss / len(self.train_loader)
+            if (epoch + 1) % 10 == 0 or epoch == 0:
+                print(f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}")
 
 def run_contrastive_experiment(config: ContrastiveConfig):
     """
     Orchestrates contrastive learning experiments.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-    # ... logic from contrastive/main.py adapted here ...
-    pass
+    trainer = ContrastiveTrainer(config)
+    trainer.setup()
+    trainer.train()

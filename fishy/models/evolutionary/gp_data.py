@@ -3,9 +3,10 @@ import numpy as np
 import os
 import pandas as pd
 from typing import Iterable, Union
+from pathlib import Path
 
 
-def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
+def load_dataset(dataset: str = "species", file_path: str = None) -> Union[Iterable, Iterable]:
     """Load and prepare the dataset from an excel spreadsheet.
 
     This method loads the dataset from an excel spreadsheet.
@@ -15,30 +16,19 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
 
     Args:
         dataset (str): the species, part, oil or cross-species dataset
+        file_path (str): Optional path to the excel file.
 
     Returns:
         X,y (np.array, np.array): Returns the dataset split into features X, and class labels y.
     """
     logger = logging.getLogger(__name__)
 
-    # Path for university computers
-    path = [
-        "/",
-        "vol",
-        "ecrg-solar",
-        "woodj4",
-        "fishy-business",
-        "data",
-        "REIMS_data.xlsx",
-    ]
-    # Path for home computer
-    # path = ["~/", "Desktop", "fishy-business", "data", "REIMS_data.xlsx"]
-
-    path = os.path.join(*path)
+    if file_path is None:
+        file_path = str(Path(__file__).resolve().parent.parent.parent.parent / "data" / "REIMS.xlsx")
 
     # Load the dataset
-    logger.info(f"Reading dataset fish: {dataset}")
-    data = pd.read_excel(path)
+    logger.info(f"Reading dataset fish: {dataset} from {file_path}")
+    data = pd.read_excel(file_path)
     y = []
     # Remove the quality control samples.
     data = data[~data["m/z"].str.contains("QC")]

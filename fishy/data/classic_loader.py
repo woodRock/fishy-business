@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 from typing import Iterable, Union
 
 
-def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
+def load_dataset(dataset: str = "species", file_path: str = None) -> Union[Iterable, Iterable, Iterable]:
     """Load and prepare the dataset from an excel spreadsheet.
 
     This method loads the dataset from an excel spreadsheet.
@@ -16,19 +16,21 @@ def load_dataset(dataset: str = "species") -> Union[Iterable, Iterable]:
 
     Args:
         dataset (str): the species, part, oil or cross-species dataset
+        file_path (str): Optional path to the excel file.
 
     Returns:
-        X,y (np.array, np.array): Returns the dataset split into features X, and class labels y.
+        X,y,groups (np.array, np.array, np.array): Returns the dataset split into features X, class labels y, and group identifiers.
     """
     logger = logging.getLogger(__name__)
 
-    path = os.path.join(
-        os.path.dirname(__file__), "..", "..", "data", "REIMS.xlsx"
-    )
+    if file_path is None:
+        file_path = os.path.join(
+            os.path.dirname(__file__), "..", "..", "data", "REIMS.xlsx"
+        )
 
     # Load the dataset
-    logger.info(f"Reading dataset fish: {dataset}")
-    data = pd.read_excel(path)
+    logger.info(f"Reading dataset fish: {dataset} from {file_path}")
+    data = pd.read_excel(file_path)
     y = []
     # Remove the quality control samples.
     data = data[~data["m/z"].str.contains("QC")]

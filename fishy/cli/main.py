@@ -68,12 +68,14 @@ def add_train_args(subparsers):
 
 def add_benchmark_args(subparsers):
     bench_parser = subparsers.add_parser("benchmark", help="Benchmark multiple models")
+    bench_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     bench_parser.add_argument("models", type=str, nargs="+", help="Models to benchmark")
     bench_parser.add_argument("-w", "--warmup", type=int, default=0, help="Warmup epochs")
     bench_parser.add_argument("-o", "--output", type=str, default="benchmark_results.csv", help="Output CSV path")
 
 def add_transfer_args(subparsers):
     trans_parser = subparsers.add_parser("transfer", help="Sequential transfer learning")
+    trans_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     trans_parser.add_argument("-m", "--model", type=str, required=True, choices=MODEL_REGISTRY.keys(), help="Model type")
     trans_parser.add_argument("-td", "--transfer-datasets", type=str, nargs="+", required=True, help="Datasets for transfer")
     trans_parser.add_argument("-target", "--target-dataset", type=str, required=True, help="Target dataset")
@@ -91,6 +93,7 @@ def add_xai_args(subparsers):
 
 def add_evolutionary_args(subparsers):
     evo_parser = subparsers.add_parser("evolutionary", help="Run Genetic Programming experiments")
+    evo_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     evo_parser.add_argument("-d", "--dataset", type=str, default="species", help="Dataset name")
     evo_parser.add_argument("-g", "--generations", type=int, default=10, help="Number of generations")
     evo_parser.add_argument("-p", "--population", type=int, default=1023, help="Population size")
@@ -98,6 +101,7 @@ def add_evolutionary_args(subparsers):
 
 def add_contrastive_args(subparsers):
     cont_parser = subparsers.add_parser("contrastive", help="Run Contrastive Learning experiments")
+    cont_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     cont_parser.add_argument("-m", "--method", type=str, default="simclr", help="Contrastive method")
     cont_parser.add_argument("-e", "--encoder", type=str, default="transformer", help="Encoder type")
     cont_parser.add_argument("-epochs", "--epochs", type=int, default=100, help="Number of epochs")
@@ -204,7 +208,7 @@ def main():
         if args.command == "train":
             handle_train(args)
         elif args.command == "benchmark":
-            run_benchmark(args.models, warmup_epochs=args.warmup, output_file=args.output)
+            run_benchmark(args.models, warmup_epochs=args.warmup, output_file=args.output, file_path=args.file_path)
         elif args.command == "transfer":
             run_sequential_transfer_learning(
                 model_name=args.model,
@@ -212,7 +216,8 @@ def main():
                 target_dataset=args.target_dataset,
                 num_epochs_transfer=args.epochs_transfer,
                 num_epochs_finetune=args.epochs_finetune,
-                learning_rate=args.learning_rate
+                learning_rate=args.learning_rate,
+                file_path=args.file_path
             )
         elif args.command == "xai":
             handle_xai(args)
@@ -221,13 +226,15 @@ def main():
                 dataset=args.dataset,
                 generations=args.generations,
                 population=args.population,
-                run=args.run
+                run=args.run,
+                data_file_path=args.file_path
             )
         elif args.command == "contrastive":
             c_cfg = ContrastiveConfig(
                 contrastive_method=args.method,
                 encoder_type=args.encoder,
-                num_epochs=args.epochs
+                num_epochs=args.epochs,
+                file_path=args.file_path
             )
             run_contrastive_experiment(c_cfg)
     except Exception as e:

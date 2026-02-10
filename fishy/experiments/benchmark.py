@@ -34,7 +34,7 @@ def get_device() -> torch.device:
     else:
         return torch.device("cpu")
 
-def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: str = "benchmark_results.csv") -> pd.DataFrame:
+def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: str = "benchmark_results.csv", file_path: str = None) -> pd.DataFrame:
     """
     Benchmarks specified models on standard classification tasks.
 
@@ -48,6 +48,7 @@ def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: s
         model_names (List[str]): List of model architecture names to benchmark.
         warmup_epochs (int): Number of warm-up epochs to run before measurement.
         output_file (str): Path to save the final results as a CSV.
+        file_path (str): Optional path to the dataset excel file.
 
     Returns:
         pd.DataFrame: A DataFrame containing the benchmarking metrics for all models and datasets.
@@ -62,7 +63,7 @@ def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: s
             print(f"Benchmarking {model_name} on {dataset_name}...")
 
             # Load data
-            X, y, _ = load_dataset(dataset_name)
+            X, y, _ = load_dataset(dataset_name, file_path=file_path)
             n_features = X.shape[1]
             n_classes = len(np.unique(y))
             

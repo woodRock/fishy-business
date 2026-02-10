@@ -28,7 +28,8 @@ def run_gp_experiment(
     run: int = 0,
     file_path: str = "outputs/checkpoints/embedded-gp.pth",
     output_log: str = "outputs/logs/evolutionary/results",
-    load_checkpoint: bool = False
+    load_checkpoint: bool = False,
+    data_file_path: str = None
 ):
     """
     Runs a Genetic Programming experiment.
@@ -45,6 +46,7 @@ def run_gp_experiment(
         file_path (str): File path to save/load model checkpoints.
         output_log (str): Base path for output log files.
         load_checkpoint (bool): If True, attempts to resume from a checkpoint at ``file_path``.
+        data_file_path (str): Optional path to the dataset excel file.
     """
     os.makedirs(os.path.dirname(output_log), exist_ok=True)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -63,7 +65,7 @@ def run_gp_experiment(
     }
     n_classes = n_classes_per_dataset[dataset]
 
-    X, y = load_dataset(dataset=dataset)
+    X, y = load_dataset(dataset=dataset, file_path=data_file_path)
     pset = PrimitiveSetTyped("main", [float] * n_features, float)
 
     def protectedDiv(left, right): return np.divide(left, right, out=np.ones_like(left, dtype=float), where=right != 0)
