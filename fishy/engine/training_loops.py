@@ -705,6 +705,8 @@ def _train_fold(
                 "train_loss": train_results["loss"],
                 "val_loss": val_results["loss"],
                 "epoch": epoch,
+                "train_balanced_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
+                "val_balanced_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
             }
             # Add all validation metrics with a 'val_' prefix
             if val_results.get("metrics"):
@@ -735,11 +737,11 @@ def _train_fold(
         if epoch_log["train_losses"]:
             best_fold_metrics = {
                 "train_loss": epoch_log["train_losses"][-1],
-                "train_accuracy": epoch_log["train_metrics"][-1].get(
+                "train_balanced_accuracy": epoch_log["train_metrics"][-1].get(
                     "balanced_accuracy", float("nan")
                 ),
                 "val_loss": epoch_log["val_losses"][-1],
-                "val_accuracy": epoch_log["val_metrics"][-1].get(
+                "val_balanced_accuracy": epoch_log["val_metrics"][-1].get(
                     "balanced_accuracy", float("nan")
                 ),
                 "epoch": epoch,
@@ -747,9 +749,9 @@ def _train_fold(
         else:
             best_fold_metrics = {
                 "train_loss": float("nan"),
-                "train_accuracy": float("nan"),
+                "train_balanced_accuracy": float("nan"),
                 "val_loss": float("nan"),
-                "val_accuracy": float("nan"),
+                "val_balanced_accuracy": float("nan"),
                 "epoch": float("nan"),
             }
     if best_model_state_cpu is None:

@@ -107,7 +107,8 @@ class ClassicTrainer:
         # 5-fold cross-validation
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-        results = []
+        val_results = []
+        train_results = []
         for fold, (train_idx, test_idx) in enumerate(skf.split(X_scaled, y), 1):
             X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
             y_train, y_test = y[train_idx], y[test_idx]
@@ -115,12 +116,21 @@ class ClassicTrainer:
             clf = model_class()
             clf.fit(X_train, y_train)
 
-            y_pred = clf.predict(X_test)
-            acc = balanced_accuracy_score(y_test, y_pred)
+            # Calculate Train Balanced Accuracy
+            y_train_pred = clf.predict(X_train)
+            train_acc = balanced_accuracy_score(y_train, y_train_pred)
+            train_results.append(train_acc)
 
-            results.append(acc)
-            self.ctx.log_metric(fold, {"balanced_accuracy": acc})
-            self.logger.info(f"Fold {fold}: Balanced Accuracy = {acc:.4f}")
+            # Calculate Validation Balanced Accuracy
+            y_pred = clf.predict(X_test)
+            val_acc = balanced_accuracy_score(y_test, y_pred)
+            val_results.append(val_acc)
+
+            self.ctx.log_metric(fold, {
+                "epoch/train_balanced_accuracy": train_acc,
+                "epoch/val_balanced_accuracy": val_acc
+            })
+            self.logger.info(f"Fold {fold}: Train BA = {train_acc:.4f}, Val BA = {val_acc:.4f}")
 
             # Advanced Visualizations for W&B (last fold)
             if fold == 5 and self.ctx.wandb_run:
@@ -151,22 +161,24 @@ class ClassicTrainer:
                     table_name="val_predictions_samples_last_fold",
                 )
 
-        avg_acc = np.mean(results)
-        std_acc = np.std(results)
+        avg_val_acc = np.mean(val_results)
+        std_val_acc = np.std(val_results)
+        avg_train_acc = np.mean(train_results)
         
         stats = {
-            "val_balanced_accuracy": avg_acc,
-            "val_balanced_accuracy_std": std_acc
+            "train_balanced_accuracy": avg_train_acc,
+            "val_balanced_accuracy": avg_val_acc,
+            "val_balanced_accuracy_std": std_val_acc
         }
         
         self.ctx.save_results(
             {
-                "fold_accuracies": results,
+                "fold_accuracies": val_results,
                 "stats": stats
             }
         )
         self.logger.info(
-            f"Finished {self.model_name}. Average Balanced Accuracy: {avg_acc:.4f} ± {std_acc:.4f}"
+            f"Finished {self.model_name}. Average Val Balanced Accuracy: {avg_val_acc:.4f} ± {std_val_acc:.4f}"
         )
 
     def _run_opls_da(self, X, y, groups):
@@ -180,7 +192,8 @@ class ClassicTrainer:
         # Use Group K-Fold if groups are meaningful, otherwise standard Stratified
         skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-        results = []
+        val_results = []
+        train_results = []
         for fold, (train_idx, test_idx) in enumerate(skf.split(X_scaled, y), 1):
             X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
             y_train, y_test = y[train_idx], y[test_idx]
@@ -194,12 +207,21 @@ class ClassicTrainer:
             clf = LinearDiscriminantAnalysis()
             clf.fit(X_train_opls, y_train)
 
-            y_pred = clf.predict(X_test_opls)
-            acc = balanced_accuracy_score(y_test, y_pred)
+            # Calculate Train Balanced Accuracy
+            y_train_pred = clf.predict(X_train_opls)
+            train_acc = balanced_accuracy_score(y_train, y_train_pred)
+            train_results.append(train_acc)
 
-            results.append(acc)
-            self.ctx.log_metric(fold, {"balanced_accuracy": acc})
-            self.logger.info(f"Fold {fold}: Balanced Accuracy = {acc:.4f}")
+            # Calculate Validation Balanced Accuracy
+            y_pred = clf.predict(X_test_opls)
+            val_acc = balanced_accuracy_score(y_test, y_pred)
+            val_results.append(val_acc)
+
+            self.ctx.log_metric(fold, {
+                "epoch/train_balanced_accuracy": train_acc,
+                "epoch/val_balanced_accuracy": val_acc
+            })
+            self.logger.info(f"Fold {fold}: Train BA = {train_acc:.4f}, Val BA = {val_acc:.4f}")
 
             # Advanced Visualizations for W&B (last fold)
             if fold == 5 and self.ctx.wandb_run:
@@ -224,22 +246,24 @@ class ClassicTrainer:
                     table_name="val_predictions_samples_last_fold",
                 )
 
-        avg_acc = np.mean(results)
-        std_acc = np.std(results)
+        avg_val_acc = np.mean(val_results)
+        std_val_acc = np.std(val_results)
+        avg_train_acc = np.mean(train_results)
         
         stats = {
-            "val_balanced_accuracy": avg_acc,
-            "val_balanced_accuracy_std": std_acc
+            "train_balanced_accuracy": avg_train_acc,
+            "val_balanced_accuracy": avg_val_acc,
+            "val_balanced_accuracy_std": std_val_acc
         }
         
         self.ctx.save_results(
             {
-                "fold_accuracies": results,
+                "fold_accuracies": val_results,
                 "stats": stats
             }
         )
         self.logger.info(
-            f"Finished OPLS-DA. Average Balanced Accuracy: {avg_acc:.4f} ± {std_acc:.4f}"
+            f"Finished OPLS-DA. Average Val Balanced Accuracy: {avg_val_acc:.4f} ± {std_val_acc:.4f}"
         )
 
 

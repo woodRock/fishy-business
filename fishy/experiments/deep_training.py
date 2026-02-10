@@ -437,12 +437,12 @@ class ModelTrainer:
 
             final_metrics = {
                 "train_loss": train_val_metrics.get("train_loss"),
-                "train_accuracy": train_val_metrics.get("train_accuracy"),
+                "train_balanced_accuracy": train_val_metrics.get("train_balanced_accuracy"),
                 "val_loss": train_val_metrics.get("val_loss"),
-                "val_accuracy": train_val_metrics.get("val_accuracy"),
+                "val_balanced_accuracy": train_val_metrics.get("val_balanced_accuracy"),
                 "best_epoch": train_val_metrics.get("epoch"),
                 "test_loss": test_results.get("loss"),
-                "test_accuracy": test_results.get("metrics", {}).get(
+                "test_balanced_accuracy": test_results.get("metrics", {}).get(
                     "balanced_accuracy"
                 ),
             }
@@ -632,6 +632,14 @@ class ModelTrainer:
                     for k in all_fold_metrics[0]
                     if isinstance(all_fold_metrics[0][k], (int, float))
                 }
+                
+                # Ensure primary keys are explicitly at the top level of stats
+                # even if they were nested or named differently in individual folds
+                if "val_balanced_accuracy" in stats:
+                    stats["val_balanced_accuracy"] = stats["val_balanced_accuracy"]
+                if "train_balanced_accuracy" in stats:
+                    stats["train_balanced_accuracy"] = stats["train_balanced_accuracy"]
+
                 self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
 
                 suffix = "classification"
