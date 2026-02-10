@@ -150,13 +150,13 @@ class RunContext:
 
     def log_metric(self, step: int, metrics: Dict[str, float]):
         """
-        Logs metrics for a specific step.
+        Logs metrics for a specific step. 
         In the future, this could also write to a PSQL database.
         """
         # For now, just log to info
         metrics_str = " - ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
         self.logger.info(f"Step {step}: {metrics_str}")
-
+        
         # Append to a csv for easy parsing later
         csv_path = self.result_dir / "step_metrics.csv"
         metrics_with_step = {"step": step, **metrics}
@@ -164,3 +164,61 @@ class RunContext:
         df.to_csv(csv_path, mode='a', header=not csv_path.exists(), index=False)
         if self.wandb_run:
             self.wandb_run.log(metrics, step=step) # Log metrics to W&B, committing a step
+
+    def log_summary_charts(self, y_true: np.ndarray, y_probs: np.ndarray, class_names: list):
+        """Logs advanced metrics like Confusion Matrix and ROC curves to W&B."""
+        if self.wandb_run:
+            self.logger.info("Logging summary charts to W&B...")
+            # 1. Confusion Matrix
+            self.wandb_run.log({
+                "conf_mat": wandb.plot.confusion_matrix(
+                    probs=y_probs,
+                    y_true=y_true,
+                    class_names=class_names
+                )
+            }, commit=False)
+            
+            # 2. ROC Curve
+            self.wandb_run.log({
+                "roc": wandb.plot.roc_curve(y_true, y_probs, labels=class_names)
+            }, commit=False)
+            
+            # 3. Precision-Recall Curve
+            self.wandb_run.log({
+                "pr": wandb.plot.pr_curve(y_true, y_probs, labels=class_names)
+            }, commit=False)
+
+    def log_prediction_table(self, spectra: np.ndarray, preds: np.ndarray, targets: np.ndarray, probs: np.ndarray, class_names: list, table_name: str = "predictions"):
+        """Logs a table of predictions with their corresponding spectral plots."""
+        if self.wandb_run:
+            self.logger.info(f"Logging {table_name} table to W&B...")
+            import matplotlib.pyplot as plt
+            columns = ["id", "spectrum", "prediction", "target", "confidence", "is_correct"]
+            table = wandb.Table(columns=columns)
+            
+            # Log a subset to avoid excessive data usage, but enough for meaningful inspection
+            num_samples = min(len(spectra), 100)
+            for i in range(num_samples):
+                # Create a small plot for the spectrum
+                plt.figure(figsize=(4, 3))
+                plt.plot(spectra[i])
+                plt.title(f"Target: {class_names[targets[i]]}")
+                plt.xlabel("Wavelength/Feature")
+                plt.ylabel("Intensity")
+                
+                # Use a buffer to avoid saving many small files locally
+                img = wandb.Image(plt)
+                plt.close()
+                
+                table.add_data(
+                    i, 
+                    img, 
+                    class_names[preds[i]], 
+                    class_names[targets[i]], 
+                    float(probs[i].max()),
+                    bool(preds[i] == targets[i])
+                )
+                
+            self.wandb_run.log({table_name: table}, commit=False)
+
+    

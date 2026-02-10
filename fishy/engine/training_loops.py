@@ -10,7 +10,7 @@ from tqdm import tqdm
 import logging
 import copy
 import time
-from typing import Dict, List, Tuple, Union, Optional
+from typing import Dict, List, Tuple, Union, Optional, Any
 from collections import OrderedDict
 
 import numpy as np
@@ -170,6 +170,7 @@ def train_model(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
+    ctx: Optional[Any] = None, # Added ctx
 ) -> Tuple[nn.Module, Dict]:
     """
     Trains a model.
@@ -193,6 +194,7 @@ def train_model(
         use_cumulative_link (bool): Use Cumulative Link loss.
         num_classes (Optional[int]): Number of classes.
         regression (bool): Whether this is a regression task.
+        ctx (Optional[RunContext]): Run context for logging.
 
     Returns:
         Tuple[nn.Module, Dict]: The trained model and a dictionary of metrics.
@@ -214,6 +216,7 @@ def train_model(
             use_cumulative_link,
             num_classes,
             regression,
+            ctx=ctx, # Pass ctx
         )
         final_model = model
         if fold_results["best_model_state"] is not None:
@@ -258,6 +261,7 @@ def train_model(
             use_cumulative_link,
             num_classes,
             regression,
+            ctx=ctx, # Pass ctx
         )
 
     all_runs_metrics_accumulator = []
@@ -324,6 +328,7 @@ def train_model(
                 use_cumulative_link,
                 num_classes,
                 regression,
+                ctx=ctx, # Pass ctx
             )
 
             if fold_results["best_accuracy"] > current_run_best_accuracy:
@@ -445,6 +450,7 @@ def _train_single_split(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
+    ctx: Optional[Any] = None, # Added ctx
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model using a single split with multiple independent runs."""
     all_runs_metrics_accumulator = []
@@ -509,6 +515,7 @@ def _train_single_split(
             use_cumulative_link,
             num_classes,
             regression,
+            ctx=ctx, # Pass ctx
         )
 
         current_run_best_accuracy = run_results["best_accuracy"]
@@ -616,6 +623,7 @@ def _train_fold(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
+    ctx: Optional[Any] = None, # Added ctx
 ) -> Dict:
     """Trains a model for a single fold of cross-validation."""
     best_val_accuracy = float("-inf")
@@ -664,6 +672,23 @@ def _train_fold(
         epoch_log["val_losses"].append(val_results["loss"])
         epoch_log["train_metrics"].append(train_results["metrics"])
         epoch_log["val_metrics"].append(val_results["metrics"])
+
+        # Log metrics to RunContext (W&B) per epoch
+        if ctx:
+            epoch_metrics = {
+                "epoch/train_loss": train_results["loss"],
+                "epoch/val_loss": val_results["loss"],
+                "epoch/train_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
+                "epoch/val_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
+            }
+            # Add other metrics if available
+            for m_name in ["precision", "recall", "f1"]:
+                if m_name in train_results["metrics"]:
+                    epoch_metrics[f"epoch/train_{m_name}"] = train_results["metrics"][m_name]
+                if m_name in val_results["metrics"]:
+                    epoch_metrics[f"epoch/val_{m_name}"] = val_results["metrics"][m_name]
+            
+            ctx.log_metric(epoch + 1, epoch_metrics)
 
         current_val_acc = val_results["metrics"].get("balanced_accuracy", float("-inf"))
 

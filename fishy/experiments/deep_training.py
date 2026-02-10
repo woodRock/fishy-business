@@ -384,6 +384,7 @@ class ModelTrainer:
                 use_coral=self.config.use_coral,
                 num_classes=self.n_classes,
                 regression=self.config.regression,
+                ctx=self.ctx, # Pass context
             )
 
             self.logger.info("Evaluating on the test set.")
@@ -396,6 +397,34 @@ class ModelTrainer:
                 self.n_classes,
                 regression=self.config.regression,
             )
+
+            # Advanced Visualizations for W&B
+            if self.ctx.wandb_run:
+                # Extract class names if available, otherwise use indices
+                class_names = [str(i) for i in range(self.n_classes)]
+                if hasattr(self.data_module, 'get_class_names'):
+                    class_names = self.data_module.get_class_names()
+                
+                y_true = test_results["predictions"]["labels"]
+                y_preds = test_results["predictions"]["preds"]
+                y_probs = test_results["predictions"]["probs"]
+                
+                # 1. Log Summary Charts (Confusion Matrix, ROC, PR)
+                if not self.config.regression and y_probs is not None:
+                    self.ctx.log_summary_charts(y_true, y_probs, class_names)
+                
+                # 2. Log Prediction Table with Spectral Plots
+                # Get a sample of spectra from the test loader
+                test_spectra, _ = next(iter(test_loader))
+                test_spectra_np = test_spectra.cpu().numpy()
+                self.ctx.log_prediction_table(
+                    spectra=test_spectra_np,
+                    preds=y_preds[:len(test_spectra_np)],
+                    targets=y_true[:len(test_spectra_np)],
+                    probs=y_probs[:len(test_spectra_np)] if y_probs is not None else np.eye(self.n_classes)[y_preds[:len(test_spectra_np)]],
+                    class_names=class_names,
+                    table_name="test_predictions_samples"
+                )
 
             final_metrics = {
                 "train_loss": train_val_metrics.get("train_loss"),
@@ -532,12 +561,38 @@ class ModelTrainer:
                     use_cumulative_link=self.config.use_cumulative_link,
                     num_classes=self.n_classes,
                     regression=self.config.regression,
+                    ctx=self.ctx, # Pass context
                 )
                 if "best_val_predictions" in metrics:
                     if self.config.dataset == "oil":
                         self.analyze_oil_predictions(
                             metrics["best_val_predictions"], fold
                         )
+                    
+                    # Advanced Visualizations for W&B (last fold)
+                    if fold == k_folds - 1 and self.ctx.wandb_run:
+                        class_names = [str(i) for i in range(self.n_classes)]
+                        if hasattr(self.data_module, 'get_class_names'):
+                            class_names = self.data_module.get_class_names()
+                        
+                        y_true = metrics["best_val_predictions"]["labels"]
+                        y_preds = metrics["best_val_predictions"]["preds"]
+                        y_probs = metrics["best_val_predictions"]["probs"]
+                        
+                        if not self.config.regression and y_probs is not None:
+                            self.ctx.log_summary_charts(y_true, y_probs, class_names)
+                        
+                        val_spectra, _ = next(iter(val_loader))
+                        val_spectra_np = val_spectra.cpu().numpy()
+                        self.ctx.log_prediction_table(
+                            spectra=val_spectra_np,
+                            preds=y_preds[:len(val_spectra_np)],
+                            targets=y_true[:len(val_spectra_np)],
+                            probs=y_probs[:len(val_spectra_np)] if y_probs is not None else np.eye(self.n_classes)[y_preds[:len(val_spectra_np)]],
+                            class_names=class_names,
+                            table_name="val_predictions_samples_last_fold"
+                        )
+
                     del metrics["best_val_predictions"]
 
                 all_fold_metrics.append(metrics)
