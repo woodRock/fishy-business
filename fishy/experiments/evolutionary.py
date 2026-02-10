@@ -273,6 +273,7 @@ def run_gp_experiment(
         logger.info(
             f"GP Experiment finished. Average Val Balanced Accuracy: {avg_val_acc:.4f}"
         )
+        return stats
     finally:
         if wandb_run:
             wandb_run.finish()

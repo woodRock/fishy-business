@@ -7,13 +7,27 @@ import logging
 import json
 import time
 import os
+import random
 from pathlib import Path
 from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, Optional
 import pandas as pd
 import numpy as np
+import torch
 import wandb
 import wandb.sdk.wandb_run
+
+
+def set_seed(seed: int):
+    """Sets the seed for reproducibility across multiple libraries."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Ensure deterministic behavior in PyTorch (can slow down training)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 class RunContext:

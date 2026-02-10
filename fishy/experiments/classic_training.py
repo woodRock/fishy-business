@@ -88,9 +88,9 @@ class ClassicTrainer:
 
         # OPLS-DA requires a specific pipeline
         if self.model_name == "opls-da":
-            self._run_opls_da(X, y, groups)
+            return self._run_opls_da(X, y, groups)
         else:
-            self._run_standard_model(X, y, groups)
+            return self._run_standard_model(X, y, groups)
 
     def _run_standard_model(self, X, y, groups):
         if self.model_name not in self.MODELS:
@@ -181,11 +181,12 @@ class ClassicTrainer:
         self.logger.info(
             f"Finished {self.model_name}. Average Val Balanced Accuracy: {avg_val_acc:.4f} ± {std_val_acc:.4f}"
         )
+        return stats
 
     def _run_opls_da(self, X, y, groups):
         if OPLS is None:
             self.logger.error("pyopls not installed. Skipping OPLS-DA.")
-            return
+            return {}
 
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -267,6 +268,7 @@ class ClassicTrainer:
         self.logger.info(
             f"Finished OPLS-DA. Average Val Balanced Accuracy: {avg_val_acc:.4f} ± {std_val_acc:.4f}"
         )
+        return stats
 
 
 def run_classic_experiment(
@@ -278,7 +280,7 @@ def run_classic_experiment(
 ):
     trainer = ClassicTrainer(config, model_name, dataset_name, run_id, file_path)
     try:
-        trainer.run()
+        return trainer.run()
     finally:
         if trainer.wandb_run:
             trainer.wandb_run.finish()

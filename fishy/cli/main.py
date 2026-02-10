@@ -20,6 +20,7 @@ from fishy.experiments.classic_training import run_classic_experiment
 from fishy.experiments.benchmark import run_benchmark
 from fishy.experiments.transfer import run_sequential_transfer_learning
 from fishy.experiments.evolutionary import run_gp_experiment
+from fishy.experiments.orchestrator import run_all_experiments
 from fishy.experiments.contrastive import run_contrastive_experiment, ContrastiveConfig
 from fishy.analysis.xai import explain_predictions, ExplainerConfig
 from fishy._core.factory import MODEL_REGISTRY
@@ -36,6 +37,46 @@ def setup_base_parser():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     return parser, subparsers
+
+
+def add_run_all_args(subparsers):
+    run_all_parser = subparsers.add_parser(
+        "run_all", help="Run the full benchmarking suite with statistical analysis"
+    )
+    run_all_parser.add_argument(
+        "-n",
+        "--num-runs",
+        type=int,
+        default=30,
+        help="Number of independent runs per experiment",
+    )
+    run_all_parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Run a very fast subset of experiments for testing",
+    )
+    run_all_parser.add_argument(
+        "--wandb-log", action="store_true", help="Enable Weights & Biases logging"
+    )
+    run_all_parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
+    )
+    run_all_parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name",
+    )
+
+
+def handle_run_all(args):
+    run_all_experiments(
+        num_runs=args.num_runs,
+        wandb_log=args.wandb_log,
+        wandb_project=args.wandb_project,
+        wandb_entity=args.wandb_entity,
+        quick=args.quick,
+    )
 
 
 def add_train_args(subparsers):
@@ -414,6 +455,7 @@ def handle_xai(args):
 
 def main():
     parser, subparsers = setup_base_parser()
+    add_run_all_args(subparsers)
     add_train_args(subparsers)
     add_benchmark_args(subparsers)
     add_transfer_args(subparsers)
@@ -428,7 +470,9 @@ def main():
         sys.exit(0)
 
     try:
-        if args.command == "train":
+        if args.command == "run_all":
+            handle_run_all(args)
+        elif args.command == "train":
             handle_train(args)
         elif args.command == "benchmark":
             run_benchmark(
