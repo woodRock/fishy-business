@@ -45,7 +45,7 @@ from sklearn.impute import SimpleImputer
 import warnings
 from sklearn.exceptions import ConvergenceWarning, FitFailedWarning
 
-from data import load_dataset
+from fishy.data.classic_loader import load_dataset
 
 # --- Configuration ---
 target_threshold = 0.7143

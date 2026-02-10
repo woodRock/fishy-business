@@ -8,6 +8,7 @@ This is the auto-generated API reference for the ``fish`` library.
    :template: module.rst
    :recursive:
 
+   fishy
    fishy.data
    fishy.models
    fishy.engine

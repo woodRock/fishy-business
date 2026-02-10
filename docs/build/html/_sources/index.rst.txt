@@ -11,12 +11,9 @@ Welcome to fish's documentation!
    :caption: Contents:
 
    api
-   about 
    papers
    minutes
    literature
-   notes
-   thoughts
    contact
 
 Indices and tables

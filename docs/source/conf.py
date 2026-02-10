@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../.."))  # Adjust path to your project's ro
 print("sys.path:", sys.path)  # Debugging line to check sys.path contents
 # -- Project information -----------------------------------------------------
 
-project = "fish"
+project = "fishy-business"
 copyright = (
     "2022, Jesse Wood, Bing Xue, Mengjie Zhang, Bach Hoai Nguyen, Daniel Killeen"
 )

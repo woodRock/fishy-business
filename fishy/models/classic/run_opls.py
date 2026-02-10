@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import balanced_accuracy_score, classification_report
 from pyopls import OPLS
-from data import load_dataset
+from fishy.data.classic_loader import load_dataset
 
 from sklearn.model_selection import StratifiedGroupKFold
 

@@ -8,6 +8,11 @@ This is the auto-generated API reference for the ``fish`` library.
    :template: module.rst
    :recursive:
 
-   deep_learning
-   siamese
-   models
+   fishy
+   fishy.data
+   fishy.models
+   fishy.engine
+   fishy.experiments
+   fishy.analysis
+   fishy.cli
+   fishy._core

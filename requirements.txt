@@ -8,4 +8,4 @@ seaborn
 torchdiffeq
 openpyxl
 lime
-pygraphviz
+pygraphvizxgboost

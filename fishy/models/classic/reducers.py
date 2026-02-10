@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
-from data import load_dataset
+from fishy.data.classic_loader import load_dataset
 import umap
 from sklearn.decomposition import PCA as pca
 from sklearn.manifold import TSNE as tsne
