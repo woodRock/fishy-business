@@ -209,20 +209,69 @@ def run_gp_experiment(
             )
 
             best = hof[0]
-            acc = evaluate_classification(
-                best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test
-            )
-            fold_metrics.append({"fold": fold_idx + 1, "accuracy": acc})
-            ctx.log_metric(fold_idx + 1, {"test_accuracy": acc})
+            
+            # --- Detailed Evaluation ---
+            # 1. Compile best individual on train and test
+            train_features = compileMultiTree(best, pset, X_train)
+            test_features = compileMultiTree(best, pset, X_test)
+            
+            # 2. Generate predictions (argmax across class-specific trees)
+            train_preds = np.argmax(train_features, axis=1)
+            test_preds = np.argmax(test_features, axis=1)
+            
+            # 3. Calculate balanced accuracy
+            train_bal_acc = balanced_accuracy_score(y_train, train_preds)
+            test_bal_acc = balanced_accuracy_score(y_test, test_preds)
+            
+            fold_metrics.append({
+                "fold": fold_idx + 1, 
+                "train_balanced_accuracy": train_bal_acc,
+                "val_balanced_accuracy": test_bal_acc
+            })
+            
+            ctx.log_metric(fold_idx + 1, {
+                "epoch/train_balanced_accuracy": train_bal_acc,
+                "epoch/val_balanced_accuracy": test_bal_acc
+            })
 
-        ctx.save_results(
-            {
-                "fold_results": fold_metrics,
-                "average_accuracy": np.mean([m["accuracy"] for m in fold_metrics]),
-            }
-        )
+            # --- Advanced Visualizations for W&B (last fold) ---
+            if fold_idx == k - 1 and ctx.wandb_run:
+                # Use unique labels as class names
+                unique_labels = np.unique(y)
+                class_names = [str(c) for c in unique_labels]
+                
+                # Normalize features to act as probabilities
+                from fishy.models.evolutionary.gp_util import normalize
+                test_probs = normalize(test_features)
+                
+                # Log Charts
+                ctx.log_summary_charts(y_test, test_probs, class_names)
+                
+                # Log Prediction Table
+                ctx.log_prediction_table(
+                    spectra=X_test,
+                    preds=test_preds,
+                    targets=y_test,
+                    probs=test_probs,
+                    class_names=class_names,
+                    table_name="val_predictions_samples_last_fold"
+                )
+
+        # --- Aggregate and Save Final Stats ---
+        avg_train_acc = np.mean([m["train_balanced_accuracy"] for m in fold_metrics])
+        avg_val_acc = np.mean([m["val_balanced_accuracy"] for m in fold_metrics])
+        
+        stats = {
+            "train_balanced_accuracy": avg_train_acc,
+            "val_balanced_accuracy": avg_val_acc
+        }
+        
+        ctx.save_results({
+            "fold_results": fold_metrics,
+            "stats": stats
+        })
         logger.info(
-            f"GP Experiment finished. Average Accuracy: {np.mean([m['accuracy'] for m in fold_metrics]):.4f}"
+            f"GP Experiment finished. Average Val Balanced Accuracy: {avg_val_acc:.4f}"
         )
     finally:
         if wandb_run:

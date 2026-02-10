@@ -150,7 +150,14 @@ class ContrastiveTrainer:
                 )
 
         # Save results
-        self.ctx.save_results(history, filename="training_history.json")
+        avg_final_loss = history["loss"][-1] if history["loss"] else 0
+        self.ctx.save_results(
+            {
+                "history": history,
+                "stats": {"final_contrastive_loss": avg_final_loss}
+            }, 
+            filename="training_history.json"
+        )
         torch.save(
             self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth")
         )
