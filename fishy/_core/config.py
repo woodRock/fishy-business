@@ -104,16 +104,30 @@ class TrainingConfig:
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "TrainingConfig":
         """
-        Create a :class:`TrainingConfig` instance from parsed command-line arguments.
-
-        Args:
-            args (argparse.Namespace): The parsed arguments from :mod:`argparse`.
-
-        Returns:
-            TrainingConfig: A configuration object populated with values from ``args``.
+        Create a :class:`TrainingConfig` instance from parsed command-line arguments,
+        merging with model-specific defaults from models.yaml.
         """
         import dataclasses
+        from fishy._core.config_loader import load_config
 
+        # 1. Start with class defaults
+        config_dict = {f.name: f.default for f in dataclasses.fields(cls) if f.default is not dataclasses.MISSING}
+        
+        # 2. Load model-specific defaults from YAML if available
+        if hasattr(args, "model") and args.model:
+            models_cfg = load_config("models")["deep_models"]
+            model_entry = models_cfg.get(args.model.lower())
+            if isinstance(model_entry, dict) and "defaults" in model_entry:
+                config_dict.update(model_entry["defaults"])
+
+        # 3. Override with explicitly provided command-line arguments
+        # We only override if the argument was actually passed by the user
         valid_keys = {f.name for f in dataclasses.fields(cls)}
-        config_dict = {k: v for k, v in vars(args).items() if k in valid_keys}
+        arg_dict = vars(args)
+        for key in valid_keys:
+            if key in arg_dict and arg_dict[key] is not None:
+                # For boolean flags, check if they are True (explicitly enabled)
+                # For other types, check if they differ from the default if default is set
+                config_dict[key] = arg_dict[key]
+
         return cls(**config_dict)

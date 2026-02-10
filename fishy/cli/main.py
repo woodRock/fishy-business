@@ -23,7 +23,7 @@ from fishy.experiments.evolutionary import run_gp_experiment
 from fishy.experiments.orchestrator import run_all_experiments
 from fishy.experiments.contrastive import run_contrastive_experiment, ContrastiveConfig
 from fishy.analysis.xai import explain_predictions, ExplainerConfig
-from fishy._core.factory import MODEL_REGISTRY
+from fishy._core.config_loader import load_config
 from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.data.augmentation import AugmentationConfig
@@ -89,120 +89,77 @@ def handle_run_all(args):
 
 def add_train_args(subparsers):
     train_parser = subparsers.add_parser(
-        "train", help="Run the model training pipeline"
+        "train", help="Run standard model training (Classification)"
     )
+    _add_common_training_args(train_parser)
 
-    # Combined list of deep and classic models
-    all_models = list(MODEL_REGISTRY.keys()) + [
-        "knn",
-        "dt",
-        "lr",
-        "lda",
-        "nb",
-        "rf",
-        "svm",
-        "opls-da",
+
+def add_pretrain_args(subparsers):
+    pretrain_parser = subparsers.add_parser(
+        "pretrain", help="Run self-supervised pre-training tasks"
+    )
+    _add_common_training_args(pretrain_parser)
+    
+    # Task selection
+    task_group = pretrain_parser.add_argument_group("Pre-training Tasks")
+    pretrain_tasks = [
+        "masked_spectra_modelling",
+        "next_spectra_prediction",
+        "next_peak_prediction",
+        "spectrum_denoising_autoencoding",
+        "peak_parameter_regression",
+        "spectrum_segment_reordering",
+        "contrastive_transformation_invariance_learning",
     ]
-
-    train_parser.add_argument(
-        "-fp",
-        "--file-path",
-        type=str,
-        default=DEFAULT_DATA_PATH,
-        help="Path to dataset",
-    )
-    train_parser.add_argument(
-        "-d",
-        "--dataset",
-        type=str,
-        default="species",
-        choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(),
-        help="Dataset name",
-    )
-    train_parser.add_argument(
-        "-m",
-        "--model",
-        type=str,
-        default="transformer",
-        choices=all_models,
-        help="Model type",
-    )
-    train_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
-    train_parser.add_argument(
-        "-nr", "--num-runs", type=int, default=1, help="Number of independent runs"
-    )
-    train_parser.add_argument(
-        "-o", "--output", type=str, default="logs/results_base", help="Output log path"
-    )
-    train_parser.add_argument(
-        "-e", "--epochs", type=int, default=100, help="Training epochs"
-    )
-    train_parser.add_argument(
-        "-bs", "--batch-size", type=int, default=64, help="Batch size"
-    )
-    train_parser.add_argument(
-        "-lr", "--learning-rate", type=float, default=1e-4, help="Learning rate"
-    )
-    train_parser.add_argument(
-        "-es", "--early-stopping", type=int, default=20, help="Early stopping patience"
-    )
-    train_parser.add_argument(
-        "-do", "--dropout", type=float, default=0.2, help="Dropout"
-    )
-    train_parser.add_argument(
-        "-ls", "--label-smoothing", type=float, default=0.1, help="Label smoothing"
-    )
-    train_parser.add_argument("-kf", "--k-folds", type=int, default=3, help="K-folds")
-    train_parser.add_argument(
-        "-hd", "--hidden-dimension", type=int, default=128, help="Hidden dimension"
-    )
-    train_parser.add_argument(
-        "-l", "--num-layers", type=int, default=4, help="Number of layers"
-    )
-    train_parser.add_argument(
-        "-nh", "--num-heads", type=int, default=4, help="Number of attention heads"
-    )
-    train_parser.add_argument(
-        "-da", "--data-augmentation", action="store_true", help="Enable augmentation"
-    )
-    train_parser.add_argument(
-        "--num-augmentations", type=int, default=5, help="Number of augmentations"
-    )
-    train_parser.add_argument(
-        "--noise-level", type=float, default=0.05, help="Noise level"
-    )
-    train_parser.add_argument(
-        "--shift-enabled", action="store_true", help="Enable shift"
-    )
-    train_parser.add_argument(
-        "--scale-enabled", action="store_true", help="Enable scale"
-    )
-    train_parser.add_argument("--use-coral", action="store_true", help="Use CORAL loss")
-    train_parser.add_argument(
-        "--use-cumulative-link", action="store_true", help="Use Cumulative Link loss"
-    )
-    train_parser.add_argument(
-        "--regression", action="store_true", help="Perform regression"
-    )
-    train_parser.add_argument(
-        "--wandb-log", action="store_true", help="Log to Weights & Biases"
-    )
-    train_parser.add_argument(
-        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
-    )
-    train_parser.add_argument(
-        "--wandb-entity",
-        type=str,
-        default="victoria-university-of-wellington",
-        help="W&B entity name",
-    )
-
-    for task_flag, _, _, _, _ in ModelTrainer.PRETRAIN_TASK_DEFINITIONS:
-        train_parser.add_argument(
+    for task_flag in pretrain_tasks:
+        task_group.add_argument(
             f"--{task_flag.replace('_', '-')}",
             action="store_true",
             help=f"Enable {task_flag}",
         )
+
+
+def add_ordinal_args(subparsers):
+    ordinal_parser = subparsers.add_parser(
+        "ordinal", help="Run ordinal regression or standard regression tasks"
+    )
+    _add_common_training_args(ordinal_parser)
+    
+    # Ordinal/Regression specific
+    mode_group = ordinal_parser.add_argument_group("Ordinal/Regression Modes")
+    mode_group.add_argument("--use-coral", action="store_true", help="Use CORAL loss")
+    mode_group.add_argument("--use-cumulative-link", action="store_true", help="Use Cumulative Link loss")
+    mode_group.add_argument("--regression", action="store_true", help="Perform standard regression")
+
+
+def _add_common_training_args(parser):
+    """Internal helper to add shared arguments across training commands."""
+    models_cfg = load_config("models")
+    all_models = list(models_cfg["deep_models"].keys()) + list(models_cfg["classic_models"].keys())
+
+    parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
+    parser.add_argument("-d", "--dataset", type=str, default="species", choices=["species", "part", "oil", "cross-species", "cross-species-hard", "instance-recognition", "instance-recognition-hard"], help="Dataset name")
+    parser.add_argument("-m", "--model", type=str, default="transformer", choices=all_models, help="Model architecture")
+    parser.add_argument("-e", "--epochs", type=int, help="Override default epochs")
+    parser.add_argument("-bs", "--batch-size", type=int, help="Override default batch size")
+    parser.add_argument("-lr", "--learning-rate", type=float, help="Override default learning rate")
+    parser.add_argument("-kf", "--k-folds", type=int, default=3, help="K-folds")
+    parser.add_argument("--wandb-log", action="store_true", help="Log to W&B")
+    
+    # Group advanced/hyperparameter overrides
+    hp_group = parser.add_argument_group("Hyperparameter Overrides (Hides defaults from models.yaml)")
+    hp_group.add_argument("-hd", "--hidden-dimension", type=int, help="Hidden dimension")
+    hp_group.add_argument("-l", "--num-layers", type=int, help="Number of layers")
+    hp_group.add_argument("-nh", "--num-heads", type=int, help="Number of attention heads")
+    hp_group.add_argument("-do", "--dropout", type=float, help="Dropout")
+    hp_group.add_argument("-es", "--early-stopping", type=int, default=20, help="Early stopping patience")
+    
+    # Group Augmentation
+    aug_group = parser.add_argument_group("Data Augmentation")
+    aug_group.add_argument("-da", "--data-augmentation", action="store_true", help="Enable augmentation")
+    aug_group.add_argument("--noise-level", type=float, default=0.05, help="Noise level")
+    aug_group.add_argument("--shift-enabled", action="store_true", help="Enable shift")
+    aug_group.add_argument("--scale-enabled", action="store_true", help="Enable scale")
 
 
 def add_benchmark_args(subparsers):
@@ -250,12 +207,15 @@ def add_transfer_args(subparsers):
         default=DEFAULT_DATA_PATH,
         help="Path to dataset",
     )
+    # Load models from config
+    deep_models = list(load_config("models")["deep_models"].keys())
+    
     trans_parser.add_argument(
         "-m",
         "--model",
         type=str,
         required=True,
-        choices=MODEL_REGISTRY.keys(),
+        choices=deep_models,
         help="Model type",
     )
     trans_parser.add_argument(
@@ -371,13 +331,33 @@ def add_contrastive_args(subparsers):
         help="Path to dataset",
     )
     cont_parser.add_argument(
-        "-m", "--method", type=str, default="simclr", help="Contrastive method"
+        "-d", "--dataset", type=str, default="species", help="Dataset name"
+    )
+    cont_parser.add_argument(
+        "-m",
+        "--method",
+        type=str,
+        default="simclr",
+        choices=["simclr", "simsiam", "byol", "barlow_twins", "moco"],
+        help="Contrastive method",
     )
     cont_parser.add_argument(
         "-e", "--encoder", type=str, default="transformer", help="Encoder type"
     )
     cont_parser.add_argument(
         "-epochs", "--epochs", type=int, default=100, help="Number of epochs"
+    )
+    cont_parser.add_argument(
+        "-bs", "--batch-size", type=int, default=16, help="Batch size"
+    )
+    cont_parser.add_argument(
+        "-lr", "--learning-rate", type=float, default=3e-4, help="Learning rate"
+    )
+    cont_parser.add_argument(
+        "--projection-dim", type=int, default=256, help="Projection dimension"
+    )
+    cont_parser.add_argument(
+        "--moco-k", type=int, default=4096, help="MoCo queue size"
     )
     cont_parser.add_argument(
         "--wandb-log", action="store_true", help="Log to Weights & Biases"
@@ -468,6 +448,8 @@ def main():
     parser, subparsers = setup_base_parser()
     add_run_all_args(subparsers)
     add_train_args(subparsers)
+    add_pretrain_args(subparsers) # New
+    add_ordinal_args(subparsers) # New
     add_benchmark_args(subparsers)
     add_transfer_args(subparsers)
     add_xai_args(subparsers)
@@ -483,8 +465,8 @@ def main():
     try:
         if args.command == "run_all":
             handle_run_all(args)
-        elif args.command == "train":
-            handle_train(args)
+        elif args.command in ["train", "pretrain", "ordinal"]:
+            handle_train(args) # They all use handle_train
         elif args.command == "benchmark":
             run_benchmark(
                 args.models,
@@ -527,8 +509,12 @@ def main():
                 contrastive_method=args.method,
                 encoder_type=args.encoder,
                 num_epochs=args.epochs,
+                batch_size=args.batch_size,
+                learning_rate=args.learning_rate,
+                projection_dim=args.projection_dim,
+                moco_k=args.moco_k,
                 file_path=args.file_path,
-                dataset=args.dataset if hasattr(args, "dataset") else "species",
+                dataset=args.dataset,
                 wandb_log=args.wandb_log,
                 wandb_project=args.wandb_project,
                 wandb_entity=args.wandb_entity,

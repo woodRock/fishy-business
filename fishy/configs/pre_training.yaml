@@ -1,0 +1,51 @@
+# Pre-training task definitions
+
+tasks:
+  - name: "masked_spectra_modelling"
+    output_dim_type: "n_features"
+    method: "pre_train_masked_spectra"
+    requires_val: false
+    kwargs: {}
+
+  - name: "next_spectra_prediction"
+    output_dim_type: "constant"
+    output_dim: 2
+    method: "pre_train_next_spectra"
+    requires_val: true
+    kwargs: {}
+
+  - name: "next_peak_prediction"
+    output_dim_type: "n_features"
+    method: "pre_train_peak_prediction"
+    requires_val: false
+    kwargs:
+      peak_threshold: 0.1
+      window_size: 5
+
+  - name: "spectrum_denoising_autoencoding"
+    output_dim_type: "n_features"
+    method: "pre_train_denoising_autoencoder"
+    requires_val: false
+    kwargs: {}
+
+  - name: "peak_parameter_regression"
+    output_dim_type: "n_features"
+    method: "pre_train_peak_parameter_regression"
+    requires_val: false
+    kwargs: {}
+
+  - name: "spectrum_segment_reordering"
+    output_dim_type: "constant"
+    output_dim: 16 # 4 * 4
+    method: "pre_train_spectrum_segment_reordering"
+    requires_val: false
+    kwargs:
+      num_segments: 4
+
+  - name: "contrastive_transformation_invariance_learning"
+    output_dim_type: "constant"
+    output_dim: 128
+    method: "pre_train_contrastive_invariance"
+    requires_val: false
+    kwargs:
+      embedding_dim: 128

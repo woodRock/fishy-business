@@ -1,0 +1,100 @@
+# Model registries and building configurations with default hyperparameters
+
+deep_models:
+  transformer:
+    path: "fishy.models.deep.transformer.Transformer"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      num_heads: 4
+      dropout: 0.2
+      learning_rate: 1e-4
+      batch_size: 64
+
+  lstm:
+    path: "fishy.models.deep.lstm.LSTM"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 2
+      dropout: 0.2
+      learning_rate: 1e-3
+      batch_size: 32
+
+  cnn:
+    path: "fishy.models.deep.cnn.CNN"
+    defaults:
+      learning_rate: 1e-3
+      batch_size: 64
+
+  mamba:
+    path: "fishy.models.deep.mamba.Mamba"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      dropout: 0.1
+      learning_rate: 1e-4
+      batch_size: 32
+
+  vae:
+    path: "fishy.models.deep.vae.VAE"
+    defaults:
+      hidden_dimension: 128 # latent_dim
+      dropout: 0.1
+      learning_rate: 1e-4
+      batch_size: 64
+
+  ensemble:
+    path: "fishy.models.deep.ensemble.Ensemble"
+    defaults:
+      hidden_dimension: 128
+      dropout: 0.2
+      learning_rate: 1e-4
+      batch_size: 64
+
+  moe:
+    path: "fishy.models.deep.MOE.MOE"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      learning_rate: 1e-4
+      batch_size: 32
+
+  # Registry for models that don't need complex defaults
+  rcnn: "fishy.models.deep.rcnn.RCNN"
+  kan: "fishy.models.deep.kan.KAN"
+  dense: "fishy.models.deep.dense.Dense"
+  ode: "fishy.models.deep.ode.ODE"
+  rwkv: "fishy.models.deep.rwkv.RWKV"
+  tcn: "fishy.models.deep.tcn.TCN"
+  wavenet: "fishy.models.deep.wavenet.WaveNet"
+  hybrid: "fishy.models.deep.hybrid.Hybrid"
+  performer: "fishy.models.deep.performer.Performer"
+  ordinal: "fishy.models.deep.ordinal.TransformerOrdinal"
+
+classic_models:
+  knn: "sklearn.neighbors.KNeighborsClassifier"
+  dt: "sklearn.tree.DecisionTreeClassifier"
+  lr: "sklearn.linear_model.LogisticRegression"
+  lda: "sklearn.discriminant_analysis.LinearDiscriminantAnalysis"
+  nb: "sklearn.naive_bayes.GaussianNB"
+  rf: "sklearn.ensemble.RandomForestClassifier"
+  svm: "sklearn.svm.SVC"
+  xgb: "xgboost.XGBClassifier"
+  opls-da: "fishy.models.classic.run_opls.OPLS_DA"
+
+contrastive_models:
+  simclr:
+    model: "fishy.models.contrastive.simclr.SimCLRModel"
+    loss: "fishy.models.contrastive.simclr.SimCLRLoss"
+  moco:
+    model: "fishy.models.contrastive.moco.MoCoModel"
+    loss: "fishy.models.contrastive.moco.MoCoLoss"
+  byol:
+    model: "fishy.models.contrastive.byol.BYOLModel"
+    loss: "fishy.models.contrastive.byol.BYOLLoss"
+  simsiam:
+    model: "fishy.models.contrastive.simsiam.SimSiamModel"
+    loss: "fishy.models.contrastive.simsiam.SimSiamLoss"
+  barlow_twins:
+    model: "fishy.models.contrastive.barlow_twins.BarlowTwinsModel"
+    loss: "fishy.models.contrastive.barlow_twins.BarlowTwinsLoss"

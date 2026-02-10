@@ -9,7 +9,6 @@ sequential transfer learning workflows.
 from tqdm import tqdm
 import logging
 import copy
-import time
 from typing import Dict, List, Tuple, Union, Optional, Any
 from collections import OrderedDict
 
@@ -19,23 +18,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset, Subset
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import (
-    balanced_accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    auc,
-    roc_curve,
-    mean_absolute_error,
-    mean_squared_error,
-    r2_score,
-)
 
 from fishy.models.deep.transformer import Transformer
-from fishy.models.deep.vae import VAE
-from .losses import levels_from_labelbatch
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
-from fishy.data.datasets import SiameseDataset
+from fishy.engine.trainer import Trainer
 
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List]
@@ -170,34 +156,13 @@ def train_model(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
-    ctx: Optional[Any] = None,  # Added ctx
+    ctx: Optional[Any] = None,
 ) -> Tuple[nn.Module, Dict]:
     """
     Trains a model.
 
     If ``val_loader`` is provided, it performs a single training run.
     Otherwise, it performs k-fold cross-validation with multiple independent runs.
-
-    Args:
-        model (nn.Module): The model to train.
-        train_loader (DataLoader): DataLoader for the training dataset.
-        criterion (nn.Module): Loss function.
-        optimizer (optim.Optimizer): Optimizer.
-        num_epochs (int): Number of epochs.
-        patience (int): Early stopping patience.
-        n_splits (int): Number of folds for CV.
-        n_runs (int): Number of independent runs for CV.
-        is_augmented (bool): Whether to use data augmentation.
-        device (str): Device to train on.
-        val_loader (Optional[DataLoader]): Validation DataLoader (if single run).
-        use_coral (bool): Use CORAL loss.
-        use_cumulative_link (bool): Use Cumulative Link loss.
-        num_classes (Optional[int]): Number of classes.
-        regression (bool): Whether this is a regression task.
-        ctx (Optional[RunContext]): Run context for logging.
-
-    Returns:
-        Tuple[nn.Module, Dict]: The trained model and a dictionary of metrics.
     """
     logger = logging.getLogger(__name__)
 
@@ -216,7 +181,7 @@ def train_model(
             use_cumulative_link,
             num_classes,
             regression,
-            ctx=ctx,  # Pass ctx
+            ctx=ctx,
         )
         final_model = model
         if fold_results["best_model_state"] is not None:
@@ -261,7 +226,7 @@ def train_model(
             use_cumulative_link,
             num_classes,
             regression,
-            ctx=ctx,  # Pass ctx
+            ctx=ctx,
         )
 
     all_runs_metrics_accumulator = []
@@ -328,7 +293,7 @@ def train_model(
                 use_cumulative_link,
                 num_classes,
                 regression,
-                ctx=ctx,  # Pass ctx
+                ctx=ctx,
             )
 
             if fold_results["best_accuracy"] > current_run_best_accuracy:
@@ -450,7 +415,7 @@ def _train_single_split(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
-    ctx: Optional[Any] = None,  # Added ctx
+    ctx: Optional[Any] = None,
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model using a single split with multiple independent runs."""
     all_runs_metrics_accumulator = []
@@ -515,7 +480,7 @@ def _train_single_split(
             use_cumulative_link,
             num_classes,
             regression,
-            ctx=ctx,  # Pass ctx
+            ctx=ctx,
         )
 
         current_run_best_accuracy = run_results["best_accuracy"]
@@ -623,151 +588,24 @@ def _train_fold(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
-    ctx: Optional[Any] = None,  # Added ctx
+    ctx: Optional[Any] = None,
 ) -> Dict:
-    """Trains a model for a single fold of cross-validation."""
-    best_val_accuracy = float("-inf")
-    epochs_no_improve = 0
-    best_model_state_cpu, best_fold_metrics, best_val_predictions = None, None, None
-    epoch_log = {
-        "train_losses": [],
-        "val_losses": [],
-        "train_metrics": [],
-        "val_metrics": [],
-    }
-
-    for epoch in tqdm(
-        range(num_epochs), desc="Fold Training", unit="epoch", leave=False
-    ):
-        model.train()
-        train_results = _run_epoch(
-            model,
-            train_loader,
-            criterion,
-            optimizer,
-            device,
-            is_training=True,
-            use_coral=use_coral,
-            use_cumulative_link=use_cumulative_link,
-            num_classes=num_classes,
-            regression=regression,
-        )
-
-        model.eval()
-        with torch.no_grad():
-            val_results = _run_epoch(
-                model,
-                val_loader,
-                criterion,
-                None,
-                device,
-                is_training=False,
-                use_coral=use_coral,
-                use_cumulative_link=use_cumulative_link,
-                num_classes=num_classes,
-                regression=regression,
-            )
-
-        epoch_log["train_losses"].append(train_results["loss"])
-        epoch_log["val_losses"].append(val_results["loss"])
-        epoch_log["train_metrics"].append(train_results["metrics"])
-        epoch_log["val_metrics"].append(val_results["metrics"])
-
-        # Log metrics to RunContext (W&B) per epoch
-        if ctx:
-            epoch_metrics = {
-                "epoch/train_loss": train_results["loss"],
-                "epoch/val_loss": val_results["loss"],
-                "epoch/train_balanced_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
-                "epoch/val_balanced_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
-            }
-            # Add other metrics if available
-            for m_name in ["precision", "recall", "f1"]:
-                if m_name in train_results["metrics"]:
-                    epoch_metrics[f"epoch/train_{m_name}"] = train_results["metrics"][
-                        m_name
-                    ]
-                if m_name in val_results["metrics"]:
-                    epoch_metrics[f"epoch/val_{m_name}"] = val_results["metrics"][
-                        m_name
-                    ]
-
-            ctx.log_metric(epoch + 1, epoch_metrics)
-
-        current_val_acc = val_results["metrics"].get("balanced_accuracy", float("-inf"))
-
-        if current_val_acc > best_val_accuracy:
-            best_val_accuracy = current_val_acc
-            best_model_state_cpu = OrderedDict(
-                (k, v.clone().cpu()) for k, v in model.state_dict().items()
-            )
-            best_fold_metrics = {
-                "train_loss": train_results["loss"],
-                "val_loss": val_results["loss"],
-                "epoch": epoch,
-                "train_balanced_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
-                "val_balanced_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
-            }
-            # Add all validation metrics with a 'val_' prefix
-            if val_results.get("metrics"):
-                for metric, value in val_results["metrics"].items():
-                    best_fold_metrics[f"val_{metric}"] = value
-            # Add all training metrics with a 'train_' prefix
-            if train_results.get("metrics"):
-                for metric, value in train_results["metrics"].items():
-                    best_fold_metrics[f"train_{metric}"] = value
-            best_val_predictions = val_results["predictions"]
-            epochs_no_improve = 0
-            logger.debug(f"E{epoch+1}: New best val_acc: {best_val_accuracy:.4f}")
-        else:
-            epochs_no_improve += 1
-            if epochs_no_improve >= patience:
-                logger.info(
-                    f"Early stopping: E{epoch+1}, Best val_acc: {best_val_accuracy:.4f}"
-                )
-                break
-
-        if (epoch + 1) % 10 == 0 or epoch == num_epochs - 1:
-            logger.info(
-                f"E{epoch+1} TL:{train_results['loss']:.3f} VL:{val_results['loss']:.3f} "
-                f"VAcur:{current_val_acc:.3f} BestVAcur:{best_val_accuracy:.3f}"
-            )
-
-    if best_fold_metrics is None:
-        if epoch_log["train_losses"]:
-            best_fold_metrics = {
-                "train_loss": epoch_log["train_losses"][-1],
-                "train_balanced_accuracy": epoch_log["train_metrics"][-1].get(
-                    "balanced_accuracy", float("nan")
-                ),
-                "val_loss": epoch_log["val_losses"][-1],
-                "val_balanced_accuracy": epoch_log["val_metrics"][-1].get(
-                    "balanced_accuracy", float("nan")
-                ),
-                "epoch": epoch,
-            }
-        else:
-            best_fold_metrics = {
-                "train_loss": float("nan"),
-                "train_balanced_accuracy": float("nan"),
-                "val_loss": float("nan"),
-                "val_balanced_accuracy": float("nan"),
-                "epoch": float("nan"),
-            }
-    if best_model_state_cpu is None:
-        best_model_state_cpu = OrderedDict(
-            (k, v.clone().cpu()) for k, v in model.state_dict().items()
-        )
-
-    return {
-        "best_accuracy": (
-            best_val_accuracy if best_val_accuracy > float("-inf") else 0.0
-        ),
-        "best_model_state": best_model_state_cpu,
-        "best_fold_metrics": best_fold_metrics,
-        "epoch_metrics": epoch_log,
-        "best_val_predictions": best_val_predictions,
-    }
+    """Trains a model for a single fold of cross-validation using the Trainer class."""
+    trainer = Trainer(
+        model=model,
+        criterion=criterion,
+        optimizer=optimizer,
+        device=torch.device(device),
+        num_epochs=num_epochs,
+        patience=patience,
+        use_coral=use_coral,
+        use_cumulative_link=use_cumulative_link,
+        num_classes=num_classes,
+        regression=regression,
+        ctx=ctx,
+        logger=logger,
+    )
+    return trainer.train(train_loader, val_loader)
 
 
 def evaluate_model(
@@ -781,337 +619,20 @@ def evaluate_model(
     regression: bool = False,
 ) -> Dict:
     """
-    Evaluates a model on a given data loader.
-
-    Args:
-        model: The model to evaluate.
-        loader: The data loader.
-        criterion: The loss function.
-        device: The device to run evaluation on.
-        use_coral: Whether to use CORAL loss.
-        use_cumulative_link: Whether to use Cumulative Link loss.
-        num_classes: Number of classes.
-        regression: Whether it's a regression task.
-
-    Returns:
-        Dict: A dictionary containing loss, metrics, and predictions.
+    Evaluates a model on a given data loader using the Trainer class.
     """
-    model.eval()
-    with torch.no_grad():
-        results = _run_epoch(
-            model,
-            loader,
-            criterion,
-            None,
-            device,
-            is_training=False,
-            use_coral=use_coral,
-            use_cumulative_link=use_cumulative_link,
-            num_classes=num_classes,
-            regression=regression,
-        )
-    return results
-
-
-def _run_epoch(
-    model: nn.Module,
-    loader: DataLoader,
-    criterion: nn.Module,
-    optimizer: Optional[optim.Optimizer],
-    device: str,
-    is_training: bool,
-    use_coral: bool = False,
-    use_cumulative_link: bool = False,
-    num_classes: Optional[int] = None,
-    regression: bool = False,
-) -> Dict:
-    """Runs a single epoch of training or validation."""
-    total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
-
-    for batch in loader:
-        if isinstance(loader.dataset, SiameseDataset) or (
-            isinstance(loader.dataset, Subset)
-            and isinstance(loader.dataset.dataset, SiameseDataset)
-        ):
-            inputs1, inputs2, labels_batch = batch
-            inputs1, inputs2, labels_on_device = (
-                inputs1.to(device),
-                inputs2.to(device),
-                labels_batch.to(device),
-            )
-        else:
-            inputs, labels_batch = batch
-            inputs, labels_on_device = inputs.to(device), labels_batch.to(device)
-
-        if is_training:
-            optimizer.zero_grad()
-
-        if isinstance(model, VAE):
-            _, _, _, outputs = model(inputs)
-        else:
-            if isinstance(loader.dataset, SiameseDataset) or (
-                isinstance(loader.dataset, Subset)
-                and isinstance(loader.dataset.dataset, SiameseDataset)
-            ):
-                outputs = model(inputs1, inputs2)
-            else:
-                outputs = model(inputs)
-
-        # DEBUG
-        # if "LSTM" in str(type(model)):
-        #    print(f"DEBUG: inputs shape: {inputs.shape}, outputs shape: {outputs.shape}")
-
-        if regression:
-            actual_indices = labels_on_device.squeeze(-1).float()
-        elif labels_on_device.dim() > 1 and labels_on_device.shape[1] > 1:
-            actual_indices = labels_on_device.argmax(dim=1)
-        elif labels_on_device.dim() > 1:
-            actual_indices = labels_on_device.squeeze(-1)
-        else:
-            actual_indices = labels_on_device
-
-        if regression:
-            loss = criterion(outputs.squeeze(), actual_indices)
-        elif use_coral:
-            levels = levels_from_labelbatch(
-                actual_indices, num_classes=num_classes, dtype=torch.float32
-            ).to(device)
-            loss = criterion(outputs, levels)
-        elif use_cumulative_link:
-            loss = criterion(outputs, actual_indices.long())
-        else:
-            loss = criterion(outputs, actual_indices.long())
-
-        if is_training:
-            loss.backward()
-            optimizer.step()
-
-        total_loss += loss.item() * (
-            inputs1.size(0)
-            if isinstance(loader.dataset, SiameseDataset)
-            or (
-                isinstance(loader.dataset, Subset)
-                and isinstance(loader.dataset.dataset, SiameseDataset)
-            )
-            else inputs.size(0)
-        )
-
-        if regression:
-            predicted_indices = outputs.squeeze()
-            probs = None
-        elif use_coral or use_cumulative_link:
-            predicted_indices = torch.sum((torch.sigmoid(outputs) > 0.5), dim=1).long()
-            probs = torch.sigmoid(outputs)
-        else:
-            probs = torch.softmax(outputs, dim=1)
-            predicted_indices = outputs.argmax(dim=1)
-
-        all_labels_np.append(actual_indices.cpu().numpy())
-        all_preds_np.append(predicted_indices.detach().cpu().numpy())
-        if probs is not None:
-            all_probs_np.append(probs.detach().cpu().numpy())
-
-    avg_loss = total_loss / len(loader.dataset)
-    final_labels = np.concatenate(all_labels_np)
-    final_preds = np.concatenate(all_preds_np)
-    final_probs = np.concatenate(all_probs_np) if all_probs_np else None
-
-    metrics = _calculate_metrics(
-        final_labels,
-        final_preds,
-        final_probs,
+    # Create a dummy optimizer since it's not needed for evaluation
+    optimizer = optim.Adam(model.parameters())
+    
+    trainer = Trainer(
+        model=model,
+        criterion=criterion,
+        optimizer=optimizer,
+        device=torch.device(device),
+        num_epochs=1, # Not used for evaluation
         use_coral=use_coral,
         use_cumulative_link=use_cumulative_link,
         num_classes=num_classes,
         regression=regression,
     )
-    return {
-        "loss": avg_loss,
-        "metrics": metrics,
-        "predictions": {
-            "labels": final_labels,
-            "preds": final_preds,
-            "probs": final_probs,
-        },
-    }
-
-
-def _calculate_metrics(
-    y_true: np.ndarray,
-    y_pred: np.ndarray,
-    y_prob: Optional[np.ndarray] = None,
-    use_coral: bool = False,
-    use_cumulative_link: bool = False,
-    num_classes: Optional[int] = None,
-    regression: bool = False,
-) -> MetricsDict:
-    """Calculates various metrics."""
-    if regression:
-        metrics: MetricsDict = {
-            "mae": mean_absolute_error(y_true, y_pred),
-            "mse": mean_squared_error(y_true, y_pred),
-            "r2": r2_score(y_true, y_pred),
-        }
-        # Also calculate a classification-style accuracy after rounding
-        rounded_preds = np.round(y_pred).astype(int)
-        # Ensure y_true is also integer type for comparison
-        y_true_int = y_true.astype(int)
-        metrics["balanced_accuracy"] = balanced_accuracy_score(
-            y_true_int, rounded_preds
-        )
-        return metrics
-
-    labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
-    metrics: MetricsDict = {
-        "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
-        "mae": mean_absolute_error(y_true, y_pred),
-        "mse": mean_squared_error(y_true, y_pred),
-        "precision": precision_score(
-            y_true,
-            y_pred,
-            average="weighted",
-            zero_division=0,
-            labels=labels_for_scoring,
-        ),
-        "recall": recall_score(
-            y_true,
-            y_pred,
-            average="weighted",
-            zero_division=0,
-            labels=labels_for_scoring,
-        ),
-        "f1": f1_score(
-            y_true,
-            y_pred,
-            average="weighted",
-            zero_division=0,
-            labels=labels_for_scoring,
-        ),
-    }
-
-    # Temporarily disabled due to length mismatch crashes with some sequential models
-    metrics["auc_roc"] = float("nan")
-    return metrics
-
-
-def roc_curve_auc(
-    y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True
-) -> float:
-    """Calculates the AUC-ROC for a specific class."""
-    if not class_present or len(np.unique(y_true_class)) < 2:
-        return float("nan")
-    fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
-    return auc(fpr, tpr)
-
-
-def train_with_tracking(
-    model, train_loader, val_loader, optimizer, scheduler, num_epochs, device
-):
-    """
-    Train model with detailed tracking of metrics, including balanced accuracy.
-
-    This function is designed for scenarios where detailed epoch-by-epoch tracking
-    of both training and validation metrics is required, such as in sequential transfer learning.
-
-    Args:
-        model: The model to train.
-        train_loader: DataLoader for training data.
-        val_loader: DataLoader for validation data.
-        optimizer: Optimizer.
-        scheduler: Learning rate scheduler.
-        num_epochs: Number of epochs.
-        device: Device to train on.
-
-    Returns:
-        Dict: A history dictionary containing lists of metrics over epochs.
-    """
-    criterion = nn.CrossEntropyLoss()
-
-    history = {
-        "train_loss": [],
-        "val_loss": [],
-        "train_acc": [],
-        "val_acc": [],
-        "train_balanced_acc": [],
-        "val_balanced_acc": [],
-        "learning_rates": [],
-    }
-
-    best_val_acc = 0
-    best_model = None
-
-    for epoch in range(num_epochs):
-        model.train()
-        train_loss, train_correct, train_total = 0, 0, 0
-        train_all_preds, train_all_labels = [], []
-
-        for batch_idx, (x, y) in enumerate(train_loader):
-            x, y = x.to(device), y.to(device)
-            optimizer.zero_grad()
-            outputs = model(x)
-            if isinstance(outputs, tuple):
-                outputs = outputs[0]
-            loss = criterion(outputs, torch.argmax(y, dim=1))
-            loss.backward()
-            optimizer.step()
-
-            train_loss += loss.item()
-            _, predicted = torch.max(outputs, 1)
-            true_labels = torch.argmax(y, dim=1)
-            train_total += y.size(0)
-            train_correct += (predicted == true_labels).sum().item()
-            train_all_preds.extend(predicted.cpu().numpy())
-            train_all_labels.extend(true_labels.cpu().numpy())
-
-        epoch_train_loss = train_loss / len(train_loader)
-        epoch_train_acc = 100 * train_correct / train_total
-        epoch_train_balanced_acc = 100 * balanced_accuracy_score(
-            train_all_labels, train_all_preds
-        )
-
-        model.eval()
-        val_loss, val_correct, val_total = 0, 0, 0
-        val_all_preds, val_all_labels = [], []
-
-        with torch.no_grad():
-            for x, y in val_loader:
-                x, y = x.to(device), y.to(device)
-                outputs = model(x)
-                if isinstance(outputs, tuple):
-                    outputs = outputs[0]
-                loss = criterion(outputs, torch.argmax(y, dim=1))
-                val_loss += loss.item()
-                _, predicted = torch.max(outputs, 1)
-                true_labels = torch.argmax(y, dim=1)
-                val_total += y.size(0)
-                val_correct += (predicted == true_labels).sum().item()
-                val_all_preds.extend(predicted.cpu().numpy())
-                val_all_labels.extend(true_labels.cpu().numpy())
-
-        epoch_val_loss = val_loss / len(val_loader)
-        epoch_val_acc = 100 * val_correct / val_total
-        epoch_val_balanced_acc = 100 * balanced_accuracy_score(
-            val_all_labels, val_all_preds
-        )
-
-        scheduler.step(epoch_val_balanced_acc)
-
-        history["train_loss"].append(epoch_train_loss)
-        history["val_loss"].append(epoch_val_loss)
-        history["train_acc"].append(epoch_train_acc)
-        history["val_acc"].append(epoch_val_acc)
-        history["train_balanced_acc"].append(epoch_train_balanced_acc)
-        history["val_balanced_acc"].append(epoch_val_balanced_acc)
-        history["learning_rates"].append(optimizer.param_groups[0]["lr"])
-
-        if epoch_val_balanced_acc > best_val_acc:
-            best_val_acc = epoch_val_balanced_acc
-            best_model = copy.deepcopy(model.state_dict())
-
-        print(
-            f"Epoch [{epoch+1}/{num_epochs}] TL:{epoch_train_loss:.4f} VL:{epoch_val_loss:.4f} VA:{epoch_val_acc:.2f}% VBA:{epoch_val_balanced_acc:.2f}%"
-        )
-
-    if best_model is not None:
-        model.load_state_dict(best_model)
-    return history
+    return trainer.evaluate(loader)

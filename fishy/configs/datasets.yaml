@@ -1,0 +1,68 @@
+# Dataset configurations for filtering and encoding
+
+species:
+  filter_rules:
+    exclude_mz: ["HM", "MO"]
+  label_encoding:
+    type: "map"
+    map:
+      "H": [0.0, 1.0]
+      "M": [1.0, 0.0]
+
+part:
+  filter_rules:
+    exclude_mz: ["HM", "MO"]
+    include_mz_pattern: "Fillet|Heads|Livers|Skins|Guts|Gonads|Frames"
+  categories: ["Fillet", "Heads", "Livers", "Skins", "Guts", "Gonads", "Frames"]
+  label_encoding:
+    type: "one_hot"
+
+oil:
+  filter_rules:
+    exclude_mz: ["HM"]
+    include_mz_pattern: "MO"
+  categories: ["MO 50", "MO 25", "MO 10", "MO 05", "MO 01", "MO 0.1", "MO 0"]
+  label_encoding:
+    type: "one_hot"
+
+oil_regression:
+  filter_rules:
+    include_mz_pattern: "MO"
+  label_encoding:
+    type: "regex_float"
+    pattern: 'MO\s*([\d\.]+)'
+
+oil_simple:
+  label_encoding:
+    type: "map"
+    map:
+      "MO": [1.0, 0.0]
+      "default": [0.0, 1.0]
+
+cross-species:
+  filter_rules:
+    exclude_mz: ["MO"]
+  label_encoding:
+    type: "map"
+    map:
+      "HM": [1.0, 0.0, 0.0]
+      "H": [0.0, 1.0, 0.0]
+      "M": [0.0, 0.0, 1.0]
+
+instance-recognition:
+  filter_rules:
+    exclude_instance_pattern: "QC|HM|MO|Fillet|Heads|Livers|Skins|Guts|Gonads|Frames"
+  label_encoding:
+    type: "sklearn"
+
+instance-recognition-hard:
+  filter_rules:
+    exclude_instance_pattern: "QC|HM|MO|Fillet|Heads|Livers|Skins|Guts|Gonads|Frames"
+  label_encoding:
+    type: "sklearn"
+
+cross-species-hard:
+  filter_rules:
+    exclude_instance_pattern: "^H |^M |QC|HM|MO|Fillet|Heads|Livers|Skins|Guts|Gonads|Frames"
+  label_encoding:
+    type: "sklearn"

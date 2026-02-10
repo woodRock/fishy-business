@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Contrastive learning experiments module.
+Uses external configuration for model registries.
 """
 
 import logging
@@ -12,7 +13,7 @@ import numpy as np
 import copy
 from dataclasses import dataclass
 from typing import Tuple, Dict, Optional, List
-from dataclasses import asdict  # New line
+from dataclasses import asdict
 
 from fishy.data.module import create_data_module
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
@@ -22,15 +23,11 @@ from fishy.data.contrastive_util import (
     SiameseDataset,
     BalancedBatchSampler,
 )
-from fishy.models.contrastive.simclr import SimCLRModel, SimCLRLoss
-from fishy.models.contrastive.moco import MoCoModel, MoCoLoss
-from fishy.models.contrastive.byol import BYOLModel, BYOLLoss
-from fishy.models.contrastive.simsiam import SimSiamModel, SimSiamLoss
-from fishy.models.contrastive.barlow_twins import BarlowTwinsModel, BarlowTwinsLoss
-from fishy._core.factory import create_model, MODEL_REGISTRY
+from fishy._core.factory import create_model, get_model_class
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
-import wandb  # Added import
+from fishy._core.config_loader import load_config
+import wandb
 
 
 @dataclass
@@ -48,8 +45,12 @@ class ContrastiveConfig:
     contrastive_method: str = "simclr"
     file_path: str = ""
     dropout: float = 0.1
-    dataset: str = "species"  # Added dataset attribute
-    # Weights & Biases parameters
+    dataset: str = "species"
+    moco_k: int = 4096
+    moco_m: float = 0.999
+    moco_t: float = 0.07
+    byol_m: float = 0.996
+    barlow_lambda: float = 5e-3
     wandb_project: Optional[str] = "fishy-business"
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
     wandb_log: bool = False
@@ -63,9 +64,9 @@ class ContrastiveTrainer:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
-                config=asdict(self.config),  # Pass ContrastiveConfig as W&B config
-                reinit=True,  # Important for multiple runs in one script
-                group=f"{self.config.dataset}_{self.config.contrastive_method}",  # Group runs by dataset and contrastive method
+                config=asdict(self.config),
+                reinit=True,
+                group=f"{self.config.dataset}_{self.config.contrastive_method}",
                 job_type="contrastive_training",
             )
         self.ctx = RunContext(
@@ -83,46 +84,55 @@ class ContrastiveTrainer:
         # Data Module
         self.data_module = create_data_module(
             file_path=self.config.file_path,
-            dataset_name=self.config.dataset,  # Fix hardcoded dataset_name
+            dataset_name=self.config.dataset,
             batch_size=self.config.batch_size,
         )
         self.data_module.setup()
         self.input_dim = self.data_module.get_input_dim()
 
         # Encoder creation
-        # We need a TrainingConfig for create_model
         t_cfg = TrainingConfig(
             model=self.config.encoder_type,
             hidden_dimension=self.config.embedding_dim,
-            num_layers=4,  # Default layers
-            num_heads=4,  # Default heads
+            num_layers=4,
+            num_heads=4,
         )
-        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(
-            self.device
-        )
+        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(self.device)
 
-        # Contrastive Model
-        if self.config.contrastive_method == "simclr":
-            self.model = SimCLRModel(encoder, self.config).to(self.device)
-            self.criterion = SimCLRLoss(temperature=self.config.temperature)
-        else:
-            raise ValueError(
-                f"Unsupported contrastive method: {self.config.contrastive_method}"
-            )
+        # Contrastive Model (Dynamic)
+        method = self.config.contrastive_method.lower()
+        contrastive_cfg = load_config("models")["contrastive_models"]
+        
+        if method not in contrastive_cfg:
+            raise ValueError(f"Unsupported contrastive method: {method}")
+            
+        model_info = contrastive_cfg[method]
+        model_class = get_model_class(model_info["model"])
+        loss_class = get_model_class(model_info["loss"])
 
-        self.optimizer = optim.AdamW(
-            self.model.parameters(),
-            lr=self.config.learning_rate,
-            weight_decay=self.config.weight_decay,
-        )
+        if method == "simclr":
+            self.model = model_class(encoder, self.config).to(self.device)
+            self.criterion = loss_class(temperature=self.config.temperature)
+        elif method == "moco":
+            self.model = model_class(encoder, encoder_output_dim=self.config.embedding_dim, dim=self.config.projection_dim, K=self.config.moco_k, m=self.config.moco_m, T=self.config.moco_t).to(self.device)
+            self.criterion = loss_class(T=self.config.moco_t)
+        elif method == "byol":
+            self.model = model_class(encoder, encoder_output_dim=self.config.embedding_dim, projection_dim=self.config.projection_dim, m=self.config.byol_m).to(self.device)
+            self.criterion = loss_class()
+        elif method == "simsiam":
+            self.model = model_class(encoder, encoder_output_dim=self.config.embedding_dim, projection_dim=self.config.projection_dim).to(self.device)
+            self.criterion = loss_class()
+        elif method == "barlow_twins":
+            self.model = model_class(encoder, encoder_output_dim=self.config.embedding_dim, projection_dim=self.config.projection_dim).to(self.device)
+            self.criterion = loss_class(lambda_param=self.config.barlow_lambda)
 
-        # Prepare Siamese Dataset for contrastive
+        self.optimizer = optim.AdamW(self.model.parameters(), lr=self.config.learning_rate, weight_decay=self.config.weight_decay)
+
+        # Prepare Siamese Dataset
         samples = self.data_module.get_dataset().samples.cpu().numpy()
         labels = self.data_module.get_dataset().labels.cpu().numpy()
         self.siamese_dataset = SiameseDataset(samples, labels)
-        self.train_loader = DataLoader(
-            self.siamese_dataset, batch_size=self.config.batch_size, shuffle=True
-        )
+        self.train_loader = DataLoader(self.siamese_dataset, batch_size=self.config.batch_size, shuffle=True)
 
     def train(self):
         self.model.train()
@@ -131,83 +141,41 @@ class ContrastiveTrainer:
             total_loss = 0
             for batch_idx, (x1, x2, _) in enumerate(self.train_loader):
                 x1, x2 = x1.to(self.device), x2.to(self.device)
-
                 self.optimizer.zero_grad()
-                z1, z2 = self.model(x1, x2)
-                loss = self.criterion(z1, z2)
+                outputs = self.model(x1, x2)
+                loss = self.criterion(*outputs) if isinstance(outputs, tuple) else self.criterion(outputs)
                 loss.backward()
                 self.optimizer.step()
-
                 total_loss += loss.item()
 
             avg_loss = total_loss / len(self.train_loader)
             history["loss"].append(avg_loss)
             self.ctx.log_metric(epoch + 1, {"loss": avg_loss})
-
             if (epoch + 1) % 10 == 0 or epoch == 0:
-                self.logger.info(
-                    f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}"
-                )
+                self.logger.info(f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}")
 
-        # Save results
-        avg_final_loss = history["loss"][-1] if history["loss"] else 0
-        self.ctx.save_results(
-            {
-                "history": history,
-                "stats": {"final_contrastive_loss": avg_final_loss}
-            }, 
-            filename="training_history.json"
-        )
-        torch.save(
-            self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth")
-        )
-        self.logger.info("Contrastive training finished and model saved.")
-
-        # Advanced Visualizations for W&B
-        if self.ctx.wandb_run:
-            self.log_contrastive_visualizations()
+        self.ctx.save_results({"history": history, "stats": {"final_contrastive_loss": history["loss"][-1]}}, filename="training_history.json")
+        torch.save(self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth"))
+        if self.ctx.wandb_run: self.log_contrastive_visualizations()
 
     def log_contrastive_visualizations(self):
-        """Logs a sample of Siamese pairs to W&B."""
-        self.logger.info("Logging contrastive visualizations to W&B...")
+        """Logs sample pairs to W&B."""
         import matplotlib.pyplot as plt
-
-        columns = ["id", "pair_1", "pair_2", "relationship"]
-        table = wandb.Table(columns=columns)
-
-        # Take a small sample of pairs
-        num_samples = min(len(self.siamese_dataset), 20)
-        for i in range(num_samples):
+        table = wandb.Table(columns=["id", "pair_1", "pair_2", "relationship"])
+        for i in range(min(len(self.siamese_dataset), 20)):
             x1, x2, label = self.siamese_dataset[i]
-
-            # Plot first spectrum
-            plt.figure(figsize=(4, 3))
-            plt.plot(x1.numpy())
-            plt.axis("off")
-            img1 = wandb.Image(plt)
-            plt.close()
-
-            # Plot second spectrum
-            plt.figure(figsize=(4, 3))
-            plt.plot(x2.numpy())
-            plt.axis("off")
-            img2 = wandb.Image(plt)
-            plt.close()
-
-            relationship = "Same Class" if label == 1 else "Different Class"
-            table.add_data(i, img1, img2, relationship)
-
+            plt.figure(figsize=(4, 3)); plt.plot(x1.numpy()); plt.axis("off")
+            img1 = wandb.Image(plt); plt.close()
+            plt.figure(figsize=(4, 3)); plt.plot(x2.numpy()); plt.axis("off")
+            img2 = wandb.Image(plt); plt.close()
+            table.add_data(i, img1, img2, "Same Class" if label == 1 else "Different Class")
         self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
 
 
 def run_contrastive_experiment(config: ContrastiveConfig):
-    """
-    Orchestrates contrastive learning experiments.
-    """
     trainer = ContrastiveTrainer(config)
     try:
         trainer.setup()
         trainer.train()
     finally:
-        if trainer.wandb_run:
-            trainer.wandb_run.finish()
+        if trainer.wandb_run: trainer.wandb_run.finish()

@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Data module for managing loading, filtering, and preprocessing of datasets.
-
-This module encapsulates all data-related operations, including reading files (Excel/CSV),
-applying filtering rules based on dataset types (e.g., removing QC samples, filtering by 'm/z'),
-encoding labels (one-hot, integer), and preparing PyTorch DataLoaders. It serves as the
-primary interface for feeding data into the training pipeline.
+Uses external configuration for dataset-specific rules.
 """
 
 import logging
@@ -20,63 +16,30 @@ from sklearn.preprocessing import LabelEncoder
 
 from .datasets import DatasetType, CustomDataset, SiameseDataset
 from .augmentation import AugmentationConfig, DataAugmenter
+from fishy._core.config_loader import load_config
 
 logger = logging.getLogger(__name__)
 
 class DataProcessor:
     """
     Handles the low-level processing of raw data into features and labels.
-
-    This class manages specific rules for different dataset types, such as which 'm/z' patterns
-    to include or exclude, and how to encode labels for classification or regression tasks.
-
-    Args:
-        dataset_type (DatasetType): The specific type of dataset being processed.
-        batch_size (int): The batch size to be used for subsequent DataLoaders.
+    Uses external configuration for dataset-specific rules.
     """
     def __init__(self, dataset_type: DatasetType, batch_size: int = 64) -> None:
         self.dataset_type = dataset_type
         self.batch_size = batch_size
         self.label_encoder_ = None
-        self._PART_CATEGORIES = ["Fillet", "Heads", "Livers", "Skins", "Guts", "Gonads", "Frames"]
-        self._OIL_CATEGORIES = ["MO 50", "MO 25", "MO 10", "MO 05", "MO 01", "MO 0.1", "MO 0"]
-
-        self._FILTER_RULES = {
-            (DatasetType.SPECIES, DatasetType.PART, DatasetType.OIL): {"exclude_mz": ["HM"]},
-            (DatasetType.SPECIES, DatasetType.PART, DatasetType.CROSS_SPECIES): {"exclude_mz": ["MO"]},
-            DatasetType.PART: {"include_mz_pattern": "|".join(self._PART_CATEGORIES)},
-            DatasetType.OIL: {"include_mz_pattern": "MO"},
-            (DatasetType.INSTANCE_RECOGNITION, DatasetType.INSTANCE_RECOGNITION_HARD): {
-                "exclude_instance_pattern": f"QC|HM|MO|{'|'.join(self._PART_CATEGORIES)}"
-            },
-            DatasetType.CROSS_SPECIES_HARD: {
-                "exclude_instance_pattern": f"^H |^M |QC|HM|MO|{'|'.join(self._PART_CATEGORIES)}"
-            },
-        }
-        self._LABEL_ENCODERS_MAP = {
-            DatasetType.SPECIES: lambda x: ([0.0, 1.0] if "H" in x else ([1.0, 0.0] if "M" in x else None)),
-            DatasetType.PART: self._create_one_hot_encoder(self._PART_CATEGORIES),
-            DatasetType.OIL: self._create_one_hot_encoder(self._OIL_CATEGORIES),
-            DatasetType.OIL_REGRESSION: lambda x: (float(re.search(r"MO\s*([\d\.]+)", x).group(1)) if re.search(r"MO\s*([\d\.]+)", x) else None),
-            DatasetType.OIL_SIMPLE: lambda x: ([1.0, 0.0] if "MO" in x else ([0.0, 1.0] if x.strip() else None)),
-            DatasetType.CROSS_SPECIES: lambda x: ([1.0, 0.0, 0.0] if "HM" in x else ([0.0, 1.0, 0.0] if "H" in x else ([0.0, 0.0, 1.0] if "M" in x else None))),
-            DatasetType.INSTANCE_RECOGNITION: "use_sklearn_label_encoder",
-            DatasetType.INSTANCE_RECOGNITION_HARD: "use_sklearn_label_encoder",
-            DatasetType.CROSS_SPECIES_HARD: "use_sklearn_label_encoder",
-        }
-
-    def _create_one_hot_encoder(self, categories: List[str]):
-        """Creates a closure for one-hot encoding a fixed list of categories."""
-        cat_to_idx = {cat.lower(): i for i, cat in enumerate(categories)}
-        def encoder(x_str: str):
-            x_str_lower = x_str.lower()
-            for cat, idx in cat_to_idx.items():
-                if cat in x_str_lower:
-                    one_hot = [0.0] * len(categories)
-                    one_hot[idx] = 1.0
-                    return one_hot
-            return None
-        return encoder
+        
+        # Load dataset configurations
+        all_configs = load_config("datasets")
+        dataset_name = dataset_type.name.lower().replace("_", "-")
+        self.config = all_configs.get(dataset_name, {})
+        
+        # Fallback for specific naming variants
+        if not self.config and dataset_name == "oil-regression":
+             self.config = all_configs.get("oil_regression", {})
+        if not self.config and dataset_name == "oil-simple":
+             self.config = all_configs.get("oil_simple", {})
 
     def load_data(self, file_path: Union[str, Path]) -> pd.DataFrame:
         """Loads data from an Excel or CSV file."""
@@ -89,33 +52,77 @@ class DataProcessor:
         if is_pre_train: return data
         df = data.copy()
         df = df[~df["m/z"].astype(str).str.contains("QC", case=False, na=False)]
-        for key, rules in self._FILTER_RULES.items():
-            if self.dataset_type in (key if isinstance(key, tuple) else (key,)):
-                if "exclude_mz" in rules:
-                    for p in rules["exclude_mz"]: df = df[~df["m/z"].astype(str).str.contains(p, case=False, na=False)]
-                if "include_mz_pattern" in rules:
-                    df = df[df["m/z"].astype(str).str.contains(rules["include_mz_pattern"], case=False, na=False)]
-                if "exclude_instance_pattern" in rules:
-                    df = df[~df.iloc[:, 0].astype(str).str.contains(rules["exclude_instance_pattern"], case=False, na=False)]
+        
+        rules = self.config.get("filter_rules", {})
+        if "exclude_mz" in rules:
+            for p in rules["exclude_mz"]:
+                df = df[~df["m/z"].astype(str).str.contains(p, case=False, na=False)]
+        if "include_mz_pattern" in rules:
+            df = df[df["m/z"].astype(str).str.contains(rules["include_mz_pattern"], case=False, na=False)]
+        if "exclude_instance_pattern" in rules:
+            df = df[~df.iloc[:, 0].astype(str).str.contains(rules["exclude_instance_pattern"], case=False, na=False)]
+            
         return df
 
     def encode_labels(self, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-        """Encodes the labels/targets from the DataFrame into numpy arrays."""
-        label_action = self._LABEL_ENCODERS_MAP.get(self.dataset_type)
+        """Encodes labels based on configuration."""
+        encoding_cfg = self.config.get("label_encoding", {})
+        enc_type = encoding_cfg.get("type")
+        
         if data.empty: return np.empty((0, 0)), np.empty((0, 0))
 
-        if label_action == "use_sklearn_label_encoder":
+        if enc_type == "sklearn":
             X = data.iloc[:, 1:].to_numpy(dtype=np.float32)
             self.label_encoder_ = LabelEncoder()
             y_indices = self.label_encoder_.fit_transform(data.iloc[:, 0].astype(str))
             y = np.eye(len(self.label_encoder_.classes_), dtype=np.float32)[y_indices]
-        elif callable(label_action):
-            y_series = data["m/z"].astype(str).apply(label_action)
+        
+        elif enc_type == "one_hot":
+            categories = self.config.get("categories", [])
+            cat_to_idx = {cat.lower(): i for i, cat in enumerate(categories)}
+            
+            def encode_one_hot(x_str: str):
+                x_str_lower = x_str.lower()
+                for cat, idx in cat_to_idx.items():
+                    if cat in x_str_lower:
+                        one_hot = [0.0] * len(categories)
+                        one_hot[idx] = 1.0
+                        return one_hot
+                return None
+            
+            y_series = data["m/z"].astype(str).apply(encode_one_hot)
             mask = y_series.notna()
             X = data[mask].drop("m/z", axis=1).to_numpy(dtype=np.float32)
             y = np.array(y_series[mask].tolist(), dtype=np.float32)
+
+        elif enc_type == "map":
+            mapping = encoding_cfg.get("map", {})
+            
+            def encode_map(x_str: str):
+                for key, val in mapping.items():
+                    if key != "default" and key in x_str:
+                        return val
+                return mapping.get("default")
+            
+            y_series = data["m/z"].astype(str).apply(encode_map)
+            mask = y_series.notna()
+            X = data[mask].drop("m/z", axis=1).to_numpy(dtype=np.float32)
+            y = np.array(y_series[mask].tolist(), dtype=np.float32)
+
+        elif enc_type == "regex_float":
+            pattern = encoding_cfg.get("pattern")
+            
+            def encode_regex(x_str: str):
+                match = re.search(pattern, x_str)
+                return float(match.group(1)) if match else None
+            
+            y_series = data["m/z"].astype(str).apply(encode_regex)
+            mask = y_series.notna()
+            X = data[mask].drop("m/z", axis=1).to_numpy(dtype=np.float32)
+            y = np.array(y_series[mask].tolist(), dtype=np.float32)
+            
         else:
-            raise ValueError(f"No label encoding for {self.dataset_type}")
+            raise ValueError(f"Unknown or missing label encoding type for {self.dataset_type}")
         
         if y.ndim == 1: y = y[:, np.newaxis]
         return X, y
@@ -126,18 +133,7 @@ def preprocess_data_pipeline(
     is_pre_train: bool = False,
     augmentation_cfg: Optional[AugmentationConfig] = None,
 ) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
-    """
-    Runs the full data loading, filtering, encoding, and DataLoader creation pipeline.
-
-    Args:
-        data_processor: The processor containing rules for the specific dataset.
-        file_path: Path to the data file.
-        is_pre_train: Flag to skip filtering for pre-training tasks.
-        augmentation_cfg: Optional configuration for data augmentation.
-
-    Returns:
-        Tuple[DataLoader, pd.DataFrame, pd.DataFrame]: The final DataLoader, raw DataFrame, and filtered DataFrame.
-    """
+    """Runs the full data loading and preprocessing pipeline."""
     raw_df = data_processor.load_data(file_path)
     filtered_df = data_processor.filter_data(raw_df, is_pre_train)
     if filtered_df.empty:
@@ -155,16 +151,6 @@ def preprocess_data_pipeline(
 class DataModule:
     """
     High-level interface for data management in the training pipeline.
-
-    This class coordinates the initialization of the DataProcessor and the execution
-    of the preprocessing pipeline to provide ready-to-use DataLoaders.
-
-    Args:
-        dataset_name (str): Name of the dataset type.
-        file_path (Union[str, Path]): Path to the data file.
-        batch_size (int): Batch size.
-        is_pre_train (bool): Whether this is for a pre-training task.
-        augmentation_config (Optional[AugmentationConfig]): Config for augmentation.
     """
     def __init__(self, dataset_name: str, file_path: Union[str, Path], batch_size: int = 64, is_pre_train: bool = False, augmentation_config: Optional[AugmentationConfig] = None) -> None:
         self.dataset_name_str = dataset_name
@@ -195,6 +181,25 @@ class DataModule:
         """Calculates the input feature dimension from the loaded data."""
         if not self.train_loader: self.setup()
         return self.train_loader.dataset.samples.shape[1] if self.train_loader and len(self.train_loader.dataset) > 0 else 0
+
+    def get_num_classes(self) -> int:
+        """Determines number of classes dynamically."""
+        if not self.train_loader: self.setup()
+        dataset = self.train_loader.dataset
+        if isinstance(dataset, SiameseDataset): return 2
+        labels = dataset.labels
+        return labels.shape[1] if labels.ndim > 1 else 1
+
+    def get_class_names(self) -> List[str]:
+        """Returns class names from config or encoder."""
+        categories = self.processor.config.get("categories")
+        if categories: return categories
+        
+        if self.processor.label_encoder_:
+            return list(self.processor.label_encoder_.classes_)
+        
+        num_classes = self.get_num_classes()
+        return [str(i) for i in range(num_classes)]
 
 def create_data_module(dataset_name: str, file_path: Union[str, Path], batch_size: int = 64, is_pre_train: bool = False, augmentation_enabled: bool = False, **kwargs) -> DataModule:
     """Factory function to create a DataModule instance."""

@@ -16,8 +16,6 @@ fishy.engine.training\_loops
    
    .. autofunction:: train_model
    
-   .. autofunction:: train_with_tracking
-   
    .. autofunction:: transfer_learning
    
    

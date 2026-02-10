@@ -18,16 +18,35 @@ from sklearn.metrics import (
 import seaborn as sns
 import copy
 import os
-from typing import List, Dict, Optional  # Added Optional
+from typing import List, Dict, Optional
 from pathlib import Path
-from dataclasses import asdict  # Added import
-import wandb  # Added import
+from dataclasses import asdict
+import wandb
 
-from fishy.engine.training_loops import train_with_tracking
+from fishy.engine.trainer import Trainer  # Use Trainer
 from fishy.data.module import create_data_module
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
+
+
+def _adapt_trainer_output(trainer_output: Dict) -> Dict:
+    """Adapts Trainer output to the legacy history format used in transfer learning."""
+    epoch_metrics = trainer_output["epoch_metrics"]
+    history = {
+        "train_loss": epoch_metrics["train_losses"],
+        "val_loss": epoch_metrics["val_losses"],
+        "train_acc": [m.get("accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]],
+        "val_acc": [m.get("accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]],
+        "train_balanced_acc": [
+            m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]
+        ],
+        "val_balanced_acc": [
+            m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]
+        ],
+        "learning_rates": epoch_metrics.get("learning_rates", []),
+    }
+    return history
 
 
 def run_sequential_transfer_learning(
@@ -47,7 +66,7 @@ def run_sequential_transfer_learning(
     wandb_project: Optional[str] = "fishy-business",
     wandb_entity: Optional[str] = "victoria-university-of-wellington",
     wandb_log: bool = False,
-    run: int = 0, # Added run parameter
+    run: int = 0,
 ):
     """
     Performs sequential transfer learning across multiple datasets.
@@ -116,7 +135,7 @@ def run_sequential_transfer_learning(
             file_path=data_path,
             model=model_name,
             dataset=transfer_datasets[0],
-            run=run, # Use run parameter
+            run=run,
             output="",
             data_augmentation=False,
             masked_spectra_modelling=False,
@@ -167,7 +186,9 @@ def run_sequential_transfer_learning(
 
             val_size = int(val_split * len(dataset))
             train_size = len(dataset) - val_size
-            train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=gen)
+            train_dataset, val_dataset = random_split(
+                dataset, [train_size, val_size], generator=gen
+            )
 
             train_loader = DataLoader(
                 train_dataset, batch_size=batch_size, shuffle=True
@@ -200,15 +221,20 @@ def run_sequential_transfer_learning(
             optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01)
             scheduler = ReduceLROnPlateau(optimizer, mode="max", patience=3, factor=0.5)
 
-            dataset_history = train_with_tracking(
+            trainer = Trainer(
                 model=model,
-                train_loader=train_loader,
-                val_loader=val_loader,
+                criterion=nn.CrossEntropyLoss(),
                 optimizer=optimizer,
-                scheduler=scheduler,
-                num_epochs=num_epochs_transfer,
                 device=device_obj,
+                num_epochs=num_epochs_transfer,
+                scheduler=scheduler,
+                patience=100,  # No early stopping in transfer phase usually, or high
+                num_classes=current_num_classes,
+                logger=logger,
+                ctx=ctx,
             )
+            trainer_output = trainer.train(train_loader, val_loader)
+            dataset_history = _adapt_trainer_output(trainer_output)
             history["transfer"][dataset_name] = dataset_history
 
             if save_intermediate:
@@ -229,7 +255,9 @@ def run_sequential_transfer_learning(
 
         val_size = int(val_split * len(target_data))
         train_size = len(target_data) - val_size
-        train_dataset, val_dataset = random_split(target_data, [train_size, val_size], generator=gen)
+        train_dataset, val_dataset = random_split(
+            target_data, [train_size, val_size], generator=gen
+        )
 
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
@@ -253,32 +281,34 @@ def run_sequential_transfer_learning(
         optimizer = AdamW(model.parameters(), lr=finetune_lr, weight_decay=0.01)
         scheduler = ReduceLROnPlateau(optimizer, mode="max", patience=5, factor=0.5)
 
-        finetune_history = train_with_tracking(
+        trainer = Trainer(
             model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
+            criterion=nn.CrossEntropyLoss(),
             optimizer=optimizer,
-            scheduler=scheduler,
-            num_epochs=num_epochs_finetune,
             device=device_obj,
+            num_epochs=num_epochs_finetune,
+            scheduler=scheduler,
+            patience=20,
+            num_classes=current_num_classes,
+            logger=logger,
+            ctx=ctx,
         )
+        trainer_output = trainer.train(train_loader, val_loader)
+        finetune_history = _adapt_trainer_output(trainer_output)
         history["finetune"][target_dataset] = finetune_history
 
         # Final Evaluation
-        model.eval()
-        all_preds, all_labels = [], []
-        with torch.no_grad():
-            for x, y in val_loader:
-                x, y = x.to(device_obj), y.to(device_obj)
-                outputs = model(x)
-                if isinstance(outputs, tuple):
-                    outputs = outputs[0]
-                _, predicted = torch.max(outputs, 1)
-                true_labels = torch.argmax(y, dim=1)
-                all_preds.extend(predicted.cpu().numpy())
-                all_labels.extend(true_labels.cpu().numpy())
-
-        final_acc = balanced_accuracy_score(all_labels, all_preds)
+        # Reuse trainer.evaluate()
+        eval_trainer = Trainer(
+             model=model,
+             criterion=nn.CrossEntropyLoss(),
+             optimizer=optimizer, # Dummy
+             device=device_obj,
+             num_epochs=1,
+             num_classes=current_num_classes,
+        )
+        eval_results = eval_trainer.evaluate(val_loader)
+        final_acc = eval_results["metrics"]["balanced_accuracy"]
         logger.info(f"Final Balanced Accuracy: {final_acc*100:.2f}%")
 
         ctx.save_results(
