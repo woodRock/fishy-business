@@ -19,6 +19,7 @@ import seaborn as sns
 import copy
 import os
 from typing import List, Dict
+from pathlib import Path
 
 from fishy.engine.training_loops import train_with_tracking
 from fishy.data.module import create_data_module
@@ -43,10 +44,11 @@ def run_sequential_transfer_learning(
     """
     history = {"transfer": {}, "finetune": {}}
     device_obj = torch.device(device)
+    data_path = str(Path(__file__).resolve().parent.parent.parent / "data" / "REIMS.xlsx")
 
     # Initial data module to get dimensions
     data_module = create_data_module(
-        file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        file_path=data_path,
         dataset_name=transfer_datasets[0],
         batch_size=batch_size,
     )
@@ -80,7 +82,7 @@ def run_sequential_transfer_learning(
         print(f"\nPhase {i+1}: Transfer Learning on '{dataset_name}'")
         
         data_module = create_data_module(
-            file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+            file_path=data_path,
             dataset_name=dataset_name,
             batch_size=batch_size,
         )
@@ -133,7 +135,7 @@ def run_sequential_transfer_learning(
     # Fine-tuning
     print(f"\nFinal Phase: Fine-tuning on '{target_dataset}'")
     data_module = create_data_module(
-        file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        file_path=data_path,
         dataset_name=target_dataset,
         batch_size=batch_size,
     )

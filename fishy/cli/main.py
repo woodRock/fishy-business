@@ -11,6 +11,9 @@ from dataclasses import asdict
 from pathlib import Path
 import numpy as np
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
+
 from fishy._core.config import TrainingConfig
 from fishy.experiments.deep_training import ModelTrainer, run_training_pipeline
 from fishy.experiments.benchmark import run_benchmark
@@ -35,7 +38,7 @@ def setup_base_parser():
 def add_train_args(subparsers):
     train_parser = subparsers.add_parser("train", help="Run the model training pipeline")
     
-    train_parser.add_argument("-fp", "--file-path", type=str, default="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx", help="Path to dataset")
+    train_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
     train_parser.add_argument("-d", "--dataset", type=str, default="species", choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(), help="Dataset name")
     train_parser.add_argument("-m", "--model", type=str, default="transformer", choices=MODEL_REGISTRY.keys(), help="Model type")
     train_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
@@ -143,7 +146,7 @@ def handle_train(args):
 
 def handle_xai(args):
     t_cfg = TrainingConfig(
-        file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        file_path=DEFAULT_DATA_PATH,
         model=args.model,
         dataset=args.dataset,
         run=0,

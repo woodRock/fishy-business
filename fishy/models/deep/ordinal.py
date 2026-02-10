@@ -12,6 +12,8 @@ from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import balanced_accuracy_score
 
 
+from pathlib import Path
+
 # -------------------------------------------------------------------
 # --- 1. Early Stopping Class
 # -------------------------------------------------------------------
@@ -321,7 +323,8 @@ if __name__ == "__main__":
     random.seed(SEED)
 
     # --- Load and preprocess all data ---
-    df = read_reims_excel_file("/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx")
+    data_path = Path(__file__).resolve().parent.parent.parent.parent / "data" / "REIMS.xlsx"
+    df = read_reims_excel_file(data_path)
     df = filter_data_for_oil(df)
     df["m/z"] = remove_first_two_characters(df)
     df = convert_class_labels_to_integers(df)

@@ -312,8 +312,9 @@ def explain_predictions(
     from fishy.experiments.deep_training import ModelTrainer
     num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
     
+    data_path = str(Path(__file__).resolve().parent.parent.parent / "data" / "REIMS.xlsx")
     data_module = create_data_module(
-        file_path="/Users/woodj/Desktop/fishy-business/data/REIMS.xlsx",
+        file_path=data_path,
         dataset_name=dataset_name,
         batch_size=32,
     )
