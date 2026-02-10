@@ -29,6 +29,7 @@ from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
 
+
 class ModelTrainer:
     """
     Orchestrates the model training pipeline, from data setup to pre-training and fine-tuning.
@@ -98,12 +99,17 @@ class ModelTrainer:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
-                config=asdict(self.config), # Pass TrainingConfig as W&B config
-                reinit=True, # Important for multiple runs in one script
-                group=f"{self.config.dataset}_{self.config.model}", # Group runs by dataset and model
-                job_type="training"
+                config=asdict(self.config),  # Pass TrainingConfig as W&B config
+                reinit=True,  # Important for multiple runs in one script
+                group=f"{self.config.dataset}_{self.config.model}",  # Group runs by dataset and model
+                job_type="training",
             )
-        self.ctx = RunContext(dataset=config.dataset, method="deep", model_name=config.model, wandb_run=self.wandb_run)
+        self.ctx = RunContext(
+            dataset=config.dataset,
+            method="deep",
+            model_name=config.model,
+            wandb_run=self.wandb_run,
+        )
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
 
@@ -383,7 +389,7 @@ class ModelTrainer:
                 use_coral=self.config.use_coral,
                 num_classes=self.n_classes,
                 regression=self.config.regression,
-                ctx=self.ctx, # Pass context
+                ctx=self.ctx,  # Pass context
             )
 
             self.logger.info("Evaluating on the test set.")
@@ -401,7 +407,7 @@ class ModelTrainer:
             if self.ctx.wandb_run:
                 # Extract class names if available, otherwise use indices
                 class_names = [str(i) for i in range(self.n_classes)]
-                if hasattr(self.data_module, 'get_class_names'):
+                if hasattr(self.data_module, "get_class_names"):
                     class_names = self.data_module.get_class_names()
 
                 y_true = test_results["predictions"]["labels"]
@@ -418,11 +424,15 @@ class ModelTrainer:
                 test_spectra_np = test_spectra.cpu().numpy()
                 self.ctx.log_prediction_table(
                     spectra=test_spectra_np,
-                    preds=y_preds[:len(test_spectra_np)],
-                    targets=y_true[:len(test_spectra_np)],
-                    probs=y_probs[:len(test_spectra_np)] if y_probs is not None else np.eye(self.n_classes)[y_preds[:len(test_spectra_np)]],
+                    preds=y_preds[: len(test_spectra_np)],
+                    targets=y_true[: len(test_spectra_np)],
+                    probs=(
+                        y_probs[: len(test_spectra_np)]
+                        if y_probs is not None
+                        else np.eye(self.n_classes)[y_preds[: len(test_spectra_np)]]
+                    ),
                     class_names=class_names,
-                    table_name="test_predictions_samples"
+                    table_name="test_predictions_samples",
                 )
 
             final_metrics = {
@@ -560,7 +570,7 @@ class ModelTrainer:
                     use_cumulative_link=self.config.use_cumulative_link,
                     num_classes=self.n_classes,
                     regression=self.config.regression,
-                    ctx=self.ctx, # Pass context
+                    ctx=self.ctx,  # Pass context
                 )
                 if "best_val_predictions" in metrics:
                     if self.config.dataset == "oil":
@@ -571,7 +581,7 @@ class ModelTrainer:
                     # Advanced Visualizations for W&B (last fold)
                     if fold == k_folds - 1 and self.ctx.wandb_run:
                         class_names = [str(i) for i in range(self.n_classes)]
-                        if hasattr(self.data_module, 'get_class_names'):
+                        if hasattr(self.data_module, "get_class_names"):
                             class_names = self.data_module.get_class_names()
 
                         y_true = metrics["best_val_predictions"]["labels"]
@@ -585,11 +595,17 @@ class ModelTrainer:
                         val_spectra_np = val_spectra.cpu().numpy()
                         self.ctx.log_prediction_table(
                             spectra=val_spectra_np,
-                            preds=y_preds[:len(val_spectra_np)],
-                            targets=y_true[:len(val_spectra_np)],
-                            probs=y_probs[:len(val_spectra_np)] if y_probs is not None else np.eye(self.n_classes)[y_preds[:len(val_spectra_np)]],
+                            preds=y_preds[: len(val_spectra_np)],
+                            targets=y_true[: len(val_spectra_np)],
+                            probs=(
+                                y_probs[: len(val_spectra_np)]
+                                if y_probs is not None
+                                else np.eye(self.n_classes)[
+                                    y_preds[: len(val_spectra_np)]
+                                ]
+                            ),
                             class_names=class_names,
-                            table_name="val_predictions_samples_last_fold"
+                            table_name="val_predictions_samples_last_fold",
                         )
 
                     del metrics["best_val_predictions"]
@@ -640,6 +656,7 @@ class ModelTrainer:
                 self.logger.warning("No folds completed successfully.")
                 return {}
 
+
 def run_training_pipeline(config: TrainingConfig):
     """Executes the training pipeline for a given configuration."""
     trainer = ModelTrainer(config)
@@ -651,8 +668,7 @@ def run_training_pipeline(config: TrainingConfig):
     try:
         # --- Pre-training Phase ---
         any_pretrain_task_enabled = any(
-            getattr(config, task[0])
-            for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
+            getattr(config, task[0]) for task in ModelTrainer.PRETRAIN_TASK_DEFINITIONS
         )
         pre_trained_model = None
         if any_pretrain_task_enabled:

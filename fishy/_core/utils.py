@@ -15,20 +15,31 @@ import numpy as np
 import wandb
 import wandb.sdk.wandb_run
 
+
 class RunContext:
     """
     Manages the lifecycle of an experiment run, including directory creation,
     unified logging, and result persistence.
     """
-    def __init__(self, dataset: str, method: str, model_name: str, base_output_dir: str = "outputs", wandb_run: Optional[wandb.sdk.wandb_run.Run] = None):
+
+    def __init__(
+        self,
+        dataset: str,
+        method: str,
+        model_name: str,
+        base_output_dir: str = "outputs",
+        wandb_run: Optional[wandb.sdk.wandb_run.Run] = None,
+    ):
         self.timestamp = time.strftime("%Y%m%d-%H%M%S")
         self.dataset = dataset  # Store for logger and other uses
         self.method = method
         self.model_name = model_name
-        self.wandb_run = wandb_run # Store the wandb run object
+        self.wandb_run = wandb_run  # Store the wandb run object
 
         # New structured output directory: outputs/{dataset}/{method}/{model_name}_{timestamp}/
-        self.run_dir = Path(base_output_dir) / dataset / method / f"{model_name}_{self.timestamp}"
+        self.run_dir = (
+            Path(base_output_dir) / dataset / method / f"{model_name}_{self.timestamp}"
+        )
 
         self.log_dir = self.run_dir / "logs"
         self.result_dir = self.run_dir / "results"
@@ -36,8 +47,12 @@ class RunContext:
         self.figure_dir = self.run_dir / "figures"
 
         self._create_dirs()
-        self.logger = self._setup_logging() # _setup_logging will now use self.dataset etc.
-        self.logger.info(f"Initialized RunContext for dataset: {dataset}, method: {method}, model: {model_name}")
+        self.logger = (
+            self._setup_logging()
+        )  # _setup_logging will now use self.dataset etc.
+        self.logger.info(
+            f"Initialized RunContext for dataset: {dataset}, method: {method}, model: {model_name}"
+        )
         self.logger.info(f"Output directory: {self.run_dir}")
 
     def _create_dirs(self):
@@ -47,7 +62,9 @@ class RunContext:
 
     def _setup_logging(self) -> logging.Logger:
         """Sets up a unified logger that outputs to both console and a log file."""
-        logger = logging.getLogger(f"fishy.{self.dataset}.{self.method}.{self.model_name}")
+        logger = logging.getLogger(
+            f"fishy.{self.dataset}.{self.method}.{self.model_name}"
+        )
         logger.setLevel(logging.INFO)
 
         # Prevent duplicate handlers if RunContext is re-initialized in the same process
@@ -78,8 +95,10 @@ class RunContext:
             json.dump(results, f, indent=4)
         self.logger.info(f"Metrics saved to {path}")
         if self.wandb_run:
-            self.wandb_run.log(results, commit=False) # Log metrics to W&B
-            self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
+            self.wandb_run.log(results, commit=False)  # Log metrics to W&B
+            self.wandb_run.save(
+                str(path), base_path=str(self.run_dir)
+            )  # Log file as artifact
 
     def save_config(self, config: Any, filename: str = "config.json"):
         """Saves the experiment configuration to a JSON file."""
@@ -106,12 +125,14 @@ class RunContext:
 
         config_dict = convert_paths_to_str(config_dict)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(config_dict, f, indent=4)
         self.logger.info(f"Configuration saved to {path}")
         if self.wandb_run:
-            self.wandb_run.config.update(config_dict) # Update W&B run config
-            self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
+            self.wandb_run.config.update(config_dict)  # Update W&B run config
+            self.wandb_run.save(
+                str(path), base_path=str(self.run_dir)
+            )  # Log file as artifact
 
     def save_dataframe(self, df: pd.DataFrame, filename: str):
         """Saves a pandas DataFrame to the results directory."""
@@ -124,7 +145,9 @@ class RunContext:
             df.to_pickle(path)
         self.logger.info(f"DataFrame saved to {path}")
         if self.wandb_run:
-            self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
+            self.wandb_run.save(
+                str(path), base_path=str(self.run_dir)
+            )  # Log file as artifact
 
     def save_figure(self, fig: Any, filename: str):
         """Saves a matplotlib figure to the figures directory."""
@@ -140,8 +163,12 @@ class RunContext:
         self.logger.info(f"Figure saved to {path}")
         if self.wandb_run:
             # wandb.Image expects a path or PIL image
-            self.wandb_run.log({f"figure/{filename}": wandb.Image(str(path))}, commit=False)
-            self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
+            self.wandb_run.log(
+                {f"figure/{filename}": wandb.Image(str(path))}, commit=False
+            )
+            self.wandb_run.save(
+                str(path), base_path=str(self.run_dir)
+            )  # Log file as artifact
 
     def get_checkpoint_path(self, filename: str) -> Path:
         """Returns a path within the checkpoint directory."""
@@ -149,7 +176,7 @@ class RunContext:
 
     def log_metric(self, step: int, metrics: Dict[str, float]):
         """
-        Logs metrics for a specific step. 
+        Logs metrics for a specific step.
         In the future, this could also write to a PSQL database.
         """
         # For now, just log to info
@@ -160,39 +187,62 @@ class RunContext:
         csv_path = self.result_dir / "step_metrics.csv"
         metrics_with_step = {"step": step, **metrics}
         df = pd.DataFrame([metrics_with_step])
-        df.to_csv(csv_path, mode='a', header=not csv_path.exists(), index=False)
+        df.to_csv(csv_path, mode="a", header=not csv_path.exists(), index=False)
         if self.wandb_run:
-            self.wandb_run.log(metrics, step=step) # Log metrics to W&B, committing a step
+            self.wandb_run.log(
+                metrics, step=step
+            )  # Log metrics to W&B, committing a step
 
-    def log_summary_charts(self, y_true: np.ndarray, y_probs: np.ndarray, class_names: list):
+    def log_summary_charts(
+        self, y_true: np.ndarray, y_probs: np.ndarray, class_names: list
+    ):
         """Logs advanced metrics like Confusion Matrix and ROC curves to W&B."""
         if self.wandb_run:
             self.logger.info("Logging summary charts to W&B...")
             # 1. Confusion Matrix
-            self.wandb_run.log({
-                "conf_mat": wandb.plot.confusion_matrix(
-                    probs=y_probs,
-                    y_true=y_true,
-                    class_names=class_names
-                )
-            }, commit=False)
+            self.wandb_run.log(
+                {
+                    "conf_mat": wandb.plot.confusion_matrix(
+                        probs=y_probs, y_true=y_true, class_names=class_names
+                    )
+                },
+                commit=False,
+            )
 
             # 2. ROC Curve
-            self.wandb_run.log({
-                "roc": wandb.plot.roc_curve(y_true, y_probs, labels=class_names)
-            }, commit=False)
+            self.wandb_run.log(
+                {"roc": wandb.plot.roc_curve(y_true, y_probs, labels=class_names)},
+                commit=False,
+            )
 
             # 3. Precision-Recall Curve
-            self.wandb_run.log({
-                "pr": wandb.plot.pr_curve(y_true, y_probs, labels=class_names)
-            }, commit=False)
+            self.wandb_run.log(
+                {"pr": wandb.plot.pr_curve(y_true, y_probs, labels=class_names)},
+                commit=False,
+            )
 
-    def log_prediction_table(self, spectra: np.ndarray, preds: np.ndarray, targets: np.ndarray, probs: np.ndarray, class_names: list, table_name: str = "predictions"):
+    def log_prediction_table(
+        self,
+        spectra: np.ndarray,
+        preds: np.ndarray,
+        targets: np.ndarray,
+        probs: np.ndarray,
+        class_names: list,
+        table_name: str = "predictions",
+    ):
         """Logs a table of predictions with their corresponding spectral plots."""
         if self.wandb_run:
             self.logger.info(f"Logging {table_name} table to W&B...")
             import matplotlib.pyplot as plt
-            columns = ["id", "spectrum", "prediction", "target", "confidence", "is_correct"]
+
+            columns = [
+                "id",
+                "spectrum",
+                "prediction",
+                "target",
+                "confidence",
+                "is_correct",
+            ]
             table = wandb.Table(columns=columns)
 
             # Log a subset to avoid excessive data usage, but enough for meaningful inspection
@@ -210,13 +260,12 @@ class RunContext:
                 plt.close()
 
                 table.add_data(
-                    i, 
-                    img, 
-                    class_names[preds[i]], 
-                    class_names[targets[i]], 
+                    i,
+                    img,
+                    class_names[preds[i]],
+                    class_names[targets[i]],
                     float(probs[i].max()),
-                    bool(preds[i] == targets[i])
+                    bool(preds[i] == targets[i]),
                 )
 
             self.wandb_run.log({table_name: table}, commit=False)
-

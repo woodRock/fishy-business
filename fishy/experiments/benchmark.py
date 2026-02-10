@@ -9,14 +9,15 @@ import time
 import torch
 import numpy as np
 import pandas as pd
-from typing import List, Optional # Added Optional
-import wandb # Added import
-from dataclasses import asdict # Added import
+from typing import List, Optional  # Added Optional
+import wandb  # Added import
+from dataclasses import asdict  # Added import
 from fishy.data.classic_loader import load_dataset
 from fishy.engine.training_loops import train_model
 from fishy._core.factory import create_model, MODEL_REGISTRY
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
+
 
 def get_device() -> torch.device:
     """
@@ -31,10 +32,11 @@ def get_device() -> torch.device:
     else:
         return torch.device("cpu")
 
+
 def run_benchmark(
-    model_names: List[str], 
-    warmup_epochs: int = 0, 
-    output_file: str = "benchmark_results.csv", 
+    model_names: List[str],
+    warmup_epochs: int = 0,
+    output_file: str = "benchmark_results.csv",
     file_path: str = None,
     # New W&B parameters
     wandb_project: Optional[str] = "fishy-business",
@@ -74,14 +76,19 @@ def run_benchmark(
             config=wandb_config_dict,
             reinit=True,
             group="benchmark_suite",
-            job_type="benchmarking"
+            job_type="benchmarking",
         )
-    ctx = RunContext(dataset="summary", method="benchmark", model_name="orchestrator", wandb_run=wandb_run)
+    ctx = RunContext(
+        dataset="summary",
+        method="benchmark",
+        model_name="orchestrator",
+        wandb_run=wandb_run,
+    )
     logger = ctx.logger
     device = get_device()
     datasets = ["species", "part", "oil", "cross-species"]
     all_results = []
-    try: # Start try block for wandb.finish
+    try:  # Start try block for wandb.finish
         for model_name in model_names:
             model_results = []
             for dataset_name in datasets:
@@ -92,17 +99,33 @@ def run_benchmark(
                 n_classes = len(np.unique(y))
                 # Create a minimal config for create_model
                 config = TrainingConfig(
-                    file_path="", model=model_name, dataset=dataset_name, 
-                    run=0, output="", data_augmentation=False, 
-                    masked_spectra_modelling=False, next_spectra_prediction=False,
-                    next_peak_prediction=False, spectrum_denoising_autoencoding=False,
-                    peak_parameter_regression=False, spectrum_segment_reordering=False,
+                    file_path="",
+                    model=model_name,
+                    dataset=dataset_name,
+                    run=0,
+                    output="",
+                    data_augmentation=False,
+                    masked_spectra_modelling=False,
+                    next_spectra_prediction=False,
+                    next_peak_prediction=False,
+                    spectrum_denoising_autoencoding=False,
+                    peak_parameter_regression=False,
+                    spectrum_segment_reordering=False,
                     contrastive_transformation_invariance_learning=False,
-                    early_stopping=0, dropout=0.2, label_smoothing=0.1,
-                    epochs=1, learning_rate=1e-4, batch_size=32,
-                    hidden_dimension=128, num_layers=4, num_heads=4,
-                    num_augmentations=0, noise_level=0.0, shift_enabled=False,
-                    scale_enabled=False, k_folds=1
+                    early_stopping=0,
+                    dropout=0.2,
+                    label_smoothing=0.1,
+                    epochs=1,
+                    learning_rate=1e-4,
+                    batch_size=32,
+                    hidden_dimension=128,
+                    num_layers=4,
+                    num_heads=4,
+                    num_augmentations=0,
+                    noise_level=0.0,
+                    shift_enabled=False,
+                    scale_enabled=False,
+                    k_folds=1,
                 )
                 train_loader = torch.utils.data.DataLoader(
                     torch.utils.data.TensorDataset(
@@ -113,7 +136,9 @@ def run_benchmark(
                 # --- Warm-up ---
                 if warmup_epochs > 0:
                     logger.info(f"Running {warmup_epochs} warm-up epochs...")
-                    warmup_model = create_model(config, n_features, n_classes).to(device)
+                    warmup_model = create_model(config, n_features, n_classes).to(
+                        device
+                    )
                     train_model(
                         warmup_model,
                         train_loader,
@@ -122,7 +147,7 @@ def run_benchmark(
                         num_epochs=warmup_epochs,
                         n_splits=1,
                         n_runs=1,
-                        device=str(device)
+                        device=str(device),
                     )
                 # --- Training Time Measurement ---
                 model = create_model(config, n_features, n_classes).to(device)
@@ -135,7 +160,7 @@ def run_benchmark(
                     num_epochs=1,
                     n_splits=1,
                     n_runs=1,
-                    device=str(device)
+                    device=str(device),
                 )
                 training_time = time.time() - start_time
                 # --- Inference Time Measurement ---
@@ -144,7 +169,9 @@ def run_benchmark(
                     model(torch.from_numpy(X).float().to(device))
                 inference_time = time.time() - start_time
                 # Model metrics
-                model_size = sum(p.numel() * p.element_size() for p in model.parameters())
+                model_size = sum(
+                    p.numel() * p.element_size() for p in model.parameters()
+                )
                 num_params = sum(p.numel() for p in model.parameters())
                 res = {
                     "model": model_name,

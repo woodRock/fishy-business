@@ -12,7 +12,7 @@ import numpy as np
 import copy
 from dataclasses import dataclass
 from typing import Tuple, Dict, Optional, List
-from dataclasses import asdict # New line
+from dataclasses import asdict  # New line
 
 from fishy.data.module import create_data_module
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
@@ -30,7 +30,8 @@ from fishy.models.contrastive.barlow_twins import BarlowTwinsModel, BarlowTwinsL
 from fishy._core.factory import create_model, MODEL_REGISTRY
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
-import wandb # Added import
+import wandb  # Added import
+
 
 @dataclass
 class ContrastiveConfig:
@@ -47,11 +48,12 @@ class ContrastiveConfig:
     contrastive_method: str = "simclr"
     file_path: str = ""
     dropout: float = 0.1
-    dataset: str = "species" # Added dataset attribute
+    dataset: str = "species"  # Added dataset attribute
     # Weights & Biases parameters
     wandb_project: Optional[str] = "fishy-business"
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
     wandb_log: bool = False
+
 
 class ContrastiveTrainer:
     def __init__(self, config: ContrastiveConfig):
@@ -61,12 +63,17 @@ class ContrastiveTrainer:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
-                config=asdict(self.config), # Pass ContrastiveConfig as W&B config
-                reinit=True, # Important for multiple runs in one script
-                group=f"{self.config.dataset}_{self.config.contrastive_method}", # Group runs by dataset and contrastive method
-                job_type="contrastive_training"
+                config=asdict(self.config),  # Pass ContrastiveConfig as W&B config
+                reinit=True,  # Important for multiple runs in one script
+                group=f"{self.config.dataset}_{self.config.contrastive_method}",  # Group runs by dataset and contrastive method
+                job_type="contrastive_training",
             )
-        self.ctx = RunContext(dataset=config.dataset, method="contrastive", model_name=config.contrastive_method, wandb_run=self.wandb_run)
+        self.ctx = RunContext(
+            dataset=config.dataset,
+            method="contrastive",
+            model_name=config.contrastive_method,
+            wandb_run=self.wandb_run,
+        )
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -76,7 +83,7 @@ class ContrastiveTrainer:
         # Data Module
         self.data_module = create_data_module(
             file_path=self.config.file_path,
-            dataset_name=self.config.dataset, # Fix hardcoded dataset_name
+            dataset_name=self.config.dataset,  # Fix hardcoded dataset_name
             batch_size=self.config.batch_size,
         )
         self.data_module.setup()
@@ -169,14 +176,14 @@ class ContrastiveTrainer:
             # Plot first spectrum
             plt.figure(figsize=(4, 3))
             plt.plot(x1.numpy())
-            plt.axis('off')
+            plt.axis("off")
             img1 = wandb.Image(plt)
             plt.close()
 
             # Plot second spectrum
             plt.figure(figsize=(4, 3))
             plt.plot(x2.numpy())
-            plt.axis('off')
+            plt.axis("off")
             img2 = wandb.Image(plt)
             plt.close()
 
@@ -184,6 +191,7 @@ class ContrastiveTrainer:
             table.add_data(i, img1, img2, relationship)
 
         self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
+
 
 def run_contrastive_experiment(config: ContrastiveConfig):
     """

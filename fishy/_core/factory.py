@@ -53,6 +53,7 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "ensemble": Ensemble,
 }
 
+
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
     Factory function to create a model based on the configuration.
@@ -77,9 +78,9 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             # Instantiate VAE model first as backbone for SiameseVAE
             vae_backbone = VAE(
                 input_size=input_dim,
-                latent_dim=config.hidden_dimension, # Using hidden_dimension for latent_dim
-                num_classes=output_dim,             # output_dim represents num_classes
-                dropout=config.dropout
+                latent_dim=config.hidden_dimension,  # Using hidden_dimension for latent_dim
+                num_classes=output_dim,  # output_dim represents num_classes
+                dropout=config.dropout,
             )
             return SiameseVAE(vae_backbone)
 
@@ -103,7 +104,13 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     elif model_name == "cnn":
         return CNN(input_dim, output_dim)
     elif model_name == "lstm":
-        return LSTM(input_dim, config.hidden_dimension, config.num_layers, output_dim, config.dropout)
+        return LSTM(
+            input_dim,
+            config.hidden_dimension,
+            config.num_layers,
+            output_dim,
+            config.dropout,
+        )
     elif model_name == "dense":
         return Dense(input_dim, output_dim, config.hidden_dimension)
     elif model_name == "moe":
@@ -112,21 +119,23 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         # Using hidden_dimension for d_model, num_layers for depth
         # and sensible defaults for d_state, d_conv, expand if not available in config
         d_model = config.hidden_dimension
-        d_state = getattr(config, 'd_state', 16) # Default to 16
-        d_conv = getattr(config, 'd_conv', 4)   # Default to 4
-        expand = getattr(config, 'expand', 2)   # Default to 2
+        d_state = getattr(config, "d_state", 16)  # Default to 16
+        d_conv = getattr(config, "d_conv", 4)  # Default to 4
+        expand = getattr(config, "expand", 2)  # Default to 2
         depth = config.num_layers
         dropout = config.dropout
-        return Mamba(input_dim, output_dim, d_model, d_state, d_conv, expand, depth, dropout)
+        return Mamba(
+            input_dim, output_dim, d_model, d_state, d_conv, expand, depth, dropout
+        )
     elif model_name == "ensemble":
         return Ensemble(input_dim, config.hidden_dimension, output_dim, config.dropout)
 
     elif model_name == "vae":
         return VAE(
             input_size=input_dim,
-            latent_dim=config.hidden_dimension, # Using hidden_dimension for latent_dim
-            num_classes=output_dim,             # output_dim represents num_classes
-            dropout=config.dropout
+            latent_dim=config.hidden_dimension,  # Using hidden_dimension for latent_dim
+            num_classes=output_dim,  # output_dim represents num_classes
+            dropout=config.dropout,
         )
     # Fallback for models that might take (input_dim, output_dim)
     try:

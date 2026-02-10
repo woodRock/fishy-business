@@ -28,13 +28,26 @@ DATASETS = ["species", "part", "oil", "cross-species"]
 
 def main():
     parser = argparse.ArgumentParser(description="Run all fishy business experiments.")
-    parser.add_argument("--wandb-log", action="store_true", help="Enable Weights & Biases logging for all runs.")
-    parser.add_argument("--wandb-project", type=str, default="fishy-business", help="W&B project name.")
-    parser.add_argument("--wandb-entity", type=str, default="victoria-university-of-wellington", help="W&B entity name.")
+    parser.add_argument(
+        "--wandb-log",
+        action="store_true",
+        help="Enable Weights & Biases logging for all runs.",
+    )
+    parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name."
+    )
+    parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name.",
+    )
     args = parser.parse_args()
 
     # Initialize a logger for the main script
-    main_ctx = RunContext(dataset="summary", method="orchestrator", model_name="all_experiments")
+    main_ctx = RunContext(
+        dataset="summary", method="orchestrator", model_name="all_experiments"
+    )
     logger = main_ctx.logger
 
     logger.info("Starting all classic experiments...")
@@ -43,7 +56,7 @@ def main():
             logger.info(
                 f"Running classic experiment: Model={model_name}, Dataset={dataset}"
             )
-            
+
             config = TrainingConfig(
                 dataset=dataset,
                 model=model_name,
@@ -54,7 +67,9 @@ def main():
             )
 
             try:
-                run_classic_experiment(config=config, model_name=model_name, dataset_name=dataset)
+                run_classic_experiment(
+                    config=config, model_name=model_name, dataset_name=dataset
+                )
                 logger.info(
                     f"Successfully completed classic experiment: Model={model_name}, Dataset={dataset}"
                 )
