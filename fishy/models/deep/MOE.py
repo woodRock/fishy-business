@@ -393,13 +393,13 @@ class MOE(nn.Module):
             use_majority_voting (bool): whether to use majority voting instead of top-k routing.
         """
         super().__init__()
-        
+
         # Project input to a fixed model dimension that is divisible by num_heads
-        self.d_model = hidden_dim # Use hidden_dim as d_model for simplicity
+        self.d_model = hidden_dim  # Use hidden_dim as d_model for simplicity
         if self.d_model % num_heads != 0:
             # Adjust d_model if necessary
             self.d_model = ((self.d_model // num_heads) + 1) * num_heads
-            
+
         self.embedding = nn.Linear(input_dim, self.d_model)
 
         self.attention_layers = nn.ModuleList(
@@ -439,7 +439,7 @@ class MOE(nn.Module):
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         if x.dim() == 2:
             x = x.unsqueeze(1)
-            
+
         x = self.embedding(x)
 
         # Apply attention and MoE layers with residual connections

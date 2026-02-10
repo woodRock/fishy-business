@@ -29,6 +29,7 @@ from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
 
+
 class ModelTrainer:
     """
     Orchestrates the model training pipeline, from data setup to pre-training and fine-tuning.
@@ -106,7 +107,7 @@ class ModelTrainer:
         self.ctx = RunContext(dataset=config.dataset, method="deep", model_name=config.model, wandb_run=self.wandb_run)
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
-        
+
         self.device = torch.device(
             "cuda"
             if torch.cuda.is_available()
@@ -196,12 +197,14 @@ class ModelTrainer:
             start_time = time.time()
             trained_model = getattr(pre_trainer, method)(*call_args, **kwargs)
             self.logger.info(f"{flag} training time: {time.time() - start_time:.2f}s")
-            
+
             # Save pre-trained checkpoint
             checkpoint_path = self.ctx.get_checkpoint_path(f"pretrained_{flag}.pth")
             torch.save(trained_model.state_dict(), checkpoint_path)
-            self.logger.info(f"Pre-trained weights for {flag} saved to {checkpoint_path}")
-            
+            self.logger.info(
+                f"Pre-trained weights for {flag} saved to {checkpoint_path}"
+            )
+
             model_after_last_task = trained_model
 
         self.logger.info("Pre-training completed.")
@@ -252,6 +255,7 @@ class ModelTrainer:
 
         if self.config.regression:
             from sklearn.metrics import r2_score
+
             mae = np.mean(np.abs(true_labels - pred_labels))
             self.logger.info(f"Fold {fold + 1} Regression MAE: {mae:.4f}")
             r2 = r2_score(true_labels, pred_labels)
@@ -406,7 +410,10 @@ class ModelTrainer:
             }
 
             self.ctx.save_results(final_metrics, filename="final_metrics.json")
-            torch.save(trained_model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth"))
+            torch.save(
+                trained_model.state_dict(),
+                self.ctx.get_checkpoint_path("final_model.pth"),
+            )
             return final_metrics
 
         else:
@@ -534,23 +541,36 @@ class ModelTrainer:
                     del metrics["best_val_predictions"]
 
                 all_fold_metrics.append(metrics)
-                
+
                 # Save fold model
-                torch.save(trained_model_instance.state_dict(), self.ctx.get_checkpoint_path(f"model_fold_{fold+1}.pth"))
+                torch.save(
+                    trained_model_instance.state_dict(),
+                    self.ctx.get_checkpoint_path(f"model_fold_{fold+1}.pth"),
+                )
 
             self.logger.info("Cross-Validation finished.")
 
             if all_fold_metrics:
                 stats = {
-                    k: np.mean([m[k] for m in all_fold_metrics if isinstance(m[k], (int, float))])
-                    for k in all_fold_metrics[0] if isinstance(all_fold_metrics[0][k], (int, float))
+                    k: np.mean(
+                        [
+                            m[k]
+                            for m in all_fold_metrics
+                            if isinstance(m[k], (int, float))
+                        ]
+                    )
+                    for k in all_fold_metrics[0]
+                    if isinstance(all_fold_metrics[0][k], (int, float))
                 }
                 self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
-                
+
                 suffix = "classification"
-                if self.config.regression: suffix = "regression"
-                elif self.config.use_coral: suffix = "coral"
-                elif self.config.use_cumulative_link: suffix = "cumulative_link"
+                if self.config.regression:
+                    suffix = "regression"
+                elif self.config.use_coral:
+                    suffix = "coral"
+                elif self.config.use_cumulative_link:
+                    suffix = "cumulative_link"
 
                 file_name = f"aggregated_stats_{suffix}.json"
                 self.ctx.save_results(
@@ -559,12 +579,13 @@ class ModelTrainer:
                         "stats": stats,
                         "folds": all_fold_metrics,
                     },
-                    filename=file_name
+                    filename=file_name,
                 )
                 return stats
             else:
                 self.logger.warning("No folds completed successfully.")
                 return {}
+
 
 def run_training_pipeline(config: TrainingConfig):
     """Executes the training pipeline for a given configuration."""

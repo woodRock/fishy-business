@@ -1,0 +1,139 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            dkna2z0a0p48xwu4fygd29s4t0sf7x0m:
+                apple:
+                    ecpuCores: 4
+                    gpuCores: 8
+                    memoryGb: 16
+                    name: Apple M2
+                    pcpuCores: 4
+                    ramTotalBytes: "17179869184"
+                    swapTotalBytes: "2147483648"
+                args:
+                    - train
+                    - -m
+                    - transformer
+                    - -d
+                    - species
+                    - --wandb-log
+                codePath: main.py
+                codePathLocal: main.py
+                cpu_count: 8
+                cpu_count_logical: 8
+                disk:
+                    /:
+                        total: "245107195904"
+                        used: "88903700480"
+                email: j.r.h.wood98@gmail.com
+                executable: /Library/Developer/CommandLineTools/usr/bin/python3
+                git:
+                    commit: 664b4ba3ab13755d9b80451f7ea8bd6b67fe940d
+                    remote: git@github.com:woodRock/fishy-business.git
+                host: Jesses-MacBook-Air.local
+                memory:
+                    total: "17179869184"
+                os: macOS-15.5-arm64-arm-64bit
+                program: /Users/woodj/Desktop/fishy-business/main.py
+                python: CPython 3.9.6
+                root: /Users/woodj/Desktop/fishy-business
+                startedAt: "2026-02-10T11:36:57.357428Z"
+                writerId: dkna2z0a0p48xwu4fygd29s4t0sf7x0m
+        m: []
+        python_version: 3.9.6
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 3
+                - 16
+            "4": 3.9.6
+            "5": 0.24.2
+            "10":
+                - 20
+            "12": 0.24.2
+            "13": darwin-arm64
+batch_size:
+    value: 64
+contrastive_transformation_invariance_learning:
+    value: false
+crop_enabled:
+    value: false
+crop_size:
+    value: 0.8
+data_augmentation:
+    value: false
+dataset:
+    value: species
+dropout:
+    value: 0.2
+early_stopping:
+    value: 20
+epochs:
+    value: 100
+file_path:
+    value: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
+flip_enabled:
+    value: false
+hidden_dimension:
+    value: 128
+k_folds:
+    value: 3
+label_smoothing:
+    value: 0.1
+learning_rate:
+    value: 0.0001
+masked_spectra_modelling:
+    value: false
+model:
+    value: transformer
+next_peak_prediction:
+    value: false
+next_spectra_prediction:
+    value: false
+noise_level:
+    value: 0.05
+num_augmentations:
+    value: 5
+num_heads:
+    value: 4
+num_layers:
+    value: 4
+num_runs:
+    value: 1
+output:
+    value: logs/results_base
+peak_parameter_regression:
+    value: false
+permutation_enabled:
+    value: false
+regression:
+    value: false
+run:
+    value: 0
+scale_enabled:
+    value: false
+shift_enabled:
+    value: false
+spectrum_denoising_autoencoding:
+    value: false
+spectrum_segment_reordering:
+    value: false
+use_coral:
+    value: false
+use_cumulative_link:
+    value: false
+wandb_entity:
+    value: victoria-university-of-wellington
+wandb_log:
+    value: true
+wandb_project:
+    value: fishy-business

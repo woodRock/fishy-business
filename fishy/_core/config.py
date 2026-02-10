@@ -11,6 +11,7 @@ import argparse
 from dataclasses import dataclass
 from typing import Optional
 
+
 @dataclass
 class TrainingConfig:
     """
@@ -112,6 +113,7 @@ class TrainingConfig:
             TrainingConfig: A configuration object populated with values from ``args``.
         """
         import dataclasses
+
         valid_keys = {f.name for f in dataclasses.fields(cls)}
         config_dict = {k: v for k, v in vars(args).items() if k in valid_keys}
         return cls(**config_dict)

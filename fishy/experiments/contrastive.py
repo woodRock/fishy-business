@@ -16,7 +16,12 @@ from dataclasses import asdict # New line
 
 from fishy.data.module import create_data_module
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
-from fishy.data.contrastive_util import DataConfig, DataPreprocessor, SiameseDataset, BalancedBatchSampler
+from fishy.data.contrastive_util import (
+    DataConfig,
+    DataPreprocessor,
+    SiameseDataset,
+    BalancedBatchSampler,
+)
 from fishy.models.contrastive.simclr import SimCLRModel, SimCLRLoss
 from fishy.models.contrastive.moco import MoCoModel, MoCoLoss
 from fishy.models.contrastive.byol import BYOLModel, BYOLLoss
@@ -76,38 +81,40 @@ class ContrastiveTrainer:
         )
         self.data_module.setup()
         self.input_dim = self.data_module.get_input_dim()
-        
+
         # Encoder creation
         # We need a TrainingConfig for create_model
         t_cfg = TrainingConfig(
             model=self.config.encoder_type,
             hidden_dimension=self.config.embedding_dim,
-            num_layers=4, # Default layers
-            num_heads=4   # Default heads
+            num_layers=4,  # Default layers
+            num_heads=4,  # Default heads
         )
-        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(self.device)
-        
+        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(
+            self.device
+        )
+
         # Contrastive Model
         if self.config.contrastive_method == "simclr":
             self.model = SimCLRModel(encoder, self.config).to(self.device)
             self.criterion = SimCLRLoss(temperature=self.config.temperature)
         else:
-            raise ValueError(f"Unsupported contrastive method: {self.config.contrastive_method}")
+            raise ValueError(
+                f"Unsupported contrastive method: {self.config.contrastive_method}"
+            )
 
         self.optimizer = optim.AdamW(
-            self.model.parameters(), 
-            lr=self.config.learning_rate, 
-            weight_decay=self.config.weight_decay
+            self.model.parameters(),
+            lr=self.config.learning_rate,
+            weight_decay=self.config.weight_decay,
         )
-        
+
         # Prepare Siamese Dataset for contrastive
         samples = self.data_module.get_dataset().samples.cpu().numpy()
         labels = self.data_module.get_dataset().labels.cpu().numpy()
         self.siamese_dataset = SiameseDataset(samples, labels)
         self.train_loader = DataLoader(
-            self.siamese_dataset, 
-            batch_size=self.config.batch_size, 
-            shuffle=True
+            self.siamese_dataset, batch_size=self.config.batch_size, shuffle=True
         )
 
     def train(self):
@@ -117,26 +124,31 @@ class ContrastiveTrainer:
             total_loss = 0
             for batch_idx, (x1, x2, _) in enumerate(self.train_loader):
                 x1, x2 = x1.to(self.device), x2.to(self.device)
-                
+
                 self.optimizer.zero_grad()
                 z1, z2 = self.model(x1, x2)
                 loss = self.criterion(z1, z2)
                 loss.backward()
                 self.optimizer.step()
-                
+
                 total_loss += loss.item()
-            
+
             avg_loss = total_loss / len(self.train_loader)
             history["loss"].append(avg_loss)
             self.ctx.log_metric(epoch + 1, {"loss": avg_loss})
-            
+
             if (epoch + 1) % 10 == 0 or epoch == 0:
-                self.logger.info(f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}")
+                self.logger.info(
+                    f"Epoch [{epoch+1}/{self.config.num_epochs}], Loss: {avg_loss:.4f}"
+                )
 
         # Save results
         self.ctx.save_results(history, filename="training_history.json")
-        torch.save(self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth"))
+        torch.save(
+            self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth")
+        )
         self.logger.info("Contrastive training finished and model saved.")
+
 
 def run_contrastive_experiment(config: ContrastiveConfig):
     """

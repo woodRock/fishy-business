@@ -26,7 +26,7 @@ def SimpleGPWithElitism(
 
     A variation of the eaSimple method from the DEAP library that supports
     elitism. Elitism ensures the best individuals (the elite) from each
-    generation are carried onto the next without alteration. This ensures 
+    generation are carried onto the next without alteration. This ensures
     the quality of the best solution monotonically increases over time.
 
     Args:

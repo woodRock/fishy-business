@@ -53,6 +53,7 @@ MODEL_REGISTRY: Dict[str, Type[nn.Module]] = {
     "ensemble": Ensemble,
 }
 
+
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
     Factory function to create a model based on the configuration.
@@ -66,11 +67,13 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         nn.Module: The instantiated and configured PyTorch model.
     """
     model_name = config.model.lower()
-    
+
     # Handle Siamese wrappers for instance-recognition
     if "instance-recognition" in config.dataset:
         if model_name == "mamba":
-            return SiameseMamba(input_dim, output_dim, config.hidden_dimension, config.num_layers)
+            return SiameseMamba(
+                input_dim, output_dim, config.hidden_dimension, config.num_layers
+            )
         elif model_name == "vae":
             # Instantiate VAE model first as backbone for SiameseVAE
             vae_backbone = VAE(
@@ -82,13 +85,22 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             return SiameseVAE(vae_backbone)
 
     if model_name not in MODEL_REGISTRY:
-        raise ValueError(f"Model '{model_name}' not found in registry. Available: {list(MODEL_REGISTRY.keys())}")
-    
+        raise ValueError(
+            f"Model '{model_name}' not found in registry. Available: {list(MODEL_REGISTRY.keys())}"
+        )
+
     model_class = MODEL_REGISTRY[model_name]
-    
+
     # Instantiate with common parameters (simplified for this factory)
     if model_name == "transformer":
-        return Transformer(input_dim, output_dim, config.num_heads, config.hidden_dimension, config.num_layers, config.dropout)
+        return Transformer(
+            input_dim,
+            output_dim,
+            config.num_heads,
+            config.hidden_dimension,
+            config.num_layers,
+            config.dropout,
+        )
     elif model_name == "cnn":
         return CNN(input_dim, output_dim)
     elif model_name == "lstm":

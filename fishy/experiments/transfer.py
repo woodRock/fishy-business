@@ -29,6 +29,7 @@ from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
 
+
 def run_sequential_transfer_learning(
     model_name: str,
     transfer_datasets: List[str],

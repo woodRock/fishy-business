@@ -34,7 +34,7 @@ class RunContext:
         self.result_dir = self.run_dir / "results"
         self.checkpoint_dir = self.run_dir / "checkpoints"
         self.figure_dir = self.run_dir / "figures"
-        
+
         self._create_dirs()
         self.logger = self._setup_logging() # _setup_logging will now use self.dataset etc.
         self.logger.info(f"Initialized RunContext for dataset: {dataset}, method: {method}, model: {model_name}")
@@ -49,30 +49,32 @@ class RunContext:
         """Sets up a unified logger that outputs to both console and a log file."""
         logger = logging.getLogger(f"fishy.{self.dataset}.{self.method}.{self.model_name}")
         logger.setLevel(logging.INFO)
-        
+
         # Prevent duplicate handlers if RunContext is re-initialized in the same process
         if logger.handlers:
             return logger
 
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+
         # File handler
         log_file = self.log_dir / "experiment.log"
         fh = logging.FileHandler(log_file)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
-        
+
         # Console handler
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
         logger.addHandler(ch)
-        
+
         return logger
 
     def save_results(self, results: Dict[str, Any], filename: str = "metrics.json"):
         """Saves a dictionary of results/metrics to a JSON file."""
         path = self.result_dir / filename
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(results, f, indent=4)
         self.logger.info(f"Metrics saved to {path}")
         if self.wandb_run:
@@ -82,10 +84,10 @@ class RunContext:
     def save_config(self, config: Any, filename: str = "config.json"):
         """Saves the experiment configuration to a JSON file."""
         path = self.run_dir / filename
-        
+
         if is_dataclass(config):
             config_dict = asdict(config)
-        elif hasattr(config, 'to_dict'):
+        elif hasattr(config, "to_dict"):
             config_dict = config.to_dict()
         elif isinstance(config, dict):
             config_dict = config
@@ -129,11 +131,12 @@ class RunContext:
         """Saves a matplotlib figure to the figures directory."""
         path = self.figure_dir / filename
         # Basic check for matplotlib figure
-        if hasattr(fig, 'savefig'):
+        if hasattr(fig, "savefig"):
             fig.savefig(path)
         else:
             # Assume it might be a seaborn/plt object or we use plt.savefig if fig is None
             import matplotlib.pyplot as plt
+
             plt.savefig(path)
         self.logger.info(f"Figure saved to {path}")
         if self.wandb_run:
@@ -147,13 +150,13 @@ class RunContext:
 
     def log_metric(self, step: int, metrics: Dict[str, float]):
         """
-        Logs metrics for a specific step. 
+        Logs metrics for a specific step.
         In the future, this could also write to a PSQL database.
         """
         # For now, just log to info
         metrics_str = " - ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
         self.logger.info(f"Step {step}: {metrics_str}")
-        
+
         # Append to a csv for easy parsing later
         csv_path = self.result_dir / "step_metrics.csv"
         metrics_with_step = {"step": step, **metrics}

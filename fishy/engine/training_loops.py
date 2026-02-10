@@ -40,6 +40,7 @@ from fishy.data.datasets import SiameseDataset
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List]
 
+
 def transfer_learning(
     dataset_name: str,
     model_instance: Transformer,
@@ -120,6 +121,7 @@ def transfer_learning(
         f"Transferred learning weights from {file_path} to model for dataset {dataset_name}."
     )
     return model_instance
+
 
 def _reinitialize_model_and_optimizer(
     pristine_template_cpu: nn.Module,
@@ -955,7 +957,7 @@ def _calculate_metrics(
             labels=labels_for_scoring,
         ),
     }
-    
+
     # Temporarily disabled due to length mismatch crashes with some sequential models
     metrics["auc_roc"] = float("nan")
     return metrics
@@ -969,6 +971,7 @@ def roc_curve_auc(
         return float("nan")
     fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
     return auc(fpr, tpr)
+
 
 def train_with_tracking(
     model, train_loader, val_loader, optimizer, scheduler, num_epochs, device
@@ -1015,7 +1018,8 @@ def train_with_tracking(
             x, y = x.to(device), y.to(device)
             optimizer.zero_grad()
             outputs = model(x)
-            if isinstance(outputs, tuple): outputs = outputs[0]
+            if isinstance(outputs, tuple):
+                outputs = outputs[0]
             loss = criterion(outputs, torch.argmax(y, dim=1))
             loss.backward()
             optimizer.step()
@@ -1030,7 +1034,9 @@ def train_with_tracking(
 
         epoch_train_loss = train_loss / len(train_loader)
         epoch_train_acc = 100 * train_correct / train_total
-        epoch_train_balanced_acc = 100 * balanced_accuracy_score(train_all_labels, train_all_preds)
+        epoch_train_balanced_acc = 100 * balanced_accuracy_score(
+            train_all_labels, train_all_preds
+        )
 
         model.eval()
         val_loss, val_correct, val_total = 0, 0, 0
@@ -1040,7 +1046,8 @@ def train_with_tracking(
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
                 outputs = model(x)
-                if isinstance(outputs, tuple): outputs = outputs[0]
+                if isinstance(outputs, tuple):
+                    outputs = outputs[0]
                 loss = criterion(outputs, torch.argmax(y, dim=1))
                 val_loss += loss.item()
                 _, predicted = torch.max(outputs, 1)
@@ -1052,7 +1059,9 @@ def train_with_tracking(
 
         epoch_val_loss = val_loss / len(val_loader)
         epoch_val_acc = 100 * val_correct / val_total
-        epoch_val_balanced_acc = 100 * balanced_accuracy_score(val_all_labels, val_all_preds)
+        epoch_val_balanced_acc = 100 * balanced_accuracy_score(
+            val_all_labels, val_all_preds
+        )
 
         scheduler.step(epoch_val_balanced_acc)
 
@@ -1068,7 +1077,9 @@ def train_with_tracking(
             best_val_acc = epoch_val_balanced_acc
             best_model = copy.deepcopy(model.state_dict())
 
-        print(f"Epoch [{epoch+1}/{num_epochs}] TL:{epoch_train_loss:.4f} VL:{epoch_val_loss:.4f} VA:{epoch_val_acc:.2f}% VBA:{epoch_val_balanced_acc:.2f}%")
+        print(
+            f"Epoch [{epoch+1}/{num_epochs}] TL:{epoch_train_loss:.4f} VL:{epoch_val_loss:.4f} VA:{epoch_val_acc:.2f}% VBA:{epoch_val_balanced_acc:.2f}%"
+        )
 
     if best_model is not None:
         model.load_state_dict(best_model)

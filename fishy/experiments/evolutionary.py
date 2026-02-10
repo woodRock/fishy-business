@@ -42,7 +42,7 @@ def run_gp_experiment(
     """
     Runs a Genetic Programming experiment.
 
-    This function sets up the GP environment (primitives, fitness, toolbox), loads the 
+    This function sets up the GP environment (primitives, fitness, toolbox), loads the
     specified dataset, and performs stratified k-fold cross-validation. In each fold,
     it evolves a population of multi-tree individuals to solve the classification task.
 
