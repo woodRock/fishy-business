@@ -261,7 +261,7 @@ class RunContext:
                 # Create a small plot for the spectrum
                 plt.figure(figsize=(4, 3))
                 plt.plot(spectra[i])
-                plt.title(f"Target: {class_names[targets[i]]}")
+                plt.title(f"Target: {class_names[int(targets[i])]}")
                 plt.xlabel("Wavelength/Feature")
                 plt.ylabel("Intensity")
 
@@ -272,8 +272,8 @@ class RunContext:
                 table.add_data(
                     i,
                     img,
-                    class_names[preds[i]],
-                    class_names[targets[i]],
+                    class_names[int(preds[i])],
+                    class_names[int(targets[i])],
                     float(probs[i].max()),
                     bool(preds[i] == targets[i]),
                 )

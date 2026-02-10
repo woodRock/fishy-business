@@ -135,7 +135,8 @@ class ClassicTrainer:
             # Advanced Visualizations for W&B (last fold)
             if fold == 5 and self.ctx.wandb_run:
                 # Attempt to get class names from the dataset if available, else use unique labels
-                class_names = [str(c) for v in [np.unique(y)] for c in v]
+                unique_labels = np.unique(y)
+                class_names = [str(int(c)) for c in unique_labels]
 
                 # Get probabilities if the classifier supports it
                 y_probs = None
@@ -150,12 +151,12 @@ class ClassicTrainer:
                 # Use X_test which are the spectra for this fold
                 self.ctx.log_prediction_table(
                     spectra=X_test,
-                    preds=y_pred,
-                    targets=y_test,
+                    preds=y_pred.astype(int),
+                    targets=y_test.astype(int),
                     probs=(
                         y_probs
                         if y_probs is not None
-                        else np.eye(len(class_names))[y_pred]
+                        else np.eye(len(class_names))[y_pred.astype(int)]
                     ),
                     class_names=class_names,
                     table_name="val_predictions_samples_last_fold",
@@ -225,7 +226,8 @@ class ClassicTrainer:
 
             # Advanced Visualizations for W&B (last fold)
             if fold == 5 and self.ctx.wandb_run:
-                class_names = [str(c) for v in [np.unique(y)] for c in v]
+                unique_labels = np.unique(y)
+                class_names = [str(int(c)) for c in unique_labels]
                 y_probs = None
                 if hasattr(clf, "predict_proba"):
                     y_probs = clf.predict_proba(X_test_opls)
@@ -235,12 +237,12 @@ class ClassicTrainer:
 
                 self.ctx.log_prediction_table(
                     spectra=X_test,  # Use original spectral features for plotting
-                    preds=y_pred,
-                    targets=y_test,
+                    preds=y_pred.astype(int),
+                    targets=y_test.astype(int),
                     probs=(
                         y_probs
                         if y_probs is not None
-                        else np.eye(len(class_names))[y_pred]
+                        else np.eye(len(class_names))[y_pred.astype(int)]
                     ),
                     class_names=class_names,
                     table_name="val_predictions_samples_last_fold",
