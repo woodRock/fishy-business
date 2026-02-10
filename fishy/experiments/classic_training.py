@@ -136,11 +136,16 @@ class ClassicTrainer:
 
         avg_acc = np.mean(results)
         std_acc = np.std(results)
+        
+        stats = {
+            "val_balanced_accuracy": avg_acc,
+            "val_balanced_accuracy_std": std_acc
+        }
+        
         self.ctx.save_results(
             {
                 "fold_accuracies": results,
-                "mean_accuracy": avg_acc,
-                "std_accuracy": std_acc,
+                "stats": stats
             }
         )
         self.logger.info(
@@ -200,11 +205,16 @@ class ClassicTrainer:
 
         avg_acc = np.mean(results)
         std_acc = np.std(results)
+        
+        stats = {
+            "val_balanced_accuracy": avg_acc,
+            "val_balanced_accuracy_std": std_acc
+        }
+        
         self.ctx.save_results(
             {
                 "fold_accuracies": results,
-                "mean_accuracy": avg_acc,
-                "std_accuracy": std_acc,
+                "stats": stats
             }
         )
         self.logger.info(
