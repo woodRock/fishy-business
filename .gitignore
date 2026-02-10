@@ -24,3 +24,5 @@ code/transformer/__pycache__
 # Model weights for pytorch
 *.pth 
 *.pt 
+
+.DS_Store
