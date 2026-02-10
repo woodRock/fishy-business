@@ -40,6 +40,7 @@ from fishy.data.datasets import SiameseDataset
 MetricsDict = Dict[str, float]
 FoldMetrics = Dict[str, List]
 
+
 def transfer_learning(
     dataset_name: str,
     model_instance: Transformer,
@@ -121,6 +122,7 @@ def transfer_learning(
     )
     return model_instance
 
+
 def _reinitialize_model_and_optimizer(
     pristine_template_cpu: nn.Module,
     base_optimizer_instance: optim.Optimizer,
@@ -151,6 +153,7 @@ def _reinitialize_model_and_optimizer(
     )
     return new_model_gpu, new_optimizer
 
+
 def train_model(
     model: nn.Module,
     train_loader: DataLoader,
@@ -167,7 +170,7 @@ def train_model(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
-    ctx: Optional[Any] = None, # Added ctx
+    ctx: Optional[Any] = None,  # Added ctx
 ) -> Tuple[nn.Module, Dict]:
     """
     Trains a model.
@@ -213,7 +216,7 @@ def train_model(
             use_cumulative_link,
             num_classes,
             regression,
-            ctx=ctx, # Pass ctx
+            ctx=ctx,  # Pass ctx
         )
         final_model = model
         if fold_results["best_model_state"] is not None:
@@ -258,7 +261,7 @@ def train_model(
             use_cumulative_link,
             num_classes,
             regression,
-            ctx=ctx, # Pass ctx
+            ctx=ctx,  # Pass ctx
         )
 
     all_runs_metrics_accumulator = []
@@ -325,7 +328,7 @@ def train_model(
                 use_cumulative_link,
                 num_classes,
                 regression,
-                ctx=ctx, # Pass ctx
+                ctx=ctx,  # Pass ctx
             )
 
             if fold_results["best_accuracy"] > current_run_best_accuracy:
@@ -366,6 +369,7 @@ def train_model(
         )
 
     return final_model_on_device, averaged_metrics
+
 
 def _calculate_averaged_metrics(
     all_runs_metrics_accumulator: List[Dict], logger: logging.Logger
@@ -430,6 +434,7 @@ def _calculate_averaged_metrics(
 
     return avg_metrics_summary
 
+
 def _train_single_split(
     pristine_model_template_cpu: nn.Module,
     train_loader: DataLoader,
@@ -445,7 +450,7 @@ def _train_single_split(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
-    ctx: Optional[Any] = None, # Added ctx
+    ctx: Optional[Any] = None,  # Added ctx
 ) -> Tuple[nn.Module, Dict]:
     """Trains a model using a single split with multiple independent runs."""
     all_runs_metrics_accumulator = []
@@ -510,7 +515,7 @@ def _train_single_split(
             use_cumulative_link,
             num_classes,
             regression,
-            ctx=ctx, # Pass ctx
+            ctx=ctx,  # Pass ctx
         )
 
         current_run_best_accuracy = run_results["best_accuracy"]
@@ -548,6 +553,7 @@ def _train_single_split(
 
     return final_model_on_device, averaged_metrics
 
+
 def _process_label_item(label_item) -> int:
     """Processes a label item to ensure it is returned as an integer."""
     if isinstance(label_item, torch.Tensor):
@@ -557,6 +563,7 @@ def _process_label_item(label_item) -> int:
     elif isinstance(label_item, np.ndarray):
         return label_item.item() if label_item.size == 1 else np.argmax(label_item)
     return int(label_item)
+
 
 def _extract_labels(dataset: Dataset) -> np.ndarray:
     """Extracts labels from a dataset, handling both Subset and full Dataset cases."""
@@ -579,6 +586,7 @@ def _extract_labels(dataset: Dataset) -> np.ndarray:
         else np.array([])
     )
 
+
 def _create_fold_loaders(
     dataset: Dataset,
     train_idx: np.ndarray,
@@ -600,6 +608,7 @@ def _create_fold_loaders(
         DataLoader(val_subset, shuffle=False, **common_loader_params),
     )
 
+
 def _train_fold(
     model: nn.Module,
     train_loader: DataLoader,
@@ -614,7 +623,7 @@ def _train_fold(
     use_cumulative_link: bool = False,
     num_classes: Optional[int] = None,
     regression: bool = False,
-    ctx: Optional[Any] = None, # Added ctx
+    ctx: Optional[Any] = None,  # Added ctx
 ) -> Dict:
     """Trains a model for a single fold of cross-validation."""
     best_val_accuracy = float("-inf")
@@ -675,9 +684,13 @@ def _train_fold(
             # Add other metrics if available
             for m_name in ["precision", "recall", "f1"]:
                 if m_name in train_results["metrics"]:
-                    epoch_metrics[f"epoch/train_{m_name}"] = train_results["metrics"][m_name]
+                    epoch_metrics[f"epoch/train_{m_name}"] = train_results["metrics"][
+                        m_name
+                    ]
                 if m_name in val_results["metrics"]:
-                    epoch_metrics[f"epoch/val_{m_name}"] = val_results["metrics"][m_name]
+                    epoch_metrics[f"epoch/val_{m_name}"] = val_results["metrics"][
+                        m_name
+                    ]
 
             ctx.log_metric(epoch + 1, epoch_metrics)
 
@@ -754,6 +767,7 @@ def _train_fold(
         "best_val_predictions": best_val_predictions,
     }
 
+
 def evaluate_model(
     model: nn.Module,
     loader: DataLoader,
@@ -795,6 +809,7 @@ def evaluate_model(
             regression=regression,
         )
     return results
+
 
 def _run_epoch(
     model: nn.Module,
@@ -918,6 +933,7 @@ def _run_epoch(
         },
     }
 
+
 def _calculate_metrics(
     y_true: np.ndarray,
     y_pred: np.ndarray,
@@ -975,6 +991,7 @@ def _calculate_metrics(
     metrics["auc_roc"] = float("nan")
     return metrics
 
+
 def roc_curve_auc(
     y_true_class: np.ndarray, y_prob_class: np.ndarray, class_present: bool = True
 ) -> float:
@@ -983,6 +1000,7 @@ def roc_curve_auc(
         return float("nan")
     fpr, tpr, _ = roc_curve(y_true_class, y_prob_class)
     return auc(fpr, tpr)
+
 
 def train_with_tracking(
     model, train_loader, val_loader, optimizer, scheduler, num_epochs, device

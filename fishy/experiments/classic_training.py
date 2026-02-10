@@ -24,10 +24,11 @@ except ImportError:
 
 from fishy.data.classic_loader import load_dataset
 from fishy._core.utils import RunContext
-import wandb # New line
+import wandb  # New line
 
-from fishy._core.config import TrainingConfig # Added import
-from dataclasses import asdict # Added import for asdict
+from fishy._core.config import TrainingConfig  # Added import
+from dataclasses import asdict  # Added import for asdict
+
 
 class ClassicTrainer:
     """
@@ -44,8 +45,15 @@ class ClassicTrainer:
         "svm": SVC,
     }
 
-    def __init__(self, config: TrainingConfig, model_name: str, dataset_name: str, run_id: int = 0, file_path: str = None):
-        self.config = config # Store config
+    def __init__(
+        self,
+        config: TrainingConfig,
+        model_name: str,
+        dataset_name: str,
+        run_id: int = 0,
+        file_path: str = None,
+    ):
+        self.config = config  # Store config
         self.model_name = model_name.lower()
         self.dataset_name = dataset_name
         self.run_id = run_id
@@ -56,13 +64,18 @@ class ClassicTrainer:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
-                config=asdict(self.config), # Pass TrainingConfig as W&B config
-                reinit=True, # Important for multiple runs in one script
-                group=f"{self.config.dataset}_{self.model_name}", # Group runs by dataset and model
-                job_type="classic_training"
+                config=asdict(self.config),  # Pass TrainingConfig as W&B config
+                reinit=True,  # Important for multiple runs in one script
+                group=f"{self.config.dataset}_{self.model_name}",  # Group runs by dataset and model
+                job_type="classic_training",
             )
 
-        self.ctx = RunContext(dataset=dataset_name, method="classic", model_name=self.model_name, wandb_run=self.wandb_run)
+        self.ctx = RunContext(
+            dataset=dataset_name,
+            method="classic",
+            model_name=self.model_name,
+            wandb_run=self.wandb_run,
+        )
         self.logger = self.ctx.logger
 
     def run(self):
@@ -129,9 +142,13 @@ class ClassicTrainer:
                     spectra=X_test,
                     preds=y_pred,
                     targets=y_test,
-                    probs=y_probs if y_probs is not None else np.eye(len(class_names))[y_pred],
+                    probs=(
+                        y_probs
+                        if y_probs is not None
+                        else np.eye(len(class_names))[y_pred]
+                    ),
                     class_names=class_names,
-                    table_name="val_predictions_samples_last_fold"
+                    table_name="val_predictions_samples_last_fold",
                 )
 
         avg_acc = np.mean(results)
@@ -195,12 +212,16 @@ class ClassicTrainer:
                     self.ctx.log_summary_charts(y_test, y_probs, class_names)
 
                 self.ctx.log_prediction_table(
-                    spectra=X_test, # Use original spectral features for plotting
+                    spectra=X_test,  # Use original spectral features for plotting
                     preds=y_pred,
                     targets=y_test,
-                    probs=y_probs if y_probs is not None else np.eye(len(class_names))[y_pred],
+                    probs=(
+                        y_probs
+                        if y_probs is not None
+                        else np.eye(len(class_names))[y_pred]
+                    ),
                     class_names=class_names,
-                    table_name="val_predictions_samples_last_fold"
+                    table_name="val_predictions_samples_last_fold",
                 )
 
         avg_acc = np.mean(results)
@@ -221,7 +242,14 @@ class ClassicTrainer:
             f"Finished OPLS-DA. Average Balanced Accuracy: {avg_acc:.4f} ± {std_acc:.4f}"
         )
 
-def run_classic_experiment(config: TrainingConfig, model_name: str, dataset_name: str, run_id: int = 0, file_path: str = None):
+
+def run_classic_experiment(
+    config: TrainingConfig,
+    model_name: str,
+    dataset_name: str,
+    run_id: int = 0,
+    file_path: str = None,
+):
     trainer = ClassicTrainer(config, model_name, dataset_name, run_id, file_path)
     try:
         trainer.run()

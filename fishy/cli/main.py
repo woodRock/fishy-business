@@ -27,6 +27,7 @@ from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.data.augmentation import AugmentationConfig
 
+
 def setup_base_parser():
     parser = argparse.ArgumentParser(
         prog="fishy",
@@ -35,6 +36,7 @@ def setup_base_parser():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     return parser, subparsers
+
 
 def add_train_args(subparsers):
     train_parser = subparsers.add_parser(
@@ -127,11 +129,24 @@ def add_train_args(subparsers):
         "--scale-enabled", action="store_true", help="Enable scale"
     )
     train_parser.add_argument("--use-coral", action="store_true", help="Use CORAL loss")
-    train_parser.add_argument("--use-cumulative-link", action="store_true", help="Use Cumulative Link loss")
-    train_parser.add_argument("--regression", action="store_true", help="Perform regression")
-    train_parser.add_argument("--wandb-log", action="store_true", help="Log to Weights & Biases")
-    train_parser.add_argument("--wandb-project", type=str, default="fishy-business", help="W&B project name")
-    train_parser.add_argument("--wandb-entity", type=str, default="victoria-university-of-wellington", help="W&B entity name")
+    train_parser.add_argument(
+        "--use-cumulative-link", action="store_true", help="Use Cumulative Link loss"
+    )
+    train_parser.add_argument(
+        "--regression", action="store_true", help="Perform regression"
+    )
+    train_parser.add_argument(
+        "--wandb-log", action="store_true", help="Log to Weights & Biases"
+    )
+    train_parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
+    )
+    train_parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name",
+    )
 
     for task_flag, _, _, _, _ in ModelTrainer.PRETRAIN_TASK_DEFINITIONS:
         train_parser.add_argument(
@@ -139,6 +154,7 @@ def add_train_args(subparsers):
             action="store_true",
             help=f"Enable {task_flag}",
         )
+
 
 def add_benchmark_args(subparsers):
     bench_parser = subparsers.add_parser("benchmark", help="Benchmark multiple models")
@@ -150,24 +166,86 @@ def add_benchmark_args(subparsers):
         help="Path to dataset",
     )
     bench_parser.add_argument("models", type=str, nargs="+", help="Models to benchmark")
-    bench_parser.add_argument("-w", "--warmup", type=int, default=0, help="Warmup epochs")
-    bench_parser.add_argument("-o", "--output", type=str, default="benchmark_results.csv", help="Output CSV path")
-    bench_parser.add_argument("--wandb-log", action="store_true", help="Log to Weights & Biases")
-    bench_parser.add_argument("--wandb-project", type=str, default="fishy-business", help="W&B project name")
-    bench_parser.add_argument("--wandb-entity", type=str, default="victoria-university-of-wellington", help="W&B entity name")
+    bench_parser.add_argument(
+        "-w", "--warmup", type=int, default=0, help="Warmup epochs"
+    )
+    bench_parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default="benchmark_results.csv",
+        help="Output CSV path",
+    )
+    bench_parser.add_argument(
+        "--wandb-log", action="store_true", help="Log to Weights & Biases"
+    )
+    bench_parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
+    )
+    bench_parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name",
+    )
+
 
 def add_transfer_args(subparsers):
-    trans_parser = subparsers.add_parser("transfer", help="Sequential transfer learning")
-    trans_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
-    trans_parser.add_argument("-m", "--model", type=str, required=True, choices=MODEL_REGISTRY.keys(), help="Model type")
-    trans_parser.add_argument("-td", "--transfer-datasets", type=str, nargs="+", required=True, help="Datasets for transfer")
-    trans_parser.add_argument("-target", "--target-dataset", type=str, required=True, help="Target dataset")
-    trans_parser.add_argument("-et", "--epochs-transfer", type=int, default=10, help="Epochs per transfer phase")
-    trans_parser.add_argument("-ef", "--epochs-finetune", type=int, default=20, help="Epochs for finetuning")
-    trans_parser.add_argument("-lr", "--learning-rate", type=float, default=1e-3, help="Learning rate")
-    trans_parser.add_argument("--wandb-log", action="store_true", help="Log to Weights & Biases")
-    trans_parser.add_argument("--wandb-project", type=str, default="fishy-business", help="W&B project name")
-    trans_parser.add_argument("--wandb-entity", type=str, default="victoria-university-of-wellington", help="W&B entity name")
+    trans_parser = subparsers.add_parser(
+        "transfer", help="Sequential transfer learning"
+    )
+    trans_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    trans_parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        required=True,
+        choices=MODEL_REGISTRY.keys(),
+        help="Model type",
+    )
+    trans_parser.add_argument(
+        "-td",
+        "--transfer-datasets",
+        type=str,
+        nargs="+",
+        required=True,
+        help="Datasets for transfer",
+    )
+    trans_parser.add_argument(
+        "-target", "--target-dataset", type=str, required=True, help="Target dataset"
+    )
+    trans_parser.add_argument(
+        "-et",
+        "--epochs-transfer",
+        type=int,
+        default=10,
+        help="Epochs per transfer phase",
+    )
+    trans_parser.add_argument(
+        "-ef", "--epochs-finetune", type=int, default=20, help="Epochs for finetuning"
+    )
+    trans_parser.add_argument(
+        "-lr", "--learning-rate", type=float, default=1e-3, help="Learning rate"
+    )
+    trans_parser.add_argument(
+        "--wandb-log", action="store_true", help="Log to Weights & Biases"
+    )
+    trans_parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
+    )
+    trans_parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name",
+    )
+
 
 def add_xai_args(subparsers):
     xai_parser = subparsers.add_parser(
@@ -193,6 +271,7 @@ def add_xai_args(subparsers):
         help="XAI method",
     )
 
+
 def add_evolutionary_args(subparsers):
     evo_parser = subparsers.add_parser(
         "evolutionary", help="Run Genetic Programming experiments"
@@ -214,26 +293,60 @@ def add_evolutionary_args(subparsers):
         "-p", "--population", type=int, default=1023, help="Population size"
     )
     evo_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
-    evo_parser.add_argument("--wandb-log", action="store_true", help="Log to Weights & Biases")
-    evo_parser.add_argument("--wandb-project", type=str, default="fishy-business", help="W&B project name")
-    evo_parser.add_argument("--wandb-entity", type=str, default="victoria-university-of-wellington", help="W&B entity name")
+    evo_parser.add_argument(
+        "--wandb-log", action="store_true", help="Log to Weights & Biases"
+    )
+    evo_parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
+    )
+    evo_parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name",
+    )
+
 
 def add_contrastive_args(subparsers):
-    cont_parser = subparsers.add_parser("contrastive", help="Run Contrastive Learning experiments")
-    cont_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
-    cont_parser.add_argument("-m", "--method", type=str, default="simclr", help="Contrastive method")
-    cont_parser.add_argument("-e", "--encoder", type=str, default="transformer", help="Encoder type")
-    cont_parser.add_argument("-epochs", "--epochs", type=int, default=100, help="Number of epochs")
-    cont_parser.add_argument("--wandb-log", action="store_true", help="Log to Weights & Biases")
-    cont_parser.add_argument("--wandb-project", type=str, default="fishy-business", help="W&B project name")
-    cont_parser.add_argument("--wandb-entity", type=str, default="victoria-university-of-wellington", help="W&B entity name")
+    cont_parser = subparsers.add_parser(
+        "contrastive", help="Run Contrastive Learning experiments"
+    )
+    cont_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    cont_parser.add_argument(
+        "-m", "--method", type=str, default="simclr", help="Contrastive method"
+    )
+    cont_parser.add_argument(
+        "-e", "--encoder", type=str, default="transformer", help="Encoder type"
+    )
+    cont_parser.add_argument(
+        "-epochs", "--epochs", type=int, default=100, help="Number of epochs"
+    )
+    cont_parser.add_argument(
+        "--wandb-log", action="store_true", help="Log to Weights & Biases"
+    )
+    cont_parser.add_argument(
+        "--wandb-project", type=str, default="fishy-business", help="W&B project name"
+    )
+    cont_parser.add_argument(
+        "--wandb-entity",
+        type=str,
+        default="victoria-university-of-wellington",
+        help="W&B entity name",
+    )
+
 
 def handle_train(args):
     classic_models = ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "opls-da"]
-    config = TrainingConfig.from_args(args) # Create config first
+    config = TrainingConfig.from_args(args)  # Create config first
     if args.model.lower() in classic_models:
         run_classic_experiment(
-            config=config, # Pass config
+            config=config,  # Pass config
             model_name=args.model,
             dataset_name=args.dataset,
             run_id=args.run,
@@ -255,6 +368,7 @@ def handle_train(args):
     else:
         # config already created above
         run_training_pipeline(config)
+
 
 def handle_xai(args):
     t_cfg = TrainingConfig(
@@ -297,6 +411,7 @@ def handle_xai(args):
         method=args.method,
     )
 
+
 def main():
     parser, subparsers = setup_base_parser()
     add_train_args(subparsers)
@@ -317,13 +432,13 @@ def main():
             handle_train(args)
         elif args.command == "benchmark":
             run_benchmark(
-                args.models, 
-                warmup_epochs=args.warmup, 
-                output_file=args.output, 
+                args.models,
+                warmup_epochs=args.warmup,
+                output_file=args.output,
                 file_path=args.file_path,
                 wandb_log=args.wandb_log,
                 wandb_project=args.wandb_project,
-                wandb_entity=args.wandb_entity
+                wandb_entity=args.wandb_entity,
             )
         elif args.command == "transfer":
             run_sequential_transfer_learning(
@@ -336,7 +451,7 @@ def main():
                 file_path=args.file_path,
                 wandb_log=args.wandb_log,
                 wandb_project=args.wandb_project,
-                wandb_entity=args.wandb_entity
+                wandb_entity=args.wandb_entity,
             )
         elif args.command == "xai":
             handle_xai(args)
@@ -349,7 +464,7 @@ def main():
                 data_file_path=args.file_path,
                 wandb_log=args.wandb_log,
                 wandb_project=args.wandb_project,
-                wandb_entity=args.wandb_entity
+                wandb_entity=args.wandb_entity,
             )
         elif args.command == "contrastive":
             c_cfg = ContrastiveConfig(
@@ -357,15 +472,16 @@ def main():
                 encoder_type=args.encoder,
                 num_epochs=args.epochs,
                 file_path=args.file_path,
-                dataset=args.dataset if hasattr(args, 'dataset') else "species",
+                dataset=args.dataset if hasattr(args, "dataset") else "species",
                 wandb_log=args.wandb_log,
                 wandb_project=args.wandb_project,
-                wandb_entity=args.wandb_entity
+                wandb_entity=args.wandb_entity,
             )
             run_contrastive_experiment(c_cfg)
     except Exception as e:
         logging.error(f"Error executing command {args.command}: {e}", exc_info=True)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
