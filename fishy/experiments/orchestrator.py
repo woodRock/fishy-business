@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 DATASETS = ["species", "part", "oil", "cross-species"]
 CLASSIC_MODELS = ["opls-da", "knn", "dt", "lr", "lda", "nb", "rf", "svm"]
 DEEP_MODELS = list(MODEL_REGISTRY.keys()) + ["transformer_msm"]
+DEFAULT_DATA_PATH = "data/REIMS.xlsx"
 
 def get_fold_count(dataset: str) -> int:
     """Returns the fold count for a specific dataset as requested."""
@@ -36,7 +37,8 @@ def run_all_experiments(
     wandb_log: bool = False,
     wandb_project: str = "fishy-business",
     wandb_entity: str = "victoria-university-of-wellington",
-    quick: bool = False
+    quick: bool = False,
+    file_path: str = DEFAULT_DATA_PATH
 ):
     """
     Runs all experiments across all datasets and models for n runs.
@@ -86,10 +88,11 @@ def run_all_experiments(
                     wandb_log=wandb_log,
                     wandb_project=wandb_project,
                     wandb_entity=wandb_entity,
-                    run=run_idx # This also affects data split if implemented
+                    run=run_idx,
+                    file_path=file_path
                 )
                 try:
-                    stats_res = run_classic_experiment(config, model_name, dataset, run_id=run_idx)
+                    stats_res = run_classic_experiment(config, model_name, dataset, run_id=run_idx, file_path=file_path)
                     val_results_map[dataset][model_name].append(stats_res.get("val_balanced_accuracy", 0))
                     train_results_map[dataset][model_name].append(stats_res.get("train_balanced_accuracy", 0))
                 except Exception as e:
@@ -110,7 +113,8 @@ def run_all_experiments(
                     wandb_log=wandb_log,
                     wandb_project=wandb_project,
                     wandb_entity=wandb_entity,
-                    run=run_idx
+                    run=run_idx,
+                    file_path=file_path
                 )
                 
                 # Special handling for MSM
@@ -141,7 +145,8 @@ def run_all_experiments(
                         run=run_idx,
                         wandb_log=wandb_log,
                         wandb_project=wandb_project,
-                        wandb_entity=wandb_entity
+                        wandb_entity=wandb_entity,
+                        data_file_path=file_path
                     )
                     # For evolutionary, we need to extract from return dict. 
                     # Assuming it returns {'stats': {...}} or similar as per recent fixes
@@ -200,6 +205,9 @@ def run_all_experiments(
     # Log to W&B if enabled
     if wandb_log:
         import wandb
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        
         # Create a final summary run
         summary_run = wandb.init(
             project=wandb_project,
@@ -207,7 +215,23 @@ def run_all_experiments(
             name=f"benchmark_summary_{orchestrator_ctx.timestamp}",
             job_type="summary_analysis"
         )
+        
+        # 1. Log results table
         summary_run.log({"statistical_results": wandb.Table(dataframe=summary_df)})
+        
+        # 2. Log Comparison Heatmap
+        try:
+            # Pivot data for heatmap: Rows=Models, Columns=Datasets, Values=Val Acc
+            pivot_df = summary_df.pivot(index="model", columns="dataset", values="val_ba_mean")
+            plt.figure(figsize=(12, 10))
+            sns.heatmap(pivot_df, annot=True, cmap="YlGnBu", fmt=".3f")
+            plt.title("Mean Balanced Accuracy across Datasets")
+            plt.tight_layout()
+            summary_run.log({"model_performance_heatmap": wandb.Image(plt)})
+            plt.close()
+        except Exception as e:
+            main_logger.warning(f"Could not generate summary heatmap: {e}")
+            
         summary_run.finish()
 
     main_logger.info("Run All Experiments complete. Summary saved.")

@@ -51,6 +51,13 @@ def add_run_all_args(subparsers):
         help="Number of independent runs per experiment",
     )
     run_all_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    run_all_parser.add_argument(
         "--quick",
         action="store_true",
         help="Run a very fast subset of experiments for testing",
@@ -76,6 +83,7 @@ def handle_run_all(args):
         wandb_project=args.wandb_project,
         wandb_entity=args.wandb_entity,
         quick=args.quick,
+        file_path=args.file_path
     )
 
 
