@@ -121,11 +121,16 @@ class ModelTrainer:
         self.n_features = self.data_module.get_input_dim()
 
     def _setup_logging(self) -> logging.Logger:
-        log_file = (
-            Path(self.config.output).parent
-            / f"{Path(self.config.output).name}_{self.config.run}.log"
-        )
-        log_file.parent.mkdir(parents=True, exist_ok=True)
+        output_path = Path(self.config.output)
+        if self.config.output.endswith("/"):
+            log_dir = output_path
+            log_base = "results"
+        else:
+            log_dir = output_path.parent
+            log_base = output_path.name
+
+        log_file = log_dir / f"{log_base}_{self.config.run}.log"
+        log_dir.mkdir(parents=True, exist_ok=True)
         logging.basicConfig(
             filename=log_file,
             level=logging.INFO,
@@ -553,7 +558,11 @@ class ModelTrainer:
                     for k in all_fold_metrics[0]
                 }
                 self.logger.info(f"Average metrics across {k_folds} folds: {stats}")
-                results_dir = Path("results")
+                
+                # Use output path from config
+                results_dir = Path(self.config.output)
+                if not self.config.output.endswith("/"):
+                    results_dir = results_dir.parent
                 results_dir.mkdir(parents=True, exist_ok=True)
 
                 suffix = "classification"

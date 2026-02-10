@@ -115,8 +115,12 @@ def handle_train(args):
         if all_runs_metrics:
             stats = {k: np.mean([m[k] for m in all_runs_metrics if m.get(k) is not None]) for k in all_runs_metrics[0]}
             std_dev = {k: np.std([m[k] for m in all_runs_metrics if m.get(k) is not None]) for k in all_runs_metrics[0]}
-            results_dir = Path("results")
+            
+            results_dir = Path(base_config.output)
+            if not base_config.output.endswith("/"):
+                results_dir = results_dir.parent
             results_dir.mkdir(parents=True, exist_ok=True)
+            
             file_name = f"stats_{base_config.model}_{base_config.dataset}_{args.num_runs}_runs.json"
             file_path = results_dir / file_name
             with open(file_path, "w") as f:
@@ -126,8 +130,11 @@ def handle_train(args):
         config = TrainingConfig.from_args(args)
         metrics = run_training_pipeline(config)
         if "instance-recognition" in config.dataset:
-            results_dir = Path("results")
+            results_dir = Path(config.output)
+            if not config.output.endswith("/"):
+                results_dir = results_dir.parent
             results_dir.mkdir(parents=True, exist_ok=True)
+            
             file_name = f"stats_{config.model}_{config.dataset}.json"
             file_path = results_dir / file_name
             with open(file_path, "w") as f:
