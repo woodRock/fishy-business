@@ -148,7 +148,7 @@ def run_gp_experiment(
         toolbox = base.Toolbox()
 
         k = 3 if dataset in ["part", "cross-species-hard"] else 5
-        skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
+        skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=run)
 
         fold_metrics = []
 

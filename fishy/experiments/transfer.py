@@ -47,6 +47,7 @@ def run_sequential_transfer_learning(
     wandb_project: Optional[str] = "fishy-business",
     wandb_entity: Optional[str] = "victoria-university-of-wellington",
     wandb_log: bool = False,
+    run: int = 0, # Added run parameter
 ):
     """
     Performs sequential transfer learning across multiple datasets.
@@ -67,6 +68,7 @@ def run_sequential_transfer_learning(
             "val_split": val_split,
             "device": device,
             "file_path": file_path,
+            "run": run,
         }
         wandb_run = wandb.init(
             project=wandb_project,
@@ -114,7 +116,7 @@ def run_sequential_transfer_learning(
             file_path=data_path,
             model=model_name,
             dataset=transfer_datasets[0],
-            run=0,
+            run=run, # Use run parameter
             output="",
             data_augmentation=False,
             masked_spectra_modelling=False,
@@ -148,6 +150,9 @@ def run_sequential_transfer_learning(
         model = create_model(config, input_dim, num_classes).to(device_obj)
         logger.info(f"Model {model_name} initialized on {device}")
 
+        # Generator for seeded splits
+        gen = torch.Generator().manual_seed(run)
+
         # Sequential transfer learning
         for i, dataset_name in enumerate(transfer_datasets):
             logger.info(f"Phase {i+1}: Transfer Learning on '{dataset_name}'")
@@ -162,7 +167,7 @@ def run_sequential_transfer_learning(
 
             val_size = int(val_split * len(dataset))
             train_size = len(dataset) - val_size
-            train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+            train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=gen)
 
             train_loader = DataLoader(
                 train_dataset, batch_size=batch_size, shuffle=True
@@ -224,7 +229,7 @@ def run_sequential_transfer_learning(
 
         val_size = int(val_split * len(target_data))
         train_size = len(target_data) - val_size
-        train_dataset, val_dataset = random_split(target_data, [train_size, val_size])
+        train_dataset, val_dataset = random_split(target_data, [train_size, val_size], generator=gen)
 
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)

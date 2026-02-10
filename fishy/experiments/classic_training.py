@@ -104,8 +104,8 @@ class ClassicTrainer:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        # 5-fold cross-validation
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        # 5-fold cross-validation using run_id for unique reproducible splits
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.run_id)
 
         val_results = []
         train_results = []
@@ -113,7 +113,12 @@ class ClassicTrainer:
             X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
             y_train, y_test = y[train_idx], y[test_idx]
 
-            clf = model_class()
+            # Pass random_state if supported by the model (e.g. Random Forest, SVM)
+            try:
+                clf = model_class(random_state=self.run_id)
+            except TypeError:
+                clf = model_class()
+                
             clf.fit(X_train, y_train)
 
             # Calculate Train Balanced Accuracy
@@ -192,7 +197,7 @@ class ClassicTrainer:
         X_scaled = scaler.fit_transform(X)
 
         # Use Group K-Fold if groups are meaningful, otherwise standard Stratified
-        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.run_id)
 
         val_results = []
         train_results = []
@@ -207,6 +212,7 @@ class ClassicTrainer:
 
             # LDA on top of OPLS
             clf = LinearDiscriminantAnalysis()
+            # Most LDA implementations are deterministic, but we follow standard practice
             clf.fit(X_train_opls, y_train)
 
             # Calculate Train Balanced Accuracy

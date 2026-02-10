@@ -283,6 +283,9 @@ def add_transfer_args(subparsers):
         "-lr", "--learning-rate", type=float, default=1e-3, help="Learning rate"
     )
     trans_parser.add_argument(
+        "-r", "--run", type=int, default=0, help="Run identifier"
+    )
+    trans_parser.add_argument(
         "--wandb-log", action="store_true", help="Log to Weights & Biases"
     )
     trans_parser.add_argument(
@@ -504,6 +507,7 @@ def main():
                 wandb_log=args.wandb_log,
                 wandb_project=args.wandb_project,
                 wandb_entity=args.wandb_entity,
+                run=args.run,
             )
         elif args.command == "xai":
             handle_xai(args)

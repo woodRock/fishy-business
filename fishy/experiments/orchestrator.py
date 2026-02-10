@@ -69,8 +69,9 @@ def run_all_experiments(
     val_results_map = {d: {m: [] for m in active_classic + active_deep + (["evolutionary"] if active_evo else [])} for d in active_datasets}
     train_results_map = {d: {m: [] for m in active_classic + active_deep + (["evolutionary"] if active_evo else [])} for d in active_datasets}
 
-    # Generate consistent seeds for all models
-    seeds = [i * 1000 for i in range(num_runs)]
+    # Generate consistent master seeds for each of the n trials
+    # Every method will be tested on these exact same seeds in order.
+    master_seeds = [(i + 1) * 123 for i in range(num_runs)]
 
     for dataset in active_datasets:
         main_logger.info(f"--- BENCHMARKING DATASET: {dataset} ---")
@@ -80,7 +81,9 @@ def run_all_experiments(
         for model_name in active_classic:
             main_logger.info(f"Running Classic Model: {model_name} on {dataset}")
             for run_idx in range(num_runs):
-                set_seed(seeds[run_idx])
+                current_seed = master_seeds[run_idx]
+                set_seed(current_seed)
+                
                 config = TrainingConfig(
                     dataset=dataset,
                     model=model_name,
@@ -88,15 +91,15 @@ def run_all_experiments(
                     wandb_log=wandb_log,
                     wandb_project=wandb_project,
                     wandb_entity=wandb_entity,
-                    run=run_idx,
+                    run=current_seed,
                     file_path=file_path
                 )
                 try:
-                    stats_res = run_classic_experiment(config, model_name, dataset, run_id=run_idx, file_path=file_path)
+                    stats_res = run_classic_experiment(config, model_name, dataset, run_id=current_seed, file_path=file_path)
                     val_results_map[dataset][model_name].append(stats_res.get("val_balanced_accuracy", 0))
                     train_results_map[dataset][model_name].append(stats_res.get("train_balanced_accuracy", 0))
                 except Exception as e:
-                    main_logger.error(f"Failed {model_name} on {dataset} run {run_idx}: {e}")
+                    main_logger.error(f"Failed {model_name} on {dataset} run {run_idx} (seed {current_seed}): {e}")
                     val_results_map[dataset][model_name].append(0)
                     train_results_map[dataset][model_name].append(0)
 
@@ -104,7 +107,9 @@ def run_all_experiments(
         for model_name in active_deep:
             main_logger.info(f"Running Deep Model: {model_name} on {dataset}")
             for run_idx in range(num_runs):
-                set_seed(seeds[run_idx])
+                current_seed = master_seeds[run_idx]
+                set_seed(current_seed)
+                
                 config = TrainingConfig(
                     dataset=dataset,
                     model=model_name,
@@ -113,7 +118,7 @@ def run_all_experiments(
                     wandb_log=wandb_log,
                     wandb_project=wandb_project,
                     wandb_entity=wandb_entity,
-                    run=run_idx,
+                    run=current_seed,
                     file_path=file_path
                 )
                 
@@ -127,7 +132,7 @@ def run_all_experiments(
                     val_results_map[dataset][model_name].append(stats_res.get("val_balanced_accuracy", 0))
                     train_results_map[dataset][model_name].append(stats_res.get("train_balanced_accuracy", 0))
                 except Exception as e:
-                    main_logger.error(f"Failed {model_name} on {dataset} run {run_idx}: {e}")
+                    main_logger.error(f"Failed {model_name} on {dataset} run {run_idx} (seed {current_seed}): {e}")
                     val_results_map[dataset][model_name].append(0)
                     train_results_map[dataset][model_name].append(0)
 
@@ -135,14 +140,15 @@ def run_all_experiments(
         if active_evo:
             main_logger.info(f"Running Evolutionary (GP) on {dataset}")
             for run_idx in range(num_runs):
-                set_seed(seeds[run_idx])
+                current_seed = master_seeds[run_idx]
+                set_seed(current_seed)
                 try:
                     # Evolutionary uses a different signature
                     stats_res = run_gp_experiment(
                         dataset=dataset,
                         generations=10 if not quick else 1,
                         population=100 if not quick else 10,
-                        run=run_idx,
+                        run=current_seed,
                         wandb_log=wandb_log,
                         wandb_project=wandb_project,
                         wandb_entity=wandb_entity,
