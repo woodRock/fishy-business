@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Benchmarking module for deep learning models.
+
+This module provides tools to benchmark the performance of various deep learning models
+across multiple datasets. It measures training time, inference time, model size, and
+the number of parameters, facilitating a comparative analysis of different architectures.
 """
 
 import time
@@ -16,7 +20,13 @@ from fishy.engine.training_loops import train_model
 from fishy._core.factory import create_model, MODEL_REGISTRY
 from fishy._core.config import TrainingConfig
 
-def get_device():
+def get_device() -> torch.device:
+    """
+    Automatically selects the best available device (MPS, CUDA, or CPU).
+
+    Returns:
+        torch.device: The selected device.
+    """
     if torch.backends.mps.is_available():
         return torch.device("mps")
     elif torch.cuda.is_available():
@@ -24,9 +34,23 @@ def get_device():
     else:
         return torch.device("cpu")
 
-def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: str = "benchmark_results.csv"):
+def run_benchmark(model_names: List[str], warmup_epochs: int = 0, output_file: str = "benchmark_results.csv") -> pd.DataFrame:
     """
     Benchmarks specified models on standard classification tasks.
+
+    For each model and dataset, it performs:
+    1.  Optional warm-up epochs.
+    2.  Measurement of 1 epoch of training time.
+    3.  Measurement of a single inference pass.
+    4.  Calculation of model disk size and parameter count.
+
+    Args:
+        model_names (List[str]): List of model architecture names to benchmark.
+        warmup_epochs (int): Number of warm-up epochs to run before measurement.
+        output_file (str): Path to save the final results as a CSV.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the benchmarking metrics for all models and datasets.
     """
     device = get_device()
     datasets = ["species", "part", "oil", "cross-species"]

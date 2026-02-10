@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Evolutionary experiments module (Genetic Programming).
+
+This module provides an orchestrator for running Genetic Programming (GP) experiments
+on spectral data. It uses the DEAP library to evolve multi-tree individuals for
+multi-class classification, including support for elitism and checkpointing.
 """
 
 import logging
@@ -28,6 +32,19 @@ def run_gp_experiment(
 ):
     """
     Runs a Genetic Programming experiment.
+
+    This function sets up the GP environment (primitives, fitness, toolbox), loads the 
+    specified dataset, and performs stratified k-fold cross-validation. In each fold,
+    it evolves a population of multi-tree individuals to solve the classification task.
+
+    Args:
+        dataset (str): Name of the dataset to use ('species', 'part', etc.).
+        generations (int): Number of generations to evolve the population.
+        population (int): Size of the population.
+        run (int): Run identifier for random seeding and logging.
+        file_path (str): File path to save/load model checkpoints.
+        output_log (str): Base path for output log files.
+        load_checkpoint (bool): If True, attempts to resume from a checkpoint at ``file_path``.
     """
     os.makedirs(os.path.dirname(output_log), exist_ok=True)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -61,9 +78,13 @@ def run_gp_experiment(
     pset.addPrimitive(sub, [float, float], float, name="-")
     pset.addPrimitive(neg, [float], float, name="-1*")
 
+    # Avoid duplicate creation if called multiple times in same process
+    if not hasattr(creator, "FitnessMax"):
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+    if not hasattr(creator, "Individual"):
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+
     toolbox = base.Toolbox()
-    creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-    creator.create("Individual", list, fitness=creator.FitnessMax)
 
     k = 3 if dataset in ["part", "cross-species-hard"] else 5
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)

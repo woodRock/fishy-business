@@ -1,15 +1,26 @@
+# -*- coding: utf-8 -*-
+"""
+Orchestrator for OPLS-DA (Orthogonal Projections to Latent Structures Discriminant Analysis) experiments.
+"""
+
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import balanced_accuracy_score, classification_report
-from pyopls import OPLS
+try:
+    from pyopls import OPLS
+except ImportError:
+    OPLS = None
 from fishy.data.classic_loader import load_dataset
 
 from sklearn.model_selection import StratifiedGroupKFold
 
 
 def create_pairs(X_raw, y_raw):
+    """
+    Creates pairs of samples for instance recognition tasks.
+    """
     features = []
     labels = []
     all_possible_pairs = [
@@ -25,67 +36,77 @@ def create_pairs(X_raw, y_raw):
     return np.array(features), np.array(labels)
 
 
-dataset = "instance-recognition"
-X_original, y_original, groups_original = load_dataset(dataset=dataset)
+def run_opls_experiment(dataset: str = "instance-recognition"):
+    """
+    Runs an OPLS-DA experiment on the specified dataset.
+    """
+    if OPLS is None:
+        print("Error: 'pyopls' library not installed. Cannot run OPLS experiment.")
+        return
 
-# 1. Standardize the features
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X_original)
+    X_original, y_original, groups_original = load_dataset(dataset=dataset)
 
-# 2. Stratified Group K-Fold Cross-Validation setup (k=5)
-sgkf = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=42)
+    # 1. Standardize the features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X_original)
 
-# Lists to store results
-train_balanced_accuracies = []
-test_balanced_accuracies = []
-fold = 1
+    # 2. Stratified Group K-Fold Cross-Validation setup (k=5)
+    sgkf = StratifiedGroupKFold(n_splits=3, shuffle=True, random_state=42)
 
-for train_index, test_index in sgkf.split(X_scaled, y_original, groups_original):
-    print(f"Fold {fold}")
-    fold += 1
+    # Lists to store results
+    train_balanced_accuracies = []
+    test_balanced_accuracies = []
+    fold = 1
 
-    # Split the data into train and test sets for this fold
-    X_train_raw, X_test_raw = X_scaled[train_index], X_scaled[test_index]
-    y_train_raw, y_test_raw = y_original[train_index], y_original[test_index]
+    for train_index, test_index in sgkf.split(X_scaled, y_original, groups_original):
+        print(f"Fold {fold}")
+        fold += 1
 
-    # Create pairs for training and testing
-    X_train, y_train = create_pairs(X_train_raw, y_train_raw)
-    X_test, y_test = create_pairs(X_test_raw, y_test_raw)
+        # Split the data into train and test sets for this fold
+        X_train_raw, X_test_raw = X_scaled[train_index], X_scaled[test_index]
+        y_train_raw, y_test_raw = y_original[train_index], y_original[test_index]
 
-    # 3. Apply OPLS-DA for feature extraction
-    n_components = 1  # Number of predictive components to extract
-    opls = OPLS(n_components=n_components)
+        # Create pairs for training and testing
+        X_train, y_train = create_pairs(X_train_raw, y_train_raw)
+        X_test, y_test = create_pairs(X_test_raw, y_test_raw)
 
-    # Fit OPLS on training data and transform both train and test sets
-    X_train_opls = opls.fit_transform(X_train, y_train)
-    X_test_opls = opls.transform(X_test)
+        # 3. Apply OPLS-DA for feature extraction
+        n_components = 1  # Number of predictive components to extract
+        opls = OPLS(n_components=n_components)
 
-    # 4. Train LDA classifier on OPLS-transformed training data
-    lda = LinearDiscriminantAnalysis()
-    lda.fit(X_train_opls, y_train)
+        # Fit OPLS on training data and transform both train and test sets
+        X_train_opls = opls.fit_transform(X_train, y_train)
+        X_test_opls = opls.transform(X_test)
 
-    # 5. Predict on both train and test sets
-    y_train_pred = lda.predict(X_train_opls)
-    y_test_pred = lda.predict(X_test_opls)
+        # 4. Train LDA classifier on OPLS-transformed training data
+        lda = LinearDiscriminantAnalysis()
+        lda.fit(X_train_opls, y_train)
 
-    # 6. Compute balanced accuracy for both train and test sets
-    train_bal_acc = balanced_accuracy_score(y_train, y_train_pred)
-    test_bal_acc = balanced_accuracy_score(y_test, y_test_pred)
+        # 5. Predict on both train and test sets
+        y_train_pred = lda.predict(X_train_opls)
+        y_test_pred = lda.predict(X_test_opls)
 
-    train_balanced_accuracies.append(train_bal_acc)
-    test_balanced_accuracies.append(test_bal_acc)
+        # 6. Compute balanced accuracy for both train and test sets
+        train_bal_acc = balanced_accuracy_score(y_train, y_train_pred)
+        test_bal_acc = balanced_accuracy_score(y_test, y_test_pred)
 
-    print(f"Train Balanced Accuracy: {train_bal_acc * 100:.2f}%")
-    print(f"Test Balanced Accuracy: {test_bal_acc * 100:.2f}%")
+        train_balanced_accuracies.append(train_bal_acc)
+        test_balanced_accuracies.append(test_bal_acc)
 
-# 7. Final Evaluation: Mean balanced accuracy across all folds
-mean_train_bal_acc = np.mean(train_balanced_accuracies)
-std_train_bal_acc = np.std(train_balanced_accuracies)
-mean_test_bal_acc = np.mean(test_balanced_accuracies)
-std_test_bal_acc = np.std(test_balanced_accuracies)
+        print(f"Train Balanced Accuracy: {train_bal_acc * 100:.2f}%")
+        print(f"Test Balanced Accuracy: {test_bal_acc * 100:.2f}%")
 
-print(f"Dataset: {dataset}")
-print(
-    f"\t Train: {mean_train_bal_acc * 100:.2f}\% $\pm$ {std_train_bal_acc * 100:.2f}\%"
-)
-print(f"\t Test: {mean_test_bal_acc * 100:.2f}\% $\pm$ {std_test_bal_acc * 100:.2f}\%")
+    # 7. Final Evaluation: Mean balanced accuracy across all folds
+    mean_train_bal_acc = np.mean(train_balanced_accuracies)
+    std_train_bal_acc = np.std(train_balanced_accuracies)
+    mean_test_bal_acc = np.mean(test_balanced_accuracies)
+    std_test_bal_acc = np.std(test_balanced_accuracies)
+
+    print(f"Dataset: {dataset}")
+    print(
+        f"\t Train: {mean_train_bal_acc * 100:.2f}% \u00b1 {std_train_bal_acc * 100:.2f}%"
+    )
+    print(f"\t Test: {mean_test_bal_acc * 100:.2f}% \u00b1 {std_test_bal_acc * 100:.2f}%")
+
+if __name__ == "__main__":
+    run_opls_experiment()

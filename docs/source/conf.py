@@ -33,6 +33,12 @@ release = "0.0.1"
 
 autosummary_generate = True
 
+# Add any paths that contain templates here, relative to this directory.
+templates_path = ["templates"]
+
+# Mock imports for libraries that might fail to load due to missing C-dependencies (like libomp for xgboost)
+autodoc_mock_imports = ["xgboost", "umap", "pygraphviz", "pyopls"]
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
