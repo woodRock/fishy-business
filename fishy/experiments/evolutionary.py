@@ -22,6 +22,7 @@ from fishy.models.evolutionary.gp_data import load_dataset
 from fishy.models.evolutionary.gp_plot import plot_tsne, plot_gp_tree
 from fishy._core.utils import RunContext
 
+
 def run_gp_experiment(
     dataset: str = "species",
     generations: int = 10,
@@ -30,12 +31,12 @@ def run_gp_experiment(
     file_path: str = None,
     output_log: str = "evolutionary",
     load_checkpoint: bool = False,
-    data_file_path: str = None
+    data_file_path: str = None,
 ):
     """
     Runs a Genetic Programming experiment.
 
-    This function sets up the GP environment (primitives, fitness, toolbox), loads the 
+    This function sets up the GP environment (primitives, fitness, toolbox), loads the
     specified dataset, and performs stratified k-fold cross-validation. In each fold,
     it evolves a population of multi-tree individuals to solve the classification task.
 
@@ -51,7 +52,7 @@ def run_gp_experiment(
     """
     ctx = RunContext(experiment_name=f"evolutionary_{dataset}", run_id=run)
     logger = ctx.logger
-    
+
     # If file_path is not provided, use a default in the checkpoint dir
     if file_path is None:
         file_path = str(ctx.get_checkpoint_path("gp_model.pth"))
@@ -59,22 +60,38 @@ def run_gp_experiment(
     np.random.seed(run)
 
     n_features = 1023
-    if dataset == "instance-recognition": n_features = 2046
-    
+    if dataset == "instance-recognition":
+        n_features = 2046
+
     n_classes_per_dataset = {
-        "species": 2, "part": 6, "oil": 7, "cross-species": 3,
-        "cross-species-hard": 15, "instance-recognition": 2,
+        "species": 2,
+        "part": 6,
+        "oil": 7,
+        "cross-species": 3,
+        "cross-species-hard": 15,
+        "instance-recognition": 2,
     }
     n_classes = n_classes_per_dataset[dataset]
 
     X, y = load_dataset(dataset=dataset, file_path=data_file_path)
     pset = PrimitiveSetTyped("main", [float] * n_features, float)
 
-    def protectedDiv(left, right): return np.divide(left, right, out=np.ones_like(left, dtype=float), where=right != 0)
-    def add(x, y): return x.astype(float) + y.astype(float)
-    def sub(x, y): return x.astype(float) - y.astype(float)
-    def mul(x, y): return x.astype(float) * y.astype(float)
-    def neg(x): return -x.astype(float)
+    def protectedDiv(left, right):
+        return np.divide(
+            left, right, out=np.ones_like(left, dtype=float), where=right != 0
+        )
+
+    def add(x, y):
+        return x.astype(float) + y.astype(float)
+
+    def sub(x, y):
+        return x.astype(float) - y.astype(float)
+
+    def mul(x, y):
+        return x.astype(float) * y.astype(float)
+
+    def neg(x):
+        return -x.astype(float)
 
     pset.addPrimitive(protectedDiv, [float, float], float, name="/")
     pset.addPrimitive(add, [float, float], float, name="+")
@@ -100,33 +117,67 @@ def run_gp_experiment(
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
 
-        m = n_classes # Construction ratio r=1
+        m = n_classes  # Construction ratio r=1
         toolbox.register("expr", deap_gp.genHalfAndHalf, pset=pset, min_=1, max_=2)
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.expr, n=m)
+        toolbox.register(
+            "individual", tools.initRepeat, creator.Individual, toolbox.expr, n=m
+        )
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
         toolbox.register("compile", compileMultiTree, X=X_train)
-        toolbox.register("evaluate", evaluate_classification, toolbox=toolbox, pset=pset, X=X_train, y=y_train)
+        toolbox.register(
+            "evaluate",
+            evaluate_classification,
+            toolbox=toolbox,
+            pset=pset,
+            X=X_train,
+            y=y_train,
+        )
         toolbox.register("select", tools.selTournament, tournsize=7)
         toolbox.register("mate", xmate)
         toolbox.register("expr_mut", deap_gp.genFull, min_=0, max_=2)
         toolbox.register("mutate", xmut, expr=toolbox.expr_mut, pset=pset)
 
-        toolbox.decorate("mate", staticLimit(key=operator.attrgetter("height"), max_value=6))
-        toolbox.decorate("mutate", staticLimit(key=operator.attrgetter("height"), max_value=6))
+        toolbox.decorate(
+            "mate", staticLimit(key=operator.attrgetter("height"), max_value=6)
+        )
+        toolbox.decorate(
+            "mutate", staticLimit(key=operator.attrgetter("height"), max_value=6)
+        )
 
         fold_checkpoint = ctx.get_checkpoint_path(f"gp_model_fold_{fold_idx+1}.pth")
 
         if load_checkpoint and os.path.isfile(file_path):
-            pop, log, hof = load_model(file_path=file_path, toolbox=toolbox, generations=10)
+            pop, log, hof = load_model(
+                file_path=file_path, toolbox=toolbox, generations=10
+            )
         else:
-            pop, log, hof = train(generations=generations, population=population, run=run, toolbox=toolbox)
+            pop, log, hof = train(
+                generations=generations, population=population, run=run, toolbox=toolbox
+            )
 
-        save_model(file_path=str(fold_checkpoint), population=pop, generations=generations, hall_of_fame=hof, toolbox=toolbox, logbook=log, run=run)
-        
+        save_model(
+            file_path=str(fold_checkpoint),
+            population=pop,
+            generations=generations,
+            hall_of_fame=hof,
+            toolbox=toolbox,
+            logbook=log,
+            run=run,
+        )
+
         best = hof[0]
-        acc = evaluate_classification(best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test)
+        acc = evaluate_classification(
+            best, toolbox=toolbox, pset=pset, verbose=True, X=X_test, y=y_test
+        )
         fold_metrics.append({"fold": fold_idx + 1, "accuracy": acc})
         ctx.log_metric(fold_idx + 1, {"test_accuracy": acc})
 
-    ctx.save_results({"fold_results": fold_metrics, "average_accuracy": np.mean([m["accuracy"] for m in fold_metrics])})
-    logger.info(f"GP Experiment finished. Average Accuracy: {np.mean([m['accuracy'] for m in fold_metrics]):.4f}")
+    ctx.save_results(
+        {
+            "fold_results": fold_metrics,
+            "average_accuracy": np.mean([m["accuracy"] for m in fold_metrics]),
+        }
+    )
+    logger.info(
+        f"GP Experiment finished. Average Accuracy: {np.mean([m['accuracy'] for m in fold_metrics]):.4f}"
+    )

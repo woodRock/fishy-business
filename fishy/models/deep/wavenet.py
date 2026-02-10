@@ -66,7 +66,7 @@ class CausalConv1d(nn.Module):
             kernel_size,
             padding=self.padding,
             dilation=dilation,
-            **kwargs
+            **kwargs,
         )
 
     def forward(self, x):

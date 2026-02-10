@@ -27,88 +27,259 @@ from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.data.augmentation import AugmentationConfig
 
+
 def setup_base_parser():
     parser = argparse.ArgumentParser(
-        prog="fishy", 
+        prog="fishy",
         description="Unified Spectra Deep Learning CLI Tool",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     return parser, subparsers
 
+
 def add_train_args(subparsers):
-    train_parser = subparsers.add_parser("train", help="Run the model training pipeline")
-    
+    train_parser = subparsers.add_parser(
+        "train", help="Run the model training pipeline"
+    )
+
     # Combined list of deep and classic models
-    all_models = list(MODEL_REGISTRY.keys()) + ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "opls-da"]
-    
-    train_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
-    train_parser.add_argument("-d", "--dataset", type=str, default="species", choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(), help="Dataset name")
-    train_parser.add_argument("-m", "--model", type=str, default="transformer", choices=all_models, help="Model type")
+    all_models = list(MODEL_REGISTRY.keys()) + [
+        "knn",
+        "dt",
+        "lr",
+        "lda",
+        "nb",
+        "rf",
+        "svm",
+        "opls-da",
+    ]
+
+    train_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    train_parser.add_argument(
+        "-d",
+        "--dataset",
+        type=str,
+        default="species",
+        choices=ModelTrainer.N_CLASSES_PER_DATASET.keys(),
+        help="Dataset name",
+    )
+    train_parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="transformer",
+        choices=all_models,
+        help="Model type",
+    )
     train_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
-    train_parser.add_argument("-nr", "--num-runs", type=int, default=1, help="Number of independent runs")
-    train_parser.add_argument("-o", "--output", type=str, default="logs/results_base", help="Output log path")
-    train_parser.add_argument("-e", "--epochs", type=int, default=100, help="Training epochs")
-    train_parser.add_argument("-bs", "--batch-size", type=int, default=64, help="Batch size")
-    train_parser.add_argument("-lr", "--learning-rate", type=float, default=1e-4, help="Learning rate")
-    train_parser.add_argument("-es", "--early-stopping", type=int, default=20, help="Early stopping patience")
-    train_parser.add_argument("-do", "--dropout", type=float, default=0.2, help="Dropout")
-    train_parser.add_argument("-ls", "--label-smoothing", type=float, default=0.1, help="Label smoothing")
+    train_parser.add_argument(
+        "-nr", "--num-runs", type=int, default=1, help="Number of independent runs"
+    )
+    train_parser.add_argument(
+        "-o", "--output", type=str, default="logs/results_base", help="Output log path"
+    )
+    train_parser.add_argument(
+        "-e", "--epochs", type=int, default=100, help="Training epochs"
+    )
+    train_parser.add_argument(
+        "-bs", "--batch-size", type=int, default=64, help="Batch size"
+    )
+    train_parser.add_argument(
+        "-lr", "--learning-rate", type=float, default=1e-4, help="Learning rate"
+    )
+    train_parser.add_argument(
+        "-es", "--early-stopping", type=int, default=20, help="Early stopping patience"
+    )
+    train_parser.add_argument(
+        "-do", "--dropout", type=float, default=0.2, help="Dropout"
+    )
+    train_parser.add_argument(
+        "-ls", "--label-smoothing", type=float, default=0.1, help="Label smoothing"
+    )
     train_parser.add_argument("-kf", "--k-folds", type=int, default=3, help="K-folds")
-    train_parser.add_argument("-hd", "--hidden-dimension", type=int, default=128, help="Hidden dimension")
-    train_parser.add_argument("-l", "--num-layers", type=int, default=4, help="Number of layers")
-    train_parser.add_argument("-nh", "--num-heads", type=int, default=4, help="Number of attention heads")
-    train_parser.add_argument("-da", "--data-augmentation", action="store_true", help="Enable augmentation")
-    train_parser.add_argument("--num-augmentations", type=int, default=5, help="Number of augmentations")
-    train_parser.add_argument("--noise-level", type=float, default=0.05, help="Noise level")
-    train_parser.add_argument("--shift-enabled", action="store_true", help="Enable shift")
-    train_parser.add_argument("--scale-enabled", action="store_true", help="Enable scale")
+    train_parser.add_argument(
+        "-hd", "--hidden-dimension", type=int, default=128, help="Hidden dimension"
+    )
+    train_parser.add_argument(
+        "-l", "--num-layers", type=int, default=4, help="Number of layers"
+    )
+    train_parser.add_argument(
+        "-nh", "--num-heads", type=int, default=4, help="Number of attention heads"
+    )
+    train_parser.add_argument(
+        "-da", "--data-augmentation", action="store_true", help="Enable augmentation"
+    )
+    train_parser.add_argument(
+        "--num-augmentations", type=int, default=5, help="Number of augmentations"
+    )
+    train_parser.add_argument(
+        "--noise-level", type=float, default=0.05, help="Noise level"
+    )
+    train_parser.add_argument(
+        "--shift-enabled", action="store_true", help="Enable shift"
+    )
+    train_parser.add_argument(
+        "--scale-enabled", action="store_true", help="Enable scale"
+    )
     train_parser.add_argument("--use-coral", action="store_true", help="Use CORAL loss")
-    train_parser.add_argument("--use-cumulative-link", action="store_true", help="Use Cumulative Link loss")
-    train_parser.add_argument("--regression", action="store_true", help="Perform regression")
+    train_parser.add_argument(
+        "--use-cumulative-link", action="store_true", help="Use Cumulative Link loss"
+    )
+    train_parser.add_argument(
+        "--regression", action="store_true", help="Perform regression"
+    )
 
     for task_flag, _, _, _, _ in ModelTrainer.PRETRAIN_TASK_DEFINITIONS:
-        train_parser.add_argument(f"--{task_flag.replace('_', '-')}", action="store_true", help=f"Enable {task_flag}")
+        train_parser.add_argument(
+            f"--{task_flag.replace('_', '-')}",
+            action="store_true",
+            help=f"Enable {task_flag}",
+        )
+
 
 def add_benchmark_args(subparsers):
     bench_parser = subparsers.add_parser("benchmark", help="Benchmark multiple models")
-    bench_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
+    bench_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
     bench_parser.add_argument("models", type=str, nargs="+", help="Models to benchmark")
-    bench_parser.add_argument("-w", "--warmup", type=int, default=0, help="Warmup epochs")
-    bench_parser.add_argument("-o", "--output", type=str, default="benchmark_results.csv", help="Output CSV path")
+    bench_parser.add_argument(
+        "-w", "--warmup", type=int, default=0, help="Warmup epochs"
+    )
+    bench_parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default="benchmark_results.csv",
+        help="Output CSV path",
+    )
+
 
 def add_transfer_args(subparsers):
-    trans_parser = subparsers.add_parser("transfer", help="Sequential transfer learning")
-    trans_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
-    trans_parser.add_argument("-m", "--model", type=str, required=True, choices=MODEL_REGISTRY.keys(), help="Model type")
-    trans_parser.add_argument("-td", "--transfer-datasets", type=str, nargs="+", required=True, help="Datasets for transfer")
-    trans_parser.add_argument("-target", "--target-dataset", type=str, required=True, help="Target dataset")
-    trans_parser.add_argument("-et", "--epochs-transfer", type=int, default=10, help="Epochs per transfer phase")
-    trans_parser.add_argument("-ef", "--epochs-finetune", type=int, default=20, help="Epochs for finetuning")
-    trans_parser.add_argument("-lr", "--learning-rate", type=float, default=1e-3, help="Learning rate")
+    trans_parser = subparsers.add_parser(
+        "transfer", help="Sequential transfer learning"
+    )
+    trans_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    trans_parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        required=True,
+        choices=MODEL_REGISTRY.keys(),
+        help="Model type",
+    )
+    trans_parser.add_argument(
+        "-td",
+        "--transfer-datasets",
+        type=str,
+        nargs="+",
+        required=True,
+        help="Datasets for transfer",
+    )
+    trans_parser.add_argument(
+        "-target", "--target-dataset", type=str, required=True, help="Target dataset"
+    )
+    trans_parser.add_argument(
+        "-et",
+        "--epochs-transfer",
+        type=int,
+        default=10,
+        help="Epochs per transfer phase",
+    )
+    trans_parser.add_argument(
+        "-ef", "--epochs-finetune", type=int, default=20, help="Epochs for finetuning"
+    )
+    trans_parser.add_argument(
+        "-lr", "--learning-rate", type=float, default=1e-3, help="Learning rate"
+    )
+
 
 def add_xai_args(subparsers):
-    xai_parser = subparsers.add_parser("xai", help="Explain model predictions (LIME/Grad-CAM)")
-    xai_parser.add_argument("-d", "--dataset", type=str, default="part", help="Dataset name")
-    xai_parser.add_argument("-m", "--model", type=str, default="transformer", help="Model type")
-    xai_parser.add_argument("-i", "--instance", type=str, default="frames", help="Instance name to explain")
-    xai_parser.add_argument("-l", "--label", type=float, nargs="+", help="Target label vector")
-    xai_parser.add_argument("--method", type=str, default="lime", choices=["lime", "gradcam"], help="XAI method")
+    xai_parser = subparsers.add_parser(
+        "xai", help="Explain model predictions (LIME/Grad-CAM)"
+    )
+    xai_parser.add_argument(
+        "-d", "--dataset", type=str, default="part", help="Dataset name"
+    )
+    xai_parser.add_argument(
+        "-m", "--model", type=str, default="transformer", help="Model type"
+    )
+    xai_parser.add_argument(
+        "-i", "--instance", type=str, default="frames", help="Instance name to explain"
+    )
+    xai_parser.add_argument(
+        "-l", "--label", type=float, nargs="+", help="Target label vector"
+    )
+    xai_parser.add_argument(
+        "--method",
+        type=str,
+        default="lime",
+        choices=["lime", "gradcam"],
+        help="XAI method",
+    )
+
 
 def add_evolutionary_args(subparsers):
-    evo_parser = subparsers.add_parser("evolutionary", help="Run Genetic Programming experiments")
-    evo_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
-    evo_parser.add_argument("-d", "--dataset", type=str, default="species", help="Dataset name")
-    evo_parser.add_argument("-g", "--generations", type=int, default=10, help="Number of generations")
-    evo_parser.add_argument("-p", "--population", type=int, default=1023, help="Population size")
+    evo_parser = subparsers.add_parser(
+        "evolutionary", help="Run Genetic Programming experiments"
+    )
+    evo_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    evo_parser.add_argument(
+        "-d", "--dataset", type=str, default="species", help="Dataset name"
+    )
+    evo_parser.add_argument(
+        "-g", "--generations", type=int, default=10, help="Number of generations"
+    )
+    evo_parser.add_argument(
+        "-p", "--population", type=int, default=1023, help="Population size"
+    )
     evo_parser.add_argument("-r", "--run", type=int, default=0, help="Run identifier")
 
+
 def add_contrastive_args(subparsers):
-    cont_parser = subparsers.add_parser("contrastive", help="Run Contrastive Learning experiments")
-    cont_parser.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to dataset")
-    cont_parser.add_argument("-m", "--method", type=str, default="simclr", help="Contrastive method")
-    cont_parser.add_argument("-e", "--encoder", type=str, default="transformer", help="Encoder type")
-    cont_parser.add_argument("-epochs", "--epochs", type=int, default=100, help="Number of epochs")
+    cont_parser = subparsers.add_parser(
+        "contrastive", help="Run Contrastive Learning experiments"
+    )
+    cont_parser.add_argument(
+        "-fp",
+        "--file-path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to dataset",
+    )
+    cont_parser.add_argument(
+        "-m", "--method", type=str, default="simclr", help="Contrastive method"
+    )
+    cont_parser.add_argument(
+        "-e", "--encoder", type=str, default="transformer", help="Encoder type"
+    )
+    cont_parser.add_argument(
+        "-epochs", "--epochs", type=int, default=100, help="Number of epochs"
+    )
+
 
 def handle_train(args):
     classic_models = ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "opls-da"]
@@ -117,7 +288,7 @@ def handle_train(args):
             model_name=args.model,
             dataset_name=args.dataset,
             run_id=args.run,
-            file_path=args.file_path
+            file_path=args.file_path,
         )
         return
 
@@ -135,6 +306,7 @@ def handle_train(args):
     else:
         config = TrainingConfig.from_args(args)
         run_training_pipeline(config)
+
 
 def handle_xai(args):
     t_cfg = TrainingConfig(
@@ -164,7 +336,7 @@ def handle_xai(args):
         noise_level=0.0,
         shift_enabled=False,
         scale_enabled=False,
-        k_folds=1
+        k_folds=1,
     )
     e_cfg = ExplainerConfig(output_dir=Path("tmp/figures/xai"))
     explain_predictions(
@@ -174,8 +346,9 @@ def handle_xai(args):
         explainer_config=e_cfg,
         instance_name=args.instance,
         target_label=args.label if args.label else [1.0, 0.0],
-        method=args.method
+        method=args.method,
     )
+
 
 def main():
     parser, subparsers = setup_base_parser()
@@ -185,9 +358,9 @@ def main():
     add_xai_args(subparsers)
     add_evolutionary_args(subparsers)
     add_contrastive_args(subparsers)
-    
+
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         sys.exit(0)
@@ -196,7 +369,12 @@ def main():
         if args.command == "train":
             handle_train(args)
         elif args.command == "benchmark":
-            run_benchmark(args.models, warmup_epochs=args.warmup, output_file=args.output, file_path=args.file_path)
+            run_benchmark(
+                args.models,
+                warmup_epochs=args.warmup,
+                output_file=args.output,
+                file_path=args.file_path,
+            )
         elif args.command == "transfer":
             run_sequential_transfer_learning(
                 model_name=args.model,
@@ -205,7 +383,7 @@ def main():
                 num_epochs_transfer=args.epochs_transfer,
                 num_epochs_finetune=args.epochs_finetune,
                 learning_rate=args.learning_rate,
-                file_path=args.file_path
+                file_path=args.file_path,
             )
         elif args.command == "xai":
             handle_xai(args)
@@ -215,19 +393,20 @@ def main():
                 generations=args.generations,
                 population=args.population,
                 run=args.run,
-                data_file_path=args.file_path
+                data_file_path=args.file_path,
             )
         elif args.command == "contrastive":
             c_cfg = ContrastiveConfig(
                 contrastive_method=args.method,
                 encoder_type=args.encoder,
                 num_epochs=args.epochs,
-                file_path=args.file_path
+                file_path=args.file_path,
             )
             run_contrastive_experiment(c_cfg)
     except Exception as e:
         logging.error(f"Error executing command {args.command}: {e}", exc_info=True)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

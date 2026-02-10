@@ -39,7 +39,9 @@ import seaborn as sns
 
 # ------------------------
 
-from fishy.data.classic_loader import load_dataset  # Assuming data.py and load_dataset are available
+from fishy.data.classic_loader import (
+    load_dataset,
+)  # Assuming data.py and load_dataset are available
 
 # --- Configuration ---
 target_threshold = (

@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 import seaborn as sns
 import pandas as pd
 from deap import gp
+
 try:
     import pygraphviz as pgv
 except ImportError:

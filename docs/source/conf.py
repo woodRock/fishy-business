@@ -37,7 +37,17 @@ autosummary_generate = True
 templates_path = ["templates"]
 
 # Mock imports for libraries that might fail to load due to missing C-dependencies (like libomp for xgboost)
-autodoc_mock_imports = ["xgboost", "umap", "pygraphviz", "pyopls", "deap", "transformers", "openpyxl", "lime", "torchdiffeq"]
+autodoc_mock_imports = [
+    "xgboost",
+    "umap",
+    "pygraphviz",
+    "pyopls",
+    "deap",
+    "transformers",
+    "openpyxl",
+    "lime",
+    "torchdiffeq",
+]
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

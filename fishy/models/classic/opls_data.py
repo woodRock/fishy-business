@@ -6,7 +6,9 @@ from typing import Iterable, Union
 from pathlib import Path
 
 
-def load_dataset(dataset: str = "species", file_path: str = None) -> Union[Iterable, Iterable, Iterable]:
+def load_dataset(
+    dataset: str = "species", file_path: str = None
+) -> Union[Iterable, Iterable, Iterable]:
     """Load and prepare the dataset from an excel spreadsheet.
 
     This method loads the dataset from an excel spreadsheet.
@@ -24,7 +26,9 @@ def load_dataset(dataset: str = "species", file_path: str = None) -> Union[Itera
     logger = logging.getLogger(__name__)
 
     if file_path is None:
-        file_path = str(Path(__file__).resolve().parent.parent.parent.parent / "data" / "REIMS.xlsx")
+        file_path = str(
+            Path(__file__).resolve().parent.parent.parent.parent / "data" / "REIMS.xlsx"
+        )
 
     # Load the dataset
     logger.info(f"Reading dataset fish: {dataset} from {file_path}")

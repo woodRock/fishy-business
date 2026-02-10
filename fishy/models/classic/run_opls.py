@@ -8,6 +8,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import balanced_accuracy_score, classification_report
+
 try:
     from pyopls import OPLS
 except ImportError:
@@ -106,7 +107,10 @@ def run_opls_experiment(dataset: str = "instance-recognition"):
     print(
         f"\t Train: {mean_train_bal_acc * 100:.2f}% \u00b1 {std_train_bal_acc * 100:.2f}%"
     )
-    print(f"\t Test: {mean_test_bal_acc * 100:.2f}% \u00b1 {std_test_bal_acc * 100:.2f}%")
+    print(
+        f"\t Test: {mean_test_bal_acc * 100:.2f}% \u00b1 {std_test_bal_acc * 100:.2f}%"
+    )
+
 
 if __name__ == "__main__":
     run_opls_experiment()
