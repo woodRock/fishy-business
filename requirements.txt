@@ -19,3 +19,4 @@ argcomplete
 rich
 streamlit
 plotly
+umap-learn
