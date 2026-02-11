@@ -8,7 +8,9 @@ from typing import Tuple
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Sampler
+from typing import Iterator, List
+
 
 class DatasetType(Enum):
     """Enumeration for the different types of datasets."""
@@ -137,3 +139,49 @@ class SiameseDataset(BaseDataset):
             self.y1[idx],
             self.y2[idx],
         )
+
+
+class BalancedBatchSampler(Sampler):
+    """Generates balanced batches of positive and negative pairs for contrastive learning."""
+
+    def __init__(self, pair_labels: np.ndarray, batch_size: int) -> None:
+        """
+        Initializes the sampler.
+
+        Args:
+            pair_labels (np.ndarray): Array of pair labels (0 for dissimilar, 1 for similar).
+                                     Can be one-hot or flat.
+            batch_size (int): Size of batches to generate.
+        """
+        if pair_labels.ndim > 1 and pair_labels.shape[1] > 1:
+            class_labels = np.argmax(pair_labels, axis=1)
+        else:
+            class_labels = pair_labels.flatten()
+
+        self.neg_indices = np.where(class_labels == 0)[0]
+        self.pos_indices = np.where(class_labels == 1)[0]
+        self.batch_size = batch_size
+
+        if len(self.neg_indices) == 0 or len(self.pos_indices) == 0:
+            self.num_batches = 0
+        else:
+            self.num_batches = min(len(self.neg_indices), len(self.pos_indices)) // (
+                batch_size // 2
+            )
+
+    def __iter__(self) -> Iterator[List[int]]:
+        np.random.shuffle(self.neg_indices)
+        np.random.shuffle(self.pos_indices)
+
+        half_batch = self.batch_size // 2
+        for i in range(self.num_batches):
+            batch = []
+            start_pos = i * half_batch
+            start_neg = i * half_batch
+            batch.extend(self.pos_indices[start_pos : start_pos + half_batch].tolist())
+            batch.extend(self.neg_indices[start_neg : start_neg + half_batch].tolist())
+            np.random.shuffle(batch)
+            yield batch
+
+    def __len__(self) -> int:
+        return self.num_batches

@@ -4,8 +4,7 @@ Data management module for loading and preprocessing.
 """
 
 from .module import DataModule, DataProcessor, create_data_module
-from .datasets import DatasetType, CustomDataset, SiameseDataset
-from .classic_loader import load_dataset
+from .datasets import DatasetType, CustomDataset, SiameseDataset, BalancedBatchSampler
 from .augmentation import AugmentationConfig, DataAugmenter
 
 __all__ = [
@@ -15,7 +14,7 @@ __all__ = [
     "DatasetType",
     "CustomDataset",
     "SiameseDataset",
-    "load_dataset",
+    "BalancedBatchSampler",
     "AugmentationConfig",
     "DataAugmenter",
 ]

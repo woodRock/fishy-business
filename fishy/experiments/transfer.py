@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Transfer learning module for deep learning models.
+Standardized to use DataModule and TrainingEngine patterns.
 """
 
 import torch
@@ -9,21 +10,11 @@ from torch.utils.data import DataLoader, random_split
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import (
-    confusion_matrix,
-    classification_report,
-    balanced_accuracy_score,
-)
-import seaborn as sns
-import copy
-import os
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple, Any
 from pathlib import Path
-from dataclasses import asdict
 import wandb
 
-from fishy.engine.trainer import Trainer  # Use Trainer
+from fishy.engine.trainer import Trainer, TrainingEngine
 from fishy.data.module import create_data_module
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
@@ -31,30 +22,17 @@ from fishy._core.utils import RunContext, get_device
 
 
 def _adapt_trainer_output(trainer_output: Dict[str, Any]) -> Dict[str, List]:
-    """
-    Adapts Trainer output to the legacy history format used in transfer learning.
-
-    Args:
-        trainer_output (Dict[str, Any]): The raw output from the Trainer.train() method.
-
-    Returns:
-        Dict[str, List]: A dictionary containing histories for loss, accuracy, and balanced accuracy.
-    """
+    """Adapts Trainer output to the legacy history format."""
     epoch_metrics = trainer_output["epoch_metrics"]
-    history = {
+    return {
         "train_loss": epoch_metrics["train_losses"],
         "val_loss": epoch_metrics["val_losses"],
         "train_acc": [m.get("accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]],
         "val_acc": [m.get("accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]],
-        "train_balanced_acc": [
-            m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]
-        ],
-        "val_balanced_acc": [
-            m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]
-        ],
+        "train_balanced_acc": [m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]],
+        "val_balanced_acc": [m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]],
         "learning_rates": epoch_metrics.get("learning_rates", []),
     }
-    return history
 
 
 def run_sequential_transfer_learning(
@@ -69,297 +47,94 @@ def run_sequential_transfer_learning(
     device: str = str(get_device()),
     save_intermediate: bool = False,
     val_split: float = 0.2,
-    file_path: str = None,
-    # New W&B parameters
-    wandb_project: Optional[str] = "fishy-business",
-    wandb_entity: Optional[str] = "victoria-university-of-wellington",
+    file_path: Optional[str] = None,
+    wandb_project: str = "fishy-business",
+    wandb_entity: str = "victoria-university-of-wellington",
     wandb_log: bool = False,
     run: int = 0,
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
-    Performs sequential transfer learning across multiple datasets.
-
-    This function initializes a model, trains it sequentially on a list of
-    'transfer_datasets', and finally fine-tunes it on a 'target_dataset'.
-    The model's output layer is automatically adapted at each phase to match
-    the number of classes in the current dataset.
-
-    Args:
-        model_name (str): Name of the model architecture to use.
-        transfer_datasets (List[str]): List of datasets to use for sequential pre-training.
-        target_dataset (str): The final dataset to fine-tune on.
-        num_epochs_transfer (int, optional): Epochs per transfer phase. Defaults to 10.
-        num_epochs_finetune (int, optional): Epochs for the final fine-tuning. Defaults to 20.
-        batch_size (int, optional): Batch size. Defaults to 32.
-        learning_rate (float, optional): Learning rate for transfer phases. Defaults to 1e-3.
-        finetune_lr (float, optional): Learning rate for the fine-tuning phase. Defaults to 5e-4.
-        device (str, optional): Computation device. Defaults to get_device().
-        save_intermediate (bool, optional): Whether to save model state after each phase. Defaults to False.
-        val_split (float, optional): Proportion of data to use for validation. Defaults to 0.2.
-        file_path (str, optional): Path to the source data file. Defaults to None.
-        wandb_project (Optional[str], optional): W&B project name. Defaults to "fishy-business".
-        wandb_entity (Optional[str], optional): W&B entity name. Defaults to "victoria-university-of-wellington".
-        wandb_log (bool, optional): Enable W&B logging. Defaults to False.
-        run (int, optional): Run identifier for seeding. Defaults to 0.
-
-    Returns:
-        Tuple[nn.Module, Dict[str, Any]]: The final trained model and the full training history.
+    Performs sequential transfer learning using standardized DataModules.
     """
     wandb_run = None
     if wandb_log:
-        # Create a dict for W&B config from function arguments
-        wandb_config_dict = {
-            "model_name": model_name,
-            "transfer_datasets": transfer_datasets,
-            "target_dataset": target_dataset,
-            "num_epochs_transfer": num_epochs_transfer,
-            "num_epochs_finetune": num_epochs_finetune,
-            "batch_size": batch_size,
-            "learning_rate": learning_rate,
-            "finetune_lr": finetune_lr,
-            "save_intermediate": save_intermediate,
-            "val_split": val_split,
-            "device": device,
-            "file_path": file_path,
-            "run": run,
-        }
         wandb_run = wandb.init(
-            project=wandb_project,
-            entity=wandb_entity,
-            config=wandb_config_dict,
-            reinit=True,
-            group=f"{target_dataset}_{model_name}_transfer",
-            job_type="transfer_learning",
+            project=wandb_project, entity=wandb_entity,
+            config={"model": model_name, "transfer": transfer_datasets, "target": target_dataset},
+            reinit=True, group=f"{target_dataset}_transfer", job_type="transfer_learning",
         )
 
-    ctx = RunContext(
-        dataset=target_dataset,
-        method="transfer",
-        model_name=model_name,
-        wandb_run=wandb_run,
-    )
+    ctx = RunContext(dataset=target_dataset, method="transfer", model_name=model_name, wandb_run=wandb_run)
     logger = ctx.logger
 
-    try:  # Start try block for wandb.finish
+    try:
         history = {"transfer": {}, "finetune": {}}
         device_obj = get_device()
-        data_path = (
-            file_path
-            if file_path
-            else str(
-                Path(__file__).resolve().parent.parent.parent / "data" / "REIMS.xlsx"
-            )
-        )
-
-        logger.info(f"Starting sequential transfer learning for model: {model_name}")
-        logger.info(f"Target dataset: {target_dataset}")
-
-        # Initial data module to get dimensions
-        data_module = create_data_module(
-            file_path=data_path,
-            dataset_name=transfer_datasets[0],
-            batch_size=batch_size,
-        )
+        
+        # 1. Initial Setup to get input dimension
+        data_module = create_data_module(file_path=file_path, dataset_name=transfer_datasets[0], batch_size=batch_size)
         data_module.setup()
         input_dim = data_module.get_input_dim()
 
-        # We need to handle the output_dim changing.
-        # Initial model creation
-        config = TrainingConfig(
-            file_path=data_path,
-            model=model_name,
-            dataset=transfer_datasets[0],
-            run=run,
-            output="",
-            data_augmentation=False,
-            masked_spectra_modelling=False,
-            next_spectra_prediction=False,
-            next_peak_prediction=False,
-            spectrum_denoising_autoencoding=False,
-            peak_parameter_regression=False,
-            spectrum_segment_reordering=False,
-            contrastive_transformation_invariance_learning=False,
-            early_stopping=0,
-            dropout=0.2,
-            label_smoothing=0.1,
-            epochs=num_epochs_transfer,
-            learning_rate=learning_rate,
-            batch_size=batch_size,
-            hidden_dimension=128,
-            num_layers=4,
-            num_heads=4,
-            num_augmentations=0,
-            noise_level=0.0,
-            shift_enabled=False,
-            scale_enabled=False,
-            k_folds=1,
-        )
-        ctx.save_config(config)
-
-        # Determine initial num_classes
+        config = TrainingConfig(model=model_name, dataset=transfer_datasets[0], run=run, file_path=file_path)
+        
         from fishy.experiments.deep_training import ModelTrainer
-
         num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(transfer_datasets[0], 2)
         model = create_model(config, input_dim, num_classes).to(device_obj)
-        logger.info(f"Model {model_name} initialized on {device}")
 
-        # Generator for seeded splits
         gen = torch.Generator().manual_seed(run)
 
-        # Sequential transfer learning
-        for i, dataset_name in enumerate(transfer_datasets):
-            logger.info(f"Phase {i+1}: Transfer Learning on '{dataset_name}'")
-
-            data_module = create_data_module(
-                file_path=data_path,
-                dataset_name=dataset_name,
-                batch_size=batch_size,
-            )
+        # 2. Sequential Transfer
+        for dataset_name in transfer_datasets:
+            logger.info(f"Transfer phase: {dataset_name}")
+            data_module = create_data_module(file_path=file_path, dataset_name=dataset_name, batch_size=batch_size)
             data_module.setup()
             dataset = data_module.get_dataset()
 
             val_size = int(val_split * len(dataset))
-            train_size = len(dataset) - val_size
-            train_dataset, val_dataset = random_split(
-                dataset, [train_size, val_size], generator=gen
-            )
-
-            train_loader = DataLoader(
-                train_dataset, batch_size=batch_size, shuffle=True
-            )
+            train_dataset, val_dataset = random_split(dataset, [len(dataset) - val_size, val_size], generator=gen)
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
             val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
-            # Adapt output layer if necessary
-            current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(
-                dataset_name, 2
-            )
-
-            output_layer = None
+            current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
+            
+            # Layer adaptation
             for attr in ["fc_out", "classifier", "fc"]:
                 if hasattr(model, attr):
-                    output_layer = getattr(model, attr)
-                    layer_name = attr
+                    layer = getattr(model, attr)
+                    if layer.out_features != current_num_classes:
+                        setattr(model, attr, nn.Linear(layer.in_features, current_num_classes).to(device_obj))
                     break
 
-            if output_layer and isinstance(output_layer, nn.Linear):
-                if output_layer.out_features != current_num_classes:
-                    in_features = output_layer.in_features
-                    new_layer = nn.Linear(in_features, current_num_classes).to(
-                        device_obj
-                    )
-                    setattr(model, layer_name, new_layer)
-                    logger.info(
-                        f"Adapted {layer_name} to {current_num_classes} classes"
-                    )
+            optimizer = AdamW(model.parameters(), lr=learning_rate)
+            trainer = Trainer(model=model, criterion=nn.CrossEntropyLoss(), optimizer=optimizer, device=device_obj, num_epochs=num_epochs_transfer, num_classes=current_num_classes, logger=logger, ctx=ctx)
+            history["transfer"][dataset_name] = _adapt_trainer_output(trainer.train(train_loader, val_loader))
 
-            optimizer = AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01)
-            scheduler = ReduceLROnPlateau(optimizer, mode="max", patience=3, factor=0.5)
-
-            trainer = Trainer(
-                model=model,
-                criterion=nn.CrossEntropyLoss(),
-                optimizer=optimizer,
-                device=device_obj,
-                num_epochs=num_epochs_transfer,
-                scheduler=scheduler,
-                patience=100,  # No early stopping in transfer phase usually, or high
-                num_classes=current_num_classes,
-                logger=logger,
-                ctx=ctx,
-            )
-            trainer_output = trainer.train(train_loader, val_loader)
-            dataset_history = _adapt_trainer_output(trainer_output)
-            history["transfer"][dataset_name] = dataset_history
-
-            if save_intermediate:
-                torch.save(
-                    model.state_dict(),
-                    ctx.get_checkpoint_path(f"model_transfer_{dataset_name}.pth"),
-                )
-
-        # Fine-tuning
-        logger.info(f"Final Phase: Fine-tuning on '{target_dataset}'")
-        data_module = create_data_module(
-            file_path=data_path,
-            dataset_name=target_dataset,
-            batch_size=batch_size,
-        )
+        # 3. Final Fine-tuning
+        logger.info(f"Final Fine-tuning: {target_dataset}")
+        data_module = create_data_module(file_path=file_path, dataset_name=target_dataset, batch_size=batch_size)
         data_module.setup()
-        target_data = data_module.get_dataset()
+        target_dataset_obj = data_module.get_dataset()
 
-        val_size = int(val_split * len(target_data))
-        train_size = len(target_data) - val_size
-        train_dataset, val_dataset = random_split(
-            target_data, [train_size, val_size], generator=gen
-        )
-
+        val_size = int(val_split * len(target_dataset_obj))
+        train_dataset, val_dataset = random_split(target_dataset_obj, [len(target_dataset_obj) - val_size, val_size], generator=gen)
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
         current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(target_dataset, 2)
-        # Adapt output layer again
-        output_layer = None
         for attr in ["fc_out", "classifier", "fc"]:
             if hasattr(model, attr):
-                output_layer = getattr(model, attr)
-                layer_name = attr
+                layer = getattr(model, attr)
+                if layer.out_features != current_num_classes:
+                    setattr(model, attr, nn.Linear(layer.in_features, current_num_classes).to(device_obj))
                 break
 
-        if output_layer and isinstance(output_layer, nn.Linear):
-            if output_layer.out_features != current_num_classes:
-                in_features = output_layer.in_features
-                new_layer = nn.Linear(in_features, current_num_classes).to(device_obj)
-                setattr(model, layer_name, new_layer)
-                logger.info(f"Adapted {layer_name} to {current_num_classes} classes")
+        optimizer = AdamW(model.parameters(), lr=finetune_lr)
+        trainer = Trainer(model=model, criterion=nn.CrossEntropyLoss(), optimizer=optimizer, device=device_obj, num_epochs=num_epochs_finetune, num_classes=current_num_classes, logger=logger, ctx=ctx)
+        history["finetune"][target_dataset] = _adapt_trainer_output(trainer.train(train_loader, val_loader))
 
-        optimizer = AdamW(model.parameters(), lr=finetune_lr, weight_decay=0.01)
-        scheduler = ReduceLROnPlateau(optimizer, mode="max", patience=5, factor=0.5)
-
-        trainer = Trainer(
-            model=model,
-            criterion=nn.CrossEntropyLoss(),
-            optimizer=optimizer,
-            device=device_obj,
-            num_epochs=num_epochs_finetune,
-            scheduler=scheduler,
-            patience=20,
-            num_classes=current_num_classes,
-            logger=logger,
-            ctx=ctx,
-        )
-        trainer_output = trainer.train(train_loader, val_loader)
-        finetune_history = _adapt_trainer_output(trainer_output)
-        history["finetune"][target_dataset] = finetune_history
-
-        # Final Evaluation
-        # Reuse trainer.evaluate()
-        eval_trainer = Trainer(
-             model=model,
-             criterion=nn.CrossEntropyLoss(),
-             optimizer=optimizer, # Dummy
-             device=device_obj,
-             num_epochs=1,
-             num_classes=current_num_classes,
-        )
-        eval_results = eval_trainer.evaluate(val_loader)
-        final_acc = eval_results["metrics"]["balanced_accuracy"]
-        logger.info(f"Final Balanced Accuracy: {final_acc*100:.2f}%")
-
-        ctx.save_results(
-            {"history": history, "final_balanced_accuracy": final_acc},
-            filename="transfer_results.json",
-        )
-        torch.save(
-            model.state_dict(), ctx.get_checkpoint_path("final_transfer_model.pth")
-        )
-
+        ctx.save_results({"history": history}, filename="transfer_results.json")
         return model, history
 
     finally:
-        if wandb_run:
-            wandb_run.finish()
-
-
-def visualize_transfer_results(history: Dict):
-    # Reuse the logic from original transfer_learning.py for plotting if needed
-    pass
+        if wandb_run: wandb_run.finish()

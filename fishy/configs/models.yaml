@@ -80,7 +80,7 @@ classic_models:
   rf: "sklearn.ensemble.RandomForestClassifier"
   svm: "sklearn.svm.SVC"
   xgb: "xgboost.XGBClassifier"
-  opls-da: "fishy.models.classic.run_opls.OPLS_DA"
+  opls-da: "fishy.models.classic.opls_da.OPLS_DA"
 
 contrastive_models:
   simclr:
@@ -98,3 +98,13 @@ contrastive_models:
   barlow_twins:
     model: "fishy.models.contrastive.barlow_twins.BarlowTwinsModel"
     loss: "fishy.models.contrastive.barlow_twins.BarlowTwinsLoss"
+
+evolutionary_models:
+  gp:
+    path: "fishy.models.evolutionary.gp"
+    defaults:
+      population: 1023
+      generations: 10
+      mutation_rate: 0.2
+      crossover_rate: 0.8
+      elitism: 0.1

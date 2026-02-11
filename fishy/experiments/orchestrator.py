@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Batch experiment orchestrator for large-scale benchmarking and statistical analysis.
-Uses external configuration for registries.
+Uses TrainingEngine for unified execution.
 """
 
 import logging
@@ -11,9 +11,7 @@ from typing import List, Dict, Any, Optional
 from scipy import stats
 from dataclasses import asdict
 
-from fishy.experiments.classic_training import run_classic_experiment
-from fishy.experiments.deep_training import run_training_pipeline
-from fishy.experiments.evolutionary import run_gp_experiment
+from fishy.engine.trainer import TrainingEngine
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, set_seed
 from fishy._core.config_loader import load_config
@@ -68,16 +66,14 @@ def run_all_experiments(
     if quick:
         num_runs, datasets = 2, ["species"]
         classic_models, deep_models = ["opls-da", "svm"], ["transformer"]
-        active_evo = True
         logger.info("QUICK MODE: Running reduced set of experiments.")
-    else:
-        active_evo = True
 
     orchestrator_ctx = RunContext(dataset="summary", method="orchestrator", model_name="benchmark_suite")
     main_logger = orchestrator_ctx.logger
     
-    val_results_map = {d: {m: [] for m in classic_models + deep_models + (["evolutionary"] if active_evo else [])} for d in datasets}
-    train_results_map = {d: {m: [] for m in classic_models + deep_models + (["evolutionary"] if active_evo else [])} for d in datasets}
+    # Track results: dataset -> model -> list of accuracies
+    val_results_map = {d: {m: [] for m in classic_models + deep_models + ["evolutionary"]} for d in datasets}
+    train_results_map = {d: {m: [] for m in classic_models + deep_models + ["evolutionary"]} for d in datasets}
 
     master_seeds = [(i + 1) * 123 for i in range(num_runs)]
 
@@ -85,22 +81,22 @@ def run_all_experiments(
         main_logger.info(f"--- BENCHMARKING DATASET: {dataset} ---")
         folds = get_fold_count(dataset)
         
-        # 1. Classic Models
+        # 1. Classic Models (via TrainingEngine)
         for model_name in classic_models:
             main_logger.info(f"Running Classic Model: {model_name} on {dataset}")
             for seed in master_seeds:
                 set_seed(seed)
                 config = TrainingConfig(dataset=dataset, model=model_name, k_folds=folds, wandb_log=wandb_log, wandb_project=wandb_project, wandb_entity=wandb_entity, run=seed, file_path=file_path)
                 try:
-                    stats_res = run_classic_experiment(config, model_name, dataset, run_id=seed, file_path=file_path)
+                    stats_res = TrainingEngine.run_classic(config, model_name, dataset, run_id=seed, file_path=file_path)
                     val_results_map[dataset][model_name].append(stats_res.get("val_balanced_accuracy", 0))
                     train_results_map[dataset][model_name].append(stats_res.get("train_balanced_accuracy", 0))
                 except Exception as e:
                     main_logger.error(f"Failed {model_name} on {dataset}: {e}")
-                    val_results_map[dataset][model_name].extend([0])
-                    train_results_map[dataset][model_name].extend([0])
+                    val_results_map[dataset][model_name].append(0)
+                    train_results_map[dataset][model_name].append(0)
 
-        # 2. Deep Models
+        # 2. Deep Models (via TrainingEngine)
         for model_name in deep_models:
             main_logger.info(f"Running Deep Model: {model_name} on {dataset}")
             for seed in master_seeds:
@@ -110,27 +106,30 @@ def run_all_experiments(
                     config.model, config.masked_spectra_modelling = "transformer", True
                 
                 try:
-                    stats_res = run_training_pipeline(config)
+                    stats_res = TrainingEngine.run_deep(config)
                     val_results_map[dataset][model_name].append(stats_res.get("val_balanced_accuracy", 0))
                     train_results_map[dataset][model_name].append(stats_res.get("train_balanced_accuracy", 0))
                 except Exception as e:
                     main_logger.error(f"Failed {model_name} on {dataset}: {e}")
-                    val_results_map[dataset][model_name].extend([0])
-                    train_results_map[dataset][model_name].extend([0])
+                    val_results_map[dataset][model_name].append(0)
+                    train_results_map[dataset][model_name].append(0)
 
-        # 3. Evolutionary Models
-        if active_evo:
-            main_logger.info(f"Running Evolutionary (GP) on {dataset}")
-            for seed in master_seeds:
-                set_seed(seed)
-                try:
-                    stats_res = run_gp_experiment(dataset=dataset, generations=10 if not quick else 1, population=100 if not quick else 10, run=seed, wandb_log=wandb_log, wandb_project=wandb_project, wandb_entity=wandb_entity, data_file_path=file_path)
-                    val_results_map[dataset]["evolutionary"].append(stats_res.get("val_balanced_accuracy", 0))
-                    train_results_map[dataset]["evolutionary"].append(stats_res.get("train_balanced_accuracy", 0))
-                except Exception as e:
-                    main_logger.error(f"Failed Evolutionary on {dataset}: {e}")
-                    val_results_map[dataset]["evolutionary"].append(0)
-                    train_results_map[dataset]["evolutionary"].append(0)
+        # 3. Evolutionary Models (via TrainingEngine)
+        main_logger.info(f"Running Evolutionary (GP) on {dataset}")
+        for seed in master_seeds:
+            set_seed(seed)
+            try:
+                stats_res = TrainingEngine.run_evolutionary(
+                    dataset=dataset, generations=10 if not quick else 1, 
+                    population=100 if not quick else 10, run=seed, 
+                    data_file_path=file_path, wandb_log=wandb_log
+                )
+                val_results_map[dataset]["evolutionary"].append(stats_res.get("val_balanced_accuracy", 0))
+                train_results_map[dataset]["evolutionary"].append(stats_res.get("train_balanced_accuracy", 0))
+            except Exception as e:
+                main_logger.error(f"Failed Evolutionary on {dataset}: {e}")
+                val_results_map[dataset]["evolutionary"].append(0)
+                train_results_map[dataset]["evolutionary"].append(0)
 
     # Statistical Analysis
     summary_data = []

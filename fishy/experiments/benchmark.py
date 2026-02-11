@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Benchmarking module for deep learning models.
-Uses external configuration for model registries.
+Uses DataModule for standardized data loading and TrainingEngine for execution.
 """
 import time
 import torch
@@ -10,8 +10,9 @@ import pandas as pd
 from typing import List, Optional
 import wandb
 from dataclasses import asdict
-from fishy.data.classic_loader import load_dataset
-from fishy.engine.training_loops import train_model
+
+from fishy.data.module import create_data_module
+from fishy.engine.trainer import TrainingEngine
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
@@ -22,7 +23,7 @@ def run_benchmark(
     model_names: List[str],
     warmup_epochs: int = 0,
     output_file: str = "benchmark_results.csv",
-    file_path: str = None,
+    file_path: Optional[str] = None,
     wandb_project: Optional[str] = "fishy-business",
     wandb_entity: Optional[str] = "victoria-university-of-wellington",
     wandb_log: bool = False,
@@ -30,26 +31,17 @@ def run_benchmark(
     """
     Benchmarks specified models on classification tasks across multiple datasets.
 
-    This function iterates through a list of model architectures and a predefined
-    set of datasets (species, part, oil, cross-species). It measures:
-    - Training time
-    - Inference time
-    - Model size (MB)
-    - Number of parameters
-
-    Results are saved to CSV files (per model and aggregated) and optionally logged to W&B.
-
     Args:
         model_names (List[str]): List of model architecture names to benchmark.
-        warmup_epochs (int, optional): Number of epochs to warm up the GPU/device. Defaults to 0.
-        output_file (str, optional): Path to save the final aggregated results CSV. Defaults to "benchmark_results.csv".
-        file_path (str, optional): Path to the source data file. Defaults to None (uses config default).
-        wandb_project (Optional[str], optional): W&B project name. Defaults to "fishy-business".
-        wandb_entity (Optional[str], optional): W&B entity/username. Defaults to "victoria-university-of-wellington".
-        wandb_log (bool, optional): Whether to enable W&B logging. Defaults to False.
+        warmup_epochs (int, optional): Number of epochs to warm up. Defaults to 0.
+        output_file (str, optional): Output CSV path. Defaults to "benchmark_results.csv".
+        file_path (str, optional): Path to the source data file. Defaults to None.
+        wandb_project (str, optional): W&B project name. Defaults to "fishy-business".
+        wandb_entity (str, optional): W&B entity name. Defaults to "victoria-university-of-wellington".
+        wandb_log (bool, optional): Enable W&B logging. Defaults to False.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the benchmark results for all models and datasets.
+        pd.DataFrame: A DataFrame containing the benchmark results.
     """
     wandb_run = None
     if wandb_log:
@@ -60,7 +52,6 @@ def run_benchmark(
     logger = ctx.logger
     device = get_device()
     
-    # Load available datasets from config
     datasets_cfg = load_config("datasets")
     datasets = [d for d in ["species", "part", "oil", "cross-species"] if d in datasets_cfg]
     
@@ -70,24 +61,28 @@ def run_benchmark(
             model_results = []
             for dataset_name in datasets:
                 logger.info(f"Benchmarking {model_name} on {dataset_name}...")
-                X, y, _ = load_dataset(dataset_name, file_path=file_path)
-                n_features, n_classes = X.shape[1], len(np.unique(y))
+                
+                # Standardized Data Loading to get dimensions
+                data_module = create_data_module(dataset_name=dataset_name, file_path=file_path)
+                data_module.setup()
+                X, _ = data_module.get_numpy_data()
+                n_features = X.shape[1]
+                n_classes = data_module.get_num_classes()
                 
                 config = TrainingConfig(model=model_name, dataset=dataset_name, epochs=1, k_folds=1)
-                train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(torch.from_numpy(X).float(), torch.from_numpy(y).long()), batch_size=32)
                 
-                if warmup_epochs > 0:
-                    warmup_model = create_model(config, n_features, n_classes).to(device)
-                    train_model(warmup_model, train_loader, torch.nn.CrossEntropyLoss(), torch.optim.Adam(warmup_model.parameters()), num_epochs=warmup_epochs, n_splits=1, n_runs=1, device=str(device))
-                
-                model = create_model(config, n_features, n_classes).to(device)
+                # We use TrainingEngine for the actual run
                 start_time = time.time()
-                train_model(model, train_loader, torch.nn.CrossEntropyLoss(), torch.optim.Adam(model.parameters()), num_epochs=1, n_splits=1, n_runs=1, device=str(device))
+                TrainingEngine.run_deep(config)
                 training_time = time.time() - start_time
                 
+                # Re-create model briefly for size/inference stats
+                model = create_model(config, n_features, n_classes).to(device)
                 start_time = time.time()
-                with torch.no_grad(): model(torch.from_numpy(X).float().to(device))
-                inference_time = time.time() - start_time
+                with torch.no_grad(): 
+                    input_sample = torch.from_numpy(X[:32]).float().to(device)
+                    model(input_sample)
+                inference_time = (time.time() - start_time) / 32
                 
                 res = {
                     "model": model_name, "dataset": dataset_name, "training_time": training_time, "inference_time": inference_time,

@@ -202,6 +202,29 @@ class DataProcessor:
             y = y[:, np.newaxis]
         return X, y
 
+    def extract_groups(self, data: pd.DataFrame) -> np.ndarray:
+        """
+        Extracts group identifiers from the data, usually from the 'm/z' column.
+
+        Args:
+            data (pd.DataFrame): The filtered DataFrame.
+
+        Returns:
+            np.ndarray: Array of group identifiers.
+        """
+        if "m/z" not in data.columns:
+            return np.arange(len(data))
+
+        # Common logic for most fish datasets: group is the part before the first underscore
+        groups = data["m/z"].astype(str).apply(lambda x: x.split("_")[0])
+        
+        # For instance recognition, each row (instance) is its own group/identity
+        dataset_name = self.dataset_type.name.lower().replace("_", "-")
+        if "instance-recognition" in dataset_name:
+            groups = data.iloc[:, 0].astype(str)
+
+        return groups.to_numpy()
+
 
 def preprocess_data_pipeline(
     data_processor: DataProcessor,
@@ -327,8 +350,7 @@ class DataModule:
             self.setup()
         if self.filtered_data.empty:
             return None
-        # The first column in this dataset typically contains the instance names/groups
-        return self.filtered_data.iloc[:, 0].to_numpy()
+        return self.processor.extract_groups(self.filtered_data)
 
     def get_dataset(self):
         """
@@ -366,6 +388,27 @@ class DataModule:
                 CustomDataset(np.array([]), np.array([])), batch_size=self.batch_size
             )
         )
+
+    def get_numpy_data(self, labels_as_indices: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Returns the dataset as numpy arrays (X, y).
+
+        Args:
+            labels_as_indices (bool, optional): If True and y is one-hot, returns class indices. Defaults to False.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: (Features, Labels) as numpy arrays.
+        """
+        dataset = self.get_dataset()
+        X = dataset.samples.cpu().numpy()
+        y = dataset.labels.cpu().numpy()
+
+        if labels_as_indices and y.ndim > 1 and y.shape[1] > 1:
+            y = np.argmax(y, axis=1)
+        elif labels_as_indices and y.ndim > 1 and y.shape[1] == 1:
+            y = y.flatten()
+
+        return X, y
 
     def get_input_dim(self) -> int:
         """
