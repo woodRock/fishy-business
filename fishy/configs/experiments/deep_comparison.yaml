@@ -1,10 +1,11 @@
 # Example Batch Experiment: Deep Learning Comparison
-name: "deep_model_search"
-num_runs: 5
-datasets: ["species"]
+name: "deep_learning"
+num_runs: 30
+datasets: ["species", "part", "oil", "cross-species"]
 models: ["transformer", "ensemble", "moe", "cnn", "rcnn", "lstm", "mamba", "kan"]
 benchmark: true
 figures: true
+statistics: true
 wandb_log: true
 overrides:
   epochs: 100

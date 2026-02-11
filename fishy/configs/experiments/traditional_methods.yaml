@@ -1,8 +1,8 @@
-# Example Batch Experiment: Evolutionary Computation Comparison
-name: "evolutionary_computation"
+# Example Batch Experiment: Traditional Methods Comparison
+name: "traditional_methods"
 num_runs: 30
 datasets: ["species", "part", "oil", "cross-species"]
-models: ["gp", "ga", "pso", "eda", "es"]
+models: ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "xgb", "opls-da"]
 benchmark: true
 figures: true
 statistics: true
