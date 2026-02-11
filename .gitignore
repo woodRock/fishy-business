@@ -73,4 +73,4 @@ tmp/
 *.json
 !pyproject.toml
 !requirements.txt
-!docs/requirements.txt
+!docs/requirements.txt/logs/

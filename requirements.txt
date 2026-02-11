@@ -16,3 +16,4 @@ pyyaml
 pytest
 pyopls
 argcomplete
+rich
