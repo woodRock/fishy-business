@@ -5,7 +5,7 @@ datasets: ["species", "part", "oil", "cross-species"]
 models: ["transformer", "ensemble", "moe", "cnn", "rcnn", "lstm", "mamba", "kan"]
 benchmark: true
 figures: true
-statistics: true
+statistical: true
 wandb_log: true
 overrides:
   epochs: 100
