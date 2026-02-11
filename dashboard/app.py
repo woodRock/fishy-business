@@ -7,7 +7,7 @@ try: from urllib3.exceptions import NotOpenSSLWarning; warnings.filterwarnings("
 except ImportError: pass
 os.environ['WANDB_SILENT'] = 'true'; os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'; os.environ['MPLBACKEND'] = 'Agg'
 
-import streamlit as st; import pandas as pd; import numpy as np
+import streamlit as st; import pandas as pd; import numpy as np; import json
 import plotly.express as px; import plotly.graph_objects as go
 from pathlib import Path; import sys; import torch; import torch.nn as nn
 from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_fscore_support, precision_recall_curve, average_precision_score
@@ -37,7 +37,7 @@ def get_metadata():
     return sorted(all_model_names), sorted(list(datasets.keys()))
 
 @st.cache_resource
-def get_data_module(dataset_name, file_path, version="v11"):
+def get_data_module(dataset_name, file_path, version="v12"):
     dm = create_data_module(dataset_name=dataset_name, file_path=file_path); dm.setup(); return dm
 
 st.sidebar.title("🛠️ Configuration")
@@ -53,8 +53,11 @@ with st.sidebar.expander("🚀 Hyperparameters", expanded=True):
     epochs = st.slider("Epochs", 1, 100, 10); batch_size = st.select_slider("Batch Size", options=[8, 16, 32, 64, 128], value=32); lr = st.number_input("Learning Rate", value=1e-4, format="%.1e")
 train_button = st.sidebar.button("🚀 Run Training", use_container_width=True)
 
+st.sidebar.markdown("---")
+run_all_button = st.sidebar.button("📊 Run Full Benchmark (Quick)", use_container_width=True)
+
 st.title("🐟 Fishy Business")
-tab1, tab2, tab3 = st.tabs(["📊 Data Exploration", "📈 Training & Results", "🧠 Interpretability & Biomarkers"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Data Exploration", "📈 Training & Results", "🧠 Interpretability & Biomarkers", "🏆 Leaderboard"])
 
 if data_path.exists():
     class_names = dm.get_class_names(); X_all, y_all = dm.get_numpy_data(labels_as_indices=True)
@@ -94,7 +97,7 @@ if data_path.exists():
                 melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
                 st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white"), use_container_width=True)
         st.markdown("---")
-        st.write("### Cluster Analysis")
+        st.write("### Dimensionality & Cluster Analysis")
         col_pca, col_tsne, col_umap = st.columns(3)
         pca_obj = PCA(n_components=10); X_pca = pca_obj.fit_transform(X_all)
         with col_pca: st.plotly_chart(px.scatter(pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(10)]), x="PC1", y="PC2", color=[class_names[i] for i in y_all], title="PCA", template="plotly_white"), use_container_width=True)
@@ -107,12 +110,12 @@ if data_path.exists():
                 st.plotly_chart(px.scatter(pd.DataFrame(X_umap, columns=["UMAP1", "UMAP2"]), x="UMAP1", y="UMAP2", color=[class_names[i] for i in y_all], title="UMAP", template="plotly_white"), use_container_width=True)
             else: st.info("UMAP not installed")
         st.markdown("---")
-        st.write("### Statistical Insight")
+        st.write("### Statistical Distribution")
         dcol1, dcol2 = st.columns(2)
         with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="Information Retention", template="plotly_white"), use_container_width=True)
         with dcol2:
             avg_int = pd.DataFrame({"Avg Int": X_all.mean(axis=1), "Class": [class_names[i] for i in y_all]})
-            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Sample Intensity Dist", template="plotly_white"), use_container_width=True)
+            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Intensity Distribution", template="plotly_white"), use_container_width=True)
 
     with tab2:
         if train_button:
@@ -131,15 +134,15 @@ if data_path.exists():
                     c_acc.plotly_chart(px.line(pd.DataFrame({"Epoch": range(1, len(history["val_metrics"]) + 1), "Val Acc": [m.get("balanced_accuracy", 0) for m in history["val_metrics"]], "Train Acc": [m.get("balanced_accuracy", 0) for m in history["train_metrics"]]}), x="Epoch", y=["Train Acc", "Val Acc"], title="Accuracy Curve", template="plotly_white"), use_container_width=True)
                 if "predictions" in results and results["predictions"]:
                     preds = results["predictions"]; y_true, y_pred, y_probs = preds["labels"], preds["preds"], preds.get("probs")
-                    st.write("### Results Analysis")
-                    r1c1, r1c2 = st.columns(2)
+                    st.write("### Detailed Analysis"); r1c1, r1c2 = st.columns(2)
                     with r1c1: st.plotly_chart(px.imshow(confusion_matrix(y_true, y_pred), x=class_names, y=class_names, text_auto=True, color_continuous_scale='Blues', title="Confusion Matrix", template="plotly_white"), use_container_width=True)
                     with r1c2:
                         prec, rec, f1, _ = precision_recall_fscore_support(y_true, y_pred, labels=range(len(class_names)))
                         st.plotly_chart(px.bar(pd.DataFrame({"Class": class_names, "Precision": prec, "Recall": rec, "F1": f1}), x="Class", y=["Precision", "Recall", "F1"], barmode="group", title="Class Metrics", template="plotly_white"), use_container_width=True)
                     
+                    # Advanced Results
                     st.markdown("---")
-                    st.write("### Advanced Performance Metrics")
+                    st.write("### Error Spotlight")
                     r2c1, r2c2 = st.columns(2)
                     with r2c1:
                         if y_probs is not None:
@@ -147,39 +150,26 @@ if data_path.exists():
                             for i in range(len(class_names)):
                                 precision, recall, _ = precision_recall_curve(y_true == i, y_probs[:, i]); avg_prec = average_precision_score(y_true == i, y_probs[:, i])
                                 pr_fig.add_trace(go.Scatter(x=recall, y=precision, name=f'{class_names[i]} (AP={avg_prec:.2f})', mode='lines'))
-                            pr_fig.update_layout(template="plotly_white", xaxis_title="Recall", yaxis_title="Precision", title="Precision-Recall Curve"); st.plotly_chart(pr_fig, use_container_width=True)
+                            pr_fig.update_layout(template="plotly_white", xaxis_title="Recall", yaxis_title="Precision", title="PR Curve"); st.plotly_chart(pr_fig, use_container_width=True)
                     with r2c2:
                         if y_probs is not None:
-                            # Confident Error Analysis
-                            correct = (y_true == y_pred)
-                            errors_idx = np.where(~correct)[0]
-                            if len(errors_idx) > 0:
-                                # Sort errors by confidence in the WRONG class
-                                error_probs = np.max(y_probs[errors_idx], axis=1)
-                                top_errors = errors_idx[np.argsort(error_probs)[-3:][::-1]]
-                                st.write("#### Misclassification Spotlight (Confident Errors)")
-                                for idx in top_errors:
-                                    true_label, pred_label = class_names[y_true[idx]], class_names[y_pred[idx]]
-                                    st.error(f"Sample {idx}: Truth = **{true_label}**, Predicted = **{pred_label}** (Conf: {np.max(y_probs[idx]):.2f})")
-                            else: st.success("No misclassifications in this fold!")
-
+                            correct = (y_true == y_pred); err_idx = np.where(~correct)[0]
+                            if len(err_idx) > 0:
+                                top_errs = err_idx[np.argsort(np.max(y_probs[err_idx], axis=1))[-3:][::-1]]
+                                for idx in top_errs: st.error(f"Sample {idx}: Truth={class_names[y_true[idx]]}, Pred={class_names[y_pred[idx]]} (Conf: {np.max(y_probs[idx]):.2f})")
+                            else: st.success("Perfect classification!")
             except Exception as e: st.error(f"Failed: {e}"); st.exception(e)
-        elif 'results' in st.session_state: st.info("Last results active.")
-        else: st.info("Click 'Run Training'.")
+        elif 'results' in st.session_state: st.info("Showing last results.")
+        else: st.info("Run training to see results.")
 
     with tab3:
         if 'model' in st.session_state:
             st.header("Interpretability & Biomarkers")
             model = st.session_state['model']; current_dm = st.session_state['dm']
             X_xai, y_xai = current_dm.get_numpy_data(labels_as_indices=True)
-            
-            # INITIALIZE REP INDICES PROPERLY
             if 'rep_indices' not in st.session_state or len(st.session_state['rep_indices']) != len(class_names):
-                st.session_state['rep_indices'] = {}
-                for c in range(len(class_names)):
-                    idxs = np.where(y_xai == c)[0]
-                    st.session_state['rep_indices'][c] = idxs[0] if len(idxs) > 0 else 0
-
+                st.session_state['rep_indices'] = {c: (np.where(y_xai == c)[0][0] if len(np.where(y_xai == c)[0])>0 else 0) for c in range(len(class_names))}
+            
             exp_col1, exp_col2 = st.columns([1, 2])
             with exp_col1:
                 sample_idx = st.selectbox("Select instance", range(len(X_xai)))
@@ -189,7 +179,7 @@ if data_path.exists():
                 target_layer = next((m for m in reversed(list(model.modules())) if isinstance(m, (nn.Conv1d, nn.Linear))), None)
                 if target_layer:
                     gc = GradCAM(model, target_layer); cam = gc.generate_cam(torch.tensor(X_xai[sample_idx]).unsqueeze(0).to(get_device())).cpu().numpy()[0]; gc.remove_hooks()
-                    fig = go.Figure(); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], name="Spectrum", line=dict(color='lightgray', width=1))); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], mode='markers', marker=dict(color=cam, colorscale='Viridis', size=8, showscale=True), name="Importance", hovertemplate="m/z: %{x}<br>Int: %{y}<br>Imp: %{marker.color:.4f}")); fig.update_layout(title="Importance Map", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity"); exp_col2.plotly_chart(fig, use_container_width=True)
+                    fig = go.Figure(); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], name="Spectrum", line=dict(color='lightgray', width=1))); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], mode='markers', marker=dict(color=cam, colorscale='Viridis', size=8, showscale=True), name="Importance", hovertemplate="m/z: %{x}<br>Int: %{y}<br>Imp: %{marker.color:.4f}")); fig.update_layout(title="Importance Map", template="plotly_white"); exp_col2.plotly_chart(fig, use_container_width=True)
             else:
                 wrapper = ModelWrapper(model, str(get_device())); explainer = LimeTabularExplainer(X_xai, feature_names=[f"{m:.4f}" for m in mz_axis], class_names=class_names, discretize_continuous=True)
                 with st.spinner("LIME..."): exp = explainer.explain_instance(X_xai[sample_idx], wrapper.predict_proba, num_features=15)
@@ -198,20 +188,19 @@ if data_path.exists():
             st.markdown("---")
             st.write("### 🌐 Distinct Class Biomarker Comparison")
             c_btn1, c_btn2 = st.columns([1, 4])
-            if c_btn1.button("🔀 Shuffle Classes"):
+            if c_btn1.button("🔀 Shuffle Representatives"):
                 for c in range(len(class_names)):
-                    idxs = np.where(y_xai == c)[0]
-                    if len(idxs) > 0: st.session_state['rep_indices'][c] = np.random.choice(idxs)
-            
-            if st.button("🔍 Run Class-Specific Analysis", use_container_width=True):
-                with st.spinner("Analyzing stable biomarkers..."):
+                    indices = np.where(y_xai == c)[0]
+                    if len(indices) > 0: st.session_state['rep_indices'][c] = np.random.choice(indices)
+            if st.button("🔍 Run Class-Specific Analysis"):
+                with st.spinner("Analyzing..."):
                     wrapper = ModelWrapper(model, str(get_device()))
                     exp_int = LimeTabularExplainer(X_xai, feature_names=[str(i) for i in range(X_xai.shape[1])], class_names=class_names, discretize_continuous=False)
                     class_biomarkers = {}
                     for c_idx in range(len(class_names)):
-                        c_idxs = np.where(y_xai == c_idx)[0]
-                        if len(c_idxs) > 0:
-                            sub = np.random.choice(c_idxs, min(10, len(c_idxs)), replace=False); w_list = []
+                        c_indices = np.where(y_xai == c_idx)[0]
+                        if len(c_indices) > 0:
+                            sub = np.random.choice(c_indices, min(10, len(c_indices)), replace=False); w_list = []
                             for idx in sub: w_list.append(dict(exp_int.explain_instance(X_xai[idx], wrapper.predict_proba, num_features=X_xai.shape[1], labels=(c_idx,)).as_list(label=c_idx)))
                             avg_w = pd.DataFrame(w_list).mean().sort_values(); class_biomarkers[c_idx] = [int(i) for i in avg_w.tail(20).index.tolist()]
                     
@@ -221,11 +210,9 @@ if data_path.exists():
                         if rep_idx is not None and c_idx in class_biomarkers:
                             spec = X_xai[rep_idx]; stl = styles[c_idx % len(styles)]
                             comp_fig.add_trace(go.Scatter(x=mz_axis, y=spec, name=f"{c_name} (Smp {rep_idx})", line=dict(width=1), opacity=0.4))
-                            top_idx = class_biomarkers[c_idx]
-                            comp_fig.add_trace(go.Scatter(x=mz_axis[top_idx], y=spec[top_idx], mode='markers', marker=dict(color=stl['c'], size=12, symbol=stl['s'], line=dict(width=2, color='black')), name=f"Diagnostic: {c_name}", hovertemplate="m/z: %{x}<br>Int: %{y}"))
-                    comp_fig.update_layout(title="Gold vs Silver: Distinct Class Representatives & Biomarkers", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity")
-                    st.plotly_chart(comp_fig, use_container_width=True)
-                    st.write("#### Top Diagnostic Peaks")
+                            comp_fig.add_trace(go.Scatter(x=mz_axis[class_biomarkers[c_idx]], y=spec[class_biomarkers[c_idx]], mode='markers', marker=dict(color=stl['c'], size=12, symbol=stl['s'], line=dict(width=2, color='black')), name=f"Top Diagnostic: {c_name}", hovertemplate="m/z: %{x}<br>Int: %{y}"))
+                    comp_fig.update_layout(title="Class-Specific Diagnostic Peak Alignment", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity"); st.plotly_chart(comp_fig, use_container_width=True)
+                    st.write("#### Diagnostic Peaks (m/z)")
                     cols = st.columns(len(class_names))
                     for i, c_name in enumerate(class_names):
                         if i in class_biomarkers:
@@ -233,4 +220,30 @@ if data_path.exists():
                             cols[i].write(f"**{c_name}**"); 
                             for v in top_v: cols[i].code(v)
         else: st.info("Run training first.")
+
+    with tab4:
+        st.header("🏆 Benchmarking Leaderboard")
+        if run_all_button:
+            from fishy.experiments.unified_trainer import run_all_benchmarks
+            with st.spinner("Running global benchmark (Quick mode)..."):
+                run_all_benchmarks(quick=True)
+            st.success("Benchmark complete!")
+        
+        summary_files = sorted(Path("outputs/all").glob("**/summary.json"), key=os.path.getmtime, reverse=True)
+        if summary_files:
+            latest_summary = summary_files[0]
+            with open(latest_summary, "r") as f: data = json.load(f)
+            df_summary = pd.DataFrame(data)
+            
+            # Clean up columns for display
+            display_cols = ["dataset", "method"] + [c for c in df_summary.columns if "accuracy" in c or "f1" in c or "sig" in c]
+            st.dataframe(df_summary[display_cols].style.background_gradient(subset=[c for c in df_summary.columns if "accuracy" in c], cmap="Greens"), use_container_width=True)
+            
+            st.write("### Model Comparison by Dataset")
+            for ds in df_summary["dataset"].unique():
+                ds_df = df_summary[df_summary["dataset"] == ds]
+                st.plotly_chart(px.bar(ds_df, x="method", y="val_balanced_accuracy", error_y="val_balanced_accuracy_std", title=f"Performance on {ds.upper()}", color="method", template="plotly_white"), use_container_width=True)
+        else:
+            st.info("No benchmark results found. Run 'Full Benchmark' to populate the leaderboard.")
+
 else: st.warning("Data file not found.")

@@ -42,6 +42,13 @@ python3 main.py wizard
 ```
 The wizard will generate the exact CLI command or a configuration file for you.
 
+### 🌐 Interactive Dashboard
+For visual data exploration, real-time training monitoring, and advanced biomarker analysis, use the built-in Streamlit dashboard:
+```bash
+streamlit run dashboard/app.py
+```
+The dashboard provides interactive PCA/t-SNE clusters, spectral signature comparison, and deep-dive interpretability tools.
+
 ### 🚂 Training & Analysis
 All model types (Deep, Classic, Evolutionary, Contrastive) are trained using the same unified command:
 

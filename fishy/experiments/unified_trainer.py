@@ -75,6 +75,11 @@ class UnifiedTrainer:
         
         ctx = RunContext(dataset="all", method="experiment", model_name=exp_cfg.name)
         ctx.save_dataframe(summary_df, "statistical_analysis.csv")
+        # Save JSON version for dashboard
+        import json
+        from fishy._core.utils import NumpyEncoder
+        with open(ctx.run_dir / "summary.json", "w") as f:
+            json.dump(summary_df.to_dict(orient="records"), f, indent=4, cls=NumpyEncoder)
         return summary_df
 
     def _run_single(self, config: TrainingConfig) -> Dict[str, Any]:
