@@ -16,16 +16,18 @@ from sklearn.neighbors import KNeighborsClassifier
 
 logger = logging.getLogger(__name__)
 
+
 class ES(BaseEstimator, ClassifierMixin):
     """
     Scikit-learn compatible wrapper for Evolution Strategy (mu + lambda).
     """
+
     def __init__(
         self,
         generations: int = 10,
         mu: int = 50,
         lambda_: int = 100,
-        random_state: int = 42
+        random_state: int = 42,
     ):
         self.generations = generations
         self.mu = mu
@@ -36,7 +38,7 @@ class ES(BaseEstimator, ClassifierMixin):
     def fit(self, X: np.ndarray, y: np.ndarray):
         random.seed(self.random_state)
         np.random.seed(self.random_state)
-        
+
         n_features = X.shape[1]
 
         if not hasattr(creator, "FitnessMax"):
@@ -46,7 +48,13 @@ class ES(BaseEstimator, ClassifierMixin):
 
         toolbox = base.Toolbox()
         toolbox.register("attr_float", random.uniform, 0, 1)
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=n_features)
+        toolbox.register(
+            "individual",
+            tools.initRepeat,
+            creator.Individual,
+            toolbox.attr_float,
+            n=n_features,
+        )
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
         def evaluate(individual):
@@ -55,7 +63,9 @@ class ES(BaseEstimator, ClassifierMixin):
             clf = KNeighborsClassifier(n_neighbors=3)
             split_idx = int(len(X) * 0.8)
             clf.fit(X_weighted[:split_idx], y[:split_idx])
-            score = balanced_accuracy_score(y[split_idx:], clf.predict(X_weighted[split_idx:]))
+            score = balanced_accuracy_score(
+                y[split_idx:], clf.predict(X_weighted[split_idx:])
+            )
             return (score,)
 
         toolbox.register("evaluate", evaluate)
@@ -65,20 +75,29 @@ class ES(BaseEstimator, ClassifierMixin):
 
         pop = toolbox.population(n=self.mu)
         hof = tools.HallOfFame(1)
-        
+
         stats = tools.Statistics(lambda ind: ind.fitness.values)
         stats.register("max", np.max)
 
-        algorithms.eaMuPlusLambda(pop, toolbox, mu=self.mu, lambda_=self.lambda_, 
-                                  cxpb=0.6, mutpb=0.3, ngen=self.generations, 
-                                  stats=stats, halloffame=hof, verbose=False)
-        
+        algorithms.eaMuPlusLambda(
+            pop,
+            toolbox,
+            mu=self.mu,
+            lambda_=self.lambda_,
+            cxpb=0.6,
+            mutpb=0.3,
+            ngen=self.generations,
+            stats=stats,
+            halloffame=hof,
+            verbose=False,
+        )
+
         self.best_individual = np.array(hof[0])
-        
+
         # Fit a final classifier on the full weighted data
         self.clf = KNeighborsClassifier(n_neighbors=3)
         self.clf.fit(X * self.best_individual, y)
-        
+
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:

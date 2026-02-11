@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from fishy.data.datasets import CustomDataset
 from fishy._core.utils import get_device
 
+
 @dataclass
 class AugmentationConfig:
     """
@@ -22,6 +23,7 @@ class AugmentationConfig:
         >>> config.num_augmentations
         10
     """
+
     enabled: bool = False
     num_augmentations: int = 5
     noise_enabled: bool = True
@@ -34,6 +36,7 @@ class AugmentationConfig:
     shift_range: float = 0.1
     scale_range: float = 0.1
     crop_size: float = 0.8
+
 
 class DataAugmenter:
     """Applies various data augmentation techniques to a DataLoader."""
@@ -55,7 +58,9 @@ class DataAugmenter:
             cropped_spectrum = spectrum[start:end]
             padding_left = start
             padding_right = n_features - end
-            cropped_batch[i] = F.pad(cropped_spectrum, (padding_left, padding_right), "constant", 0)
+            cropped_batch[i] = F.pad(
+                cropped_spectrum, (padding_left, padding_right), "constant", 0
+            )
         return cropped_batch
 
     def _random_flip(self, X_batch: torch.Tensor) -> torch.Tensor:
@@ -77,21 +82,40 @@ class DataAugmenter:
         n_samples, n_features = X_augmented_batch.shape
 
         if self.config.noise_enabled:
-            X_augmented_batch += torch.normal(0, self.config.noise_level, X_augmented_batch.shape, device=X_batch.device)
+            X_augmented_batch += torch.normal(
+                0,
+                self.config.noise_level,
+                X_augmented_batch.shape,
+                device=X_batch.device,
+            )
 
         if self.config.shift_enabled:
             for k in range(n_samples):
-                shift = int(n_features * torch.empty(1).uniform_(-self.config.shift_range, self.config.shift_range).item())
-                X_augmented_batch[k] = torch.roll(X_augmented_batch[k], shifts=shift, dims=0)
+                shift = int(
+                    n_features
+                    * torch.empty(1)
+                    .uniform_(-self.config.shift_range, self.config.shift_range)
+                    .item()
+                )
+                X_augmented_batch[k] = torch.roll(
+                    X_augmented_batch[k], shifts=shift, dims=0
+                )
 
         if self.config.scale_enabled:
             for k in range(n_samples):
-                scale = torch.empty(1).uniform_(1 - self.config.scale_range, 1 + self.config.scale_range).item()
+                scale = (
+                    torch.empty(1)
+                    .uniform_(1 - self.config.scale_range, 1 + self.config.scale_range)
+                    .item()
+                )
                 X_augmented_batch[k] *= scale
 
-        if self.config.crop_enabled: X_augmented_batch = self._random_crop(X_augmented_batch)
-        if self.config.flip_enabled: X_augmented_batch = self._random_flip(X_augmented_batch)
-        if self.config.permutation_enabled: X_augmented_batch = self._random_permutation(X_augmented_batch)
+        if self.config.crop_enabled:
+            X_augmented_batch = self._random_crop(X_augmented_batch)
+        if self.config.flip_enabled:
+            X_augmented_batch = self._random_flip(X_augmented_batch)
+        if self.config.permutation_enabled:
+            X_augmented_batch = self._random_permutation(X_augmented_batch)
 
         return X_augmented_batch
 
@@ -105,14 +129,17 @@ class DataAugmenter:
             all_samples.append(samples)
             all_labels.append(labels)
 
-        if not all_samples: return dataloader
+        if not all_samples:
+            return dataloader
 
         all_samples_tensor = torch.cat(all_samples, dim=0).to(device)
         all_labels_tensor = torch.cat(all_labels, dim=0)
 
         augmented_samples_list = [all_samples_tensor]
         for _ in range(self.config.num_augmentations):
-            augmented_samples_list.append(self._apply_augmentations_to_batch(all_samples_tensor))
+            augmented_samples_list.append(
+                self._apply_augmentations_to_batch(all_samples_tensor)
+            )
 
         combined_samples = torch.cat(augmented_samples_list, dim=0)
         combined_labels = all_labels_tensor.repeat(self.config.num_augmentations + 1, 1)
@@ -123,6 +150,9 @@ class DataAugmenter:
 
         new_dataset = CustomDataset(combined_samples, combined_labels)
         return DataLoader(
-            new_dataset, batch_size=dataloader.batch_size, shuffle=True,
-            num_workers=dataloader.num_workers, pin_memory=dataloader.pin_memory
+            new_dataset,
+            batch_size=dataloader.batch_size,
+            shuffle=True,
+            num_workers=dataloader.num_workers,
+            pin_memory=dataloader.pin_memory,
         )

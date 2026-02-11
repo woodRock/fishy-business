@@ -201,13 +201,13 @@ def vae_classifier_loss(
     """
     BCE = F.binary_cross_entropy(recon_x, x, reduction="sum")
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    
+
     # Simple cross entropy handle
     if labels.dim() > 1 and labels.shape[1] > 1:
         target = labels.argmax(dim=1)
     else:
         target = labels.squeeze().long()
-        
+
     CCE = F.cross_entropy(class_probs, target)
     return (alpha * BCE) + (beta * KLD) + (gamma * CCE)
 

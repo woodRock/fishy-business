@@ -13,6 +13,7 @@ from fishy.experiments.deep_training import ModelTrainer
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
+
 def main():
     print("--- Tutorial 06: Self-Supervised Pre-training ---")
 
@@ -25,7 +26,7 @@ def main():
         epochs=5,
         masked_spectra_modelling=True,
         spectrum_denoising_autoencoding=True,
-        wandb_log=False
+        wandb_log=False,
     )
 
     # 2. Initialize the high-level ModelTrainer
@@ -38,10 +39,11 @@ def main():
 
     if pre_trained_model:
         print("\nPre-training successful! Model is now ready for fine-tuning.")
-        
+
         # 4. Optional: Proceed to fine-tuning with the learned weights
         # results = trainer.train(pre_trained_model)
         # print(f"Fine-tuned Accuracy: {results.get('balanced_accuracy', 0):.4f}")
+
 
 if __name__ == "__main__":
     main()

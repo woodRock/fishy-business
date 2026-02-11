@@ -2,6 +2,7 @@
 import unittest
 from fishy.cli.main import detect_method, get_all_models, setup_parser
 
+
 class TestCLI(unittest.TestCase):
     def test_detect_method(self):
         self.assertEqual(detect_method("transformer"), "deep")
@@ -21,6 +22,7 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(args.command, "train")
         self.assertEqual(args.model, "cnn")
         self.assertEqual(args.dataset, "species")
+
 
 if __name__ == "__main__":
     unittest.main()

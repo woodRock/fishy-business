@@ -2,7 +2,7 @@
 """
 Tutorial 02: DataModule and Data Processing
 -------------------------------------------
-This tutorial explains how the `DataModule` handles data loading, 
+This tutorial explains how the `DataModule` handles data loading,
 filtering, and conversion into PyTorch-ready tensors.
 """
 
@@ -13,18 +13,17 @@ from fishy.data.module import create_data_module
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
+
 def main():
     print("--- Tutorial 02: DataModule and Data Processing ---")
 
     # 1. Create a DataModule
     # You can select different datasets defined in fishy/configs/datasets.yaml
-    dataset_name = "species" 
+    dataset_name = "species"
     dm = create_data_module(
-        dataset_name=dataset_name,
-        file_path=DATA_PATH,
-        batch_size=32
+        dataset_name=dataset_name, file_path=DATA_PATH, batch_size=32
     )
-    
+
     print(f"Initializing DataModule for: {dataset_name}")
 
     # 2. Setup the module
@@ -47,10 +46,11 @@ def main():
     loader = dm.get_train_dataloader()
     first_batch = next(iter(loader))
     spectra, labels = first_batch
-    
+
     print("\nFirst PyTorch Batch:")
     print(f"  Spectra tensor shape: {spectra.shape}")
     print(f"  Labels tensor shape:  {labels.shape}")
+
 
 if __name__ == "__main__":
     main()

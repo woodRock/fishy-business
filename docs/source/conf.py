@@ -33,7 +33,7 @@ release = "0.0.1"
 
 autosummary_generate = True
 
-autosummary_module_template = 'custom_module.rst'  # Must match the filename above!
+autosummary_module_template = "custom_module.rst"  # Must match the filename above!
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["templates"]
@@ -65,6 +65,7 @@ extensions = [
 
 import inspect
 import fishy
+
 
 def linkcode_resolve(domain, info):
     if domain != "py":
@@ -100,8 +101,10 @@ def linkcode_resolve(domain, info):
         linespec = ""
 
     # Get relative path from project root
-    rel_path = os.path.relpath(fn, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-    
+    rel_path = os.path.relpath(
+        fn, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    )
+
     return f"https://github.com/woodrock/fishy-business/blob/main/{rel_path}{linespec}"
 
 

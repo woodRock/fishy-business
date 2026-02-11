@@ -51,9 +51,9 @@ class TrainingConfig:
     scale_enabled: bool = False
     k_folds: int = 3
     num_runs: int = 1
-    ordinal_method: Optional[str] = None # coral, clm
+    ordinal_method: Optional[str] = None  # coral, clm
     regression: bool = False
-    use_groups: bool = False # Added flag for Group-Aware Splitting
+    use_groups: bool = False  # Added flag for Group-Aware Splitting
     # New augmentation parameters
     crop_enabled: bool = False
     flip_enabled: bool = False
@@ -65,15 +65,15 @@ class TrainingConfig:
     figures: bool = False
     xai: bool = False
     statistical: bool = False
-    
+
     # Task specific (now integrated)
-    method: str = "deep" # deep, classic, contrastive, evolutionary
+    method: str = "deep"  # deep, classic, contrastive, evolutionary
     transfer: bool = False
     transfer_datasets: Optional[list] = None
     target_dataset: Optional[str] = None
     epochs_transfer: int = 10
     epochs_finetune: int = 20
-    
+
     # Weights & Biases parameters
     wandb_project: Optional[str] = "fishy-business"
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
@@ -86,8 +86,12 @@ class TrainingConfig:
         from fishy._core.config_loader import load_config
 
         # 1. Start with class defaults
-        config_dict = {f.name: f.default for f in dataclasses.fields(cls) if f.default is not dataclasses.MISSING}
-        
+        config_dict = {
+            f.name: f.default
+            for f in dataclasses.fields(cls)
+            if f.default is not dataclasses.MISSING
+        }
+
         # 2. Load model-specific defaults from YAML if available
         if hasattr(args, "model") and args.model:
             models_cfg = load_config("models")["deep_models"]
@@ -97,7 +101,7 @@ class TrainingConfig:
 
         # 3. Override with explicitly provided command-line arguments
         arg_dict = vars(args)
-        
+
         # Handle special mappings
         if "ordinal" in arg_dict and arg_dict["ordinal"]:
             config_dict["ordinal_method"] = arg_dict["ordinal"]
@@ -113,9 +117,10 @@ class TrainingConfig:
     def from_yaml(cls, path: str) -> "TrainingConfig":
         """Loads configuration from a YAML file."""
         import dataclasses
+
         with open(path, "r") as f:
             data = yaml.safe_load(f)
-        
+
         # Filter out keys that are not fields of the dataclass
         valid_keys = {f.name for f in dataclasses.fields(cls)}
         filtered_data = {k: v for k, v in data.items() if k in valid_keys}
@@ -139,13 +144,14 @@ class ExperimentConfig:
         >>> exp.models
         ['cnn', 'transformer']
     """
+
     name: str = "batch_experiment"
     num_runs: int = 1
     datasets: List[str] = field(default_factory=lambda: ["species"])
     models: List[str] = field(default_factory=lambda: ["transformer"])
     # Common overrides for all runs in this experiment
     overrides: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Analysis flags for the batch
     benchmark: bool = False
     figures: bool = False

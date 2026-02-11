@@ -17,11 +17,13 @@ from sklearn.neighbors import KNeighborsClassifier
 
 logger = logging.getLogger(__name__)
 
+
 class GA(BaseEstimator, ClassifierMixin):
     """
     Scikit-learn compatible wrapper for Genetic Algorithm.
     Evolves feature weights to optimize classification performance.
     """
+
     def __init__(
         self,
         generations: int = 10,
@@ -29,7 +31,7 @@ class GA(BaseEstimator, ClassifierMixin):
         crossover_rate: float = 0.5,
         mutation_rate: float = 0.2,
         elitism: float = 0.1,
-        random_state: int = 42
+        random_state: int = 42,
     ):
         self.generations = generations
         self.population_size = population_size
@@ -42,7 +44,7 @@ class GA(BaseEstimator, ClassifierMixin):
     def fit(self, X: np.ndarray, y: np.ndarray):
         random.seed(self.random_state)
         np.random.seed(self.random_state)
-        
+
         n_features = X.shape[1]
 
         if not hasattr(creator, "FitnessMax"):
@@ -53,14 +55,20 @@ class GA(BaseEstimator, ClassifierMixin):
         toolbox = base.Toolbox()
         # Individual is a vector of feature weights [0, 1]
         toolbox.register("attr_float", random.uniform, 0, 1)
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=n_features)
+        toolbox.register(
+            "individual",
+            tools.initRepeat,
+            creator.Individual,
+            toolbox.attr_float,
+            n=n_features,
+        )
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
         def evaluate(individual):
             # Apply weights to features
             weights = np.array(individual)
             X_weighted = X * weights
-            
+
             # Use a fast classifier for evaluation
             clf = KNeighborsClassifier(n_neighbors=3)
             # Simple internal split for fitness
@@ -68,7 +76,7 @@ class GA(BaseEstimator, ClassifierMixin):
             clf.fit(X_weighted[:split_idx], y[:split_idx])
             y_pred = clf.predict(X_weighted[split_idx:])
             score = balanced_accuracy_score(y[split_idx:], y_pred)
-            
+
             # Penalize using too many features (optional but good for GA)
             sparsity_penalty = 0.01 * (1.0 - np.mean(weights))
             return (score + sparsity_penalty,)
@@ -80,7 +88,7 @@ class GA(BaseEstimator, ClassifierMixin):
 
         pop = toolbox.population(n=self.population_size)
         hof = tools.HallOfFame(1)
-        
+
         stats = tools.Statistics(lambda ind: ind.fitness.values)
         stats.register("max", np.max)
         stats.register("avg", np.mean)
@@ -120,17 +128,17 @@ class GA(BaseEstimator, ClassifierMixin):
             # Elitism: combine best from previous population with offspring
             elites = [toolbox.clone(ind) for ind in tools.selBest(pop, n_elitism)]
             pop[:] = elites + offspring
-            
+
             hof.update(pop)
             record = stats.compile(pop)
             logger.info(f"Gen {gen}: {record}")
 
         self.best_individual = np.array(hof[0])
-        
+
         # Fit a final classifier on the full weighted data
         self.clf = KNeighborsClassifier(n_neighbors=3)
         self.clf.fit(X * self.best_individual, y)
-        
+
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -140,7 +148,9 @@ class GA(BaseEstimator, ClassifierMixin):
         # Placeholder for a more robust final prediction
         # For spectral classification, argmax of weighted features isn't ideal,
         # so we'll just use a basic nearest neighbor logic
-        return np.zeros(X_weighted.shape[0]) # Needs proper implementation if used alone
+        return np.zeros(
+            X_weighted.shape[0]
+        )  # Needs proper implementation if used alone
 
     def transform(self, X: np.ndarray) -> np.ndarray:
         return X * self.best_individual

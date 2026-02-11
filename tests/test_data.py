@@ -4,8 +4,14 @@ from unittest.mock import patch
 import torch
 import numpy as np
 import pandas as pd
-from fishy.data.datasets import BaseDataset, SiameseDataset, BalancedBatchSampler, DatasetType
+from fishy.data.datasets import (
+    BaseDataset,
+    SiameseDataset,
+    BalancedBatchSampler,
+    DatasetType,
+)
 from fishy.data.module import DataProcessor, DataModule
+
 
 class TestDatasets(unittest.TestCase):
     def setUp(self):
@@ -40,6 +46,7 @@ class TestDatasets(unittest.TestCase):
         with self.assertRaises(ValueError):
             DatasetType.from_string("invalid")
 
+
 class TestDataModule(unittest.TestCase):
     def test_data_processor_init(self):
         proc = DataProcessor(DatasetType.SPECIES)
@@ -49,21 +56,29 @@ class TestDataModule(unittest.TestCase):
     @patch("fishy.data.module.DataProcessor.load_data")
     def test_data_module_setup(self, mock_load_data):
         # Create a dummy dataframe that fits expectations
-        df = pd.DataFrame({
-            "m/z": ["H_1", "M_1", "H_2"],
-            "feat1": [1.0, 2.0, 3.0],
-            "feat2": [4.0, 5.0, 6.0]
-        })
+        df = pd.DataFrame(
+            {
+                "m/z": ["H_1", "M_1", "H_2"],
+                "feat1": [1.0, 2.0, 3.0],
+                "feat2": [4.0, 5.0, 6.0],
+            }
+        )
         mock_load_data.return_value = df
-        
-        dm = DataModule(dataset_name="species", file_path="dummy.xlsx", batch_size=2, is_pre_train=True)
+
+        dm = DataModule(
+            dataset_name="species",
+            file_path="dummy.xlsx",
+            batch_size=2,
+            is_pre_train=True,
+        )
         dm.setup()
-        
+
         self.assertEqual(dm.batch_size, 2)
         self.assertIsNotNone(dm.train_loader)
         # features are: feat1, feat2. total 2 features.
         self.assertEqual(dm.get_input_dim(), 2)
         self.assertEqual(dm.get_num_classes(), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

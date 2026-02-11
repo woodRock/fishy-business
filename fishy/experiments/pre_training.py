@@ -497,11 +497,13 @@ class PreTrainingOrchestrator:
         self.input_dim = input_dim
         self.ctx = ctx
         self.logger = logger if logger else logging.getLogger(__name__)
-        
+
         # Load tasks from configuration
         self.task_configs = load_config("pre_training")["tasks"]
 
-    def run_all(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None) -> Optional[nn.Module]:
+    def run_all(
+        self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None
+    ) -> Optional[nn.Module]:
         """
         Runs all enabled pre-training tasks sequentially.
 
@@ -519,12 +521,14 @@ class PreTrainingOrchestrator:
             for task in self.task_configs
             if getattr(self.config, task["name"], False)
         ]
-        
+
         if not enabled_tasks:
             self.logger.info("No pre-training tasks enabled.")
             return None
 
-        self.logger.info(f"Enabled pre-training tasks: {', '.join(t['name'] for t in enabled_tasks)}")
+        self.logger.info(
+            f"Enabled pre-training tasks: {', '.join(t['name'] for t in enabled_tasks)}"
+        )
 
         pre_train_cfg = PreTrainingConfig(
             num_epochs=self.config.epochs,
@@ -534,19 +538,21 @@ class PreTrainingOrchestrator:
         )
 
         model_after_last_task: Optional[nn.Module] = None
-        
+
         for task in enabled_tasks:
             flag = task["name"]
             self.logger.info(f"Starting pre-training task: {flag}")
-            
+
             # Determine output dimension
             if task["output_dim_type"] == "n_features":
                 output_dim = self.input_dim
             else:
                 output_dim = task["output_dim"]
 
-            current_model = create_model(self.config, self.input_dim, output_dim).to(self.device)
-            
+            current_model = create_model(self.config, self.input_dim, output_dim).to(
+                self.device
+            )
+
             if model_after_last_task:
                 self._handle_weight_chaining(current_model, model_after_last_task)
 
@@ -561,23 +567,31 @@ class PreTrainingOrchestrator:
             call_args = [train_loader]
             if task["requires_val"]:
                 if val_loader is None:
-                    self.logger.warning(f"Validation loader for {flag} not found, passing None.")
+                    self.logger.warning(
+                        f"Validation loader for {flag} not found, passing None."
+                    )
                 call_args.append(val_loader)
 
             start_time = time.time()
-            trained_model = getattr(pre_trainer, task["method"])(*call_args, **task["kwargs"])
+            trained_model = getattr(pre_trainer, task["method"])(
+                *call_args, **task["kwargs"]
+            )
             self.logger.info(f"{flag} training time: {time.time() - start_time:.2f}s")
 
             # Save pre-trained checkpoint
             checkpoint_path = self.ctx.get_checkpoint_path(f"pretrained_{flag}.pth")
             torch.save(trained_model.state_dict(), checkpoint_path)
-            self.logger.info(f"Pre-trained weights for {flag} saved to {checkpoint_path}")
+            self.logger.info(
+                f"Pre-trained weights for {flag} saved to {checkpoint_path}"
+            )
 
             model_after_last_task = trained_model
 
         return model_after_last_task
 
-    def _handle_weight_chaining(self, current_model: nn.Module, prev_model: nn.Module) -> None:
+    def _handle_weight_chaining(
+        self, current_model: nn.Module, prev_model: nn.Module
+    ) -> None:
         """
         Copies compatible weights from the previous model to the current one.
 
@@ -595,21 +609,25 @@ class PreTrainingOrchestrator:
                 for k, v in prev_state_dict.items()
                 if k in current_model_dict and v.shape == current_model_dict[k].shape
             }
-            
+
             missing_keys, unexpected_keys = current_model.load_state_dict(
                 load_state_dict, strict=False
             )
-            
+
             if missing_keys:
                 self.logger.debug(f"Chaining: Missing keys: {missing_keys}")
             if unexpected_keys:
                 self.logger.debug(f"Chaining: Unexpected keys: {unexpected_keys}")
-                
+
             self.logger.info("Weight chaining: successfully loaded compatible weights.")
         except Exception as e:
-            self.logger.warning(f"Weight chaining failed: {e}. Model will train from scratch.")
+            self.logger.warning(
+                f"Weight chaining failed: {e}. Model will train from scratch."
+            )
 
-    def adapt_for_finetuning(self, model: nn.Module, pre_trained_model: nn.Module) -> None:
+    def adapt_for_finetuning(
+        self, model: nn.Module, pre_trained_model: nn.Module
+    ) -> None:
         """
         Adapates a pre-trained model for fine-tuning by loading compatible weights.
 

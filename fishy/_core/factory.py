@@ -16,6 +16,7 @@ from typing import Dict, Type, Any
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
 
+
 def get_model_class(model_path: str) -> Type[nn.Module]:
     """
     Dynamically imports a model class from a string path.
@@ -35,6 +36,7 @@ def get_model_class(model_path: str) -> Type[nn.Module]:
     module_path, class_name = model_path.rsplit(".", 1)
     module = importlib.import_module(module_path)
     return getattr(module, class_name)
+
 
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
@@ -64,9 +66,11 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     """
     model_name = config.model.lower()
     models_cfg = load_config("models")["deep_models"]
-    
+
     if model_name not in models_cfg:
-        raise ValueError(f"Model '{model_name}' not found in registry. Available: {list(models_cfg.keys())}")
+        raise ValueError(
+            f"Model '{model_name}' not found in registry. Available: {list(models_cfg.keys())}"
+        )
 
     entry = models_cfg[model_name]
     model_path = entry["path"] if isinstance(entry, dict) else entry
@@ -78,28 +82,68 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         # For now, keep the specialized ones but using dynamic classes
         if model_name == "mamba":
             from fishy.models.deep.mamba import SiameseMamba
-            return SiameseMamba(input_dim, output_dim, config.hidden_dimension, config.num_layers)
+
+            return SiameseMamba(
+                input_dim, output_dim, config.hidden_dimension, config.num_layers
+            )
         elif model_name == "vae":
             from fishy.models.deep.vae import SiameseVAE
-            vae_backbone = model_class(input_size=input_dim, latent_dim=config.hidden_dimension, num_classes=output_dim, dropout=config.dropout)
+
+            vae_backbone = model_class(
+                input_size=input_dim,
+                latent_dim=config.hidden_dimension,
+                num_classes=output_dim,
+                dropout=config.dropout,
+            )
             return SiameseVAE(vae_backbone)
 
     # Dynamic instantiation based on common signature patterns
     # We try different common signatures used in this project
     try:
         if model_name == "transformer":
-            return model_class(input_dim, output_dim, config.num_heads, config.hidden_dimension, config.num_layers, config.dropout)
+            return model_class(
+                input_dim,
+                output_dim,
+                config.num_heads,
+                config.hidden_dimension,
+                config.num_layers,
+                config.dropout,
+            )
         elif model_name == "lstm":
-            return model_class(input_dim, config.hidden_dimension, config.num_layers, output_dim, config.dropout)
+            return model_class(
+                input_dim,
+                config.hidden_dimension,
+                config.num_layers,
+                output_dim,
+                config.dropout,
+            )
         elif model_name == "mamba":
-            return model_class(input_dim, output_dim, config.hidden_dimension, 16, 4, 2, config.num_layers, config.dropout)
+            return model_class(
+                input_dim,
+                output_dim,
+                config.hidden_dimension,
+                16,
+                4,
+                2,
+                config.num_layers,
+                config.dropout,
+            )
         elif model_name == "vae":
-            return model_class(input_size=input_dim, latent_dim=config.hidden_dimension, num_classes=output_dim, dropout=config.dropout)
+            return model_class(
+                input_size=input_dim,
+                latent_dim=config.hidden_dimension,
+                num_classes=output_dim,
+                dropout=config.dropout,
+            )
         elif model_name == "ensemble":
-            return model_class(input_dim, config.hidden_dimension, output_dim, config.dropout)
+            return model_class(
+                input_dim, config.hidden_dimension, output_dim, config.dropout
+            )
         elif model_name == "moe":
-            return model_class(input_dim, output_dim, config.hidden_dimension, config.num_layers)
-        
+            return model_class(
+                input_dim, output_dim, config.hidden_dimension, config.num_layers
+            )
+
         # Fallback for simpler models
         return model_class(input_dim, output_dim)
     except Exception as e:

@@ -5,6 +5,7 @@ from fishy.models.deep.cnn import CNN
 from fishy.models.deep.transformer import Transformer
 from fishy.models.deep.dense import Dense
 
+
 class TestDeepModels(unittest.TestCase):
     def test_cnn_forward(self):
         model = CNN(input_dim=100, output_dim=5)
@@ -23,6 +24,7 @@ class TestDeepModels(unittest.TestCase):
         x = torch.randn(2, 100)
         y = model(x)
         self.assertEqual(y.shape, (2, 5))
+
 
 if __name__ == "__main__":
     unittest.main()

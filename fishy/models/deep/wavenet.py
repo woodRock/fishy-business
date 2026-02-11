@@ -25,7 +25,12 @@ class CausalConv1d(nn.Module):
     """
 
     def __init__(
-        self, in_channels: int, out_channels: int, kernel_size: int, dilation: int = 1, **kwargs
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        dilation: int = 1,
+        **kwargs,
     ) -> None:
         """
         Initializes the CausalConv1d layer.
@@ -69,7 +74,9 @@ class ResidualBlock(nn.Module):
     WaveNet residual block with skip connections and gated activations.
     """
 
-    def __init__(self, channels: int, kernel_size: int, dilation: int, dropout: float = 0.2) -> None:
+    def __init__(
+        self, channels: int, kernel_size: int, dilation: int, dropout: float = 0.2
+    ) -> None:
         """
         Initializes the ResidualBlock.
 
@@ -207,7 +214,9 @@ class WaveNet(nn.Module):
         """
         Applies weight normalization to all convolution and linear layers.
         """
+
         def _apply_weight_norm(module):
             if isinstance(module, (nn.Conv1d, nn.Linear)):
                 weight_norm(module)
+
         self.apply(_apply_weight_norm)

@@ -27,10 +27,16 @@ def _adapt_trainer_output(trainer_output: Dict[str, Any]) -> Dict[str, List]:
     return {
         "train_loss": epoch_metrics["train_losses"],
         "val_loss": epoch_metrics["val_losses"],
-        "train_acc": [m.get("accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]],
+        "train_acc": [
+            m.get("accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]
+        ],
         "val_acc": [m.get("accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]],
-        "train_balanced_acc": [m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]],
-        "val_balanced_acc": [m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]],
+        "train_balanced_acc": [
+            m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["train_metrics"]
+        ],
+        "val_balanced_acc": [
+            m.get("balanced_accuracy", 0) * 100 for m in epoch_metrics["val_metrics"]
+        ],
         "learning_rates": epoch_metrics.get("learning_rates", []),
     }
 
@@ -88,26 +94,44 @@ def run_sequential_transfer_learning(
     if wandb_run is None and wandb_log:
         started_wandb = True
         wandb_run = wandb.init(
-            project=wandb_project, entity=wandb_entity,
-            config={"model": model_name, "transfer": transfer_datasets, "target": target_dataset},
-            reinit=True, group=f"{target_dataset}_transfer", job_type="transfer_learning",
+            project=wandb_project,
+            entity=wandb_entity,
+            config={
+                "model": model_name,
+                "transfer": transfer_datasets,
+                "target": target_dataset,
+            },
+            reinit=True,
+            group=f"{target_dataset}_transfer",
+            job_type="transfer_learning",
         )
 
-    ctx = RunContext(dataset=target_dataset, method="transfer", model_name=model_name, wandb_run=wandb_run)
+    ctx = RunContext(
+        dataset=target_dataset,
+        method="transfer",
+        model_name=model_name,
+        wandb_run=wandb_run,
+    )
     logger = ctx.logger
 
     try:
         # ... (rest of the try block)
         history = {"transfer": {}, "finetune": {}}
         device_obj = get_device()
-        
+
         # 1. Initial Setup to get input dimension
-        data_module = create_data_module(file_path=file_path, dataset_name=transfer_datasets[0], batch_size=batch_size)
+        data_module = create_data_module(
+            file_path=file_path,
+            dataset_name=transfer_datasets[0],
+            batch_size=batch_size,
+        )
         data_module.setup()
         input_dim = data_module.get_input_dim()
 
-        config = TrainingConfig(model=model_name, dataset=transfer_datasets[0], run=run, file_path=file_path)
-        
+        config = TrainingConfig(
+            model=model_name, dataset=transfer_datasets[0], run=run, file_path=file_path
+        )
+
         num_classes = data_module.get_num_classes()
         model = create_model(config, input_dim, num_classes).to(device_obj)
 
@@ -116,37 +140,66 @@ def run_sequential_transfer_learning(
         # 2. Sequential Transfer
         for dataset_name in transfer_datasets:
             logger.info(f"Transfer phase: {dataset_name}")
-            data_module = create_data_module(file_path=file_path, dataset_name=dataset_name, batch_size=batch_size)
+            data_module = create_data_module(
+                file_path=file_path, dataset_name=dataset_name, batch_size=batch_size
+            )
             data_module.setup()
             dataset = data_module.get_dataset()
 
             val_size = int(val_split * len(dataset))
-            train_dataset, val_dataset = random_split(dataset, [len(dataset) - val_size, val_size], generator=gen)
-            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+            train_dataset, val_dataset = random_split(
+                dataset, [len(dataset) - val_size, val_size], generator=gen
+            )
+            train_loader = DataLoader(
+                train_dataset, batch_size=batch_size, shuffle=True
+            )
             val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
             current_num_classes = data_module.get_num_classes()
-            
+
             # Layer adaptation
             for attr in ["fc_out", "classifier", "fc"]:
                 if hasattr(model, attr):
                     layer = getattr(model, attr)
                     if layer.out_features != current_num_classes:
-                        setattr(model, attr, nn.Linear(layer.in_features, current_num_classes).to(device_obj))
+                        setattr(
+                            model,
+                            attr,
+                            nn.Linear(layer.in_features, current_num_classes).to(
+                                device_obj
+                            ),
+                        )
                     break
 
             optimizer = AdamW(model.parameters(), lr=learning_rate)
-            trainer = Trainer(model=model, criterion=nn.CrossEntropyLoss(), optimizer=optimizer, device=device_obj, num_epochs=num_epochs_transfer, num_classes=current_num_classes, logger=logger, ctx=ctx)
-            history["transfer"][dataset_name] = _adapt_trainer_output(trainer.train(train_loader, val_loader))
+            trainer = Trainer(
+                model=model,
+                criterion=nn.CrossEntropyLoss(),
+                optimizer=optimizer,
+                device=device_obj,
+                num_epochs=num_epochs_transfer,
+                num_classes=current_num_classes,
+                logger=logger,
+                ctx=ctx,
+            )
+            history["transfer"][dataset_name] = _adapt_trainer_output(
+                trainer.train(train_loader, val_loader)
+            )
 
         # 3. Final Fine-tuning
         logger.info(f"Final Fine-tuning: {target_dataset}")
-        data_module = create_data_module(file_path=file_path, dataset_name=target_dataset, batch_size=batch_size)
+        data_module = create_data_module(
+            file_path=file_path, dataset_name=target_dataset, batch_size=batch_size
+        )
         data_module.setup()
         target_dataset_obj = data_module.get_dataset()
 
         val_size = int(val_split * len(target_dataset_obj))
-        train_dataset, val_dataset = random_split(target_dataset_obj, [len(target_dataset_obj) - val_size, val_size], generator=gen)
+        train_dataset, val_dataset = random_split(
+            target_dataset_obj,
+            [len(target_dataset_obj) - val_size, val_size],
+            generator=gen,
+        )
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
@@ -155,15 +208,33 @@ def run_sequential_transfer_learning(
             if hasattr(model, attr):
                 layer = getattr(model, attr)
                 if layer.out_features != current_num_classes:
-                    setattr(model, attr, nn.Linear(layer.in_features, current_num_classes).to(device_obj))
+                    setattr(
+                        model,
+                        attr,
+                        nn.Linear(layer.in_features, current_num_classes).to(
+                            device_obj
+                        ),
+                    )
                 break
 
         optimizer = AdamW(model.parameters(), lr=finetune_lr)
-        trainer = Trainer(model=model, criterion=nn.CrossEntropyLoss(), optimizer=optimizer, device=device_obj, num_epochs=num_epochs_finetune, num_classes=current_num_classes, logger=logger, ctx=ctx)
-        history["finetune"][target_dataset] = _adapt_trainer_output(trainer.train(train_loader, val_loader))
+        trainer = Trainer(
+            model=model,
+            criterion=nn.CrossEntropyLoss(),
+            optimizer=optimizer,
+            device=device_obj,
+            num_epochs=num_epochs_finetune,
+            num_classes=current_num_classes,
+            logger=logger,
+            ctx=ctx,
+        )
+        history["finetune"][target_dataset] = _adapt_trainer_output(
+            trainer.train(train_loader, val_loader)
+        )
 
         ctx.save_results({"history": history}, filename="transfer_results.json")
         return model, history
 
     finally:
-        if started_wandb and wandb_run: wandb_run.finish()
+        if started_wandb and wandb_run:
+            wandb_run.finish()

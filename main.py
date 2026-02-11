@@ -14,6 +14,7 @@ import warnings
 # Suppress the urllib3 NotOpenSSLWarning on macOS
 try:
     from urllib3.exceptions import NotOpenSSLWarning
+
     warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError:
     pass

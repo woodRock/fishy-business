@@ -223,7 +223,7 @@ class DataProcessor:
 
         # Common logic for most fish datasets: group is the part before the first underscore
         groups = data["m/z"].astype(str).apply(lambda x: x.split("_")[0])
-        
+
         # For instance recognition, each row (instance) is its own group/identity
         dataset_name = self.dataset_type.name.lower().replace("_", "-")
         if "instance-recognition" in dataset_name:
@@ -275,7 +275,10 @@ def preprocess_data_pipeline(
     torch_dataset = dataset_class(X, y)
 
     data_loader = DataLoader(
-        torch_dataset, batch_size=data_processor.batch_size, shuffle=True, pin_memory=True
+        torch_dataset,
+        batch_size=data_processor.batch_size,
+        shuffle=True,
+        pin_memory=True,
     )
     if augmentation_cfg and augmentation_cfg.enabled:
         data_loader = DataAugmenter(augmentation_cfg).augment(data_loader)
@@ -329,7 +332,9 @@ class DataModule:
         self.batch_size = batch_size
         self.is_pre_train = is_pre_train
         self.augmentation_config = augmentation_config
-        self.processor = DataProcessor(DatasetType.from_string(dataset_name), batch_size)
+        self.processor = DataProcessor(
+            DatasetType.from_string(dataset_name), batch_size
+        )
         self.train_loader, self.raw_data, self.filtered_data = None, None, None
 
     def setup(self) -> None:
@@ -395,7 +400,9 @@ class DataModule:
             )
         )
 
-    def get_numpy_data(self, labels_as_indices: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+    def get_numpy_data(
+        self, labels_as_indices: bool = False
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns the dataset as numpy arrays (X, y).
 
