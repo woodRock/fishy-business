@@ -16,6 +16,7 @@ DEFAULT_DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 from fishy._core.config import TrainingConfig
 from fishy.experiments.unified_trainer import run_unified_training
 from fishy._core.config_loader import load_config
+from fishy._core.utils import set_seed
 
 def get_all_models() -> List[str]:
     """Helper to get all registered model names across all methods."""
@@ -150,7 +151,9 @@ def main() -> None:
                         # Handle multiple runs even for single config
                         results = []
                         for i in range(config.num_runs):
-                            config.run = (i + 1) * 123
+                            seed = (i + 1) * 123
+                            config.run = seed
+                            set_seed(seed)
                             results.append(run_unified_training(config))
                         
                         if config.statistical:
@@ -160,9 +163,11 @@ def main() -> None:
                                 print(f"Running baseline (opls-da) for statistical comparison...")
                                 baseline_results = []
                                 for i in range(config.num_runs):
+                                    seed = (i + 1) * 123
+                                    set_seed(seed)
                                     b_config = TrainingConfig(
                                         model="opls-da", dataset=config.dataset, 
-                                        run=(i + 1) * 123, method="classic",
+                                        run=seed, method="classic",
                                         file_path=config.file_path
                                     )
                                     baseline_results.append(run_unified_training(b_config))
@@ -191,7 +196,9 @@ def main() -> None:
                     n_runs = config.num_runs if config.num_runs > 1 else (5 if config.statistical else 1)
                     results = []
                     for i in range(n_runs):
-                        config.run = (i + 1) * 123
+                        seed = (i + 1) * 123
+                        config.run = seed
+                        set_seed(seed)
                         results.append(run_unified_training(config))
                     
                     if config.statistical:
@@ -200,9 +207,11 @@ def main() -> None:
                             print(f"Running baseline (opls-da) for statistical comparison...")
                             baseline_results = []
                             for i in range(n_runs):
+                                seed = (i + 1) * 123
+                                set_seed(seed)
                                 b_config = TrainingConfig(
                                     model="opls-da", dataset=config.dataset, 
-                                    run=(i + 1) * 123, method="classic",
+                                    run=seed, method="classic",
                                     file_path=config.file_path
                                 )
                                 baseline_results.append(run_unified_training(b_config))
