@@ -20,6 +20,7 @@ from fishy._core.utils import RunContext, get_device, set_seed, console
 from fishy.data.module import create_data_module
 from fishy.analysis.benchmark import run_benchmark
 from fishy._core.config_loader import load_config
+from fishy.analysis.statistical import summarize_results, display_statistical_summary
 from rich.table import Table
 from rich.panel import Panel
 
@@ -55,13 +56,12 @@ class UnifiedTrainer:
                         model_results.append(self._run_single(train_cfg))
                     results_summary[f"{dataset}|||{model}"] = model_results
 
-        if exp_cfg.statistical:
-            from fishy.analysis.statistical import summarize_results
-            summary_df = summarize_results(results_summary)
-            ctx = RunContext(dataset="all", method="experiment", model_name=exp_cfg.name)
-            ctx.save_dataframe(summary_df, "statistical_analysis.csv")
-            return summary_df
-        return pd.DataFrame()
+        summary_df = summarize_results(results_summary)
+        display_statistical_summary(summary_df, show_significance=exp_cfg.statistical)
+        
+        ctx = RunContext(dataset="all", method="experiment", model_name=exp_cfg.name)
+        ctx.save_dataframe(summary_df, "statistical_analysis.csv")
+        return summary_df
 
     def _run_single(self, config: TrainingConfig) -> Dict[str, Any]:
         wandb_run = None
