@@ -385,6 +385,17 @@ class DataModule:
         """
         return self.raw_data if self.raw_data is not None else pd.DataFrame()
 
+    def get_filtered_dataframe(self) -> pd.DataFrame:
+        """
+        Returns the DataFrame after dataset-specific filtering rules have been applied.
+
+        Returns:
+            pd.DataFrame: The filtered dataframe.
+        """
+        if self.filtered_data is None:
+            self.setup()
+        return self.filtered_data if self.filtered_data is not None else pd.DataFrame()
+
     def get_train_dataloader(self) -> DataLoader:
         """
         Returns the configured DataLoader.

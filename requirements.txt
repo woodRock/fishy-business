@@ -17,3 +17,5 @@ pytest
 pyopls
 argcomplete
 rich
+streamlit
+plotly
