@@ -16,7 +16,16 @@ from fishy._core.utils import NumpyEncoder
 logger = logging.getLogger(__name__)
 
 def measure_model_size(model: torch.nn.Module) -> float:
-    """Returns model size in MB."""
+    """
+    Returns model size in MB.
+
+    Examples:
+        >>> import torch.nn as nn
+        >>> model = nn.Linear(10, 10)
+        >>> size = measure_model_size(model)
+        >>> size > 0
+        True
+    """
     param_size = 0
     for param in model.parameters():
         param_size += param.nelement() * param.element_size()
@@ -59,7 +68,14 @@ def measure_inference_performance(
     return {"latency_ms": latency, "throughput_samples_per_s": throughput}
 
 def get_peak_vram() -> float:
-    """Returns peak VRAM usage in MB."""
+    """
+    Returns peak VRAM usage in MB.
+
+    Examples:
+        >>> size = get_peak_vram()
+        >>> isinstance(size, float)
+        True
+    """
     if torch.cuda.is_available():
         return torch.cuda.max_memory_allocated() / 1024**2
     return 0.0

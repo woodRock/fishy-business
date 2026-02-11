@@ -19,7 +19,16 @@ from fishy._core.config_loader import load_config
 from fishy._core.utils import set_seed
 
 def get_all_models() -> List[str]:
-    """Helper to get all registered model names across all methods."""
+    """
+    Helper to get all registered model names across all methods.
+
+    Examples:
+        >>> models = get_all_models()
+        >>> "transformer" in models
+        True
+        >>> "cnn" in models
+        True
+    """
     cfg = load_config("models")
     all_models = []
     for section in ["deep_models", "classic_models", "evolutionary_models", "contrastive_models", "probabilistic_models"]:
@@ -105,7 +114,15 @@ def setup_parser() -> argparse.ArgumentParser:
     return parser
 
 def detect_method(model_name: str) -> str:
-    """Automatically detects the training method based on the model name."""
+    """
+    Automatically detects the training method based on the model name.
+
+    Examples:
+        >>> detect_method("transformer")
+        'deep'
+        >>> detect_method("opls-da")
+        'classic'
+    """
     cfg = load_config("models")
     model_name = model_name.lower()
     

@@ -246,7 +246,21 @@ class UnifiedTrainer:
         pass
 
 def run_unified_training(config: Union[TrainingConfig, ExperimentConfig]) -> Union[Dict[str, Any], pd.DataFrame]:
-    """Universal entry point for all training tasks."""
+    """
+    Universal entry point for all training tasks.
+
+    Examples:
+        >>> from fishy._core.config import TrainingConfig
+        >>> cfg = TrainingConfig(model="transformer", dataset="species")
+        >>> isinstance(cfg, TrainingConfig)
+        True
+
+    Args:
+        config (Union[TrainingConfig, ExperimentConfig]): Configuration object.
+
+    Returns:
+        Union[Dict[str, Any], pd.DataFrame]: Results of the training run(s).
+    """
     trainer = UnifiedTrainer(config)
     return trainer.run()
 

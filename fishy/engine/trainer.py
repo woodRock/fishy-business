@@ -37,6 +37,20 @@ from sklearn.metrics import (
 class Trainer:
     """
     Unified trainer for PyTorch models.
+
+    Examples:
+        >>> import torch.nn as nn
+        >>> import torch.optim as optim
+        >>> model = nn.Linear(10, 2)
+        >>> trainer = Trainer(
+        ...     model=model,
+        ...     criterion=nn.CrossEntropyLoss(),
+        ...     optimizer=optim.Adam(model.parameters()),
+        ...     device=torch.device('cpu'),
+        ...     num_epochs=1
+        ... )
+        >>> trainer.model.__class__.__name__
+        'Linear'
     """
 
     def __init__(
@@ -255,6 +269,17 @@ class Trainer:
 class DeepEngine:
     """
     High-level engine for deep learning experiments, supporting repeated CV and single runs.
+
+    Examples:
+        >>> import torch.nn as nn
+        >>> from torch.utils.data import DataLoader, TensorDataset
+        >>> model = nn.Linear(10, 2)
+        >>> x = torch.randn(16, 10)
+        >>> y = torch.randint(0, 2, (16,))
+        >>> loader = DataLoader(TensorDataset(x, y), batch_size=8)
+        >>> res = DeepEngine.evaluate_model(model, loader, nn.CrossEntropyLoss(), device='cpu')
+        >>> 'loss' in res
+        True
     """
 
     @staticmethod

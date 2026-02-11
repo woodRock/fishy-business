@@ -86,7 +86,20 @@ class CustomDataset(BaseDataset):
     pass
 
 class SiameseDataset(BaseDataset):
-    """Dataset for contrastive learning, generating pairs of samples."""
+    """
+    Dataset for contrastive learning, generating pairs of samples.
+
+    Examples:
+        >>> import numpy as np
+        >>> samples = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+        >>> labels = np.array([0, 1, 0])
+        >>> dataset = SiameseDataset(samples, labels)
+        >>> len(dataset) # C(3, 2) = 3
+        3
+        >>> x1, x2, label, y1, y2 = dataset[0]
+        >>> label.shape
+        torch.Size([1])
+    """
 
     def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
         super().__init__(samples, labels)
@@ -142,7 +155,19 @@ class SiameseDataset(BaseDataset):
 
 
 class BalancedBatchSampler(Sampler):
-    """Generates balanced batches of positive and negative pairs for contrastive learning."""
+    """
+    Generates balanced batches of positive and negative pairs for contrastive learning.
+
+    Examples:
+        >>> import numpy as np
+        >>> pair_labels = np.array([1, 0, 1, 0, 1, 0])
+        >>> sampler = BalancedBatchSampler(pair_labels, batch_size=4)
+        >>> len(sampler)
+        1
+        >>> indices = next(iter(sampler))
+        >>> len(indices)
+        4
+    """
 
     def __init__(self, pair_labels: np.ndarray, batch_size: int) -> None:
         """

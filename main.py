@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Main entry point for the fishy business project.
+
+Examples:
+    >>> import main
+    >>> hasattr(main, 'main')
+    True
 """
 
 import warnings

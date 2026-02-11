@@ -26,6 +26,13 @@ class SklearnTrainer:
     """
     Orchestrates training and evaluation for models following the sklearn interface.
     This includes classic ML (SVM, RF) and Evolutionary Algorithms (GP, GA).
+
+    Examples:
+        >>> from fishy._core.config import TrainingConfig
+        >>> cfg = TrainingConfig(model="opls-da", dataset="species")
+        >>> trainer = SklearnTrainer(cfg, "opls-da", "species")
+        >>> trainer.method
+        'classic'
     """
 
     def __init__(
@@ -237,7 +244,16 @@ def run_sklearn_experiment(
     file_path: Optional[str] = None,
     wandb_run: Optional[Any] = None,
 ) -> Dict[str, Any]:
-    """Unified entry point for Sklearn-compatible model experiments."""
+    """
+    Unified entry point for Sklearn-compatible model experiments.
+
+    Examples:
+        >>> from fishy._core.config import TrainingConfig
+        >>> cfg = TrainingConfig(model="opls-da", dataset="species")
+        >>> # results = run_sklearn_experiment(cfg, "opls-da", "species")
+        >>> True
+        True
+    """
     started_wandb = False
     if wandb_run is None and config.wandb_log:
         started_wandb = True

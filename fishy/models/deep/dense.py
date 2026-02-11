@@ -120,6 +120,14 @@ class Dense(nn.Module):
     """
     DenseNet-like model for spectral classification tasks.
 
+    Examples:
+        >>> import torch
+        >>> model = Dense(input_dim=100, output_dim=5)
+        >>> x = torch.randn(16, 100)
+        >>> y = model(x)
+        >>> y.shape
+        torch.Size([16, 5])
+
     Attributes:
         first_conv (nn.Conv1d): Initial convolution layer.
         dense1 (DenseBlock): First dense connectivity block.

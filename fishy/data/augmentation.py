@@ -12,7 +12,16 @@ from fishy._core.utils import get_device
 
 @dataclass
 class AugmentationConfig:
-    """Configuration for data augmentation."""
+    """
+    Configuration for data augmentation.
+
+    Examples:
+        >>> config = AugmentationConfig(enabled=True, num_augmentations=10)
+        >>> config.enabled
+        True
+        >>> config.num_augmentations
+        10
+    """
     enabled: bool = False
     num_augmentations: int = 5
     noise_enabled: bool = True

@@ -56,6 +56,33 @@ def run_sequential_transfer_learning(
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Performs sequential transfer learning using standardized DataModules.
+
+    Examples:
+        >>> m_name = "transformer"
+        >>> isinstance(m_name, str)
+        True
+
+    Args:
+        model_name (str): Name of the model architecture.
+        transfer_datasets (List[str]): List of datasets to pre-train on.
+        target_dataset (str): Final dataset to fine-tune on.
+        num_epochs_transfer (int): Epochs per transfer phase.
+        num_epochs_finetune (int): Epochs for final phase.
+        batch_size (int): Batch size.
+        learning_rate (float): Initial learning rate.
+        finetune_lr (float): Learning rate for fine-tuning.
+        device (str): Computation device.
+        save_intermediate (bool): Save checkpoints after each phase.
+        val_split (float): Fraction of data for validation.
+        file_path (str): Path to data file.
+        wandb_project (str): W&B project name.
+        wandb_entity (str): W&B entity.
+        wandb_log (bool): Enable W&B logging.
+        run (int): Run identifier/seed.
+        wandb_run (Any): Existing W&B run.
+
+    Returns:
+        Tuple[nn.Module, Dict[str, Any]]: Trained model and history.
     """
     started_wandb = False
     if wandb_run is None and wandb_log:
@@ -81,8 +108,7 @@ def run_sequential_transfer_learning(
 
         config = TrainingConfig(model=model_name, dataset=transfer_datasets[0], run=run, file_path=file_path)
         
-        from fishy.experiments.deep_training import ModelTrainer
-        num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(transfer_datasets[0], 2)
+        num_classes = data_module.get_num_classes()
         model = create_model(config, input_dim, num_classes).to(device_obj)
 
         gen = torch.Generator().manual_seed(run)
@@ -99,7 +125,7 @@ def run_sequential_transfer_learning(
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
             val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
-            current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(dataset_name, 2)
+            current_num_classes = data_module.get_num_classes()
             
             # Layer adaptation
             for attr in ["fc_out", "classifier", "fc"]:
@@ -124,7 +150,7 @@ def run_sequential_transfer_learning(
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
-        current_num_classes = ModelTrainer.N_CLASSES_PER_DATASET.get(target_dataset, 2)
+        current_num_classes = data_module.get_num_classes()
         for attr in ["fc_out", "classifier", "fc"]:
             if hasattr(model, attr):
                 layer = getattr(model, attr)

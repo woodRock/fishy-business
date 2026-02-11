@@ -43,6 +43,13 @@ class ExplainerConfig:
     """
     Configuration for model explanation methods.
 
+    Examples:
+        >>> config = ExplainerConfig(num_features=10)
+        >>> config.num_features
+        10
+        >>> isinstance(config.output_dir, Path)
+        True
+
     Attributes:
         num_features (int): Number of top features to show in the explanation (LIME).
         num_samples (int): Number of samples to generate for the local approximation (LIME).

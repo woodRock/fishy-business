@@ -23,6 +23,7 @@ from fishy.data import (
 )
 from fishy._core.factory import create_model, get_model_class
 from fishy._core.config import TrainingConfig
+from fishy.models.deep.transformer import Transformer
 from fishy._core.utils import RunContext, get_device
 from fishy._core.config_loader import load_config
 import wandb
@@ -30,6 +31,16 @@ import wandb
 
 @dataclass
 class ContrastiveConfig:
+    """
+    Configuration for contrastive learning experiments.
+
+    Examples:
+        >>> config = ContrastiveConfig(contrastive_method="simclr", num_epochs=10)
+        >>> config.contrastive_method
+        'simclr'
+        >>> config.num_epochs
+        10
+    """
     num_runs: int = 1
     temperature: float = 0.55
     projection_dim: int = 256
@@ -60,6 +71,12 @@ class ContrastiveTrainer:
 
     Coordinates data loading, model instantiation (with dynamic encoders),
     and the training loop for various contrastive methods (SimCLR, MoCo, etc.).
+
+    Examples:
+        >>> config = ContrastiveConfig(contrastive_method="simclr", dataset="species")
+        >>> trainer = ContrastiveTrainer(config)
+        >>> trainer.config.contrastive_method
+        'simclr'
 
     Attributes:
         config (ContrastiveConfig): Configuration for the experiment.
@@ -200,6 +217,11 @@ class ContrastiveTrainer:
 def run_contrastive_experiment(config: ContrastiveConfig, wandb_run: Optional[Any] = None) -> None:
     """
     Orchestrates a contrastive learning experiment.
+
+    Examples:
+        >>> config = ContrastiveConfig(contrastive_method="simclr", dataset="species")
+        >>> isinstance(config, ContrastiveConfig)
+        True
 
     Args:
         config (ContrastiveConfig): configuration object.

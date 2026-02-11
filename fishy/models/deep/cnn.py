@@ -46,6 +46,14 @@ class CNN(nn.Module):
     """
     A 1D Convolutional Neural Network (CNN) for spectral data classification.
 
+    Examples:
+        >>> import torch
+        >>> model = CNN(input_dim=100, output_dim=5)
+        >>> x = torch.randn(16, 100)
+        >>> y = model(x)
+        >>> y.shape
+        torch.Size([16, 5])
+
     This architecture is adapted for 1D signal processing (e.g., mass spectra).
     It features a sequence of convolutional blocks with:
     - 1D Convolution

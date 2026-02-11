@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 Fishy business project package for spectral data analysis.
+
+Examples:
+    >>> import fishy
+    >>> hasattr(fishy, 'Trainer')
+    True
 """
 
 from .engine.trainer import Trainer, DeepEngine

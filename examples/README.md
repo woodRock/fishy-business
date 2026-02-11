@@ -1,24 +1,27 @@
-# Fishy Business Library Examples
+# Fishy Business: Tutorial Series
 
-This directory contains examples of how to use the `fishy` library programmatically.
+This folder contains a step-by-step tutorial on how to use the `fishy-business` codebase for mass spectrometry analysis.
 
-## Overview
+### Tutorial Order
 
-1.  **`01_programmatic_training.py`**: Shows how to use `ModelTrainer` and `TrainingConfig` to run experiments in Python instead of the CLI.
-2.  **`02_data_module_exploration.py`**: Demonstrates the `DataModule` for loading, filtering, and inspecting metadata (classes, dimensions) from the `datasets.yaml` configuration.
-3.  **`03_low_level_trainer.py`**: Explains how to use the core `Trainer` class with any standard PyTorch model.
-4.  **`04_pretraining_and_transfer.py`**: Covers advanced research workflows including self-supervised pre-training tasks and sequential transfer learning.
+1.  **[Getting Started](01_getting_started.py)**: The simplest way to run a training experiment.
+2.  **[DataModule](02_data_module.py)**: Loading, filtering, and inspecting datasets.
+3.  **[Configuration](03_configuration.py)**: Managing hyperparameters with `TrainingConfig` and `ExperimentConfig`.
+4.  **[Training Engines](04_training_engines.py)**: High-level orchestration vs. low-level custom loops.
+5.  **[Automated Benchmarking](05_run_all_benchmarks.py)**: Running the full "Run All" suite.
+6.  **[Self-Supervised Pre-training](06_pretraining.py)**: Leveraging unlabeled data.
+7.  **[Transfer Learning](07_transfer_learning.py)**: Sequential knowledge transfer across datasets.
+8.  **[Probabilistic Inference](08_probabilistic_inference.py)**: Bayesian models and uncertainty.
+9.  **[Outputs and Visualization](09_outputs_and_visualization.py)**: Finding and interpreting results.
 
-## Configuration-Driven Design
+---
 
-All examples leverage the new configuration-driven architecture. This means:
-- Model defaults (hidden dimensions, etc.) are automatically loaded from `fishy/configs/models.yaml`.
-- Data filtering rules are defined in `fishy/configs/datasets.yaml`.
-- You only need to provide parameters you wish to override.
+### Running the Tutorials
 
-## Running Examples
+You can run any of these tutorials from the root of the repository:
 
-From the project root:
 ```bash
-python3 examples/01_programmatic_training.py
+python3 examples/01_getting_started.py
 ```
+
+Most tutorials require the REIMS data file to be present at `data/REIMS.xlsx`.

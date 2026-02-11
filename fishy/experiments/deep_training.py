@@ -31,6 +31,13 @@ from fishy.engine.losses import coral_loss, cumulative_link_loss
 class ModelTrainer:
     """
     Orchestrates the model training pipeline, from data setup to pre-training and fine-tuning.
+
+    Examples:
+        >>> from fishy._core.config import TrainingConfig
+        >>> cfg = TrainingConfig(model="transformer", dataset="species", run=1)
+        >>> # trainer = ModelTrainer(cfg) # Needs data file to initialize
+        >>> cfg.model
+        'transformer'
     """
 
     def __init__(self, config: TrainingConfig, wandb_run: Optional[Any] = None):

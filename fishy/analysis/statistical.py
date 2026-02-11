@@ -15,6 +15,15 @@ def perform_significance_test(
 ) -> Dict[str, Any]:
     """
     Performs a paired t-test between model results and baseline results.
+
+    Examples:
+        >>> model = [0.9, 0.95, 0.92]
+        >>> baseline = [0.8, 0.82, 0.81]
+        >>> res = perform_significance_test(model, baseline)
+        >>> bool(res['significant'])
+        True
+        >>> res['symbol']
+        '+'
     """
     if len(model_results) != len(baseline_results):
         return {"error": "Result lengths do not match for paired test"}
@@ -45,6 +54,17 @@ def summarize_results(results_map: Dict[str, List[Dict[str, Any]]], baseline_mod
     Args:
         results_map: Dict mapping "dataset|||model" to list of result dicts.
         baseline_model: Name of the model to use as baseline.
+
+    Examples:
+        >>> results = {
+        ...     "ds1|||m1": [{"val_balanced_accuracy": 0.8}, {"val_balanced_accuracy": 0.82}],
+        ...     "ds1|||m2": [{"val_balanced_accuracy": 0.9}, {"val_balanced_accuracy": 0.92}]
+        ... }
+        >>> df = summarize_results(results, baseline_model="m1")
+        >>> len(df)
+        2
+        >>> df.iloc[1]['significance']
+        '+'
     """
     # Group by dataset
     datasets = {}

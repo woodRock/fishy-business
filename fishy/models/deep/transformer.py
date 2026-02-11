@@ -83,6 +83,14 @@ class MultiHeadAttention(nn.Module):
     """
     Multi-head attention mechanism.
 
+    Examples:
+        >>> import torch
+        >>> attn = MultiHeadAttention(input_dim=16, num_heads=2)
+        >>> x = torch.randn(4, 10, 16)
+        >>> y = attn(x)
+        >>> y.shape
+        torch.Size([4, 10, 16])
+
     Attributes:
         input_dim (int): Number of input features.
         num_heads (int): Number of attention heads.

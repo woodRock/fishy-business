@@ -59,7 +59,16 @@ def get_device() -> torch.device:
 
 
 class NumpyEncoder(json.JSONEncoder):
-    """Custom JSON encoder for NumPy types and Path objects."""
+    """
+    Custom JSON encoder for NumPy types and Path objects.
+
+    Examples:
+        >>> import json
+        >>> import numpy as np
+        >>> data = {"array": np.array([1, 2, 3]), "int": np.int64(10)}
+        >>> json.dumps(data, cls=NumpyEncoder)
+        '{"array": [1, 2, 3], "int": 10}'
+    """
 
     def default(self, obj):
         if isinstance(obj, np.ndarray):

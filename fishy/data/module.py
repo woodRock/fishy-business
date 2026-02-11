@@ -32,6 +32,12 @@ class DataProcessor:
     """
     Handles the low-level processing of raw data into features and labels.
 
+    Examples:
+        >>> from fishy.data.datasets import DatasetType
+        >>> processor = DataProcessor(DatasetType.SPECIES)
+        >>> processor.dataset_type.name
+        'SPECIES'
+
     This class interprets the dataset configuration to apply specific filtering
     and label encoding logic.
 
@@ -468,6 +474,13 @@ def create_data_module(
 ) -> DataModule:
     """
     Factory function to create a DataModule instance.
+
+    Examples:
+        >>> dm = create_data_module("species", "data/REIMS.xlsx", batch_size=32)
+        >>> isinstance(dm, DataModule)
+        True
+        >>> dm.batch_size == 32
+        True
 
     Args:
         dataset_name (str): Name of the dataset.

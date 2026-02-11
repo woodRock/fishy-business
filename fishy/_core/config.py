@@ -14,6 +14,13 @@ from pathlib import Path
 class TrainingConfig:
     """
     Configuration for model training, combining settings from command-line arguments.
+
+    Examples:
+        >>> config = TrainingConfig(model="cnn", batch_size=32)
+        >>> config.model
+        'cnn'
+        >>> config.batch_size
+        32
     """
 
     file_path: str = ""
@@ -124,6 +131,13 @@ class TrainingConfig:
 class ExperimentConfig:
     """
     Configuration for a batch of experiments.
+
+    Examples:
+        >>> exp = ExperimentConfig(name="test_suite", models=["cnn", "transformer"])
+        >>> exp.name
+        'test_suite'
+        >>> exp.models
+        ['cnn', 'transformer']
     """
     name: str = "batch_experiment"
     num_runs: int = 1

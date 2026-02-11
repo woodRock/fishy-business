@@ -40,6 +40,13 @@ class PreTrainingConfig:
     """
     Configuration for pre-training tasks.
 
+    Examples:
+        >>> config = PreTrainingConfig(num_epochs=5, n_features=100)
+        >>> config.num_epochs == 5
+        True
+        >>> config.n_features == 100
+        True
+
     Attributes:
         num_epochs (int): Number of epochs to train for each task.
         file_path (str): Path to save the model checkpoints.
@@ -75,6 +82,14 @@ def mask_spectra_side(input_spectra: T_Tensor, side: str = "left") -> T_Tensor:
     """
     Masks either the left or right side of the input spectra.
 
+    Examples:
+        >>> import torch
+        >>> x = torch.ones(4)
+        >>> mask_spectra_side(x, "left").tolist()
+        [0.0, 0.0, 1.0, 1.0]
+        >>> mask_spectra_side(x, "right").tolist()
+        [1.0, 1.0, 0.0, 0.0]
+
     Args:
         input_spectra (T_Tensor): The input spectra tensor to mask.
         side (str): The side to mask, either 'left' or 'right'.
@@ -96,6 +111,14 @@ def mask_spectra_side(input_spectra: T_Tensor, side: str = "left") -> T_Tensor:
 class PreTrainer:
     """
     Handles the execution of various self-supervised pre-training tasks.
+
+    Examples:
+        >>> import torch.nn as nn
+        >>> model = nn.Linear(10, 10)
+        >>> config = PreTrainingConfig(n_features=10, device='cpu')
+        >>> trainer = PreTrainer(model, config)
+        >>> isinstance(trainer.model, nn.Module)
+        True
 
     Args:
         model (nn.Module): The model to be pre-trained.
@@ -433,6 +456,15 @@ class PreTrainingOrchestrator:
     Uses external configuration (`pre_training.yaml`) to define tasks and their
     hyperparameters. Supports weight chaining between sequential tasks.
 
+    Examples:
+        >>> from fishy._core.config import TrainingConfig
+        >>> from fishy._core.utils import RunContext
+        >>> cfg = TrainingConfig()
+        >>> ctx = RunContext("ds", "method", "model")
+        >>> orch = PreTrainingOrchestrator(cfg, torch.device('cpu'), 10, ctx)
+        >>> orch.input_dim == 10
+        True
+
     Attributes:
         config (TrainingConfig): Global training configuration.
         device (torch.device): Computation device.
@@ -579,7 +611,7 @@ class PreTrainingOrchestrator:
 
     def adapt_for_finetuning(self, model: nn.Module, pre_trained_model: nn.Module) -> None:
         """
-        Adapts a pre-trained model for fine-tuning by loading compatible weights.
+        Adapates a pre-trained model for fine-tuning by loading compatible weights.
 
         Args:
             model (nn.Module): The target model for fine-tuning.
