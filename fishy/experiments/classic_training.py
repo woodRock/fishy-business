@@ -34,6 +34,7 @@ class ClassicTrainer:
         dataset_name: str,
         run_id: int = 0,
         file_path: Optional[str] = None,
+        wandb_run: Optional[Any] = None,
     ) -> None:
         self.config = config
         self.model_name = model_name.lower()
@@ -44,8 +45,8 @@ class ClassicTrainer:
         # Load classic models configuration
         self.models_cfg = load_config("models")["classic_models"]
 
-        self.wandb_run = None
-        if self.config.wandb_log:
+        self.wandb_run = wandb_run
+        if self.wandb_run is None and self.config.wandb_log:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
@@ -152,10 +153,15 @@ def run_classic_experiment(
     dataset_name: str,
     run_id: int = 0,
     file_path: Optional[str] = None,
+    wandb_run: Optional[Any] = None,
 ) -> Dict[str, float]:
-    trainer = ClassicTrainer(config, model_name, dataset_name, run_id, file_path)
+    started_wandb = False
+    if wandb_run is None and config.wandb_log:
+        started_wandb = True
+
+    trainer = ClassicTrainer(config, model_name, dataset_name, run_id, file_path, wandb_run=wandb_run)
     try:
         return trainer.run()
     finally:
-        if trainer.wandb_run:
+        if started_wandb and trainer.wandb_run:
             trainer.wandb_run.finish()

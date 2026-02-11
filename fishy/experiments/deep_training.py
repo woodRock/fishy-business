@@ -85,10 +85,10 @@ class ModelTrainer:
     Orchestrates the model training pipeline, from data setup to pre-training and fine-tuning.
     """
 
-    def __init__(self, config: TrainingConfig):
+    def __init__(self, config: TrainingConfig, wandb_run: Optional[Any] = None):
         self.config = config
-        self.wandb_run = None
-        if self.config.wandb_log:
+        self.wandb_run = wandb_run
+        if self.wandb_run is None and self.config.wandb_log:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
@@ -297,7 +297,7 @@ class ModelTrainer:
         return {k: np.mean([m[k] for m in all_fold_metrics if k in m and isinstance(m[k], (int, float))]) for k in all_fold_metrics[0].keys()}
 
 
-def run_training_pipeline(config: TrainingConfig) -> Dict[str, Any]:
+def run_training_pipeline(config: TrainingConfig, wandb_run: Optional[Any] = None) -> Dict[str, Any]:
     """
     Executes the full training pipeline for a given configuration.
 
@@ -306,14 +306,21 @@ def run_training_pipeline(config: TrainingConfig) -> Dict[str, Any]:
 
     Args:
         config (TrainingConfig): The experiment configuration.
+        wandb_run (Optional[Any]): An existing W&B run to use.
 
     Returns:
         Dict[str, Any]: The final results/metrics of the training pipeline.
     """
-    trainer = ModelTrainer(config)
+    # Track if we started the wandb run here
+    started_wandb = False
+    if wandb_run is None and config.wandb_log:
+        started_wandb = True
+
+    trainer = ModelTrainer(config, wandb_run=wandb_run)
     trainer.logger.info("Starting training pipeline")
     try:
         pre_trained_model = trainer.pre_train()
         return trainer.train(pre_trained_model)
     finally:
-        if trainer.wandb_run: trainer.wandb_run.finish()
+        if started_wandb and trainer.wandb_run:
+            trainer.wandb_run.finish()

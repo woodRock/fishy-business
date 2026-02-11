@@ -1,0 +1,114 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        m: []
+        python_version: 3.9.6
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 16
+            "4": 3.9.6
+            "5": 0.24.2
+            "10":
+                - 20
+            "12": 0.24.2
+            "13": darwin-arm64
+batch_size:
+    value: 64
+benchmark:
+    value: true
+contrastive_transformation_invariance_learning:
+    value: false
+crop_enabled:
+    value: false
+crop_size:
+    value: 0.8
+data_augmentation:
+    value: false
+dataset:
+    value: species
+dropout:
+    value: 0.2
+early_stopping:
+    value: 20
+epochs:
+    value: 100
+epochs_finetune:
+    value: 20
+epochs_transfer:
+    value: 10
+figures:
+    value: true
+file_path:
+    value: /Users/woodj/Desktop/fishy-business/data/REIMS.xlsx
+flip_enabled:
+    value: false
+hidden_dimension:
+    value: 128
+k_folds:
+    value: 3
+label_smoothing:
+    value: 0.1
+learning_rate:
+    value: 0.0001
+masked_spectra_modelling:
+    value: false
+method:
+    value: classic
+model:
+    value: knn
+next_peak_prediction:
+    value: false
+next_spectra_prediction:
+    value: false
+noise_level:
+    value: 0.05
+num_augmentations:
+    value: 5
+num_heads:
+    value: 4
+num_layers:
+    value: 4
+num_runs:
+    value: 1
+ordinal_method:
+    value: null
+output:
+    value: logs/results
+peak_parameter_regression:
+    value: false
+permutation_enabled:
+    value: false
+regression:
+    value: false
+run:
+    value: 738
+scale_enabled:
+    value: false
+shift_enabled:
+    value: false
+spectrum_denoising_autoencoding:
+    value: false
+spectrum_segment_reordering:
+    value: false
+statistical:
+    value: true
+target_dataset:
+    value: null
+transfer:
+    value: false
+transfer_datasets:
+    value: null
+use_groups:
+    value: false
+wandb_entity:
+    value: victoria-university-of-wellington
+wandb_log:
+    value: true
+wandb_project:
+    value: fishy-business
+xai:
+    value: false

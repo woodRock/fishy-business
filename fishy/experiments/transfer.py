@@ -52,12 +52,14 @@ def run_sequential_transfer_learning(
     wandb_entity: str = "victoria-university-of-wellington",
     wandb_log: bool = False,
     run: int = 0,
+    wandb_run: Optional[Any] = None,
 ) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Performs sequential transfer learning using standardized DataModules.
     """
-    wandb_run = None
-    if wandb_log:
+    started_wandb = False
+    if wandb_run is None and wandb_log:
+        started_wandb = True
         wandb_run = wandb.init(
             project=wandb_project, entity=wandb_entity,
             config={"model": model_name, "transfer": transfer_datasets, "target": target_dataset},
@@ -68,6 +70,7 @@ def run_sequential_transfer_learning(
     logger = ctx.logger
 
     try:
+        # ... (rest of the try block)
         history = {"transfer": {}, "finetune": {}}
         device_obj = get_device()
         
@@ -137,4 +140,4 @@ def run_sequential_transfer_learning(
         return model, history
 
     finally:
-        if wandb_run: wandb_run.finish()
+        if started_wandb and wandb_run: wandb_run.finish()

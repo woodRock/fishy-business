@@ -107,16 +107,17 @@ class UnifiedTrainer:
             wandb_project=self.config.wandb_project,
             wandb_entity=self.config.wandb_entity,
             run=self.config.run,
+            wandb_run=self.wandb_run,
         )
 
     def _run_deep(self):
         from fishy.experiments.deep_training import run_training_pipeline
-        return run_training_pipeline(self.config)
+        return run_training_pipeline(self.config, wandb_run=self.wandb_run)
 
     def _run_classic(self):
         from fishy.experiments.classic_training import run_classic_experiment
         return run_classic_experiment(
-            self.config, self.config.model, self.config.dataset, self.config.run, self.config.file_path
+            self.config, self.config.model, self.config.dataset, self.config.run, self.config.file_path, wandb_run=self.wandb_run
         )
 
     def _run_contrastive(self):
@@ -130,8 +131,10 @@ class UnifiedTrainer:
             learning_rate=self.config.learning_rate,
             file_path=self.config.file_path,
             wandb_log=self.config.wandb_log,
+            wandb_project=self.config.wandb_project,
+            wandb_entity=self.config.wandb_entity,
         )
-        return run_contrastive_experiment(c_cfg)
+        return run_contrastive_experiment(c_cfg, wandb_run=self.wandb_run)
 
     def _run_evolutionary(self):
         from fishy.experiments.evolutionary import run_evolutionary_experiment
@@ -143,6 +146,9 @@ class UnifiedTrainer:
             run=self.config.run,
             data_file_path=self.config.file_path,
             wandb_log=self.config.wandb_log,
+            wandb_project=self.config.wandb_project,
+            wandb_entity=self.config.wandb_entity,
+            wandb_run=self.wandb_run,
         )
 
     def _do_benchmark(self, training_time: float):

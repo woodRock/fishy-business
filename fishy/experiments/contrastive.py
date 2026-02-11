@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Subset
 import numpy as np
 import copy
 from dataclasses import dataclass
-from typing import Tuple, Dict, Optional, List
+from typing import Tuple, Dict, Optional, List, Any
 from dataclasses import asdict
 
 from fishy.data.module import create_data_module
@@ -67,16 +67,17 @@ class ContrastiveTrainer:
         device (torch.device): Computation device.
     """
 
-    def __init__(self, config: ContrastiveConfig) -> None:
+    def __init__(self, config: ContrastiveConfig, wandb_run: Optional[Any] = None) -> None:
         """
         Initializes the trainer.
 
         Args:
             config (ContrastiveConfig): The experiment configuration.
+            wandb_run (Optional[Any]): An existing W&B run to use.
         """
         self.config = config
-        self.wandb_run = None
-        if self.config.wandb_log:
+        self.wandb_run = wandb_run
+        if self.wandb_run is None and self.config.wandb_log:
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
@@ -196,16 +197,21 @@ class ContrastiveTrainer:
         self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
 
 
-def run_contrastive_experiment(config: ContrastiveConfig) -> None:
+def run_contrastive_experiment(config: ContrastiveConfig, wandb_run: Optional[Any] = None) -> None:
     """
     Orchestrates a contrastive learning experiment.
 
     Args:
         config (ContrastiveConfig): configuration object.
+        wandb_run (Optional[Any]): An existing W&B run to use.
     """
-    trainer = ContrastiveTrainer(config)
+    started_wandb = False
+    if wandb_run is None and config.wandb_log:
+        started_wandb = True
+
+    trainer = ContrastiveTrainer(config, wandb_run=wandb_run)
     try:
         trainer.setup()
         trainer.train()
     finally:
-        if trainer.wandb_run: trainer.wandb_run.finish()
+        if started_wandb and trainer.wandb_run: trainer.wandb_run.finish()

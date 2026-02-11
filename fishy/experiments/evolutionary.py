@@ -33,12 +33,14 @@ def run_evolutionary_experiment(
     wandb_project: str = "fishy-business",
     wandb_entity: str = "victoria-university-of-wellington",
     wandb_log: bool = False,
+    wandb_run: Optional[Any] = None,
 ) -> Dict[str, float]:
     """
     Runs an evolutionary experiment using the specified model.
     """
-    wandb_run = None
-    if wandb_log:
+    started_wandb = False
+    if wandb_run is None and wandb_log:
+        started_wandb = True
         wandb_run = wandb.init(
             project=wandb_project, entity=wandb_entity,
             config={"dataset": dataset, "model": model_name, "gens": generations, "pop": population, "run": run},
@@ -113,5 +115,5 @@ def run_evolutionary_experiment(
         "predictions": last_fold_info
     }
     ctx.save_results({"folds": fold_metrics, "stats": stats})
-    if wandb_run: wandb_run.finish()
+    if started_wandb and wandb_run: wandb_run.finish()
     return stats
