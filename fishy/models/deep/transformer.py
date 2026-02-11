@@ -53,20 +53,20 @@ References:
     Zheng, S., Xing, C., ... & Liu, T. (2020, November).
     On layer normalization in the transformer architecture.
     In International Conference on Machine Learning (pp. 10524-10533). PMLR.
-14. Karpathy, Andrej (2023)
+15. Karpathy, Andrej (2023)
     Let's build GPT: from scratch, in code, spelled out.
     YouTube https://youtu.be/kCc8FmEb1nY?si=1vM4DhyqsGKUSAdV
-15. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
+16. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
     Rethinking the inception architecture for computer vision.
     In Proceedings of the IEEE conference on computer vision
     and pattern recognition (pp. 2818-2826).
-16. He, Kaiming, et al. "Delving deep into rectifiers:
+17. He, Kaiming, et al. "Delving deep into rectifiers:
     Surpassing human-level performance on imagenet classification."
     Proceedings of the IEEE international conference on computer vision. 2015.
-17. Saxe, A. M., McClelland, J. L., & Ganguli, S. (2013).
+18. Saxe, A. M., McClelland, J. L., & Ganguli, S. (2013).
     Exact solutions to the nonlinear dynamics of learning in
     deep linear neural networks. arXiv preprint arXiv:1312.6120.
-18. 8. He, K., Zhang, X., Ren, S., & Sun, J. (2016).
+19. He, K., Zhang, X., Ren, S., & Sun, J. (2016).
     Deep residual learning for image recognition.
     In Proceedings of the IEEE conference on
     computer vision and pattern recognition (pp. 770-778).

@@ -1,0 +1,12 @@
+fishy._core
+fishy.analysis
+fishy.cli
+fishy.configs
+fishy.data
+fishy.engine
+fishy.experiments
+fishy.models
+fishy.models.classic
+fishy.models.contrastive
+fishy.models.deep
+fishy.models.evolutionary

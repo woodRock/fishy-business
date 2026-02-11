@@ -9,3 +9,4 @@ This is the auto-generated API reference for the ``fishy`` library.
    :recursive:
 
    fishy
+   fishy._core
