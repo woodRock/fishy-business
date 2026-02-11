@@ -2,22 +2,19 @@
 # -*- coding: utf-8 -*-
 """
 Main entry point for the fishy business project.
-
-Examples:
-    >>> import main
-    >>> hasattr(main, 'main')
-    True
 """
 
 import warnings
+import os
 
-# Suppress the urllib3 NotOpenSSLWarning on macOS
-try:
-    from urllib3.exceptions import NotOpenSSLWarning
+# 1. Global warning suppression for cleaner CLI experience
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn.metrics")
+warnings.filterwarnings("ignore", category=UserWarning, module="torch")
+warnings.filterwarnings("ignore", category=FutureWarning)
 
-    warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
-except ImportError:
-    pass
+# Suppress noisy library logs
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+os.environ['MPLBACKEND'] = 'Agg'
 
 from fishy.cli.main import main
 

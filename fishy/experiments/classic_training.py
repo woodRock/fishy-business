@@ -70,8 +70,11 @@ class SklearnTrainer:
                 y_pred = np.round(y_pred).clip(min(y), max(y)).astype(int)
                 y_train_pred = np.round(y_train_pred).clip(min(y), max(y)).astype(int)
             
-            train_met = self._calculate_metrics(y_train, y_train_pred)
-            val_met = self._calculate_metrics(y_test, y_pred)
+            # SUPPRESS: Wrap entire evaluation in warning filter
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                train_met = self._calculate_metrics(y_train, y_train_pred)
+                val_met = self._calculate_metrics(y_test, y_pred)
             
             fold_res = {}
             for k, v in train_met.items(): fold_res[f"train_{k}"] = v
@@ -94,18 +97,17 @@ class SklearnTrainer:
         return stats
 
     def _calculate_metrics(self, y_true, y_pred) -> Dict[str, float]:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=UserWarning)
-            all_labels = np.arange(self.num_classes)
-            return {
-                "accuracy": accuracy_score(y_true, y_pred),
-                "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
-                "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
-                "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
-                "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
-                "mae": mean_absolute_error(y_true, y_pred),
-                "mse": mean_squared_error(y_true, y_pred)
-            }
+        # NOTE: Caller already wraps this in catch_warnings
+        all_labels = np.arange(self.num_classes) if self.num_classes else None
+        return {
+            "accuracy": accuracy_score(y_true, y_pred),
+            "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
+            "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+            "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+            "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+            "mae": mean_absolute_error(y_true, y_pred),
+            "mse": mean_squared_error(y_true, y_pred)
+        }
 
     def _get_model_instance(self) -> Any:
         model_path = self.model_entry["path"] if isinstance(self.model_entry, dict) else self.model_entry
