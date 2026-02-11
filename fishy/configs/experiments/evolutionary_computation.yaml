@@ -1,0 +1,12 @@
+# Example Batch Experiment: Deep Learning Comparison
+name: "evolutionary_computation"
+num_runs: 1
+datasets: ["species"]
+models: ["gp", "ga", "pso", "eda", "es"]
+benchmark: true
+figures: true
+wandb_log: false
+overrides:
+  population_size: 100
+  generations: 100
+  elitism: 0.1

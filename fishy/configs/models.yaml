@@ -101,10 +101,42 @@ contrastive_models:
 
 evolutionary_models:
   gp:
-    path: "fishy.models.evolutionary.gp"
+    path: "fishy.models.evolutionary.gp.GP"
     defaults:
       population: 1023
       generations: 10
       mutation_rate: 0.2
       crossover_rate: 0.8
+      elitism: 0.1
+
+  ga:
+    path: "fishy.models.evolutionary.ga.GA"
+    defaults:
+      population_size: 100
+      generations: 20
+      crossover_rate: 0.7
+      mutation_rate: 0.2
+      elitism: 0.1
+
+  es:
+    path: "fishy.models.evolutionary.es.ES"
+    defaults:
+      mu: 50
+      lambda_: 100
+      generations: 20
+
+  pso:
+    path: "fishy.models.evolutionary.pso.PSO"
+    defaults:
+      population_size: 50
+      iterations: 20
+      phi1: 2.0
+      phi2: 2.0
+
+  eda:
+    path: "fishy.models.evolutionary.eda.EDA"
+    defaults:
+      population_size: 100
+      generations: 20
+      select_ratio: 0.2
       elitism: 0.1

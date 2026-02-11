@@ -33,28 +33,45 @@ A configuration-driven framework for the analysis of spectral data using Deep Le
 
 The framework provides a unified CLI via `main.py`.
 
-### Standard Training (Classification)
+### 🪄 Getting Started (Recommended)
+New users should start with the **Interactive Wizard**, which guides you through model selection, dataset choice, and analysis setup:
 ```bash
-python3 main.py train --model transformer --dataset species
+python3 main.py wizard
+```
+The wizard will generate the exact CLI command or a configuration file for you.
+
+### 🚂 Training & Analysis
+All model types (Deep, Classic, Evolutionary, Contrastive) are trained using the same unified command:
+
+```bash
+# Train a Deep Learning model with performance benchmarking
+python3 main.py train -m transformer -d species --benchmark --figures
+
+# Train a Classic ML model
+python3 main.py train -m rf -d oil
+
+# Train an Evolutionary Algorithm (Feature Weighting)
+python3 main.py train -m ga -d part
 ```
 
-### Self-Supervised Pre-training
+### 📂 Config-Driven Experiments
+For large-scale or reproducible experiments, use YAML configuration files:
 ```bash
-python3 main.py pretrain --model mamba --masked-spectra-modelling --next-peak-prediction
+python3 main.py train -c fishy/configs/experiments/quick_benchmark.yaml
 ```
 
-### Ordinal & Standard Regression
+### 🔬 Advanced Tasks
+Expert flags are hidden by default to keep the interface clean. View them using:
 ```bash
-python3 main.py ordinal --model lstm --dataset oil --use-coral
+# See context-aware help for transfer learning
+python3 main.py train --transfer --help
+
+# See ALL expert overrides (Hyperparameters, XAI, etc.)
+python3 main.py train --all --help
 ```
 
-### Contrastive Learning
-```bash
-python3 main.py contrastive --method simclr --encoder transformer
-```
-
-### Benchmarking & Statistical Analysis
-Run the full suite with paired t-tests against OPLS-DA baselines:
+### 📊 Full Benchmarking Suite
+Run the full doctoral benchmarking suite with statistical analysis (paired t-tests):
 ```bash
 python3 main.py run_all --num-runs 30
 ```

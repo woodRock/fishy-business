@@ -1,29 +1,19 @@
 # -*- coding: utf-8 -*-
 """
 Configuration module for the deep learning training pipeline.
-
-This module defines the :class:`TrainingConfig` dataclass, which centralizes all configuration parameters
-for model training, data loading, and augmentation. It also provides a method to create a configuration
-instance directly from parsed command-line arguments.
 """
 
 import argparse
-from dataclasses import dataclass
-from typing import Optional
+import yaml
+from dataclasses import dataclass, field, asdict
+from typing import Optional, List, Dict, Any
+from pathlib import Path
 
 
 @dataclass
 class TrainingConfig:
     """
     Configuration for model training, combining settings from command-line arguments.
-
-    Examples:
-        >>> # Default configuration
-        >>> cfg = TrainingConfig(model="transformer", dataset="species")
-        >>> cfg.model
-        'transformer'
-        >>> cfg.epochs
-        100
     """
 
     file_path: str = ""
@@ -54,8 +44,7 @@ class TrainingConfig:
     scale_enabled: bool = False
     k_folds: int = 3
     num_runs: int = 1
-    use_coral: bool = False
-    use_cumulative_link: bool = False
+    ordinal_method: Optional[str] = None # coral, clm
     regression: bool = False
     use_groups: bool = False # Added flag for Group-Aware Splitting
     # New augmentation parameters
@@ -64,6 +53,19 @@ class TrainingConfig:
     permutation_enabled: bool = False
     crop_size: float = 0.8  # Default crop size
 
+    # New Analysis & Reporting Flags
+    benchmark: bool = False
+    figures: bool = False
+    xai: bool = False
+    
+    # Task specific (now integrated)
+    method: str = "deep" # deep, classic, contrastive, evolutionary
+    transfer: bool = False
+    transfer_datasets: Optional[list] = None
+    target_dataset: Optional[str] = None
+    epochs_transfer: int = 10
+    epochs_finetune: int = 20
+    
     # Weights & Biases parameters
     wandb_project: Optional[str] = "fishy-business"
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
@@ -71,18 +73,7 @@ class TrainingConfig:
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "TrainingConfig":
-        """
-        Create a :class:`TrainingConfig` instance from parsed command-line arguments.
-
-        Examples:
-            >>> import argparse
-            >>> args = argparse.Namespace(model="lstm", dataset="oil", epochs=10)
-            >>> cfg = TrainingConfig.from_args(args)
-            >>> cfg.model
-            'lstm'
-            >>> cfg.epochs
-            10
-        """
+        """Create from CLI arguments."""
         import dataclasses
         from fishy._core.config_loader import load_config
 
@@ -97,13 +88,51 @@ class TrainingConfig:
                 config_dict.update(model_entry["defaults"])
 
         # 3. Override with explicitly provided command-line arguments
-        # We only override if the argument was actually passed by the user
-        valid_keys = {f.name for f in dataclasses.fields(cls)}
         arg_dict = vars(args)
+        
+        # Handle special mappings
+        if "ordinal" in arg_dict and arg_dict["ordinal"]:
+            config_dict["ordinal_method"] = arg_dict["ordinal"]
+
+        valid_keys = {f.name for f in dataclasses.fields(cls)}
         for key in valid_keys:
             if key in arg_dict and arg_dict[key] is not None:
-                # For boolean flags, check if they are True (explicitly enabled)
-                # For other types, check if they differ from the default if default is set
                 config_dict[key] = arg_dict[key]
 
         return cls(**config_dict)
+
+    @classmethod
+    def from_yaml(cls, path: str) -> "TrainingConfig":
+        """Loads configuration from a YAML file."""
+        with open(path, "r") as f:
+            data = yaml.safe_load(f)
+        return cls(**data)
+
+    def to_yaml(self, path: str):
+        """Saves configuration to a YAML file."""
+        with open(path, "w") as f:
+            yaml.dump(asdict(self), f, default_flow_style=False)
+
+
+@dataclass
+class ExperimentConfig:
+    """
+    Configuration for a batch of experiments.
+    """
+    name: str = "batch_experiment"
+    num_runs: int = 1
+    datasets: List[str] = field(default_factory=lambda: ["species"])
+    models: List[str] = field(default_factory=lambda: ["transformer"])
+    # Common overrides for all runs in this experiment
+    overrides: Dict[str, Any] = field(default_factory=dict)
+    
+    # Analysis flags for the batch
+    benchmark: bool = False
+    figures: bool = False
+    wandb_log: bool = False
+
+    @classmethod
+    def from_yaml(cls, path: str) -> "ExperimentConfig":
+        with open(path, "r") as f:
+            data = yaml.safe_load(f)
+        return cls(**data)

@@ -200,10 +200,10 @@ class ModelTrainer:
         trained_model, train_val_metrics = train_model(
             model=model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer,
             num_epochs=self.config.epochs, patience=self.config.early_stopping, is_augmented=self.config.data_augmentation,
-            device=self.device, use_coral=self.config.use_coral, num_classes=self.n_classes, regression=self.config.regression, ctx=self.ctx,
+            device=self.device, use_coral=(self.config.ordinal_method == "coral"), num_classes=self.n_classes, regression=self.config.regression, ctx=self.ctx,
         )
 
-        test_results = evaluate_model(trained_model, test_loader, criterion, self.device, self.config.use_coral, self.n_classes, regression=self.config.regression)
+        test_results = evaluate_model(trained_model, test_loader, criterion, self.device, (self.config.ordinal_method == "coral"), self.n_classes, regression=self.config.regression)
         
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_results, test_loader)
@@ -244,14 +244,17 @@ class ModelTrainer:
                 self.pre_train_orchestrator.adapt_for_finetuning(model, pre_trained_model)
 
             criterion = nn.MSELoss() if self.config.regression else nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-            if self.config.use_coral: criterion = coral_loss
+            if self.config.ordinal_method == "coral": criterion = coral_loss
+            elif self.config.ordinal_method == "clm": criterion = cumulative_link_loss
             
             optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
             trained_model, metrics = train_model(
                 model=model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer,
                 num_epochs=self.config.epochs, patience=self.config.early_stopping, is_augmented=self.config.data_augmentation,
-                device=self.device, use_coral=self.config.use_coral, num_classes=self.n_classes, regression=self.config.regression, ctx=self.ctx,
+                device=self.device, use_coral=(self.config.ordinal_method == "coral"), 
+                use_cumulative_link=(self.config.ordinal_method == "clm"),
+                num_classes=self.n_classes, regression=self.config.regression, ctx=self.ctx,
             )
             
             if "best_val_predictions" in metrics:

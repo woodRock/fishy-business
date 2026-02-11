@@ -1,0 +1,10 @@
+# Example Batch Experiment: Quick Benchmark
+name: "quick_baseline_check"
+num_runs: 2
+datasets: ["species", "oil"]
+models: ["rf", "ga", "transformer"]
+benchmark: true
+figures: true
+overrides:
+  epochs: 2
+  batch_size: 32

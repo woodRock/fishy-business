@@ -159,6 +159,7 @@ class Trainer:
             "best_fold_metrics": best_fold_metrics,
             "epoch_metrics": epoch_log,
             "best_val_predictions": best_val_predictions,
+            "predictions": best_val_predictions # Alias for easier access
         }
 
     def evaluate(self, loader: DataLoader) -> Dict[str, Any]:

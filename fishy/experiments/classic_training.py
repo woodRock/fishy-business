@@ -87,6 +87,7 @@ class ClassicTrainer:
         skf = StratifiedKFold(n_splits=self.config.k_folds, shuffle=True, random_state=self.run_id)
 
         val_results, train_results = [], []
+        last_fold_info = {}
         for fold, (train_idx, test_idx) in enumerate(skf.split(X_scaled, y), 1):
             X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
             y_train, y_test = y[train_idx], y[test_idx]
@@ -98,10 +99,12 @@ class ClassicTrainer:
                 
             clf.fit(X_train, y_train)
 
-            train_acc = balanced_accuracy_score(y_train, clf.predict(X_train))
+            y_train_pred = clf.predict(X_train)
+            train_acc = balanced_accuracy_score(y_train, y_train_pred)
             train_results.append(train_acc)
 
             y_pred = clf.predict(X_test)
+            y_probs = clf.predict_proba(X_test) if hasattr(clf, "predict_proba") else None
             val_acc = balanced_accuracy_score(y_test, y_pred)
             val_results.append(val_acc)
 
@@ -110,9 +113,16 @@ class ClassicTrainer:
                 "epoch/val_balanced_accuracy": val_acc
             })
 
+            # Capture last fold for figure generation
+            if fold == self.config.k_folds:
+                last_fold_info = {
+                    "labels": y_test,
+                    "preds": y_pred,
+                    "probs": y_probs
+                }
+
             if fold == self.config.k_folds and self.ctx.wandb_run:
                 class_names = data_module.get_class_names()
-                y_probs = clf.predict_proba(X_test) if hasattr(clf, "predict_proba") else None
                 if y_probs is not None:
                     self.ctx.log_summary_charts(y_test, y_probs, class_names)
                 self.ctx.log_prediction_table(
@@ -124,7 +134,13 @@ class ClassicTrainer:
         stats = {
             "train_balanced_accuracy": float(np.mean(train_results)),
             "val_balanced_accuracy": float(np.mean(val_results)),
-            "val_balanced_accuracy_std": float(np.std(val_results))
+            "val_balanced_accuracy_std": float(np.std(val_results)),
+            "epoch_metrics": {
+                "val_balanced_accuracy": val_results,
+                "train_balanced_accuracy": train_results
+            },
+            "best_val_predictions": last_fold_info,
+            "predictions": last_fold_info
         }
         self.ctx.save_results({"fold_accuracies": val_results, "stats": stats})
         return stats

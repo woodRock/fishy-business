@@ -27,7 +27,8 @@ dependencies = [
     "xgboost",
     "wandb",
     "pyyaml",
-    "pytest"
+    "pytest",
+    "argcomplete"
 ]
 
 [tool.setuptools.packages.find]

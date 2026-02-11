@@ -1,0 +1,12 @@
+# Example Batch Experiment: Deep Learning Comparison
+name: "deep_model_search"
+num_runs: 5
+datasets: ["species"]
+models: ["transformer", "lstm", "mamba", "cnn"]
+benchmark: true
+figures: true
+wandb_log: true
+overrides:
+  epochs: 50
+  early_stopping: 10
+  learning_rate: 0.0005

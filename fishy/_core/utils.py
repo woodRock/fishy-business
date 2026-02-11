@@ -58,6 +58,21 @@ def get_device() -> torch.device:
     return torch.device("cpu")
 
 
+class NumpyEncoder(json.JSONEncoder):
+    """Custom JSON encoder for NumPy types and Path objects."""
+
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, (np.integer, np.int64, np.int32)):
+            return int(obj)
+        if isinstance(obj, (np.floating, np.float64, np.float32)):
+            return float(obj)
+        if isinstance(obj, Path):
+            return str(obj)
+        return super().default(obj)
+
+
 class RunContext:
     """
     Manages the lifecycle of an experiment run, including directory creation,
@@ -87,6 +102,7 @@ class RunContext:
         self.result_dir = self.run_dir / "results"
         self.checkpoint_dir = self.run_dir / "checkpoints"
         self.figure_dir = self.run_dir / "figures"
+        self.benchmark_dir = self.run_dir / "benchmark"
 
         self._create_dirs()
         self.logger = (
@@ -99,7 +115,7 @@ class RunContext:
 
     def _create_dirs(self):
         """Creates the structured directory tree for the run."""
-        for d in [self.log_dir, self.result_dir, self.checkpoint_dir, self.figure_dir]:
+        for d in [self.log_dir, self.result_dir, self.checkpoint_dir, self.figure_dir, self.benchmark_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
     def _setup_logging(self) -> logging.Logger:
@@ -134,7 +150,7 @@ class RunContext:
         """Saves a dictionary of results/metrics to a JSON file."""
         path = self.result_dir / filename
         with open(path, "w") as f:
-            json.dump(results, f, indent=4)
+            json.dump(results, f, indent=4, cls=NumpyEncoder)
         self.logger.info(f"Metrics saved to {path}")
         
         if self.wandb_run:
@@ -144,10 +160,12 @@ class RunContext:
                 if k == "stats" and isinstance(v, dict):
                     # Promote stats to top level
                     log_dict.update(v)
-                elif isinstance(v, (int, float, str, bool)):
+                elif isinstance(v, (int, float, str, bool, np.integer, np.floating)):
                     log_dict[k] = v
             
             if log_dict:
+                # Ensure all values are JSON serializable for W&B as well
+                log_dict = json.loads(json.dumps(log_dict, cls=NumpyEncoder))
                 self.wandb_run.log(log_dict, commit=False)
             
             self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
@@ -165,23 +183,13 @@ class RunContext:
         else:
             config_dict = {"config_summary": str(config)}
 
-        # Convert Path objects to strings for JSON serialization
-        def convert_paths_to_str(obj):
-            if isinstance(obj, Path):
-                return str(obj)
-            if isinstance(obj, dict):
-                return {k: convert_paths_to_str(v) for k, v in obj.items()}
-            if isinstance(obj, list):
-                return [convert_paths_to_str(elem) for elem in obj]
-            return obj
-
-        config_dict = convert_paths_to_str(config_dict)
-
         with open(path, "w") as f:
-            json.dump(config_dict, f, indent=4)
+            json.dump(config_dict, f, indent=4, cls=NumpyEncoder)
         self.logger.info(f"Configuration saved to {path}")
         if self.wandb_run:
-            self.wandb_run.config.update(config_dict)  # Update W&B run config
+            # Ensure config is serializable for W&B
+            wandb_config = json.loads(json.dumps(config_dict, cls=NumpyEncoder))
+            self.wandb_run.config.update(wandb_config)  # Update W&B run config
             self.wandb_run.save(
                 str(path), base_path=str(self.run_dir)
             )  # Log file as artifact

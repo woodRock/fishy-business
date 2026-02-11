@@ -189,13 +189,52 @@ class GP(BaseEstimator, ClassifierMixin):
         toolbox.decorate("mutate", staticLimit(key=lambda t: t.height, max_value=self.max_depth))
 
         pop = toolbox.population(n=self.population_size)
-        hof = tools.HallOfFame(max(1, int(self.elitism * self.population_size)))
+        hof = tools.HallOfFame(1)
         
         stats = tools.Statistics(lambda ind: ind.fitness.values)
         stats.register("max", np.max)
+        stats.register("avg", np.mean)
 
-        algorithms.eaSimple(pop, toolbox, self.crossover_rate, self.mutation_rate, self.generations, stats=stats, halloffame=hof, verbose=False)
-        
+        n_elitism = max(1, int(self.elitism * self.population_size))
+
+        # Evaluate the entire population
+        fitnesses = list(map(toolbox.evaluate, pop))
+        for ind, fit in zip(pop, fitnesses):
+            ind.fitness.values = fit
+
+        hof.update(pop)
+
+        for gen in range(self.generations):
+            # Selection
+            offspring = toolbox.select(pop, self.population_size - n_elitism)
+            offspring = [toolbox.clone(ind) for ind in offspring]
+
+            # Variational form (crossover and mutation)
+            for child1, child2 in zip(offspring[::2], offspring[1::2]):
+                if random.random() < self.crossover_rate:
+                    toolbox.mate(child1, child2)
+                    del child1.fitness.values
+                    del child2.fitness.values
+
+            for mutant in offspring:
+                if random.random() < self.mutation_rate:
+                    toolbox.mutate(mutant)
+                    del mutant.fitness.values
+
+            # Evaluate offspring with invalid fitness
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            fitnesses = map(toolbox.evaluate, invalid_ind)
+            for ind, fit in zip(invalid_ind, fitnesses):
+                ind.fitness.values = fit
+
+            # Elitism: combine best from previous population with offspring
+            elites = [toolbox.clone(ind) for ind in tools.selBest(pop, n_elitism)]
+            pop[:] = elites + offspring
+            
+            hof.update(pop)
+            record = stats.compile(pop)
+            logger.info(f"Gen {gen}: {record}")
+
         self.best_individual = hof[0]
         return self
 
