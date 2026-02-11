@@ -3,6 +3,8 @@
 
 [![Documentation Status](https://readthedocs.org/projects/fishy-business/badge/?version=latest)](https://fishy-business.readthedocs.io/en/latest/?badge=latest)
 [![Format Python Code](https://github.com/woodRock/fishy-business/actions/workflows/black.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/black.yml)
+[![Unit Tests](https://github.com/woodRock/fishy-business/actions/workflows/unittests.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/unittests.yml)
+[![Coverage Status](https://coveralls.io/repos/github/woodRock/fishy-business/badge.svg?branch=main)](https://coveralls.io/github/woodRock/fishy-business?branch=main)
 [![Doctests](https://github.com/woodRock/fishy-business/actions/workflows/doctests.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/doctests.yml)
 
 A configuration-driven framework for the analysis of spectral data using Deep Learning, Classic Machine Learning, and Evolutionary Algorithms.
@@ -85,15 +87,20 @@ The library is designed to be extended without modifying core logic:
 
 ## Programmatic Usage
 
-For advanced usage in Python scripts, see the `examples/` directory:
-- `01_programmatic_training.py`: High-level orchestration.
-- `02_data_module_exploration.py`: Dynamic data loading.
-- `03_low_level_trainer.py`: Custom PyTorch model training.
+For advanced usage in Python scripts, see the `examples/` directory for a step-by-step tutorial series:
+- `01_getting_started.py`: The simplest way to run a training experiment.
+- `02_data_module.py`: Loading, filtering, and inspecting datasets.
+- ... and 7 more tutorials covering pre-training, transfer learning, and more.
 
 ## Testing & Documentation
 
-Run the live documentation tests:
+We maintain high code quality through automated testing:
+
 ```bash
+# Run unit tests with coverage
+pytest tests/
+
+# Run documentation tests
 pytest --doctest-modules fishy/
 ```
 
