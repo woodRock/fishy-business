@@ -32,9 +32,33 @@ from sklearn.metrics import (
 
 class Trainer:
     """
-    Encapsulates the training, validation, and evaluation loops.
+    Encapsulates the training, validation, and evaluation loops for PyTorch models.
+
+    This class handles the boilerplate code for training a model, including:
+    - Iterating over epochs
+    - Running training and validation loops
+    - Calculating metrics
+    - Logging progress (via logger and RunContext)
+    - Early stopping
+    - Model checkpointing (best model based on validation accuracy)
+
+    Attributes:
+        model (nn.Module): The neural network model to train.
+        criterion (nn.Module): The loss function.
+        optimizer (optim.Optimizer): The optimization algorithm.
+        device (torch.device): The device (CPU or GPU) to run training on.
+        num_epochs (int): Maximum number of training epochs.
+        scheduler (Optional[Any]): Learning rate scheduler.
+        patience (int): Number of epochs to wait for improvement before early stopping.
+        use_coral (bool): Whether to use CORAL loss (for ordinal regression).
+        use_cumulative_link (bool): Whether to use Cumulative Link loss (for ordinal regression).
+        num_classes (Optional[int]): Number of target classes (required for CORAL).
+        regression (bool): Whether the task is regression (as opposed to classification).
+        ctx (Optional[RunContext]): Context object for logging to external services (e.g., WandB).
+        logger (logging.Logger): Logger instance for console output.
 
     Examples:
+        >>> import torch
         >>> import torch.nn as nn
         >>> import torch.optim as optim
         >>> model = nn.Linear(10, 2)
@@ -56,7 +80,7 @@ class Trainer:
         optimizer: optim.Optimizer,
         device: torch.device,
         num_epochs: int,
-        scheduler: Optional[Any] = None,  # Added scheduler
+        scheduler: Optional[Any] = None,
         patience: int = 20,
         use_coral: bool = False,
         use_cumulative_link: bool = False,
@@ -65,6 +89,24 @@ class Trainer:
         ctx: Optional[RunContext] = None,
         logger: Optional[logging.Logger] = None,
     ):
+        """
+        Initializes the Trainer.
+
+        Args:
+            model (nn.Module): The PyTorch model to be trained.
+            criterion (nn.Module): The loss function (e.g., nn.CrossEntropyLoss).
+            optimizer (optim.Optimizer): The optimizer (e.g., optim.Adam).
+            device (torch.device): The computing device ('cpu' or 'cuda').
+            num_epochs (int): The maximum number of epochs to train.
+            scheduler (Optional[Any], optional): Learning rate scheduler. Defaults to None.
+            patience (int, optional): Early stopping patience in epochs. Defaults to 20.
+            use_coral (bool, optional): Enable CORAL ordinal loss. Defaults to False.
+            use_cumulative_link (bool, optional): Enable cumulative link ordinal loss. Defaults to False.
+            num_classes (Optional[int], optional): Number of classes, required if use_coral is True. Defaults to None.
+            regression (bool, optional): Set to True if performing regression. Defaults to False.
+            ctx (Optional[RunContext], optional): Context for experiment tracking. Defaults to None.
+            logger (Optional[logging.Logger], optional): Custom logger. If None, uses module logger. Defaults to None.
+        """
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
@@ -85,8 +127,23 @@ class Trainer:
         val_loader: Optional[DataLoader] = None,
     ) -> Dict[str, Any]:
         """
-        Executes the training loop.
-        If val_loader is provided, performs validation and early stopping.
+        Executes the full training process.
+
+        Iterates through `num_epochs`, running training and (optionally) validation phases.
+        Tracks the best model based on validation balanced accuracy (or training accuracy if no validation).
+        Handles early stopping if validation metric doesn't improve for `patience` epochs.
+
+        Args:
+            train_loader (DataLoader): DataLoader for the training set.
+            val_loader (Optional[DataLoader], optional): DataLoader for the validation set. Defaults to None.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing:
+                - 'best_accuracy' (float): The best validation balanced accuracy achieved.
+                - 'best_model_state' (OrderedDict): State dict of the best model (moved to CPU).
+                - 'best_fold_metrics' (Dict[str, float]): Metrics corresponding to the best epoch.
+                - 'epoch_metrics' (Dict[str, List]): History of losses and metrics per epoch.
+                - 'best_val_predictions' (Dict): Predictions from the best validation epoch.
         """
         best_val_accuracy = float("-inf")
         epochs_no_improve = 0
@@ -189,7 +246,18 @@ class Trainer:
         }
 
     def evaluate(self, loader: DataLoader) -> Dict[str, Any]:
-        """Evaluates the model on a given loader."""
+        """
+        Evaluates the model on a given data loader without training.
+
+        Args:
+            loader (DataLoader): The data loader to evaluate on.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing:
+                - 'loss' (float): Average loss over the dataset.
+                - 'metrics' (Dict[str, float]): Calculated metrics (accuracy, etc.).
+                - 'predictions' (Dict): 'labels', 'preds', and 'probs' arrays.
+        """
         self.model.eval()
         with torch.no_grad():
             results = self._run_epoch(loader, is_training=False)

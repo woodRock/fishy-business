@@ -27,7 +27,30 @@ def run_benchmark(
     wandb_entity: Optional[str] = "victoria-university-of-wellington",
     wandb_log: bool = False,
 ) -> pd.DataFrame:
-    """Benchmarks specified models on classification tasks."""
+    """
+    Benchmarks specified models on classification tasks across multiple datasets.
+
+    This function iterates through a list of model architectures and a predefined
+    set of datasets (species, part, oil, cross-species). It measures:
+    - Training time
+    - Inference time
+    - Model size (MB)
+    - Number of parameters
+
+    Results are saved to CSV files (per model and aggregated) and optionally logged to W&B.
+
+    Args:
+        model_names (List[str]): List of model architecture names to benchmark.
+        warmup_epochs (int, optional): Number of epochs to warm up the GPU/device. Defaults to 0.
+        output_file (str, optional): Path to save the final aggregated results CSV. Defaults to "benchmark_results.csv".
+        file_path (str, optional): Path to the source data file. Defaults to None (uses config default).
+        wandb_project (Optional[str], optional): W&B project name. Defaults to "fishy-business".
+        wandb_entity (Optional[str], optional): W&B entity/username. Defaults to "victoria-university-of-wellington".
+        wandb_log (bool, optional): Whether to enable W&B logging. Defaults to False.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the benchmark results for all models and datasets.
+    """
     wandb_run = None
     if wandb_log:
         wandb_config_dict = {"model_names": model_names, "warmup_epochs": warmup_epochs, "output_file": output_file, "file_path": file_path}

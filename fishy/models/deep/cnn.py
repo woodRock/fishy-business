@@ -43,20 +43,37 @@ import torch.nn as nn
 
 
 class CNN(nn.Module):
+    """
+    A 1D Convolutional Neural Network (CNN) for spectral data classification.
+
+    This architecture is adapted for 1D signal processing (e.g., mass spectra).
+    It features a sequence of convolutional blocks with:
+    - 1D Convolution
+    - Batch Normalization
+    - ReLU Activation
+    - Max Pooling
+    - Dropout
+
+    Followed by a fully connected classifier.
+
+    Attributes:
+        conv_layers (nn.Sequential): The feature extraction backbone.
+        flatten (nn.Flatten): Layer to flatten feature maps.
+        flat_features (int): Calculated size of the flattened features.
+        fc_layers (nn.Sequential): The classification head.
+    """
+
     def __init__(
         self, input_dim: int = 1023, output_dim: int = 7, dropout: int = 0.5
     ) -> None:
-        """Initialize the CNN model.
-
-        This model consists of convolutional layers followed by fully connected layers.
-        It includes batch normalization, ReLU activation, and dropout for regularization.
+        """
+        Initializes the CNN model.
 
         Args:
-            input_dim (int): Size of the input features.
-            output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization.
+            input_dim (int, optional): The number of input features (length of spectrum). Defaults to 1023.
+            output_dim (int, optional): The number of output classes. Defaults to 7.
+            dropout (float, optional): The dropout probability. Defaults to 0.5.
         """
-
         super(CNN, self).__init__()
 
         # Convolutional neural network (LeCun 1989,1989,1998)
@@ -90,14 +107,15 @@ class CNN(nn.Module):
             nn.Linear(256, output_dim),
         )
 
-    def forward(self, x):
-        """Forward pass for the CNN.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Performs the forward pass of the network.
 
         Args:
-            x (torch.Tensor): the input tensor.
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim) or (batch_size, 1, input_dim).
 
         Returns:
-            x (torch.Tensor): the output tensor.
+            torch.Tensor: Output logits of shape (batch_size, output_dim).
         """
         # Add channel dimension if missing (expected by Conv1d)
         if x.dim() == 2:

@@ -62,7 +62,7 @@ Thumbs.db
 desktop.ini
 
 # Project specific
-data/
+/data/
 outputs/
 results/
 tmp/

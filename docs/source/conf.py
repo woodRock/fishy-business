@@ -57,7 +57,50 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",  # referencess - source https://sublime-and-sphinx-guide.readthedocs.io/en/latest/references.html
+    "sphinx.ext.linkcode",
 ]
+
+import inspect
+import fishy
+
+def linkcode_resolve(domain, info):
+    if domain != "py":
+        return None
+    if not info["module"]:
+        return None
+
+    obj = sys.modules.get(info["module"])
+    if obj is None:
+        return None
+
+    for part in info["fullname"].split("."):
+        try:
+            obj = getattr(obj, part)
+        except AttributeError:
+            return None
+
+    try:
+        fn = inspect.getsourcefile(obj)
+    except Exception:
+        fn = None
+    if not fn:
+        return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except Exception:
+        lineno = None
+
+    if lineno:
+        linespec = f"#L{lineno}-L{lineno + len(source) - 1}"
+    else:
+        linespec = ""
+
+    # Get relative path from project root
+    rel_path = os.path.relpath(fn, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+    
+    return f"https://github.com/woodrock/fishy-business/blob/main/{rel_path}{linespec}"
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["templates"]

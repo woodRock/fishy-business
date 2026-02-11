@@ -1,35 +1,31 @@
 import torch
 import torch.nn.functional as F
+from typing import Optional
 
 
-def coral_loss(logits, levels, importance_weights=None, reduction="mean"):
-    """Computes the CORAL loss.
+def coral_loss(
+    logits: torch.Tensor,
+    levels: torch.Tensor,
+    importance_weights: Optional[torch.Tensor] = None,
+    reduction: str = "mean",
+) -> torch.Tensor:
+    """
+    Computes the CORAL (Consistent Rank Logits) loss for ordinal regression.
+
     Source: https://github.com/Raschka-research-group/corn-ordinal-regression/blob/main/coral_pytorch/losses.py
 
-    Parameters
-    ----------
-    logits : torch.tensor, shape=(n_examples, n_classes-1)
-        Outputs of the CORAL layer.
+    Args:
+        logits (torch.Tensor): Outputs of the CORAL layer, shape (n_examples, n_classes-1).
+        levels (torch.Tensor): True labels represented as extended binary vectors (via `levels_from_labelbatch`), shape (n_examples, n_classes-1).
+        importance_weights (Optional[torch.Tensor], optional): Weights for the examples in the batch. Defaults to None.
+        reduction (str, optional): Reduction to apply to the loss ('mean', 'sum', or None). Defaults to "mean".
 
-    levels : torch.tensor, shape=(n_examples, n_classes-1)
-        True labels represented as extended binary vectors
-        (via `levels_from_labelbatch`).
+    Returns:
+        torch.Tensor: The computed loss value (scalar if reduction is not None, else vector).
 
-    importance_weights : torch.tensor, shape=(n_examples,), optional (default=None)
-        Optional weights for the examples in the batch.
-        If None, all examples are weighted equally.
-
-    reduction : str or None (default='mean')
-        If 'mean' or 'sum', returns the averaged or summed loss across
-        all examples. If None, returns a tensor of shape (n_examples,)
-        with the loss for each example.
-
-    Returns
-    ----------
-    loss : torch.tensor
-        A torch.tensor containing a single loss value (if `reduction='mean'` or
-        `reduction='sum'`) or a loss value for each example (`reduction=None`).
-
+    Raises:
+        ValueError: If logits and levels shapes do not match.
+        ValueError: If reduction is not one of 'mean', 'sum', or None.
     """
     if not logits.shape == levels.shape:
         raise ValueError("Please provide logits and levels of equal shape.")
@@ -54,10 +50,22 @@ def coral_loss(logits, levels, importance_weights=None, reduction="mean"):
     return loss
 
 
-def levels_from_labelbatch(labels, num_classes, dtype=None):
+def levels_from_labelbatch(
+    labels: torch.Tensor, num_classes: int, dtype: torch.dtype = None
+) -> torch.Tensor:
     """
     Converts a batch of integer labels to extended binary levels for CORAL.
+
+    For example, with 5 classes, label 2 becomes [1, 1, 0, 0].
     Vectorized implementation.
+
+    Args:
+        labels (torch.Tensor): Batch of integer labels.
+        num_classes (int): Total number of ordinal classes.
+        dtype (torch.dtype, optional): Desired dtype of the output tensor. Defaults to None.
+
+    Returns:
+        torch.Tensor: Binary levels tensor of shape (batch_size, num_classes - 1).
     """
     if not isinstance(labels, torch.Tensor):
         labels = torch.tensor(labels)
@@ -76,28 +84,29 @@ def levels_from_labelbatch(labels, num_classes, dtype=None):
     return levels
 
 
-def cumulative_link_loss(logits, labels, num_classes, reduction="mean"):
+def cumulative_link_loss(
+    logits: torch.Tensor,
+    labels: torch.Tensor,
+    num_classes: int,
+    reduction: str = "mean",
+) -> torch.Tensor:
     """
-    Computes the Cumulative Link loss.
+    Computes the Cumulative Link loss for ordinal regression.
 
     This loss treats ordinal regression as K-1 binary classification problems.
     For each class boundary, it predicts whether the true label is beyond that boundary.
 
-    Parameters
-    ----------
-    logits : torch.tensor, shape=(n_examples, n_classes-1)
-        Outputs from the model.
-    labels : torch.tensor, shape=(n_examples,)
-        True integer labels.
-    num_classes : int
-        The total number of ordinal classes.
-    reduction : str or None (default='mean')
-        Type of reduction to apply to the loss.
+    Args:
+        logits (torch.Tensor): Model outputs, shape (n_examples, n_classes-1).
+        labels (torch.Tensor): True integer labels, shape (n_examples,).
+        num_classes (int): The total number of ordinal classes.
+        reduction (str, optional): Type of reduction to apply ('mean', 'sum', 'none'). Defaults to "mean".
 
-    Returns
-    ----------
-    loss : torch.tensor
-        The computed loss value.
+    Returns:
+        torch.Tensor: The computed loss value.
+
+    Raises:
+        ValueError: If shape mismatch between logits and derived cumulative labels.
     """
     # Convert integer labels to cumulative binary format, e.g., for 5 classes:
     # 0 -> [0, 0, 0, 0]
