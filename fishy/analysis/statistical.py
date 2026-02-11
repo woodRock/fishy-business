@@ -97,3 +97,49 @@ def summarize_results(results_map: Dict[str, List[Dict[str, Any]]], baseline_mod
             })
             
     return pd.DataFrame(summary_data)
+
+def analyze_regression_predictions(
+    predictions: Dict[str, np.ndarray], 
+    fold: int, 
+    ctx: Any,
+    dataset_name: str = "dataset"
+) -> None:
+    """
+    Analyzes and visualizes predictions for regression tasks.
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from sklearn.metrics import r2_score, mean_absolute_error
+
+    logger = ctx.logger
+    if not predictions:
+        logger.warning(f"Fold {fold + 1}: No predictions to analyze.")
+        return
+
+    true_labels = predictions["labels"]
+    pred_labels = predictions["preds"]
+
+    mae = mean_absolute_error(true_labels, pred_labels)
+    r2 = r2_score(true_labels, pred_labels)
+    
+    logger.info(f"Fold {fold + 1} {dataset_name} Regression - MAE: {mae:.4f}, R2: {r2:.4f}")
+
+    # Prediction Error Distribution
+    errors = pred_labels - true_labels
+    plt.figure(figsize=(10, 6))
+    plt.hist(errors, bins=30, edgecolor='black', alpha=0.7)
+    plt.xlabel("Prediction Error (Predicted - True)")
+    plt.ylabel("Frequency")
+    plt.title(f"Fold {fold + 1} Prediction Error Distribution - {dataset_name}")
+    ctx.save_figure(plt, f"regression_error_dist_fold_{fold + 1}.png")
+    plt.close()
+
+    # True vs Predicted Scatter Plot
+    plt.figure(figsize=(8, 8))
+    plt.scatter(true_labels, pred_labels, alpha=0.5)
+    plt.plot([true_labels.min(), true_labels.max()], [true_labels.min(), true_labels.max()], 'r--', lw=2)
+    plt.xlabel("True Labels")
+    plt.ylabel("Predicted Labels")
+    plt.title(f"True vs Predicted - {dataset_name} (Fold {fold + 1})")
+    ctx.save_figure(plt, f"regression_scatter_fold_{fold + 1}.png")
+    plt.close()

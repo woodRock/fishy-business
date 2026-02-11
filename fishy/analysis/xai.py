@@ -27,7 +27,7 @@ from lime.lime_tabular import LimeTabularExplainer
 
 from fishy.models.deep.transformer import Transformer
 from fishy.models.deep.vae import VAE
-from fishy.engine.training_loops import train_model
+from fishy.engine.trainer import DeepEngine
 from fishy.data.module import create_data_module
 from fishy._core.config import TrainingConfig
 from fishy._core.factory import create_model

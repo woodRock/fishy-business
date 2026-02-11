@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Transfer learning module for deep learning models.
-Standardized to use DataModule and TrainingEngine patterns.
+Standardized to use DataModule and Trainer patterns.
 """
 
 import torch
@@ -14,7 +14,7 @@ from typing import List, Dict, Optional, Tuple, Any
 from pathlib import Path
 import wandb
 
-from fishy.engine.trainer import Trainer, TrainingEngine
+from fishy.engine.trainer import Trainer, DeepEngine
 from fishy.data.module import create_data_module
 from fishy._core.factory import create_model
 from fishy._core.config import TrainingConfig

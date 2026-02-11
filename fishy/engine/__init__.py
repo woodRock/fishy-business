@@ -1,18 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Execution engine for training and evaluation.
+Core training engine components.
 """
 
-from .trainer import Trainer
-from .training_loops import train_model, evaluate_model, transfer_learning
-from .losses import coral_loss, cumulative_link_loss, levels_from_labelbatch
+from .trainer import Trainer, DeepEngine
+from fishy.experiments.classic_training import run_sklearn_experiment
 
 __all__ = [
     "Trainer",
-    "train_model",
-    "evaluate_model",
-    "transfer_learning",
-    "coral_loss",
-    "cumulative_link_loss",
-    "levels_from_labelbatch",
+    "DeepEngine",
+    "run_sklearn_experiment",
 ]

@@ -48,7 +48,8 @@ def run_wizard():
         "Deep Learning": "deep_models",
         "Classic ML": "classic_models",
         "Evolutionary": "evolutionary_models",
-        "Contrastive": "contrastive_models"
+        "Contrastive": "contrastive_models",
+        "Probabilistic / Bayesian": "probabilistic_models"
     }
     section_name = ask_choice("Select Model Category:", list(sections.keys()), "Deep Learning")
     section_key = sections[section_name]
@@ -68,9 +69,12 @@ def run_wizard():
     # 4. Advanced Options
     is_transfer = False
     is_ordinal = False
+    is_regression = False
     if section_key == "deep_models":
         is_transfer = ask_bool("Enable Sequential Transfer Learning?")
         is_ordinal = ask_bool("Enable Ordinal Regression?")
+    elif section_key in ["classic_models", "probabilistic_models"]:
+        is_regression = ask_bool("Enable Regression Mode?")
 
     # 5. Summary and Output
     print("\n" + "-"*20)
@@ -83,6 +87,7 @@ def run_wizard():
         figures=figures,
         wandb_log=wandb_log,
         transfer=is_transfer,
+        regression=is_regression,
     )
 
     if output_type == "CLI Command":
@@ -92,6 +97,7 @@ def run_wizard():
         if wandb_log: cmd += " --wandb-log"
         if is_transfer: cmd += " --transfer"
         if is_ordinal: cmd += " --ordinal"
+        if is_regression: cmd += " --regression"
         
         print("\nGenerated Command:")
         print(f"\033[92m{cmd}\033[0m\n")

@@ -140,3 +140,14 @@ evolutionary_models:
       generations: 20
       select_ratio: 0.2
       elitism: 0.1
+
+probabilistic_models:
+  gp_prob:
+    path: "fishy.models.probabilistic.gp.GaussianProcess"
+    defaults:
+      kernel_type: "matern"
+      nu: 1.5
+  bayesian_ridge: "sklearn.linear_model.BayesianRidge"
+  naive_bayes: "sklearn.naive_bayes.GaussianNB"
+  prob_svc: "fishy.models.probabilistic.probabilistic_svc.ProbabilisticSVC"
+  bayesian_logistic: "fishy.models.probabilistic.laplace_logistic.BayesianLogisticRegression"

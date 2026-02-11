@@ -22,7 +22,7 @@ def get_all_models() -> List[str]:
     """Helper to get all registered model names across all methods."""
     cfg = load_config("models")
     all_models = []
-    for section in ["deep_models", "classic_models", "evolutionary_models", "contrastive_models"]:
+    for section in ["deep_models", "classic_models", "evolutionary_models", "contrastive_models", "probabilistic_models"]:
         all_models.extend(list(cfg.get(section, {}).keys()))
     return sorted(list(set(all_models)))
 
@@ -117,6 +117,8 @@ def detect_method(model_name: str) -> str:
         return "evolutionary"
     if model_name in cfg.get("contrastive_models", {}):
         return "contrastive"
+    if model_name in cfg.get("probabilistic_models", {}):
+        return "probabilistic"
     
     return "deep" # Default fallback
 
@@ -138,8 +140,9 @@ def main() -> None:
                 
                 # ExperimentConfig usually has 'models' list
                 if isinstance(config_data, dict) and "models" in config_data:
-                    from fishy.experiments.config_orchestrator import run_experiment_from_config
-                    run_experiment_from_config(args.config)
+                    from fishy._core.config import ExperimentConfig
+                    exp_cfg = ExperimentConfig.from_yaml(args.config)
+                    run_unified_training(exp_cfg)
                 else:
                     # 2. Try as a single TrainingConfig
                     config = TrainingConfig.from_yaml(args.config)
@@ -235,12 +238,10 @@ def main() -> None:
             run_wizard()
 
         elif args.command == "run_all":
-            from fishy.experiments.orchestrator import run_all_experiments
-            run_all_experiments(
-                num_runs=args.num_runs,
+            from fishy.experiments.unified_trainer import run_all_benchmarks
+            run_all_benchmarks(
                 quick=args.quick,
-                wandb_log=args.wandb_log,
-                file_path=DEFAULT_DATA_PATH
+                wandb_log=args.wandb_log
             )
             
     except Exception as e:

@@ -6,6 +6,7 @@ Supports PyTorch (deep), Scikit-Learn (classic), and DEAP (evolutionary) models.
 
 import copy
 import logging
+import time
 from collections import OrderedDict
 from typing import Dict, List, Optional, Any, Tuple, Union
 
@@ -13,12 +14,15 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader, Dataset, Subset, random_split
 from tqdm import tqdm
+from sklearn.model_selection import StratifiedKFold
 
-from fishy._core.utils import RunContext
+from fishy._core.utils import RunContext, get_device
 from fishy.data.datasets import SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss, levels_from_labelbatch
+from fishy.data.augmentation import AugmentationConfig, DataAugmenter
+
 from sklearn.metrics import (
     balanced_accuracy_score,
     precision_score,
@@ -51,24 +55,6 @@ class Trainer:
         ctx: Optional[RunContext] = None,
         logger: Optional[logging.Logger] = None,
     ):
-        """
-        Initializes the Trainer.
-
-        Args:
-            model (nn.Module): The PyTorch model to be trained.
-            criterion (nn.Module): The loss function (e.g., nn.CrossEntropyLoss).
-            optimizer (optim.Optimizer): The optimizer (e.g., optim.Adam).
-            device (torch.device): The computing device ('cpu' or 'cuda').
-            num_epochs (int): The maximum number of epochs to train.
-            scheduler (Optional[Any], optional): Learning rate scheduler. Defaults to None.
-            patience (int, optional): Early stopping patience in epochs. Defaults to 20.
-            use_coral (bool, optional): Enable CORAL ordinal loss. Defaults to False.
-            use_cumulative_link (bool, optional): Enable cumulative link ordinal loss. Defaults to False.
-            num_classes (Optional[int], optional): Number of classes, required if use_coral is True. Defaults to None.
-            regression (bool, optional): Set to True if performing regression. Defaults to False.
-            ctx (Optional[RunContext], optional): Context for experiment tracking. Defaults to None.
-            logger (Optional[logging.Logger], optional): Custom logger. If None, uses module logger. Defaults to None.
-        """
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
@@ -159,7 +145,7 @@ class Trainer:
             "best_fold_metrics": best_fold_metrics,
             "epoch_metrics": epoch_log,
             "best_val_predictions": best_val_predictions,
-            "predictions": best_val_predictions # Alias for easier access
+            "predictions": best_val_predictions
         }
 
     def evaluate(self, loader: DataLoader) -> Dict[str, Any]:
@@ -234,7 +220,11 @@ class Trainer:
     def _calculate_metrics(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
         if self.regression:
              metrics = {"mae": mean_absolute_error(y_true, y_pred), "mse": mean_squared_error(y_true, y_pred), "r2": r2_score(y_true, y_pred)}
-             metrics["balanced_accuracy"] = balanced_accuracy_score(y_true.astype(int), np.round(y_pred).astype(int))
+             # Heuristic BCA for regression if needed
+             try:
+                metrics["balanced_accuracy"] = balanced_accuracy_score(y_true.astype(int), np.round(y_pred).astype(int))
+             except:
+                metrics["balanced_accuracy"] = 0.0
              return metrics
         labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
         return {
@@ -262,25 +252,107 @@ class Trainer:
         return metrics
 
 
-class TrainingEngine:
+class DeepEngine:
     """
-    High-level engine that dispatches training tasks to appropriate trainers (Deep, Classic, or GP).
+    High-level engine for deep learning experiments, supporting repeated CV and single runs.
     """
 
     @staticmethod
-    def run_classic(config: Any, model_name: str, dataset_name: str, run_id: int, file_path: Optional[str] = None) -> Dict[str, float]:
-        """Calls the ClassicTrainer."""
-        from fishy.experiments.classic_training import run_classic_experiment
-        return run_classic_experiment(config, model_name, dataset_name, run_id, file_path)
+    def train_model(
+        model: nn.Module,
+        train_loader: DataLoader,
+        criterion: nn.Module,
+        optimizer: optim.Optimizer,
+        num_epochs: int = 100,
+        patience: int = 20,
+        n_splits: int = 5,
+        n_runs: int = 30,
+        is_augmented: bool = False,
+        device: Union[str, torch.device] = get_device(),
+        val_loader: Optional[DataLoader] = None,
+        use_coral: bool = False,
+        use_cumulative_link: bool = False,
+        num_classes: Optional[int] = None,
+        regression: bool = False,
+        ctx: Optional[Any] = None,
+    ) -> Tuple[nn.Module, Dict]:
+        logger = logging.getLogger(__name__)
+        if isinstance(device, str): device = torch.device(device)
+
+        if val_loader:
+            trainer = Trainer(model, criterion, optimizer, device, num_epochs, patience=patience, use_coral=use_coral, use_cumulative_link=use_cumulative_link, num_classes=num_classes, regression=regression, ctx=ctx, logger=logger)
+            res = trainer.train(train_loader, val_loader)
+            if res["best_model_state"]: model.load_state_dict(res["best_model_state"])
+            metrics = res["best_fold_metrics"]
+            if res["best_val_predictions"]: metrics["best_val_predictions"] = res["best_val_predictions"]
+            return model, metrics
+
+        # Repeatead Cross-Validation logic
+        pristine_template = copy.deepcopy(model).cpu()
+        train_data_augmenter = None
+        if is_augmented:
+            aug_cfg = AugmentationConfig(enabled=True, num_augmentations=5, noise_enabled=True, shift_enabled=True, scale_enabled=True)
+            train_data_augmenter = DataAugmenter(aug_cfg)
+
+        all_runs_metrics = []
+        best_overall_acc = float("-inf")
+        best_overall_state = None
+
+        for run_idx in range(n_runs):
+            logger.info(f"Starting Run {run_idx + 1}/{n_runs}")
+            dataset = train_loader.dataset
+            all_labels = DeepEngine._extract_labels(dataset)
+            skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run_idx)
+
+            for fold_idx, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
+                logger.info(f"Fold {fold_idx}/{n_splits}")
+                
+                fold_model = copy.deepcopy(pristine_template).to(device)
+                fold_opt = type(optimizer)(fold_model.parameters(), **{k:v for k,v in optimizer.defaults.items() if k not in {"decoupled_weight_decay", "step_size", "gamma"}})
+                
+                f_train_loader = DataLoader(Subset(dataset, train_idx), batch_size=train_loader.batch_size, shuffle=True)
+                f_val_loader = DataLoader(Subset(dataset, val_idx), batch_size=train_loader.batch_size)
+
+                if train_data_augmenter: f_train_loader = train_data_augmenter.augment(f_train_loader)
+
+                trainer = Trainer(fold_model, criterion, fold_opt, device, num_epochs, patience=patience, use_coral=use_coral, use_cumulative_link=use_cumulative_link, num_classes=num_classes, regression=regression, ctx=ctx, logger=logger)
+                res = trainer.train(f_train_loader, f_val_loader)
+
+                if res["best_accuracy"] > best_overall_acc:
+                    best_overall_acc = res["best_accuracy"]
+                    best_overall_state = res["best_model_state"]
+                all_runs_metrics.append(res["best_fold_metrics"])
+
+        final_model = copy.deepcopy(pristine_template).to(device)
+        if best_overall_state: final_model.load_state_dict(best_overall_state)
+        
+        return final_model, {"best_accuracy": best_overall_acc, "all_metrics": all_runs_metrics}
 
     @staticmethod
-    def run_evolutionary(dataset: str, generations: int, population: int, run: int, data_file_path: Optional[str] = None, wandb_log: bool = False) -> Dict[str, float]:
-        """Calls the Genetic Programming runner."""
-        from fishy.experiments.evolutionary import run_gp_experiment
-        return run_gp_experiment(dataset=dataset, generations=generations, population=population, run=run, data_file_path=data_file_path, wandb_log=wandb_log)
+    def _extract_labels(dataset: Dataset) -> np.ndarray:
+        labels = []
+        base = dataset.dataset if isinstance(dataset, Subset) else dataset
+        idxs = dataset.indices if isinstance(dataset, Subset) else range(len(base))
+        for i in idxs:
+            _, lbl = base[i]
+            if isinstance(lbl, torch.Tensor): val = lbl.item() if lbl.numel()==1 else lbl.argmax().item()
+            else: val = int(lbl)
+            labels.append(val)
+        return np.array(labels)
 
     @staticmethod
-    def run_deep(config: Any) -> Dict[str, Any]:
-        """Calls the Deep Learning training pipeline."""
-        from fishy.experiments.deep_training import run_training_pipeline
-        return run_training_pipeline(config)
+    def evaluate_model(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: Union[str, torch.device] = get_device(), **kwargs) -> Dict:
+        if isinstance(device, str): device = torch.device(device)
+        trainer = Trainer(model, criterion, optim.Adam(model.parameters()), device, 1, **kwargs)
+        return trainer.evaluate(loader)
+
+    @staticmethod
+    def transfer_learning(dataset_name: str, model: nn.Module, file_path: str) -> nn.Module:
+        logger = logging.getLogger(__name__)
+        try:
+            ckpt = torch.load(file_path, map_location="cpu")
+            model.load_state_dict(ckpt, strict=False)
+            logger.info(f"Transferred weights from {file_path}")
+        except Exception as e:
+            logger.error(f"Transfer failed: {e}")
+        return model

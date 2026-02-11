@@ -21,63 +21,11 @@ import seaborn as sns
 from fishy._core.config import TrainingConfig
 from fishy._core.factory import create_model
 from fishy._core.utils import RunContext, get_device
-from fishy.experiments.pre_training_orchestrator import PreTrainingOrchestrator
-from fishy.engine.training_loops import train_model, evaluate_model
+from fishy.experiments.pre_training import PreTrainingOrchestrator
+from fishy.engine.trainer import DeepEngine
 from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
-
-
-def analyze_oil_predictions(
-    predictions: Dict[str, np.ndarray], fold: int, config: TrainingConfig, ctx: RunContext
-) -> None:
-    """
-    Analyzes and visualizes predictions specifically for the oil dataset.
-
-    Generates confusion matrices and prediction error distributions, saving them
-    via the RunContext.
-
-    Args:
-        predictions (Dict[str, np.ndarray]): Dictionary containing 'labels' and 'preds'.
-        fold (int): The current cross-validation fold index.
-        config (TrainingConfig): Experiment configuration.
-        ctx (RunContext): Context for logging and saving figures.
-    """
-    logger = ctx.logger
-    if not predictions:
-        logger.warning(f"Fold {fold + 1}: No predictions to analyze.")
-        return
-
-    true_labels = predictions["labels"]
-    pred_labels = predictions["preds"]
-
-    if config.regression:
-        from sklearn.metrics import r2_score
-
-        mae = np.mean(np.abs(true_labels - pred_labels))
-        logger.info(f"Fold {fold + 1} Regression MAE: {mae:.4f}")
-        r2 = r2_score(true_labels, pred_labels)
-        logger.info(f"Fold {fold + 1} Regression R2 Score: {r2:.4f}")
-    else:
-        mae = np.mean(np.abs(true_labels - pred_labels))
-        logger.info(f"Fold {fold + 1} Ordinal MAE: {mae:.4f}")
-        cm = confusion_matrix(true_labels, pred_labels)
-        plt.figure(figsize=(10, 7))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
-        plt.xlabel("Predicted Label")
-        plt.ylabel("True Label")
-        plt.title(f"Fold {fold + 1} Confusion Matrix for Oil Dataset")
-        ctx.save_figure(plt, f"oil_confusion_matrix_fold_{fold + 1}.png")
-        plt.close()
-
-    errors = pred_labels - true_labels
-    plt.figure()
-    plt.hist(errors, bins=np.arange(errors.min(), errors.max() + 2) - 0.5, rwidth=0.8)
-    plt.xlabel("Prediction Error (Predicted - True)")
-    plt.ylabel("Frequency")
-    plt.title(f"Fold {fold + 1} Prediction Error Distribution for Oil Dataset")
-    ctx.save_figure(plt, f"oil_prediction_error_fold_{fold + 1}.png")
-    plt.close()
 
 
 class ModelTrainer:
@@ -197,13 +145,13 @@ class ModelTrainer:
         criterion = nn.MSELoss() if self.config.regression else nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
         optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
-        trained_model, train_val_metrics = train_model(
+        trained_model, train_val_metrics = DeepEngine.train_model(
             model=model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer,
             num_epochs=self.config.epochs, patience=self.config.early_stopping, is_augmented=self.config.data_augmentation,
             device=self.device, use_coral=(self.config.ordinal_method == "coral"), num_classes=self.n_classes, regression=self.config.regression, ctx=self.ctx,
         )
 
-        test_results = evaluate_model(trained_model, test_loader, criterion, self.device, (self.config.ordinal_method == "coral"), self.n_classes, regression=self.config.regression)
+        test_results = DeepEngine.evaluate_model(trained_model, test_loader, criterion, self.device, use_coral=(self.config.ordinal_method == "coral"), num_classes=self.n_classes, regression=self.config.regression)
         
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_results, test_loader)
@@ -249,7 +197,7 @@ class ModelTrainer:
             
             optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
 
-            trained_model, metrics = train_model(
+            trained_model, metrics = DeepEngine.train_model(
                 model=model, train_loader=train_loader, val_loader=val_loader, criterion=criterion, optimizer=optimizer,
                 num_epochs=self.config.epochs, patience=self.config.early_stopping, is_augmented=self.config.data_augmentation,
                 device=self.device, use_coral=(self.config.ordinal_method == "coral"), 
@@ -258,8 +206,9 @@ class ModelTrainer:
             )
             
             if "best_val_predictions" in metrics:
-                if self.config.dataset == "oil":
-                    analyze_oil_predictions(metrics["best_val_predictions"], fold, self.config, self.ctx)
+                if self.config.regression:
+                    from fishy.analysis.statistical import analyze_regression_predictions
+                    analyze_regression_predictions(metrics["best_val_predictions"], fold, self.ctx, dataset_name=self.config.dataset)
                 if fold == k_folds - 1 and self.ctx.wandb_run:
                     self._log_advanced_visualizations(metrics, val_loader)
                 del metrics["best_val_predictions"]
