@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Trainer module for encapsulating the training loop and related logic.
-Supports PyTorch (deep), Scikit-Learn (classic), and DEAP (evolutionary) models.
 """
 
 import copy
 import logging
 import time
+import warnings
 from collections import OrderedDict
 from typing import Dict, List, Optional, Any, Tuple, Union
 
@@ -31,6 +31,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
+    accuracy_score,
     mean_absolute_error,
     mean_squared_error,
     r2_score,
@@ -38,154 +39,79 @@ from sklearn.metrics import (
 
 
 class Trainer:
-    """
-    Unified trainer for PyTorch models with Rich integration.
-    """
+    """Unified trainer for PyTorch models with Rich integration."""
 
     def __init__(
-        self,
-        model: nn.Module,
-        criterion: nn.Module,
-        optimizer: optim.Optimizer,
-        device: torch.device,
-        num_epochs: int,
-        scheduler: Optional[Any] = None,
-        patience: int = 20,
-        use_coral: bool = False,
-        use_cumulative_link: bool = False,
-        num_classes: Optional[int] = None,
-        regression: bool = False,
-        ctx: Optional[RunContext] = None,
-        logger: Optional[logging.Logger] = None,
+        self, model: nn.Module, criterion: nn.Module, optimizer: optim.Optimizer,
+        device: torch.device, num_epochs: int, scheduler: Optional[Any] = None,
+        patience: int = 20, use_coral: bool = False, use_cumulative_link: bool = False,
+        num_classes: Optional[int] = None, regression: bool = False,
+        ctx: Optional[RunContext] = None, logger: Optional[logging.Logger] = None,
     ):
-        self.model = model
-        self.criterion = criterion
-        self.optimizer = optimizer
-        self.device = device
-        self.num_epochs = num_epochs
-        self.scheduler = scheduler
-        self.patience = patience
-        self.use_coral = use_coral
-        self.use_cumulative_link = use_cumulative_link
-        self.num_classes = num_classes
-        self.regression = regression
-        self.ctx = ctx
+        self.model = model; self.criterion = criterion; self.optimizer = optimizer
+        self.device = device; self.num_epochs = num_epochs; self.scheduler = scheduler
+        self.patience = patience; self.use_coral = use_coral; self.use_cumulative_link = use_cumulative_link
+        self.num_classes = num_classes; self.regression = regression; self.ctx = ctx
         self.logger = logger if logger else (ctx.logger if ctx else logging.getLogger(__name__))
 
-    def train(
-        self,
-        train_loader: DataLoader,
-        val_loader: Optional[DataLoader] = None,
-    ) -> Dict[str, Any]:
-        """Executes the full training process with Rich progress bars."""
-        best_val_accuracy = float("-inf")
-        epochs_no_improve = 0
-        best_model_state_cpu = None
-        best_fold_metrics = None
-        best_val_predictions = None
-
+    def train(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None) -> Dict[str, Any]:
+        best_val_accuracy, epochs_no_improve = float("-inf"), 0
+        best_model_state_cpu, best_fold_metrics, best_val_predictions = None, None, None
         epoch_log = {"train_losses": [], "val_losses": [], "train_metrics": [], "val_metrics": [], "learning_rates": []}
 
-        with Progress(
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(),
-            TaskProgressColumn(),
-            TimeRemainingColumn(),
-            console=console
-        ) as progress:
+        with Progress(TextColumn("[progress.description]{task.description}"), BarColumn(), TaskProgressColumn(), TimeRemainingColumn(), console=console) as progress:
             task = progress.add_task(f"[cyan]Training {self.num_epochs} Epochs...", total=self.num_epochs)
-
             for epoch in range(self.num_epochs):
-                self.model.train()
-                train_results = self._run_epoch(train_loader, is_training=True)
-
+                self.model.train(); train_results = self._run_epoch(train_loader, is_training=True)
                 val_results = {"loss": float("nan"), "metrics": {}}
                 if val_loader:
                     self.model.eval()
-                    with torch.no_grad():
-                        val_results = self._run_epoch(val_loader, is_training=False)
-
+                    with torch.no_grad(): val_results = self._run_epoch(val_loader, is_training=False)
                 epoch_log["train_losses"].append(train_results["loss"])
                 epoch_log["train_metrics"].append(train_results["metrics"])
                 epoch_log["learning_rates"].append(self.optimizer.param_groups[0]["lr"])
-
                 if val_loader:
                     epoch_log["val_losses"].append(val_results["loss"])
                     epoch_log["val_metrics"].append(val_results["metrics"])
-                    current_val_acc = val_results["metrics"].get("balanced_accuracy", float("-inf"))
-
+                    cur_acc = val_results["metrics"].get("balanced_accuracy", float("-inf"))
                     if self.scheduler:
-                        if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
-                            self.scheduler.step(current_val_acc)
-                        else:
-                            self.scheduler.step()
-
+                        if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau): self.scheduler.step(cur_acc)
+                        else: self.scheduler.step()
                     if self.ctx: self._log_to_context(epoch, train_results, val_results)
-
-                    if current_val_acc > best_val_accuracy:
-                        best_val_accuracy = current_val_acc
+                    if cur_acc > best_val_accuracy:
+                        best_val_accuracy = cur_acc
                         best_model_state_cpu = OrderedDict((k, v.clone().cpu()) for k, v in self.model.state_dict().items())
                         best_fold_metrics = self._compile_best_metrics(epoch, train_results, val_results)
-                        best_val_predictions = val_results["predictions"]
-                        epochs_no_improve = 0
+                        best_val_predictions = val_results["predictions"]; epochs_no_improve = 0
                     else:
                         epochs_no_improve += 1
-                        if epochs_no_improve >= self.patience:
-                            self.logger.info(f"[yellow]Early stopping triggered at epoch {epoch+1}[/]")
-                            break
-
+                        if epochs_no_improve >= self.patience: break
                 progress.update(task, advance=1, description=f"[cyan]E{epoch+1}[/] [dim]Loss: {train_results['loss']:.3f}[/]")
-
-        if best_fold_metrics:
-            self._display_summary_table(best_fold_metrics)
 
         if not val_loader:
             best_model_state_cpu = OrderedDict((k, v.clone().cpu()) for k, v in self.model.state_dict().items())
             best_fold_metrics = self._compile_best_metrics(self.num_epochs - 1, train_results, val_results)
-
-        return {
-            "best_accuracy": best_val_accuracy, "best_model_state": best_model_state_cpu,
-            "best_fold_metrics": best_fold_metrics, "epoch_metrics": epoch_log,
-            "best_val_predictions": best_val_predictions, "predictions": best_val_predictions,
-        }
-
-    def _display_summary_table(self, metrics: Dict[str, Any]):
-        table = Table(title="[bold green]Final Fold Results[/]", box=None)
-        table.add_column("Metric", style="cyan")
-        table.add_column("Value", style="magenta")
-        keys = ["val_balanced_accuracy", "val_f1", "val_precision", "val_recall", "val_loss", "train_loss"]
-        for k in keys:
-            if k in metrics:
-                val = metrics[k]
-                label = k.replace("val_", "").replace("_", " ").title()
-                table.add_row(label, f"{val:.4f}")
-        console.print(Panel(table, expand=False, border_style="green"))
+        return {"best_accuracy": best_val_accuracy, "best_model_state": best_model_state_cpu, "best_fold_metrics": best_fold_metrics, "epoch_metrics": epoch_log, "predictions": best_val_predictions}
 
     def evaluate(self, loader: DataLoader) -> Dict[str, Any]:
         self.model.eval()
         with torch.no_grad(): return self._run_epoch(loader, is_training=False)
 
     def _run_epoch(self, loader: DataLoader, is_training: bool) -> Dict[str, Any]:
-        total_loss, all_labels_np, all_preds_np, all_probs_np = 0.0, [], [], []
+        total_loss, all_labels, all_preds, all_probs = 0.0, [], [], []
         for batch in loader:
             inputs, labels_batch = self._unpack_batch(batch)
-            inputs, labels_on_device = self._to_device(inputs, labels_batch)
+            inputs, labels_dev = self._to_device(inputs, labels_batch)
             if is_training: self.optimizer.zero_grad()
-            outputs = self._forward_pass(inputs)
-            loss = self._compute_loss(outputs, labels_on_device)
+            outputs = self._forward_pass(inputs); loss = self._compute_loss(outputs, labels_dev)
             if is_training: loss.backward(); self.optimizer.step()
-            batch_size = inputs[0].size(0) if isinstance(inputs, tuple) else inputs.size(0)
-            total_loss += loss.item() * batch_size
-            preds, probs, actuals = self._process_predictions(outputs, labels_on_device)
-            all_labels_np.append(actuals.cpu().numpy())
-            all_preds_np.append(preds.detach().cpu().numpy())
-            if probs is not None: all_probs_np.append(probs.detach().cpu().numpy())
-
-        avg_loss = total_loss / len(loader.dataset)
-        final_labels = np.concatenate(all_labels_np); final_preds = np.concatenate(all_preds_np)
-        final_probs = np.concatenate(all_probs_np) if all_probs_np else None
+            total_loss += loss.item() * (inputs[0].size(0) if isinstance(inputs, tuple) else inputs.size(0))
+            preds, probs, actuals = self._process_predictions(outputs, labels_dev)
+            all_labels.append(actuals.cpu().numpy()); all_preds.append(preds.detach().cpu().numpy())
+            if probs is not None: all_probs.append(probs.detach().cpu().numpy())
+        final_labels, final_preds = np.concatenate(all_labels), np.concatenate(all_preds)
         metrics = self._calculate_metrics(final_labels, final_preds)
-        return {"loss": avg_loss, "metrics": metrics, "predictions": {"labels": final_labels, "preds": final_preds, "probs": final_probs}}
+        return {"loss": total_loss / len(loader.dataset), "metrics": metrics, "predictions": {"labels": final_labels, "preds": final_preds, "probs": (np.concatenate(all_probs) if all_probs else None)}}
 
     def _unpack_batch(self, batch):
         if len(batch) == 3: return (batch[0], batch[1]), batch[2]
@@ -199,143 +125,88 @@ class Trainer:
     def _forward_pass(self, inputs):
         if isinstance(inputs, tuple): return self.model(*inputs)
         if hasattr(self.model, "decode") and hasattr(self.model, "reparameterize"):
-             _, _, _, outputs = self.model(inputs); return outputs
+             # Handle VAE or models with tuple returns
+             out = self.model(inputs)
+             return out[3] if isinstance(out, tuple) and len(out) > 3 else out
         return self.model(inputs)
 
     def _compute_loss(self, outputs, labels):
         if self.regression: return self.criterion(outputs.squeeze(), labels.squeeze(-1).float())
         actual = labels.argmax(dim=1) if labels.dim() > 1 and labels.shape[1] > 1 else (labels.squeeze(-1) if labels.dim() > 1 else labels)
-        if self.use_coral:
-            levels = levels_from_labelbatch(actual, num_classes=self.num_classes, dtype=torch.float32).to(self.device)
-            return self.criterion(outputs, levels)
+        if self.use_coral: return self.criterion(outputs, levels_from_labelbatch(actual, num_classes=self.num_classes, dtype=torch.float32).to(self.device))
         return self.criterion(outputs, actual.long())
 
     def _process_predictions(self, outputs, labels):
         if self.regression: return outputs.squeeze(), None, labels.squeeze(-1).float()
         actual = labels.argmax(dim=1) if labels.dim() > 1 and labels.shape[1] > 1 else (labels.squeeze(-1) if labels.dim() > 1 else labels)
         if self.use_coral or self.use_cumulative_link:
-             probs = torch.sigmoid(outputs); preds = torch.sum((probs > 0.5), dim=1).long()
-             return preds, probs, actual
+             probs = torch.sigmoid(outputs); return torch.sum((probs > 0.5), dim=1).long(), probs, actual
         return outputs.argmax(dim=1), torch.softmax(outputs, dim=1), actual
 
-    def _calculate_metrics(self, y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-        if self.regression:
-             try: bca = balanced_accuracy_score(y_true.astype(int), np.round(y_pred).astype(int))
-             except: bca = 0.0
-             return {"mae": mean_absolute_error(y_true, y_pred), "mse": mean_squared_error(y_true, y_pred), "r2": r2_score(y_true, y_pred), "balanced_accuracy": bca}
-        labels_for_scoring = np.unique(np.concatenate([y_true, y_pred])).astype(int)
-        return {
-            "accuracy": np.mean(y_true == y_pred), "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
-            "mae": mean_absolute_error(y_true, y_pred), "mse": mean_squared_error(y_true, y_pred),
-            "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0, labels=labels_for_scoring),
-            "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0, labels=labels_for_scoring),
-            "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0, labels=labels_for_scoring),
-        }
+    def _calculate_metrics(self, y_true, y_pred) -> Dict[str, float]:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            if self.regression:
+                 try: bca = balanced_accuracy_score(y_true.astype(int), np.round(y_pred).astype(int))
+                 except: bca = 0.0
+                 return {"mae": mean_absolute_error(y_true, y_pred), "mse": mean_squared_error(y_true, y_pred), "r2": r2_score(y_true, y_pred), "balanced_accuracy": bca}
+            all_labels = np.arange(self.num_classes) if self.num_classes else None
+            return {
+                "accuracy": accuracy_score(y_true, y_pred), "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
+                "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+                "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+                "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+                "mae": mean_absolute_error(y_true, y_pred), "mse": mean_squared_error(y_true, y_pred)
+            }
 
-    def _log_to_context(self, epoch, train_results, val_results):
-        epoch_metrics = {
-            "epoch/train_loss": train_results["loss"], "epoch/val_loss": val_results["loss"],
-            "epoch/train_balanced_accuracy": train_results["metrics"].get("balanced_accuracy", 0.0),
-            "epoch/val_balanced_accuracy": val_results["metrics"].get("balanced_accuracy", 0.0),
-        }
-        self.ctx.log_metric(epoch + 1, epoch_metrics)
-
-    def _compile_best_metrics(self, epoch, train_results, val_results):
-        metrics = {"train_loss": train_results["loss"], "val_loss": val_results["loss"], "epoch": epoch}
-        if val_results.get("metrics"):
-            for m, v in val_results["metrics"].items(): metrics[f"val_{m}"] = v
-        if train_results.get("metrics"):
-            for m, v in train_results["metrics"].items(): metrics[f"train_{m}"] = v
-        return metrics
-
+    def _log_to_context(self, epoch, tr, val):
+        self.ctx.log_metric(epoch + 1, {"epoch/train_loss": tr["loss"], "epoch/val_loss": val["loss"], "epoch/train_balanced_accuracy": tr["metrics"].get("balanced_accuracy", 0.0), "epoch/val_balanced_accuracy": val["metrics"].get("balanced_accuracy", 0.0)})
+    def _compile_best_metrics(self, epoch, tr, val):
+        m = {"train_loss": tr["loss"], "val_loss": val["loss"], "epoch": epoch}
+        for k, v in val.get("metrics", {}).items(): m[f"val_{k}"] = v
+        for k, v in tr.get("metrics", {}).items(): m[f"train_{k}"] = v
+        return m
 
 class DeepEngine:
-    """
-    High-level engine for deep learning experiments with Rich integration.
-    """
-
+    """High-level engine for deep learning experiments."""
     @staticmethod
-    def train_model(
-        model: nn.Module,
-        train_loader: DataLoader,
-        criterion: nn.Module,
-        optimizer: optim.Optimizer,
-        num_epochs: int = 100,
-        patience: int = 20,
-        n_splits: int = 5,
-        n_runs: int = 30,
-        is_augmented: bool = False,
-        device: Union[str, torch.device] = get_device(),
-        val_loader: Optional[DataLoader] = None,
-        use_coral: bool = False,
-        use_cumulative_link: bool = False,
-        num_classes: Optional[int] = None,
-        regression: bool = False,
-        ctx: Optional[Any] = None,
-    ) -> Tuple[nn.Module, Dict]:
+    def train_model(model, train_loader, criterion, optimizer, num_epochs=100, patience=20, n_splits=5, n_runs=30, is_augmented=False, device=get_device(), val_loader=None, use_coral=False, use_cumulative_link=False, num_classes=None, regression=False, ctx=None):
         if isinstance(device, str): device = torch.device(device)
-
         if val_loader:
             trainer = Trainer(model, criterion, optimizer, device, num_epochs, patience=patience, use_coral=use_coral, use_cumulative_link=use_cumulative_link, num_classes=num_classes, regression=regression, ctx=ctx)
             res = trainer.train(train_loader, val_loader)
             if res["best_model_state"]: model.load_state_dict(res["best_model_state"])
-            metrics = res["best_fold_metrics"]
-            if res["best_val_predictions"]: metrics["best_val_predictions"] = res["best_val_predictions"]
-            return model, metrics
-
-        pristine_template = copy.deepcopy(model).cpu()
-        train_data_augmenter = DataAugmenter(AugmentationConfig(enabled=True)) if is_augmented else None
-        all_runs_metrics = []
-        best_overall_acc = float("-inf")
-        best_overall_state = None
-
-        for run_idx in range(n_runs):
-            console.print(f"\n[bold blue]Starting Run {run_idx + 1}/{n_runs}[/]")
-            dataset = train_loader.dataset
-            all_labels = DeepEngine._extract_labels(dataset)
-            skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run_idx)
-
-            for fold_idx, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(dataset)), all_labels), 1):
-                console.print(f"  [dim]Fold {fold_idx}/{n_splits}[/]")
-                fold_model = copy.deepcopy(pristine_template).to(device)
-                fold_opt = type(optimizer)(fold_model.parameters(), **{k:v for k,v in optimizer.defaults.items() if k not in {"decoupled_weight_decay", "step_size", "gamma"}})
-                f_train_loader = DataLoader(Subset(dataset, train_idx), batch_size=train_loader.batch_size, shuffle=True)
-                f_val_loader = DataLoader(Subset(dataset, val_idx), batch_size=train_loader.batch_size)
-                if train_data_augmenter: f_train_loader = train_data_augmenter.augment(f_train_loader)
-                trainer = Trainer(fold_model, criterion, fold_opt, device, num_epochs, patience=patience, use_coral=use_coral, use_cumulative_link=use_cumulative_link, num_classes=num_classes, regression=regression, ctx=ctx)
-                res = trainer.train(f_train_loader, f_val_loader)
-                if res["best_accuracy"] > best_overall_acc:
-                    best_overall_acc = res["best_accuracy"]
-                    best_overall_state = res["best_model_state"]
-                all_runs_metrics.append(res["best_fold_metrics"])
-
-        final_model = copy.deepcopy(pristine_template).to(device)
-        if best_overall_state: final_model.load_state_dict(best_overall_state)
-        return final_model, {"best_accuracy": best_overall_acc, "all_metrics": all_runs_metrics}
-
+            m = res["best_fold_metrics"]; m["predictions"] = res["predictions"]; return model, m
+        pristine = copy.deepcopy(model).cpu(); augmenter = DataAugmenter(AugmentationConfig(enabled=True)) if is_augmented else None
+        all_metrics = []
+        best_overall_acc, best_state = float("-inf"), None
+        for r_idx in range(n_runs):
+            ds = train_loader.dataset; lbls = DeepEngine._extract_labels(ds)
+            skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=r_idx)
+            for f_idx, (tr_idx, val_idx) in enumerate(skf.split(np.zeros(len(ds)), lbls), 1):
+                f_model = copy.deepcopy(pristine).to(device); f_opt = type(optimizer)(f_model.parameters(), **{k:v for k,v in optimizer.defaults.items() if k not in {"decoupled_weight_decay", "step_size", "gamma"}})
+                tr_ldr = DataLoader(Subset(ds, tr_idx), batch_size=train_loader.batch_size, shuffle=True)
+                val_ldr = DataLoader(Subset(ds, val_idx), batch_size=train_loader.batch_size)
+                if augmenter: tr_ldr = augmenter.augment(tr_ldr)
+                trainer = Trainer(f_model, criterion, f_opt, device, num_epochs, patience=patience, use_coral=use_coral, use_cumulative_link=use_cumulative_link, num_classes=num_classes, regression=regression, ctx=ctx)
+                res = trainer.train(tr_ldr, val_ldr); m = res["best_fold_metrics"]
+                if res["best_accuracy"] > best_overall_acc: best_overall_acc = res["best_accuracy"]; best_state = res["best_model_state"]
+                all_metrics.append(m)
+        final = copy.deepcopy(pristine).to(device)
+        if best_state: final.load_state_dict(best_state)
+        return final, {"best_accuracy": best_overall_acc, "all_metrics": all_metrics}
     @staticmethod
-    def _extract_labels(dataset: Dataset) -> np.ndarray:
-        labels = []
-        base = dataset.dataset if isinstance(dataset, Subset) else dataset
-        idxs = dataset.indices if isinstance(dataset, Subset) else range(len(base))
-        for i in idxs:
-            _, lbl = base[i]
-            val = lbl.item() if isinstance(lbl, torch.Tensor) and lbl.numel()==1 else (lbl.argmax().item() if isinstance(lbl, torch.Tensor) else int(lbl))
-            labels.append(val)
-        return np.array(labels)
-
+    def _extract_labels(ds):
+        base = ds.dataset if isinstance(ds, Subset) else ds; idxs = ds.indices if isinstance(ds, Subset) else range(len(base))
+        return np.array([lbl.item() if isinstance(lbl, torch.Tensor) and lbl.numel()==1 else (lbl.argmax().item() if isinstance(lbl, torch.Tensor) else int(lbl)) for _, lbl in [base[i] for i in idxs]])
     @staticmethod
-    def evaluate_model(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: Union[str, torch.device] = get_device(), **kwargs) -> Dict:
+    def evaluate_model(model, loader, criterion, device=get_device(), **kwargs):
         if isinstance(device, str): device = torch.device(device)
-        trainer = Trainer(model, criterion, optim.Adam(model.parameters()), device, 1, **kwargs)
-        return trainer.evaluate(loader)
-
+        return Trainer(model, criterion, optim.Adam(model.parameters()), device, 1, **kwargs).evaluate(loader)
     @staticmethod
-    def transfer_learning(dataset_name: str, model: nn.Module, file_path: str) -> nn.Module:
+    def transfer_learning(dataset_name, model, file_path):
         try:
-            ckpt = torch.load(file_path, map_location="cpu")
-            model.load_state_dict(ckpt, strict=False)
+            model.load_state_dict(torch.load(file_path, map_location="cpu"), strict=False)
             console.print(f"[success]Transferred weights from {file_path}[/]")
-        except Exception as e:
-            console.print(f"[error]Transfer failed: {e}[/]")
+        except Exception as e: console.print(f"[error]Transfer failed: {e}[/]")
         return model

@@ -6,10 +6,19 @@ Unified orchestrator for non-deep learning experiments (Classic ML & Evolutionar
 import logging
 import numpy as np
 import pandas as pd
+import warnings
 from typing import Dict, List, Optional, Any, Tuple
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import (
+    balanced_accuracy_score, 
+    precision_score, 
+    recall_score, 
+    f1_score,
+    accuracy_score,
+    mean_absolute_error,
+    mean_squared_error
+)
 from dataclasses import asdict
 
 from fishy.data.module import create_data_module
@@ -45,23 +54,58 @@ class SklearnTrainer:
     def run(self) -> Dict[str, Any]:
         data_module = create_data_module(dataset_name=self.dataset_name, file_path=self.file_path)
         data_module.setup(); X, y = data_module.get_numpy_data(labels_as_indices=True)
+        self.num_classes = data_module.get_num_classes()
         scaler = StandardScaler(); X_scaled = scaler.fit_transform(X)
         skf = StratifiedKFold(n_splits=self.config.k_folds, shuffle=True, random_state=self.run_id)
-        val_results, train_results, last_fold_info = [], [], {}
+        
+        all_fold_metrics = []
+        last_fold_info = {}
+        
         for fold, (train_idx, test_idx) in enumerate(skf.split(X_scaled, y), 1):
             X_train, X_test, y_train, y_test = X_scaled[train_idx], X_scaled[test_idx], y[train_idx], y[test_idx]
             model = self._get_model_instance(); model.fit(X_train, y_train)
+            
             y_pred, y_train_pred = model.predict(X_test), model.predict(X_train)
-            if y_pred.dtype.kind in 'fc': y_pred = np.round(y_pred).clip(min(y), max(y)).astype(int); y_train_pred = np.round(y_train_pred).clip(min(y), max(y)).astype(int)
-            train_acc, val_acc = balanced_accuracy_score(y_train, y_train_pred), balanced_accuracy_score(y_test, y_pred)
-            train_results.append(train_acc); val_results.append(val_acc)
+            if y_pred.dtype.kind in 'fc': 
+                y_pred = np.round(y_pred).clip(min(y), max(y)).astype(int)
+                y_train_pred = np.round(y_train_pred).clip(min(y), max(y)).astype(int)
+            
+            train_met = self._calculate_metrics(y_train, y_train_pred)
+            val_met = self._calculate_metrics(y_test, y_pred)
+            
+            fold_res = {}
+            for k, v in train_met.items(): fold_res[f"train_{k}"] = v
+            for k, v in val_met.items(): fold_res[f"val_{k}"] = v
+            all_fold_metrics.append(fold_res)
+
             if fold == self.config.k_folds:
                 y_probs = model.predict_proba(X_test) if hasattr(model, "predict_proba") else None
                 last_fold_info = {"labels": y_test, "preds": y_pred, "probs": y_probs}
-                if self.ctx.wandb_run: self.ctx.log_prediction_table(spectra=X_test, preds=y_pred.astype(int), targets=y_test.astype(int), probs=(y_probs if y_probs is not None else np.eye(len(data_module.get_class_names()))[y_pred.astype(int)]), class_names=data_module.get_class_names())
-        stats = {"train_balanced_accuracy": float(np.mean(train_results)), "val_balanced_accuracy": float(np.mean(val_results)), "val_balanced_accuracy_std": float(np.std(val_results)), "predictions": last_fold_info}
+                if self.ctx.wandb_run: self.ctx.log_prediction_table(spectra=X_test, preds=y_pred.astype(int), targets=y_test.astype(int), probs=(y_probs if y_probs is not None else np.eye(self.num_classes)[y_pred.astype(int)]), class_names=data_module.get_class_names())
+        
+        # Aggregate stats
+        stats = {}
+        if all_fold_metrics:
+            for k in all_fold_metrics[0].keys():
+                stats[k] = float(np.mean([m[k] for m in all_fold_metrics]))
+        
+        stats["predictions"] = last_fold_info
         self.ctx.save_results({"stats": stats})
         return stats
+
+    def _calculate_metrics(self, y_true, y_pred) -> Dict[str, float]:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            all_labels = np.arange(self.num_classes)
+            return {
+                "accuracy": accuracy_score(y_true, y_pred),
+                "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
+                "precision": precision_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+                "recall": recall_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+                "f1": f1_score(y_true, y_pred, average="weighted", zero_division=0, labels=all_labels),
+                "mae": mean_absolute_error(y_true, y_pred),
+                "mse": mean_squared_error(y_true, y_pred)
+            }
 
     def _get_model_instance(self) -> Any:
         model_path = self.model_entry["path"] if isinstance(self.model_entry, dict) else self.model_entry

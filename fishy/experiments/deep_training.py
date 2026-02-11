@@ -32,7 +32,6 @@ class ModelTrainer:
         if self.wandb_run is None and self.config.wandb_log:
             self.wandb_run = wandb.init(project=self.config.wandb_project, entity=self.config.wandb_entity, config=asdict(self.config), reinit=True, group=f"{self.config.dataset}_{self.config.model}", job_type="training")
         
-        # Use existing context if provided, else create new
         self.ctx = ctx if ctx else RunContext(dataset=config.dataset, method="deep", model_name=config.model, wandb_run=self.wandb_run)
         self.logger = self.ctx.logger
         self.ctx.save_config(config)
@@ -95,7 +94,13 @@ class ModelTrainer:
             trained_model, metrics = DeepEngine.train_model(model=model, train_loader=tr_ldr, val_loader=val_ldr, criterion=criterion, optimizer=opt, num_epochs=self.config.epochs, patience=self.config.early_stopping, is_augmented=self.config.data_augmentation, device=self.device, use_coral=(self.config.ordinal_method == "coral"), use_cumulative_link=(self.config.ordinal_method == "clm"), num_classes=self.n_classes, regression=self.config.regression, ctx=self.ctx)
             if fold == k_folds - 1 and self.ctx.wandb_run: self._log_advanced_visualizations(metrics, val_ldr)
             all_fold_metrics.append(metrics)
-        stats = {k: np.mean([m[k] for m in all_fold_metrics if k in m and isinstance(m[k], (int, float))]) for k in all_fold_metrics[0].keys()}
+        
+        stats = {}
+        if all_fold_metrics:
+            for k in all_fold_metrics[0].keys():
+                vals = [m[k] for m in all_fold_metrics if k in m and isinstance(m[k], (int, float, np.number))]
+                if vals: stats[k] = float(np.mean(vals))
+        
         self.ctx.save_results({"stats": stats, "folds": all_fold_metrics}, filename=f"aggregated_stats_{self.config.dataset}.json")
         return stats
 
@@ -110,8 +115,7 @@ class ModelTrainer:
 
 def run_training_pipeline(config: TrainingConfig, wandb_run: Optional[Any] = None, ctx: Optional[RunContext] = None) -> Dict[str, Any]:
     started_wandb = False
-    if wandb_run is None and config.wandb_log:
-        started_wandb = True
+    if wandb_run is None and config.wandb_log: started_wandb = True
     trainer = ModelTrainer(config, wandb_run=wandb_run, ctx=ctx)
     try:
         pre_trained_model = trainer.pre_train()

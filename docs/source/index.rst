@@ -42,7 +42,6 @@ Key Features
    :hidden:
 
    papers
-   literature
 
 .. toctree::
    :maxdepth: 2
@@ -56,7 +55,6 @@ Key Features
    :caption: Community
    :hidden:
 
-   minutes
    contact
 
 Indices and tables

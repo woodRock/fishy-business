@@ -8,7 +8,7 @@ import logging
 import sys
 import argcomplete
 from pathlib import Path
-from typing import Tuple, List
+from typing import Tuple, List, Dict, Any
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
@@ -65,6 +65,35 @@ def detect_method(model_name: str) -> str:
     if m in cfg.get("probabilistic_models", {}): return "probabilistic"
     return "deep"
 
+def display_final_summary(results: Dict[str, Any]):
+    """Prints a beautiful summary table of results."""
+    table = Table(title="[bold green]Training Complete - Results Summary[/]", box=None)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Train", justify="right", style="magenta")
+    table.add_column("Val", justify="right", style="magenta")
+    
+    metrics = [
+        ("Accuracy", "accuracy"),
+        ("Balanced Accuracy", "balanced_accuracy"),
+        ("MAE", "mae"),
+        ("MSE", "mse"),
+        ("Precision", "precision"),
+        ("Recall", "recall"),
+        ("F1 Score", "f1")
+    ]
+    
+    for label, key in metrics:
+        train_val = results.get(f"train_{key}", results.get(key, 0.0))
+        val_val = results.get(f"val_{key}", results.get(key, 0.0))
+        if isinstance(train_val, (int, float)) and isinstance(val_val, (int, float)):
+            table.add_row(label, f"{train_val:.4f}", f"{val_val:.4f}")
+    
+    console.print("\n")
+    console.print(Panel(table, expand=False, border_style="green"))
+    
+    if "total_training_time_s" in results:
+        console.print(f"[dim italic]Elapsed training time: {results['total_training_time_s']:.4f} seconds[/]\n")
+
 def main() -> None:
     parser = setup_parser()
     args = parser.parse_args()
@@ -103,6 +132,9 @@ def _handle_train_execution(config: TrainingConfig):
     n_runs = config.num_runs if config.num_runs > 1 else (5 if config.statistical else 1)
     results = []
     
+    import time
+    start_all = time.time()
+    
     with console.status(f"[bold green]Running {n_runs} experiments...") as status:
         for i in range(n_runs):
             seed = (i + 1) * 123
@@ -111,6 +143,16 @@ def _handle_train_execution(config: TrainingConfig):
             status.update(f"[bold green]Running Experiment {i+1}/{n_runs}...")
             results.append(run_unified_training(config))
         
+        # Aggregate results for display
+        final_res = {}
+        if results:
+            for k in results[0].keys():
+                vals = [r[k] for r in results if k in r and isinstance(r[k], (int, float))]
+                if vals: final_res[k] = sum(vals) / len(vals)
+        
+        final_res["total_training_time_s"] = time.time() - start_all
+        display_final_summary(final_res)
+
         if config.statistical and config.model != "opls-da":
             status.update("[bold yellow]Running baseline (opls-da) for comparison...")
             baseline_results = []
