@@ -41,6 +41,9 @@ Key Features
    :caption: User Guide
    :hidden:
 
+   concepts
+   datasets_guide
+   xai_guide
    papers
 
 .. toctree::
@@ -55,6 +58,7 @@ Key Features
    :caption: Community
    :hidden:
 
+   contributing
    contact
 
 Indices and tables
