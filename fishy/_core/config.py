@@ -57,6 +57,7 @@ class TrainingConfig:
     benchmark: bool = False
     figures: bool = False
     xai: bool = False
+    statistical: bool = False
     
     # Task specific (now integrated)
     method: str = "deep" # deep, classic, contrastive, evolutionary
@@ -135,6 +136,7 @@ class ExperimentConfig:
     benchmark: bool = False
     figures: bool = False
     wandb_log: bool = False
+    statistical: bool = False
 
     @classmethod
     def from_yaml(cls, path: str) -> "ExperimentConfig":

@@ -38,6 +38,7 @@ def run_experiment_from_config(config_path: str):
                     file_path=DEFAULT_DATA_PATH,
                     benchmark=exp_cfg.benchmark,
                     figures=exp_cfg.figures,
+                    statistical=exp_cfg.statistical,
                     wandb_log=exp_cfg.wandb_log
                 )
                 
@@ -53,6 +54,21 @@ def run_experiment_from_config(config_path: str):
                 res = run_unified_training(config)
                 model_results.append(res)
             
-            results_summary[f"{dataset}_{model}"] = model_results
+            results_summary[f"{dataset}|||{model}"] = model_results
+
+    if exp_cfg.statistical:
+        from fishy.analysis.statistical import summarize_results
+        from fishy._core.utils import RunContext
+        
+        logger.info("Performing statistical significance analysis...")
+        summary_df = summarize_results(results_summary)
+        
+        # Save summary
+        ctx = RunContext(dataset="all", method="experiment", model_name=exp_cfg.name)
+        ctx.save_dataframe(summary_df, "statistical_analysis.csv")
+        
+        print("\n--- STATISTICAL SIGNIFICANCE SUMMARY ---")
+        print(summary_df.to_string(index=False))
+        print("----------------------------------------\n")
 
     return results_summary

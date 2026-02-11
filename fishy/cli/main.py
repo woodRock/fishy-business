@@ -64,6 +64,7 @@ def setup_parser() -> argparse.ArgumentParser:
     # Analysis & Reporting Flags (Common)
     train_parser.add_argument("--benchmark", action="store_true", help="Run performance benchmarking")
     train_parser.add_argument("--figures", action="store_true", help="Generate training and evaluation figures")
+    train_parser.add_argument("--statistical", action="store_true", help="Add statistical significance test to the runs")
     train_parser.add_argument("--wandb-log", action="store_true", help="Enable W&B logging")
     
     # Task specific modes (Common)
@@ -87,6 +88,7 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument("-bs", "--batch-size", type=int, help=get_help("Batch size/population size", False))
     hp_group.add_argument("-lr", "--learning-rate", type=float, help=get_help("Learning rate", False))
     hp_group.add_argument("-kf", "--k-folds", type=int, default=3, help=get_help("Number of cross-validation folds", False))
+    hp_group.add_argument("-n", "--num-runs", type=int, default=1, help=get_help("Number of independent runs", False))
     hp_group.add_argument("-r", "--run", type=int, default=0, help=get_help("Run identifier/seed", False))
     
     # --- WIZARD COMMAND ---
@@ -143,13 +145,81 @@ def main() -> None:
                     # Detect method if not in YAML
                     if not hasattr(config, "method") or not config.method:
                         config.method = detect_method(config.model)
-                    run_unified_training(config)
+                    
+                    if config.num_runs > 1 or config.statistical:
+                        # Handle multiple runs even for single config
+                        results = []
+                        for i in range(config.num_runs):
+                            config.run = (i + 1) * 123
+                            results.append(run_unified_training(config))
+                        
+                        if config.statistical:
+                            from fishy.analysis.statistical import summarize_results
+                            # Compare against OPLS-DA if this isn't OPLS-DA
+                            if config.model != "opls-da":
+                                print(f"Running baseline (opls-da) for statistical comparison...")
+                                baseline_results = []
+                                for i in range(config.num_runs):
+                                    b_config = TrainingConfig(
+                                        model="opls-da", dataset=config.dataset, 
+                                        run=(i + 1) * 123, method="classic",
+                                        file_path=config.file_path
+                                    )
+                                    baseline_results.append(run_unified_training(b_config))
+                                
+                                results_map = {
+                                    f"{config.dataset}|||{config.model}": results,
+                                    f"{config.dataset}|||opls-da": baseline_results
+                                }
+                            else:
+                                results_map = {f"{config.dataset}|||{config.model}": results}
+                            
+                            summary_df = summarize_results(results_map)
+                            print("\n--- STATISTICAL SIGNIFICANCE SUMMARY ---")
+                            print(summary_df.to_string(index=False))
+                            print("----------------------------------------\n")
+                    else:
+                        run_unified_training(config)
             else:
                 # Standard CLI execution
                 method = detect_method(args.model)
                 config = TrainingConfig.from_args(args)
                 config.method = method
-                run_unified_training(config)
+                
+                if config.num_runs > 1 or config.statistical:
+                    # If statistical is requested but num_runs is 1, default to 5 runs for some significance
+                    n_runs = config.num_runs if config.num_runs > 1 else (5 if config.statistical else 1)
+                    results = []
+                    for i in range(n_runs):
+                        config.run = (i + 1) * 123
+                        results.append(run_unified_training(config))
+                    
+                    if config.statistical:
+                        from fishy.analysis.statistical import summarize_results
+                        if config.model != "opls-da":
+                            print(f"Running baseline (opls-da) for statistical comparison...")
+                            baseline_results = []
+                            for i in range(n_runs):
+                                b_config = TrainingConfig(
+                                    model="opls-da", dataset=config.dataset, 
+                                    run=(i + 1) * 123, method="classic",
+                                    file_path=config.file_path
+                                )
+                                baseline_results.append(run_unified_training(b_config))
+                            
+                            results_map = {
+                                f"{config.dataset}|||{config.model}": results,
+                                f"{config.dataset}|||opls-da": baseline_results
+                            }
+                        else:
+                            results_map = {f"{config.dataset}|||{config.model}": results}
+                        
+                        summary_df = summarize_results(results_map)
+                        print("\n--- STATISTICAL SIGNIFICANCE SUMMARY ---")
+                        print(summary_df.to_string(index=False))
+                        print("----------------------------------------\n")
+                else:
+                    run_unified_training(config)
             
         elif args.command == "wizard":
             from fishy.cli.wizard import run_wizard

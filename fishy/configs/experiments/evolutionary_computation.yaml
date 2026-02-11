@@ -5,7 +5,6 @@ datasets: ["species"]
 models: ["gp", "ga", "pso", "eda", "es"]
 benchmark: true
 figures: true
-wandb_log: false
 overrides:
   population_size: 100
   generations: 100
