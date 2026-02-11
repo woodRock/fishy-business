@@ -42,7 +42,7 @@ def transfer_learning(
     Args:
         dataset_name (str): Name of the dataset for which the model is being adapted.
         model_instance (Transformer): Instance of the Transformer model to adapt.
-        file_path (str): Path to the checkpoint file containing pre-trained weights.
+        file_path (str, optional): Path to the checkpoint file. Defaults to "transformer_checkpoint.pth".
 
     Returns:
         Transformer: The model instance with adapted weights for the specified dataset.
@@ -160,10 +160,34 @@ def train_model(
     ctx: Optional[Any] = None,
 ) -> Tuple[nn.Module, Dict]:
     """
-    Trains a model.
+    Orchestrates the training process for a Deep Learning model.
 
-    If ``val_loader`` is provided, it performs a single training run.
-    Otherwise, it performs k-fold cross-validation with multiple independent runs.
+    Supports two modes:
+    1.  **Single Run**: If `val_loader` is provided, trains the model once on `train_loader`
+        and evaluates on `val_loader`.
+    2.  **Cross-Validation**: If `val_loader` is None, performs `n_splits`-fold Stratified
+        Cross-Validation, repeated `n_runs` times.
+
+    Args:
+        model (nn.Module): The PyTorch model to train.
+        train_loader (DataLoader): DataLoader for training data (or full dataset for CV).
+        criterion (nn.Module): The loss function.
+        optimizer (optim.Optimizer): The optimizer instance (used as a template for resets).
+        num_epochs (int, optional): Maximum training epochs. Defaults to 100.
+        patience (int, optional): Early stopping patience. Defaults to 20.
+        n_splits (int, optional): Number of CV folds. Defaults to 5.
+        n_runs (int, optional): Number of independent CV runs. Defaults to 30.
+        is_augmented (bool, optional): Whether to apply data augmentation. Defaults to False.
+        device (Union[str, torch.device], optional): Computation device. Defaults to get_device().
+        val_loader (Optional[DataLoader], optional): Explicit validation loader. Defaults to None.
+        use_coral (bool, optional): Enable CORAL ordinal loss. Defaults to False.
+        use_cumulative_link (bool, optional): Enable Cumulative Link ordinal loss. Defaults to False.
+        num_classes (Optional[int], optional): Number of classes (for ordinal/coral). Defaults to None.
+        regression (bool, optional): Enable regression mode. Defaults to False.
+        ctx (Optional[Any], optional): RunContext for logging/tracking. Defaults to None.
+
+    Returns:
+        Tuple[nn.Module, Dict]: The best trained model and a dictionary of metrics.
     """
     logger = logging.getLogger(__name__)
     
@@ -624,7 +648,20 @@ def evaluate_model(
     regression: bool = False,
 ) -> Dict:
     """
-    Evaluates a model on a given data loader using the Trainer class.
+    Evaluates a model on a given data loader.
+
+    Args:
+        model (nn.Module): The model to evaluate.
+        loader (DataLoader): The data loader containing evaluation data.
+        criterion (nn.Module): The loss function.
+        device (Union[str, torch.device], optional): Computation device. Defaults to get_device().
+        use_coral (bool, optional): Enable CORAL ordinal loss. Defaults to False.
+        use_cumulative_link (bool, optional): Enable Cumulative Link ordinal loss. Defaults to False.
+        num_classes (Optional[int], optional): Number of classes. Defaults to None.
+        regression (bool, optional): Enable regression mode. Defaults to False.
+
+    Returns:
+        Dict: A dictionary containing 'loss', 'metrics', and 'predictions'.
     """
     # Ensure device is a torch.device object
     if isinstance(device, str):

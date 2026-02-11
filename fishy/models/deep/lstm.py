@@ -68,13 +68,14 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the LSTM
+        """
+        Forward pass of the LSTM.
 
         Args:
-            x (torch.Tensor): the input to the model.
+            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_dim).
 
-        Returns
-            out (torch.Tensor): the output of the model.
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, output_dim).
         """
         # x shape: (batch_size, sequence_length, input_dim)
         # Initialize hidden state with zeros

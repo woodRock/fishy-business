@@ -30,9 +30,18 @@ from fishy.engine.losses import coral_loss, cumulative_link_loss
 
 def analyze_oil_predictions(
     predictions: Dict[str, np.ndarray], fold: int, config: TrainingConfig, ctx: RunContext
-):
+) -> None:
     """
     Analyzes and visualizes predictions specifically for the oil dataset.
+
+    Generates confusion matrices and prediction error distributions, saving them
+    via the RunContext.
+
+    Args:
+        predictions (Dict[str, np.ndarray]): Dictionary containing 'labels' and 'preds'.
+        fold (int): The current cross-validation fold index.
+        config (TrainingConfig): Experiment configuration.
+        ctx (RunContext): Context for logging and saving figures.
     """
     logger = ctx.logger
     if not predictions:
@@ -121,7 +130,12 @@ class ModelTrainer:
         )
 
     def pre_train(self) -> Optional[nn.Module]:
-        """Executes the pre-training phase using the orchestrator."""
+        """
+        Executes the pre-training phase using the orchestrator.
+
+        Returns:
+            Optional[nn.Module]: The pre-trained model, or None if pre-training is skipped.
+        """
         self.logger.info("Evaluating pre-training phase")
         train_loader = self.data_module.get_train_dataloader()
         val_loader = (
@@ -133,7 +147,15 @@ class ModelTrainer:
         return self.pre_train_orchestrator.run_all(train_loader, val_loader)
 
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> Dict[str, Any]:
-        """Main training loop, supporting both single split and K-Fold CV."""
+        """
+        Main training loop, supporting both single split and K-Fold CV.
+
+        Args:
+            pre_trained_model (Optional[nn.Module], optional): A pre-trained model to fine-tune. Defaults to None.
+
+        Returns:
+            Dict[str, Any]: Aggregated metrics from the training run(s).
+        """
         from sklearn.model_selection import train_test_split
 
         if self.data_module is None:
@@ -272,8 +294,19 @@ class ModelTrainer:
         return {k: np.mean([m[k] for m in all_fold_metrics if k in m and isinstance(m[k], (int, float))]) for k in all_fold_metrics[0].keys()}
 
 
-def run_training_pipeline(config: TrainingConfig):
-    """Executes the training pipeline for a given configuration."""
+def run_training_pipeline(config: TrainingConfig) -> Dict[str, Any]:
+    """
+    Executes the full training pipeline for a given configuration.
+
+    Initializes the ModelTrainer, runs pre-training (if configured), and then
+    runs the main training/fine-tuning loop.
+
+    Args:
+        config (TrainingConfig): The experiment configuration.
+
+    Returns:
+        Dict[str, Any]: The final results/metrics of the training pipeline.
+    """
     trainer = ModelTrainer(config)
     trainer.logger.info("Starting training pipeline")
     try:

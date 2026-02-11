@@ -9,6 +9,7 @@ import sys
 import json
 from dataclasses import asdict
 from pathlib import Path
+from typing import Tuple
 import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -29,7 +30,13 @@ from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.data.augmentation import AugmentationConfig
 
 
-def setup_base_parser():
+def setup_base_parser() -> Tuple[argparse.ArgumentParser, argparse._SubParsersAction]:
+    """
+    Sets up the base argument parser and subparsers.
+
+    Returns:
+        Tuple[argparse.ArgumentParser, argparse._SubParsersAction]: The main parser and the subparsers object.
+    """
     parser = argparse.ArgumentParser(
         prog="fishy",
         description="Unified Spectra Deep Learning CLI Tool",
@@ -39,7 +46,13 @@ def setup_base_parser():
     return parser, subparsers
 
 
-def add_run_all_args(subparsers):
+def add_run_all_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'run_all' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object to add the command to.
+    """
     run_all_parser = subparsers.add_parser(
         "run_all", help="Run the full benchmarking suite with statistical analysis"
     )
@@ -76,7 +89,13 @@ def add_run_all_args(subparsers):
     )
 
 
-def handle_run_all(args):
+def handle_run_all(args: argparse.Namespace) -> None:
+    """
+    Handles the 'run_all' command execution.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
     run_all_experiments(
         num_runs=args.num_runs,
         wandb_log=args.wandb_log,
@@ -87,14 +106,26 @@ def handle_run_all(args):
     )
 
 
-def add_train_args(subparsers):
+def add_train_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'train' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     train_parser = subparsers.add_parser(
         "train", help="Run standard model training (Classification)"
     )
     _add_common_training_args(train_parser)
 
 
-def add_pretrain_args(subparsers):
+def add_pretrain_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'pretrain' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     pretrain_parser = subparsers.add_parser(
         "pretrain", help="Run self-supervised pre-training tasks"
     )
@@ -119,7 +150,13 @@ def add_pretrain_args(subparsers):
         )
 
 
-def add_ordinal_args(subparsers):
+def add_ordinal_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'ordinal' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     ordinal_parser = subparsers.add_parser(
         "ordinal", help="Run ordinal regression or standard regression tasks"
     )
@@ -132,8 +169,13 @@ def add_ordinal_args(subparsers):
     mode_group.add_argument("--regression", action="store_true", help="Perform standard regression")
 
 
-def _add_common_training_args(parser):
-    """Internal helper to add shared arguments across training commands."""
+def _add_common_training_args(parser: argparse.ArgumentParser) -> None:
+    """
+    Internal helper to add shared arguments across training commands.
+
+    Args:
+        parser (argparse.ArgumentParser): The parser to add arguments to.
+    """
     models_cfg = load_config("models")
     all_models = list(models_cfg["deep_models"].keys()) + list(models_cfg["classic_models"].keys())
 
@@ -164,7 +206,13 @@ def _add_common_training_args(parser):
     aug_group.add_argument("--scale-enabled", action="store_true", help="Enable scale")
 
 
-def add_benchmark_args(subparsers):
+def add_benchmark_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'benchmark' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     bench_parser = subparsers.add_parser("benchmark", help="Benchmark multiple models")
     bench_parser.add_argument(
         "-fp",
@@ -198,7 +246,13 @@ def add_benchmark_args(subparsers):
     )
 
 
-def add_transfer_args(subparsers):
+def add_transfer_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'transfer' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     trans_parser = subparsers.add_parser(
         "transfer", help="Sequential transfer learning"
     )
@@ -261,7 +315,13 @@ def add_transfer_args(subparsers):
     )
 
 
-def add_xai_args(subparsers):
+def add_xai_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'xai' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     xai_parser = subparsers.add_parser(
         "xai", help="Explain model predictions (LIME/Grad-CAM)"
     )
@@ -286,7 +346,13 @@ def add_xai_args(subparsers):
     )
 
 
-def add_evolutionary_args(subparsers):
+def add_evolutionary_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'evolutionary' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     evo_parser = subparsers.add_parser(
         "evolutionary", help="Run Genetic Programming experiments"
     )
@@ -321,7 +387,13 @@ def add_evolutionary_args(subparsers):
     )
 
 
-def add_contrastive_args(subparsers):
+def add_contrastive_args(subparsers: argparse._SubParsersAction) -> None:
+    """
+    Adds arguments for the 'contrastive' command.
+
+    Args:
+        subparsers (argparse._SubParsersAction): The subparsers object.
+    """
     cont_parser = subparsers.add_parser(
         "contrastive", help="Run Contrastive Learning experiments"
     )
@@ -375,7 +447,13 @@ def add_contrastive_args(subparsers):
     )
 
 
-def handle_train(args):
+def handle_train(args: argparse.Namespace) -> None:
+    """
+    Handles the 'train', 'pretrain', and 'ordinal' command execution.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
     classic_models = ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "opls-da"]
     config = TrainingConfig.from_args(args)  # Create config first
     if args.model.lower() in classic_models:
@@ -404,7 +482,13 @@ def handle_train(args):
         run_training_pipeline(config)
 
 
-def handle_xai(args):
+def handle_xai(args: argparse.Namespace) -> None:
+    """
+    Handles the 'xai' command execution.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
     t_cfg = TrainingConfig(
         file_path=DEFAULT_DATA_PATH,
         model=args.model,
@@ -446,7 +530,10 @@ def handle_xai(args):
     )
 
 
-def main():
+def main() -> None:
+    """
+    Main entry point for the CLI.
+    """
     parser, subparsers = setup_base_parser()
     add_run_all_args(subparsers)
     add_train_args(subparsers)

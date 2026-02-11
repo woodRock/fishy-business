@@ -17,14 +17,50 @@ from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
 
 def get_model_class(model_path: str) -> Type[nn.Module]:
-    """Dynamically imports a model class from a string path."""
+    """
+    Dynamically imports a model class from a string path.
+
+    Args:
+        model_path (str): The full dot-separated path to the model class
+                          (e.g., "fishy.models.deep.transformer.Transformer").
+
+    Returns:
+        Type[nn.Module]: The imported model class.
+
+    Examples:
+        >>> cls = get_model_class("fishy.models.deep.transformer.Transformer")
+        >>> cls.__name__
+        'Transformer'
+    """
     module_path, class_name = model_path.rsplit(".", 1)
     module = importlib.import_module(module_path)
     return getattr(module, class_name)
 
 def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.Module:
     """
-    Factory function to create a model based on dynamic configuration.
+    Factory function to create a deep learning model based on dynamic configuration.
+
+    It reads the model registry from `models.yaml`, resolves the class path,
+    and instantiates the model with parameters from `TrainingConfig`.
+
+    Args:
+        config (TrainingConfig): The experiment configuration object.
+        input_dim (int): Dimensionality of input features.
+        output_dim (int): Number of output classes (or dimensions).
+
+    Returns:
+        nn.Module: The instantiated PyTorch model.
+
+    Raises:
+        ValueError: If the model name is not found in the registry.
+        RuntimeError: If model instantiation fails due to signature mismatch.
+
+    Examples:
+        >>> from fishy._core.config import TrainingConfig
+        >>> cfg = TrainingConfig(model="transformer", dataset="species", hidden_dimension=64, num_layers=2)
+        >>> model = create_model(cfg, input_dim=1024, output_dim=10)
+        >>> isinstance(model, nn.Module)
+        True
     """
     model_name = config.model.lower()
     models_cfg = load_config("models")["deep_models"]

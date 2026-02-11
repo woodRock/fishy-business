@@ -60,17 +60,16 @@ class MambaBlock(nn.Module):
         dropout: float = 0.2,
         layer_norm_eps: float = 1e-5,
     ) -> None:
-        """Mamba block
-
-        This block implements the inner and outer functions of the Mamba model.
+        """
+        Mamba block implementing the inner and outer functions of the Mamba model.
 
         Args:
-            d_model (int): the dimensions of the model.
-            d_state (int): the dimensions of the state.
-            d_conv (int): the dimensions of the convolution.
-            expand (int): the expansion factor.
-            dropout (float): the dropout rate.
-            layer_norm_eps (float): the layer normalization epsilon.
+            d_model (int): The model dimension.
+            d_state (int): The state dimension.
+            d_conv (int): The convolution kernel size.
+            expand (int): The expansion factor.
+            dropout (float, optional): The dropout rate. Defaults to 0.2.
+            layer_norm_eps (float, optional): Epsilon for LayerNorm. Defaults to 1e-5.
         """
         super().__init__()
         self.d_model = d_model
@@ -101,13 +100,14 @@ class MambaBlock(nn.Module):
         self.us_proj = nn.Linear(d_state, d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass
+        """
+        Forward pass.
 
         Args:
-            x (torch.Tensor): the input tensor.
+            x (torch.Tensor): Input tensor.
 
         Returns:
-            torch.Tensor: the output tensor.
+            torch.Tensor: Output tensor.
         """
         B, L, D = x.shape
         x = self.layer_norm(x)  # Layer normalization
@@ -141,10 +141,26 @@ class MambaBlock(nn.Module):
 
 
 class Mamba(nn.Module):
+    """
+    Mamba sequence modeling architecture.
+
+    Args:
+        input_dim (int): Input feature dimension.
+        output_dim (int): Output class dimension.
+        d_model (int): Model dimension.
+        d_state (int): State dimension.
+        d_conv (int): Conv kernel size.
+        expand (int): Expansion factor.
+        depth (int): Number of Mamba blocks.
+        dropout (float, optional): Dropout rate. Defaults to 0.2.
+        layer_norm_eps (float, optional): Epsilon for LayerNorm. Defaults to 1e-5.
+        spectral_norm (bool, optional): Whether to use spectral normalization (unused placeholder). Defaults to True.
+    """
+
     def __init__(
         self,
         input_dim: int,
-        output_dim: int,  # Added output_dim
+        output_dim: int,
         d_model: int,
         d_state: int,
         d_conv: int,
@@ -166,14 +182,15 @@ class Mamba(nn.Module):
         self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
         self.fc = nn.Linear(d_model, output_dim)  # Final classification layer
 
-    def forward(self, x):
-        """Forward pass
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass.
 
         Args:
-            x (torch.Tensor): the input tensor.
+            x (torch.Tensor): Input tensor of shape (B, D).
 
         Returns:
-            torch.Tensor: the output tensor.
+            torch.Tensor: Output logits of shape (B, output_dim).
         """
         x = self.embedding_layer(x)
         # Mamba expects a sequence, but our input is a single vector.
@@ -195,62 +212,67 @@ class Mamba(nn.Module):
 
 
 class SiameseMamba(nn.Module):
-    """A Siamese network using Mamba as the backbone."""
+    """
+    A Siamese network using Mamba as the backbone.
 
-    def __init__(self, mamba_model: Mamba):
-        """Initializes the SiameseMamba model.
+    This class adapts the Mamba architecture for instance recognition tasks
+    by processing pairs of inputs and computing a distance metric.
 
-        Args:
-            mamba_model (Mamba): An instance of the Mamba model.
-        """
+    Args:
+        input_dim (int): Input feature dimension.
+        output_dim (int): Output dimension (typically 1 for distance).
+        hidden_dim (int): Hidden dimension for the Mamba backbone.
+        num_layers (int): Number of Mamba layers.
+    """
+
+    def __init__(
+        self, input_dim: int, output_dim: int, hidden_dim: int, num_layers: int
+    ) -> None:
         super(SiameseMamba, self).__init__()
-        self.mamba = mamba_model
-        # The output of Mamba is d_model, so the linear layer should take d_model as input
-        self.fc = nn.Linear(1, 1)  # Output is a scalar distance, so input to FC is 1
+        # Instantiate the backbone
+        self.mamba = Mamba(
+            input_dim=input_dim,
+            output_dim=hidden_dim,  # Internal projection, not final class
+            d_model=hidden_dim,
+            d_state=16,  # Default
+            d_conv=4,  # Default
+            expand=2,  # Default
+            depth=num_layers,
+        )
+        self.fc = nn.Linear(1, 1)
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the SiameseMamba.
+        """
+        Forward pass of the SiameseMamba.
 
         Args:
             x1 (torch.Tensor): The first input tensor.
             x2 (torch.Tensor): The second input tensor.
 
         Returns:
-            torch.Tensor: The output of the Siamese network.
+            torch.Tensor: The distance score between inputs.
         """
         # Pass through embedding layer
         x1_embed = self.mamba.embedding_layer(x1)
         x2_embed = self.mamba.embedding_layer(x2)
 
-        # Pass through Mamba blocks, but without the unsqueeze and repeat
-        # and without the final layer_norm and x[:, 0, :]
-        # We need to get the feature vector before the final classification head
-        # Assuming the Mamba model's layers produce a feature vector at the end
-        # For Mamba, the output of the layers is (batch_size, sequence_length, d_model)
-        # and the original Mamba takes x[:, 0, :] as the final output.
-        # So we will apply the layers and then take x[:, 0, :]
-
         # Apply Mamba blocks to x1
-        x1_processed = x1_embed.unsqueeze(1).repeat(
-            1, 100, 1
-        )  # Re-add the unsqueeze and repeat for Mamba's internal processing
+        x1_processed = x1_embed.unsqueeze(1).repeat(1, 100, 1)
         for layer in self.mamba.layers:
             residual = x1_processed
             x1_processed = layer(x1_processed)
             x1_processed = x1_processed + residual
             x1_processed = self.mamba.dropout(x1_processed)
-        x1_features = self.mamba.layer_norm(x1_processed)[:, 0, :]  # Extract features
+        x1_features = self.mamba.layer_norm(x1_processed)[:, 0, :]
 
         # Apply Mamba blocks to x2
-        x2_processed = x2_embed.unsqueeze(1).repeat(
-            1, 100, 1
-        )  # Re-add the unsqueeze and repeat for Mamba's internal processing
+        x2_processed = x2_embed.unsqueeze(1).repeat(1, 100, 1)
         for layer in self.mamba.layers:
             residual = x2_processed
             x2_processed = layer(x2_processed)
             x2_processed = x2_processed + residual
             x2_processed = self.mamba.dropout(x2_processed)
-        x2_features = self.mamba.layer_norm(x2_processed)[:, 0, :]  # Extract features
+        x2_features = self.mamba.layer_norm(x2_processed)[:, 0, :]
 
         distance = F.pairwise_distance(x1_features, x2_features)
         output = self.fc(distance.unsqueeze(-1))

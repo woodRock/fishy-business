@@ -9,10 +9,3 @@ This is the auto-generated API reference for the ``fishy`` library.
    :recursive:
 
    fishy
-   fishy.analysis
-   fishy.cli
-   fishy.data
-   fishy.engine
-   fishy.experiments
-   fishy.models
-   fishy._core

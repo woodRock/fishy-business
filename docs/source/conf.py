@@ -33,6 +33,8 @@ release = "0.0.1"
 
 autosummary_generate = True
 
+autosummary_module_template = 'custom_module.rst'  # Must match the filename above!
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["templates"]
 

@@ -72,6 +72,22 @@ class GradCAM:
     Args:
         model (nn.Module): The PyTorch model to explain.
         target_layer (nn.Module): The specific layer within the model to analyze (e.g., the last convolutional or attention layer).
+
+    Examples:
+        >>> import torch
+        >>> import torch.nn as nn
+        >>> model = nn.Sequential(
+        ...     nn.Conv1d(1, 1, 3),
+        ...     nn.Flatten(),
+        ...     nn.Linear(8, 2)
+        ... )
+        >>> target_layer = model[0]
+        >>> grad_cam = GradCAM(model, target_layer)
+        >>> input_tensor = torch.randn(1, 1, 10)
+        >>> cam = grad_cam.generate_cam(input_tensor)
+        >>> cam.shape
+        torch.Size([1, 10])
+        >>> grad_cam.remove_hooks()
     """
 
     def __init__(self, model: nn.Module, target_layer: nn.Module) -> None:
@@ -179,6 +195,16 @@ class ModelWrapper:
     Args:
         model (nn.Module): The PyTorch model.
         device (str): The device to run inference on.
+
+    Examples:
+        >>> import torch.nn as nn
+        >>> model = nn.Linear(10, 2)
+        >>> wrapper = ModelWrapper(model, device='cpu')
+        >>> import numpy as np
+        >>> x = np.random.rand(5, 10)
+        >>> probs = wrapper.predict_proba(x)
+        >>> probs.shape
+        (5, 2)
     """
 
     def __init__(self, model: nn.Module, device: str) -> None:
