@@ -1,4 +1,4 @@
-fishy.models.deep
+﻿fishy.models.deep
 =================
 
 .. currentmodule:: fishy.models
@@ -17,11 +17,9 @@ fishy.models.deep
       MOE
       cnn
       dense
-      diffusion
       ensemble
       hybrid
       kan
-      longformer
       lstm
       mamba
       ode

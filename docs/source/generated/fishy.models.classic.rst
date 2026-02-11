@@ -1,4 +1,4 @@
-fishy.models.classic
+﻿fishy.models.classic
 ====================
 
 .. currentmodule:: fishy.models
@@ -14,13 +14,6 @@ fishy.models.classic
       :recursive:
       :template: module.rst
    
-      dt
-      knn
-      lda
-      lr
-      nb
-      opls_data
-      reducers
-      run_opls
+      opls_da
    
    

@@ -1,4 +1,4 @@
-fishy.data.datasets
+﻿fishy.data.datasets
 ===================
 
 .. currentmodule:: fishy.data
@@ -9,6 +9,10 @@ fishy.data.datasets
    
    .. rubric:: Classes
 
+   
+   .. autoclass:: BalancedBatchSampler
+      :members:
+      :show-inheritance:
    
    .. autoclass:: BaseDataset
       :members:

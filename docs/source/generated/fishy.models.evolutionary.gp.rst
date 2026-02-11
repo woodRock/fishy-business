@@ -7,16 +7,30 @@ fishy.models.evolutionary.gp
 .. automodule:: fishy.models.evolutionary.gp
 
    
+   .. rubric:: Classes
+
+   
+   .. autoclass:: GP
+      :members:
+      :show-inheritance:
+   
+   
    .. rubric:: Functions
 
    
-   .. autofunction:: SimpleGPWithElitism
+   .. autofunction:: compileMultiTree
    
-   .. autofunction:: load_model
+   .. autofunction:: normalized_distances
    
-   .. autofunction:: save_model
+   .. autofunction:: quick_evaluate
    
-   .. autofunction:: train
+   .. autofunction:: staticLimit
+   
+   .. autofunction:: wrapper_fitness
+   
+   .. autofunction:: xmate
+   
+   .. autofunction:: xmut
    
    
    

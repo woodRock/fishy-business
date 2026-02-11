@@ -1,4 +1,4 @@
-fishy.engine.trainer
+﻿fishy.engine.trainer
 ====================
 
 .. currentmodule:: fishy.engine
@@ -11,6 +11,10 @@ fishy.engine.trainer
 
    
    .. autoclass:: Trainer
+      :members:
+      :show-inheritance:
+   
+   .. autoclass:: TrainingEngine
       :members:
       :show-inheritance:
    

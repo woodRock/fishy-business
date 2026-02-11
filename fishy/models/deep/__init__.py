@@ -5,11 +5,9 @@ Deep learning models for spectral analysis.
 
 from .cnn import CNN
 from .dense import Dense
-from .diffusion import Diffusion
 from .ensemble import Ensemble
 from .hybrid import Hybrid
 from .kan import KAN
-from .longformer import Longformer
 from .lstm import LSTM
 from .mamba import Mamba, SiameseMamba
 from .MOE import MOE
@@ -26,11 +24,9 @@ from .wavenet import WaveNet
 __all__ = [
     "CNN",
     "Dense",
-    "Diffusion",
     "Ensemble",
     "Hybrid",
     "KAN",
-    "Longformer",
     "LSTM",
     "Mamba",
     "SiameseMamba",

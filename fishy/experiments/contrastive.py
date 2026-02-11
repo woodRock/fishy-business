@@ -17,9 +17,7 @@ from dataclasses import asdict
 
 from fishy.data.module import create_data_module
 from fishy.data.augmentation import AugmentationConfig, DataAugmenter
-from fishy.data.contrastive_util import (
-    DataConfig,
-    DataPreprocessor,
+from fishy.data import (
     SiameseDataset,
     BalancedBatchSampler,
 )

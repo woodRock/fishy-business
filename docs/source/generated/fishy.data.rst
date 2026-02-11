@@ -1,4 +1,4 @@
-fishy.data
+﻿fishy.data
 ==========
 
 .. currentmodule:: fishy
@@ -15,8 +15,6 @@ fishy.data
       :template: module.rst
    
       augmentation
-      classic_loader
-      contrastive_util
       datasets
       module
    

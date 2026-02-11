@@ -1,4 +1,4 @@
-fishy.experiments.classic\_training
+﻿fishy.experiments.classic\_training
 ===================================
 
 .. currentmodule:: fishy.experiments

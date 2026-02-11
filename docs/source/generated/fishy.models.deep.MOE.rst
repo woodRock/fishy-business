@@ -1,4 +1,4 @@
-﻿fishy.models.deep.MOE
+fishy.models.deep.MOE
 =====================
 
 .. currentmodule:: fishy.models.deep
