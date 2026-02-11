@@ -32,10 +32,11 @@ def summarize_results(results_map: Dict[str, List[Dict[str, Any]]], baseline_mod
     datasets = {}
     for key, results in results_map.items():
         dataset, model = key.split("|||", 1) if "|||" in key else ("unknown", key)
-        if dataset not in datasets: datasets[dataset] = {}
+        if dataset not in datasets:
+            datasets[dataset] = {}
         datasets[dataset][model] = {
             "val": [r.get("val_balanced_accuracy", 0) for r in results],
-            "train": [r.get("train_balanced_accuracy", 0) for r in results]
+            "train": [r.get("train_balanced_accuracy", 0) for r in results],
         }
 
     summary_data = []
@@ -64,6 +65,7 @@ def summarize_results(results_map: Dict[str, List[Dict[str, Any]]], baseline_mod
             
     return pd.DataFrame(summary_data)
 
+
 def display_statistical_summary(df: pd.DataFrame, show_significance: bool = True):
     """Displays a pretty table grouped by dataset with dual significance columns."""
     table = Table(title="[bold green]Full Statistical Analysis Summary[/]", box=None)
@@ -74,17 +76,18 @@ def display_statistical_summary(df: pd.DataFrame, show_significance: bool = True
     if show_significance: table.add_column("Sig", justify="center", style="bold yellow")
     table.add_column("Test Acc", justify="right", style="green")
     table.add_column("Std", justify="right", style="dim")
-    if show_significance: table.add_column("Sig", justify="center", style="bold yellow")
+    if show_significance:
+        table.add_column("Sig", justify="center", style="bold yellow")
 
     # Sort to ensure consistent method order for each dataset
     df = df.sort_values(by=["Dataset", "Method"])
-    
+
     current_ds = None
     for _, row in df.iterrows():
         # Visual grouping: only print dataset name for the first method in that dataset
         ds_name = row["Dataset"] if row["Dataset"] != current_ds else ""
         current_ds = row["Dataset"]
-        
+
         row_data = [
             ds_name, row["Method"],
             f"{row['Train']:.4f}", f"{row['Train Std']:.4f}"

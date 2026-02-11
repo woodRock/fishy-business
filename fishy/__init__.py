@@ -12,12 +12,13 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 try:
     from urllib3.exceptions import NotOpenSSLWarning
+
     warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError:
     pass
 
 # Suppress some matplotlib chatter
-os.environ['MPLBACKEND'] = 'Agg' 
+os.environ["MPLBACKEND"] = "Agg"
 
 from .engine.trainer import Trainer, DeepEngine
 from .data.module import DataModule, create_data_module
