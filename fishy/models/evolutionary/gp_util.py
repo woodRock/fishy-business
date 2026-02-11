@@ -13,33 +13,26 @@ from deap.base import Toolbox
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.preprocessing import minmax_scale
 from sklearn.metrics import balanced_accuracy_score
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Any, List, Optional
 
 
 def quick_evaluate(
-    expr: PrimitiveTree, pset: PrimitiveSetTyped, data: Iterable, prefix: str = "ARG"
-) -> Iterable:
-    """Quick evaluate offers a 500% speedup for the evluation of GP trees.
+    expr: PrimitiveTree, pset: PrimitiveSetTyped, data: np.ndarray, prefix: str = "ARG"
+) -> np.ndarray:
+    """
+    Optimized evaluation of GP trees using a stack-based approach.
 
-    The default implementation of gp.compile provided by the DEAP library is
-    horrendously inefficient. (Zhang 2022) has shared his code which leads to a
-    5x speedup in the compilation and evaluation of GP trees when compared to the
-    standard library approach.
-
-    For multi-tree GP, this speedup factor is invaluable! As each individual conists
-    of m trees. For the fish dataset we have 4 classes, each with 3 constructed features,
-    which corresponds to 4 classes x 3 features = 12 trees for each individual.
-    12 trees x 500% speedup = 6,000% overall speedup, or 60 times faster.
-    The 500% speedup is fundamental, for efficient evaluation of multi-tree GP.
+    Provides a significant speedup over the default `gp.compile` implementation
+    by avoiding expensive string conversions and dynamic code execution.
 
     Args:
-        expr (PrimitiveTree): The uncompiled (gp.PrimitiveTree) GP tree.
-        pset (PrimitiveSetTyped): The primitive set.
-        data (Iterable): The dataset to evaluate the GP tree for.
-        prefix (str): Prefix for variable arguments. Defaults to ARG.
+        expr (PrimitiveTree): The uncompiled GP tree.
+        pset (PrimitiveSetTyped): The primitive set used by the tree.
+        data (np.ndarray): The dataset to evaluate on.
+        prefix (str, optional): Variable argument prefix in the pset. Defaults to "ARG".
 
     Returns:
-        The (array-like) result of the GP tree evaluate on the dataset .
+        np.ndarray: The result of the GP tree evaluation.
     """
     result = None
     stack = []
@@ -57,88 +50,90 @@ def quick_evaluate(
             else:
                 raise Exception
             if len(stack) == 0:
-                break  # If stack is empty, all nodes should have been seen
+                break
             stack[-1][1].append(result)
     return result
 
 
 def compileMultiTree(
-    expr: genHalfAndHalf, pset: PrimitiveSetTyped, X: Iterable = None
-) -> Iterable:
-    """Compile the expression represented by a list of trees.
-
-    A variation of the gp.compileADF method, that handles Multi-tree GP.
+    expr: List[PrimitiveTree], pset: PrimitiveSetTyped, X: np.ndarray
+) -> np.ndarray:
+    """
+    Compiles a multi-tree individual into a feature matrix.
 
     Args:
-        expr (genHalfAndHalf): Expression to compile. It can either be a PrimitiveTree,
-                 a string of Python code or any object that when
-                 converted into string produced a valid Python code
-                 expression.
-        pset (PrimitiveSetTyped): Primitive Set
-        X (Iterable): the features from the dataset.
+        expr (List[PrimitiveTree]): A list of GP trees (one per target feature).
+        pset (PrimitiveSetTyped): The primitive set.
+        X (np.ndarray): Input feature matrix.
 
     Returns:
-        A set of functions that correspond for each tree in the Multi-tree.
+        np.ndarray: The constructed features of shape (n_samples, n_trees).
     """
     funcs = []
-    gp_tree = None
-    func = None
-
     for subexpr in expr:
         gp_tree = gp.PrimitiveTree(subexpr)
-        # 5x speedup by manually parsing GP tree (Zhang 2022) https://mail.google.com/mail/u/0/#inbox/FMfcgzGqQmQthcqPCCNmstgLZlKGXvbc
         func = quick_evaluate(gp_tree, pset, X, prefix="ARG")
         funcs.append(func)
 
-    # Hengzhe's method returns the features in the wrong rotation for multi-tree
     features = np.array(funcs).T
     return features
 
 
-def normalize(x: Iterable) -> Iterable:
+def normalize(x: np.ndarray) -> np.ndarray:
     """
-    Normalize a numpy array to interclass/intraclass distance sum to 1.
+    Min-max normalizes a feature matrix.
 
     Args:
-        x (Iterable): numpy array to be normalized.
+        x (np.ndarray): The feature matrix to normalize.
 
     Returns:
-        numpy array normalized to interclass/intraclass distance sum to 1.
+        np.ndarray: Normalized feature matrix.
     """
-    # x_norm = (x-np.min(x))/(np.max(x)-np.min(x))
     x_norm = minmax_scale(x, feature_range=(0, 1), axis=0, copy=True)
     return x_norm
 
 
-def pairwise_distances(X):
+def pairwise_distances(X: np.ndarray) -> np.ndarray:
     """
-    Compute pairwise distances for all points in X.
+    Computes pairwise Euclidean distances for all points in X.
+
+    Args:
+        X (np.ndarray): Input matrix.
+
+    Returns:
+        np.ndarray: Square distance matrix.
     """
     return squareform(pdist(X))
 
 
-def class_distances(X, y):
+def class_distances(X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute intraclass and interclass distances efficiently.
+    Computes intraclass and interclass distances.
+
+    Args:
+        X (np.ndarray): Feature matrix.
+        y (np.ndarray): Target labels.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: (intra_distances, inter_distances)
     """
     distances = pairwise_distances(X)
-    n = len(y)
-
-    # Create a mask for same-class pairs
     same_class_mask = np.equal.outer(y, y)
-
-    # Intraclass distances (upper triangle only to avoid duplicates)
     intra_distances = distances[np.triu(same_class_mask, k=1)]
-
-    # Interclass distances (upper triangle only to avoid duplicates)
     inter_distances = distances[np.triu(~same_class_mask, k=1)]
-
     return intra_distances, inter_distances
 
 
-def normalized_distances(X, y):
+def normalized_distances(X: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
     """
-    Compute normalized intraclass and interclass distances.
+    Computes normalized means of intraclass and interclass distances.
+
+    Args:
+        X (np.ndarray): Feature matrix.
+        y (np.ndarray): Target labels.
+
+    Returns:
+        Tuple[float, float]: (intra_mean, inter_mean)
     """
     intra_distances, inter_distances = class_distances(X, y)
 
@@ -158,57 +153,39 @@ def normalized_distances(X, y):
 
 
 def wrapper_classification_accuracy(
-    X: Iterable = None,
-    y: Iterable = None,
+    X: np.ndarray,
+    y: np.ndarray,
     k: int = 2,
     verbose: bool = False,
     is_normalize: bool = True,
 ) -> float:
-    """Evaluate balanced classification accuracy over stratified k-fold cross validation.
-
-    This method is our fitness measure for an individual. We measure each individual
-    based on its balanced classification accuracy using 10-fold cross-validation on
-    the training set.
-
-    If verbose, we evaluate performance on the test set as well, and print the results
-    to the standard output. By default, only the train set is evaluated, which
-    corresponds to a 2x speedup for training, when compared to the verbose method.
+    """
+    Evaluates fitness based on classification accuracy and distance regularization.
 
     Args:
-        X (Iterable): the features of the evolved tree. Defaults to None.
-        y (Iterable): the class labels for comparison. Defaults to None.
-        k (int): Number of folds, for cross validation. Defaults to 2.
-        verbose (bool): If true, prints stuff. Defaults to false.
-        normalize (bool): Normalize the features in the dataset. Defaults to True.
+        X (np.ndarray): Constructed features.
+        y (np.ndarray): Target labels.
+        k (int, optional): Folds for cross-validation. Defaults to 2.
+        verbose (bool, optional): If True, logs accuracy. Defaults to False.
+        is_normalize (bool, optional): Whether to normalize features. Defaults to True.
 
     Returns:
-        fitness (Iterable): Averaged balanced accuracy + distance metric.
+        float: The final fitness score in [0, 1].
     """
     logger = logging.getLogger(__name__)
 
-    train_accs = []
-
-    # Normalize features to interclass/intraclass distance sum to 1.
     if is_normalize:
         X = normalize(X)
-    # Class-dependent multi-tree embedded GP (Tran 2019).
+    
     y_predict = [np.argmax(x) for x in X]
-    train_acc = balanced_accuracy_score(y, y_predict)
-    train_accs.append(train_acc)
+    train_accuracy = balanced_accuracy_score(y, y_predict)
 
     if verbose:
-        logger.info("Balanced Accuracy: %f", train_acc)
+        logger.info("Balanced Accuracy: %f", train_accuracy)
 
-    # Mean and standard deviation for training accuracy.
-    train_accuracy = np.mean(train_accs)
-    train_std = np.std(train_accs)
-
-    # Compute distances once for the entire dataset
     train_intraclass_distance, train_interclass_distance = normalized_distances(X, y)
 
-    # Alpha balances the inter-class/intra-class distance.
     alpha = 0.5
-    # Beta balances the accuracy and distance regularization term.
     beta = 0.8
     train_distance = (
         alpha * (1 - train_intraclass_distance)
@@ -216,36 +193,30 @@ def wrapper_classification_accuracy(
     )
 
     fitness = beta * train_accuracy + (1 - beta) * train_distance
-
-    # Fitness value must be a tuple.
-    assert 0 <= fitness <= 1, f"fitness {fitness} should be normalized between 0 and 1"
-
-    return fitness
+    return float(fitness)
 
 
 def evaluate_classification(
-    individual: Iterable,
-    X: Iterable = None,
+    individual: List[Any],
+    X: np.ndarray,
     verbose: bool = False,
-    toolbox: Toolbox = None,
-    pset: PrimitiveSetTyped = None,
-    y: Iterable = None,
-) -> Tuple[int]:
+    toolbox: Optional[Toolbox] = None,
+    pset: Optional[PrimitiveSetTyped] = None,
+    y: np.ndarray = None,
+) -> Tuple[float]:
     """
-    Evalautes the fitness of an individual for multi-tree GP multi-class classification.
-
-    We maxmimize the fitness when we evaluate the accuracy + regularization term.
+    Calculates the fitness of a GP individual.
 
     Args:
-        individual (Individual): A candidate solution to be evaluated.
-        verbose (bool): whether or not to print the verbose output.
-        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
-        pset (deap.gp.PrimitiveSet): The set of primitives that contains the terminal and function set(s).
-        X (Iterable): the features for the dataset.
-        y (Iterable): the class labels for the dataset.
+        individual (List[Any]): A candidate solution.
+        X (np.ndarray): Input features.
+        verbose (bool, optional): Verbosity flag. Defaults to False.
+        toolbox (Optional[Toolbox], optional): DEAP toolbox. Defaults to None.
+        pset (Optional[PrimitiveSetTyped], optional): Primitive set. Defaults to None.
+        y (np.ndarray, optional): Target labels. Defaults to None.
 
     Returns:
-        accuracy (tuple(int,)): The fitness of the individual.
+        Tuple[float]: The individual's fitness.
     """
     features = toolbox.compile(expr=individual, X=X, pset=pset)
     fitness = wrapper_classification_accuracy(X=features, y=y, verbose=verbose)

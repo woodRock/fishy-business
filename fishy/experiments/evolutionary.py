@@ -42,7 +42,7 @@ def run_gp_experiment(
         str
     ] = "victoria-university-of-wellington",  # Default to user's entity
     wandb_log: bool = False,
-):
+) -> Dict[str, float]:
     """
     Runs a Genetic Programming experiment.
 
@@ -52,16 +52,19 @@ def run_gp_experiment(
 
     Args:
         dataset (str): Name of the dataset to use ('species', 'part', etc.).
-        generations (int): Number of generations to evolve the population.
-        population (int): Size of the population.
-        run (int): Run identifier for random seeding and logging.
-        file_path (str): File path to save/load model checkpoints.
-        output_log (str): experiment name for RunContext.
-        load_checkpoint (bool): If True, attempts to resume from a checkpoint at ``file_path``.
-        data_file_path (str): Optional path to the dataset excel file.
-        wandb_project (str, optional): Weights & Biases project name. Defaults to "fishy-business".
-        wandb_entity (str, optional): Weights & Biases entity name. Defaults to "victoria-university-of-wellington".
-        wandb_log (bool): Whether to log to Weights & Biases. Defaults to False.
+        generations (int, optional): Number of generations to evolve. Defaults to 10.
+        population (int, optional): Size of the population. Defaults to 1023.
+        run (int, optional): Run identifier for seeding. Defaults to 0.
+        file_path (str, optional): Path to save/load model checkpoints. Defaults to None.
+        output_log (str, optional): Experiment name for RunContext. Defaults to "evolutionary".
+        load_checkpoint (bool, optional): Resume from a checkpoint. Defaults to False.
+        data_file_path (str, optional): Path to the source data file. Defaults to None.
+        wandb_project (str, optional): W&B project name. Defaults to "fishy-business".
+        wandb_entity (str, optional): W&B entity name. Defaults to "victoria-university-of-wellington".
+        wandb_log (bool, optional): Enable W&B logging. Defaults to False.
+
+    Returns:
+        Dict[str, float]: A dictionary containing averaged training and validation accuracy.
     """
     wandb_run = None
     if wandb_log:

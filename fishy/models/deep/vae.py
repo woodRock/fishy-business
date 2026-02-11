@@ -26,11 +26,22 @@ References:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Union
+from typing import Union, Tuple
 
 
 class VAE(nn.Module):
-    """Variational Autoencoder with a classifier."""
+    """
+    Variational Autoencoder with an integrated classifier head.
+
+    Attributes:
+        latent_dim (int): Size of the latent bottleneck.
+        num_classes (int): Number of classification targets.
+        encoder (nn.Sequential): Feature extraction network.
+        fc_mu (nn.Linear): Latent mean projection.
+        fc_logvar (nn.Linear): Latent log-variance projection.
+        decoder (nn.Sequential): Reconstruction network.
+        classifier (nn.Sequential): Classification head.
+    """
 
     def __init__(
         self,
@@ -39,16 +50,14 @@ class VAE(nn.Module):
         num_classes: int = 2,
         dropout: float = 0.2,
     ) -> None:
-        """Variational Autoencoder with a classifier.
-
-        Initializes the VAE model with an encoder, decoder, and classifier.
+        """
+        Initializes the VAE model.
 
         Args:
-            input_size (int): The size of the inlatentput data.
-            latent_dim (int): The size of the latent space.
-            num_classes (int): The number of classes in the dataset.
-            device (Union[str, torch.device]): The device to run the model on.
-            dropout (float): The dropout rate. Defaults to 0.2.
+            input_size (int, optional): Size of the input features. Defaults to 1023.
+            latent_dim (int, optional): Size of the latent space. Defaults to 64.
+            num_classes (int, optional): Number of target classes. Defaults to 2.
+            dropout (float, optional): Dropout probability. Defaults to 0.2.
         """
         super(VAE, self).__init__()
 
@@ -95,58 +104,63 @@ class VAE(nn.Module):
             nn.Linear(latent_dim, 64), nn.ReLU(), nn.Linear(64, num_classes)
         )
 
-    def encode(self, x: torch.Tensor) -> Union[torch.Tensor, torch.Tensor]:
-        """Encode the input data.
+    def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Encodes the input data into latent distribution parameters.
 
         Args:
-            x (torch.Tensor): The input data.
+            x (torch.Tensor): The input feature tensor.
 
         Returns:
-            mu (torch.Tensor), logvar (torch.tesnor): The mean and log variance of the latent distribution.
+            Tuple[torch.Tensor, torch.Tensor]: (mu, logvar) Mean and log-variance tensors.
         """
         h = self.encoder(x)
         return self.fc_mu(h), self.fc_logvar(h)
 
     def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
-        """Reparameterization trick to sample from N(mu, var) from N(0, 1).
+        """
+        Applies the reparameterization trick to sample from the latent distribution.
 
         Args:
-            mu (torch.Tensor): The mean of the latent distribution.
-            logvar (torch.Tensor): The log variance of the latent distribution.
+            mu (torch.Tensor): Latent mean.
+            logvar (torch.Tensor): Latent log-variance.
 
         Returns:
-            z (torch.Tensor): The sampled latent representation.
+            torch.Tensor: The sampled latent vector 'z'.
         """
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
     def decode(self, z: torch.Tensor, c: torch.Tensor) -> torch.Tensor:
-        """Decode the latent representation and class label.
+        """
+        Decodes the latent representation conditioned on a class label.
 
         Args:
-            z (torch.Tensor): The latent representation.
-            c (torch.Tensor): The class label.
+            z (torch.Tensor): The sampled latent vector.
+            c (torch.Tensor): One-hot encoded class label or probabilities.
 
         Returns:
-            zc (torch.Tensor): The reconstructed input.
+            torch.Tensor: The reconstructed input tensor.
         """
         zc = torch.cat([z, c], dim=1)
         return self.decoder(zc)
 
     def forward(
         self, x: torch.Tensor
-    ) -> Union[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Forward pass of the VAE.
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        Forward pass of the VAE.
 
         Args:
-            x (torch.Tensor): The input data.
+            x (torch.Tensor): The input feature tensor.
 
         Returns:
-            recon_x (torch.Tensor): The reconstructed input.
-            mu (torch.Tensor): The mean of the latent space.
-            logvar (torch.Tensor): The log variance of the latent space.
-            class_probs (torch.Tensor): The class probabilities.
+            Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+                - recon_x: Reconstructed input.
+                - mu: Latent mean.
+                - logvar: Latent log-variance.
+                - class_probs: Predicted class probabilities.
         """
         mu, logvar = self.encode(x)
         z = self.reparameterize(mu, logvar)
@@ -162,56 +176,67 @@ def vae_classifier_loss(
     logvar: torch.Tensor,
     class_probs: torch.Tensor,
     labels: torch.Tensor,
-    alpha: int = 0.2,
-    beta: int = 0.7,
-    gamma: int = 0.1,
-) -> float:
-    """Classification loss for the VAE.
+    alpha: float = 0.2,
+    beta: float = 0.7,
+    gamma: float = 0.1,
+) -> torch.Tensor:
+    """
+    Computes the multi-task loss for the VAE classifier.
+
+    Combines Reconstruction loss (BCE), KL Divergence (KLD), and Classification loss (CCE).
 
     Args:
-        recon_x (torch.Tensor): The reconstructed input.
-        x (torch.Tensor): The input data.
-        mu (torch.Tensor): The mean of the latent space.
-        logvar (torch.Tensor): The log variance of the latent space.
-        class_probs (torch.Tensor): The class probabilities.
-        labels (torch.Tensor): The true labels.
-        alpha (int): The weight of the KLD loss.
-        beta (int): The weight of the classification loss.
+        recon_x (torch.Tensor): Reconstructed input.
+        x (torch.Tensor): Original input.
+        mu (torch.Tensor): Latent mean.
+        logvar (torch.Tensor): Latent log-variance.
+        class_probs (torch.Tensor): Predicted class probabilities.
+        labels (torch.Tensor): True class labels (one-hot).
+        alpha (float, optional): Weight for reconstruction loss. Defaults to 0.2.
+        beta (float, optional): Weight for KLD loss. Defaults to 0.7.
+        gamma (float, optional): Weight for classification loss. Defaults to 0.1.
 
     Returns:
-        loss (float): The total loss.
+        torch.Tensor: The total weighted loss.
     """
     BCE = F.binary_cross_entropy(recon_x, x, reduction="sum")
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    class_probs = class_probs.argmax(1).float()
-    labels = labels.argmax(1).float()
-    cce = nn.CrossEntropyLoss()
-    CCE = cce(class_probs, labels)
+    
+    # Simple cross entropy handle
+    if labels.dim() > 1 and labels.shape[1] > 1:
+        target = labels.argmax(dim=1)
+    else:
+        target = labels.squeeze().long()
+        
+    CCE = F.cross_entropy(class_probs, target)
     return (alpha * BCE) + (beta * KLD) + (gamma * CCE)
 
 
 class SiameseVAE(nn.Module):
-    """A Siamese network using a VAE as the backbone."""
+    """
+    A Siamese network using a VAE as the backbone.
 
-    def __init__(self, vae_model: VAE):
-        """Initializes the SiameseVAE model.
+    Processes pairs of inputs and predicts similarity based on latent distance.
 
-        Args:
-            vae_model (VAE): An instance of the VAE model.
-        """
+    Args:
+        vae_model (VAE): An instance of the VAE backbone.
+    """
+
+    def __init__(self, vae_model: VAE) -> None:
         super(SiameseVAE, self).__init__()
         self.vae = vae_model
         self.fc = nn.Linear(1, 1)
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the SiameseVAE.
+        """
+        Forward pass of the SiameseVAE.
 
         Args:
-            x1 (torch.Tensor): The first input tensor.
-            x2 (torch.Tensor): The second input tensor.
+            x1 (torch.Tensor): First input tensor.
+            x2 (torch.Tensor): Second input tensor.
 
         Returns:
-            torch.Tensor: The output of the Siamese network.
+            torch.Tensor: Similarity score (distance-based).
         """
         mu1, _ = self.vae.encode(x1)
         mu2, _ = self.vae.encode(x2)

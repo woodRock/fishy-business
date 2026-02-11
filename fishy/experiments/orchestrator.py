@@ -21,7 +21,15 @@ from fishy._core.config_loader import load_config
 logger = logging.getLogger(__name__)
 
 def get_fold_count(dataset: str) -> int:
-    """Returns the fold count for a specific dataset."""
+    """
+    Returns the fold count for a specific dataset.
+
+    Args:
+        dataset (str): The name of the dataset.
+
+    Returns:
+        int: Number of folds to use for cross-validation.
+    """
     return 3 if dataset == "part" else 5
 
 def run_all_experiments(
@@ -31,10 +39,23 @@ def run_all_experiments(
     wandb_entity: str = "victoria-university-of-wellington",
     quick: bool = False,
     file_path: str = "data/REIMS.xlsx"
-):
+) -> pd.DataFrame:
     """
     Runs all experiments across all datasets and models for n runs.
-    Performs statistical analysis (paired t-test) against OPLS-DA baseline.
+
+    Performs statistical analysis (paired t-test) against OPLS-DA baseline
+    and saves a summary report.
+
+    Args:
+        num_runs (int, optional): Number of independent runs. Defaults to 30.
+        wandb_log (bool, optional): Enable W&B logging. Defaults to False.
+        wandb_project (str, optional): W&B project name. Defaults to "fishy-business".
+        wandb_entity (str, optional): W&B entity name. Defaults to "victoria-university-of-wellington".
+        quick (bool, optional): If True, runs a minimal set of experiments for testing. Defaults to False.
+        file_path (str, optional): Path to the source data file. Defaults to "data/REIMS.xlsx".
+
+    Returns:
+        pd.DataFrame: A statistical summary of all experiment results.
     """
     # Load registries from config
     models_cfg = load_config("models")

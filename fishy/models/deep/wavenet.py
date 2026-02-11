@@ -1,9 +1,8 @@
-"""WaveNet model for time series classification.
+"""WaveNet model for spectral classification.
 
 This model uses causal convolutions and residual blocks to process sequential data.
 It includes an initial causal convolutional layer, multiple residual blocks for feature extraction,
-and a fully connected layer for classification. The architecture is designed to handle time series or other ordered
-data, leveraging the strengths of convolutional neural networks for sequential tasks.
+and a fully connected layer for classification.
 
 
 References:
@@ -12,54 +11,34 @@ References:
    Simonyan, K., Vinyals, O., Graves, A., ... & Kavukcuoglu, K. (2016).
    WaveNet: A generative model for raw audio.
    arXiv preprint arXiv:1609.03499.
-2. Srivastava, N., Hinton, G., Krizhevsky, A.,
-   Sutskever, I., & Salakhutdinov, R. (2014).
-   Dropout: a simple way to prevent neural networks from overfitting.
-   The journal of machine learning research, 15(1), 1929-1958.
-3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-   I., & Salakhutdinov, R. R. (2012).
-   Improving neural networks by preventing co-adaptation of feature detectors.
-   arXiv preprint arXiv:1207.0580.
-4. Loshchilov, I., & Hutter, F. (2017).
-   Decoupled weight decay regularization.
-   arXiv preprint arXiv:1711.05101.
-5. Hendrycks, D., & Gimpel, K. (2016).
-   Gaussian error linear units (gelus).
-   arXiv preprint arXiv:1606.08415.
-6. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-   Rethinking the inception architecture for computer vision.
-   In Proceedings of the IEEE conference on computer vision
-   and pattern recognition (pp. 2818-2826).
 """
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from torch.nn.utils import weight_norm
-from sklearn.metrics import balanced_accuracy_score, accuracy_score
-from tqdm import tqdm
+from typing import List, Tuple, Any
 
 
 class CausalConv1d(nn.Module):
     """
-    Causal 1D convolution with dilations
+    Causal 1D convolution with support for dilations.
     """
 
     def __init__(
-        self, in_channels, out_channels, kernel_size, dilation=1, **kwargs
+        self, in_channels: int, out_channels: int, kernel_size: int, dilation: int = 1, **kwargs
     ) -> None:
-        """Initialize the CausalConv1d layer.
+        """
+        Initializes the CausalConv1d layer.
 
         Args:
             in_channels (int): Number of input channels.
             out_channels (int): Number of output channels.
-            kernel_size (int): Size of the convolution kernel.
-            dilation (int): Dilation factor for the convolution. Defaults to 1.
-            **kwargs: Additional arguments for the convolution layer.
+            kernel_size (int): Kernel size.
+            dilation (int, optional): Dilation factor. Defaults to 1.
+            **kwargs: Additional arguments for Conv1d.
         """
         super(CausalConv1d, self).__init__()
         self.padding = (kernel_size - 1) * dilation
-        # Remove weight normalization from initialization
         self.conv = nn.Conv1d(
             in_channels,
             out_channels,
@@ -69,14 +48,15 @@ class CausalConv1d(nn.Module):
             **kwargs,
         )
 
-    def forward(self, x):
-        """Forward pass through the CausalConv1d layer.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_channels, sequence_length).
+            x (torch.Tensor): Input tensor.
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, out_channels, sequence_length - padding).
+            torch.Tensor: Causally padded output tensor.
         """
         x = self.conv(x)
         if self.padding != 0:
@@ -86,39 +66,36 @@ class CausalConv1d(nn.Module):
 
 class ResidualBlock(nn.Module):
     """
-    Residual block with skip connections and gated activation
+    WaveNet residual block with skip connections and gated activations.
     """
 
-    def __init__(self, channels, kernel_size, dilation, dropout=0.2) -> None:
-        """Initialize the ResidualBlock.
+    def __init__(self, channels: int, kernel_size: int, dilation: int, dropout: float = 0.2) -> None:
+        """
+        Initializes the ResidualBlock.
 
         Args:
-            channels (int): Number of input and output channels.
-            kernel_size (int): Size of the convolution kernel.
-            dilation (int): Dilation factor for the convolution.
-            dropout (float): Dropout rate for regularization. Defaults to 0.2.
+            channels (int): Number of input/output channels.
+            kernel_size (int): Convolution kernel size.
+            dilation (int): Dilation factor.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(ResidualBlock, self).__init__()
 
         self.dilated_conv = CausalConv1d(
             channels, 2 * channels, kernel_size, dilation=dilation
         )
-        # Remove weight normalization from initialization
         self.conv_1x1 = nn.Conv1d(channels, channels, 1)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x):
-        """Forward pass through the ResidualBlock.
-
-        This block applies a dilated convolution, followed by a gated activation unit,
-        a 1x1 convolution, and finally adds the input to the output (residual connection).
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, sequence_length).
+            x (torch.Tensor): Input tensor.
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, channels, sequence_length),
-            where channels is the number of input channels.
+            Tuple[torch.Tensor, torch.Tensor]: (residual_output, skip_output)
         """
         original = x
 
@@ -140,20 +117,25 @@ class ResidualBlock(nn.Module):
 
 
 class WaveNet(nn.Module):
-    """WaveNet model for time series classification.
-    This model uses causal convolutions and residual blocks to process sequential data.
-    It includes an initial causal convolutional layer, multiple residual blocks for feature extraction,
-    and a fully connected layer for classification. The architecture is designed to handle time series or other ordered
-    data, leveraging the strengths of convolutional neural networks for sequential tasks.
+    """
+    WaveNet architecture for spectral data classification.
+
+    Attributes:
+        causal_conv (CausalConv1d): Initial causal projection.
+        blocks (nn.ModuleList): Stacked residual blocks.
+        adaptive_pool (nn.AdaptiveMaxPool1d): Pooling layer.
+        final_conv (nn.Conv1d): 1x1 convolution before pooling.
+        fc_layers (nn.Sequential): Classification head.
     """
 
-    def __init__(self, input_dim, output_dim, dropout=0.2) -> None:
-        """Initialize the WaveNet model.
+    def __init__(self, input_dim: int, output_dim: int, dropout: float = 0.2) -> None:
+        """
+        Initializes the WaveNet model.
 
         Args:
             input_dim (int): Number of input features.
             output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization. Defaults to 0.2.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(WaveNet, self).__init__()
 
@@ -180,7 +162,6 @@ class WaveNet(nn.Module):
                 )
 
         self.adaptive_pool = nn.AdaptiveMaxPool1d(4)
-        # Remove weight normalization from initialization
         self.final_conv = nn.Conv1d(self.channels, self.channels, 1)
         self.relu = nn.ReLU()
 
@@ -191,18 +172,19 @@ class WaveNet(nn.Module):
             nn.Linear(64, output_dim),
         )
 
-    def forward(self, x):
-        """Forward pass through the WaveNet model.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_dim).
+            x (torch.Tensor): Input spectrum of shape (B, D).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_dim),
-            where output_dim is the number of classes.
+            torch.Tensor: Output logits.
         """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
-        x = x.unsqueeze(1)
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
         x = self.causal_conv(x)
 
         skip_connections = []
@@ -221,13 +203,11 @@ class WaveNet(nn.Module):
 
         return x
 
-    def apply_weight_norm(self):
+    def apply_weight_norm(self) -> None:
         """
-        Apply weight normalization to all convolution layers after model initialization
+        Applies weight normalization to all convolution and linear layers.
         """
-
         def _apply_weight_norm(module):
             if isinstance(module, (nn.Conv1d, nn.Linear)):
                 weight_norm(module)
-
         self.apply(_apply_weight_norm)

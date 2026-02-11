@@ -80,10 +80,21 @@ import seaborn as sns
 
 
 class MultiHeadAttention(nn.Module):
-    """Multi-head attention mechanism for the Transformer model."""
+    """
+    Multi-head attention mechanism.
+
+    Attributes:
+        input_dim (int): Number of input features.
+        num_heads (int): Number of attention heads.
+        head_dim (int): Dimension of each attention head.
+        qkv (nn.Linear): Combined projection for Q, K, and V.
+        fc_out (nn.Linear): Final output projection.
+        scale (float): Scaling factor for dot-product attention.
+    """
 
     def __init__(self, input_dim: int, num_heads: int) -> None:
-        """Initialize the MultiHeadAttention layer.
+        """
+        Initializes the MultiHeadAttention layer.
 
         Args:
             input_dim (int): Number of input features.
@@ -103,7 +114,8 @@ class MultiHeadAttention(nn.Module):
         self.scale = self.head_dim**-0.5
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass through the multi-head attention layer.
+        """
+        Forward pass.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
@@ -130,15 +142,24 @@ class MultiHeadAttention(nn.Module):
 
 
 class Transformer(nn.Module):
-    """Transformer model for time series classification.
+    """
+    Transformer architecture for 1D spectral data.
 
     Examples:
         >>> import torch
         >>> model = Transformer(input_dim=10, output_dim=2, num_heads=2, hidden_dim=32)
-        >>> x = torch.randn(8, 10)  # batch of 8 spectra
+        >>> x = torch.randn(8, 10)
         >>> output = model(x)
         >>> output.shape
         torch.Size([8, 2])
+
+    Attributes:
+        attention_layers (nn.ModuleList): List of multi-head attention layers.
+        feed_forward (nn.Sequential): Position-wise feed-forward network.
+        layer_norm1 (nn.LayerNorm): Norm layer before attention.
+        layer_norm2 (nn.LayerNorm): Norm layer before feed-forward.
+        dropout (nn.Dropout): Dropout layer.
+        fc_out (nn.Linear): Final classification/regression head.
     """
 
     def __init__(
@@ -150,15 +171,16 @@ class Transformer(nn.Module):
         num_layers: int = 1,
         dropout: float = 0.1,
     ) -> None:
-        """Initialize the Transformer model.
+        """
+        Initializes the Transformer model.
 
         Args:
             input_dim (int): Number of input features.
-            output_dim (int): Number of output classes.
+            output_dim (int): Number of output classes/dimensions.
             num_heads (int): Number of attention heads.
-            hidden_dim (int): Dimension of the feed-forward layer.
-            num_layers (int): Number of transformer layers. Defaults to 1.
-            dropout (float): Dropout rate for regularization. Defaults to 0.1.
+            hidden_dim (int): Intermediate dimension of the feed-forward layer.
+            num_layers (int, optional): Number of transformer blocks. Defaults to 1.
+            dropout (float, optional): Dropout rate. Defaults to 0.1.
         """
         super().__init__()
 
@@ -179,14 +201,14 @@ class Transformer(nn.Module):
         self.fc_out = nn.Linear(input_dim, output_dim)
 
     def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
-        """Forward pass through the Transformer model.
+        """
+        Forward pass.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+            x (torch.Tensor): Input spectrum of shape (batch_size, input_dim) or (batch_size, seq_len, input_dim).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_dim),
-            where output_dim is the number of classes.
+            torch.Tensor: Logits/predictions of shape (batch_size, output_dim).
         """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         if x.dim() == 2:
@@ -212,4 +234,4 @@ class Transformer(nn.Module):
 __all__ = [
     "Transformer",
     "MultiHeadAttention",
-]  # Expose the MultiHeadAttention for Grad-CAM or other analysis.
+]

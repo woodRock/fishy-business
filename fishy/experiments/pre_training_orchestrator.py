@@ -18,8 +18,18 @@ from fishy._core.config_loader import load_config
 
 class PreTrainingOrchestrator:
     """
-    Handles the orchestration of multiple pre-training tasks.
-    Uses external configuration for task definitions.
+    Handles the orchestration of multiple self-supervised pre-training tasks.
+
+    Uses external configuration (`pre_training.yaml`) to define tasks and their
+    hyperparameters. Supports weight chaining between sequential tasks.
+
+    Attributes:
+        config (TrainingConfig): Global training configuration.
+        device (torch.device): Computation device.
+        input_dim (int): Dimensionality of input spectra.
+        ctx (RunContext): Context for logging and checkpointing.
+        logger (logging.Logger): Logger instance.
+        task_configs (List[Dict]): List of task definitions from config.
     """
 
     def __init__(
@@ -29,7 +39,17 @@ class PreTrainingOrchestrator:
         input_dim: int,
         ctx: RunContext,
         logger: Optional[logging.Logger] = None,
-    ):
+    ) -> None:
+        """
+        Initializes the PreTrainingOrchestrator.
+
+        Args:
+            config (TrainingConfig): Configuration object.
+            device (torch.device): Computing device.
+            input_dim (int): Input feature dimension.
+            ctx (RunContext): Experiment context.
+            logger (Optional[logging.Logger], optional): Custom logger. Defaults to None.
+        """
         self.config = config
         self.device = device
         self.input_dim = input_dim
@@ -40,7 +60,18 @@ class PreTrainingOrchestrator:
         self.task_configs = load_config("pre_training")["tasks"]
 
     def run_all(self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None) -> Optional[nn.Module]:
-        """Runs all enabled pre-training tasks sequentially."""
+        """
+        Runs all enabled pre-training tasks sequentially.
+
+        Weights are chained from one task to the next if layers match.
+
+        Args:
+            train_loader (DataLoader): Loader for the training data.
+            val_loader (Optional[DataLoader], optional): Loader for validation. Defaults to None.
+
+        Returns:
+            Optional[nn.Module]: The model after all pre-training tasks, or None if none enabled.
+        """
         enabled_tasks = [
             task
             for task in self.task_configs
@@ -104,8 +135,14 @@ class PreTrainingOrchestrator:
 
         return model_after_last_task
 
-    def _handle_weight_chaining(self, current_model: nn.Module, prev_model: nn.Module):
-        """Copies compatible weights from the previous model to the current one."""
+    def _handle_weight_chaining(self, current_model: nn.Module, prev_model: nn.Module) -> None:
+        """
+        Copies compatible weights from the previous model to the current one.
+
+        Args:
+            current_model (nn.Module): The model to load weights into.
+            prev_model (nn.Module): The model to copy weights from.
+        """
         self.logger.info(f"Attempting weight chaining for {self.config.model}")
         try:
             prev_state_dict = prev_model.state_dict()
@@ -130,7 +167,13 @@ class PreTrainingOrchestrator:
         except Exception as e:
             self.logger.warning(f"Weight chaining failed: {e}. Model will train from scratch.")
 
-    def adapt_for_finetuning(self, model: nn.Module, pre_trained_model: nn.Module):
-        """Adapts a pre-trained model for fine-tuning by loading compatible weights."""
+    def adapt_for_finetuning(self, model: nn.Module, pre_trained_model: nn.Module) -> None:
+        """
+        Adapts a pre-trained model for fine-tuning by loading compatible weights.
+
+        Args:
+            model (nn.Module): The target model for fine-tuning.
+            pre_trained_model (nn.Module): The model containing pre-trained weights.
+        """
         self.logger.info("Adapting pre-trained model for fine-tuning...")
         self._handle_weight_chaining(model, pre_trained_model)

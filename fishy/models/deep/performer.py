@@ -5,17 +5,27 @@ import math
 
 
 class PerformerAttention(nn.Module):
-    """Performer-style attention using Random Feature Attention (RFA)."""
+    """
+    Performer-style attention using Random Feature Attention (RFA).
+
+    Attributes:
+        q_proj (nn.Linear): Query projection.
+        k_proj (nn.Linear): Key projection.
+        v_proj (nn.Linear): Value projection.
+        out_proj (nn.Linear): Output projection.
+        random_features (torch.Tensor): Fixed random features for approximation.
+    """
 
     def __init__(
         self, input_dim: int, num_heads: int, num_random_features: int = 256
     ) -> None:
-        """Initialize the PerformerAttention layer.
+        """
+        Initializes the PerformerAttention layer.
 
         Args:
-            input_dim (int): Dimension of the input features to the attention layer (should be divisible by num_heads).
+            input_dim (int): Dimension of the input features (must be divisible by num_heads).
             num_heads (int): Number of attention heads.
-            num_random_features (int): Number of random features for approximation.
+            num_random_features (int, optional): Number of random features for approximation. Defaults to 256.
         """
         super().__init__()
         assert input_dim % num_heads == 0, "input_dim must be divisible by num_heads"
@@ -82,18 +92,38 @@ class PerformerAttention(nn.Module):
 
 
 class Performer(nn.Module):
-    """Performer model for time series classification."""
+    """
+    Performer model for spectral classification.
+
+    Attributes:
+        input_projection (nn.Linear): Initial projection to hidden space.
+        attention_layers (nn.ModuleList): List of PerformerAttention layers.
+        feed_forward (nn.Sequential): Position-wise feed-forward network.
+        fc_out (nn.Linear): Final classification head.
+    """
 
     def __init__(
         self,
-        input_dim: int,  # Raw input features per time step (e.g., 2080 for REIMS data)
+        input_dim: int,
         output_dim: int,
         num_heads: int,
-        hidden_dim: int,  # Dimension of the internal representation and attention blocks
+        hidden_dim: int,
         num_layers: int = 1,
         dropout: float = 0.1,
         num_random_features: int = 256,
     ) -> None:
+        """
+        Initializes the Performer model.
+
+        Args:
+            input_dim (int): Dimensionality of input features.
+            output_dim (int): Number of output classes.
+            num_heads (int): Number of attention heads.
+            hidden_dim (int): Internal representation dimension.
+            num_layers (int, optional): Number of layers. Defaults to 1.
+            dropout (float, optional): Dropout probability. Defaults to 0.1.
+            num_random_features (int, optional): Random features for RFA. Defaults to 256.
+        """
         super().__init__()
 
         self.input_dim = input_dim

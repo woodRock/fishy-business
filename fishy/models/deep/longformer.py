@@ -10,22 +10,38 @@ except ImportError:
 
 class Longformer(nn.Module):
     """
-    A Longformer model for sequential data.
+    Longformer model adapted for sequential 1D spectral data.
 
-    Assumes input shape: (batch_size, sequence_length, num_features_per_step)
-    For REIMS data, this would typically be (batch_size, 2080, 1).
+    Utilizes local attention windows to handle long sequences (e.g., REIMS) efficiently.
+
+    Attributes:
+        input_projection (nn.Module): Layer to project input to hidden dimension.
+        longformer (LongformerModel): The backbone transformer model.
+        fc_out (nn.Linear): Classification/regression head.
     """
 
     def __init__(
         self,
-        input_dim: int,  # This will be num_features_per_step (e.g., 1 for REIMS intensity)
+        input_dim: int,
         output_dim: int,
         num_heads: int,
-        hidden_dim: int,  # Corresponds to Longformer's hidden_size
-        num_layers: int = 1,  # Corresponds to Longformer's num_hidden_layers
+        hidden_dim: int,
+        num_layers: int = 1,
         dropout: float = 0.1,
-        attention_window: int = 128,  # Specific to Longformer
+        attention_window: int = 128,
     ) -> None:
+        """
+        Initializes the Longformer model.
+
+        Args:
+            input_dim (int): Input feature size per step.
+            output_dim (int): Number of output classes/dimensions.
+            num_heads (int): Number of attention heads.
+            hidden_dim (int): Hidden size (must be multiple of num_heads).
+            num_layers (int, optional): Number of hidden layers. Defaults to 1.
+            dropout (float, optional): Dropout probability. Defaults to 0.1.
+            attention_window (int, optional): Local attention window size. Defaults to 128.
+        """
         super().__init__()
 
         self.input_dim = input_dim

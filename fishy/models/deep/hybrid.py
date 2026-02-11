@@ -5,15 +5,20 @@ import torch.nn.functional as F
 
 class Hybrid(nn.Module):
     """
-    A Hybrid CNN-Transformer model for sequential data.
+    A Hybrid CNN-Transformer model for sequential 1D data.
 
-    Assumes input shape: (batch_size, sequence_length, num_features_per_step)
-    For REIMS data, this would typically be (batch_size, 2080, 1).
+    This model uses a 1D CNN for local feature extraction followed by a
+    Transformer encoder for capturing global dependencies across the spectrum.
+
+    Attributes:
+        cnn_feature_extractor (nn.Sequential): CNN backbone for local features.
+        transformer_encoder (nn.TransformerEncoder): Transformer for global dependencies.
+        fc_out (nn.Linear): Classification/regression head.
     """
 
     def __init__(
         self,
-        input_dim: int,  # This will be num_features_per_step (e.g., 1 for REIMS intensity)
+        input_dim: int,
         output_dim: int,
         num_heads: int,
         hidden_dim: int,
@@ -26,6 +31,23 @@ class Hybrid(nn.Module):
         cnn_pool_kernel_size: int = 2,
         cnn_pool_stride: int = 4,
     ) -> None:
+        """
+        Initializes the Hybrid model.
+
+        Args:
+            input_dim (int): Number of features per step (usually 1 for spectra).
+            output_dim (int): Number of output classes/dimensions.
+            num_heads (int): Number of attention heads.
+            hidden_dim (int): Feed-forward dimension in Transformer.
+            num_layers (int, optional): Number of Transformer layers. Defaults to 1.
+            dropout (float, optional): Dropout rate. Defaults to 0.1.
+            cnn_channels (list, optional): Channels for CNN layers. Defaults to [32, 64].
+            cnn_kernel_size (int, optional): CNN kernel size. Defaults to 3.
+            cnn_stride (int, optional): CNN stride. Defaults to 1.
+            cnn_padding (int, optional): CNN padding. Defaults to 1.
+            cnn_pool_kernel_size (int, optional): MaxPool size. Defaults to 2.
+            cnn_pool_stride (int, optional): MaxPool stride. Defaults to 4.
+        """
         super().__init__()
 
         self.input_dim = input_dim

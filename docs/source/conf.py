@@ -49,6 +49,7 @@ autodoc_mock_imports = [
     "openpyxl",
     "lime",
     "torchdiffeq",
+    "wandb",
 ]
 
 # Add any Sphinx extension module names here, as strings. They can be

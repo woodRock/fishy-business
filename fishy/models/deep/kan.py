@@ -42,6 +42,13 @@ import torch.nn.functional as F
 
 
 class KANLayer(nn.Module):
+    """
+    A single layer of a Kolmogorov-Arnold Network (KAN).
+
+    This layer implements the symbolic basis functions and learnable coefficients
+    using vectorized linear layers for efficiency.
+    """
+
     def __init__(
         self,
         input_dim: int,
@@ -50,16 +57,15 @@ class KANLayer(nn.Module):
         num_inner_functions: int = 10,
         dropout: float = 0.1,
     ) -> None:
-        """Kolmogorov-Arnold Neural Network (KAN) module.
-
-        This layer implements the inner and outer functions of the KAN model.
+        """
+        Initializes the KAN layer.
 
         Args:
-            input_dim (int): the number of dimensions in the input.
-            output_dim (int): the number of dimensions in the output.
-            hidden_dim (int): the number of dimensions in the hidden layer. Defaults to 64.
-            num_inner_functions (int): the number of inner functions. Defaults to 10.
-            dropout_rate (float): the dropout rate. Defaults to 0.1.
+            input_dim (int): Number of input dimensions.
+            output_dim (int): Number of output dimensions.
+            hidden_dim (int, optional): Dimension of the basis expansion. Defaults to 64.
+            num_inner_functions (int, optional): Number of basis functions. Defaults to 10.
+            dropout (float, optional): Dropout probability. Defaults to 0.1.
         """
         super(KANLayer, self).__init__()
 
@@ -86,21 +92,20 @@ class KANLayer(nn.Module):
         # Dropout layer (Srivastava 2014, Hinton 2012)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, x) -> torch.Tensor:
-        """A forward pass through the KAN layer.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the KAN layer.
 
         Args:
-            x (torch.Tensor): the input tensor of shape (batch_size, input_dim).
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
 
         Returns:
-            torch.Tensor: output tensor of shape (batch_size, output_dim).
+            torch.Tensor: Output tensor of shape (batch_size, output_dim).
         """
         batch_size = x.size(0)
 
         # Inner functions (vectorized)
-        # GELU activation function (Hendrycks 2016)
         inner = F.gelu(self.inner_bn1(self.inner_linear1(x)))
-        # Dropout layer (Srivastava 2014, Hinton 2012)
         inner = self.dropout(inner)
         inner = F.gelu(self.inner_bn2(self.inner_linear2(inner)))
         inner = self.dropout(inner)
@@ -127,6 +132,18 @@ class KANLayer(nn.Module):
 
 
 class KAN(nn.Module):
+    """
+    Stacked Kolmogorov-Arnold Network (KAN).
+
+    Args:
+        input_dim (int): Input feature size.
+        output_dim (int): Final output size.
+        hidden_dim (int, optional): Basis expansion dimension. Defaults to 64.
+        num_inner_functions (int, optional): Basis functions count. Defaults to 10.
+        dropout_rate (float, optional): Dropout probability. Defaults to 0.1.
+        num_layers (int, optional): Number of stacked KAN layers. Defaults to 5.
+    """
+
     def __init__(
         self,
         input_dim: int,
@@ -136,16 +153,6 @@ class KAN(nn.Module):
         dropout_rate: float = 0.1,
         num_layers: int = 5,
     ) -> None:
-        """Stacked Kalomogorov-Arnold Neural Network (KAN) module.
-
-        Args:
-            input_dim (int): the number of dimensions in the input.
-            output_dim (int): the number of dimensions in the output.
-            hidden_dim (int): the number of dimensions in the hidden layer. Defaults to 64.
-            num_inner_functions (int): the number of inner functions. Defaults to 10.
-            dropout_rate (float): the dropout rate. Defaults to 0.1.
-            num_layers (int): the number of layers. Defaults to 5.
-        """
         super(KAN, self).__init__()
         self.layers = nn.ModuleList(
             [
@@ -160,18 +167,15 @@ class KAN(nn.Module):
             ]
         )
 
-    def forward(
-        self,
-        x: torch.Tensor,
-    ) -> torch.Tensor:
-        """A forward pass through the encoder module.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the stacked KAN.
 
         Args:
-            x (torch.Tensor): the input tensor for the encoder.
-            mask (torch.Tensor): the mask for the encoder.
+            x (torch.Tensor): Input feature tensor.
 
         Returns:
-            x (torch.Tensor): output tensorfrom a forward pass of the encoder.
+            torch.Tensor: Output logits/predictions.
         """
         for layer in self.layers:
             x = layer(x)

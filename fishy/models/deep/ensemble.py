@@ -5,7 +5,14 @@ from .transformer import Transformer
 
 
 class Ensemble(nn.Module):
-    """Simple averaging ensemble of Transformer models."""
+    """
+    Simple averaging ensemble of Transformer models with different complexities.
+
+    Attributes:
+        t1 (Transformer): Shallow transformer (2 layers, 2 heads).
+        t2 (Transformer): Medium transformer (4 layers, 4 heads).
+        t3 (Transformer): Deep transformer (8 layers, 8 heads).
+    """
 
     def __init__(
         self,
@@ -14,13 +21,14 @@ class Ensemble(nn.Module):
         output_dim: int,
         dropout: float = 0.2,
     ) -> None:
-        """Initialize the ensemble model.
+        """
+        Initializes the ensemble model.
 
         Args:
             input_dim (int): Number of input features.
-            hidden_dim (int): Hidden dimension for the Transformer models.
+            hidden_dim (int): Hidden dimension for the backbone Transformers.
             output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super().__init__()
 
@@ -52,14 +60,14 @@ class Ensemble(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass combining predictions from all models.
+        """
+        Forward pass combining predictions from all models.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_dim),
-            where output_dim is the number of classes.
+            torch.Tensor: Averaged output logits of shape (batch_size, output_dim).
         """
         # Get predictions from each model
         t1_out = self.t1(x)

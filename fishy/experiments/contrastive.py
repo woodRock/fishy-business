@@ -57,7 +57,25 @@ class ContrastiveConfig:
 
 
 class ContrastiveTrainer:
-    def __init__(self, config: ContrastiveConfig):
+    """
+    Handles the training of contrastive learning models.
+
+    Coordinates data loading, model instantiation (with dynamic encoders),
+    and the training loop for various contrastive methods (SimCLR, MoCo, etc.).
+
+    Attributes:
+        config (ContrastiveConfig): Configuration for the experiment.
+        ctx (RunContext): Context for logging and results.
+        device (torch.device): Computation device.
+    """
+
+    def __init__(self, config: ContrastiveConfig) -> None:
+        """
+        Initializes the trainer.
+
+        Args:
+            config (ContrastiveConfig): The experiment configuration.
+        """
         self.config = config
         self.wandb_run = None
         if self.config.wandb_log:
@@ -80,7 +98,10 @@ class ContrastiveTrainer:
         self.device = get_device()
         self.logger.info(f"Using device: {self.device}")
 
-    def setup(self):
+    def setup(self) -> None:
+        """
+        Sets up the data modules, encoders, and contrastive models based on config.
+        """
         # Data Module
         self.data_module = create_data_module(
             file_path=self.config.file_path,
@@ -134,7 +155,10 @@ class ContrastiveTrainer:
         self.siamese_dataset = SiameseDataset(samples, labels)
         self.train_loader = DataLoader(self.siamese_dataset, batch_size=self.config.batch_size, shuffle=True)
 
-    def train(self):
+    def train(self) -> None:
+        """
+        Executes the contrastive training loop.
+        """
         self.model.train()
         history = {"loss": []}
         for epoch in range(self.config.num_epochs):
@@ -158,8 +182,10 @@ class ContrastiveTrainer:
         torch.save(self.model.state_dict(), self.ctx.get_checkpoint_path("final_model.pth"))
         if self.ctx.wandb_run: self.log_contrastive_visualizations()
 
-    def log_contrastive_visualizations(self):
-        """Logs sample pairs to W&B."""
+    def log_contrastive_visualizations(self) -> None:
+        """
+        Logs sample pairs to W&B for visual inspection.
+        """
         import matplotlib.pyplot as plt
         table = wandb.Table(columns=["id", "pair_1", "pair_2", "relationship"])
         for i in range(min(len(self.siamese_dataset), 20)):
@@ -172,7 +198,13 @@ class ContrastiveTrainer:
         self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
 
 
-def run_contrastive_experiment(config: ContrastiveConfig):
+def run_contrastive_experiment(config: ContrastiveConfig) -> None:
+    """
+    Orchestrates a contrastive learning experiment.
+
+    Args:
+        config (ContrastiveConfig): configuration object.
+    """
     trainer = ContrastiveTrainer(config)
     try:
         trainer.setup()

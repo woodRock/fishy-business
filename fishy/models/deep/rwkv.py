@@ -45,16 +45,28 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 class RWKV(nn.Module):
-    """Receptance-Weighted Key-Value (RWKV) model for time series classification."""
+    """
+    Receptance-Weighted Key-Value (RWKV) model for spectral classification.
 
-    def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.1) -> None:
-        """Initialize the RWKV model.
+    Attributes:
+        input_size (int): Number of input features.
+        hidden_dim (int): Recurrent state dimension.
+        output_size (int): Number of output classes.
+        key_layer (nn.Linear): Key projection.
+        value_layer (nn.Linear): Value projection.
+        recurrent_layer (nn.Linear): Recurrent update projection.
+        output_layer (nn.Linear): Classification head.
+    """
+
+    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float = 0.1) -> None:
+        """
+        Initializes the RWKV model.
 
         Args:
             input_dim (int): Number of input features.
-            hidden_dim (int): Number of hidden units in the recurrent layer.
+            hidden_dim (int): Number of hidden units.
             output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization. Defaults to 0.1.
+            dropout (float, optional): Dropout rate. Defaults to 0.1.
         """
         super(RWKV, self).__init__()
         self.input_size = input_dim
@@ -70,15 +82,15 @@ class RWKV(nn.Module):
         # Initialization
         self.hidden = None
 
-    def forward(self, x):
-        """Forward pass through the RWKV model.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_dim),
-            where output_dim is the number of classes.
+            torch.Tensor: Output logits of shape (batch_size, output_dim).
         """
         # Compute keys and values
         keys = self.key_layer(x)

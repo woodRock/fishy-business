@@ -2,16 +2,58 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.preprocessing import StandardScaler
 from scipy.linalg import svd
+from typing import Optional, Dict, Any, Union
 
 
 class lda(BaseEstimator, ClassifierMixin):
-    def __init__(self, n_components=None, class_weights=None, solver="svd"):
+    """
+    Weighted Linear Discriminant Analysis (LDA) implementation.
+
+    This class provides a custom implementation of LDA that supports class weights,
+    useful for imbalanced datasets.
+
+    Attributes:
+        n_components (int): Number of components for dimensionality reduction.
+        class_weights (Optional[Union[Dict[int, float], np.ndarray]]): Weights for each class.
+        solver (str): Solver to use ('svd' is supported).
+        scaler (StandardScaler): Scaler for input features.
+        classes_ (np.ndarray): Unique class labels.
+        means_ (np.ndarray): Weighted means per class.
+        overall_mean_ (np.ndarray): Weighted overall mean.
+        components_ (np.ndarray): Eigenvectors for projection.
+        means_transformed_ (np.ndarray): Projected class means.
+    """
+
+    def __init__(
+        self,
+        n_components: Optional[int] = None,
+        class_weights: Optional[Union[Dict[int, float], np.ndarray]] = None,
+        solver: str = "svd",
+    ) -> None:
+        """
+        Initializes the LDA classifier.
+
+        Args:
+            n_components (Optional[int], optional): Number of components. Defaults to None.
+            class_weights (Optional[Union[Dict[int, float], np.ndarray]], optional): Class weights. Defaults to None.
+            solver (str, optional): Solver type. Defaults to "svd".
+        """
         self.n_components = n_components
         self.class_weights = class_weights
         self.solver = solver
         self.scaler = StandardScaler()
 
-    def fit(self, X, y):
+    def fit(self, X: np.ndarray, y: np.ndarray) -> "lda":
+        """
+        Fits the LDA model to the provided data.
+
+        Args:
+            X (np.ndarray): Training features of shape (n_samples, n_features).
+            y (np.ndarray): Target labels of shape (n_samples,).
+
+        Returns:
+            lda: The fitted estimator.
+        """
         X = self.scaler.fit_transform(X)
         self.classes_ = np.unique(y)
         n_classes = len(self.classes_)
@@ -23,7 +65,7 @@ class lda(BaseEstimator, ClassifierMixin):
         if self.class_weights is None:
             class_counts = np.bincount(y)
             self.class_weights = len(y) / (n_classes * class_counts)
-        else:
+        elif isinstance(self.class_weights, dict):
             self.class_weights = np.array(
                 [self.class_weights[c] for c in range(n_classes)]
             )
@@ -80,11 +122,29 @@ class lda(BaseEstimator, ClassifierMixin):
 
         return self
 
-    def transform(self, X):
+    def transform(self, X: np.ndarray) -> np.ndarray:
+        """
+        Projects data into the LDA space.
+
+        Args:
+            X (np.ndarray): Input features.
+
+        Returns:
+            np.ndarray: Projected features.
+        """
         X = self.scaler.transform(X)
         return np.dot(X, self.components_)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        """
+        Predicts class probabilities based on distance to projected means.
+
+        Args:
+            X (np.ndarray): Input features.
+
+        Returns:
+            np.ndarray: Class probabilities.
+        """
         X_transformed = self.transform(X)
 
         # Calculate distances to means in transformed space
@@ -100,70 +160,14 @@ class lda(BaseEstimator, ClassifierMixin):
 
         return proba
 
-    def predict(self, X):
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """
+        Predicts class labels for the provided features.
+
+        Args:
+            X (np.ndarray): Input features.
+
+        Returns:
+            np.ndarray: Predicted labels.
+        """
         return self.classes_[np.argmax(self.predict_proba(X), axis=1)]
-
-
-# Example usage:
-def test_weighted_lda():
-    from sklearn.datasets import make_classification
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import classification_report
-
-    # Generate imbalanced dataset
-    X, y = make_classification(
-        n_samples=1000,
-        n_classes=3,
-        n_features=20,
-        n_informative=15,
-        weights=[0.6, 0.3, 0.1],
-        random_state=42,
-    )
-
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-
-    # Define class weights (inverse class frequency)
-    unique, counts = np.unique(y_train, return_counts=True)
-    class_weights = dict(zip(unique, len(y_train) / (len(unique) * counts)))
-
-    # Train classifier
-    clf = lda(n_components=2, class_weights=class_weights)  # Reduce to 2 dimensions
-    clf.fit(X_train, y_train)
-
-    # Make predictions
-    y_pred = clf.predict(X_test)
-    print("\nClassification Report:")
-    print(classification_report(y_test, y_pred))
-
-    # Visualize results if desired
-    def plot_results(X_test, y_test, clf):
-        import matplotlib.pyplot as plt
-
-        X_transformed = clf.transform(X_test)
-        plt.figure(figsize=(10, 8))
-        scatter = plt.scatter(
-            X_transformed[:, 0], X_transformed[:, 1], c=y_test, cmap="viridis"
-        )
-        plt.colorbar(scatter)
-
-        # Plot transformed means
-        for i, mean in enumerate(clf.means_transformed_):
-            plt.plot(mean[0], mean[1], "r*", markersize=15, label=f"Class {i} Mean")
-
-        plt.title("LDA Projection with Class Weights")
-        plt.xlabel("First discriminant")
-        plt.ylabel("Second discriminant")
-        plt.legend()
-        plt.show()
-
-    try:
-        plot_results(X_test, y_test, clf)
-    except ImportError:
-        print("Matplotlib not available for visualization")
-
-
-if __name__ == "__main__":
-    test_weighted_lda()

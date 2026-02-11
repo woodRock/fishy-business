@@ -60,7 +60,19 @@ class EarlyStopping:
 # --- 2. Custom Transformer Model Definition
 # -------------------------------------------------------------------
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, dropout=0.1, max_len=5000):
+    """
+    Standard sinusoidal positional encoding for Transformers.
+    """
+
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000) -> None:
+        """
+        Initializes the positional encoding.
+
+        Args:
+            d_model (int): The model dimension.
+            dropout (float, optional): Dropout probability. Defaults to 0.1.
+            max_len (int, optional): Maximum sequence length. Defaults to 5000.
+        """
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
         pe = torch.zeros(max_len, d_model)
@@ -73,23 +85,57 @@ class PositionalEncoding(nn.Module):
         pe = pe.unsqueeze(0).transpose(0, 1)
         self.register_buffer("pe", pe)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Adds positional encoding to the input tensor.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Encoded tensor.
+        """
         return self.dropout(x + self.pe[: x.size(0), :])
 
 
 class TransformerOrdinal(nn.Module):
+    """
+    Transformer model specialized for ordinal regression and classification.
+
+    Attributes:
+        method (str): Task type ('regression', 'classification', 'coral', 'clm').
+        input_embedding (nn.Linear): Initial linear projection.
+        pos_encoder (PositionalEncoding): Positional embeddings.
+        transformer_encoder (nn.TransformerEncoder): Transformer backbone.
+        output_layer (nn.Linear): Task-specific output head.
+    """
+
     def __init__(
         self,
-        input_features,
-        d_model,
-        nhead,
-        num_encoder_layers,
-        dim_feedforward,
-        dropout,
-        method="regression",
-        num_classes=None,
-        batch_first=True,
-    ):
+        input_features: int,
+        d_model: int,
+        nhead: int,
+        num_encoder_layers: int,
+        dim_feedforward: int,
+        dropout: float,
+        method: str = "regression",
+        num_classes: Optional[int] = None,
+        batch_first: bool = True,
+    ) -> None:
+        """
+        Initializes the TransformerOrdinal model.
+
+        Args:
+            input_features (int): Dimensionality of input features.
+            d_model (int): Hidden dimension.
+            nhead (int): Number of attention heads.
+            num_encoder_layers (int): Number of transformer layers.
+            dim_feedforward (int): Intermediate dimension of feed-forward layers.
+            dropout (float): Dropout probability.
+            method (str, optional): Training mode ('regression', 'classification', 'coral', 'clm'). Defaults to "regression".
+            num_classes (Optional[int], optional): Number of target classes. Required for non-regression modes. Defaults to None.
+            batch_first (bool, optional): If True, input is (B, S, D). Defaults to True.
+        """
         super(TransformerOrdinal, self).__init__()
         self.method = method
         self.input_embedding = nn.Linear(input_features, d_model)

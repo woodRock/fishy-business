@@ -1,9 +1,8 @@
-"""Neural ODE model for time series classification.
+"""Neural ODE model for spectral classification.
 
 This model uses a neural ODE block to learn the dynamics of the input time series data.
 It includes an initial convolutional layer, ODE blocks for learning the dynamics,
-and a fully connected layer for classification. The architecture is designed to handle
-sequential data, such as time series or other ordered data.
+and a fully connected layer for classification.
 
 
 References:
@@ -11,58 +10,27 @@ References:
 1. Chen, T., Rubanova, Y., Bettencourt, J., & Dumoulin, J. (2018).
    Neural ordinary differential equations.
    In Advances in neural information processing systems (pp. 6571-6583).
-2. Srivastava, N., Hinton, G., Krizhevsky, A.,
-   Sutskever, I., & Salakhutdinov, R. (2014).
-   Dropout: a simple way to prevent neural networks from overfitting.
-   The journal of machine learning research, 15(1), 1929-1958.
-3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-   I., & Salakhutdinov, R. R. (2012).
-   Improving neural networks by preventing co-adaptation of feature detectors.
-   arXiv preprint arXiv:1207.0580.
-4. Loshchilov, I., & Hutter, F. (2017).
-   Decoupled weight decay regularization.
-   arXiv preprint arXiv:1711.05101.
-5. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-   Rethinking the inception architecture for computer vision.
-   In Proceedings of the IEEE conference on computer vision
-   and pattern recognition (pp. 2818-2826).
-6. Hendrycks, D., & Gimpel, K. (2016).
-   Gaussian error linear units (gelus).
-   arXiv preprint arXiv:1606.08415.
-7. Loshchilov, I., & Hutter, F. (2017).
-   Decoupled weight decay regularization.
-   arXiv preprint arXiv:1711.05101.
-8. Loshchilov, I., & Hutter, F. (2017).
-   Decoupled weight decay regularization.
-   arXiv preprint arXiv:1711.05101.
-9. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-   Rethinking the inception architecture for computer vision.
-   In Proceedings of the IEEE conference on computer vision
-   and pattern recognition (pp. 2818-2826).
-10. Hendrycks, D., & Gimpel, K. (2016).
-    Gaussian error linear units (gelus).
-    arXiv preprint arXiv:1606.08415.
 """
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from sklearn.metrics import balanced_accuracy_score, accuracy_score
-import numpy as np
-from tqdm import tqdm
 from torchdiffeq import odeint
 
 
 class ODEFunc(nn.Module):
-    """ODE function for the Neural ODE block"""
+    """
+    ODE function for the Neural ODE block.
 
-    def __init__(self, channels, dropout=0.5) -> None:
-        """Initialize the ODE function.
+    Defines the derivative dx/dt using a small convolutional network.
+    """
+
+    def __init__(self, channels: int, dropout: float = 0.5) -> None:
+        """
+        Initializes the ODE function.
 
         Args:
             channels (int): Number of input channels.
-            dropout (float): Dropout rate for regularization. Defaults to 0.5.
+            dropout (float, optional): Dropout rate. Defaults to 0.5.
         """
         super(ODEFunc, self).__init__()
         self.conv1 = nn.Conv1d(channels, channels, kernel_size=3, padding=1)
@@ -72,16 +40,16 @@ class ODEFunc(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
         self.relu = nn.ReLU()
 
-    def forward(self, t, x):
+    def forward(self, t: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass through the ODE function.
+        Computes the derivative at time t.
 
         Args:
-            t (torch.Tensor): Time tensor (not used in this case).
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, seq_length).
+            t (torch.Tensor): Time tensor.
+            x (torch.Tensor): Input state tensor of shape (batch_size, channels, seq_length).
 
         Returns:
-            torch.Tensor: Output tensor of the same shape as input x.
+            torch.Tensor: The derivative dx/dt.
         """
         dx = self.conv1(x)
         dx = self.bn1(dx)
@@ -93,43 +61,56 @@ class ODEFunc(nn.Module):
 
 
 class ODEBlock(nn.Module):
-    """ODE block for the Neural ODE model."""
+    """
+    ODE block that wraps an ODE function and integrates it.
+    """
 
-    def __init__(self, odefunc) -> None:
-        """Initialize the ODE block.
+    def __init__(self, odefunc: ODEFunc) -> None:
+        """
+        Initializes the ODE block.
 
         Args:
-            odefunc (ODEFunc): The ODE function to be used in the block.
+            odefunc (ODEFunc): The function defining the ODE system.
         """
         super(ODEBlock, self).__init__()
         self.odefunc = odefunc
         self.register_buffer("integration_times", torch.linspace(0, 1, 2))
 
-    def forward(self, x):
-        """Forward pass through the ODE block.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Integrates the ODE from t=0 to t=1.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, seq_length).
+            x (torch.Tensor): Initial state tensor.
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, channels, seq_length).
-            The output is the final state after integrating the ODE function over the specified time intervals.
+            torch.Tensor: Final state tensor after integration.
         """
-        # integration_times will automatically be on the same device as x
         out = odeint(self.odefunc, x, self.integration_times, method="rk4")
-        return out[-1]  # Return only the final state
+        return out[-1]
 
 
 class ODE(nn.Module):
-    """Neural ODE model for time series classification."""
+    """
+    Neural ODE model for spectral data classification.
 
-    def __init__(self, input_dim, output_dim, dropout=0.3) -> None:
-        """Initialize the Neural ODE model.
+    Attributes:
+        initial_conv (nn.Sequential): Initial projection to channel space.
+        ode_block1 (ODEBlock): First neural ODE integration block.
+        downsample1 (nn.Sequential): Downsampling convolution.
+        ode_block2 (ODEBlock): Second neural ODE integration block.
+        adaptive_pool (nn.AdaptiveMaxPool1d): Pooling layer.
+        fc_layers (nn.Sequential): Classification head.
+    """
+
+    def __init__(self, input_dim: int, output_dim: int, dropout: float = 0.3) -> None:
+        """
+        Initializes the Neural ODE model.
 
         Args:
             input_dim (int): Number of input features.
             output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization. Defaults to 0.3.
+            dropout (float, optional): Dropout rate. Defaults to 0.3.
         """
         super(ODE, self).__init__()
 
@@ -159,16 +140,18 @@ class ODE(nn.Module):
             nn.Linear(64, output_dim),
         )
 
-    def forward(self, x):
-        """Forward pass through the Neural ODE model.
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass.
+
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+            x (torch.Tensor): Input spectrum of shape (batch_size, input_dim).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_dim),
-            where output_dim is the number of classes.
+            torch.Tensor: Output logits of shape (batch_size, output_dim).
         """
-        x = x.unsqueeze(1)  # Add channel dimension
+        if x.dim() == 2:
+            x = x.unsqueeze(1)  # Add channel dimension
         x = self.initial_conv(x)
         x = self.ode_block1(x)
         x = self.downsample1(x)

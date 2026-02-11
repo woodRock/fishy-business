@@ -1,46 +1,51 @@
+# -*- coding: utf-8 -*-
+"""
+Core Genetic Programming (GP) algorithms and utilities.
+"""
+
 import logging
 import pickle
 import random
+from typing import Iterable, Union, Tuple, List, Optional, Any
+
 import numpy as np
 from tqdm import tqdm
-from deap import tools
-from deap import algorithms
-from deap import tools
+from deap import tools, algorithms
 from deap.base import Toolbox
 from deap.tools import Logbook, HallOfFame
-from typing import Iterable, Union
 
 
 def SimpleGPWithElitism(
-    population: int,
+    population: List[Any],
     toolbox: Toolbox,
     cxpb: float,
     mutpb: float,
     ngen: int,
-    stats=None,
-    halloffame=None,
+    stats: Optional[tools.Statistics] = None,
+    halloffame: Optional[HallOfFame] = None,
     verbose: bool = False,
-) -> Union[Iterable, Logbook]:
+) -> Tuple[List[Any], Logbook]:
     """
-    Elitism for Multi-Tree GP for Multi-Class classification.
+    Executes a simple Genetic Programming algorithm with elitism.
 
-    A variation of the eaSimple method from the DEAP library that supports
-    elitism. Elitism ensures the best individuals (the elite) from each
-    generation are carried onto the next without alteration. This ensures
-    the quality of the best solution monotonically increases over time.
+    Elitism ensures the best individuals from each generation are carried over
+    to the next, guaranteeing non-decreasing fitness of the best solution.
 
     Args:
-        population (int): The number of individuals to evolve.
-        toolbox (Toolbox): The toolbox containing the genetic operators.
-        cxpb (float): The probability of a crossover between two individuals.
-        mutpb (float): The probability of a random mutation within an individual.
-        ngen (int): The number of genetations to evolve the population for.
-        stats: That can be used to collect statistics on the evolution.
-        halloffame: The hall of fame contains the best individual solutions.
-        verbose (bool): Whether or not to print the logbook.
+        population (List[Any]): Initial population of individuals.
+        toolbox (Toolbox): DEAP toolbox with genetic operators.
+        cxpb (float): Crossover probability.
+        mutpb (float): Mutation probability.
+        ngen (int): Number of generations.
+        stats (Optional[tools.Statistics], optional): Statistics object. Defaults to None.
+        halloffame (Optional[HallOfFame], optional): Hall of Fame for elitism. Defaults to None.
+        verbose (bool, optional): If True, log statistics to console. Defaults to False.
 
     Returns:
-        Tuple[List, Logbook]: The final population and the logbook.
+        Tuple[List[Any], Logbook]: The final population and the evolution logbook.
+
+    Raises:
+        ValueError: If halloffame is None (required for elitism).
     """
     logger = logging.getLogger(__name__)
 
@@ -93,53 +98,32 @@ def train(
     crossover_rate: float = 0.8,
     mutation_rate: float = 0.2,
     run: int = 0,
-    toolbox: Toolbox = None,
-) -> Union[Iterable, Logbook, HallOfFame]:
+    toolbox: Optional[Toolbox] = None,
+) -> Tuple[List[Any], Logbook, HallOfFame]:
     """
-    This is a Multi-tree GP with Elitism for Multi-class classification.
-
-    An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
+    Trains a Multi-tree GP model with elitism.
 
     Args:
-        generations (int): The number of generations to evolve the populaiton for. Defaults to 100.
-        population (int): The number of individuals for the population. Defaults to 1023.
-        elitism (float): The ratio of elites to be kept between generations. Defaults to 0.1
-        crossover_rate (float): The probability of a crossover between two individuals. Defaults to 0.8.
-        mutation_rate (float): The probability of a random mutation within an individual. Defualts to 0.2
-        run (int): the number for the experimental run. Defaults to 0.
-        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
+        generations (int, optional): Generations count. Defaults to 100.
+        population (int, optional): Population size. Defaults to 1023.
+        elitism (float, optional): Ratio of elites to keep. Defaults to 0.1.
+        crossover_rate (float, optional): Probability of crossover. Defaults to 0.8.
+        mutation_rate (float, optional): Probability of mutation. Defaults to 0.2.
+        run (int, optional): Seed for reproducibility. Defaults to 0.
+        toolbox (Optional[Toolbox], optional): DEAP toolbox. Defaults to None.
 
     Returns:
-        population (deap.base.Toolbox.population): The final population the algorithm has evolved.
-        logbook (deap.tools.Logbook): The logbook which can record important statistics.
-        hall_of_fame (deap.tools.tools.HallOfFame): The hall of fame contains the best individual solutions.
-
-    References:
-        1. Koza, J. R. (1994). Genetic programming II: automatic discovery of
-          reusable programs.
-        2. Tran, B., Xue, B., & Zhang, M. (2019).
-          Genetic programming for multiple-feature construction on
-          high-dimensional classification. Pattern Recognition, 93, 404-417.
-        3. Patil, V. P., & Pawar, D. D. (2015). The optimal crossover or mutation
-          rates in genetic algorithm: a review. International Journal of Applied
-          Engineering and Technology, 5(3), 38-41.
+        Tuple[List[Any], Logbook, HallOfFame]: Final population, stats logbook, and Hall of Fame.
     """
     assert (
-        crossover_rate + mutation_rate == 1
-    ), "Crossover and mutation sums to 1 (to please the Gods!)"
+        abs(crossover_rate + mutation_rate - 1.0) < 1e-9
+    ), "Crossover and mutation rates must sum to 1.0"
 
-    # Reproducuble results for each run.
     random.seed(run)
-
     pop = toolbox.population(n=population)
 
-    # Elitism (Koza 1994)
     mu = round(elitism * population)
-    if elitism > 0:
-        # See https://www.programcreek.com/python/example/107757/deap.tools.HallOfFame
-        hall_of_fame = tools.HallOfFame(mu)
-    else:
-        hall_of_fame = None
+    hall_of_fame = tools.HallOfFame(mu) if elitism > 0 else None
 
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     length = lambda a: np.max(list(map(len, a)))
@@ -151,7 +135,6 @@ def train(
     mstats.register("min", np.min)
     mstats.register("max", np.max)
 
-    # Run the genetic program.
     population, logbook = SimpleGPWithElitism(
         pop,
         toolbox,
@@ -166,28 +149,25 @@ def train(
 
 
 def save_model(
-    file_path: str = "checkpoint_name.pkl",
-    generations: int = 0,
-    population: Iterable = None,
-    hall_of_fame: HallOfFame = None,
-    toolbox: Toolbox = None,
-    logbook: Logbook = None,
-    run: int = 0,
+    file_path: str,
+    generations: int,
+    population: List[Any],
+    hall_of_fame: HallOfFame,
+    toolbox: Toolbox,
+    logbook: Logbook,
+    run: int,
 ) -> None:
     """
-    Save the model to a file.
-
-    This is a Multi-tree GP with Elitism for Multi-class classification.
+    Saves the evolved GP model and state to a pickle file.
 
     Args:
-        file_path (str): The filepath to store the model checkpoints to. Defaults to "checkpoint_name.pkl".
-        generations (int): The number of generations to evolve the populaiton for. Defaults to 100.
-        population (int): The number of individuals for the population. Defaults to 1023.
-        elitism (float): The ratio of elites to be kept between generations. Defaults to 0.1
-        crossover_rate (float): The probability of a crossover between two individuals. Defaults to 0.8.
-        mutation_rate (float): The probability of a random mutation within an individual. Defualts to 0.2
-        run (int): the number for the experimental run. Defaults to 0.
-        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
+        file_path (str): Output path.
+        generations (int): Generations completed.
+        population (List[Any]): Final population.
+        hall_of_fame (HallOfFame): Hall of Fame.
+        toolbox (Toolbox): DEAP toolbox.
+        logbook (Logbook): Statistics log.
+        run (int): Run identifier.
     """
     cp = dict(
         population=population,
@@ -202,42 +182,36 @@ def save_model(
 
 
 def load_model(
-    file_path: str = "checkpoint_name.pkl",
+    file_path: str,
     generations: int = 100,
     crossover_rate: float = 0.8,
     mutation_rate: float = 0.2,
-    toolbox: Toolbox = None,
-) -> Union[Iterable, Logbook, HallOfFame]:
+    toolbox: Optional[Toolbox] = None,
+) -> Tuple[List[Any], Logbook, HallOfFame]:
     """
-    Load a model from a file.
-
-    An assertion error will be raised if the crossover_rate and mutation_rate do not sum to 1.
+    Loads a GP model state and continues evolution.
 
     Args:
-        file_path (str): The filepath to store the model checkpoints to. Defaults to "checkpoint_name.pkl".
-        generations (int): The number of generations to evolve the populaiton for. Defaults to 100.
-        crossover_rate (float): The probability of a crossover between two individuals. Defaults to 0.8.
-        mutation_rate (float): The probability of a random mutation within an individual. Defualts to 0.2
-        toolbox (deap.base.Toolbox): the toolbox that stores all functions required for GP. Defaults to none.
+        file_path (str): Input path.
+        generations (int, optional): Additional generations to run. Defaults to 100.
+        crossover_rate (float, optional): Crossover rate. Defaults to 0.8.
+        mutation_rate (float, optional): Mutation rate. Defaults to 0.2.
+        toolbox (Optional[Toolbox], optional): DEAP toolbox. Defaults to None.
 
     Returns:
-        population (deap.base.Toolbox.population): The final population the algorithm has evolved.
-        logbook (deap.tools.Logbook): The logbook which can record important statistics.
-        hall_of_fame (deap.tools.tools.HallOfFame): The hall of fame contains the best individual solutions.
+        Tuple[List[Any], Logbook, HallOfFame]: Population, Logbook, and Hall of Fame.
     """
     with open(file_path, "rb") as cp_file:
         cp = pickle.load(cp_file)
 
     population = cp["population"]
-    # start_gen = cp["generation"]
     halloffame = cp["halloffame"]
-    # logbook = cp["logbook"]
     random.setstate(cp["rndstate"])
     run = cp["run"]
 
     assert (
-        crossover_rate + mutation_rate == 1
-    ), "Crossover and mutation sums to 1 (to please the Gods!)"
+        abs(crossover_rate + mutation_rate - 1.0) < 1e-9
+    ), "Crossover and mutation rates must sum to 1.0"
 
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     length = lambda a: np.max(list(map(len, a)))
@@ -249,7 +223,6 @@ def load_model(
     mstats.register("min", np.min)
     mstats.register("max", np.max)
 
-    # Reproducible results each run.
     random.seed(run)
     pop, log = SimpleGPWithElitism(
         population,

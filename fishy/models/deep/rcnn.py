@@ -44,21 +44,29 @@ import torch.nn as nn
 
 
 class RCNN(nn.Module):
-    """Residual Convolutional Neural Network (RCNN) for classification.
+    """
+    Residual Convolutional Neural Network (RCNN) for classification.
+
     This model consists of multiple residual blocks followed by fully connected layers.
     It includes batch normalization, ReLU activation, and dropout for regularization.
     The architecture is designed to handle 1D input data, such as time series or sequential data.
+
+    Attributes:
+        conv_layers (nn.Sequential): The feature extraction backbone.
+        flatten (nn.Flatten): Layer to flatten feature maps.
+        fc_layers (nn.Sequential): The classification head.
     """
 
     def __init__(
         self, input_dim: int = 1023, output_dim: int = 7, dropout: float = 0.5
     ) -> None:
-        """Initialize the RCNN model.
+        """
+        Initializes the RCNN model.
 
         Args:
-            input_dim (int): Size of the input features.
-            output_dim (int): Number of output classes.
-            dropout (float): Dropout rate for regularization. Defaults to 0.5.
+            input_dim (int, optional): Size of the input features. Defaults to 1023.
+            output_dim (int, optional): Number of output classes. Defaults to 7.
+            dropout (float, optional): Dropout rate for regularization. Defaults to 0.5.
         """
         super(RCNN, self).__init__()
 

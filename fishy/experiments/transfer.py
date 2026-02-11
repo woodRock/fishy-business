@@ -30,8 +30,16 @@ from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
 
 
-def _adapt_trainer_output(trainer_output: Dict) -> Dict:
-    """Adapts Trainer output to the legacy history format used in transfer learning."""
+def _adapt_trainer_output(trainer_output: Dict[str, Any]) -> Dict[str, List]:
+    """
+    Adapts Trainer output to the legacy history format used in transfer learning.
+
+    Args:
+        trainer_output (Dict[str, Any]): The raw output from the Trainer.train() method.
+
+    Returns:
+        Dict[str, List]: A dictionary containing histories for loss, accuracy, and balanced accuracy.
+    """
     epoch_metrics = trainer_output["epoch_metrics"]
     history = {
         "train_loss": epoch_metrics["train_losses"],
@@ -67,9 +75,35 @@ def run_sequential_transfer_learning(
     wandb_entity: Optional[str] = "victoria-university-of-wellington",
     wandb_log: bool = False,
     run: int = 0,
-):
+) -> Tuple[nn.Module, Dict[str, Any]]:
     """
     Performs sequential transfer learning across multiple datasets.
+
+    This function initializes a model, trains it sequentially on a list of
+    'transfer_datasets', and finally fine-tunes it on a 'target_dataset'.
+    The model's output layer is automatically adapted at each phase to match
+    the number of classes in the current dataset.
+
+    Args:
+        model_name (str): Name of the model architecture to use.
+        transfer_datasets (List[str]): List of datasets to use for sequential pre-training.
+        target_dataset (str): The final dataset to fine-tune on.
+        num_epochs_transfer (int, optional): Epochs per transfer phase. Defaults to 10.
+        num_epochs_finetune (int, optional): Epochs for the final fine-tuning. Defaults to 20.
+        batch_size (int, optional): Batch size. Defaults to 32.
+        learning_rate (float, optional): Learning rate for transfer phases. Defaults to 1e-3.
+        finetune_lr (float, optional): Learning rate for the fine-tuning phase. Defaults to 5e-4.
+        device (str, optional): Computation device. Defaults to get_device().
+        save_intermediate (bool, optional): Whether to save model state after each phase. Defaults to False.
+        val_split (float, optional): Proportion of data to use for validation. Defaults to 0.2.
+        file_path (str, optional): Path to the source data file. Defaults to None.
+        wandb_project (Optional[str], optional): W&B project name. Defaults to "fishy-business".
+        wandb_entity (Optional[str], optional): W&B entity name. Defaults to "victoria-university-of-wellington".
+        wandb_log (bool, optional): Enable W&B logging. Defaults to False.
+        run (int, optional): Run identifier for seeding. Defaults to 0.
+
+    Returns:
+        Tuple[nn.Module, Dict[str, Any]]: The final trained model and the full training history.
     """
     wandb_run = None
     if wandb_log:

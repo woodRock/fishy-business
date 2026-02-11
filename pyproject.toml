@@ -22,7 +22,12 @@ dependencies = [
     "pyopls",
     "umap-learn",
     "transformers",
-    "torchdiffeq"
+    "torchdiffeq",
+    "pygraphviz",
+    "xgboost",
+    "wandb",
+    "pyyaml",
+    "pytest"
 ]
 
 [tool.setuptools.packages.find]
