@@ -25,6 +25,7 @@ from rich.panel import Panel
 
 logger = logging.getLogger(__name__)
 
+
 class UnifiedTrainer:
     """Consolidated trainer that dispatches to specific training engines."""
 
@@ -32,7 +33,8 @@ class UnifiedTrainer:
         self.config = config
 
     def run(self) -> Union[Dict[str, Any], pd.DataFrame]:
-        if isinstance(self.config, ExperimentConfig): return self._run_batch()
+        if isinstance(self.config, ExperimentConfig):
+            return self._run_batch()
         return self._run_single(self.config)
 
     def _run_batch(self) -> pd.DataFrame:
@@ -43,22 +45,37 @@ class UnifiedTrainer:
         with console.status(f"[bold blue]Executing Batch: {exp_cfg.name}...") as status:
             for dataset in exp_cfg.datasets:
                 for model in exp_cfg.models:
-                    status.update(f"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]")
+                    status.update(
+                        f"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]"
+                    )
                     model_results = []
                     for run_id in range(exp_cfg.num_runs):
                         seed = (run_id + 1) * 123
                         set_seed(seed)
-                        train_cfg = TrainingConfig(model=model, dataset=dataset, run=seed, file_path=DEFAULT_DATA_PATH, benchmark=exp_cfg.benchmark, figures=exp_cfg.figures, statistical=exp_cfg.statistical, wandb_log=exp_cfg.wandb_log)
+                        train_cfg = TrainingConfig(
+                            model=model,
+                            dataset=dataset,
+                            run=seed,
+                            file_path=DEFAULT_DATA_PATH,
+                            benchmark=exp_cfg.benchmark,
+                            figures=exp_cfg.figures,
+                            statistical=exp_cfg.statistical,
+                            wandb_log=exp_cfg.wandb_log,
+                        )
                         for k, v in exp_cfg.overrides.items():
-                            if hasattr(train_cfg, k): setattr(train_cfg, k, v)
+                            if hasattr(train_cfg, k):
+                                setattr(train_cfg, k, v)
                         train_cfg.method = detect_method(model)
                         model_results.append(self._run_single(train_cfg))
                     results_summary[f"{dataset}|||{model}"] = model_results
 
         if exp_cfg.statistical:
             from fishy.analysis.statistical import summarize_results
+
             summary_df = summarize_results(results_summary)
-            ctx = RunContext(dataset="all", method="experiment", model_name=exp_cfg.name)
+            ctx = RunContext(
+                dataset="all", method="experiment", model_name=exp_cfg.name
+            )
             ctx.save_dataframe(summary_df, "statistical_analysis.csv")
             return summary_df
         return pd.DataFrame()
@@ -66,67 +83,146 @@ class UnifiedTrainer:
     def _run_single(self, config: TrainingConfig) -> Dict[str, Any]:
         wandb_run = None
         if config.wandb_log:
-            wandb_run = wandb.init(project=config.wandb_project, entity=config.wandb_entity, config=asdict(config), reinit=True, group=f"{config.dataset}_{config.method}", job_type="training")
-        
-        ctx = RunContext(dataset=config.dataset, method=config.method, model_name=config.model, wandb_run=wandb_run)
+            wandb_run = wandb.init(
+                project=config.wandb_project,
+                entity=config.wandb_entity,
+                config=asdict(config),
+                reinit=True,
+                group=f"{config.dataset}_{config.method}",
+                job_type="training",
+            )
+
+        ctx = RunContext(
+            dataset=config.dataset,
+            method=config.method,
+            model_name=config.model,
+            wandb_run=wandb_run,
+        )
         ctx.save_config(config)
         device = get_device()
 
         start_time = time.time()
         results = {}
         try:
-            if config.transfer: results = self._dispatch_transfer(config, wandb_run, ctx)
-            elif config.method == "deep": results = self._dispatch_deep(config, wandb_run, ctx)
-            elif config.method in ["classic", "evolutionary", "probabilistic"]: results = self._dispatch_sklearn(config, wandb_run, ctx)
-            elif config.method == "contrastive": results = self._dispatch_contrastive(config, wandb_run, ctx)
-            
+            if config.transfer:
+                results = self._dispatch_transfer(config, wandb_run, ctx)
+            elif config.method == "deep":
+                results = self._dispatch_deep(config, wandb_run, ctx)
+            elif config.method in ["classic", "evolutionary", "probabilistic"]:
+                results = self._dispatch_sklearn(config, wandb_run, ctx)
+            elif config.method == "contrastive":
+                results = self._dispatch_contrastive(config, wandb_run, ctx)
+
             training_time = time.time() - start_time
             results["total_training_time_s"] = training_time
-            if config.benchmark: self._do_benchmark(config, ctx, device, training_time)
-            if config.figures: self._generate_figures(config, ctx, results)
+            if config.benchmark:
+                self._do_benchmark(config, ctx, device, training_time)
+            if config.figures:
+                self._generate_figures(config, ctx, results)
         finally:
-            if wandb_run: wandb_run.finish()
+            if wandb_run:
+                wandb_run.finish()
         return results
 
     def _dispatch_transfer(self, config, wandb_run, ctx):
         from fishy.experiments.transfer import run_sequential_transfer_learning
-        return run_sequential_transfer_learning(model_name=config.model, transfer_datasets=config.transfer_datasets, target_dataset=config.target_dataset, num_epochs_transfer=config.epochs_transfer, num_epochs_finetune=config.epochs_finetune, file_path=config.file_path, wandb_log=config.wandb_log, run=config.run, wandb_run=wandb_run)
+
+        return run_sequential_transfer_learning(
+            model_name=config.model,
+            transfer_datasets=config.transfer_datasets,
+            target_dataset=config.target_dataset,
+            num_epochs_transfer=config.epochs_transfer,
+            num_epochs_finetune=config.epochs_finetune,
+            file_path=config.file_path,
+            wandb_log=config.wandb_log,
+            run=config.run,
+            wandb_run=wandb_run,
+        )
 
     def _dispatch_deep(self, config, wandb_run, ctx):
         from fishy.experiments.deep_training import run_training_pipeline
+
         return run_training_pipeline(config, wandb_run=wandb_run, ctx=ctx)
 
     def _dispatch_sklearn(self, config, wandb_run, ctx):
         from fishy.experiments.classic_training import run_sklearn_experiment
-        return run_sklearn_experiment(config, config.model, config.dataset, config.run, config.file_path, wandb_run=wandb_run, ctx=ctx)
+
+        return run_sklearn_experiment(
+            config,
+            config.model,
+            config.dataset,
+            config.run,
+            config.file_path,
+            wandb_run=wandb_run,
+            ctx=ctx,
+        )
 
     def _dispatch_contrastive(self, config, wandb_run, ctx):
-        from fishy.experiments.contrastive import run_contrastive_experiment, ContrastiveConfig
-        c_cfg = ContrastiveConfig(contrastive_method=config.model, dataset=config.dataset, num_epochs=config.epochs, batch_size=config.batch_size, file_path=config.file_path, wandb_log=config.wandb_log)
+        from fishy.experiments.contrastive import (
+            run_contrastive_experiment,
+            ContrastiveConfig,
+        )
+
+        c_cfg = ContrastiveConfig(
+            contrastive_method=config.model,
+            dataset=config.dataset,
+            num_epochs=config.epochs,
+            batch_size=config.batch_size,
+            file_path=config.file_path,
+            wandb_log=config.wandb_log,
+        )
         return run_contrastive_experiment(c_cfg, wandb_run=wandb_run, ctx=ctx)
 
     def _do_benchmark(self, config, ctx, device, training_time):
         dm = create_data_module(dataset_name=config.dataset, file_path=config.file_path)
-        dm.setup(); run_benchmark(model=None, input_dim=dm.get_input_dim(), device=device, ctx=ctx, training_time=training_time)
+        dm.setup()
+        run_benchmark(
+            model=None,
+            input_dim=dm.get_input_dim(),
+            device=device,
+            ctx=ctx,
+            training_time=training_time,
+        )
 
     def _generate_figures(self, config, ctx, results):
         if "epoch_metrics" in results:
             m = results["epoch_metrics"]
             plt.figure(figsize=(10, 4))
-            plt.subplot(1, 2, 1); plt.plot(m.get("train_losses", []), label="Train"); plt.plot(m.get("val_losses", []), label="Val"); plt.title("Loss"); plt.legend()
+            plt.subplot(1, 2, 1)
+            plt.plot(m.get("train_losses", []), label="Train")
+            plt.plot(m.get("val_losses", []), label="Val")
+            plt.title("Loss")
+            plt.legend()
             accs = [met.get("balanced_accuracy", 0) for met in m.get("val_metrics", [])]
-            plt.subplot(1, 2, 2); plt.plot(accs); plt.title("Balanced Accuracy")
-            ctx.save_figure(plt, "training_curves.png"); plt.close()
+            plt.subplot(1, 2, 2)
+            plt.plot(accs)
+            plt.title("Balanced Accuracy")
+            ctx.save_figure(plt, "training_curves.png")
+            plt.close()
+
 
 def run_unified_training(config):
     return UnifiedTrainer(config).run()
+
 
 def run_all_benchmarks(quick=False):
     models_cfg = load_config("models")
     classic = list(models_cfg["classic_models"].keys())
     deep = list(models_cfg["deep_models"].keys())
     evo = list(models_cfg["evolutionary_models"].keys())
-    if quick: num_runs, datasets, models = 2, ["species"], ["opls-da", "transformer"]
-    else: num_runs, datasets, models = 30, ["species", "part", "oil"], classic + deep + evo
-    exp_cfg = ExperimentConfig(name="full_benchmark", num_runs=num_runs, datasets=datasets, models=models, statistical=True)
+    if quick:
+        num_runs, datasets, models = 2, ["species"], ["opls-da", "transformer"]
+    else:
+        num_runs, datasets, models = (
+            30,
+            ["species", "part", "oil"],
+            classic + deep + evo,
+        )
+    exp_cfg = ExperimentConfig(
+        name="full_benchmark",
+        num_runs=num_runs,
+        datasets=datasets,
+        models=models,
+        statistical=True,
+    )
     return run_unified_training(exp_cfg)

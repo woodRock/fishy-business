@@ -13,8 +13,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 # Suppress noisy library logs
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-os.environ['MPLBACKEND'] = 'Agg'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["MPLBACKEND"] = "Agg"
 
 from fishy.cli.main import main
 
