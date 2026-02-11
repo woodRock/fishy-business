@@ -33,7 +33,7 @@ def set_seed(seed: int):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
     # Ensure deterministic behavior in PyTorch (can slow down training)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
@@ -124,7 +124,13 @@ class RunContext:
 
     def _create_dirs(self):
         """Creates the structured directory tree for the run."""
-        for d in [self.log_dir, self.result_dir, self.checkpoint_dir, self.figure_dir, self.benchmark_dir]:
+        for d in [
+            self.log_dir,
+            self.result_dir,
+            self.checkpoint_dir,
+            self.figure_dir,
+            self.benchmark_dir,
+        ]:
             d.mkdir(parents=True, exist_ok=True)
 
     def _setup_logging(self) -> logging.Logger:
@@ -161,7 +167,7 @@ class RunContext:
         with open(path, "w") as f:
             json.dump(results, f, indent=4, cls=NumpyEncoder)
         self.logger.info(f"Metrics saved to {path}")
-        
+
         if self.wandb_run:
             # Flatten "stats" for better W&B visibility and pinning
             log_dict = {}
@@ -171,13 +177,15 @@ class RunContext:
                     log_dict.update(v)
                 elif isinstance(v, (int, float, str, bool, np.integer, np.floating)):
                     log_dict[k] = v
-            
+
             if log_dict:
                 # Ensure all values are JSON serializable for W&B as well
                 log_dict = json.loads(json.dumps(log_dict, cls=NumpyEncoder))
                 self.wandb_run.log(log_dict, commit=False)
-            
-            self.wandb_run.save(str(path), base_path=str(self.run_dir)) # Log file as artifact
+
+            self.wandb_run.save(
+                str(path), base_path=str(self.run_dir)
+            )  # Log file as artifact
 
     def save_config(self, config: Any, filename: str = "config.json"):
         """Saves the experiment configuration to a JSON file."""

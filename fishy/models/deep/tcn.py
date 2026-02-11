@@ -150,7 +150,13 @@ class TemporalConvNet(nn.Module):
     Temporal Convolutional Network composed of several temporal blocks.
     """
 
-    def __init__(self, num_inputs: int, num_channels: List[int], kernel_size: int = 2, dropout: float = 0.2) -> None:
+    def __init__(
+        self,
+        num_inputs: int,
+        num_channels: List[int],
+        kernel_size: int = 2,
+        dropout: float = 0.2,
+    ) -> None:
         """
         Initializes the TCN.
 
@@ -262,19 +268,23 @@ class TCN(nn.Module):
 
     def apply_weight_norm(self) -> None:
         """Applies weight normalization to all convolutional layers."""
+
         def _apply_weight_norm(module):
             if isinstance(module, nn.Conv1d):
                 weight_norm(module)
+
         self.apply(_apply_weight_norm)
 
     def remove_weight_norm(self) -> None:
         """Removes weight normalization from all convolutional layers."""
+
         def _remove_weight_norm(module):
             try:
                 if isinstance(module, nn.Conv1d):
                     nn.utils.remove_weight_norm(module)
             except ValueError:
                 pass
+
         self.apply(_remove_weight_norm)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

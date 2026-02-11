@@ -58,7 +58,9 @@ class RWKV(nn.Module):
         output_layer (nn.Linear): Classification head.
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float = 0.1) -> None:
+    def __init__(
+        self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float = 0.1
+    ) -> None:
         """
         Initializes the RWKV model.
 

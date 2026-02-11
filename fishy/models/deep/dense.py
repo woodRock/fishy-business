@@ -36,7 +36,9 @@ class DenseBlock(nn.Module):
     from all previous layers as input, promoting feature reuse.
     """
 
-    def __init__(self, in_channels: int, growth_rate: int, num_layers: int, dropout: float = 0.5) -> None:
+    def __init__(
+        self, in_channels: int, growth_rate: int, num_layers: int, dropout: float = 0.5
+    ) -> None:
         """
         Initializes the dense block.
 
@@ -85,7 +87,9 @@ class TransitionLayer(nn.Module):
     dropout for regularization, and average pooling to reduce the number of channels.
     """
 
-    def __init__(self, in_channels: int, out_channels: int, dropout: float = 0.5) -> None:
+    def __init__(
+        self, in_channels: int, out_channels: int, dropout: float = 0.5
+    ) -> None:
         """
         Initializes the transition layer.
 

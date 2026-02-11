@@ -14,6 +14,7 @@ from typing import Iterator, List
 
 class DatasetType(Enum):
     """Enumeration for the different types of datasets."""
+
     SPECIES = auto()
     PART = auto()
     OIL = auto()
@@ -49,7 +50,10 @@ class DatasetType(Enum):
         target_name = name.lower()
         if target_name in alias_map:
             return alias_map[target_name]
-        raise ValueError(f"Invalid dataset name: {name}. Must be one of {list(alias_map.keys())}")
+        raise ValueError(
+            f"Invalid dataset name: {name}. Must be one of {list(alias_map.keys())}"
+        )
+
 
 class BaseDataset(Dataset):
     """
@@ -66,6 +70,7 @@ class BaseDataset(Dataset):
         >>> torch.is_tensor(s)
         True
     """
+
     def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.tensor(np.array(labels), dtype=torch.float32)
@@ -81,9 +86,12 @@ class BaseDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.samples[idx], self.labels[idx]
 
+
 class CustomDataset(BaseDataset):
     """Standard PyTorch Dataset."""
+
     pass
+
 
 class SiameseDataset(BaseDataset):
     """
@@ -117,8 +125,12 @@ class SiameseDataset(BaseDataset):
         n_samples = original_samples.shape[0]
         if n_samples < 2:
             return (
-                torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype),
-                torch.empty((0, original_samples.shape[1]), dtype=original_samples.dtype),
+                torch.empty(
+                    (0, original_samples.shape[1]), dtype=original_samples.dtype
+                ),
+                torch.empty(
+                    (0, original_samples.shape[1]), dtype=original_samples.dtype
+                ),
                 torch.empty((0, 1), dtype=torch.float32),
                 torch.empty((0, original_labels.shape[1]), dtype=original_labels.dtype),
                 torch.empty((0, original_labels.shape[1]), dtype=original_labels.dtype),
@@ -144,7 +156,9 @@ class SiameseDataset(BaseDataset):
     def __len__(self) -> int:
         return self.paired_labels.shape[0]
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def __getitem__(
+        self, idx: int
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         return (
             self.X1[idx],
             self.X2[idx],

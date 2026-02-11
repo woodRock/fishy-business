@@ -8,6 +8,7 @@ used in the paper, covering all datasets and model categories.
 
 from fishy.experiments.unified_trainer import run_all_benchmarks
 
+
 def main():
     print("--- Tutorial 05: Automated Benchmarking ---")
 
@@ -18,11 +19,12 @@ def main():
     # For this example, we use `quick=True` to run a very small subset
     # (2 models, 1 dataset, 2 runs) instead of the full 30-run suite.
     print("Launching quick benchmark suite...")
-    
+
     summary_df = run_all_benchmarks(quick=True, wandb_log=False)
 
     print("\nBenchmark Summary Table:")
     print(summary_df.to_string())
+
 
 if __name__ == "__main__":
     main()

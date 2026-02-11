@@ -15,6 +15,7 @@ from fishy.experiments.unified_trainer import run_unified_training
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
+
 def main():
     print("--- Tutorial 01: Getting Started ---")
 
@@ -25,9 +26,9 @@ def main():
         model="transformer",
         dataset="species",
         file_path=DATA_PATH,
-        epochs=5,           # Short run for demonstration
+        epochs=5,  # Short run for demonstration
         batch_size=32,
-        wandb_log=False     # We'll disable Weights & Biases for now
+        wandb_log=False,  # We'll disable Weights & Biases for now
     )
 
     print(f"Launching a {config.model} training on the {config.dataset} dataset...")
@@ -44,6 +45,7 @@ def main():
         for metric, value in results.items():
             if isinstance(value, (int, float)):
                 print(f"  {metric}: {value:.4f}")
+
 
 if __name__ == "__main__":
     main()

@@ -16,17 +16,19 @@ from sklearn.neighbors import KNeighborsClassifier
 
 logger = logging.getLogger(__name__)
 
+
 class EDA(BaseEstimator, ClassifierMixin):
     """
     Scikit-learn compatible wrapper for Estimation of Distribution Algorithm.
     """
+
     def __init__(
         self,
         generations: int = 10,
         population_size: int = 100,
         select_ratio: float = 0.2,
         elitism: float = 0.1,
-        random_state: int = 42
+        random_state: int = 42,
     ):
         self.generations = generations
         self.population_size = population_size
@@ -38,7 +40,7 @@ class EDA(BaseEstimator, ClassifierMixin):
     def fit(self, X: np.ndarray, y: np.ndarray):
         random.seed(self.random_state)
         np.random.seed(self.random_state)
-        
+
         n_features = X.shape[1]
 
         if not hasattr(creator, "FitnessMax"):
@@ -47,7 +49,7 @@ class EDA(BaseEstimator, ClassifierMixin):
             creator.create("Individual", list, fitness=creator.FitnessMax)
 
         toolbox = base.Toolbox()
-        
+
         # EDA uses a probability distribution to sample individuals
         # For continuous weights, we can use mean and std per feature
         means = np.full(n_features, 0.5)
@@ -66,7 +68,9 @@ class EDA(BaseEstimator, ClassifierMixin):
             clf = KNeighborsClassifier(n_neighbors=3)
             split_idx = int(len(X) * 0.8)
             clf.fit(X_weighted[:split_idx], y[:split_idx])
-            score = balanced_accuracy_score(y[split_idx:], clf.predict(X_weighted[split_idx:]))
+            score = balanced_accuracy_score(
+                y[split_idx:], clf.predict(X_weighted[split_idx:])
+            )
             return (score,)
 
         toolbox.register("evaluate", evaluate)
@@ -81,28 +85,30 @@ class EDA(BaseEstimator, ClassifierMixin):
             for ind in pop:
                 if not ind.fitness.valid:
                     ind.fitness.values = toolbox.evaluate(ind)
-            
+
             hof.update(pop)
             selected = tools.selBest(pop, n_select)
-            
+
             # Update distribution (means and stds) based on selected individuals
             selected_np = np.array(selected)
             means = np.mean(selected_np, axis=0)
             stds = np.std(selected_np, axis=0) + 1e-6
-            
+
             # Sample new population with elitism
             elites = [toolbox.clone(ind) for ind in tools.selBest(pop, n_elitism)]
             new_pop = toolbox.population(n=self.population_size - n_elitism)
             pop[:] = elites + new_pop
-            
-            logger.info(f"Gen {gen}: Max Fitness = {np.max([ind.fitness.values for ind in pop if ind.fitness.valid])}")
+
+            logger.info(
+                f"Gen {gen}: Max Fitness = {np.max([ind.fitness.values for ind in pop if ind.fitness.valid])}"
+            )
 
         self.best_individual = np.array(hof[0])
-        
+
         # Fit a final classifier on the full weighted data
         self.clf = KNeighborsClassifier(n_neighbors=3)
         self.clf.fit(X * self.best_individual, y)
-        
+
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:

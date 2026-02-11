@@ -9,6 +9,7 @@ which centralize all hyperparameters and experimental settings.
 from fishy._core.config import TrainingConfig, ExperimentConfig
 from pathlib import Path
 
+
 def main():
     print("--- Tutorial 03: Configuration Management ---")
 
@@ -20,9 +21,9 @@ def main():
         epochs=10,
         learning_rate=5e-4,
         batch_size=16,
-        data_augmentation=True # Enable built-in augmentation
+        data_augmentation=True,  # Enable built-in augmentation
     )
-    
+
     print("\nTrainingConfig created:")
     print(f"  Model: {train_cfg.model}")
     print(f"  Augmentation: {train_cfg.data_augmentation}")
@@ -41,11 +42,11 @@ def main():
     # Used to orchestrate multiple models across multiple datasets.
     exp_cfg = ExperimentConfig(
         name="my_first_batch",
-        num_runs=5,             # Run each combination 5 times for statistics
+        num_runs=5,  # Run each combination 5 times for statistics
         datasets=["species", "oil"],
         models=["cnn", "transformer", "opls-da"],
-        benchmark=True,         # Enable performance measuring for all
-        overrides={"epochs": 2} # Force these settings on all runs
+        benchmark=True,  # Enable performance measuring for all
+        overrides={"epochs": 2},  # Force these settings on all runs
     )
 
     print("\nExperimentConfig created:")
@@ -55,6 +56,7 @@ def main():
     # Clean up
     if Path(yaml_path).exists():
         Path(yaml_path).unlink()
+
 
 if __name__ == "__main__":
     main()

@@ -17,6 +17,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
+
 def main():
     print("--- Tutorial 04: Training Engines ---")
 
@@ -30,14 +31,10 @@ def main():
     # --- LEVEL 2: Direct Trainer usage ---
     # Good for when you have your own model/data but want our optimized loop.
     print("\n--- Level 2: Custom Trainer Control ---")
-    
+
     # 1. Create a simple PyTorch model
-    model = nn.Sequential(
-        nn.Linear(100, 64),
-        nn.ReLU(),
-        nn.Linear(64, 2)
-    )
-    
+    model = nn.Sequential(nn.Linear(100, 64), nn.ReLU(), nn.Linear(64, 2))
+
     # 2. Setup your own data
     x = torch.randn(32, 100)
     y = torch.randint(0, 2, (32,))
@@ -49,13 +46,14 @@ def main():
         criterion=nn.CrossEntropyLoss(),
         optimizer=torch.optim.Adam(model.parameters(), lr=1e-3),
         device=torch.device("cpu"),
-        num_epochs=2
+        num_epochs=2,
     )
-    
+
     # 4. Execute training
     # This gives you raw access to epoch logs and best model states.
     train_res = trainer.train(loader, val_loader=loader)
     print(f"Manual Trainer Accuracy: {train_res['best_accuracy']:.4f}")
+
 
 if __name__ == "__main__":
     main()
