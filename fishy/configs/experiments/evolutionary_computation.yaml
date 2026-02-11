@@ -5,7 +5,7 @@ datasets: ["species", "part", "oil", "cross-species"]
 models: ["gp", "ga", "pso", "eda", "es"]
 benchmark: true
 figures: true
-statistics: true
+statistical: true
 wandb_log: true
 overrides:
   population_size: 100
