@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import warnings; import os
-warnings.filterwarnings("ignore", category=UserWarning, module="sklearn.metrics")
-warnings.filterwarnings("ignore", category=UserWarning, module="torch")
+# 1. Suppress noisy library warnings for a cleaner UI
+warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*use_container_width.*")
 try: from urllib3.exceptions import NotOpenSSLWarning; warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError: pass
 os.environ['WANDB_SILENT'] = 'true'; os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'; os.environ['MPLBACKEND'] = 'Agg'
@@ -14,6 +16,8 @@ from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_f
 from sklearn.decomposition import PCA; from sklearn.manifold import TSNE
 try: import umap
 except ImportError: umap = None
+try: import paramiko
+except ImportError: paramiko = None
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from fishy._core.config import TrainingConfig; from fishy._core.config_loader import load_config
@@ -21,6 +25,7 @@ from fishy.data.module import create_data_module; from fishy.cli.main import det
 from fishy.experiments.deep_training import ModelTrainer; from fishy.experiments.classic_training import SklearnTrainer
 from fishy.analysis.xai import GradCAM, ModelWrapper; from fishy._core.utils import get_device
 from lime.lime_tabular import LimeTabularExplainer
+from fishy.analysis.statistical import summarize_results
 
 st.set_page_config(page_title="Fishy Business | Spectral Analysis", page_icon="🐟", layout="wide")
 st.markdown("""<style>
@@ -40,6 +45,61 @@ def get_metadata():
 def get_data_module(dataset_name, file_path, version="v12"):
     dm = create_data_module(dataset_name=dataset_name, file_path=file_path); dm.setup(); return dm
 
+def crawl_local_results(base_path="outputs"):
+    results_map = {}
+    p = Path(base_path)
+    for m_path in p.glob("**/results/metrics.json"):
+        parts = m_path.parts
+        if len(parts) >= 5:
+            dataset = parts[1]; model = parts[3].split('_')[0]; key = f"{dataset}|||{model}"
+            if key not in results_map: results_map[key] = []
+            with open(m_path, 'r') as f: results_map[key].append(json.load(f))
+    return summarize_results(results_map) if results_map else pd.DataFrame()
+
+def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_user=None, otp=None):
+    results_map = {}
+    try:
+        ssh_target = paramiko.SSHClient(); ssh_target.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        if jump_host:
+            ssh_jump = paramiko.SSHClient(); ssh_jump.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            # Interactive handler for 2FA (Google Authenticator)
+            def handler(title, instructions, prompt_list):
+                responses = []
+                for prompt, _ in prompt_list:
+                    p = prompt.lower()
+                    if 'password' in p: responses.append(pwd)
+                    elif 'verification' in p or 'token' in p or 'code' in p: responses.append(otp if otp else "")
+                    else: responses.append("")
+                return responses
+
+            transport = paramiko.Transport((jump_host, 22))
+            transport.start_client()
+            transport.auth_interactive(jump_user or user, handler)
+            
+            # Establish tunnel
+            dest_addr = (host, port); local_addr = ('localhost', 0)
+            jump_channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
+            ssh_target.connect(host, port=port, username=user, password=pwd, sock=jump_channel, timeout=60)
+        else:
+            ssh_target.connect(host, port=port, username=user, password=pwd, timeout=60)
+
+        sftp = ssh_target.open_sftp()
+        cmd = f"find {remote_path} -maxdepth 5 -name 'metrics.json'"
+        stdin, stdout, stderr = ssh_target.exec_command(cmd)
+        paths = stdout.read().decode().splitlines()
+        for p in paths:
+            parts = p.split('/')
+            if len(parts) >= 5:
+                dataset = parts[-5]; model = parts[-3].split('_')[0]; key = f"{dataset}|||{model}"
+                if key not in results_map: results_map[key] = []
+                with sftp.open(p, 'r') as f: results_map[key].append(json.load(f))
+        ssh_target.close()
+        if jump_host: transport.close()
+    except Exception as e: st.error(f"Network Error: {e}")
+    return summarize_results(results_map) if results_map else pd.DataFrame()
+
 st.sidebar.title("🛠️ Configuration")
 model_names, dataset_names = get_metadata(); data_path = Path("data/REIMS.xlsx")
 selected_model = st.sidebar.selectbox("Select Model", model_names, index=model_names.index("transformer") if "transformer" in model_names else 0)
@@ -51,10 +111,10 @@ else: st.sidebar.warning("⚠️ Raw labels in use")
 
 with st.sidebar.expander("🚀 Hyperparameters", expanded=True):
     epochs = st.slider("Epochs", 1, 100, 10); batch_size = st.select_slider("Batch Size", options=[8, 16, 32, 64, 128], value=32); lr = st.number_input("Learning Rate", value=1e-4, format="%.1e")
-train_button = st.sidebar.button("🚀 Run Training", use_container_width=True)
+train_button = st.sidebar.button("🚀 Run Training", width="stretch")
 
 st.sidebar.markdown("---")
-run_all_button = st.sidebar.button("📊 Run Full Benchmark (Quick)", use_container_width=True)
+run_all_button = st.sidebar.button("📊 Run Full Benchmark (Quick)", width="stretch")
 
 st.title("🐟 Fishy Business")
 tab1, tab2, tab3, tab4 = st.tabs(["📊 Data Exploration", "📈 Training & Results", "🧠 Interpretability & Biomarkers", "🏆 Leaderboard"])
@@ -97,7 +157,7 @@ if data_path.exists():
                 melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
                 st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white"), use_container_width=True)
         st.markdown("---")
-        st.write("### Dimensionality & Cluster Analysis")
+        st.write("### Cluster Analysis")
         col_pca, col_tsne, col_umap = st.columns(3)
         pca_obj = PCA(n_components=10); X_pca = pca_obj.fit_transform(X_all)
         with col_pca: st.plotly_chart(px.scatter(pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(10)]), x="PC1", y="PC2", color=[class_names[i] for i in y_all], title="PCA", template="plotly_white"), use_container_width=True)
@@ -110,7 +170,7 @@ if data_path.exists():
                 st.plotly_chart(px.scatter(pd.DataFrame(X_umap, columns=["UMAP1", "UMAP2"]), x="UMAP1", y="UMAP2", color=[class_names[i] for i in y_all], title="UMAP", template="plotly_white"), use_container_width=True)
             else: st.info("UMAP not installed")
         st.markdown("---")
-        st.write("### Statistical Distribution")
+        st.write("### Statistical Insight")
         dcol1, dcol2 = st.columns(2)
         with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="Information Retention", template="plotly_white"), use_container_width=True)
         with dcol2:
@@ -139,11 +199,7 @@ if data_path.exists():
                     with r1c2:
                         prec, rec, f1, _ = precision_recall_fscore_support(y_true, y_pred, labels=range(len(class_names)))
                         st.plotly_chart(px.bar(pd.DataFrame({"Class": class_names, "Precision": prec, "Recall": rec, "F1": f1}), x="Class", y=["Precision", "Recall", "F1"], barmode="group", title="Class Metrics", template="plotly_white"), use_container_width=True)
-                    
-                    # Advanced Results
-                    st.markdown("---")
-                    st.write("### Error Spotlight")
-                    r2c1, r2c2 = st.columns(2)
+                    st.markdown("---"); st.write("### Error Spotlight"); r2c1, r2c2 = st.columns(2)
                     with r2c1:
                         if y_probs is not None:
                             pr_fig = go.Figure()
@@ -169,7 +225,6 @@ if data_path.exists():
             X_xai, y_xai = current_dm.get_numpy_data(labels_as_indices=True)
             if 'rep_indices' not in st.session_state or len(st.session_state['rep_indices']) != len(class_names):
                 st.session_state['rep_indices'] = {c: (np.where(y_xai == c)[0][0] if len(np.where(y_xai == c)[0])>0 else 0) for c in range(len(class_names))}
-            
             exp_col1, exp_col2 = st.columns([1, 2])
             with exp_col1:
                 sample_idx = st.selectbox("Select instance", range(len(X_xai)))
@@ -179,31 +234,26 @@ if data_path.exists():
                 target_layer = next((m for m in reversed(list(model.modules())) if isinstance(m, (nn.Conv1d, nn.Linear))), None)
                 if target_layer:
                     gc = GradCAM(model, target_layer); cam = gc.generate_cam(torch.tensor(X_xai[sample_idx]).unsqueeze(0).to(get_device())).cpu().numpy()[0]; gc.remove_hooks()
-                    fig = go.Figure(); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], name="Spectrum", line=dict(color='lightgray', width=1))); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], mode='markers', marker=dict(color=cam, colorscale='Viridis', size=8, showscale=True), name="Importance", hovertemplate="m/z: %{x}<br>Int: %{y}<br>Imp: %{marker.color:.4f}")); fig.update_layout(title="Importance Map", template="plotly_white"); exp_col2.plotly_chart(fig, use_container_width=True)
+                    fig = go.Figure(); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], name="Spectrum", line=dict(color='lightgray', width=1))); fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], mode='markers', marker=dict(color=cam, colorscale='Viridis', size=8, showscale=True), name="Importance", hovertemplate="m/z: %{x}<br>Int: %{y}<br>Imp: %{marker.color:.4f}")); fig.update_layout(title="Importance Map", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity"); exp_col2.plotly_chart(fig, use_container_width=True)
             else:
                 wrapper = ModelWrapper(model, str(get_device())); explainer = LimeTabularExplainer(X_xai, feature_names=[f"{m:.4f}" for m in mz_axis], class_names=class_names, discretize_continuous=True)
                 with st.spinner("LIME..."): exp = explainer.explain_instance(X_xai[sample_idx], wrapper.predict_proba, num_features=15)
                 exp_col2.plotly_chart(px.bar(x=[x[1] for x in exp.as_list()], y=[x[0] for x in exp.as_list()], orientation='h', color=[x[1] for x in exp.as_list()], color_continuous_scale='RdBu', title="LIME Weights"), use_container_width=True)
-            
-            st.markdown("---")
-            st.write("### 🌐 Distinct Class Biomarker Comparison")
+            st.markdown("---"); st.write("### 🌐 Distinct Class Biomarker Comparison")
             c_btn1, c_btn2 = st.columns([1, 4])
             if c_btn1.button("🔀 Shuffle Representatives"):
                 for c in range(len(class_names)):
                     indices = np.where(y_xai == c)[0]
                     if len(indices) > 0: st.session_state['rep_indices'][c] = np.random.choice(indices)
             if st.button("🔍 Run Class-Specific Analysis"):
-                with st.spinner("Analyzing..."):
-                    wrapper = ModelWrapper(model, str(get_device()))
-                    exp_int = LimeTabularExplainer(X_xai, feature_names=[str(i) for i in range(X_xai.shape[1])], class_names=class_names, discretize_continuous=False)
-                    class_biomarkers = {}
+                with st.spinner("Analyzing stable biomarkers..."):
+                    wrapper = ModelWrapper(model, str(get_device())); exp_int = LimeTabularExplainer(X_xai, feature_names=[str(i) for i in range(X_xai.shape[1])], class_names=class_names, discretize_continuous=False); class_biomarkers = {}
                     for c_idx in range(len(class_names)):
                         c_indices = np.where(y_xai == c_idx)[0]
                         if len(c_indices) > 0:
                             sub = np.random.choice(c_indices, min(10, len(c_indices)), replace=False); w_list = []
                             for idx in sub: w_list.append(dict(exp_int.explain_instance(X_xai[idx], wrapper.predict_proba, num_features=X_xai.shape[1], labels=(c_idx,)).as_list(label=c_idx)))
                             avg_w = pd.DataFrame(w_list).mean().sort_values(); class_biomarkers[c_idx] = [int(i) for i in avg_w.tail(20).index.tolist()]
-                    
                     comp_fig = go.Figure(); styles = [{'c': 'gold', 's': 'diamond'}, {'c': 'silver', 's': 'circle'}, {'c': 'cyan', 's': 'square'}]
                     for c_idx, c_name in enumerate(class_names):
                         rep_idx = st.session_state['rep_indices'].get(c_idx)
@@ -211,9 +261,8 @@ if data_path.exists():
                             spec = X_xai[rep_idx]; stl = styles[c_idx % len(styles)]
                             comp_fig.add_trace(go.Scatter(x=mz_axis, y=spec, name=f"{c_name} (Smp {rep_idx})", line=dict(width=1), opacity=0.4))
                             comp_fig.add_trace(go.Scatter(x=mz_axis[class_biomarkers[c_idx]], y=spec[class_biomarkers[c_idx]], mode='markers', marker=dict(color=stl['c'], size=12, symbol=stl['s'], line=dict(width=2, color='black')), name=f"Top Diagnostic: {c_name}", hovertemplate="m/z: %{x}<br>Int: %{y}"))
-                    comp_fig.update_layout(title="Class-Specific Diagnostic Peak Alignment", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity"); st.plotly_chart(comp_fig, use_container_width=True)
-                    st.write("#### Diagnostic Peaks (m/z)")
-                    cols = st.columns(len(class_names))
+                    comp_fig.update_layout(title="Distinct Class Representatives & Biomarkers", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity"); st.plotly_chart(comp_fig, use_container_width=True)
+                    st.write("#### Diagnostic Peaks (m/z)"); cols = st.columns(len(class_names))
                     for i, c_name in enumerate(class_names):
                         if i in class_biomarkers:
                             top_v = [f"{mz_axis[idx]:.4f}" for idx in class_biomarkers[i][-10:][::-1]]
@@ -222,28 +271,31 @@ if data_path.exists():
         else: st.info("Run training first.")
 
     with tab4:
-        st.header("🏆 Benchmarking Leaderboard")
-        if run_all_button:
-            from fishy.experiments.unified_trainer import run_all_benchmarks
-            with st.spinner("Running global benchmark (Quick mode)..."):
-                run_all_benchmarks(quick=True)
-            st.success("Benchmark complete!")
-        
-        summary_files = sorted(Path("outputs/all").glob("**/summary.json"), key=os.path.getmtime, reverse=True)
-        if summary_files:
-            latest_summary = summary_files[0]
-            with open(latest_summary, "r") as f: data = json.load(f)
-            df_summary = pd.DataFrame(data)
-            
-            # Clean up columns for display
-            display_cols = ["dataset", "method"] + [c for c in df_summary.columns if "accuracy" in c or "f1" in c or "sig" in c]
-            st.dataframe(df_summary[display_cols].style.background_gradient(subset=[c for c in df_summary.columns if "accuracy" in c], cmap="Greens"), use_container_width=True)
-            
-            st.write("### Model Comparison by Dataset")
-            for ds in df_summary["dataset"].unique():
-                ds_df = df_summary[df_summary["dataset"] == ds]
-                st.plotly_chart(px.bar(ds_df, x="method", y="val_balanced_accuracy", error_y="val_balanced_accuracy_std", title=f"Performance on {ds.upper()}", color="method", template="plotly_white"), use_container_width=True)
+        st.header("🏆 VUW ECS Leaderboard (Proxy Jump)")
+        src = st.radio("Leaderboard Data Source", ["Local (outputs/)", "Remote (SSH Proxy Jump)"], horizontal=True)
+        df_summary = pd.DataFrame()
+        if src == "Local (outputs/)":
+            with st.spinner("Crawling local metrics..."): df_summary = crawl_local_results()
         else:
-            st.info("No benchmark results found. Run 'Full Benchmark' to populate the leaderboard.")
-
+            if not paramiko: st.error("paramiko not installed")
+            else:
+                with st.expander("🔑 Jump Host Configuration (entry.ecs.vuw.ac.nz)", expanded=True):
+                    c1, c2, c_otp = st.columns([2, 2, 2])
+                    jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
+                    ju = c2.text_input("ECS Username")
+                    otp = c_otp.text_input("OTP Token (Google Authenticator)", type="password", help="Enter your current 6-digit verification code")
+                with st.expander("🎯 Target Server Configuration", expanded=True):
+                    c3, c4, c5 = st.columns([2, 1, 2])
+                    th = c3.text_input("Target Host (e.g. greta-pt)")
+                    tp = c4.number_input("Target Port", value=22)
+                    pwd = c5.text_input("ECS Password", type="password")
+                    rp = st.text_input("Remote Path to /outputs", "/home/ecs/username/fishy-business/outputs")
+                if st.button("🚀 Connect & Aggregate Remote"):
+                    with st.spinner("Tunnelling through entry and crawling metrics..."):
+                        df_summary = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
+        if not df_summary.empty:
+            st.dataframe(df_summary[["Dataset", "Method", "Train", "Test", "Sig Te"]].sort_values(["Dataset", "Test"], ascending=[True, False]).style.background_gradient(subset=["Test"], cmap="Greens"), use_container_width=True)
+            for ds in df_summary["Dataset"].unique():
+                st.plotly_chart(px.bar(df_summary[df_summary["Dataset"]==ds], x="Method", y="Test", error_y="Test Std", title=f"Leaderboard: {ds.upper()}", color="Method", template="plotly_white"), use_container_width=True)
+        else: st.info("No experiment results found yet.")
 else: st.warning("Data file not found.")
