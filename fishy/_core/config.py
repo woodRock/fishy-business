@@ -104,9 +104,14 @@ class TrainingConfig:
     @classmethod
     def from_yaml(cls, path: str) -> "TrainingConfig":
         """Loads configuration from a YAML file."""
+        import dataclasses
         with open(path, "r") as f:
             data = yaml.safe_load(f)
-        return cls(**data)
+        
+        # Filter out keys that are not fields of the dataclass
+        valid_keys = {f.name for f in dataclasses.fields(cls)}
+        filtered_data = {k: v for k, v in data.items() if k in valid_keys}
+        return cls(**filtered_data)
 
     def to_yaml(self, path: str):
         """Saves configuration to a YAML file."""

@@ -128,15 +128,20 @@ def main() -> None:
     try:
         if args.command == "train":
             if args.config:
-                # 1. Check if it's an ExperimentConfig (batch)
-                try:
+                # 1. Determine if it's an ExperimentConfig or TrainingConfig
+                import yaml
+                with open(args.config, "r") as f:
+                    config_data = yaml.safe_load(f)
+                
+                # ExperimentConfig usually has 'models' list
+                if isinstance(config_data, dict) and "models" in config_data:
                     from fishy.experiments.config_orchestrator import run_experiment_from_config
                     run_experiment_from_config(args.config)
-                except Exception as e:
+                else:
                     # 2. Try as a single TrainingConfig
                     config = TrainingConfig.from_yaml(args.config)
                     # Detect method if not in YAML
-                    if not config.method:
+                    if not hasattr(config, "method") or not config.method:
                         config.method = detect_method(config.model)
                     run_unified_training(config)
             else:

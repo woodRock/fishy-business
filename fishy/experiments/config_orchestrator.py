@@ -19,6 +19,7 @@ def run_experiment_from_config(config_path: str):
     logger.info(f"Starting experiment: {exp_cfg.name}")
 
     results_summary = {}
+    from fishy.cli.main import DEFAULT_DATA_PATH
 
     for dataset in exp_cfg.datasets:
         for model in exp_cfg.models:
@@ -34,6 +35,7 @@ def run_experiment_from_config(config_path: str):
                     model=model,
                     dataset=dataset,
                     run=seed,
+                    file_path=DEFAULT_DATA_PATH,
                     benchmark=exp_cfg.benchmark,
                     figures=exp_cfg.figures,
                     wandb_log=exp_cfg.wandb_log

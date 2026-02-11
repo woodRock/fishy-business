@@ -2,11 +2,11 @@
 name: "deep_model_search"
 num_runs: 5
 datasets: ["species"]
-models: ["transformer", "lstm", "mamba", "cnn"]
+models: ["transformer", "ensemble", "moe", "cnn", "rcnn", "lstm", "mamba", "kan"]
 benchmark: true
 figures: true
 wandb_log: true
 overrides:
-  epochs: 50
+  epochs: 100
   early_stopping: 10
   learning_rate: 0.0005
