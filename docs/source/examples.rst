@@ -4,7 +4,7 @@ Examples
 This section contains practical examples of how to use the `fishy` library programmatically.
 
 Programmatic Training
---------------------
+---------------------
 This example shows how to use the high-level `ModelTrainer` to run experiments in Python.
 
 .. literalinclude:: ../../examples/01_programmatic_training.py

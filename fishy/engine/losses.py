@@ -26,6 +26,17 @@ def coral_loss(
     Raises:
         ValueError: If logits and levels shapes do not match.
         ValueError: If reduction is not one of 'mean', 'sum', or None.
+
+    Examples:
+        >>> import torch
+        >>> logits = torch.tensor([[10.0, 5.0], [-5.0, -10.0]])
+        >>> levels = torch.tensor([[1.0, 1.0], [0.0, 0.0]])
+        >>> loss = coral_loss(logits, levels)
+        >>> float(loss) < 0.1
+        True
+        >>> loss_sum = coral_loss(logits, levels, reduction='sum')
+        >>> float(loss_sum) > float(loss)
+        True
     """
     if not logits.shape == levels.shape:
         raise ValueError("Please provide logits and levels of equal shape.")
@@ -66,6 +77,15 @@ def levels_from_labelbatch(
 
     Returns:
         torch.Tensor: Binary levels tensor of shape (batch_size, num_classes - 1).
+
+    Examples:
+        >>> import torch
+        >>> labels = torch.tensor([0, 1, 2])
+        >>> levels = levels_from_labelbatch(labels, num_classes=4, dtype=torch.float32)
+        >>> levels
+        tensor([[0., 0., 0.],
+                [1., 0., 0.],
+                [1., 1., 0.]])
     """
     if not isinstance(labels, torch.Tensor):
         labels = torch.tensor(labels)
@@ -107,6 +127,14 @@ def cumulative_link_loss(
 
     Raises:
         ValueError: If shape mismatch between logits and derived cumulative labels.
+
+    Examples:
+        >>> import torch
+        >>> logits = torch.tensor([[10.0, 10.0], [-10.0, -10.0]])
+        >>> labels = torch.tensor([2, 0])
+        >>> loss = cumulative_link_loss(logits, labels, num_classes=3)
+        >>> float(loss) < 0.1
+        True
     """
     # Convert integer labels to cumulative binary format, e.g., for 5 classes:
     # 0 -> [0, 0, 0, 0]

@@ -19,7 +19,15 @@ import wandb.sdk.wandb_run
 
 
 def set_seed(seed: int):
-    """Sets the seed for reproducibility across multiple libraries."""
+    """
+    Sets the seed for reproducibility across multiple libraries.
+
+    Examples:
+        >>> set_seed(42)
+        >>> import random
+        >>> random.randint(0, 100)
+        81
+    """
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -37,6 +45,11 @@ def get_device() -> torch.device:
     1. CUDA (NVIDIA GPU)
     2. MPS (Apple Silicon Metal)
     3. CPU
+
+    Examples:
+        >>> device = get_device()
+        >>> isinstance(device, torch.device)
+        True
     """
     if torch.cuda.is_available():
         return torch.device("cuda")

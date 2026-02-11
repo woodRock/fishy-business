@@ -72,8 +72,16 @@ class TrainingConfig:
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "TrainingConfig":
         """
-        Create a :class:`TrainingConfig` instance from parsed command-line arguments,
-        merging with model-specific defaults from models.yaml.
+        Create a :class:`TrainingConfig` instance from parsed command-line arguments.
+
+        Examples:
+            >>> import argparse
+            >>> args = argparse.Namespace(model="lstm", dataset="oil", epochs=10)
+            >>> cfg = TrainingConfig.from_args(args)
+            >>> cfg.model
+            'lstm'
+            >>> cfg.epochs
+            10
         """
         import dataclasses
         from fishy._core.config_loader import load_config

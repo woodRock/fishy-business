@@ -24,7 +24,15 @@ class DatasetType(Enum):
 
     @classmethod
     def from_string(cls, name: str) -> "DatasetType":
-        """Converts a string to a DatasetType enum member."""
+        """
+        Converts a string to a DatasetType enum member.
+
+        Examples:
+            >>> DatasetType.from_string("species")
+            <DatasetType.SPECIES: 1>
+            >>> DatasetType.from_string("cross-species-hard")
+            <DatasetType.CROSS_SPECIES_HARD: 7>
+        """
         alias_map = {
             "species": cls.SPECIES,
             "part": cls.PART,
@@ -42,6 +50,20 @@ class DatasetType(Enum):
         raise ValueError(f"Invalid dataset name: {name}. Must be one of {list(alias_map.keys())}")
 
 class BaseDataset(Dataset):
+    """
+    Base class for spectral datasets.
+
+    Examples:
+        >>> import numpy as np
+        >>> samples = np.array([[1.0, 2.0], [3.0, 4.0]])
+        >>> labels = np.array([0, 1])
+        >>> dataset = BaseDataset(samples, labels)
+        >>> len(dataset)
+        2
+        >>> s, l = dataset[0]
+        >>> torch.is_tensor(s)
+        True
+    """
     def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.tensor(np.array(labels), dtype=torch.float32)
