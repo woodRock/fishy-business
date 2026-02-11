@@ -207,7 +207,7 @@ def run_unified_training(config):
     return UnifiedTrainer(config).run()
 
 
-def run_all_benchmarks(quick=False):
+def run_all_benchmarks(quick=False, **kwargs):
     models_cfg = load_config("models")
     classic = list(models_cfg["classic_models"].keys())
     deep = list(models_cfg["deep_models"].keys())
@@ -226,5 +226,6 @@ def run_all_benchmarks(quick=False):
         datasets=datasets,
         models=models,
         statistical=True,
+        **kwargs
     )
     return run_unified_training(exp_cfg)

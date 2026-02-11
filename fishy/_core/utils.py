@@ -66,6 +66,8 @@ class NumpyEncoder(json.JSONEncoder):
             return float(obj)
         if isinstance(obj, Path):
             return str(obj)
+        if obj.__class__.__name__ in ["Terminal", "Primitive"]:
+            return str(obj)
         return super().default(obj)
 
 

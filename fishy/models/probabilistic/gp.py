@@ -68,3 +68,6 @@ class GaussianProcess(BaseEstimator, ClassifierMixin):
         """
         probs = self.predict_proba(X)
         return 1.0 - np.max(probs, axis=1)
+
+# Alias for consistent naming across factory and tutorials
+GP = GaussianProcess

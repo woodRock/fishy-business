@@ -1,13 +1,25 @@
 # -*- coding: utf-8 -*-
-import warnings; import os
+import warnings; import os; import logging
 # 1. Suppress noisy library warnings for a cleaner UI
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+# Specific suppression for the Streamlit/Plotly collision warning until Streamlit resolves the 'width' kwarg conflict
 warnings.filterwarnings("ignore", message=".*use_container_width.*")
 try: from urllib3.exceptions import NotOpenSSLWarning; warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError: pass
 os.environ['WANDB_SILENT'] = 'true'; os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'; os.environ['MPLBACKEND'] = 'Agg'
+
+# Initialize global dashboard logging
+log_dir = os.path.join(os.getcwd(), "logs")
+os.makedirs(log_dir, exist_ok=True)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename=os.path.join(log_dir, "dashboard.log"),
+    filemode='a'
+)
+logger = logging.getLogger("fishy.dashboard")
 
 import streamlit as st; import pandas as pd; import numpy as np; import json
 import plotly.express as px; import plotly.graph_objects as go
@@ -51,20 +63,20 @@ def crawl_local_results(base_path="outputs"):
     for m_path in p.glob("**/results/metrics.json"):
         parts = m_path.parts
         if len(parts) >= 5:
-            dataset = parts[1]; model = parts[3].split('_')[0]; key = f"{dataset}|||{model}"
+            dataset = parts[1]; model = parts[3].split('_')[0]
+            key = f"{dataset}|||{model}"
             if key not in results_map: results_map[key] = []
-            with open(m_path, 'r') as f: results_map[key].append(json.load(f))
+            try:
+                with open(m_path, 'r') as f: results_map[key].append(json.load(f))
+            except Exception as e:
+                logger.warning(f"Skipping malformed results file {m_path}: {e}")
     return summarize_results(results_map) if results_map else pd.DataFrame()
 
 def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_user=None, otp=None):
     results_map = {}
     try:
         ssh_target = paramiko.SSHClient(); ssh_target.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
         if jump_host:
-            ssh_jump = paramiko.SSHClient(); ssh_jump.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            
-            # Interactive handler for 2FA (Google Authenticator)
             def handler(title, instructions, prompt_list):
                 responses = []
                 for prompt, _ in prompt_list:
@@ -73,18 +85,13 @@ def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_u
                     elif 'verification' in p or 'token' in p or 'code' in p: responses.append(otp if otp else "")
                     else: responses.append("")
                 return responses
-
-            transport = paramiko.Transport((jump_host, 22))
-            transport.start_client()
+            transport = paramiko.Transport((jump_host, 22)); transport.start_client()
             transport.auth_interactive(jump_user or user, handler)
-            
-            # Establish tunnel
             dest_addr = (host, port); local_addr = ('localhost', 0)
             jump_channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
             ssh_target.connect(host, port=port, username=user, password=pwd, sock=jump_channel, timeout=60)
         else:
             ssh_target.connect(host, port=port, username=user, password=pwd, timeout=60)
-
         sftp = ssh_target.open_sftp()
         cmd = f"find {remote_path} -maxdepth 5 -name 'metrics.json'"
         stdin, stdout, stderr = ssh_target.exec_command(cmd)
@@ -94,7 +101,10 @@ def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_u
             if len(parts) >= 5:
                 dataset = parts[-5]; model = parts[-3].split('_')[0]; key = f"{dataset}|||{model}"
                 if key not in results_map: results_map[key] = []
-                with sftp.open(p, 'r') as f: results_map[key].append(json.load(f))
+                try:
+                    with sftp.open(p, 'r') as f: results_map[key].append(json.load(f))
+                except Exception as e:
+                    logger.warning(f"Skipping malformed remote results file {p}: {e}")
         ssh_target.close()
         if jump_host: transport.close()
     except Exception as e: st.error(f"Network Error: {e}")
@@ -134,30 +144,29 @@ if data_path.exists():
             dist = df_filtered[label_col].value_counts()
             st.plotly_chart(px.bar(x=dist.index, y=dist.values, labels={'x': 'Class', 'y': 'Count'}, height=200, template="plotly_white"), use_container_width=True)
         st.markdown("---")
-        c1, c2 = st.columns([2, 1])
-        with c1:
-            st.write("### Mean Spectral Signature")
-            avg_fig = go.Figure()
-            for idx, name in enumerate(class_names):
-                mask = (y_all == idx)
-                if np.any(mask):
-                    m, s = X_all[mask].mean(axis=0), X_all[mask].std(axis=0)
-                    avg_fig.add_trace(go.Scatter(x=mz_axis, y=m, name=name, mode='lines'))
-                    avg_fig.add_trace(go.Scatter(x=np.concatenate([mz_axis, mz_axis[::-1]]), y=np.concatenate([m+s, (m-s)[::-1]]), fill='toself', fillcolor='rgba(0,100,80,0.1)', line=dict(color='rgba(255,255,255,0)'), hoverinfo="skip", showlegend=False))
-            avg_fig.update_layout(template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity")
-            st.plotly_chart(avg_fig, use_container_width=True)
-        with c2:
-            st.write("### Interactive Viewer")
-            all_classes = sorted(df_filtered[label_col].unique().tolist())
-            sel_classes = st.multiselect("Filter Classes", all_classes, default=all_classes[:min(2, len(all_classes))])
-            n_view = st.slider("Samples", 1, 20, 5)
-            v_df = df_filtered[df_filtered[label_col].isin(sel_classes)] if sel_classes else df_filtered
-            if not v_df.empty:
-                s_df = v_df.sample(min(n_view, len(v_df))); num_cols = s_df.select_dtypes(include=[np.number]).columns.tolist()
-                melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
-                st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white"), use_container_width=True)
+        st.write("### Mean Spectral Signature (Full Panel)")
+        avg_fig = go.Figure()
+        for idx, name in enumerate(class_names):
+            mask = (y_all == idx)
+            if np.any(mask):
+                m, s = X_all[mask].mean(axis=0), X_all[mask].std(axis=0)
+                avg_fig.add_trace(go.Scatter(x=mz_axis, y=m, name=name, mode='lines'))
+                avg_fig.add_trace(go.Scatter(x=np.concatenate([mz_axis, mz_axis[::-1]]), y=np.concatenate([m+s, (m-s)[::-1]]), fill='toself', fillcolor='rgba(0,100,80,0.1)', line=dict(color='rgba(255,255,255,0)'), hoverinfo="skip", showlegend=False))
+        avg_fig.update_layout(template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity", height=500)
+        st.plotly_chart(avg_fig, use_container_width=True)
         st.markdown("---")
-        st.write("### Cluster Analysis")
+        st.write("### Interactive Spectrum Viewer (Full Panel)")
+        all_classes = sorted(df_filtered[label_col].unique().tolist())
+        c_sel, n_sel = st.columns([3, 1])
+        sel_classes = c_sel.multiselect("Filter Classes", all_classes, default=all_classes[:min(2, len(all_classes))])
+        n_view = n_sel.slider("Samples to overlay", 1, 50, 10)
+        v_df = df_filtered[df_filtered[label_col].isin(sel_classes)] if sel_classes else df_filtered
+        if not v_df.empty:
+            s_df = v_df.sample(min(n_view, len(v_df))); num_cols = s_df.select_dtypes(include=[np.number]).columns.tolist()
+            melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
+            st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white", height=500), use_container_width=True)
+        st.markdown("---")
+        st.write("### Cluster Analysis & Statistical Distribution")
         col_pca, col_tsne, col_umap = st.columns(3)
         pca_obj = PCA(n_components=10); X_pca = pca_obj.fit_transform(X_all)
         with col_pca: st.plotly_chart(px.scatter(pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(10)]), x="PC1", y="PC2", color=[class_names[i] for i in y_all], title="PCA", template="plotly_white"), use_container_width=True)
@@ -169,13 +178,11 @@ if data_path.exists():
                 with st.spinner("UMAP..."): X_umap = umap.UMAP().fit_transform(X_all)
                 st.plotly_chart(px.scatter(pd.DataFrame(X_umap, columns=["UMAP1", "UMAP2"]), x="UMAP1", y="UMAP2", color=[class_names[i] for i in y_all], title="UMAP", template="plotly_white"), use_container_width=True)
             else: st.info("UMAP not installed")
-        st.markdown("---")
-        st.write("### Statistical Insight")
         dcol1, dcol2 = st.columns(2)
-        with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="Information Retention", template="plotly_white"), use_container_width=True)
+        with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="PCA Information Retention", template="plotly_white"), use_container_width=True)
         with dcol2:
             avg_int = pd.DataFrame({"Avg Int": X_all.mean(axis=1), "Class": [class_names[i] for i in y_all]})
-            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Intensity Distribution", template="plotly_white"), use_container_width=True)
+            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Sample Intensity Distribution", template="plotly_white"), use_container_width=True)
 
     with tab2:
         if train_button:
@@ -294,7 +301,9 @@ if data_path.exists():
                     with st.spinner("Tunnelling through entry and crawling metrics..."):
                         df_summary = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
         if not df_summary.empty:
-            st.dataframe(df_summary[["Dataset", "Method", "Train", "Test", "Sig Te"]].sort_values(["Dataset", "Test"], ascending=[True, False]).style.background_gradient(subset=["Test"], cmap="Greens"), use_container_width=True)
+            preferred_cols = ["Dataset", "Method", "Train", "Test", "Sig Te", "Baseline"]
+            actual_cols = [c for c in preferred_cols if c in df_summary.columns]
+            st.dataframe(df_summary[actual_cols].sort_values(["Dataset", "Test"], ascending=[True, False]).style.background_gradient(subset=["Test"] if "Test" in df_summary.columns else [], cmap="Greens"), use_container_width=True)
             for ds in df_summary["Dataset"].unique():
                 st.plotly_chart(px.bar(df_summary[df_summary["Dataset"]==ds], x="Method", y="Test", error_y="Test Std", title=f"Leaderboard: {ds.upper()}", color="Method", template="plotly_white"), use_container_width=True)
         else: st.info("No experiment results found yet.")

@@ -69,7 +69,9 @@ class SklearnTrainer:
                 if self.ctx.wandb_run: self.ctx.log_prediction_table(X_test, y_pred.astype(int), y_test.astype(int), (y_probs if y_probs is not None else np.eye(self.num_classes)[y_pred.astype(int)]), data_module.get_class_names())
         stats = {k: float(np.mean([m[k] for m in all_fold_metrics])) for k in all_fold_metrics[0].keys()}
         if hasattr(last_model, "best_individual"):
-            stats["feature_weights"] = last_model.best_individual.tolist()
+            weights = last_model.best_individual
+            if hasattr(weights, "tolist"): stats["feature_weights"] = weights.tolist()
+            else: stats["feature_weights"] = list(weights)
         
         stats["predictions"] = last_fold_info; stats["total_training_time_s"] = time.time() - start_time
         self.ctx.save_results({"stats": stats}); return last_model, stats

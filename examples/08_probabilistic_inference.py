@@ -9,6 +9,7 @@ to get not just predictions, but also uncertainty estimates.
 from fishy._core.config import TrainingConfig
 from fishy.experiments.classic_training import run_sklearn_experiment
 from fishy.data.module import create_data_module
+from sklearn.model_selection import train_test_split
 from pathlib import Path
 import numpy as np
 
@@ -40,19 +41,22 @@ def main():
     dm.setup()
     X, y = dm.get_numpy_data(labels_as_indices=True)
 
-    # Instantiate the GP class
-    from fishy.models.probabilistic.gp import GaussianProcess
+    # SHUFFLE to ensure we get both classes in a small subset
+    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=50, stratify=y, random_state=42)
 
-    model = GaussianProcess(kernel_type="matern")
+    # Instantiate the GP class (Scikit-learn wrapper)
+    from fishy.models.probabilistic.gp import GP
 
-    # Fit on a subset
-    model.fit(X[:20], y[:20])
+    model = GP()
+
+    # Fit on the shuffled subset
+    model.fit(X_train, y_train)
 
     # Get uncertainty (1.0 - max_prob)
-    uncertainty = model.get_uncertainty(X[20:25])
-    preds = model.predict(X[20:25])
+    uncertainty = model.get_uncertainty(X_test[:5])
+    preds = model.predict(X_test[:5])
 
-    print("\nPredictions with Uncertainty:")
+    print("\nPredictions with Uncertainty (Test Subset):")
     for i, (p, u) in enumerate(zip(preds, uncertainty)):
         print(f"  Sample {i}: Pred={p}, Uncertainty={u:.4f}")
 
