@@ -1,4 +1,4 @@
-fishy.models.deep.MOE
+﻿fishy.models.deep.MOE
 =====================
 
 .. currentmodule:: fishy.models.deep
@@ -7,28 +7,16 @@ fishy.models.deep.MOE
 .. automodule:: fishy.models.deep.MOE
 
    
-   .. rubric:: Classes
+   .. rubric:: Module Attributes
 
    
-   .. autoclass:: ExpertLayer
-      :members:
-      :show-inheritance:
+   .. autoattribute:: T_destination
    
-   .. autoclass:: MOE
-      :members:
-      :show-inheritance:
+   .. autoattribute:: call_super_init
    
-   .. autoclass:: MixtureOfExperts
-      :members:
-      :show-inheritance:
+   .. autoattribute:: dump_patches
    
-   .. autoclass:: MultiHeadAttention
-      :members:
-      :show-inheritance:
-   
-   .. autoclass:: Transformer
-      :members:
-      :show-inheritance:
+   .. autoattribute:: training
    
    
    

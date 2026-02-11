@@ -163,10 +163,11 @@ def train_model(
     Orchestrates the training process for a Deep Learning model.
 
     Supports two modes:
-    1.  **Single Run**: If `val_loader` is provided, trains the model once on `train_loader`
-        and evaluates on `val_loader`.
-    2.  **Cross-Validation**: If `val_loader` is None, performs `n_splits`-fold Stratified
-        Cross-Validation, repeated `n_runs` times.
+
+    1. **Single Run**: If `val_loader` is provided, trains the model once on `train_loader`
+       and evaluates on `val_loader`.
+    2. **Cross-Validation**: If `val_loader` is None, performs `n_splits`-fold Stratified
+       Cross-Validation, repeated `n_runs` times.
 
     Args:
         model (nn.Module): The PyTorch model to train.
