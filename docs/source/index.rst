@@ -57,6 +57,7 @@ Key Features
    installation
    wizard
    dashboard
+   tutorials
    examples
 
 .. toctree::

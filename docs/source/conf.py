@@ -65,6 +65,7 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.linkcode",
     "sphinx_copybutton",
+    "nbsphinx",
 ]
 
 # sphinx-copybutton configuration

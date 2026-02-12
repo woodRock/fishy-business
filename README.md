@@ -97,7 +97,16 @@ The library is designed to be extended without modifying core logic:
 
 ## Programmatic Usage
 
-For advanced usage in Python scripts, see the `examples/` directory for a step-by-step tutorial series:
+For advanced usage in Python scripts, you can explore our tutorials in two ways:
+
+### 📓 Interactive Tutorials (Recommended)
+We provide Jupyter notebooks in the `notebooks/` directory for an interactive experience:
+- **[01_Getting Started](notebooks/01_getting_started.ipynb)**: A quick dive into the high-level API.
+
+These are also rendered beautifully in our [online documentation](https://fishy-business.readthedocs.io/en/latest/tutorials.html).
+
+### 🐍 Python Examples
+A step-by-step tutorial series is available in the `examples/` directory:
 - `01_getting_started.py`: The simplest way to run a training experiment.
 - `02_data_module.py`: Loading, filtering, and inspecting datasets.
 - ... and 7 more tutorials covering pre-training, transfer learning, and more.
