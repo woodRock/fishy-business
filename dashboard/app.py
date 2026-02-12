@@ -63,13 +63,11 @@ def crawl_local_results(base_path="outputs"):
     for m_path in p.glob("**/results/metrics.json"):
         parts = m_path.parts
         if len(parts) >= 5:
-            dataset = parts[1]; model = parts[3].split('_')[0]
-            key = f"{dataset}|||{model}"
+            dataset = parts[1]; model = parts[3].split('_')[0]; key = f"{dataset}|||{model}"
             if key not in results_map: results_map[key] = []
             try:
                 with open(m_path, 'r') as f: results_map[key].append(json.load(f))
-            except Exception as e:
-                logger.warning(f"Skipping malformed results file {m_path}: {e}")
+            except Exception as e: logger.warning(f"Malformed local JSON {m_path}: {e}")
     return summarize_results(results_map) if results_map else pd.DataFrame()
 
 def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_user=None, otp=None):
@@ -103,8 +101,7 @@ def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_u
                 if key not in results_map: results_map[key] = []
                 try:
                     with sftp.open(p, 'r') as f: results_map[key].append(json.load(f))
-                except Exception as e:
-                    logger.warning(f"Skipping malformed remote results file {p}: {e}")
+                except Exception as e: logger.warning(f"Malformed remote JSON {p}: {e}")
         ssh_target.close()
         if jump_host: transport.close()
     except Exception as e: st.error(f"Network Error: {e}")
@@ -166,7 +163,6 @@ if data_path.exists():
             melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
             st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white", height=500), use_container_width=True)
         st.markdown("---")
-        st.write("### Cluster Analysis & Statistical Distribution")
         col_pca, col_tsne, col_umap = st.columns(3)
         pca_obj = PCA(n_components=10); X_pca = pca_obj.fit_transform(X_all)
         with col_pca: st.plotly_chart(px.scatter(pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(10)]), x="PC1", y="PC2", color=[class_names[i] for i in y_all], title="PCA", template="plotly_white"), use_container_width=True)
@@ -182,7 +178,7 @@ if data_path.exists():
         with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="PCA Information Retention", template="plotly_white"), use_container_width=True)
         with dcol2:
             avg_int = pd.DataFrame({"Avg Int": X_all.mean(axis=1), "Class": [class_names[i] for i in y_all]})
-            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Sample Intensity Distribution", template="plotly_white"), use_container_width=True)
+            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Intensity Distribution", template="plotly_white"), use_container_width=True)
 
     with tab2:
         if train_button:
@@ -280,9 +276,13 @@ if data_path.exists():
     with tab4:
         st.header("🏆 VUW ECS Leaderboard (Proxy Jump)")
         src = st.radio("Leaderboard Data Source", ["Local (outputs/)", "Remote (SSH Proxy Jump)"], horizontal=True)
-        df_summary = pd.DataFrame()
+        
+        # PERSISTENCE: Check session state
+        if 'leaderboard_df' not in st.session_state: st.session_state['leaderboard_df'] = pd.DataFrame()
+        
         if src == "Local (outputs/)":
-            with st.spinner("Crawling local metrics..."): df_summary = crawl_local_results()
+            if st.button("🔄 Refresh Local Leaderboard"):
+                with st.spinner("Crawling local metrics..."): st.session_state['leaderboard_df'] = crawl_local_results()
         else:
             if not paramiko: st.error("paramiko not installed")
             else:
@@ -290,7 +290,7 @@ if data_path.exists():
                     c1, c2, c_otp = st.columns([2, 2, 2])
                     jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
                     ju = c2.text_input("ECS Username")
-                    otp = c_otp.text_input("OTP Token (Google Authenticator)", type="password", help="Enter your current 6-digit verification code")
+                    otp = c_otp.text_input("OTP Token (Google Authenticator)", type="password", help="6-digit code")
                 with st.expander("🎯 Target Server Configuration", expanded=True):
                     c3, c4, c5 = st.columns([2, 1, 2])
                     th = c3.text_input("Target Host (e.g. greta-pt)")
@@ -298,13 +298,22 @@ if data_path.exists():
                     pwd = c5.text_input("ECS Password", type="password")
                     rp = st.text_input("Remote Path to /outputs", "/home/ecs/username/fishy-business/outputs")
                 if st.button("🚀 Connect & Aggregate Remote"):
-                    with st.spinner("Tunnelling through entry and crawling metrics..."):
-                        df_summary = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
+                    with st.spinner("Connecting and crawling (timeout 60s)..."):
+                        st.session_state['leaderboard_df'] = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
+        
+        df_summary = st.session_state['leaderboard_df']
         if not df_summary.empty:
             preferred_cols = ["Dataset", "Method", "Train", "Test", "Sig Te", "Baseline"]
             actual_cols = [c for c in preferred_cols if c in df_summary.columns]
             st.dataframe(df_summary[actual_cols].sort_values(["Dataset", "Test"], ascending=[True, False]).style.background_gradient(subset=["Test"] if "Test" in df_summary.columns else [], cmap="Greens"), use_container_width=True)
+            
+            # Action: Save Snapshot
+            if st.button("💾 Save Leaderboard Snapshot Locally"):
+                os.makedirs("outputs/all", exist_ok=True)
+                df_summary.to_csv("outputs/all/leaderboard_snapshot.csv", index=False)
+                st.success("Snapshot saved to outputs/all/leaderboard_snapshot.csv")
+                
             for ds in df_summary["Dataset"].unique():
                 st.plotly_chart(px.bar(df_summary[df_summary["Dataset"]==ds], x="Method", y="Test", error_y="Test Std", title=f"Leaderboard: {ds.upper()}", color="Method", template="plotly_white"), use_container_width=True)
-        else: st.info("No experiment results found yet.")
+        else: st.info("No leaderboard data loaded. Click 'Refresh' or 'Connect' above.")
 else: st.warning("Data file not found.")

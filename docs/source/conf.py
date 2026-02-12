@@ -59,9 +59,14 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosectionlabel",  # referencess - source https://sublime-and-sphinx-guide.readthedocs.io/en/latest/references.html
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.linkcode",
+    "sphinx_copybutton",
 ]
+
+# sphinx-copybutton configuration
+copybutton_prompt_text = r">>> |\$ |node "
+copybutton_prompt_is_regexp = True
 
 import inspect
 import fishy
