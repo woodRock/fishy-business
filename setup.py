@@ -15,7 +15,7 @@ setup(
     packages=find_packages(exclude=["tests*", "dashboard*"]),
     include_package_data=True,
     package_data={
-        "fishy": ["configs/*.yaml", "configs/experiments/*.yaml"],
+        "fishy": ["configs/*.yaml", "configs/experiments/*.yaml", "data/assets/*.xlsx"],
     },
     install_requires=requirements,
     extras_require={

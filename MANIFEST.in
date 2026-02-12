@@ -1,4 +1,4 @@
 recursive-include fishy/configs *.yaml
-recursive-include data *.xlsx
+recursive-include fishy/data/assets *.xlsx
 include requirements.txt
 include README.md

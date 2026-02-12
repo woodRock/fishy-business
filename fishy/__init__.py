@@ -28,6 +28,29 @@ from ._core.factory import create_model
 from .experiments.unified_trainer import run_unified_training
 from .cli.main import display_final_summary
 
+
+def get_data_path(filename: str = "REIMS.xlsx") -> str:
+    \"\"\"Returns the absolute path to a data asset within the package.\"\"\"
+    import importlib.resources as pkg_resources
+    from . import data as data_pkg
+    
+    # Create the assets submodule if it doesn't exist to satisfy the API
+    # though pkg_resources can usually handle the directory directly.
+    try:
+        with pkg_resources.path("fishy.data.assets", filename) as p:
+            return str(p)
+    except (ImportError, FileNotFoundError):
+        # Fallback for local development if not installed
+        local_p = (
+            os.path.dirname(__file__) + f"/data/assets/{filename}"
+        )
+        if os.path.exists(local_p):
+            return os.path.abspath(local_p)
+        
+        # Extreme fallback
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", filename))
+
+
 __all__ = [
     "Trainer",
     "DeepEngine",
@@ -37,4 +60,5 @@ __all__ = [
     "create_model",
     "run_unified_training",
     "display_final_summary",
+    "get_data_path",
 ]
