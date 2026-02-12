@@ -103,7 +103,13 @@ class ModelTrainer:
                 if vals: stats[k] = float(np.mean(vals))
             # Include specific data for visualization from the last fold
             stats["predictions"] = all_fold_metrics[-1].get("predictions")
-            stats["epoch_metrics"] = all_fold_metrics[-1].get("epoch_metrics")
+            # Find any non-None epoch metrics in the folds
+            for m in reversed(all_fold_metrics):
+                if m.get("epoch_metrics"):
+                    stats["epoch_metrics"] = m["epoch_metrics"]
+                    break
+            else:
+                stats["epoch_metrics"] = None
         
         self.ctx.save_results({"stats": stats, "folds": all_fold_metrics}, filename=f"aggregated_stats_{self.config.dataset}.json")
         return last_model, stats

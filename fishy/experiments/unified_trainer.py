@@ -186,7 +186,7 @@ class UnifiedTrainer:
         )
 
     def _generate_figures(self, config, ctx, results):
-        if "epoch_metrics" in results:
+        if "epoch_metrics" in results and results["epoch_metrics"] is not None:
             m = results["epoch_metrics"]
             plt.figure(figsize=(10, 4))
             plt.subplot(1, 2, 1)
