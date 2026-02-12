@@ -161,6 +161,8 @@ class UnifiedTrainer:
         trainer = ModelTrainer(config, wandb_run=wandb_run, ctx=ctx)
         pre_trained_model = trainer.pre_train()
         model, stats = trainer.train(pre_trained_model)
+        stats["model"] = model
+        stats["data_module"] = trainer.data_module
         return stats
 
     def _dispatch_sklearn(self, config, wandb_run, ctx):
@@ -169,6 +171,8 @@ class UnifiedTrainer:
         # Standardized return
         trainer = SklearnTrainer(config, config.model, config.dataset, config.run, config.file_path, wandb_run=wandb_run, ctx=ctx)
         model, stats = trainer.run()
+        stats["model"] = model
+        stats["data_module"] = trainer.data_module
         return stats
 
     def _dispatch_contrastive(self, config, wandb_run, ctx):
