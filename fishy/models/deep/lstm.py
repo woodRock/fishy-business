@@ -1,101 +1,72 @@
-"""LSTM model for time series classification.
-
-This module implements a Long Short-Term Memory (LSTM) network for time series classification tasks.
-It includes LSTM layers, dropout for regularization, and a fully connected layer for output.
-The architecture is designed to handle sequential data, such as time series or other ordered data.
-
-
-References:
-
-1. Hochreiter, S., & Schmidhuber, J. (1997).
-    Long short-term memory.
-    Neural computation, 9(8), 1735-1780.
-2. Srivastava, N., Hinton, G., Krizhevsky, A.,
-    Sutskever, I., & Salakhutdinov, R. (2014).
-    Dropout: a simple way to prevent neural networks from overfitting.
-    The journal of machine learning research, 15(1), 1929-1958.
-3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-    I., & Salakhutdinov, R. R. (2012).
-    Improving neural networks by preventing co-adaptation of feature detectors.
-    arXiv preprint arXiv:1207.0580.
-4. Loshchilov, I., & Hutter, F. (2017).
-    Decoupled weight decay regularization.
-    arXiv preprint arXiv:1711.05101.
-5. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-    Rethinking the inception architecture for computer vision.
-    In Proceedings of the IEEE conference on computer vision
-    and pattern recognition (pp. 2818-2826).
+# -*- coding: utf-8 -*-
+"""
+Long Short-Term Memory (LSTM) model for spectral classification.
 """
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class LSTM(nn.Module):
-    """Long-short term memory (LSTM) module for time series classification."""
+    """
+    LSTM-based model for spectral data classification.
+
+    Attributes:
+        input_dim (int): Number of input features.
+        output_dim (int): Number of output classes.
+        hidden_dim (int): Hidden layer dimension.
+        num_layers (int): Number of LSTM layers.
+        dropout (float): Dropout probability.
+    """
 
     def __init__(
         self,
-        input_dim: int = 1023,
+        input_dim: int,
+        output_dim: int,
         hidden_dim: int = 128,
-        num_layers: int = 2,
-        output_dim: int = 2,
+        num_layers: int = 4,
         dropout: float = 0.2,
+        **kwargs
     ) -> None:
-        """Long-short term memory (LSTM) module
+        """
+        Initializes the LSTM model.
 
         Args:
-            input_dim (int): the size of the input. Defaults to 1023.
-            hidden_dim (int): the dimensions of the hidden layer. Defaults to 128.
-            num_layers (int): the number of hidden layers. Defaults to 2.
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes.
+            hidden_dim (int, optional): Hidden layer dimension. Defaults to 128.
+            num_layers (int, optional): Number of LSTM layers. Defaults to 4.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(LSTM, self).__init__()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
         self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
 
-        # LSTM layer (Hochreiter 1997)
         self.lstm = nn.LSTM(
-            input_size=input_dim,
+            input_size=1,
             hidden_size=hidden_dim,
             num_layers=num_layers,
+            dropout=dropout if num_layers > 1 else 0,
             batch_first=True,
         )
-        # Dropout layer (Srivastava 2014, Hinton 2012)
-        self.dropout = nn.Dropout(p=dropout)
-
-        # Fully connected layer
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.fc_out = nn.Linear(hidden_dim, output_dim)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass of the LSTM.
+        Forward pass of the LSTM model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_dim).
+            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_dim).
+            torch.Tensor: Output logits of shape (batch_size, output_dim).
         """
-        # x shape: (batch_size, sequence_length, input_dim)
-        # Initialize hidden state with zeros
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
-
-        # Initialize cell state
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
-
-        # We need to unsqueeze the input to add a sequence dimension
         if x.dim() == 2:
-            x = x.unsqueeze(1)
-
-        # Forward propagate LSTM
-        out, _ = self.lstm(
-            x, (h0, c0)
-        )  # out: tensor of shape (batch_size, seq_length, hidden_dim)
-
-        # Dropout layer (Srivastava 2014, Hinton 2012)
+            x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
+        
+        out, _ = self.lstm(x)
+        out = out[:, -1, :]  # Take the last time step
         out = self.dropout(out)
-
-        # Decode the hidden state of the last time step
-        out = self.fc(out[:, -1, :])
-        return out
+        return self.fc_out(out)

@@ -1,279 +1,217 @@
-"""Mamba model implementation.
-
-This module implements the Mamba model, a linear-time sequence modeling architecture
-with selective state spaces, as described in the paper by Gu and Dao (2023).
-It includes the Mamba block and the overall Mamba model class.
-
-
-References:
-
-1. Gu, A., & Dao, T. (2023).
-    Mamba: Linear-time sequence modeling with selective state spaces.
-    arXiv preprint arXiv:2312.00752.
-2. Srivastava, N., Hinton, G., Krizhevsky, A.,
-    Sutskever, I., & Salakhutdinov, R. (2014).
-    Dropout: a simple way to prevent neural networks from overfitting.
-    The journal of machine learning research, 15(1), 1929-1958.
-3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-    I., & Salakhutdinov, R. R. (2012).
-    Improving neural networks by preventing co-adaptation of feature detectors.
-    arXiv preprint arXiv:1207.0580.
-4. He, K., Zhang, X., Ren, S., & Sun, J. (2016).
-    Deep residual learning for image recognition.
-    In Proceedings of the IEEE conference on computer
-    vision and pattern recognition (pp. 770-778).
-5. Ba, J. L., Kiros, J. R., & Hinton, G. E. (2016).
-    Layer normalization.
-    arXiv preprint arXiv:1607.06450.
-6. LeCun, Y. (1989).
-    Generalization and network design strategies.
-    Connectionism in perspective, 19(143-155), 18.
-7. LeCun, Y., Boser, B., Denker, J., Henderson, D., Howard,
-    R., Hubbard, W., & Jackel, L. (1989).
-    Handwritten digit recognition with a back-propagation network.
-    Advances in neural information processing systems, 2.
-8. LeCun, Y., Boser, B., Denker, J. S., Henderson, D., Howard, R. E.,
-    Hubbard, W., & Jackel, L. D. (1989).
-    Backpropagation applied to handwritten zip code recognition.
-    Neural computation, 1(4), 541-551.
-9. Hendrycks, D., & Gimpel, K. (2016).
-    Gaussian error linear units (gelus).
-    arXiv preprint arXiv:1606.08415.
-10. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-    Rethinking the inception architecture for computer vision.
-    In Proceedings of the IEEE conference on computer vision
-    and pattern recognition (pp. 2818-2826).
+# -*- coding: utf-8 -*-
+"""
+Mamba model for spectral classification.
 """
 
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Optional, Union
 
 
 class MambaBlock(nn.Module):
+    """
+    Mamba block implementing the inner and outer functions of the Mamba model.
+    """
+
     def __init__(
         self,
         d_model: int,
-        d_state: int,
-        d_conv: int,
-        expand: int,
+        d_state: int = 16,
+        d_conv: int = 4,
+        expand: int = 2,
         dropout: float = 0.2,
         layer_norm_eps: float = 1e-5,
     ) -> None:
-        """
-        Mamba block implementing the inner and outer functions of the Mamba model.
-
-        Args:
-            d_model (int): The model dimension.
-            d_state (int): The state dimension.
-            d_conv (int): The convolution kernel size.
-            expand (int): The expansion factor.
-            dropout (float, optional): The dropout rate. Defaults to 0.2.
-            layer_norm_eps (float, optional): Epsilon for LayerNorm. Defaults to 1e-5.
-        """
-        super().__init__()
+        super(MambaBlock, self).__init__()
         self.d_model = d_model
         self.d_state = d_state
         self.d_conv = d_conv
         self.expand = expand
+        self.d_inner = int(self.expand * self.d_model)
 
-        self.in_proj = nn.Linear(d_model, expand * d_model)
-        # Convolutional layer (LeCun 1989, 1989, 1989)
-        self.conv = nn.Conv1d(
-            expand * d_model,
-            expand * d_model,
+        self.in_proj = nn.Linear(self.d_model, self.d_inner * 2, bias=False)
+        self.conv1d = nn.Conv1d(
+            in_channels=self.d_inner,
+            out_channels=self.d_inner,
+            bias=True,
             kernel_size=d_conv,
+            groups=self.d_inner,
             padding=d_conv - 1,
-            groups=expand * d_model,
         )
-        # SiLU activation (Hendrycks 2016)
-        self.activation = nn.SiLU()
-        # Dropout (Srivastava 2014, Hinton 2012)
+
+        self.x_proj = nn.Linear(
+            self.d_inner, self.d_state * 2 + self.d_inner, bias=False
+        )
+        self.dt_proj = nn.Linear(self.d_inner, self.d_inner, bias=True)
+
+        self.A_log = nn.Parameter(
+            torch.log(
+                torch.arange(1, self.d_state + 1, dtype=torch.float32)
+                .repeat(self.d_inner, 1)
+            )
+        )
+        self.D = nn.Parameter(torch.ones(self.d_inner))
+        self.out_proj = nn.Linear(self.d_inner, self.d_model, bias=False)
+        self.norm = nn.LayerNorm(self.d_model, eps=layer_norm_eps)
         self.dropout = nn.Dropout(dropout)
-        # Layer normalization (Ba 2016)
-        self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
-
-        self.x_proj = nn.Linear(expand * d_model, d_state + d_model)
-        self.dt_proj = nn.Linear(expand * d_model, d_state)
-
-        self.out_proj = nn.Linear(expand * d_model, d_model)
-        self.us_proj = nn.Linear(d_state, d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass.
-
-        Args:
-            x (torch.Tensor): Input tensor.
-
-        Returns:
-            torch.Tensor: Output tensor.
+        Forward pass of the Mamba block.
         """
-        B, L, D = x.shape
-        x = self.layer_norm(x)  # Layer normalization
+        batch, seq_len, d_model = x.shape
+        residual = x
+        x = self.norm(x)
 
-        x_in = self.in_proj(x)
-        x_conv = x_in.transpose(1, 2)
-        x_conv = self.conv(x_conv)[:, :, :L]
-        x_conv = x_conv.transpose(1, 2)
-        x_act = self.activation(x_conv)
-        x_act = self.dropout(x_act)
+        z_x = self.in_proj(x)
+        z, x = z_x.chunk(2, dim=-1)
 
-        x_and_ds = self.x_proj(x_act)
-        dt = self.dt_proj(x_act)
-        x, ds = x_and_ds.split([self.d_model, self.d_state], dim=-1)
-        dt = F.softplus(dt)
+        x = x.transpose(1, 2)
+        x = self.conv1d(x)[:, :, :seq_len]
+        x = x.transpose(1, 2)
 
-        us = torch.zeros(B, L, self.d_state, device=x.device)
-        for i in range(L):
-            us[:, i] = us[:, i - 1] if i > 0 else us[:, i]
-            us = us * torch.exp(-dt) + ds * torch.exp(-dt / 2)
+        x = F.silu(x)
 
-        us_projected = self.us_proj(us)
+        x_dbl = self.x_proj(x)
+        delta, B, C = x_dbl.split(
+            [self.d_inner, self.d_state, self.d_state], dim=-1
+        )
+        delta = F.softplus(self.dt_proj(delta))
 
-        x = x + us_projected
-        x = self.dropout(x)
+        # Simplified Selective Scan (In practice, this is implemented using a fused CUDA kernel)
+        # Here we use a basic loop or associative scan for CPU/Generic GPU support
+        y = self.selective_scan(x, delta, B, C)
 
-        x = self.out_proj(torch.cat([x, x_act[:, :, self.d_model :]], dim=-1))
-        x = self.dropout(x)
+        y = y * F.silu(z)
+        out = self.out_proj(y)
+        out = self.dropout(out)
+        return out + residual
 
-        return x
+    def selective_scan(self, x, delta, B, C):
+        """
+        A placeholder for the selective scan operation.
+        """
+        # This is a highly simplified version for demonstration
+        A = -torch.exp(self.A_log)
+        delta_A = torch.exp(delta.unsqueeze(-1) * A)
+        delta_B_x = delta.unsqueeze(-1) * B.unsqueeze(-2) * x.unsqueeze(-1)
+
+        # Simplified recurrence
+        batch, seq_len, d_inner, d_state = delta_B_x.shape
+        h = torch.zeros(batch, d_inner, d_state, device=x.device)
+        ys = []
+        for i in range(seq_len):
+            h = delta_A[:, i] * h + delta_B_x[:, i]
+            y = torch.einsum("bdn,bn->bd", h, C[:, i])
+            ys.append(y)
+        y = torch.stack(ys, dim=1)
+        return y + x * self.D
 
 
 class Mamba(nn.Module):
     """
-    Mamba sequence modeling architecture.
-
-    Args:
-        input_dim (int): Input feature dimension.
-        output_dim (int): Output class dimension.
-        d_model (int): Model dimension.
-        d_state (int): State dimension.
-        d_conv (int): Conv kernel size.
-        expand (int): Expansion factor.
-        depth (int): Number of Mamba blocks.
-        dropout (float, optional): Dropout rate. Defaults to 0.2.
-        layer_norm_eps (float, optional): Epsilon for LayerNorm. Defaults to 1e-5.
-        spectral_norm (bool, optional): Whether to use spectral normalization (unused placeholder). Defaults to True.
+    Mamba-based model for spectral data classification.
     """
 
     def __init__(
         self,
         input_dim: int,
         output_dim: int,
-        d_model: int,
-        d_state: int,
-        d_conv: int,
-        expand: int,
-        depth: int,
+        hidden_dim: int = 128,
+        num_layers: int = 4,
         dropout: float = 0.2,
-        layer_norm_eps: float = 1e-5,
-        spectral_norm: bool = True,
-    ):
-        super().__init__()
-        self.embedding_layer = nn.Linear(input_dim, d_model)
+        d_state: int = 16,
+        d_conv: int = 4,
+        expand: int = 2,
+        **kwargs
+    ) -> None:
+        """
+        Initializes the Mamba model.
+
+        Args:
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes.
+            hidden_dim (int, optional): Hidden layer dimension. Defaults to 128.
+            num_layers (int, optional): Number of Mamba layers. Defaults to 4.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
+            d_state (int, optional): State dimension. Defaults to 16.
+            d_conv (int, optional): Convolution kernel size. Defaults to 4.
+            expand (int, optional): Expansion factor. Defaults to 2.
+        """
+        super(Mamba, self).__init__()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.hidden_dim = hidden_dim
+
+        self.embedding = nn.Linear(1, hidden_dim)
         self.layers = nn.ModuleList(
             [
-                MambaBlock(d_model, d_state, d_conv, expand, dropout, layer_norm_eps)
-                for _ in range(depth)
+                MambaBlock(
+                    d_model=hidden_dim,
+                    d_state=d_state,
+                    d_conv=d_conv,
+                    expand=expand,
+                    dropout=dropout,
+                )
+                for _ in range(num_layers)
             ]
         )
-        self.dropout = nn.Dropout(dropout)
-        self.layer_norm = nn.LayerNorm(d_model, eps=layer_norm_eps)
-        self.fc = nn.Linear(d_model, output_dim)  # Final classification layer
+        self.norm_f = nn.LayerNorm(hidden_dim)
+        self.fc_out = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (B, D).
-
-        Returns:
-            torch.Tensor: Output logits of shape (B, output_dim).
+        Forward pass of the Mamba model.
         """
-        x = self.embedding_layer(x)
-        # Mamba expects a sequence, but our input is a single vector.
-        # We can treat it as a sequence of length 1, but some implementations
-        # expect a longer sequence. Repeating the input is a simple way to handle this.
         if x.dim() == 2:
-            x = x.unsqueeze(1).repeat(1, 100, 1)  # B, L, D
-
+            x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
+        
+        x = self.embedding(x)
         for layer in self.layers:
-            residual = x
             x = layer(x)
-            x = x + residual
-            x = self.dropout(x)
-
-        x = self.layer_norm(x)
-        x = x[:, 0, :]  # Take the output of the first token
-        x = self.fc(x)  # Project to output dimension
-        return x
+        
+        x = self.norm_f(x)
+        x = x.mean(dim=1)  # Global average pooling
+        return self.fc_out(x)
 
 
 class SiameseMamba(nn.Module):
     """
-    A Siamese network using Mamba as the backbone.
-
-    This class adapts the Mamba architecture for instance recognition tasks
-    by processing pairs of inputs and computing a distance metric.
-
-    Args:
-        input_dim (int): Input feature dimension.
-        output_dim (int): Output dimension (typically 1 for distance).
-        hidden_dim (int): Hidden dimension for the Mamba backbone.
-        num_layers (int): Number of Mamba layers.
+    Siamese Mamba architecture for instance recognition.
     """
 
     def __init__(
-        self, input_dim: int, output_dim: int, hidden_dim: int, num_layers: int
+        self,
+        input_dim: int,
+        output_dim: int,
+        hidden_dim: int = 128,
+        num_layers: int = 4,
+        dropout: float = 0.2,
+        **kwargs
     ) -> None:
         super(SiameseMamba, self).__init__()
-        # Instantiate the backbone
         self.mamba = Mamba(
             input_dim=input_dim,
-            output_dim=hidden_dim,  # Internal projection, not final class
-            d_model=hidden_dim,
-            d_state=16,  # Default
-            d_conv=4,  # Default
-            expand=2,  # Default
-            depth=num_layers,
+            output_dim=hidden_dim,
+            hidden_dim=hidden_dim,
+            num_layers=num_layers,
+            dropout=dropout,
+            **kwargs
         )
-        self.fc = nn.Linear(1, 1)
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, output_dim),
+        )
 
-    def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the SiameseMamba.
+    def forward_one(self, x: torch.Tensor) -> torch.Tensor:
+        return self.mamba(x)
 
-        Args:
-            x1 (torch.Tensor): The first input tensor.
-            x2 (torch.Tensor): The second input tensor.
-
-        Returns:
-            torch.Tensor: The distance score between inputs.
-        """
-        # Pass through embedding layer
-        x1_embed = self.mamba.embedding_layer(x1)
-        x2_embed = self.mamba.embedding_layer(x2)
-
-        # Apply Mamba blocks to x1
-        x1_processed = x1_embed.unsqueeze(1).repeat(1, 100, 1)
-        for layer in self.mamba.layers:
-            residual = x1_processed
-            x1_processed = layer(x1_processed)
-            x1_processed = x1_processed + residual
-            x1_processed = self.mamba.dropout(x1_processed)
-        x1_features = self.mamba.layer_norm(x1_processed)[:, 0, :]
-
-        # Apply Mamba blocks to x2
-        x2_processed = x2_embed.unsqueeze(1).repeat(1, 100, 1)
-        for layer in self.mamba.layers:
-            residual = x2_processed
-            x2_processed = layer(x2_processed)
-            x2_processed = x2_processed + residual
-            x2_processed = self.mamba.dropout(x2_processed)
-        x2_features = self.mamba.layer_norm(x2_processed)[:, 0, :]
-
-        distance = F.pairwise_distance(x1_features, x2_features)
-        output = self.fc(distance.unsqueeze(-1))
-        return output
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> Union[torch.Tensor, tuple]:
+        out1 = self.forward_one(x1)
+        out2 = self.forward_one(x2)
+        combined = torch.cat((out1, out2), dim=1)
+        return self.classifier(combined)

@@ -27,6 +27,7 @@ dependencies = [
     "wandb",
     "pyyaml",
     "pytest",
+    "pytest-cov",
     "pyopls",
     "argcomplete",
     "rich",

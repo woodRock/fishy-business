@@ -1,49 +1,47 @@
 # -*- coding: utf-8 -*-
 """
-Benchmarking utility for measuring model performance.
+Benchmarking utilities for model performance evaluation.
 """
 
 import time
 import torch
 import numpy as np
-from typing import Dict, Any, Optional
-from pathlib import Path
-import json
 import logging
-
-from fishy._core.utils import NumpyEncoder
+from typing import Dict, Any, Optional, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
 
 def measure_model_size(model: torch.nn.Module) -> float:
-    """
-    Returns model size in MB.
-
-    Examples:
-        >>> import torch.nn as nn
-        >>> model = nn.Linear(10, 10)
-        >>> size = measure_model_size(model)
-        >>> size > 0
-        True
-    """
+    """Calculates the model size in Megabytes."""
     param_size = 0
     for param in model.parameters():
         param_size += param.nelement() * param.element_size()
     buffer_size = 0
     for buffer in model.buffers():
         buffer_size += buffer.nelement() * buffer.element_size()
+
     size_all_mb = (param_size + buffer_size) / 1024**2
     return size_all_mb
+
+
+def get_peak_vram() -> float:
+    """Gets peak VRAM usage in MB (if CUDA is available)."""
+    if torch.cuda.is_available():
+        return torch.cuda.max_memory_allocated() / 1024**2
+    return 0.0
 
 
 def measure_inference_performance(
     model: torch.nn.Module,
     input_size: tuple,
-    device: torch.device,
+    device: Union[torch.device, str],
     num_iterations: int = 100,
 ) -> Dict[str, float]:
     """Measures inference latency and throughput."""
+    if isinstance(device, str):
+        device = torch.device(device)
+
     model.eval()
     dummy_input = torch.randn(input_size).to(device)
 
@@ -52,36 +50,32 @@ def measure_inference_performance(
         for _ in range(10):
             _ = model(dummy_input)
 
+    latencies = []
     if device.type == "cuda":
-        torch.cuda.synchronize()
-
-    start_time = time.time()
-    with torch.no_grad():
-        for _ in range(num_iterations):
-            _ = model(dummy_input)
-            if device.type == "cuda":
+        starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(
+            enable_timing=True
+        )
+        with torch.no_grad():
+            for _ in range(num_iterations):
+                starter.record()
+                _ = model(dummy_input)
+                ender.record()
                 torch.cuda.synchronize()
-    end_time = time.time()
+                latencies.append(starter.elapsed_time(ender))
+    else:
+        with torch.no_grad():
+            for _ in range(num_iterations):
+                start = time.perf_counter()
+                _ = model(dummy_input)
+                latencies.append((time.perf_counter() - start) * 1000)
 
-    total_time = end_time - start_time
-    latency = (total_time / num_iterations) * 1000  # ms
-    throughput = (num_iterations * input_size[0]) / total_time  # samples/s
-
-    return {"latency_ms": latency, "throughput_samples_per_s": throughput}
-
-
-def get_peak_vram() -> float:
-    """
-    Returns peak VRAM usage in MB.
-
-    Examples:
-        >>> size = get_peak_vram()
-        >>> isinstance(size, float)
-        True
-    """
-    if torch.cuda.is_available():
-        return torch.cuda.max_memory_allocated() / 1024**2
-    return 0.0
+    avg_latency = np.mean(latencies)
+    throughput = (1 / (avg_latency / 1000)) if avg_latency > 0 else 0
+    return {
+        "avg_inference_latency_ms": float(avg_latency),
+        "std_inference_latency_ms": float(np.std(latencies)),
+        "throughput_samples_per_s": float(throughput),
+    }
 
 
 def run_benchmark(
@@ -112,25 +106,28 @@ def run_benchmark(
         results["model_type"] = str(type(model))
         # Simple latency test if predict exists
         try:
-            dummy_input = np.random.randn(1, input_dim)
-            start = time.time()
-            for _ in range(100):
-                _ = model.predict(dummy_input)
-            results["latency_ms"] = ((time.time() - start) / 100) * 1000
+            X_dummy = np.random.randn(1, input_dim)
+            start = time.perf_counter()
+            for _ in range(10):
+                _ = model.predict(X_dummy)
+            results["avg_inference_latency_ms"] = ((time.perf_counter() - start) / 10) * 1000
         except:
             pass
 
     if training_time:
         results["training_time_s"] = training_time
 
-    # Save to benchmark folder
-    benchmark_path = ctx.benchmark_dir / "performance.json"
-    with open(benchmark_path, "w") as f:
-        json.dump(results, f, indent=4, cls=NumpyEncoder)
+    # Save results
+    ctx.save_results(results, filename="benchmark_results.json")
 
-    logger.info(f"Benchmark results saved to {benchmark_path}")
+    # Generate Latency Distribution Plot
+    import matplotlib.pyplot as plt
 
-    if ctx.wandb_run:
-        ctx.wandb_run.log({"benchmark": results}, commit=False)
+    plt.figure(figsize=(8, 4))
+    if "avg_inference_latency_ms" in results:
+        plt.bar(["Latency (ms)"], [results["avg_inference_latency_ms"]])
+        plt.title("Inference Latency")
+        ctx.save_figure(plt, "latency_distribution.png")
+    plt.close()
 
     return results

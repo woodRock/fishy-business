@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0
+rootdir: /Users/woodj/Desktop/fishy-business
+configfile: pyproject.toml
+plugins: cov-7.0.0
+collected 65 items
+
+tests/test_analysis.py ......                                            [  9%]
+tests/test_analysis_extended.py ...                                      [ 13%]
+tests/test_cli.py ...                                                    [ 18%]
+tests/test_core.py ..........                                            [ 33%]
+tests/test_data.py .......                                               [ 44%]
+tests/test_deep_extended.py ...                                          [ 49%]
+tests/test_engine.py .....                                               [ 56%]
+tests/test_evolutionary_probabilistic.py ..                              [ 60%]
+tests/test_experiments.py ..                                             [ 63%]
+tests/test_experiments_extended.py 

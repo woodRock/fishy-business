@@ -1,42 +1,51 @@
 # -*- coding: utf-8 -*-
 """
-Contrastive learning experiments module.
+Contrastive learning experiments.
 """
 
-import logging
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import numpy as np
 from dataclasses import dataclass, asdict
-from typing import Optional, Any
-
-from fishy.data.module import create_data_module
-from fishy.data import SiameseDataset
-from fishy._core.factory import create_model, get_model_class
-from fishy._core.config import TrainingConfig
-from fishy._core.utils import RunContext, get_device, console
-from fishy._core.config_loader import load_config
+from typing import Dict, Any, Optional, List, Tuple, Union
+import logging
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 import wandb
+import numpy as np
+
+from fishy._core.config import TrainingConfig
+from fishy._core.utils import RunContext, get_device
+from fishy.data.module import create_data_module
+from fishy.data.datasets import SiameseDataset
+from fishy._core.config_loader import load_config
+from fishy._core.factory import create_model, get_model_class
+
+from fishy.models.contrastive.simclr import SimCLRModel, SimCLRLoss
+from fishy.models.contrastive.simsiam import SimSiamModel, SimSiamLoss
+from fishy.models.contrastive.moco import MoCoModel, MoCoLoss
+from fishy.models.contrastive.byol import BYOLModel, BYOLLoss
+from fishy.models.contrastive.barlow_twins import BarlowTwinsModel, BarlowTwinsLoss
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ContrastiveConfig:
-    num_runs: int = 1
-    temperature: float = 0.55
-    projection_dim: int = 256
-    embedding_dim: int = 256
-    learning_rate: float = 3e-4
-    weight_decay: float = 1e-6
-    batch_size: int = 16
-    num_epochs: int = 100
-    input_dim: int = 2080
-    encoder_type: str = "transformer"
+    """Configuration for contrastive learning."""
+
     contrastive_method: str = "simclr"
-    file_path: str = ""
-    dropout: float = 0.1
     dataset: str = "species"
+    num_epochs: int = 100
+    batch_size: int = 64
+    learning_rate: float = 3e-4
+    weight_decay: float = 1e-4
+    file_path: str = "data/REIMS.xlsx"
+    encoder_type: str = "dense"
+    embedding_dim: int = 128
+    projection_dim: int = 128
+    temperature: float = 0.55
     moco_k: int = 4096
     moco_m: float = 0.999
     moco_t: float = 0.07
@@ -79,6 +88,7 @@ class ContrastiveTrainer:
         )
         self.logger = self.ctx.logger
         self.device = get_device()
+        self.metrics = {}
 
     def setup(self) -> None:
         self.data_module = create_data_module(
@@ -104,48 +114,31 @@ class ContrastiveTrainer:
         info = contrastive_cfg[method]
         model_class = get_model_class(info["model"])
         loss_class = get_model_class(info["loss"])
+
+        # Unified instantiation for all contrastive models
+        self.model = model_class(
+            backbone=encoder,
+            embedding_dim=self.config.embedding_dim,
+            projection_dim=self.config.projection_dim,
+            dropout=0.1,  # Standardized
+        ).to(self.device)
+
+        # Standardized loss instantiation
         if method == "simclr":
-            self.model = model_class(encoder, self.config).to(self.device)
             self.criterion = loss_class(temperature=self.config.temperature)
-        elif method == "moco":
-            self.model = model_class(
-                encoder,
-                encoder_output_dim=self.config.embedding_dim,
-                dim=self.config.projection_dim,
-                K=self.config.moco_k,
-                m=self.config.moco_m,
-                T=self.config.moco_t,
-            ).to(self.device)
-            self.criterion = loss_class(T=self.config.moco_t)
-        elif method == "byol":
-            self.model = model_class(
-                encoder,
-                encoder_output_dim=self.config.embedding_dim,
-                projection_dim=self.config.projection_dim,
-                m=self.config.byol_m,
-            ).to(self.device)
-            self.criterion = loss_class()
-        elif method == "simsiam":
-            self.model = model_class(
-                encoder,
-                encoder_output_dim=self.config.embedding_dim,
-                projection_dim=self.config.projection_dim,
-            ).to(self.device)
-            self.criterion = loss_class()
         elif method == "barlow_twins":
-            self.model = model_class(
-                encoder,
-                encoder_output_dim=self.config.embedding_dim,
-                projection_dim=self.config.projection_dim,
-            ).to(self.device)
             self.criterion = loss_class(lambda_param=self.config.barlow_lambda)
-        self.optimizer = optim.AdamW(
+        else:
+            self.criterion = loss_class()
+
+        self.optimizer = optim.Adam(
             self.model.parameters(),
             lr=self.config.learning_rate,
             weight_decay=self.config.weight_decay,
         )
-        samples, labels = self.data_module.get_numpy_data()
-        self.siamese_dataset = SiameseDataset(samples, labels)
+
+        full_samples, full_labels = self.data_module.get_numpy_data()
+        self.siamese_dataset = SiameseDataset(full_samples, full_labels)
         self.train_loader = DataLoader(
             self.siamese_dataset, batch_size=self.config.batch_size, shuffle=True
         )
@@ -159,7 +152,14 @@ class ContrastiveTrainer:
             range(self.config.num_epochs), description="Contrastive Training..."
         ):
             total_loss = 0
-            for x1, x2, _ in self.train_loader:
+            for batch in self.train_loader:
+                # Handle flexible batch formats
+                if len(batch) >= 2:
+                    x1, x2 = batch[0], batch[1]
+                else:
+                    x1 = batch[0]
+                    x2 = x1.clone()
+
                 x1, x2 = x1.to(self.device), x2.to(self.device)
                 self.optimizer.zero_grad()
                 outputs = self.model(x1, x2)
@@ -172,9 +172,13 @@ class ContrastiveTrainer:
                 self.optimizer.step()
                 total_loss += loss.item()
             history["loss"].append(total_loss / len(self.train_loader))
-        self.ctx.save_results(
-            {"history": history, "stats": {"final_loss": history["loss"][-1]}}
-        )
+
+        self.metrics = {
+            "history": history,
+            "val_loss": history["loss"][-1] if history["loss"] else 0,
+        }
+        self.ctx.save_results(self.metrics)
+
         if self.ctx.wandb_run:
             self.log_contrastive_visualizations()
 
@@ -208,6 +212,7 @@ def run_contrastive_experiment(config, wandb_run=None, ctx=None):
     try:
         trainer.setup()
         trainer.train()
+        return trainer.metrics if trainer.metrics is not None else {}
     finally:
         if started_wandb and trainer.wandb_run:
             trainer.wandb_run.finish()

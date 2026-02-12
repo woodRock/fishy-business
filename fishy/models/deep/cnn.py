@@ -1,41 +1,6 @@
-"""Convolutional Neural Network for classification.
-
-This module implements a Convolutional Neural Network (CNN) for classification tasks.
-It includes convolutional layers, batch normalization, dropout, and fully connected layers.
-The architecture is inspired by LeCun's work on handwritten digit recognition and includes
-modern techniques like GELU activation and dropout for regularization.
-
-References:
-
-1. LeCun, Y., Bottou, L., Bengio, Y., & Haffner, P. (1998).
-    Gradient-based learning applied to document recognition.
-    Proceedings of the IEEE, 86(11), 2278-2324.
-2. LeCun, Y. (1989).
-    Generalization and network design strategies.
-    Connectionism in perspective, 19(143-155), 18.
-3. LeCun, Y., Boser, B., Denker, J. S., Henderson, D.,
-    Howard, R. E., Hubbard, W., & Jackel, L. D. (1989).
-    Backpropagation applied to handwritten zip code recognition.
-    Neural computation, 1(4), 541-551.
-4. LeCun, Y., Boser, B., Denker, J., Henderson, D.,
-    Howard, R., Hubbard, W., & Jackel, L. (1989).
-    Handwritten digit recognition with a back-propagation network.
-    Advances in neural information processing systems, 2.
-5. Srivastava, N., Hinton, G., Krizhevsky, A.,
-    Sutskever, I., & Salakhutdinov, R. (2014).
-    Dropout: a simple way to prevent neural networks from overfitting.
-    The journal of machine learning research, 15(1), 1929-1958.
-6. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-    I., & Salakhutdinov, R. R. (2012).
-    Improving neural networks by preventing co-adaptation of feature detectors.
-    arXiv preprint arXiv:1207.0580.
-7. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-    Rethinking the inception architecture for computer vision.
-    In Proceedings of the IEEE conference on computer vision
-    and pattern recognition (pp. 2818-2826).
-8. Hendrycks, D., & Gimpel, K. (2016).
-    Gaussian error linear units (gelus).
-    arXiv preprint arXiv:1606.08415.
+# -*- coding: utf-8 -*-
+"""
+Simple Convolutional Neural Network (CNN) model for spectral classification.
 """
 
 import torch
@@ -44,97 +9,48 @@ import torch.nn as nn
 
 class CNN(nn.Module):
     """
-    A 1D Convolutional Neural Network (CNN) for spectral data classification.
-
-    Examples:
-        >>> import torch
-        >>> model = CNN(input_dim=100, output_dim=5)
-        >>> x = torch.randn(16, 100)
-        >>> y = model(x)
-        >>> y.shape
-        torch.Size([16, 5])
-
-    This architecture is adapted for 1D signal processing (e.g., mass spectra).
-    It features a sequence of convolutional blocks with:
-    - 1D Convolution
-    - Batch Normalization
-    - ReLU Activation
-    - Max Pooling
-    - Dropout
-
-    Followed by a fully connected classifier.
-
-    Attributes:
-        conv_layers (nn.Sequential): The feature extraction backbone.
-        flatten (nn.Flatten): Layer to flatten feature maps.
-        flat_features (int): Calculated size of the flattened features.
-        fc_layers (nn.Sequential): The classification head.
+    Standard CNN architecture for 1D spectral data.
     """
 
     def __init__(
-        self, input_dim: int = 1023, output_dim: int = 7, dropout: int = 0.5
+        self,
+        input_dim: int,
+        output_dim: int,
+        hidden_dim: int = 128,
+        num_layers: int = 4,
+        dropout: float = 0.2,
+        **kwargs
     ) -> None:
         """
         Initializes the CNN model.
 
         Args:
-            input_dim (int, optional): The number of input features (length of spectrum). Defaults to 1023.
-            output_dim (int, optional): The number of output classes. Defaults to 7.
-            dropout (float, optional): The dropout probability. Defaults to 0.5.
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes.
+            hidden_dim (int, optional): Hidden dimension. Defaults to 128.
+            num_layers (int, optional): Number of layers. Defaults to 4.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(CNN, self).__init__()
-
-        # Convolutional neural network (LeCun 1989,1989,1998)
-        self.conv_layers = nn.Sequential(
-            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(32),  # Batch normalization
-            nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(64),  # Batch normalization
-            # GELU activation (Hendrycks 2016)
+        self.conv = nn.Sequential(
+            nn.Conv1d(1, 32, 3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2),
-            nn.Dropout(p=dropout),
-            nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(128),  # Batch normalization
-            nn.Conv1d(128, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(256),  # Batch normalization
+            nn.MaxPool1d(2),
+            nn.Conv1d(32, 64, 3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.MaxPool1d(2)
         )
-
-        self.flatten = nn.Flatten()
-
-        # Calculate the size of the flattened features after convolutions
-        self.flat_features = 256 * (input_dim // 4)
-
-        self.fc_layers = nn.Sequential(
-            nn.Linear(self.flat_features, 256),
+        self.flat_f = 64 * (input_dim // 4)
+        self.fc = nn.Sequential(
+            nn.Linear(self.flat_f, hidden_dim),
             nn.ReLU(),
-            # Dropout layer (Srivastava 2014, Hinton 2012)
-            nn.Dropout(p=dropout),
-            nn.Linear(256, output_dim),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, output_dim)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Performs the forward pass of the network.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_dim) or (batch_size, 1, input_dim).
-
-        Returns:
-            torch.Tensor: Output logits of shape (batch_size, output_dim).
-        """
-        # Add channel dimension if missing (expected by Conv1d)
         if x.dim() == 2:
             x = x.unsqueeze(1)
-
-        # Convolutional layers
-        x = self.conv_layers(x)
-        # Flatten the output of the convolutional layers
-        x = x.contiguous().view(x.size(0), -1)  # Added .contiguous()
-        x = self.fc_layers(x)
-        return x
-
-
-__all__ = ["CNN"]  # List of all classes in this module
+        x = self.conv(x)
+        x = x.view(x.size(0), -1)
+        return self.fc(x)

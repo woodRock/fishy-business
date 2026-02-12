@@ -1,78 +1,79 @@
+# -*- coding: utf-8 -*-
+"""
+Ensemble model for spectral classification.
+"""
+
 import torch
 import torch.nn as nn
-
-from .transformer import Transformer
 
 
 class Ensemble(nn.Module):
     """
-    Simple averaging ensemble of Transformer models with different complexities.
+    Ensemble model combining multiple base classifiers.
 
     Attributes:
-        t1 (Transformer): Shallow transformer (2 layers, 2 heads).
-        t2 (Transformer): Medium transformer (4 layers, 4 heads).
-        t3 (Transformer): Deep transformer (8 layers, 8 heads).
+        input_dim (int): Number of input features.
+        output_dim (int): Number of output classes.
+        hidden_dim (int): Hidden layer dimension for base learners.
+        dropout (float): Dropout probability.
     """
 
     def __init__(
         self,
         input_dim: int,
-        hidden_dim: int,
         output_dim: int,
+        hidden_dim: int = 128,
+        num_layers: int = 4,
         dropout: float = 0.2,
+        **kwargs
     ) -> None:
         """
-        Initializes the ensemble model.
+        Initializes the Ensemble model.
 
         Args:
             input_dim (int): Number of input features.
-            hidden_dim (int): Hidden dimension for the backbone Transformers.
             output_dim (int): Number of output classes.
+            hidden_dim (int, optional): Hidden layer dimension. Defaults to 128.
+            num_layers (int, optional): Number of layers. Defaults to 4.
             dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
-        super().__init__()
+        super(Ensemble, self).__init__()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.hidden_dim = hidden_dim
 
-        self.t1 = Transformer(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            num_heads=2,
-            hidden_dim=hidden_dim,
-            num_layers=2,
-            dropout=dropout,
+        # Example: An ensemble of several MLP branches
+        self.branch1 = self._make_branch(input_dim, hidden_dim, num_layers, dropout)
+        self.branch2 = self._make_branch(input_dim, hidden_dim, num_layers, dropout)
+        self.branch3 = self._make_branch(input_dim, hidden_dim, num_layers, dropout)
+
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim * 3, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, output_dim),
         )
 
-        self.t2 = Transformer(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            num_heads=4,
-            hidden_dim=hidden_dim,
-            num_layers=4,
-            dropout=dropout,
-        )
-
-        self.t3 = Transformer(
-            input_dim=input_dim,
-            output_dim=output_dim,
-            num_heads=8,
-            hidden_dim=hidden_dim,
-            num_layers=8,
-            dropout=dropout,
-        )
+    def _make_branch(self, input_dim, hidden_dim, num_layers, dropout):
+        layers = []
+        in_f = input_dim
+        for i in range(num_layers):
+            out_f = hidden_dim if i > 0 else hidden_dim * 2
+            layers.extend([
+                nn.Linear(in_f, out_f),
+                nn.ReLU(),
+                nn.Dropout(dropout)
+            ])
+            in_f = out_f
+        layers.append(nn.Linear(in_f, hidden_dim))
+        return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass combining predictions from all models.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
-
-        Returns:
-            torch.Tensor: Averaged output logits of shape (batch_size, output_dim).
+        Forward pass.
         """
-        # Get predictions from each model
-        t1_out = self.t1(x)
-        t2_out = self.t2(x)
-        t3_out = self.t3(x)
-
-        # Average the outputs
-        return (t1_out + t2_out + t3_out) / 3.0
+        out1 = self.branch1(x)
+        out2 = self.branch2(x)
+        out3 = self.branch3(x)
+        combined = torch.cat((out1, out2, out3), dim=1)
+        return self.classifier(combined)

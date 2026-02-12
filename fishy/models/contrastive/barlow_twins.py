@@ -1,15 +1,6 @@
-"""Barlow Twins model and loss function implementation.
-
-This module defines the Barlow Twins model architecture and the corresponding loss function.
-It includes a model with two identical encoders and a projection head, as well as the Barlow Twins loss function.
-The model is designed for self-supervised learning tasks, particularly in computer vision.
-
-References:
-
-1.  Zbontar, J., Jing, L., Misra, I., LeCun, Y., & Deny, S. (2021, July).
-    Barlow twins: Self-supervised learning via redundancy reduction.
-    In International conference on machine learning (pp. 12310-12320). PMLR.
-
+# -*- coding: utf-8 -*-
+"""
+Barlow Twins model.
 """
 
 import torch
@@ -17,19 +8,25 @@ import torch.nn as nn
 
 
 class BarlowTwinsModel(nn.Module):
-    """Barlow Twins model with two identical encoders and projection heads."""
+    """
+    Barlow Twins architecture for self-supervised learning.
+    """
 
     def __init__(
-        self, encoder: nn.Module, encoder_output_dim: int, projection_dim: int = 8192
-    ):
-        super().__init__()
-
-        self.encoder = encoder
+        self,
+        backbone: nn.Module,
+        embedding_dim: int = 128,
+        projection_dim: int = 128,
+        dropout: float = 0.2,
+        **kwargs
+    ) -> None:
+        super(BarlowTwinsModel, self).__init__()
+        self.encoder = backbone
         self.projector = nn.Sequential(
-            nn.Linear(encoder_output_dim, projection_dim, bias=False),
+            nn.Linear(embedding_dim, projection_dim),
             nn.BatchNorm1d(projection_dim),
             nn.ReLU(),
-            nn.Linear(projection_dim, projection_dim, bias=False),
+            nn.Linear(projection_dim, projection_dim),
             nn.BatchNorm1d(projection_dim),
             nn.ReLU(),
             nn.Linear(projection_dim, projection_dim),
@@ -42,32 +39,16 @@ class BarlowTwinsModel(nn.Module):
 
 
 class BarlowTwinsLoss(nn.Module):
-    """Barlow Twins loss function."""
-
-    def __init__(self, lambda_param: float = 5e-3):
+    def __init__(self, lambda_param: float = 0.005):
         super(BarlowTwinsLoss, self).__init__()
         self.lambda_param = lambda_param
 
-    def forward(self, z1: torch.Tensor, z2: torch.Tensor):
-        # normalize the representations along the batch dimension
-        z1_norm = (z1 - z1.mean(dim=0)) / z1.std(dim=0)
-        z2_norm = (z2 - z2.mean(dim=0)) / z2.std(dim=0)
-
-        # cross-correlation matrix
-        c = torch.matmul(z1_norm.T, z2_norm) / z1_norm.shape[0]
-
-        # loss
+    def forward(self, z1, z2):
+        batch_size = z1.size(0)
+        z1 = (z1 - z1.mean(0)) / z1.std(0)
+        z2 = (z2 - z2.mean(0)) / z2.std(0)
+        c = torch.mm(z1.T, z2) / batch_size
+        
         on_diag = torch.diagonal(c).add_(-1).pow_(2).sum()
-        off_diag = off_diagonal(c).pow_(2).sum()
-        loss = on_diag + self.lambda_param * off_diag
-        return loss
-
-
-def off_diagonal(x):
-    # return a flattened view of the off-diagonal elements of a square matrix
-    n, m = x.shape
-    assert n == m
-    return x.flatten()[:-1].view(n - 1, n + 1)[:, 1:].flatten()
-
-
-__all__ = ["BarlowTwinsModel", "BarlowTwinsLoss"]
+        off_diag = self.lambda_param * (c.pow(2).sum() - torch.diagonal(c.pow(2)).sum())
+        return on_diag + off_diag

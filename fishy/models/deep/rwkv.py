@@ -1,113 +1,68 @@
-"""Receptance Weighted Key-Value (RWKV) model for time series classification.
-
-This module implements a Receptance Weighted Key-Value (RWKV) model for time series classification.
-It includes linear layers for key, value, and output, and uses a recurrent mechanism to update
-the hidden state based on the input features. The model is designed to handle sequential data
-and is suitable for tasks such as time series forecasting or classification.
-
-
-References:
-
-1. Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., & Tegmark, M. (2024).
-   Kan: Kolmogorov-arnold networks.
-   arXiv preprint arXiv:2404.19756.
-2. Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. (2014).
-    Dropout: a simple way to prevent neural networks from overfitting.
-    The journal of machine learning research, 15(1), 1929-1958.
-3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-    I., & Salakhutdinov, R. R. (2012).
-    Improving neural networks by preventing co-adaptation of feature detectors.
-    arXiv preprint arXiv:1207.0580.
-4. Hendrycks, D., & Gimpel, K. (2016).
-    Gaussian error linear units (gelus).
-    arXiv preprint arXiv:1606.08415.
-5. Loshchilov, I., & Hutter, F. (2017).
-    Decoupled weight decay regularization.
-    arXiv preprint arXiv:1711.05101.
-6. Loshchilov, I., & Hutter, F. (2017).
-    Decoupled weight decay regularization.
-    arXiv preprint arXiv:1711.05101.
-7. Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016).
-    Rethinking the inception architecture for computer vision.
-    In Proceedings of the IEEE conference on computer vision
-    and pattern recognition (pp. 2818-2826).
+# -*- coding: utf-8 -*-
+"""
+Receptance Weighted Key-Value (RWKV) model for spectral classification.
 """
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils.data import DataLoader
-from sklearn.metrics import balanced_accuracy_score, accuracy_score
-import numpy as np
-from tqdm import tqdm
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 class RWKV(nn.Module):
     """
-    Receptance-Weighted Key-Value (RWKV) model for spectral classification.
+    Receptance-Weighted Key-Value (RWKV) model.
 
     Attributes:
-        input_size (int): Number of input features.
+        input_dim (int): Number of input features.
+        output_dim (int): Number of output classes.
         hidden_dim (int): Recurrent state dimension.
-        output_size (int): Number of output classes.
-        key_layer (nn.Linear): Key projection.
-        value_layer (nn.Linear): Value projection.
-        recurrent_layer (nn.Linear): Recurrent update projection.
-        output_layer (nn.Linear): Classification head.
+        dropout (float): Dropout probability.
     """
 
     def __init__(
-        self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float = 0.1
+        self,
+        input_dim: int,
+        output_dim: int,
+        hidden_dim: int = 128,
+        num_layers: int = 4,  # Used to scale depth
+        dropout: float = 0.2,
+        **kwargs
     ) -> None:
         """
         Initializes the RWKV model.
 
         Args:
             input_dim (int): Number of input features.
-            hidden_dim (int): Number of hidden units.
             output_dim (int): Number of output classes.
-            dropout (float, optional): Dropout rate. Defaults to 0.1.
+            hidden_dim (int, optional): Hidden dimension. Defaults to 128.
+            num_layers (int, optional): Number of blocks. Defaults to 4.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(RWKV, self).__init__()
-        self.input_size = input_dim
+        self.input_dim = input_dim
+        self.output_dim = output_dim
         self.hidden_dim = hidden_dim
-        self.output_size = output_dim
 
         # Linear layers for key, value, and output
         self.key_layer = nn.Linear(input_dim, hidden_dim)
         self.value_layer = nn.Linear(input_dim, hidden_dim)
         self.recurrent_layer = nn.Linear(hidden_dim, hidden_dim)
         self.output_layer = nn.Linear(hidden_dim, output_dim)
-
-        # Initialization
-        self.hidden = None
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
-
-        Returns:
-            torch.Tensor: Output logits of shape (batch_size, output_dim).
-        """
         # Compute keys and values
         keys = self.key_layer(x)
         values = self.value_layer(x)
 
-        # If hidden state is not initialized, initialize it
-        if self.hidden is None:
-            self.hidden = torch.zeros(x.size(0), self.hidden_dim).to(x.device)
-
-        # Update hidden state with current keys and values
-        self.hidden = self.hidden + torch.tanh(keys + self.recurrent_layer(values))
+        # Update hidden state
+        batch_size = x.size(0)
+        h = torch.zeros(batch_size, self.hidden_dim, device=x.device)
+        
+        # Simplified recurrent step
+        h = h + torch.tanh(keys + self.recurrent_layer(values))
 
         # Compute output
-        output = self.output_layer(self.hidden)
-
-        # Reset the hidden state.
-        self.hidden = None
+        output = self.output_layer(h)
+        output = self.dropout(output)
         return output

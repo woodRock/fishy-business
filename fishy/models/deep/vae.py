@@ -1,245 +1,136 @@
-"""A variational autoencoder (VAE) with a classifier.
-
-This model combines a VAE for unsupervised learning with a classifier for supervised tasks.
-It includes an encoder, decoder, and a classifier that predicts class probabilities based on the latent representation
-of the input data. The model is designed to handle high-dimensional input data and can be used for tasks such as anomaly detection or semi-supervised learning.
-
-
-References:
-
-1. Kingma, D. P., & Welling, M. (2013).
-    Auto-encoding variational bayes.
-    arXiv preprint arXiv:1312.6114.
-2. Srivastava, N., Hinton, G., Krizhevsky, A.,
-    Sutskever, I., & Salakhutdinov, R. (2014).
-    Dropout: a simple way to prevent neural networks from overfitting.
-    The journal of machine learning research, 15(1), 1929-1958.
-3. Hinton, G. E., Srivastava, N., Krizhevsky, A., Sutskever,
-    I., & Salakhutdinov, R. R. (2012).
-    Improving neural networks by preventing co-adaptation of feature detectors.
-    arXiv preprint arXiv:1207.0580.
-4. Fukushima, K. (1969).
-    Visual feature extraction by a multilayered network of analog threshold elements.
-    IEEE Transactions on Systems Science and Cybernetics, 5(4), 322-333.
+# -*- coding: utf-8 -*-
+"""
+Variational Autoencoder (VAE) for spectral classification.
 """
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 
 class VAE(nn.Module):
     """
-    Variational Autoencoder with an integrated classifier head.
+    Variational Autoencoder (VAE) model.
 
     Attributes:
-        latent_dim (int): Size of the latent bottleneck.
-        num_classes (int): Number of classification targets.
-        encoder (nn.Sequential): Feature extraction network.
-        fc_mu (nn.Linear): Latent mean projection.
-        fc_logvar (nn.Linear): Latent log-variance projection.
-        decoder (nn.Sequential): Reconstruction network.
-        classifier (nn.Sequential): Classification head.
+        input_dim (int): Number of input features.
+        output_dim (int): Number of output classes.
+        hidden_dim (int): Dimension of the latent space.
+        dropout (float): Dropout probability.
     """
 
     def __init__(
         self,
-        input_size: int = 1023,
-        latent_dim: int = 64,
-        num_classes: int = 2,
+        input_dim: int,
+        output_dim: int,
+        hidden_dim: int = 128,
+        num_layers: int = 4,  # Used to scale depth
         dropout: float = 0.2,
+        **kwargs
     ) -> None:
         """
         Initializes the VAE model.
 
         Args:
-            input_size (int, optional): Size of the input features. Defaults to 1023.
-            latent_dim (int, optional): Size of the latent space. Defaults to 64.
-            num_classes (int, optional): Number of target classes. Defaults to 2.
-            dropout (float, optional): Dropout probability. Defaults to 0.2.
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes.
+            hidden_dim (int, optional): Latent dimension. Defaults to 128.
+            num_layers (int, optional): Number of layers. Defaults to 4.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(VAE, self).__init__()
-
-        self.latent_dim = latent_dim
-        self.num_classes = num_classes
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.latent_dim = hidden_dim
 
         # Encoder
-        self.encoder = nn.Sequential(
-            nn.Linear(input_size, 512),
-            # ReLU activation (Fukushima 1969)
-            nn.ReLU(),
-            # Dropout layer (Srivastava 2014, Hinton 2012)
-            nn.Dropout(p=dropout),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout(p=dropout),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Dropout(p=dropout),
-        )
+        encoder_layers = []
+        in_features = input_dim
+        for i in range(num_layers // 2):
+            out_features = max(hidden_dim * 2, in_features // 2)
+            encoder_layers.extend([
+                nn.Linear(in_features, out_features),
+                nn.BatchNorm1d(out_features),
+                nn.ReLU(),
+                nn.Dropout(dropout)
+            ])
+            in_features = out_features
+        
+        self.encoder_backbone = nn.Sequential(*encoder_layers)
+        self.fc_mu = nn.Linear(in_features, hidden_dim)
+        self.fc_logvar = nn.Linear(in_features, hidden_dim)
 
-        # Mean and log variance layers
-        self.fc_mu = nn.Linear(128, latent_dim)
-        self.fc_logvar = nn.Linear(128, latent_dim)
-
-        # Decoder
-        self.decoder = nn.Sequential(
-            nn.Linear(latent_dim + num_classes, 128),
-            nn.ReLU(),
-            nn.Dropout(p=dropout),
-            nn.Linear(128, 256),
-            nn.ReLU(),
-            nn.Dropout(p=dropout),
-            nn.Linear(256, 512),
-            nn.ReLU(),
-            nn.Dropout(p=dropout),
-            nn.Linear(512, input_size),
-            nn.Sigmoid(),
-            nn.Dropout(p=dropout),
-        )
+        # Decoder (for reconstruction loss if needed)
+        decoder_layers = []
+        in_features = hidden_dim
+        for i in range(num_layers // 2):
+            out_features = min(input_dim, in_features * 2)
+            decoder_layers.extend([
+                nn.Linear(in_features, out_features),
+                nn.BatchNorm1d(out_features),
+                nn.ReLU(),
+                nn.Dropout(dropout)
+            ])
+            in_features = out_features
+        
+        decoder_layers.append(nn.Linear(in_features, input_dim))
+        self.decoder = nn.Sequential(*decoder_layers)
 
         # Classifier
-        self.classifier = nn.Sequential(
-            nn.Linear(latent_dim, 64), nn.ReLU(), nn.Linear(64, num_classes)
-        )
+        self.classifier = nn.Linear(hidden_dim, output_dim)
 
     def encode(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Encodes the input data into latent distribution parameters.
-
-        Args:
-            x (torch.Tensor): The input feature tensor.
-
-        Returns:
-            Tuple[torch.Tensor, torch.Tensor]: (mu, logvar) Mean and log-variance tensors.
+        Encodes the input tensor into mu and logvar.
         """
-        h = self.encoder(x)
+        h = self.encoder_backbone(x)
         return self.fc_mu(h), self.fc_logvar(h)
 
     def reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
         """
-        Applies the reparameterization trick to sample from the latent distribution.
-
-        Args:
-            mu (torch.Tensor): Latent mean.
-            logvar (torch.Tensor): Latent log-variance.
-
-        Returns:
-            torch.Tensor: The sampled latent vector 'z'.
+        Reparameterization trick.
         """
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)
         return mu + eps * std
 
-    def decode(self, z: torch.Tensor, c: torch.Tensor) -> torch.Tensor:
-        """
-        Decodes the latent representation conditioned on a class label.
-
-        Args:
-            z (torch.Tensor): The sampled latent vector.
-            c (torch.Tensor): One-hot encoded class label or probabilities.
-
-        Returns:
-            torch.Tensor: The reconstructed input tensor.
-        """
-        zc = torch.cat([z, c], dim=1)
-        return self.decoder(zc)
-
     def forward(
         self, x: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]]:
         """
-        Forward pass of the VAE.
-
-        Args:
-            x (torch.Tensor): The input feature tensor.
-
-        Returns:
-            Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
-                - recon_x: Reconstructed input.
-                - mu: Latent mean.
-                - logvar: Latent log-variance.
-                - class_probs: Predicted class probabilities.
+        Forward pass. Returns reconstruction and latent params if in training, or just logits.
         """
         mu, logvar = self.encode(x)
         z = self.reparameterize(mu, logvar)
-        class_probs = F.softmax(self.classifier(z), dim=1)
-        recon_x = self.decode(z, class_probs)
-        return recon_x, mu, logvar, class_probs
+        logits = self.classifier(z)
 
-
-def vae_classifier_loss(
-    recon_x: torch.Tensor,
-    x: torch.Tensor,
-    mu: torch.Tensor,
-    logvar: torch.Tensor,
-    class_probs: torch.Tensor,
-    labels: torch.Tensor,
-    alpha: float = 0.2,
-    beta: float = 0.7,
-    gamma: float = 0.1,
-) -> torch.Tensor:
-    """
-    Computes the multi-task loss for the VAE classifier.
-
-    Combines Reconstruction loss (BCE), KL Divergence (KLD), and Classification loss (CCE).
-
-    Args:
-        recon_x (torch.Tensor): Reconstructed input.
-        x (torch.Tensor): Original input.
-        mu (torch.Tensor): Latent mean.
-        logvar (torch.Tensor): Latent log-variance.
-        class_probs (torch.Tensor): Predicted class probabilities.
-        labels (torch.Tensor): True class labels (one-hot).
-        alpha (float, optional): Weight for reconstruction loss. Defaults to 0.2.
-        beta (float, optional): Weight for KLD loss. Defaults to 0.7.
-        gamma (float, optional): Weight for classification loss. Defaults to 0.1.
-
-    Returns:
-        torch.Tensor: The total weighted loss.
-    """
-    BCE = F.binary_cross_entropy(recon_x, x, reduction="sum")
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-    # Simple cross entropy handle
-    if labels.dim() > 1 and labels.shape[1] > 1:
-        target = labels.argmax(dim=1)
-    else:
-        target = labels.squeeze().long()
-
-    CCE = F.cross_entropy(class_probs, target)
-    return (alpha * BCE) + (beta * KLD) + (gamma * CCE)
+        if self.training:
+            recon = self.decoder(z)
+            return logits, recon, mu, logvar
+        return logits
 
 
 class SiameseVAE(nn.Module):
     """
-    A Siamese network using a VAE as the backbone.
-
-    Processes pairs of inputs and predicts similarity based on latent distance.
-
-    Args:
-        vae_model (VAE): An instance of the VAE backbone.
+    Siamese VAE architecture for instance recognition.
     """
 
-    def __init__(self, vae_model: VAE) -> None:
+    def __init__(self, vae_backbone: VAE) -> None:
         super(SiameseVAE, self).__init__()
-        self.vae = vae_model
-        self.fc = nn.Linear(1, 1)
+        self.vae = vae_backbone
+        self.classifier = nn.Sequential(
+            nn.Linear(vae_backbone.latent_dim * 2, vae_backbone.latent_dim),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(vae_backbone.latent_dim, vae_backbone.output_dim),
+        )
+
+    def forward_one(self, x: torch.Tensor) -> torch.Tensor:
+        mu, _ = self.vae.encode(x)
+        return mu
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass of the SiameseVAE.
-
-        Args:
-            x1 (torch.Tensor): First input tensor.
-            x2 (torch.Tensor): Second input tensor.
-
-        Returns:
-            torch.Tensor: Similarity score (distance-based).
-        """
-        mu1, _ = self.vae.encode(x1)
-        mu2, _ = self.vae.encode(x2)
-        distance = F.pairwise_distance(mu1, mu2)
-        output = self.fc(distance.unsqueeze(-1))
-        return output
+        out1 = self.forward_one(x1)
+        out2 = self.forward_one(x2)
+        combined = torch.cat((out1, out2), dim=1)
+        return self.classifier(combined)

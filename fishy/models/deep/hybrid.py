@@ -1,129 +1,63 @@
+# -*- coding: utf-8 -*-
+"""
+Hybrid CNN-LSTM model for spectral classification.
+"""
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class Hybrid(nn.Module):
     """
-    A Hybrid CNN-Transformer model for sequential 1D data.
-
-    This model uses a 1D CNN for local feature extraction followed by a
-    Transformer encoder for capturing global dependencies across the spectrum.
-
-    Attributes:
-        cnn_feature_extractor (nn.Sequential): CNN backbone for local features.
-        transformer_encoder (nn.TransformerEncoder): Transformer for global dependencies.
-        fc_out (nn.Linear): Classification/regression head.
+    Hybrid model combining CNN and LSTM architectures.
     """
 
     def __init__(
         self,
         input_dim: int,
         output_dim: int,
-        num_heads: int,
-        hidden_dim: int,
-        num_layers: int = 1,
-        dropout: float = 0.1,
-        cnn_channels: list = [32, 64],
-        cnn_kernel_size: int = 3,
-        cnn_stride: int = 1,
-        cnn_padding: int = 1,
-        cnn_pool_kernel_size: int = 2,
-        cnn_pool_stride: int = 4,
+        hidden_dim: int = 128,
+        num_layers: int = 4,
+        dropout: float = 0.2,
+        **kwargs
     ) -> None:
         """
         Initializes the Hybrid model.
 
         Args:
-            input_dim (int): Number of features per step (usually 1 for spectra).
-            output_dim (int): Number of output classes/dimensions.
-            num_heads (int): Number of attention heads.
-            hidden_dim (int): Feed-forward dimension in Transformer.
-            num_layers (int, optional): Number of Transformer layers. Defaults to 1.
-            dropout (float, optional): Dropout rate. Defaults to 0.1.
-            cnn_channels (list, optional): Channels for CNN layers. Defaults to [32, 64].
-            cnn_kernel_size (int, optional): CNN kernel size. Defaults to 3.
-            cnn_stride (int, optional): CNN stride. Defaults to 1.
-            cnn_padding (int, optional): CNN padding. Defaults to 1.
-            cnn_pool_kernel_size (int, optional): MaxPool size. Defaults to 2.
-            cnn_pool_stride (int, optional): MaxPool stride. Defaults to 4.
+            input_dim (int): Number of input features.
+            output_dim (int): Number of output classes.
+            hidden_dim (int, optional): Hidden dimension. Defaults to 128.
+            num_layers (int, optional): Number of layers. Defaults to 4.
+            dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
-        super().__init__()
-
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.num_heads = num_heads
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
-        self.dropout = dropout
-
-        # CNN Feature Extractor
-        cnn_layers = []
-        in_channels = input_dim
-        for out_channels in cnn_channels:
-            cnn_layers.append(
-                nn.Conv1d(
-                    in_channels,
-                    out_channels,
-                    kernel_size=cnn_kernel_size,
-                    stride=cnn_stride,
-                    padding=cnn_padding,
-                )
-            )
-            cnn_layers.append(nn.ReLU())
-            cnn_layers.append(
-                nn.MaxPool1d(kernel_size=cnn_pool_kernel_size, stride=cnn_pool_stride)
-            )
-            in_channels = out_channels
-        self.cnn_feature_extractor = nn.Sequential(*cnn_layers)
-
-        # Calculate the effective input dimension for the Transformer
-        # We need to pass a dummy tensor to calculate the output shape of CNN
-        # Assuming a sequence length of 2080 for calculation
-        dummy_input = torch.randn(
-            1, input_dim, 2080
-        )  # (batch, features_per_step, seq_len)
-        cnn_output_channels = self.cnn_feature_extractor(dummy_input).shape[1]
-
-        # Transformer Encoder
-        transformer_encoder_layer = nn.TransformerEncoderLayer(
-            d_model=cnn_output_channels,
-            nhead=num_heads,
-            dim_feedforward=hidden_dim,
-            dropout=dropout,
-            batch_first=True,  # Input and output tensors are (batch, seq, feature)
+        super(Hybrid, self).__init__()
+        self.cnn = nn.Sequential(
+            nn.Conv1d(1, 32, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.Conv1d(32, 64, 3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool1d(2)
         )
-        self.transformer_encoder = nn.TransformerEncoder(
-            transformer_encoder_layer, num_layers=num_layers
+        
+        self.lstm = nn.LSTM(
+            input_size=64,
+            hidden_size=hidden_dim,
+            num_layers=max(1, num_layers // 2),
+            batch_first=True,
+            dropout=dropout if num_layers > 2 else 0
         )
-
-        # Final classification head
-        self.fc_out = nn.Linear(cnn_output_channels, output_dim)
+        
+        self.fc_out = nn.Linear(hidden_dim, output_dim)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Ensure input has 3 dimensions [batch_size, seq_length, features_per_step]
         if x.dim() == 2:
-            # Assuming input is (batch_size, sequence_length) and features_per_step is 1
-            x = x.unsqueeze(-1)  # (batch_size, sequence_length, 1)
-
-        # Permute for Conv1d: (batch_size, features_per_step, sequence_length)
-        x = x.permute(0, 2, 1)
-
-        # Pass through CNN
-        x = self.cnn_feature_extractor(x)
-
-        # Permute back for Transformer: (batch_size, sequence_length, features)
-        x = x.permute(0, 2, 1)
-
-        # Pass through Transformer
-        x = self.transformer_encoder(x)
-
-        # Global average pooling
-        x = x.mean(dim=1)
-
-        # Final classification
-        x = self.fc_out(x)
-        return x
-
-
-__all__ = ["Hybrid"]
+            x = x.unsqueeze(1)
+        x = self.cnn(x)
+        x = x.transpose(1, 2)
+        out, _ = self.lstm(x)
+        out = out[:, -1, :]
+        out = self.dropout(out)
+        return self.fc_out(out)
