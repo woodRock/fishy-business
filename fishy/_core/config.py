@@ -60,6 +60,9 @@ class TrainingConfig:
     permutation_enabled: bool = False
     crop_size: float = 0.8  # Default crop size
 
+    # Contrastive specific
+    encoder_type: str = "dense"
+
     # New Analysis & Reporting Flags
     benchmark: bool = False
     figures: bool = False

@@ -167,10 +167,11 @@ class UnifiedTrainer:
         c_cfg = ContrastiveConfig(
             contrastive_method=config.model,
             dataset=config.dataset,
-            num_epochs=config.epochs,
+            num_epochs=config.epochs if config.epochs else 100,
             batch_size=config.batch_size,
             file_path=config.file_path,
             wandb_log=config.wandb_log,
+            encoder_type=config.encoder_type
         )
         return run_contrastive_experiment(c_cfg, wandb_run=wandb_run, ctx=ctx)
 
