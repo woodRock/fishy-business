@@ -3,3 +3,4 @@ furo
 sphinx-copybutton
 nbsphinx
 ipykernel
+ipywidgets

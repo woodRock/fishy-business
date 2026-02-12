@@ -22,3 +22,4 @@ plotly
 umap-learn
 paramiko
 urllib3<2.0
+ipywidgets
