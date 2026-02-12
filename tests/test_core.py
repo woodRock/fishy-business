@@ -65,7 +65,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(
             str(ctx.run_dir).startswith("/tmp/outputs/test_ds/test_method/test_model_")
         )
-        self.assertEqual(mock_mkdir.call_count, 5)
+        self.assertEqual(mock_mkdir.call_count, 6)
 
 
 class TestConfigLoader(unittest.TestCase):

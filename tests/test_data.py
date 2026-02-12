@@ -75,9 +75,22 @@ class TestDataModule(unittest.TestCase):
 
         self.assertEqual(dm.batch_size, 2)
         self.assertIsNotNone(dm.train_loader)
-        # features are: feat1, feat2. total 2 features.
         self.assertEqual(dm.get_input_dim(), 2)
         self.assertEqual(dm.get_num_classes(), 2)
+
+    @patch("fishy.data.module.DataProcessor.load_data")
+    def test_get_filtered_dataframe(self, mock_load_data):
+        df = pd.DataFrame({
+            "m/z": ["H_1", "M_1", "QC_1"], # QC should be filtered out
+            "feat1": [1.0, 2.0, 3.0],
+        })
+        mock_load_data.return_value = df
+        dm = DataModule(dataset_name="species", file_path="dummy.xlsx")
+        dm.setup()
+        filtered = dm.get_filtered_dataframe()
+        self.assertEqual(len(filtered), 2)
+        self.assertIn("Class Name", filtered.columns)
+        self.assertEqual(filtered["Class Name"].iloc[0], "Hoki")
 
 
 if __name__ == "__main__":

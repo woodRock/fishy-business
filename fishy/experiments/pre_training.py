@@ -460,7 +460,8 @@ class PreTrainingOrchestrator:
         >>> from fishy._core.config import TrainingConfig
         >>> from fishy._core.utils import RunContext
         >>> cfg = TrainingConfig()
-        >>> ctx = RunContext("ds", "method", "model")
+        >>> ctx = RunContext("ds", "method", "model") # doctest: +ELLIPSIS
+        INFO ... Initialized RunContext: model on ds...
         >>> orch = PreTrainingOrchestrator(cfg, torch.device('cpu'), 10, ctx)
         >>> orch.input_dim == 10
         True

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import unittest
 import torch
+import numpy as np
 from fishy.models.deep.cnn import CNN
 from fishy.models.deep.transformer import Transformer
 from fishy.models.deep.dense import Dense
+from fishy.models.evolutionary.pso import PSO
+from fishy.models.evolutionary.ga import GA
 
 
 class TestDeepModels(unittest.TestCase):
@@ -24,6 +27,26 @@ class TestDeepModels(unittest.TestCase):
         x = torch.randn(2, 100)
         y = model(x)
         self.assertEqual(y.shape, (2, 5))
+
+
+class TestEvolutionaryModels(unittest.TestCase):
+    def test_pso_predict_proba(self):
+        X = np.random.rand(20, 10)
+        y = np.random.randint(0, 2, 20)
+        model = PSO(iterations=2, population_size=5)
+        model.fit(X, y)
+        probs = model.predict_proba(X[:5])
+        self.assertEqual(probs.shape, (5, 2))
+        self.assertTrue(np.allclose(probs.sum(axis=1), 1.0))
+
+    def test_ga_predict_proba(self):
+        X = np.random.rand(20, 10)
+        y = np.random.randint(0, 2, 20)
+        model = GA(generations=2, population_size=5)
+        model.fit(X, y)
+        probs = model.predict_proba(X[:5])
+        self.assertEqual(probs.shape, (5, 2))
+        self.assertTrue(np.allclose(probs.sum(axis=1), 1.0))
 
 
 if __name__ == "__main__":
