@@ -53,7 +53,7 @@ class UnifiedTrainer:
         from fishy.cli.main import DEFAULT_DATA_PATH, detect_method
         from fishy._core.utils import console
 
-        status_manager = console.status(f\"[bold blue]Executing Batch: {exp_cfg.name}...\") if exp_cfg.num_runs > 1 else None
+        status_manager = console.status(f"[bold blue]Executing Batch: {exp_cfg.name}...") if exp_cfg.num_runs > 1 else None
         
         try:
             if status_manager: 
@@ -62,7 +62,7 @@ class UnifiedTrainer:
             
             for dataset in exp_cfg.datasets:
                 for model in exp_cfg.models:
-                    if status_manager: status_manager.update(f\"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]\")
+                    if status_manager: status_manager.update(f"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]")
                     model_results = []
                     for run_id in range(exp_cfg.num_runs):
                         seed = (run_id + 1) * 123
@@ -83,7 +83,7 @@ class UnifiedTrainer:
                         train_cfg.method = detect_method(model)
                         model_results.append(self._run_single(train_cfg))
                         
-                    results_summary[f\"{dataset}|||{model}\"] = model_results
+                    results_summary[f"{dataset}|||{model}"] = model_results
         finally:
             if status_manager: 
                 status_manager.stop()
@@ -132,16 +132,16 @@ class UnifiedTrainer:
             # Temporarily stop console status if active to allow inner progress bars
             # Rich only allows one Live/Progress/Status at a time.
             from fishy._core.utils import console
-            active_status = getattr(console, \"_status\", None)
+            active_status = getattr(console, "_status", None)
             if active_status: active_status.stop()
 
             if config.transfer:
                 results = self._dispatch_transfer(config, wandb_run, ctx)
-            elif config.method == \"deep\":
+            elif config.method == "deep":
                 results = self._dispatch_deep(config, wandb_run, ctx)
-            elif config.method in [\"classic\", \"evolutionary\", \"probabilistic\"]:
+            elif config.method in ["classic", "evolutionary", "probabilistic"]:
                 results = self._dispatch_sklearn(config, wandb_run, ctx)
-            elif config.method == \"contrastive\":
+            elif config.method == "contrastive":
                 results = self._dispatch_contrastive(config, wandb_run, ctx)
 
             # Restart if it was running

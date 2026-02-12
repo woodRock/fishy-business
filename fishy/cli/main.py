@@ -184,25 +184,26 @@ def _handle_train_execution(config: TrainingConfig):
         
     final_res = {}
     if results:
-            for k in results[0].keys():
-                vals = [r[k] for r in results if k in r and isinstance(r[k], (int, float))]
-                if vals: final_res[k] = sum(vals) / len(vals)
+        for k in results[0].keys():
+            vals = [r[k] for r in results if k in r and isinstance(r[k], (int, float))]
+            if vals: final_res[k] = sum(vals) / len(vals)
 
-        final_res["total_training_time_s"] = time.time() - start_all
-        if not config.statistical: display_final_summary(final_res)
-        else:
-            status.update("[bold yellow]Running statistical comparison...")
-            baseline_results = []
-            if config.model != "opls-da":
-                for i in range(n_runs):
-                    seed = (i + 1) * 123; set_seed(seed)
-                    b_cfg = TrainingConfig(model="opls-da", dataset=config.dataset, run=seed, method="classic", file_path=config.file_path)
-                    baseline_results.append(run_unified_training(b_cfg))
-            
-            res_map = {f"{config.dataset}|||{config.model}": results}
-            if baseline_results: res_map[f"{config.dataset}|||opls-da"] = baseline_results
-            summary_df = summarize_results(res_map)
-            display_statistical_summary(summary_df, show_significance=config.model != "opls-da")
+    final_res["total_training_time_s"] = time.time() - start_all
+    if not config.statistical: 
+        display_final_summary(final_res)
+    else:
+        # Note: We need a status if we want to update it, but let's be safe.
+        baseline_results = []
+        if config.model != "opls-da":
+            for i in range(n_runs):
+                seed = (i + 1) * 123; set_seed(seed)
+                b_cfg = TrainingConfig(model="opls-da", dataset=config.dataset, run=seed, method="classic", file_path=config.file_path)
+                baseline_results.append(run_unified_training(b_cfg))
+        
+        res_map = {f"{config.dataset}|||{config.model}": results}
+        if baseline_results: res_map[f"{config.dataset}|||opls-da"] = baseline_results
+        summary_df = summarize_results(res_map)
+        display_statistical_summary(summary_df, show_significance=config.model != "opls-da")
 
 if __name__ == "__main__":
     main()
