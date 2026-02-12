@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 Receptance Weighted Key-Value (RWKV) model for spectral classification.
+
+RWKV combines the training efficiency of Transformers with the inference 
+efficiency of RNNs. It uses a unique linear attention mechanism.
+
+References:
+1. Peng, B., et al. (2023). RWKV: Reinventing RNNs for Transformers. arXiv:2305.13048.
 """
 
 import torch
@@ -8,15 +14,92 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+class TimeMixing(nn.Module):
+    """
+    RWKV Time Mixing block.
+    """
+    def __init__(self, n_embd: int):
+        super().__init__()
+        self.n_embd = n_embd
+        self.receptance = nn.Linear(n_embd, n_embd, bias=False)
+        self.key = nn.Linear(n_embd, n_embd, bias=False)
+        self.value = nn.Linear(n_embd, n_embd, bias=False)
+        self.output = nn.Linear(n_embd, n_embd, bias=False)
+        
+        # Time decay parameters
+        self.time_decay = nn.Parameter(torch.ones(n_embd))
+        self.time_first = nn.Parameter(torch.ones(n_embd))
+
+    def forward(self, x: torch.Tensor):
+        # x shape: (batch, seq_len, n_embd)
+        B, T, C = x.size()
+        
+        r = self.receptance(x)
+        k = self.key(x)
+        v = self.value(x)
+        
+        # Simplified linear attention for 1D sequences
+        # In a full RWKV this would be a cumulative sum with decay
+        # For spectral data, we treat the peaks as a sequence
+        
+        w = torch.exp(-torch.exp(self.time_decay))
+        
+        # Recurrence implementation
+        out = torch.zeros_like(v)
+        a = torch.zeros(B, C, device=x.device)
+        b = torch.zeros(B, C, device=x.device)
+        
+        for t in range(T):
+            # Current time step
+            kt = k[:, t]
+            vt = v[:, t]
+            
+            # WKV update (simplified version)
+            ww = torch.exp(self.time_first) * kt
+            out[:, t] = torch.sigmoid(r[:, t]) * (a + torch.exp(ww) * vt) / (b + torch.exp(ww) + 1e-6)
+            
+            # Update state for next step
+            a = w * a + torch.exp(kt) * vt
+            b = w * b + torch.exp(kt)
+            
+        return self.output(out)
+
+
+class ChannelMixing(nn.Module):
+    """
+    RWKV Channel Mixing block.
+    """
+    def __init__(self, n_embd: int, dropout: float = 0.1):
+        super().__init__()
+        self.receptance = nn.Linear(n_embd, n_embd, bias=False)
+        self.key = nn.Linear(n_embd, n_embd, bias=False)
+        self.value = nn.Linear(n_embd, n_embd, bias=False)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x: torch.Tensor):
+        r = torch.sigmoid(self.receptance(x))
+        k = torch.square(torch.relu(self.key(x))) # Square ReLU is common in RWKV
+        kv = self.value(k)
+        return r * kv
+
+
+class RWKVBlock(nn.Module):
+    def __init__(self, n_embd: int, dropout: float = 0.1):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+        self.tm = TimeMixing(n_embd)
+        self.cm = ChannelMixing(n_embd, dropout=dropout)
+
+    def forward(self, x: torch.Tensor):
+        x = x + self.tm(self.ln1(x))
+        x = x + self.cm(self.ln2(x))
+        return x
+
+
 class RWKV(nn.Module):
     """
-    Receptance-Weighted Key-Value (RWKV) model.
-
-    Attributes:
-        input_dim (int): Number of input features.
-        output_dim (int): Number of output classes.
-        hidden_dim (int): Recurrent state dimension.
-        dropout (float): Dropout probability.
+    RWKV model for spectral classification.
     """
 
     def __init__(
@@ -24,45 +107,32 @@ class RWKV(nn.Module):
         input_dim: int,
         output_dim: int,
         hidden_dim: int = 128,
-        num_layers: int = 4,  # Used to scale depth
-        dropout: float = 0.2,
+        num_layers: int = 4,
+        dropout: float = 0.1,
         **kwargs
     ) -> None:
-        """
-        Initializes the RWKV model.
-
-        Args:
-            input_dim (int): Number of input features.
-            output_dim (int): Number of output classes.
-            hidden_dim (int, optional): Hidden dimension. Defaults to 128.
-            num_layers (int, optional): Number of blocks. Defaults to 4.
-            dropout (float, optional): Dropout rate. Defaults to 0.2.
-        """
         super(RWKV, self).__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.hidden_dim = hidden_dim
-
-        # Linear layers for key, value, and output
-        self.key_layer = nn.Linear(input_dim, hidden_dim)
-        self.value_layer = nn.Linear(input_dim, hidden_dim)
-        self.recurrent_layer = nn.Linear(hidden_dim, hidden_dim)
-        self.output_layer = nn.Linear(hidden_dim, output_dim)
-        self.dropout = nn.Dropout(dropout)
+        
+        self.embedding = nn.Linear(1, hidden_dim)
+        self.blocks = nn.ModuleList([
+            RWKVBlock(hidden_dim, dropout=dropout) for _ in range(num_layers)
+        ])
+        self.ln_out = nn.LayerNorm(hidden_dim)
+        self.head = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Compute keys and values
-        keys = self.key_layer(x)
-        values = self.value_layer(x)
-
-        # Update hidden state
-        batch_size = x.size(0)
-        h = torch.zeros(batch_size, self.hidden_dim, device=x.device)
+        # Reshape input: (batch, input_dim) -> (batch, input_dim, 1)
+        if x.dim() == 2:
+            x = x.unsqueeze(-1)
+            
+        x = self.embedding(x) # (batch, input_dim, hidden_dim)
         
-        # Simplified recurrent step
-        h = h + torch.tanh(keys + self.recurrent_layer(values))
+        for block in self.blocks:
+            x = block(x)
+            
+        x = self.ln_out(x)
+        x = x.mean(dim=1) # Pooling over sequence length
+        return self.head(x)
 
-        # Compute output
-        output = self.output_layer(h)
-        output = self.dropout(output)
-        return output
+
+__all__ = ["RWKV", "RWKVBlock"]

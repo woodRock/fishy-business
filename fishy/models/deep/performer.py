@@ -1,25 +1,111 @@
 # -*- coding: utf-8 -*-
 """
 Performer model for spectral classification.
+
+Performers use a linear approximation of the attention mechanism via 
+Random Fourier Features (FAVOR+), allowing them to scale to very long sequences.
+
+References:
+1. Choromanski, K., et al. (2020). Rethinking Attention with Performers. arXiv:2009.14794.
 """
 
 import math
 import torch
 import torch.nn as nn
-from typing import Optional
+import torch.nn.functional as F
 
 
-class PerformerAttention(nn.Module):
-    def __init__(self, input_dim: int, num_heads: int, num_random_features: int = 256) -> None:
-        super(PerformerAttention, self).__init__()
-        self.input_dim = input_dim
-        self.num_heads = num_heads
-        self.head_dim = input_dim // num_heads
-        self.num_random_features = num_random_features
+def softmax_kernel(data, projection_matrix, is_query, epsilon=1e-6):
+    """
+    Softmax kernel approximation for Performer.
+    """
+    if projection_matrix is None:
+        return data
+
+    # Projection
+    data_normalizer = (data.shape[-1]) ** -0.25
+    data = data * data_normalizer
+    
+    projection = torch.einsum("bnhd,md->bnhm", data, projection_matrix)
+    
+    # Kernel computation
+    data_squared_norm = torch.sum(data**2, dim=-1, keepdim=True) / 2
+    
+    if is_query:
+        return torch.exp(projection - data_squared_norm + epsilon)
+    else:
+        return torch.exp(projection - data_squared_norm + epsilon)
+
+
+class FastAttention(nn.Module):
+    """
+    FAVOR+ Fast Attention implementation.
+    """
+    def __init__(self, dim, heads=8, nb_features=64):
+        super().__init__()
+        self.dim = dim
+        self.heads = heads
+        self.nb_features = nb_features
+        self.head_dim = dim // heads
+        
+        # Random projection matrix
+        self.register_buffer("projection_matrix", torch.randn(nb_features, self.head_dim))
 
     def forward(self, q, k, v):
-        # Simplified Performer attention (linear approximation)
-        return q # Placeholder for real implementation
+        # q, k, v: (batch, heads, seq_len, head_dim)
+        
+        # Map to random feature space
+        q_prime = softmax_kernel(q, self.projection_matrix, is_query=True)
+        k_prime = softmax_kernel(k, self.projection_matrix, is_query=False)
+        
+        # k_prime: (B, H, L, M), v: (B, H, L, D)
+        # We want KV: (B, H, M, D)
+        kv = torch.einsum("bnhm,bnhd->bnhmd", k_prime, v)
+        
+        # Normalization factor
+        z = 1 / (torch.einsum("bnhm,bmh->bnh", q_prime, k_prime.sum(dim=2).transpose(1, 2)).unsqueeze(-1) + 1e-6)
+        
+        # Result: (B, H, L, D)
+        out = torch.einsum("bnhm,bnhmd,bnh->bnhd", q_prime, kv, z)
+        
+        return out
+
+
+class PerformerLayer(nn.Module):
+    def __init__(self, dim, heads=8, nb_features=64, dropout=0.1):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(dim)
+        self.ln2 = nn.LayerNorm(dim)
+        self.attn = FastAttention(dim, heads, nb_features)
+        
+        self.q_proj = nn.Linear(dim, dim)
+        self.k_proj = nn.Linear(dim, dim)
+        self.v_proj = nn.Linear(dim, dim)
+        self.out_proj = nn.Linear(dim, dim)
+        
+        self.mlp = nn.Sequential(
+            nn.Linear(dim, dim * 4),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(dim * 4, dim),
+            nn.Dropout(dropout)
+        )
+
+    def forward(self, x: torch.Tensor):
+        B, L, D = x.shape
+        residual = x
+        x = self.ln1(x)
+        
+        q = self.q_proj(x).view(B, L, 8, -1).transpose(1, 2)
+        k = self.k_proj(x).view(B, L, 8, -1).transpose(1, 2)
+        v = self.v_proj(x).view(B, L, 8, -1).transpose(1, 2)
+        
+        x = self.attn(q, k, v)
+        x = x.transpose(1, 2).reshape(B, L, D)
+        x = residual + self.out_proj(x)
+        
+        x = x + self.mlp(self.ln2(x))
+        return x
 
 
 class Performer(nn.Module):
@@ -33,39 +119,32 @@ class Performer(nn.Module):
         output_dim: int,
         hidden_dim: int = 128,
         num_layers: int = 4,
-        dropout: float = 0.2,
-        num_heads: int = 4,
+        dropout: float = 0.1,
+        num_heads: int = 8,
+        nb_features: int = 64,
         **kwargs
     ) -> None:
-        """
-        Initializes the Performer model.
-
-        Args:
-            input_dim (int): Number of input features.
-            output_dim (int): Number of output classes.
-            hidden_dim (int, optional): Hidden dimension. Defaults to 128.
-            num_layers (int, optional): Number of layers. Defaults to 4.
-            dropout (float, optional): Dropout rate. Defaults to 0.2.
-            num_heads (int, optional): Number of attention heads. Defaults to 4.
-        """
         super(Performer, self).__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.hidden_dim = hidden_dim
-
+        
         self.embedding = nn.Linear(1, hidden_dim)
         self.layers = nn.ModuleList([
-            nn.TransformerEncoderLayer(d_model=hidden_dim, nhead=num_heads, dropout=dropout)
+            PerformerLayer(hidden_dim, heads=num_heads, nb_features=nb_features, dropout=dropout)
             for _ in range(num_layers)
         ])
-        self.fc_out = nn.Linear(hidden_dim, output_dim)
+        self.ln_out = nn.LayerNorm(hidden_dim)
+        self.head = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() == 2:
             x = x.unsqueeze(-1)
+            
         x = self.embedding(x)
-        x = x.transpose(0, 1)
         for layer in self.layers:
             x = layer(x)
-        x = x.mean(dim=0)
-        return self.fc_out(x)
+            
+        x = self.ln_out(x)
+        x = x.mean(dim=1)
+        return self.head(x)
+
+
+__all__ = ["Performer", "PerformerLayer"]

@@ -1,21 +1,41 @@
 # -*- coding: utf-8 -*-
 """
 Residual Convolutional Neural Network (RCNN) for spectral classification.
+
+This model uses residual blocks with 1D convolutions to capture spectral patterns
+while allowing for deeper architectures via skip connections.
 """
 
 import torch
 import torch.nn as nn
 
 
+class ResidualBlock(nn.Module):
+    def __init__(self, channels, dropout=0.2):
+        super(ResidualBlock, self).__init__()
+        self.conv1 = nn.Conv1d(channels, channels, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm1d(channels)
+        self.relu = nn.ReLU()
+        self.conv2 = nn.Conv1d(channels, channels, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm1d(channels)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        residual = x
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+        out = self.conv2(out)
+        out = self.bn2(out)
+        out = self.dropout(out)
+        out += residual
+        out = self.relu(out)
+        return out
+
+
 class RCNN(nn.Module):
     """
     Residual Convolutional Neural Network (RCNN) model.
-
-    Attributes:
-        input_dim (int): Number of input features.
-        output_dim (int): Number of output classes.
-        hidden_dim (int): Hidden layer dimension.
-        dropout (float): Dropout probability.
     """
 
     def __init__(
@@ -27,46 +47,39 @@ class RCNN(nn.Module):
         dropout: float = 0.2,
         **kwargs
     ) -> None:
-        """
-        Initializes the RCNN model.
-
-        Args:
-            input_dim (int): Number of input features.
-            output_dim (int): Number of output classes.
-            hidden_dim (int, optional): Hidden layer dimension. Defaults to 128.
-            num_layers (int, optional): Number of blocks. Defaults to 4.
-            dropout (float, optional): Dropout rate. Defaults to 0.2.
-        """
         super(RCNN, self).__init__()
-        self.input_dim = input_dim
-        self.output_dim = output_dim
-        self.hidden_dim = hidden_dim
-
-        self.conv_layers = nn.Sequential(
-            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(32),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2),
-            nn.Dropout(dropout),
-            nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
+        
+        self.initial_conv = nn.Sequential(
+            nn.Conv1d(1, 64, kernel_size=7, stride=2, padding=3),
             nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2, stride=2),
+            nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
         )
 
-        # Dynamic calculation of flattened features
-        self.flat_features = 64 * (input_dim // 4)
+        # Residual blocks
+        layers = []
+        for _ in range(num_layers):
+            layers.append(ResidualBlock(64, dropout=dropout))
+        self.res_layers = nn.Sequential(*layers)
 
-        self.fc_layers = nn.Sequential(
-            nn.Linear(self.flat_features, hidden_dim),
+        # Global pooling and output
+        self.avgpool = nn.AdaptiveAvgPool1d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(64, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, output_dim),
+            nn.Linear(hidden_dim, output_dim)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() == 2:
             x = x.unsqueeze(1)
-        x = self.conv_layers(x)
-        x = x.contiguous().view(x.size(0), -1)
-        return self.fc_layers(x)
+        
+        x = self.initial_conv(x)
+        x = self.res_layers(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        return self.fc(x)
+
+
+__all__ = ["RCNN"]
