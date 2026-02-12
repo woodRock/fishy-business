@@ -68,6 +68,10 @@ extensions = [
     "nbsphinx",
 ]
 
+# nbsphinx configuration
+nbsphinx_allow_errors = True
+nbsphinx_execute = "always"  # Or "never" if you want to be safe
+
 # sphinx-copybutton configuration
 copybutton_prompt_text = r">>> |\$ |node "
 copybutton_prompt_is_regexp = True

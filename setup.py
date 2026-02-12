@@ -14,6 +14,9 @@ setup(
     url="https://github.com/woodRock/fishy-business",
     packages=find_packages(exclude=["tests*", "dashboard*"]),
     include_package_data=True,
+    package_data={
+        "fishy": ["configs/*.yaml", "configs/experiments/*.yaml"],
+    },
     install_requires=requirements,
     extras_require={
         "viz": ["pygraphviz"],
