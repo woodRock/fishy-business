@@ -58,7 +58,6 @@ Key Features
    wizard
    dashboard
    tutorials
-   examples
 
 .. toctree::
    :maxdepth: 2
@@ -69,6 +68,7 @@ Key Features
    datasets_guide
    xai_guide
    papers
+   examples
 
 .. toctree::
    :maxdepth: 2

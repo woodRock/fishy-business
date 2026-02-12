@@ -178,6 +178,11 @@ class ContrastiveTrainer:
         self.evaluate_pairwise_performance()
         
         self.ctx.save_results(self.metrics)
+        
+        # Add non-serializable objects for notebook/in-memory use after saving
+        self.metrics["model"] = self.model
+        self.metrics["data_module"] = self.data_module
+        
         if self.ctx.wandb_run: self.log_contrastive_visualizations()
 
     def _optimize_threshold(self, similarities: np.ndarray, labels: np.ndarray) -> float:

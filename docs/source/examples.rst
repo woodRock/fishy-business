@@ -1,5 +1,5 @@
-Examples and Tutorials
-=======================
+Examples
+========
 
 This section contains a step-by-step tutorial on how to use the `fishy-business` library programmatically.
 

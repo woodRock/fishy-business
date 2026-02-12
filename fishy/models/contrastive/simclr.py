@@ -44,6 +44,10 @@ class SimCLRModel(nn.Module):
         z2 = self.projector(self.encoder(x2))
         return z1, z2
 
+    def forward_one(self, x: torch.Tensor) -> torch.Tensor:
+        """Extracts embeddings for a single input."""
+        return self.encoder(x)
+
 
 class SimCLRLoss(nn.Module):
     def __init__(self, temperature: float = 0.5):

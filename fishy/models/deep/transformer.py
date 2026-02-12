@@ -222,8 +222,12 @@ class Transformer(nn.Module):
             torch.Tensor: Logits/predictions of shape (batch_size, output_dim).
         """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
+        # For 1D spectral data, we treat the peaks as features in a sequence of length 1
         if x.dim() == 2:
             x = x.unsqueeze(1)
+        elif x.dim() == 3 and x.size(2) == 1:
+            # Handle (B, L, 1) by transposing to (B, 1, L) so L becomes the feature dim
+            x = x.transpose(1, 2)
 
         # Apply attention layers with residual connections
         for attention in self.attention_layers:
