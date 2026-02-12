@@ -171,16 +171,37 @@ def _handle_train_execution(config: TrainingConfig):
         console._status = status_manager
         try:
             for i in range(n_runs):
-                seed = (i + 1) * 123; config.run = seed; set_seed(seed)
-                status_manager.update(f"[bold green]Experiment {i+1}/{n_runs}...")
-                results.append(run_unified_training(config))
+                            seed = (i + 1) * 123; config.run = seed; set_seed(seed)
+                            status_manager.update(f"[bold green]Experiment {i+1}/{n_runs}...")
+                            res = run_unified_training(config)
+                            # Strip memory-intensive objects
+                            res.pop("model", None)
+                            res.pop("data_module", None)
+                            results.append(res)
+                            
+                            # Forced cleanup between runs
+                            import gc, torch
+                            gc.collect()
+                            if torch.cuda.is_available(): torch.cuda.empty_cache()
+                            if hasattr(torch, "mps") and torch.backends.mps.is_available(): torch.mps.empty_cache()
+                
         finally:
             status_manager.stop()
             console._status = None
     else:
         # Single run: no status here, let the inner trainer handle progress
         seed = config.run if config.run != 0 else 123; config.run = seed; set_seed(seed)
-        results.append(run_unified_training(config))
+        res = run_unified_training(config)
+        # Strip memory-intensive objects
+        res.pop("model", None)
+        res.pop("data_module", None)
+        results.append(res)
+        
+        # Forced cleanup
+        import gc, torch
+        gc.collect()
+        if torch.cuda.is_available(): torch.cuda.empty_cache()
+        if hasattr(torch, "mps") and torch.backends.mps.is_available(): torch.mps.empty_cache()
         
     final_res = {}
     if results:

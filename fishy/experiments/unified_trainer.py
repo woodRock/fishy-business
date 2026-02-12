@@ -81,7 +81,12 @@ class UnifiedTrainer:
                             if hasattr(train_cfg, k):
                                 setattr(train_cfg, k, v)
                         train_cfg.method = detect_method(model)
-                        model_results.append(self._run_single(train_cfg))
+                        
+                        run_results = self._run_single(train_cfg)
+                        # Strip heavy objects before storing in the summary list
+                        run_results.pop("model", None)
+                        run_results.pop("data_module", None)
+                        model_results.append(run_results)
                         
                     results_summary[f"{dataset}|||{model}"] = model_results
         finally:
@@ -164,6 +169,15 @@ class UnifiedTrainer:
         finally:
             if wandb_run:
                 wandb_run.finish()
+            
+            # Explicit memory management to prevent CUDA OOM
+            import gc
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            if hasattr(torch, "mps") and torch.backends.mps.is_available():
+                torch.mps.empty_cache()
+                
         return results
 
     def _dispatch_transfer(self, config, wandb_run, ctx):
@@ -190,6 +204,9 @@ class UnifiedTrainer:
         model, stats = trainer.train(pre_trained_model)
         stats["model"] = model
         stats["data_module"] = trainer.data_module
+        
+        # Clean up trainer reference to allow GC of its internal model if not in stats
+        del trainer
         return stats
 
     def _dispatch_sklearn(self, config, wandb_run, ctx):
@@ -200,6 +217,8 @@ class UnifiedTrainer:
         model, stats = trainer.run()
         stats["model"] = model
         stats["data_module"] = trainer.data_module
+        
+        del trainer
         return stats
 
     def _dispatch_contrastive(self, config, wandb_run, ctx):
@@ -217,7 +236,15 @@ class UnifiedTrainer:
             wandb_log=config.wandb_log,
             encoder_type=config.encoder_type
         )
-        return run_contrastive_experiment(c_cfg, wandb_run=wandb_run, ctx=ctx)
+        trainer = ContrastiveTrainer(c_cfg, wandb_run=wandb_run, ctx=ctx)
+        try:
+            trainer.setup(); trainer.train()
+            # Standardize contrastive results to include model for XAI
+            trainer.metrics["model"] = trainer.model
+            trainer.metrics["data_module"] = trainer.data_module
+            return trainer.metrics
+        finally:
+            del trainer
 
     def _do_benchmark(self, config, ctx, device, training_time):
         dm = create_data_module(dataset_name=config.dataset, file_path=config.file_path)
