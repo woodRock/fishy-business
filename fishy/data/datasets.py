@@ -11,40 +11,6 @@ import torch.nn.functional as F
 from torch.utils.data import Dataset, Sampler
 
 
-class DatasetType(Enum):
-    """Enumeration for the different types of datasets."""
-
-    SPECIES = auto()
-    PART = auto()
-    OIL = auto()
-    OIL_SIMPLE = auto()
-    OIL_REGRESSION = auto()
-    CROSS_SPECIES = auto()
-    CROSS_SPECIES_HARD = auto()
-    INSTANCE_RECOGNITION = auto()
-    INSTANCE_RECOGNITION_HARD = auto()
-
-    @classmethod
-    def from_string(cls, name: str) -> "DatasetType":
-        alias_map = {
-            "species": cls.SPECIES,
-            "part": cls.PART,
-            "oil": cls.OIL,
-            "oil_simple": cls.OIL_SIMPLE,
-            "oil_regression": cls.OIL_REGRESSION,
-            "cross-species": cls.CROSS_SPECIES,
-            "cross-species-hard": cls.CROSS_SPECIES_HARD,
-            "instance-recognition": cls.INSTANCE_RECOGNITION,
-            "instance-recognition-hard": cls.INSTANCE_RECOGNITION_HARD,
-        }
-        target_name = name.lower()
-        if target_name in alias_map:
-            return alias_map[target_name]
-        raise ValueError(
-            f"Invalid dataset name: {name}. Must be one of {list(alias_map.keys())}"
-        )
-
-
 class BaseDataset(Dataset):
     def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)

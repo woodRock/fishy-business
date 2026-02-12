@@ -166,7 +166,7 @@ def _handle_train_execution(config: TrainingConfig):
     with console.status(f"[bold green]Running {n_runs} experiments...") as status:
         for i in range(n_runs):
             seed = (i + 1) * 123; config.run = seed; set_seed(seed)
-            console.log(f"[bold green]Experiment {i+1}/{n_runs}...")
+            status.update(f"[bold green]Experiment {i+1}/{n_runs}...")
             results.append(run_unified_training(config))
         
         final_res = {}

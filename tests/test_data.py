@@ -8,7 +8,6 @@ from fishy.data.datasets import (
     BaseDataset,
     SiameseDataset,
     BalancedBatchSampler,
-    DatasetType,
 )
 from fishy.data.module import DataProcessor, DataModule
 
@@ -41,16 +40,11 @@ class TestDatasets(unittest.TestCase):
         indices = next(iter(sampler))
         self.assertEqual(len(indices), 4)
 
-    def test_dataset_type_from_string(self):
-        self.assertEqual(DatasetType.from_string("species"), DatasetType.SPECIES)
-        with self.assertRaises(ValueError):
-            DatasetType.from_string("invalid")
-
 
 class TestDataModule(unittest.TestCase):
     def test_data_processor_init(self):
-        proc = DataProcessor(DatasetType.SPECIES)
-        self.assertEqual(proc.dataset_type, DatasetType.SPECIES)
+        proc = DataProcessor("species")
+        self.assertEqual(proc.dataset_name, "species")
         self.assertIsInstance(proc.config, dict)
 
     @patch("fishy.data.module.DataProcessor.load_data")

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Interactive wizard for setting up experiments with consistent numbered choices.
+Interactive wizard for setting up experiments with task-specific branching.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
@@ -33,40 +33,58 @@ def run_wizard():
     console.clear()
 
     # 1. Welcome Header
-    header_text = Text(" FISHY BUSINESS ", style="bold white on blue")
+    header_text = Text(" 🐟 FISHY BUSINESS ", style="bold white on blue")
     header_text.append("\nExperiment Setup Wizard", style="italic cyan")
     console.print(Panel(header_text, expand=False, border_style="blue"))
 
     models_cfg = load_config("models")
     datasets_cfg = load_config("datasets")
 
-    # 2. Select Model Category
-    categories = {
-        "Deep Learning": "deep_models",
-        "Classic ML": "classic_models",
-        "Evolutionary": "evolutionary_models",
-        "Contrastive": "contrastive_models",
-        "Probabilistic / Bayesian": "probabilistic_models",
-    }
-    cat_names = list(categories.keys())
-    selected_cat_name = ask_numbered_choice("Model Categories", cat_names)
-    section_key = categories[selected_cat_name]
+    # 2. Select High-Level Task
+    task_options = ["Classification (Standard)", "Contrastive Learning (Self-Supervised)"]
+    selected_task = ask_numbered_choice("What is your primary research task?", task_options)
 
-    # 3. Select Specific Model
-    available_models = sorted(list(models_cfg[section_key].keys()))
-    model = ask_numbered_choice(f"{selected_cat_name} Models", available_models)
+    model = "transformer"
+    encoder = "dense"
+    dataset = "species"
+    section_key = "deep_models"
 
-    # 4. Select Dataset
-    available_datasets = sorted(list(datasets_cfg.keys()))
-    dataset = ask_numbered_choice("Available Datasets", available_datasets)
+    if "Contrastive" in selected_task:
+        # CONTRASTIVE PATH
+        available_methods = sorted(list(models_cfg["contrastive_models"].keys()))
+        model = ask_numbered_choice("Select Contrastive Method", available_methods)
+        
+        available_encoders = sorted(list(models_cfg["deep_models"].keys()))
+        encoder = ask_numbered_choice("Select Encoder (Backbone)", available_encoders)
+        
+        available_datasets = sorted(list(datasets_cfg.keys()))
+        dataset = ask_numbered_choice("Select Dataset", available_datasets)
+        section_key = "contrastive_models"
+    else:
+        # CLASSIFICATION PATH
+        categories = {
+            "Deep Learning": "deep_models",
+            "Classic ML": "classic_models",
+            "Evolutionary": "evolutionary_models",
+            "Probabilistic / Bayesian": "probabilistic_models",
+        }
+        cat_names = list(categories.keys())
+        selected_cat_name = ask_numbered_choice("Model Category", cat_names)
+        section_key = categories[selected_cat_name]
 
-    # 5. Analysis Flags
+        available_models = sorted(list(models_cfg[section_key].keys()))
+        model = ask_numbered_choice(f"{selected_cat_name} Models", available_models)
+
+        available_datasets = sorted(list(datasets_cfg.keys()))
+        dataset = ask_numbered_choice("Available Datasets", available_datasets)
+
+    # 3. Analysis Flags
     console.print("\n[bold underline]Analysis & Logging Options[/]")
     benchmark = Confirm.ask("Enable performance benchmarking?", default=False)
     figures = Confirm.ask("Generate training/eval figures?", default=True)
     wandb_log = Confirm.ask("Log to Weights & Biases?", default=False)
 
-    # 6. Advanced Options
+    # 4. Advanced Options
     is_transfer = False
     is_ordinal = False
     is_regression = False
@@ -77,10 +95,11 @@ def run_wizard():
     elif section_key in ["classic_models", "probabilistic_models"]:
         is_regression = Confirm.ask("Enable Regression Mode?", default=False)
 
-    # 7. Summary and Output
+    # 5. Summary and Output
     config = TrainingConfig(
         model=model,
         dataset=dataset,
+        encoder_type=encoder,
         benchmark=benchmark,
         figures=figures,
         wandb_log=wandb_log,
@@ -91,14 +110,13 @@ def run_wizard():
     summary_table = Table(title="[bold green]Configuration Summary[/]", box=None)
     summary_table.add_column("Property", style="cyan")
     summary_table.add_column("Value", style="magenta")
+    summary_table.add_row("Task", selected_task)
     summary_table.add_row("Model", model)
+    if "Contrastive" in selected_task:
+        summary_table.add_row("Encoder", encoder)
     summary_table.add_row("Dataset", dataset)
     summary_table.add_row("Benchmark", "Enabled" if benchmark else "Disabled")
     summary_table.add_row("W&B Log", "Enabled" if wandb_log else "Disabled")
-    if is_transfer:
-        summary_table.add_row("Mode", "Transfer Learning")
-    if is_regression:
-        summary_table.add_row("Mode", "Regression")
 
     console.print("\n", summary_table)
 
@@ -109,6 +127,8 @@ def run_wizard():
 
     if selected_output == "CLI Command":
         cmd = f"python3 main.py train -m {model} -d {dataset}"
+        if "Contrastive" in selected_task:
+            cmd += f" --encoder {encoder}"
         if benchmark:
             cmd += " --benchmark"
         if figures:
@@ -122,12 +142,8 @@ def run_wizard():
         if is_regression:
             cmd += " --regression"
 
-        console.print("\n")
-        console.print(
-            Panel(
-                f"[bold green]{cmd}[/]", title="Generated Command", border_style="green"
-            )
-        )
+        console.print("\n[bold yellow]Copy and run this command:[/]")
+        console.print(f"\n{cmd}\n")
     else:
         filename = Prompt.ask("Enter config filename", default="experiment.yaml")
         config.to_yaml(filename)

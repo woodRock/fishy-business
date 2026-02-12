@@ -13,7 +13,7 @@ import torch
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import LabelEncoder
 
-from .datasets import DatasetType, CustomDataset, SiameseDataset
+from .datasets import CustomDataset, SiameseDataset
 from .augmentation import AugmentationConfig, DataAugmenter
 from fishy._core.config_loader import load_config
 
@@ -22,12 +22,11 @@ logger = logging.getLogger(__name__)
 class DataProcessor:
     """Handles the low-level processing of raw data into features and labels."""
 
-    def __init__(self, dataset_type: DatasetType, batch_size: int = 64) -> None:
-        self.dataset_type = dataset_type
+    def __init__(self, dataset_name: str, batch_size: int = 64) -> None:
+        self.dataset_name = dataset_name
         self.batch_size = batch_size
         self.label_encoder_ = None
         all_configs = load_config("datasets")
-        dataset_name = dataset_type.name.lower().replace("_", "-")
         self.config = all_configs.get(dataset_name, {})
         if not self.config and dataset_name == "oil-regression": self.config = all_configs.get("oil_regression", {})
         if not self.config and dataset_name == "oil-simple": self.config = all_configs.get("oil_simple", {})
@@ -87,21 +86,21 @@ class DataProcessor:
             y_series = data["m/z"].astype(str).apply(encode_regex)
             mask = y_series.notna(); X = data[mask].drop("m/z", axis=1).to_numpy(dtype=np.float32)
             y = np.array(y_series[mask].tolist(), dtype=np.float32)
-        else: raise ValueError(f"Unknown label encoding type for {self.dataset_type}")
+        else: raise ValueError(f"Unknown label encoding type for {self.dataset_name}")
         if y.ndim == 1: y = y[:, np.newaxis]
         return X, y
 
     def extract_groups(self, data: pd.DataFrame) -> np.ndarray:
         if "m/z" not in data.columns: return np.arange(len(data))
         groups = data["m/z"].astype(str).apply(lambda x: x.split("_")[0])
-        if "instance-recognition" in self.dataset_type.name.lower().replace("_", "-"): groups = data.iloc[:, 0].astype(str)
+        if "instance-recognition" in self.dataset_name: groups = data.iloc[:, 0].astype(str)
         return groups.to_numpy()
 
 def preprocess_data_pipeline(data_processor: DataProcessor, file_path: Union[str, Path], is_pre_train: bool = False, augmentation_cfg: Optional[AugmentationConfig] = None) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
     raw_df = data_processor.load_data(file_path); filtered_df = data_processor.filter_data(raw_df, is_pre_train)
     if filtered_df.empty: return (DataLoader(CustomDataset(np.array([]), np.array([])), batch_size=data_processor.batch_size), raw_df, filtered_df)
     X, y = data_processor.encode_labels(filtered_df)
-    dataset_class = SiameseDataset if "instance-recognition" in data_processor.dataset_type.name.lower().replace("_", "-") else CustomDataset
+    dataset_class = SiameseDataset if "instance-recognition" in data_processor.dataset_name else CustomDataset
     torch_dataset = dataset_class(X, y)
     data_loader = DataLoader(torch_dataset, batch_size=data_processor.batch_size, shuffle=True, pin_memory=True)
     if augmentation_cfg and augmentation_cfg.enabled: data_loader = DataAugmenter(augmentation_cfg).augment(data_loader)
@@ -112,7 +111,7 @@ class DataModule:
 
     def __init__(self, dataset_name: str, file_path: Union[str, Path], batch_size: int = 64, is_pre_train: bool = False, augmentation_config: Optional[AugmentationConfig] = None) -> None:
         self.dataset_name_str = dataset_name; self.file_path = file_path; self.batch_size = batch_size; self.is_pre_train = is_pre_train; self.augmentation_config = augmentation_config
-        self.processor = DataProcessor(DatasetType.from_string(dataset_name), batch_size); self.train_loader, self.raw_data, self.filtered_data = None, None, None
+        self.processor = DataProcessor(dataset_name, batch_size); self.train_loader, self.raw_data, self.filtered_data = None, None, None
 
     def setup(self) -> None:
         self.train_loader, self.raw_data, self.filtered_data = preprocess_data_pipeline(self.processor, self.file_path, self.is_pre_train, self.augmentation_config)

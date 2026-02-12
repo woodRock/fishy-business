@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Contrastive learning experiments with restored balanced sampling and similarity evaluation.
+Contrastive learning experiments with comprehensive pair-wise similarity metrics.
 """
 
 import torch
@@ -16,7 +16,15 @@ import matplotlib.pyplot as plt
 import wandb
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import (
+    balanced_accuracy_score, 
+    accuracy_score, 
+    mean_absolute_error, 
+    mean_squared_error, 
+    precision_score, 
+    recall_score, 
+    f1_score
+)
 from sklearn.model_selection import train_test_split
 
 from fishy._core.config import TrainingConfig
@@ -60,7 +68,7 @@ class ContrastiveConfig:
 
 
 class ContrastiveTrainer:
-    """Restored Contrastive Trainer with Balanced Sampling and Similarity Metrics."""
+    """Trainer focused on Pair-wise Similarity Metrics for self-supervised learning."""
 
     def __init__(
         self,
@@ -112,7 +120,6 @@ class ContrastiveTrainer:
 
         self.optimizer = optim.AdamW(self.model.parameters(), lr=self.config.learning_rate, weight_decay=self.config.weight_decay)
 
-        # Restored Balanced Sampling
         full_samples, full_labels = self.data_module.get_numpy_data()
         self.siamese_dataset = SiameseDataset(full_samples, full_labels)
         self.train_sampler = BalancedBatchSampler(self.siamese_dataset.paired_labels, self.config.batch_size)
@@ -125,10 +132,20 @@ class ContrastiveTrainer:
 
         for epoch in track(range(self.config.num_epochs), description="Contrastive Training..."):
             total_loss = 0
-            all_h1, all_h2, all_pair_labels = [], [], []
+            all_sims, all_labels = [], []
             
             for x1, x2, pair_labels, y1, y2 in self.train_loader:
                 x1, x2 = x1.to(self.device), x2.to(self.device)
+                pair_labels = pair_labels.to(self.device)
+                
+                # Filter for positive pairs if the method only supports them
+                method = self.config.contrastive_method.lower()
+                if method in ["byol", "simsiam", "barlow_twins"]:
+                    mask = (pair_labels == 1).flatten()
+                    if not mask.any(): continue
+                    x1, x2 = x1[mask], x2[mask]
+                    pair_labels = pair_labels[mask]
+                
                 self.optimizer.zero_grad()
                 outputs = self.model(x1, x2)
                 
@@ -137,74 +154,109 @@ class ContrastiveTrainer:
                 self.optimizer.step()
                 total_loss += loss.item()
                 
-                # Collect for threshold/accuracy (SimCLR style similarity)
-                if self.config.contrastive_method == "simclr":
-                    z1, z2 = outputs
-                    all_h1.append(z1.detach()); all_h2.append(z2.detach())
-                    all_pair_labels.append(pair_labels.detach())
+                # Dynamic Accuracy Check (Training set)
+                with torch.no_grad():
+                    z1, z2 = outputs[0], outputs[1] if isinstance(outputs, tuple) else (outputs, outputs)
+                    sim = F.cosine_similarity(z1, z2).cpu().numpy()
+                    all_sims.extend(sim)
+                    all_labels.extend(pair_labels.cpu().numpy().flatten())
 
             avg_loss = total_loss / len(self.train_loader)
             history["loss"].append(avg_loss)
             
-            # Restored: Find best threshold and calculate pair-wise accuracy
-            if all_h1:
-                h1, h2 = torch.cat(all_h1), torch.cat(all_h2)
-                lbls = torch.cat(all_pair_labels)
-                self.best_threshold = self._find_best_threshold(h1, h2, lbls)
-                acc = self._compute_pair_accuracy(h1, h2, lbls, self.best_threshold)
-                history["accuracy"].append(acc)
+            # Epoch-level accuracy for progress bar
+            self.best_threshold = self._optimize_threshold(np.array(all_sims), np.array(all_labels))
+            acc = accuracy_score(np.array(all_labels), (np.array(all_sims) > self.best_threshold).astype(int))
+            history["accuracy"].append(acc)
 
         self.metrics = {
             "history": history,
             "val_loss": history["loss"][-1] if history["loss"] else 0,
-            "train_accuracy": history["accuracy"][-1] if history["accuracy"] else 0
         }
         
-        self.evaluate_classification()
+        # Comprehensive Pair-wise evaluation
+        self.evaluate_pairwise_performance()
+        
         self.ctx.save_results(self.metrics)
         if self.ctx.wandb_run: self.log_contrastive_visualizations()
 
-    def _find_best_threshold(self, h1, h2, labels) -> float:
-        similarities = F.cosine_similarity(h1, h2).cpu().numpy()
-        true_labels = labels.cpu().numpy().flatten()
+    def _optimize_threshold(self, similarities: np.ndarray, labels: np.ndarray) -> float:
+        """Finds threshold maximizing balanced accuracy."""
         best_acc, best_thresh = 0, 0.5
         for threshold in np.arange(0, 1, 0.05):
-            preds = (similarities > threshold).astype(int)
-            acc = balanced_accuracy_score(true_labels, preds)
+            acc = balanced_accuracy_score(labels, (similarities > threshold).astype(int))
             if acc > best_acc: best_acc, best_thresh = acc, threshold
         return best_thresh
 
-    def _compute_pair_accuracy(self, h1, h2, labels, threshold) -> float:
-        similarities = F.cosine_similarity(h1, h2).cpu().numpy()
-        true_labels = labels.cpu().numpy().flatten()
+    def _calculate_pairwise_metrics(self, similarities: np.ndarray, labels: np.ndarray, threshold: float, prefix: str):
+        """Calculates all requested metrics for a set of similarities."""
         preds = (similarities > threshold).astype(int)
-        return balanced_accuracy_score(true_labels, preds)
+        self.metrics.update({
+            f"{prefix}_accuracy": accuracy_score(labels, preds),
+            f"{prefix}_balanced_accuracy": balanced_accuracy_score(labels, preds),
+            f"{prefix}_mae": mean_absolute_error(labels, similarities),
+            f"{prefix}_mse": mean_squared_error(labels, similarities),
+            f"{prefix}_precision": precision_score(labels, preds, zero_division=0),
+            f"{prefix}_recall": recall_score(labels, preds, zero_division=0),
+            f"{prefix}_f1": f1_score(labels, preds, zero_division=0),
+        })
+        # Standardize for CLI display
+        if prefix == "val":
+            self.metrics["accuracy"] = self.metrics["val_accuracy"]
+            self.metrics["balanced_accuracy"] = self.metrics["val_balanced_accuracy"]
+            self.metrics["mae"] = self.metrics["val_mae"]
+            self.metrics["mse"] = self.metrics["val_mse"]
+            self.metrics["precision"] = self.metrics["val_precision"]
+            self.metrics["recall"] = self.metrics["val_recall"]
+            self.metrics["f1"] = self.metrics["val_f1"]
 
-    def evaluate_classification(self) -> None:
-        """Evaluates learned representations via a linear probe."""
-        self.logger.info("Evaluating representations via linear probe...")
+    def evaluate_pairwise_performance(self) -> None:
+        """Evaluates pair-wise similarity across all data splits."""
+        self.logger.info("Calculating comprehensive pair-wise metrics...")
         self.model.eval()
-        X, y = self.data_module.get_numpy_data(labels_as_indices=True)
-        embeddings = []
-        with torch.no_grad():
-            eval_loader = DataLoader(torch.utils.data.TensorDataset(torch.tensor(X, dtype=torch.float32), torch.tensor(y)), batch_size=64)
-            for batch_x, _ in eval_loader:
-                backbone = self.model.encoder if hasattr(self.model, "encoder") else (self.model.online_encoder if hasattr(self.model, "online_encoder") else self.model)
-                emb = backbone(batch_x.to(self.device))
-                embeddings.append(emb.cpu().numpy())
         
-        X_emb = np.concatenate(embeddings, axis=0)
+        # We'll use the SiameseDataset to get pairs
+        full_samples, full_labels = self.data_module.get_numpy_data()
         
-        # Robust split for small datasets
+        # Split data manually to ensure we have a 'Val' set for similarity
         try:
-            X_tr, X_te, y_tr, y_te = train_test_split(X_emb, y, test_size=0.3, stratify=y, random_state=42)
+            X_tr, X_val, y_tr, y_val = train_test_split(
+                full_samples, 
+                full_labels, 
+                test_size=0.3, 
+                stratify=np.argmax(full_labels, axis=1), 
+                random_state=42
+            )
         except ValueError:
-            # Fallback to non-stratified if stratification fails
-            X_tr, X_te, y_tr, y_te = train_test_split(X_emb, y, test_size=0.5, random_state=42)
-            
-        clf = LogisticRegression(max_iter=1000).fit(X_tr, y_tr)
-        tr_acc, te_acc = balanced_accuracy_score(y_tr, clf.predict(X_tr)), balanced_accuracy_score(y_te, clf.predict(X_te))
-        self.metrics.update({"val_balanced_accuracy": te_acc, "train_balanced_accuracy": tr_acc, "accuracy": te_acc})
+            self.logger.warning("Stratified split failed (likely too many classes for the test size). Falling back to non-stratified split.")
+            X_tr, X_val, y_tr, y_val = train_test_split(
+                full_samples, 
+                full_labels, 
+                test_size=0.3, 
+                random_state=42
+            )
+        
+        def get_sims(X, y):
+            ds = SiameseDataset(X, y)
+            ldr = DataLoader(ds, batch_size=self.config.batch_size)
+            sims, lbls = [], []
+            with torch.no_grad():
+                for x1, x2, pair_lbl, _, _ in ldr:
+                    outputs = self.model(x1.to(self.device), x2.to(self.device))
+                    z1, z2 = outputs[0], outputs[1] if isinstance(outputs, tuple) else (outputs, outputs)
+                    sims.extend(F.cosine_similarity(z1, z2).cpu().numpy())
+                    lbls.extend(pair_lbl.cpu().numpy().flatten())
+            return np.array(sims), np.array(lbls)
+
+        train_sims, train_lbls = get_sims(X_tr, y_tr)
+        val_sims, val_lbls = get_sims(X_val, y_val)
+        
+        # Optimize threshold on training similarities
+        self.best_threshold = self._optimize_threshold(train_sims, train_lbls)
+        
+        # Calculate all metrics
+        self._calculate_pairwise_metrics(train_sims, train_lbls, self.best_threshold, "train")
+        self._calculate_pairwise_metrics(val_sims, val_lbls, self.best_threshold, "val")
 
     def log_contrastive_visualizations(self) -> None:
         table = wandb.Table(columns=["id", "pair_1", "pair_2", "relationship"])

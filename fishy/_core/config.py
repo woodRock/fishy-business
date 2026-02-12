@@ -108,6 +108,9 @@ class TrainingConfig:
         # Handle special mappings
         if "ordinal" in arg_dict and arg_dict["ordinal"]:
             config_dict["ordinal_method"] = arg_dict["ordinal"]
+        
+        if "encoder" in arg_dict and arg_dict["encoder"]:
+            config_dict["encoder_type"] = arg_dict["encoder"]
 
         valid_keys = {f.name for f in dataclasses.fields(cls)}
         for key in valid_keys:
