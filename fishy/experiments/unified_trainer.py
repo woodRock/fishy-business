@@ -51,13 +51,18 @@ class UnifiedTrainer:
         exp_cfg = self.config
         results_summary = {}
         from fishy.cli.main import DEFAULT_DATA_PATH, detect_method
+        from fishy._core.utils import console
 
-        with console.status(f"[bold blue]Executing Batch: {exp_cfg.name}...") as status:
+        status_manager = console.status(f\"[bold blue]Executing Batch: {exp_cfg.name}...\") if exp_cfg.num_runs > 1 else None
+        
+        try:
+            if status_manager: 
+                status_manager.start()
+                console._status = status_manager
+            
             for dataset in exp_cfg.datasets:
                 for model in exp_cfg.models:
-                    status.update(
-                        f"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]"
-                    )
+                    if status_manager: status_manager.update(f\"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]\")
                     model_results = []
                     for run_id in range(exp_cfg.num_runs):
                         seed = (run_id + 1) * 123
@@ -77,7 +82,12 @@ class UnifiedTrainer:
                                 setattr(train_cfg, k, v)
                         train_cfg.method = detect_method(model)
                         model_results.append(self._run_single(train_cfg))
-                    results_summary[f"{dataset}|||{model}"] = model_results
+                        
+                    results_summary[f\"{dataset}|||{model}\"] = model_results
+        finally:
+            if status_manager: 
+                status_manager.stop()
+                console._status = None
 
         summary_df = summarize_results(results_summary)
         display_statistical_summary(summary_df, show_significance=exp_cfg.statistical)
@@ -119,14 +129,31 @@ class UnifiedTrainer:
         start_time = time.time()
         results = {}
         try:
+            # Temporarily stop console status if active to allow inner progress bars
+            # Rich only allows one Live/Progress/Status at a time.
+            from fishy._core.utils import console
+            active_status = getattr(console, \"_status\", None)
+            if active_status: active_status.stop()
+
             if config.transfer:
                 results = self._dispatch_transfer(config, wandb_run, ctx)
-            elif config.method == "deep":
+            elif config.method == \"deep\":
                 results = self._dispatch_deep(config, wandb_run, ctx)
-            elif config.method in ["classic", "evolutionary", "probabilistic"]:
+            elif config.method in [\"classic\", \"evolutionary\", \"probabilistic\"]:
                 results = self._dispatch_sklearn(config, wandb_run, ctx)
-            elif config.method == "contrastive":
+            elif config.method == \"contrastive\":
                 results = self._dispatch_contrastive(config, wandb_run, ctx)
+
+            # Restart if it was running
+            if active_status: active_status.start()
+
+            # Standardize common fields across all methods
+            if "class_names" not in results:
+                dm = create_data_module(dataset_name=config.dataset, file_path=config.file_path)
+                dm.setup()
+                results["class_names"] = dm.get_class_names()
+                if "data_module" not in results:
+                    results["data_module"] = dm
 
             training_time = time.time() - start_time
             results["total_training_time_s"] = training_time

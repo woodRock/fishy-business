@@ -162,14 +162,28 @@ def _handle_train_execution(config: TrainingConfig):
     results = []
     import time
     start_all = time.time()
-    with console.status(f"[bold green]Running {n_runs} experiments...") as status:
-        for i in range(n_runs):
-            seed = (i + 1) * 123; config.run = seed; set_seed(seed)
-            status.update(f"[bold green]Experiment {i+1}/{n_runs}...")
-            results.append(run_unified_training(config))
+    
+    # Only use console.status for multi-run or statistical tasks to avoid LiveError with inner progress bars
+    if n_runs > 1 or config.statistical:
+        status_manager = console.status(f"[bold green]Running {n_runs} experiments...")
+        status_manager.start()
+        # Store on console so we can stop it later in unified_trainer
+        console._status = status_manager
+        try:
+            for i in range(n_runs):
+                seed = (i + 1) * 123; config.run = seed; set_seed(seed)
+                status_manager.update(f"[bold green]Experiment {i+1}/{n_runs}...")
+                results.append(run_unified_training(config))
+        finally:
+            status_manager.stop()
+            console._status = None
+    else:
+        # Single run: no status here, let the inner trainer handle progress
+        seed = config.run if config.run != 0 else 123; config.run = seed; set_seed(seed)
+        results.append(run_unified_training(config))
         
-        final_res = {}
-        if results:
+    final_res = {}
+    if results:
             for k in results[0].keys():
                 vals = [r[k] for r in results if k in r and isinstance(r[k], (int, float))]
                 if vals: final_res[k] = sum(vals) / len(vals)

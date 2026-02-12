@@ -48,8 +48,8 @@ class SklearnTrainer:
 
     def run(self) -> Tuple[Any, Dict[str, Any]]:
         start_time = time.time()
-        data_module = create_data_module(dataset_name=self.dataset_name, file_path=self.file_path); data_module.setup()
-        X, y = data_module.get_numpy_data(labels_as_indices=True); self.num_classes = data_module.get_num_classes()
+        self.data_module = create_data_module(dataset_name=self.dataset_name, file_path=self.file_path); self.data_module.setup()
+        X, y = self.data_module.get_numpy_data(labels_as_indices=True); self.num_classes = self.data_module.get_num_classes()
         scaler = StandardScaler(); X_scaled = scaler.fit_transform(X)
         skf = StratifiedKFold(n_splits=self.config.k_folds, shuffle=True, random_state=self.run_id)
         all_fold_metrics = []; last_fold_info = {}; last_model = None
