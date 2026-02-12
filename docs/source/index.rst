@@ -37,7 +37,7 @@ Train a state-of-the-art Transformer model and view results in just 4 lines:
 
    from fishy import TrainingConfig, run_unified_training, display_final_summary
    
-   config = TrainingConfig(model="transformer", dataset="species", file_path="data/REIMS.xlsx")
+   config = TrainingConfig(model="transformer", dataset="species")
    results = run_unified_training(config)
    display_final_summary(results)
 

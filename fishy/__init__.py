@@ -30,25 +30,29 @@ from .cli.main import display_final_summary
 
 
 def get_data_path(filename: str = "REIMS.xlsx") -> str:
-    \"\"\"Returns the absolute path to a data asset within the package.\"\"\"
+    """Returns the absolute path to a data asset within the package."""
     import importlib.resources as pkg_resources
-    from . import data as data_pkg
     
-    # Create the assets submodule if it doesn't exist to satisfy the API
-    # though pkg_resources can usually handle the directory directly.
     try:
+        # Modern way to get the resource path
         with pkg_resources.path("fishy.data.assets", filename) as p:
-            return str(p)
-    except (ImportError, FileNotFoundError):
-        # Fallback for local development if not installed
-        local_p = (
-            os.path.dirname(__file__) + f"/data/assets/{filename}"
-        )
-        if os.path.exists(local_p):
-            return os.path.abspath(local_p)
-        
-        # Extreme fallback
-        return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", filename))
+            if p.exists():
+                return str(p)
+    except (ImportError, FileNotFoundError, TypeError):
+        pass
+
+    # Fallback 1: Local development (within the package)
+    local_p = os.path.join(os.path.dirname(__file__), "data", "assets", filename)
+    if os.path.exists(local_p):
+        return os.path.abspath(local_p)
+    
+    # Fallback 2: Project root data directory
+    root_p = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", filename))
+    if os.path.exists(root_p):
+        return root_p
+
+    # Final fallback: Return the most likely path string even if it doesn't exist
+    return root_p
 
 
 __all__ = [

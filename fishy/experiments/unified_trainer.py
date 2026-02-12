@@ -36,6 +36,15 @@ class UnifiedTrainer:
     def run(self) -> Union[Dict[str, Any], pd.DataFrame]:
         if isinstance(self.config, ExperimentConfig):
             return self._run_batch()
+        
+        # Auto-detect method if it's the default "deep" but the model is actually classic/evo/etc.
+        # This allows for a cleaner 3-line API in notebooks.
+        if hasattr(self.config, "method") and self.config.method == "deep":
+            from fishy._core.config_loader import detect_method
+            detected = detect_method(self.config.model)
+            if detected != "deep":
+                self.config.method = detected
+                
         return self._run_single(self.config)
 
     def _run_batch(self) -> pd.DataFrame:

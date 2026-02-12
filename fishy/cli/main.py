@@ -11,8 +11,7 @@ import argcomplete
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
+DEFAULT_DATA_PATH = None
 
 from fishy._core.config import TrainingConfig
 from fishy.experiments.unified_trainer import run_unified_training
@@ -88,7 +87,7 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group = train_parser.add_argument_group(hp_group_label)
     hp_group.add_argument("-e", "--epochs", type=int, help="Number of training epochs")
     hp_group.add_argument("-n", "--num-runs", type=int, default=1, help="Number of independent runs")
-    hp_group.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to spectral data file")
+    hp_group.add_argument("-fp", "--file-path", type=str, default=DEFAULT_DATA_PATH, help="Path to spectral data file. If omitted, uses the internal package dataset.")
 
     if show_all:
         hp_group.add_argument("--batch-size", type=int, default=64)

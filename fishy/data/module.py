@@ -32,6 +32,9 @@ class DataProcessor:
         if not self.config and dataset_name == "oil-simple": self.config = all_configs.get("oil_simple", {})
 
     def load_data(self, file_path: Union[str, Path]) -> pd.DataFrame:
+        if file_path is None:
+            from fishy import get_data_path
+            file_path = get_data_path()
         path = Path(file_path)
         if not path.exists(): raise FileNotFoundError(f"Data file not found: {path}")
         return pd.read_excel(path) if path.suffix.lower() == ".xlsx" else pd.read_csv(path)
@@ -109,8 +112,11 @@ def preprocess_data_pipeline(data_processor: DataProcessor, file_path: Union[str
 class DataModule:
     """High-level interface for data management."""
 
-    def __init__(self, dataset_name: str, file_path: Union[str, Path], batch_size: int = 64, is_pre_train: bool = False, augmentation_config: Optional[AugmentationConfig] = None) -> None:
-        self.dataset_name_str = dataset_name; self.file_path = file_path; self.batch_size = batch_size; self.is_pre_train = is_pre_train; self.augmentation_config = augmentation_config
+    def __init__(self, dataset_name: str, file_path: Optional[Union[str, Path]] = None, batch_size: int = 64, is_pre_train: bool = False, augmentation_config: Optional[AugmentationConfig] = None) -> None:
+        from fishy import get_data_path
+        self.dataset_name_str = dataset_name
+        self.file_path = file_path if file_path else get_data_path()
+        self.batch_size = batch_size; self.is_pre_train = is_pre_train; self.augmentation_config = augmentation_config
         self.processor = DataProcessor(dataset_name, batch_size); self.train_loader, self.raw_data, self.filtered_data = None, None, None
 
     def setup(self) -> None:
@@ -170,6 +176,6 @@ class DataModule:
         if self.processor.label_encoder_: return list(self.processor.label_encoder_.classes_)
         return [str(i) for i in range(self.get_num_classes())]
 
-def create_data_module(dataset_name: str, file_path: Union[str, Path], batch_size: int = 64, is_pre_train: bool = False, augmentation_enabled: bool = False, **kwargs) -> DataModule:
+def create_data_module(dataset_name: str, file_path: Optional[Union[str, Path]] = None, batch_size: int = 64, is_pre_train: bool = False, augmentation_enabled: bool = False, **kwargs) -> DataModule:
     aug_config = AugmentationConfig(enabled=True, **kwargs) if augmentation_enabled else None
     return DataModule(dataset_name, file_path, batch_size, is_pre_train, aug_config)

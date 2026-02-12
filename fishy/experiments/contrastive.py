@@ -52,7 +52,7 @@ class ContrastiveConfig:
     batch_size: int = 64
     learning_rate: float = 3e-4
     weight_decay: float = 1e-4
-    file_path: str = "data/REIMS.xlsx"
+    file_path: Optional[str] = None
     encoder_type: str = "dense"
     embedding_dim: int = 128
     projection_dim: int = 128

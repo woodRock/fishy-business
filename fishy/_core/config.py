@@ -23,7 +23,7 @@ class TrainingConfig:
         32
     """
 
-    file_path: str = ""
+    file_path: Optional[str] = None
     model: str = "transformer"
     dataset: str = "species"
     run: int = 0
