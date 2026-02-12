@@ -1,13 +1,16 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fishy"
-version = "0.0.1"
-description = "Fishy business project for spectral data analysis"
+name = "fishy-business"
+version = "0.1.0"
+description = "A configuration-driven framework for spectral data analysis"
 readme = "README.md"
 requires-python = ">=3.9"
+authors = [
+    { name = "Jesse Wood", email = "jesse.wood@ecs.vuw.ac.nz" }
+]
 dependencies = [
     "torch",
     "numpy",
@@ -16,19 +19,21 @@ dependencies = [
     "tqdm",
     "matplotlib",
     "seaborn",
+    "torchdiffeq",
     "openpyxl",
     "lime",
     "deap",
-    "pyopls",
-    "umap-learn",
-    "transformers",
-    "torchdiffeq",
-    "pygraphviz",
     "xgboost",
     "wandb",
     "pyyaml",
     "pytest",
-    "argcomplete"
+    "pyopls",
+    "argcomplete",
+    "rich",
+    "streamlit",
+    "plotly",
+    "umap-learn",
+    "paramiko"
 ]
 
 [tool.setuptools.packages.find]

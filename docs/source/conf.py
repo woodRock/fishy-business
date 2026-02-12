@@ -45,11 +45,14 @@ autodoc_mock_imports = [
     "pygraphviz",
     "pyopls",
     "deap",
-    "transformers",
     "openpyxl",
     "lime",
     "torchdiffeq",
     "wandb",
+    "rich",
+    "streamlit",
+    "plotly",
+    "paramiko",
 ]
 
 # Add any Sphinx extension module names here, as strings. They can be

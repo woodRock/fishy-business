@@ -9,7 +9,6 @@ torchdiffeq
 openpyxl
 lime
 deap
-pygraphviz
 xgboost
 wandb
 pyyaml
