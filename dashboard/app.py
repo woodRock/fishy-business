@@ -4,7 +4,6 @@ import warnings; import os; import logging
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-# Specific suppression for the Streamlit/Plotly collision warning until Streamlit resolves the 'width' kwarg conflict
 warnings.filterwarnings("ignore", message=".*use_container_width.*")
 try: from urllib3.exceptions import NotOpenSSLWarning; warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError: pass
@@ -23,6 +22,7 @@ logger = logging.getLogger("fishy.dashboard")
 
 import streamlit as st; import pandas as pd; import numpy as np; import json
 import plotly.express as px; import plotly.graph_objects as go
+import networkx as nx
 from pathlib import Path; import sys; import torch; import torch.nn as nn
 from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_fscore_support, precision_recall_curve, average_precision_score
 from sklearn.decomposition import PCA; from sklearn.manifold import TSNE
@@ -117,7 +117,11 @@ if "Class Name" in df_filtered.columns: st.sidebar.success(f"✅ Loaded {len(df_
 else: st.sidebar.warning("⚠️ Raw labels in use")
 
 with st.sidebar.expander("🚀 Hyperparameters", expanded=True):
-    epochs = st.slider("Epochs", 1, 100, 10); batch_size = st.select_slider("Batch Size", options=[8, 16, 32, 64, 128], value=32); lr = st.number_input("Learning Rate", value=1e-4, format="%.1e")
+    epochs = st.slider("Epochs", 1, 100, 10)
+    batch_size = st.select_slider("Batch Size", options=[8, 16, 32, 64, 128], value=32)
+    lr = st.number_input("Learning Rate", value=1e-4, format="%.1e")
+    k_folds = st.slider("Cross-Validation Folds", 2, 10, 3, help="Higher folds = better stability estimate")
+    
 train_button = st.sidebar.button("🚀 Run Training", width="stretch")
 
 st.sidebar.markdown("---")
@@ -163,6 +167,7 @@ if data_path.exists():
             melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
             st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white", height=500), use_container_width=True)
         st.markdown("---")
+        st.write("### Cluster Analysis & Statistical Distribution")
         col_pca, col_tsne, col_umap = st.columns(3)
         pca_obj = PCA(n_components=10); X_pca = pca_obj.fit_transform(X_all)
         with col_pca: st.plotly_chart(px.scatter(pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(10)]), x="PC1", y="PC2", color=[class_names[i] for i in y_all], title="PCA", template="plotly_white"), use_container_width=True)
@@ -178,11 +183,11 @@ if data_path.exists():
         with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="PCA Information Retention", template="plotly_white"), use_container_width=True)
         with dcol2:
             avg_int = pd.DataFrame({"Avg Int": X_all.mean(axis=1), "Class": [class_names[i] for i in y_all]})
-            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Intensity Distribution", template="plotly_white"), use_container_width=True)
+            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Sample Intensity Distribution", template="plotly_white"), use_container_width=True)
 
     with tab2:
         if train_button:
-            config = TrainingConfig(model=selected_model, dataset=selected_dataset, file_path=str(data_path), epochs=epochs, batch_size=batch_size, learning_rate=lr, wandb_log=False)
+            config = TrainingConfig(model=selected_model, dataset=selected_dataset, file_path=str(data_path), epochs=epochs, batch_size=batch_size, learning_rate=lr, k_folds=k_folds, wandb_log=False)
             method = detect_method(selected_model); config.method = method
             try:
                 with st.spinner(f"Training {selected_model}..."):
@@ -217,6 +222,16 @@ if data_path.exists():
                                 top_errs = err_idx[np.argsort(np.max(y_probs[err_idx], axis=1))[-3:][::-1]]
                                 for idx in top_errs: st.error(f"Sample {idx}: Truth={class_names[y_true[idx]]}, Pred={class_names[y_pred[idx]]} (Conf: {np.max(y_probs[idx]):.2f})")
                             else: st.success("Perfect classification!")
+                    
+                    st.markdown("---")
+                    st.write("### Stability & Learning Dynamics")
+                    if "folds" in results:
+                        fold_accs = [f.get("val_balanced_accuracy", 0) for f in results.get("folds", [])]
+                        if fold_accs:
+                            st.plotly_chart(px.violin(y=fold_accs, box=True, points="all", title=f"Cross-Validation Stability ({k_folds} folds)", template="plotly_white"), use_container_width=True)
+                        else: st.info("Fold data unavailable.")
+                    else: st.info("Stability data requires multiple folds.")
+
             except Exception as e: st.error(f"Failed: {e}"); st.exception(e)
         elif 'results' in st.session_state: st.info("Showing last results.")
         else: st.info("Run training to see results.")
@@ -254,7 +269,8 @@ if data_path.exists():
                     for c_idx in range(len(class_names)):
                         c_indices = np.where(y_xai == c_idx)[0]
                         if len(c_indices) > 0:
-                            sub = np.random.choice(c_indices, min(10, len(c_indices)), replace=False); w_list = []
+                            # Increase subset for stability
+                            sub = np.random.choice(c_indices, min(20, len(c_indices)), replace=False); w_list = []
                             for idx in sub: w_list.append(dict(exp_int.explain_instance(X_xai[idx], wrapper.predict_proba, num_features=X_xai.shape[1], labels=(c_idx,)).as_list(label=c_idx)))
                             avg_w = pd.DataFrame(w_list).mean().sort_values(); class_biomarkers[c_idx] = [int(i) for i in avg_w.tail(20).index.tolist()]
                     comp_fig = go.Figure(); styles = [{'c': 'gold', 's': 'diamond'}, {'c': 'silver', 's': 'circle'}, {'c': 'cyan', 's': 'square'}]
@@ -271,15 +287,44 @@ if data_path.exists():
                             top_v = [f"{mz_axis[idx]:.4f}" for idx in class_biomarkers[i][-10:][::-1]]
                             cols[i].write(f"**{c_name}**"); 
                             for v in top_v: cols[i].code(v)
-        else: st.info("Run training first.")
+                            
+            if 'class_biomarkers' in locals() and class_biomarkers:
+                st.markdown("---")
+                st.write("### 🧬 Advanced Biomarker Network")
+                st.info("💡 Nodes connected by lines (edges) are highly redundant (r > 0.8). Multiple clusters represent distinct chemical drivers.")
+                net_col1, net_col2 = st.columns(2)
+                with net_col1:
+                    all_top_features = []
+                    for k in class_biomarkers: all_top_features.extend(class_biomarkers[k])
+                    feat_counts = pd.Series(all_top_features).value_counts().sort_values(ascending=False).head(15)
+                    st.plotly_chart(px.bar(x=[f"{mz_axis[i]:.2f}" for i in feat_counts.index], y=feat_counts.values, labels={'x': 'm/z Feature', 'y': 'Freq'}, title="Biomarker Stability (Frequency in Class Top 20)", template="plotly_white"), use_container_width=True)
+                with net_col2:
+                    top_indices = list(set(all_top_features))
+                    if len(top_indices) > 1:
+                        subset_data = X_xai[:, top_indices]
+                        corr_matrix = np.corrcoef(subset_data.T)
+                        G = nx.Graph()
+                        for i in range(len(top_indices)): G.add_node(i, label=f"{mz_axis[top_indices[i]]:.2f}")
+                        for i in range(len(top_indices)):
+                            for j in range(i + 1, len(top_indices)):
+                                if abs(corr_matrix[i, j]) > 0.8: G.add_edge(i, j, weight=abs(corr_matrix[i, j]))
+                        pos = nx.spring_layout(G, seed=42)
+                        edge_x, edge_y = [], []
+                        for edge in G.edges():
+                            x0, y0 = pos[edge[0]]; x1, y1 = pos[edge[1]]
+                            edge_x.extend([x0, x1, None]); edge_y.extend([y0, y1, None])
+                        edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
+                        node_x = [pos[node][0] for node in G.nodes()]; node_y = [pos[node][1] for node in G.nodes()]; node_text = [G.nodes[node]['label'] for node in G.nodes()]
+                        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers+text', text=node_text, textposition="top center", marker=dict(showscale=True, colorscale='YlGnBu', size=10, color=[], line_width=2))
+                        node_trace.marker.color = [len(list(G.neighbors(n))) for n in G.nodes()]
+                        fig_net = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(title='Biomarker Correlation Network (r > 0.8)', showlegend=False, hovermode='closest', margin=dict(b=20,l=5,r=5,t=40), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+                        st.plotly_chart(fig_net, use_container_width=True)
+                    else: st.info("Not enough biomarkers for network.")
 
     with tab4:
         st.header("🏆 VUW ECS Leaderboard (Proxy Jump)")
         src = st.radio("Leaderboard Data Source", ["Local (outputs/)", "Remote (SSH Proxy Jump)"], horizontal=True)
-        
-        # PERSISTENCE: Check session state
         if 'leaderboard_df' not in st.session_state: st.session_state['leaderboard_df'] = pd.DataFrame()
-        
         if src == "Local (outputs/)":
             if st.button("🔄 Refresh Local Leaderboard"):
                 with st.spinner("Crawling local metrics..."): st.session_state['leaderboard_df'] = crawl_local_results()
@@ -288,17 +333,12 @@ if data_path.exists():
             else:
                 with st.expander("🔑 Jump Host Configuration (entry.ecs.vuw.ac.nz)", expanded=True):
                     c1, c2, c_otp = st.columns([2, 2, 2])
-                    jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
-                    ju = c2.text_input("ECS Username")
-                    otp = c_otp.text_input("OTP Token (Google Authenticator)", type="password", help="6-digit code")
+                    jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz"); ju = c2.text_input("ECS Username"); otp = c_otp.text_input("OTP Token (Google Authenticator)", type="password", help="6-digit code")
                 with st.expander("🎯 Target Server Configuration", expanded=True):
                     c3, c4, c5 = st.columns([2, 1, 2])
-                    th = c3.text_input("Target Host (e.g. greta-pt)")
-                    tp = c4.number_input("Target Port", value=22)
-                    pwd = c5.text_input("ECS Password", type="password")
-                    rp = st.text_input("Remote Path to /outputs", "/home/ecs/username/fishy-business/outputs")
+                    th = c3.text_input("Target Host (e.g. greta-pt)"); tp = c4.number_input("Target Port", value=22); pwd = c5.text_input("ECS Password", type="password"); rp = st.text_input("Remote Path to /outputs", "/home/ecs/username/fishy-business/outputs")
                 if st.button("🚀 Connect & Aggregate Remote"):
-                    with st.spinner("Connecting and crawling (timeout 60s)..."):
+                    with st.spinner("Tunnelling through entry and crawling metrics..."):
                         st.session_state['leaderboard_df'] = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
         
         df_summary = st.session_state['leaderboard_df']
@@ -306,13 +346,8 @@ if data_path.exists():
             preferred_cols = ["Dataset", "Method", "Train", "Test", "Sig Te", "Baseline"]
             actual_cols = [c for c in preferred_cols if c in df_summary.columns]
             st.dataframe(df_summary[actual_cols].sort_values(["Dataset", "Test"], ascending=[True, False]).style.background_gradient(subset=["Test"] if "Test" in df_summary.columns else [], cmap="Greens"), use_container_width=True)
-            
-            # Action: Save Snapshot
             if st.button("💾 Save Leaderboard Snapshot Locally"):
-                os.makedirs("outputs/all", exist_ok=True)
-                df_summary.to_csv("outputs/all/leaderboard_snapshot.csv", index=False)
-                st.success("Snapshot saved to outputs/all/leaderboard_snapshot.csv")
-                
+                os.makedirs("outputs/all", exist_ok=True); df_summary.to_csv("outputs/all/leaderboard_snapshot.csv", index=False); st.success("Snapshot saved!")
             for ds in df_summary["Dataset"].unique():
                 st.plotly_chart(px.bar(df_summary[df_summary["Dataset"]==ds], x="Method", y="Test", error_y="Test Std", title=f"Leaderboard: {ds.upper()}", color="Method", template="plotly_white"), use_container_width=True)
         else: st.info("No leaderboard data loaded. Click 'Refresh' or 'Connect' above.")

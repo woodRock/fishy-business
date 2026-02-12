@@ -142,22 +142,21 @@ class UnifiedTrainer:
         )
 
     def _dispatch_deep(self, config, wandb_run, ctx):
-        from fishy.experiments.deep_training import run_training_pipeline
+        from fishy.experiments.deep_training import ModelTrainer
 
-        return run_training_pipeline(config, wandb_run=wandb_run, ctx=ctx)
+        # Return (model, stats) consistent with other trainers
+        trainer = ModelTrainer(config, wandb_run=wandb_run, ctx=ctx)
+        pre_trained_model = trainer.pre_train()
+        model, stats = trainer.train(pre_trained_model)
+        return stats
 
     def _dispatch_sklearn(self, config, wandb_run, ctx):
-        from fishy.experiments.classic_training import run_sklearn_experiment
+        from fishy.experiments.classic_training import SklearnTrainer
 
-        return run_sklearn_experiment(
-            config,
-            config.model,
-            config.dataset,
-            config.run,
-            config.file_path,
-            wandb_run=wandb_run,
-            ctx=ctx,
-        )
+        # Standardized return
+        trainer = SklearnTrainer(config, config.model, config.dataset, config.run, config.file_path, wandb_run=wandb_run, ctx=ctx)
+        model, stats = trainer.run()
+        return stats
 
     def _dispatch_contrastive(self, config, wandb_run, ctx):
         from fishy.experiments.contrastive import (

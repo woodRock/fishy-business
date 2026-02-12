@@ -68,6 +68,7 @@ class SklearnTrainer:
                 last_fold_info = {"labels": y_test, "preds": y_pred, "probs": y_probs}
                 if self.ctx.wandb_run: self.ctx.log_prediction_table(X_test, y_pred.astype(int), y_test.astype(int), (y_probs if y_probs is not None else np.eye(self.num_classes)[y_pred.astype(int)]), data_module.get_class_names())
         stats = {k: float(np.mean([m[k] for m in all_fold_metrics])) for k in all_fold_metrics[0].keys()}
+        stats["folds"] = all_fold_metrics
         if hasattr(last_model, "best_individual"):
             weights = last_model.best_individual
             if hasattr(weights, "tolist"): stats["feature_weights"] = weights.tolist()
@@ -94,7 +95,12 @@ class SklearnTrainer:
 def run_sklearn_experiment(config, model_name, dataset_name, run_id=0, file_path=None, wandb_run=None, ctx=None):
     started_wandb = False
     if wandb_run is None and config.wandb_log: started_wandb = True
-    trainer = SklearnTrainer(config, model_name, dataset_name, run_id, file_path, wandb_run=wandb_run, ctx=ctx)
+    
+    # Ensure config properties are set correctly
+    if run_id != 0: config.run = run_id
+    if file_path: config.file_path = file_path
+    
+    trainer = SklearnTrainer(config, model_name, dataset_name, config.run, config.file_path, wandb_run=wandb_run, ctx=ctx)
     try:
         model, stats = trainer.run(); return stats
     finally:
