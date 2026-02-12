@@ -100,8 +100,11 @@ The library is designed to be extended without modifying core logic:
 For advanced usage in Python scripts, you can explore our tutorials in two ways:
 
 ### 📓 Interactive Tutorials (Recommended)
-We provide Jupyter notebooks in the `notebooks/` directory for an interactive experience:
-- **[01_Getting Started](notebooks/01_getting_started.ipynb)**: A quick dive into the high-level API.
+We provide Jupyter notebooks in the `notebooks/` directory matching the thesis chapters:
+- **[01_Datasets and Preprocessing](notebooks/01_Datasets_and_Preprocessing.ipynb)**
+- **[02_Species and Part Identification](notebooks/02_Species_and_Part_Identification.ipynb)**
+- **[03_Oil and Cross-species Adulteration](notebooks/03_Oil_and_CrossSpecies_Adulteration.ipynb)**
+- **[04_Contrastive Learning for Batch Detection](notebooks/04_Contrastive_Learning_for_Batch_Detection.ipynb)**
 
 These are also rendered beautifully in our [online documentation](https://fishy-business.readthedocs.io/en/latest/tutorials.html).
 
