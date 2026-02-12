@@ -134,7 +134,7 @@ def main() -> None:
             from fishy.cli.wizard import run_wizard; run_wizard()
         elif args.command == "run_all":
             from fishy.experiments.unified_trainer import run_all_benchmarks
-            run_all_benchmarks(quick=args.quick)
+            run_all_benchmarks(quick=args.quick, num_runs=args.num_runs)
     except Exception:
         console.print_exception(show_locals=True); sys.exit(1)
 

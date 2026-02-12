@@ -143,6 +143,10 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
             return model_class(
                 input_dim, output_dim, config.hidden_dimension, config.num_layers
             )
+        elif model_name == "rwkv":
+            return model_class(
+                input_dim, config.hidden_dimension, output_dim, config.dropout
+            )
 
         # Fallback for simpler models
         return model_class(input_dim, output_dim)

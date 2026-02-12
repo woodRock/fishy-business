@@ -206,22 +206,22 @@ def run_unified_training(config):
     return UnifiedTrainer(config).run()
 
 
-def run_all_benchmarks(quick=False, **kwargs):
+def run_all_benchmarks(quick=False, num_runs=None, **kwargs):
     models_cfg = load_config("models")
     classic = list(models_cfg["classic_models"].keys())
     deep = list(models_cfg["deep_models"].keys())
     evo = list(models_cfg["evolutionary_models"].keys())
+    
     if quick:
-        num_runs, datasets, models = 2, ["species"], ["opls-da", "transformer"]
+        actual_runs = num_runs if num_runs is not None else 2
+        datasets, models = ["species"], ["opls-da", "transformer"]
     else:
-        num_runs, datasets, models = (
-            30,
-            ["species", "part", "oil"],
-            classic + deep + evo,
-        )
+        actual_runs = num_runs if num_runs is not None else 30
+        datasets, models = ["species", "part", "oil"], classic + deep + evo
+        
     exp_cfg = ExperimentConfig(
         name="full_benchmark",
-        num_runs=num_runs,
+        num_runs=actual_runs,
         datasets=datasets,
         models=models,
         statistical=True,

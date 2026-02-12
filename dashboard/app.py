@@ -4,6 +4,7 @@ import warnings; import os; import logging
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+# Specific suppression for the Streamlit/Plotly collision warning until Streamlit resolves the 'width' kwarg conflict
 warnings.filterwarnings("ignore", message=".*use_container_width.*")
 try: from urllib3.exceptions import NotOpenSSLWarning; warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError: pass
@@ -23,6 +24,7 @@ logger = logging.getLogger("fishy.dashboard")
 import streamlit as st; import pandas as pd; import numpy as np; import json
 import plotly.express as px; import plotly.graph_objects as go
 import networkx as nx
+import re
 from pathlib import Path; import sys; import torch; import torch.nn as nn
 from sklearn.metrics import confusion_matrix, roc_curve, auc, precision_recall_fscore_support, precision_recall_curve, average_precision_score
 from sklearn.decomposition import PCA; from sklearn.manifold import TSNE
@@ -57,13 +59,25 @@ def get_metadata():
 def get_data_module(dataset_name, file_path, version="v12"):
     dm = create_data_module(dataset_name=dataset_name, file_path=file_path); dm.setup(); return dm
 
+def parse_result_path(path_str):
+    """Robustly extracts dataset and model from result path using regex."""
+    # Pattern: .../<dataset>/<method>/<model>_<timestamp>/results/metrics.json
+    # We want the dataset and the first part of the model_timestamp folder
+    match = re.search(r'outputs/([^/]+)/([^/]+)/([^/_]+)_', path_str)
+    if match:
+        return match.group(1), match.group(3)
+    return None, None
+
 def crawl_local_results(base_path="outputs"):
     results_map = {}
     p = Path(base_path)
-    for m_path in p.glob("**/results/metrics.json"):
-        parts = m_path.parts
-        if len(parts) >= 5:
-            dataset = parts[1]; model = parts[3].split('_')[0]; key = f"{dataset}|||{model}"
+    # Search for all possible result filenames
+    for m_path in list(p.glob("**/results/metrics.json")) + \
+                 list(p.glob("**/results/final_metrics.json")) + \
+                 list(p.glob("**/results/aggregated_stats_*.json")):
+        dataset, model = parse_result_path(str(m_path))
+        if dataset and model:
+            key = f"{dataset}|||{model}"
             if key not in results_map: results_map[key] = []
             try:
                 with open(m_path, 'r') as f: results_map[key].append(json.load(f))
@@ -90,14 +104,16 @@ def fetch_remote_data(host, port, user, pwd, remote_path, jump_host=None, jump_u
             ssh_target.connect(host, port=port, username=user, password=pwd, sock=jump_channel, timeout=60)
         else:
             ssh_target.connect(host, port=port, username=user, password=pwd, timeout=60)
+        
         sftp = ssh_target.open_sftp()
-        cmd = f"find {remote_path} -maxdepth 5 -name 'metrics.json'"
+        # Find all types of result files
+        cmd = f"find {remote_path} -maxdepth 5 \( -name 'metrics.json' -o -name 'final_metrics.json' -o -name 'aggregated_stats_*.json' \)"
         stdin, stdout, stderr = ssh_target.exec_command(cmd)
         paths = stdout.read().decode().splitlines()
         for p in paths:
-            parts = p.split('/')
-            if len(parts) >= 5:
-                dataset = parts[-5]; model = parts[-3].split('_')[0]; key = f"{dataset}|||{model}"
+            dataset, model = parse_result_path(p)
+            if dataset and model:
+                key = f"{dataset}|||{model}"
                 if key not in results_map: results_map[key] = []
                 try:
                     with sftp.open(p, 'r') as f: results_map[key].append(json.load(f))
@@ -167,7 +183,6 @@ if data_path.exists():
             melted = s_df[[label_col]+num_cols].melt(id_vars=label_col, var_name="Feature", value_name="Int")
             st.plotly_chart(px.line(melted[melted["Feature"]!="m/z"], x="Feature", y="Int", color=label_col, template="plotly_white", height=500), use_container_width=True)
         st.markdown("---")
-        st.write("### Cluster Analysis & Statistical Distribution")
         col_pca, col_tsne, col_umap = st.columns(3)
         pca_obj = PCA(n_components=10); X_pca = pca_obj.fit_transform(X_all)
         with col_pca: st.plotly_chart(px.scatter(pd.DataFrame(X_pca, columns=[f"PC{i+1}" for i in range(10)]), x="PC1", y="PC2", color=[class_names[i] for i in y_all], title="PCA", template="plotly_white"), use_container_width=True)
@@ -183,7 +198,7 @@ if data_path.exists():
         with dcol1: st.plotly_chart(px.area(x=range(1, 11), y=np.cumsum(pca_obj.explained_variance_ratio_), labels={'x': 'Comp', 'y': 'Cum Var'}, title="PCA Information Retention", template="plotly_white"), use_container_width=True)
         with dcol2:
             avg_int = pd.DataFrame({"Avg Int": X_all.mean(axis=1), "Class": [class_names[i] for i in y_all]})
-            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Sample Intensity Distribution", template="plotly_white"), use_container_width=True)
+            st.plotly_chart(px.violin(avg_int, x="Class", y="Avg Int", color="Class", box=True, points="all", title="Intensity Distribution", template="plotly_white"), use_container_width=True)
 
     with tab2:
         if train_button:
@@ -207,7 +222,7 @@ if data_path.exists():
                     with r1c2:
                         prec, rec, f1, _ = precision_recall_fscore_support(y_true, y_pred, labels=range(len(class_names)))
                         st.plotly_chart(px.bar(pd.DataFrame({"Class": class_names, "Precision": prec, "Recall": rec, "F1": f1}), x="Class", y=["Precision", "Recall", "F1"], barmode="group", title="Class Metrics", template="plotly_white"), use_container_width=True)
-                    st.markdown("---"); st.write("### Error Spotlight"); r2c1, r2c2 = st.columns(2)
+                    st.markdown("---"); st.write("### Error Spotlight & Performance"); r2c1, r2c2 = st.columns(2)
                     with r2c1:
                         if y_probs is not None:
                             pr_fig = go.Figure()
@@ -223,15 +238,12 @@ if data_path.exists():
                                 for idx in top_errs: st.error(f"Sample {idx}: Truth={class_names[y_true[idx]]}, Pred={class_names[y_pred[idx]]} (Conf: {np.max(y_probs[idx]):.2f})")
                             else: st.success("Perfect classification!")
                     
-                    st.markdown("---")
-                    st.write("### Stability & Learning Dynamics")
+                    st.markdown("---"); st.write("### Stability")
                     if "folds" in results:
                         fold_accs = [f.get("val_balanced_accuracy", 0) for f in results.get("folds", [])]
-                        if fold_accs:
-                            st.plotly_chart(px.violin(y=fold_accs, box=True, points="all", title=f"Cross-Validation Stability ({k_folds} folds)", template="plotly_white"), use_container_width=True)
+                        if fold_accs: st.plotly_chart(px.violin(y=fold_accs, box=True, points="all", title=f"Cross-Validation Stability ({k_folds} folds)", template="plotly_white"), use_container_width=True)
                         else: st.info("Fold data unavailable.")
                     else: st.info("Stability data requires multiple folds.")
-
             except Exception as e: st.error(f"Failed: {e}"); st.exception(e)
         elif 'results' in st.session_state: st.info("Showing last results.")
         else: st.info("Run training to see results.")
@@ -269,7 +281,6 @@ if data_path.exists():
                     for c_idx in range(len(class_names)):
                         c_indices = np.where(y_xai == c_idx)[0]
                         if len(c_indices) > 0:
-                            # Increase subset for stability
                             sub = np.random.choice(c_indices, min(20, len(c_indices)), replace=False); w_list = []
                             for idx in sub: w_list.append(dict(exp_int.explain_instance(X_xai[idx], wrapper.predict_proba, num_features=X_xai.shape[1], labels=(c_idx,)).as_list(label=c_idx)))
                             avg_w = pd.DataFrame(w_list).mean().sort_values(); class_biomarkers[c_idx] = [int(i) for i in avg_w.tail(20).index.tolist()]
@@ -287,42 +298,32 @@ if data_path.exists():
                             top_v = [f"{mz_axis[idx]:.4f}" for idx in class_biomarkers[i][-10:][::-1]]
                             cols[i].write(f"**{c_name}**"); 
                             for v in top_v: cols[i].code(v)
-                            
             if 'class_biomarkers' in locals() and class_biomarkers:
-                st.markdown("---")
-                st.write("### 🧬 Advanced Biomarker Network")
-                st.info("💡 Nodes connected by lines (edges) are highly redundant (r > 0.8). Multiple clusters represent distinct chemical drivers.")
+                st.markdown("---"); st.write("### 🧬 Advanced Biomarker Network")
                 net_col1, net_col2 = st.columns(2)
                 with net_col1:
                     all_top_features = []
                     for k in class_biomarkers: all_top_features.extend(class_biomarkers[k])
                     feat_counts = pd.Series(all_top_features).value_counts().sort_values(ascending=False).head(15)
-                    st.plotly_chart(px.bar(x=[f"{mz_axis[i]:.2f}" for i in feat_counts.index], y=feat_counts.values, labels={'x': 'm/z Feature', 'y': 'Freq'}, title="Biomarker Stability (Frequency in Class Top 20)", template="plotly_white"), use_container_width=True)
+                    st.plotly_chart(px.bar(x=[f"{mz_axis[i]:.2f}" for i in feat_counts.index], y=feat_counts.values, labels={'x': 'm/z Feature', 'y': 'Freq'}, title="Biomarker Stability", template="plotly_white"), use_container_width=True)
                 with net_col2:
                     top_indices = list(set(all_top_features))
                     if len(top_indices) > 1:
-                        subset_data = X_xai[:, top_indices]
-                        corr_matrix = np.corrcoef(subset_data.T)
-                        G = nx.Graph()
+                        subset_data = X_xai[:, top_indices]; corr_matrix = np.corrcoef(subset_data.T); G = nx.Graph()
                         for i in range(len(top_indices)): G.add_node(i, label=f"{mz_axis[top_indices[i]]:.2f}")
                         for i in range(len(top_indices)):
                             for j in range(i + 1, len(top_indices)):
                                 if abs(corr_matrix[i, j]) > 0.8: G.add_edge(i, j, weight=abs(corr_matrix[i, j]))
-                        pos = nx.spring_layout(G, seed=42)
-                        edge_x, edge_y = [], []
+                        pos = nx.spring_layout(G, seed=42); edge_x, edge_y = [], []
                         for edge in G.edges():
-                            x0, y0 = pos[edge[0]]; x1, y1 = pos[edge[1]]
-                            edge_x.extend([x0, x1, None]); edge_y.extend([y0, y1, None])
+                            x0, y0 = pos[edge[0]]; x1, y1 = pos[edge[1]]; edge_x.extend([x0, x1, None]); edge_y.extend([y0, y1, None])
                         edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color='#888'), hoverinfo='none', mode='lines')
-                        node_x = [pos[node][0] for node in G.nodes()]; node_y = [pos[node][1] for node in G.nodes()]; node_text = [G.nodes[node]['label'] for node in G.nodes()]
-                        node_trace = go.Scatter(x=node_x, y=node_y, mode='markers+text', text=node_text, textposition="top center", marker=dict(showscale=True, colorscale='YlGnBu', size=10, color=[], line_width=2))
-                        node_trace.marker.color = [len(list(G.neighbors(n))) for n in G.nodes()]
-                        fig_net = go.Figure(data=[edge_trace, node_trace], layout=go.Layout(title='Biomarker Correlation Network (r > 0.8)', showlegend=False, hovermode='closest', margin=dict(b=20,l=5,r=5,t=40), xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
-                        st.plotly_chart(fig_net, use_container_width=True)
+                        node_trace = go.Scatter(x=[pos[node][0] for node in G.nodes()], y=[pos[node][1] for node in G.nodes()], mode='markers+text', text=[G.nodes[node]['label'] for node in G.nodes()], textposition="top center", marker=dict(showscale=True, colorscale='YlGnBu', size=10, color=[len(list(G.neighbors(n))) for n in G.nodes()], line_width=2))
+                        st.plotly_chart(go.Figure(data=[edge_trace, node_trace], layout=go.Layout(title='Biomarker Network (r > 0.8)', showlegend=False, hovermode='closest', xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), yaxis=dict(showgrid=False, zeroline=False, showticklabels=False))), use_container_width=True)
                     else: st.info("Not enough biomarkers for network.")
 
     with tab4:
-        st.header("🏆 VUW ECS Leaderboard (Proxy Jump)")
+        st.header("🏆 Leaderboard")
         src = st.radio("Leaderboard Data Source", ["Local (outputs/)", "Remote (SSH Proxy Jump)"], horizontal=True)
         if 'leaderboard_df' not in st.session_state: st.session_state['leaderboard_df'] = pd.DataFrame()
         if src == "Local (outputs/)":
@@ -340,7 +341,6 @@ if data_path.exists():
                 if st.button("🚀 Connect & Aggregate Remote"):
                     with st.spinner("Tunnelling through entry and crawling metrics..."):
                         st.session_state['leaderboard_df'] = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
-        
         df_summary = st.session_state['leaderboard_df']
         if not df_summary.empty:
             preferred_cols = ["Dataset", "Method", "Train", "Test", "Sig Te", "Baseline"]
