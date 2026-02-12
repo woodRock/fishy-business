@@ -93,14 +93,14 @@ class DataProcessor:
     def extract_groups(self, data: pd.DataFrame) -> np.ndarray:
         if "m/z" not in data.columns: return np.arange(len(data))
         groups = data["m/z"].astype(str).apply(lambda x: x.split("_")[0])
-        if "instance-recognition" in self.dataset_name: groups = data.iloc[:, 0].astype(str)
+        if "batch-detection" in self.dataset_name: groups = data.iloc[:, 0].astype(str)
         return groups.to_numpy()
 
 def preprocess_data_pipeline(data_processor: DataProcessor, file_path: Union[str, Path], is_pre_train: bool = False, augmentation_cfg: Optional[AugmentationConfig] = None) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
     raw_df = data_processor.load_data(file_path); filtered_df = data_processor.filter_data(raw_df, is_pre_train)
     if filtered_df.empty: return (DataLoader(CustomDataset(np.array([]), np.array([])), batch_size=data_processor.batch_size), raw_df, filtered_df)
     X, y = data_processor.encode_labels(filtered_df)
-    dataset_class = SiameseDataset if "instance-recognition" in data_processor.dataset_name else CustomDataset
+    dataset_class = SiameseDataset if "batch-detection" in data_processor.dataset_name else CustomDataset
     torch_dataset = dataset_class(X, y)
     data_loader = DataLoader(torch_dataset, batch_size=data_processor.batch_size, shuffle=True, pin_memory=True)
     if augmentation_cfg and augmentation_cfg.enabled: data_loader = DataAugmenter(augmentation_cfg).augment(data_loader)

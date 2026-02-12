@@ -76,9 +76,9 @@ class SklearnTrainer:
         
         stats["predictions"] = last_fold_info; stats["total_training_time_s"] = time.time() - start_time
         
-        # Add Pair-wise Similarity Evaluation for instance-recognition
-        if "instance-recognition" in self.dataset_name:
-            self.logger.info("Performing auxiliary pair-wise evaluation for instance-recognition...")
+        # Add Pair-wise Similarity Evaluation for batch-detection
+        if "batch-detection" in self.dataset_name:
+            self.logger.info("Performing auxiliary pair-wise evaluation for batch-detection...")
             from fishy.data.datasets import SiameseDataset
             import torch.nn.functional as F
             import torch

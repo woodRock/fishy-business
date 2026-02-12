@@ -48,8 +48,8 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "num_heads": config.num_heads
     }
 
-    # Handle Siamese wrappers for instance-recognition
-    if "instance-recognition" in config.dataset:
+    # Handle Siamese wrappers for batch-detection
+    if "batch-detection" in config.dataset:
         if model_name == "vae":
             from fishy.models.deep.vae import SiameseVAE
             backbone = model_class(**params)

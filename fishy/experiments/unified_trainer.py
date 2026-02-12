@@ -94,10 +94,14 @@ class UnifiedTrainer:
                 job_type="training",
             )
 
+        ctx_model_name = config.model
+        if config.method == "contrastive":
+            ctx_model_name = f"{config.model}-{config.encoder_type}"
+
         ctx = RunContext(
             dataset=config.dataset,
             method=config.method,
-            model_name=config.model,
+            model_name=ctx_model_name,
             wandb_run=wandb_run,
         )
         ctx.save_config(config)

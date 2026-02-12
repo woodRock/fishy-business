@@ -49,12 +49,12 @@ class ModelTrainer:
         return self.pre_train_orchestrator.run_all(self.data_module.get_train_dataloader())
 
     def train(self, pre_trained_model: Optional[nn.Module] = None) -> Tuple[nn.Module, Dict[str, Any]]:
-        if "instance-recognition" in self.config.dataset: return self._train_single_split_siamese(pre_trained_model)
+        if "batch-detection" in self.config.dataset: return self._train_single_split_siamese(pre_trained_model)
         return self._train_kfold(pre_trained_model)
 
     def _train_single_split_siamese(self, pre_trained_model: Optional[nn.Module]) -> Tuple[nn.Module, Dict[str, Any]]:
         from sklearn.model_selection import train_test_split
-        self.logger.info("Using Train/Validation/Test split for instance-recognition.")
+        self.logger.info("Using Train/Validation/Test split for batch-detection.")
         full_samples, full_labels = self.data_module.get_numpy_data()
         ds = SiameseDataset(full_samples, full_labels)
         idx = np.arange(len(ds))

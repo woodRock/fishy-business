@@ -91,9 +91,15 @@ class RunContext:
         self.model_name = model_name
         self.wandb_run = wandb_run
 
+        # For contrastive methods, we often want to distinguish by encoder in the path/leaderboard
+        display_name = model_name
+        # We'll try to find the encoder from the caller or environment if possible, 
+        # but a cleaner way is to pass it or have it handled by the orchestrator.
+        # For now, we'll keep the logic simple but allow the name to be distinctive.
+
         # Local experiment dir
         self.run_dir = (
-            Path(base_output_dir) / dataset / method / f"{model_name}_{self.timestamp}"
+            Path(base_output_dir) / dataset / method / f"{display_name}_{self.timestamp}"
         )
 
         # Global hidden logs dir

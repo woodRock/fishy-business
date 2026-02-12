@@ -35,7 +35,7 @@ cross-species:
       "H": [0.0, 1.0, 0.0]
       "M": [0.0, 0.0, 1.0]
 
-instance-recognition:
+batch-detection:
   filter_rules:
     exclude_instance_pattern: "QC|HM|MO|Fillet|Heads|Livers|Skins|Guts|Gonads|Frames"
   label_encoding:

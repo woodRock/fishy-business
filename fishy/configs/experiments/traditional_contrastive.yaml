@@ -1,7 +1,7 @@
 # Statistical significance test for traditional methods on the contrastive learning task
 name: "traditional_contrastive_comparison"
 num_runs: 30
-datasets: ["instance-recognition"]
+datasets: ["batch-detection"]
 models: ["knn", "dt", "lr", "lda", "nb", "rf", "svm", "xgb", "opls-da"]
 statistical: true
 benchmark: true
