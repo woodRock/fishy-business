@@ -1,9 +1,25 @@
 Fishy Business: Spectral Analysis Framework
 ===========================================
 
+.. image:: https://readthedocs.org/projects/fishy-business/badge/?version=latest
+   :target: https://fishy-business.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+.. image:: https://github.com/woodRock/fishy-business/actions/workflows/black.yml/badge.svg
+   :target: https://github.com/woodRock/fishy-business/actions/workflows/black.yml
+   :alt: Format Python Code
+
+.. image:: https://github.com/woodRock/fishy-business/actions/workflows/unittests.yml/badge.svg
+   :target: https://github.com/woodRock/fishy-business/actions/workflows/unittests.yml
+   :alt: Unit Tests
+
 .. image:: https://coveralls.io/repos/github/woodRock/fishy-business/badge.svg?branch=main
    :target: https://coveralls.io/github/woodRock/fishy-business?branch=main
    :alt: Coverage Status
+
+.. image:: https://github.com/woodRock/fishy-business/actions/workflows/doctests.yml/badge.svg
+   :target: https://github.com/woodRock/fishy-business/actions/workflows/doctests.yml
+   :alt: Doctests
 
 A configuration-driven framework for analyzing mass spectrometry data using Deep Learning, Classic Machine Learning, and Evolutionary Algorithms.
 
