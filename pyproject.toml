@@ -35,7 +35,8 @@ dependencies = [
     "plotly",
     "umap-learn",
     "paramiko",
-    "urllib3<2.0"
+    "urllib3<2.0",
+    "ipywidgets"
 ]
 
 [tool.setuptools.packages.find]
