@@ -26,6 +26,7 @@ from .data.module import DataModule, create_data_module
 from ._core.config import TrainingConfig
 from ._core.factory import create_model
 from .experiments.unified_trainer import run_unified_training
+from .cli.main import display_final_summary
 
 __all__ = [
     "Trainer",
@@ -35,4 +36,5 @@ __all__ = [
     "TrainingConfig",
     "create_model",
     "run_unified_training",
+    "display_final_summary",
 ]

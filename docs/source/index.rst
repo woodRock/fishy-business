@@ -7,17 +7,18 @@ Fishy Business: Spectral Analysis Framework
 
 A configuration-driven framework for analyzing mass spectrometry data using Deep Learning, Classic Machine Learning, and Evolutionary Algorithms.
 
-3-Line Quickstart
------------------
+Quickstart
+----------
 
-Train a state-of-the-art Transformer model on your spectral data in just a few lines:
+Train a state-of-the-art Transformer model and view results in just 4 lines:
 
 .. code-block:: python
 
-   from fishy import TrainingConfig, run_unified_training
+   from fishy import TrainingConfig, run_unified_training, display_final_summary
    
    config = TrainingConfig(model="transformer", dataset="species", file_path="data/REIMS.xlsx")
    results = run_unified_training(config)
+   display_final_summary(results)
 
 Key Features
 ------------
