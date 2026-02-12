@@ -32,5 +32,12 @@ Training & Results
 Interpretability & Biomarkers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 * **Single Instance XAI**: Explain individual predictions using Grad-CAM (for deep models) or LIME.
-* **Global Biomarker Analysis**: Aggregate feature importance across multiple samples to identify stable diagnostic peaks.
+* **Biomarker Correlation Network**: Visualize statistical links between top diagnostic peaks (r > 0.8) to identify redundant chemical drivers (isotopes/adducts).
+* **Biomarker Stability Histogram**: Track the frequency of specific m/z features as top-20 diagnostic markers across multiple samples.
 * **Class Comparison**: Highlight unique biomarkers in Gold/Silver directly on class-representative spectra to verify their alignment with physical peaks.
+
+Leaderboard & Remote Data
+~~~~~~~~~~~~~~~~~~~~~~~~~
+* **SSH Proxy Jump**: Seamlessly aggregate results from remote high-performance servers (e.g., VUW ECS) through 2FA-secured jump hosts.
+* **Data Persistence**: Save snapshots of the global leaderboard locally for offline analysis and thesis reporting.
+* **Fold Stability**: Visualize the consistency of model performance across cross-validation folds using the stability violin plot.

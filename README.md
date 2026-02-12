@@ -1,5 +1,8 @@
-# Machine Learning for Rapid Evaporative Ionization Mass Spectrometry for Marine Biomass Analysis
-## A Doctoral Thesis by Jesse Wood
+# 🐟 Fishy Business
+## Machine Learning for Rapid Evaporative Ionization Mass Spectrometry
+
+**A Doctoral Thesis by Jesse Wood**
+*Victoria University of Wellington*
 
 [![Documentation Status](https://readthedocs.org/projects/fishy-business/badge/?version=latest)](https://fishy-business.readthedocs.io/en/latest/?badge=latest)
 [![Format Python Code](https://github.com/woodRock/fishy-business/actions/workflows/black.yml/badge.svg)](https://github.com/woodRock/fishy-business/actions/workflows/black.yml)

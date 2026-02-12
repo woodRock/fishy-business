@@ -1,5 +1,10 @@
-Fishy Business: Spectral Analysis Framework
-===========================================
+🐟 Fishy Business
+================
+
+**Machine Learning for Rapid Evaporative Ionization Mass Spectrometry**
+
+*A Doctoral Thesis by Jesse Wood*
+*Victoria University of Wellington*
 
 .. image:: https://readthedocs.org/projects/fishy-business/badge/?version=latest
    :target: https://fishy-business.readthedocs.io/en/latest/?badge=latest
