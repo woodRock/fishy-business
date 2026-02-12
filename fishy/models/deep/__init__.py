@@ -5,12 +5,12 @@ Deep learning models for spectral analysis.
 
 from .cnn import CNN
 from .dense import Dense
-from .ensemble import Ensemble
+from .ensemble import MultiScaleTransformerEnsemble
 from .hybrid import Hybrid
 from .kan import KAN
 from .lstm import LSTM
 from .mamba import Mamba, SiameseMamba
-from .MOE import MOE
+from .moe import MixtureOfExperts
 from .ode import ODE
 from .ordinal import TransformerOrdinal
 from .performer import Performer
@@ -24,13 +24,13 @@ from .wavenet import WaveNet
 __all__ = [
     "CNN",
     "Dense",
-    "Ensemble",
+    "MultiScaleTransformerEnsemble",
     "Hybrid",
     "KAN",
     "LSTM",
     "Mamba",
     "SiameseMamba",
-    "MOE",
+    "MixtureOfExperts",
     "ODE",
     "TransformerOrdinal",
     "Performer",

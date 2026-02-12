@@ -44,7 +44,7 @@ deep_models:
       batch_size: 64
 
   ensemble:
-    path: "fishy.models.deep.ensemble.Ensemble"
+    path: "fishy.models.deep.ensemble.MultiScaleTransformerEnsemble"
     defaults:
       hidden_dimension: 128
       dropout: 0.2
@@ -52,7 +52,7 @@ deep_models:
       batch_size: 64
 
   moe:
-    path: "fishy.models.deep.MOE.MOE"
+    path: "fishy.models.deep.moe.MixtureOfExperts"
     defaults:
       hidden_dimension: 128
       num_layers: 4
