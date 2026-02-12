@@ -14,7 +14,6 @@ from pathlib import Path
 import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 
 def main():
@@ -25,19 +24,18 @@ def main():
     config = TrainingConfig(
         model="gp",
         dataset="species",
-        file_path=DATA_PATH,
         k_folds=2,  # Fast for example
     )
 
     # 2. Run the experiment
     print(f"Training {config.model} with uncertainty estimation...")
-    stats = run_sklearn_experiment(config, "gp", "species", file_path=DATA_PATH)
+    stats = run_sklearn_experiment(config, "gp", "species")
 
     print(f"\nGP Mean Accuracy: {stats['val_balanced_accuracy']:.4f}")
 
     # 3. Manual Uncertainty Inspection
     # Let's see how we can get uncertainty from the model directly.
-    dm = create_data_module("species", DATA_PATH)
+    dm = create_data_module("species")
     dm.setup()
     X, y = dm.get_numpy_data(labels_as_indices=True)
 

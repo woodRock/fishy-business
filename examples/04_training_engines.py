@@ -15,7 +15,6 @@ from fishy.experiments.unified_trainer import run_unified_training
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 
 def main():
@@ -24,7 +23,13 @@ def main():
     # --- LEVEL 1: Unified Orchestration ---
     # Good for standard experiments and benchmarking.
     print("\n--- Level 1: run_unified_training ---")
-    config = TrainingConfig(model="cnn", dataset="oil", file_path=DATA_PATH, epochs=1)
+    config = TrainingConfig(
+        model="transformer",
+        dataset="species",
+        epochs=2,
+        batch_size=32,
+        wandb_log=False,
+    )
     results = run_unified_training(config)
     print(f"Orchestrated Accuracy: {results.get('val_balanced_accuracy', 0):.4f}")
 

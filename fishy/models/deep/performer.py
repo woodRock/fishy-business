@@ -26,15 +26,13 @@ def softmax_kernel(data, projection_matrix, is_query, epsilon=1e-6):
     data_normalizer = (data.shape[-1]) ** -0.25
     data = data * data_normalizer
     
-    projection = torch.einsum("bnhd,md->bnhm", data, projection_matrix)
+    # b: batch, h: heads, l: seq_len, d: head_dim, m: nb_features
+    projection = torch.einsum("bhld,md->bhlm", data, projection_matrix)
     
     # Kernel computation
     data_squared_norm = torch.sum(data**2, dim=-1, keepdim=True) / 2
     
-    if is_query:
-        return torch.exp(projection - data_squared_norm + epsilon)
-    else:
-        return torch.exp(projection - data_squared_norm + epsilon)
+    return torch.exp(projection - data_squared_norm + epsilon)
 
 
 class FastAttention(nn.Module):
@@ -58,15 +56,16 @@ class FastAttention(nn.Module):
         q_prime = softmax_kernel(q, self.projection_matrix, is_query=True)
         k_prime = softmax_kernel(k, self.projection_matrix, is_query=False)
         
-        # k_prime: (B, H, L, M), v: (B, H, L, D)
-        # We want KV: (B, H, M, D)
-        kv = torch.einsum("bnhm,bnhd->bnhmd", k_prime, v)
+        # KV: (B, H, M, D)
+        kv = torch.einsum("bhlm,bhld->bhmd", k_prime, v)
         
         # Normalization factor
-        z = 1 / (torch.einsum("bnhm,bmh->bnh", q_prime, k_prime.sum(dim=2).transpose(1, 2)).unsqueeze(-1) + 1e-6)
+        k_sum = k_prime.sum(dim=2) # (B, H, M)
+        z_raw = torch.einsum("bhlm,bhm->bhl", q_prime, k_sum)
+        z = 1 / (z_raw + 1e-6)
         
         # Result: (B, H, L, D)
-        out = torch.einsum("bnhm,bnhmd,bnh->bnhd", q_prime, kv, z)
+        out = torch.einsum("bhlm,bhmd,bhl->bhld", q_prime, kv, z)
         
         return out
 
@@ -90,15 +89,16 @@ class PerformerLayer(nn.Module):
             nn.Linear(dim * 4, dim),
             nn.Dropout(dropout)
         )
+        self.num_heads = heads
 
     def forward(self, x: torch.Tensor):
         B, L, D = x.shape
         residual = x
         x = self.ln1(x)
         
-        q = self.q_proj(x).view(B, L, 8, -1).transpose(1, 2)
-        k = self.k_proj(x).view(B, L, 8, -1).transpose(1, 2)
-        v = self.v_proj(x).view(B, L, 8, -1).transpose(1, 2)
+        q = self.q_proj(x).view(B, L, self.num_heads, -1).transpose(1, 2)
+        k = self.k_proj(x).view(B, L, self.num_heads, -1).transpose(1, 2)
+        v = self.v_proj(x).view(B, L, self.num_heads, -1).transpose(1, 2)
         
         x = self.attn(q, k, v)
         x = x.transpose(1, 2).reshape(B, L, D)

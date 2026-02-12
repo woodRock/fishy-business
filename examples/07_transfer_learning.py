@@ -10,7 +10,6 @@ from pathlib import Path
 from fishy.experiments.transfer import run_sequential_transfer_learning
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 
 def main():
@@ -35,7 +34,6 @@ def main():
         num_epochs_transfer=5,  # Short run for example
         num_epochs_finetune=5,
         batch_size=32,
-        file_path=DATA_PATH,
         wandb_log=False,
     )
 

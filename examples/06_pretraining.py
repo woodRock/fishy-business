@@ -11,7 +11,6 @@ from fishy._core.config import TrainingConfig
 from fishy.experiments.deep_training import ModelTrainer
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 
 def main():
@@ -22,7 +21,6 @@ def main():
     config = TrainingConfig(
         model="transformer",
         dataset="species",
-        file_path=DATA_PATH,
         epochs=5,
         masked_spectra_modelling=True,
         spectrum_denoising_autoencoding=True,

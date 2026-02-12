@@ -13,7 +13,6 @@ from fishy.cli.main import display_final_summary
 
 # Set up the path to your data
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 
 def main():
@@ -23,7 +22,6 @@ def main():
     config = TrainingConfig(
         model="transformer",
         dataset="species",
-        file_path=DATA_PATH,
         epochs=5,
         batch_size=32,
         wandb_log=False,

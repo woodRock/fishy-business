@@ -11,7 +11,6 @@ from fishy.data.module import create_data_module
 
 # Path to the dataset
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PATH = str(PROJECT_ROOT / "data" / "REIMS.xlsx")
 
 
 def main():
@@ -20,9 +19,7 @@ def main():
     # 1. Create a DataModule
     # You can select different datasets defined in fishy/configs/datasets.yaml
     dataset_name = "species"
-    dm = create_data_module(
-        dataset_name=dataset_name, file_path=DATA_PATH, batch_size=32
-    )
+    dm = create_data_module(dataset_name=dataset_name)
 
     print(f"Initializing DataModule for: {dataset_name}")
 
