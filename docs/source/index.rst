@@ -28,6 +28,9 @@
 
 A configuration-driven framework for analyzing mass spectrometry data using Deep Learning, Classic Machine Learning, and Evolutionary Algorithms.
 
+.. important::
+   While the source code of this framework is open-source under the MIT license, the accompanying **REIMS dataset is private**. Authorized users must use the provided download command to fetch the data files.
+
 Quickstart
 ----------
 
@@ -55,6 +58,7 @@ Key Features
    :hidden:
 
    installation
+   datasets
    wizard
    dashboard
    tutorials

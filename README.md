@@ -12,6 +12,9 @@
 
 A configuration-driven framework for the analysis of spectral data using Deep Learning, Classic Machine Learning, and Evolutionary Algorithms.
 
+> [!IMPORTANT]
+> **Code vs. Data**: The source code in this repository is open-source under the MIT license. However, the accompanying REIMS dataset is private research data. You must use the `fishy download-data` command with an authorized token to fetch the data locally.
+
 ## Key Features
 
 - **Configuration-Driven Architecture**: Add new datasets, models, or tasks by simply editing YAML files in `fishy/configs/`.
@@ -20,6 +23,20 @@ A configuration-driven framework for the analysis of spectral data using Deep Le
 - **Contrastive Suite**: Implementation of SimCLR, SimSiam, BYOL, Barlow Twins, and MoCo.
 - **Advanced Workflows**: Sequential transfer learning and Genetic Programming (GP) experiments.
 - **Automated Verification**: Integrated `doctests` ensure documentation examples always stay functional.
+
+## Datasets & REIMS Data
+
+This research utilizes high-dimensional chemical fingerprints (2,080 features) derived from **Rapid Evaporative Ionization Mass Spectrometry (REIMS)** of seafood samples, provided by **AgResearch, New Zealand**.
+
+The data was collected using a Laser-Assisted REIMS setup in negative ionization mode, specifically targeting deprotonated lipids and fatty acids. The framework includes five distinct analytical tasks:
+
+1.  **Species Identification**: Distinguishing between Hoki and Mackerel.
+2.  **Body Part Identification**: Classifying 7 fish parts (fillets, heads, livers, skins, gonads, guts, frames).
+3.  **Oil Contamination Detection**: Detecting contamination levels from 0.1% to 50%.
+4.  **Cross-species Adulteration**: Identifying premixed samples of premium and cheaper species.
+5.  **Batch Detection**: A pairwise task to identify if two fish belong to the same processing batch.
+
+For full details on the acquisition and curation process, see the [Documentation](https://fishy-business.readthedocs.io/en/latest/datasets.html).
 
 ## Installation
 

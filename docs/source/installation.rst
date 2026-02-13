@@ -21,8 +21,22 @@ Install from Source
 .. code-block:: bash
 
    pip install -r requirements.txt
+   pip install -e .
 
-3. (Optional) Install development dependencies for testing:
+.. _download-data-ref:
+
+3. Download the Private Dataset:
+--------------------------------
+
+The REIMS dataset is private. To download it, you will need a GitHub Personal Access Token (PAT):
+
+.. code-block:: bash
+
+   fishy download-data --token <YOUR_GITHUB_TOKEN>
+
+*Tip: You can also set the FISHY_DATA_TOKEN environment variable.*
+
+4. (Optional) Install development dependencies for testing:
 
 .. code-block:: bash
 
