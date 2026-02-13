@@ -32,7 +32,6 @@ from .cli.main import display_final_summary
 
 def get_data_path(filename: str = "REIMS.xlsx") -> str:
     """Returns the absolute path to a data asset, searching package and local dirs."""
-    import importlib.resources as pkg_resources
     import os
 
     # 1. Determine package directory
@@ -44,16 +43,23 @@ def get_data_path(filename: str = "REIMS.xlsx") -> str:
         os.path.join(pkg_dir, "data", "assets", filename),
         # Local Dev: Root data folder relative to package
         os.path.abspath(os.path.join(pkg_dir, "..", "data", filename)),
-        # RTD/CI: Current working directory's data folder
-        os.path.join(os.getcwd(), "data", filename),
-        # RTD/CI: Current working directory's internal assets folder
-        os.path.join(os.getcwd(), "fishy", "data", "assets", filename),
     ]
+
+    # RTD/CI: Search upwards from CWD to find the 'data' or 'fishy' directory
+    # This handles notebooks running from notebooks/ or docs/ subfolders
+    curr = os.getcwd()
+    for _ in range(4): # Check CWD and 3 levels of parents
+        search_paths.append(os.path.join(curr, "data", filename))
+        search_paths.append(os.path.join(curr, "fishy", "data", "assets", filename))
+        parent = os.path.dirname(curr)
+        if parent == curr: 
+            break
+        curr = parent
 
     # 3. Return the first one that exists
     for p in search_paths:
         if os.path.exists(p):
-            return p
+            return os.path.abspath(p)
 
     # 4. Fallback for download: Use the internal package location if writable, else CWD
     preferred_path = search_paths[0]
@@ -61,6 +67,7 @@ def get_data_path(filename: str = "REIMS.xlsx") -> str:
         os.makedirs(os.path.dirname(preferred_path), exist_ok=True)
         return preferred_path
     except (OSError, PermissionError):
+        # Last resort fallback to a 'data' folder in the current directory
         return os.path.join(os.getcwd(), "data", filename)
 
 
