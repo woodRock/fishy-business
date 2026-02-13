@@ -161,16 +161,20 @@ class ContrastiveTrainer:
                     all_sims.extend(sim)
                     all_labels.extend(pair_labels.cpu().numpy().flatten())
 
-            avg_loss = total_loss / len(self.train_loader)
+            avg_loss = total_loss / len(self.train_loader) if len(self.train_loader) > 0 else 0
             history["loss"].append(avg_loss)
             
             # Epoch-level accuracy for progress bar
-            self.best_threshold = self._optimize_threshold(np.array(all_sims), np.array(all_labels))
-            acc = accuracy_score(np.array(all_labels), (np.array(all_sims) > self.best_threshold).astype(int))
+            if all_sims:
+                self.best_threshold = self._optimize_threshold(np.array(all_sims), np.array(all_labels))
+                acc = accuracy_score(np.array(all_labels), (np.array(all_sims) > self.best_threshold).astype(int))
+            else:
+                acc = 0.0
             history["accuracy"].append(acc)
 
         self.metrics = {
             "history": history,
+            "epoch_metrics": history,
             "val_loss": history["loss"][-1] if history["loss"] else 0,
         }
         

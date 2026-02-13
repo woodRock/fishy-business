@@ -267,12 +267,20 @@ class UnifiedTrainer:
     def _generate_figures(self, config, ctx, results):
         if "epoch_metrics" in results and results["epoch_metrics"] is not None:
             m = results["epoch_metrics"]
+        elif "history" in results and results["history"] is not None:
+            m = results["history"]
+        else:
+            m = None
+
+        if m is not None:
             plt.figure(figsize=(12, 5))
             
             # 1. Loss Curve
             plt.subplot(1, 2, 1)
-            plt.plot(m.get("train_losses", []), label="Train Loss", color='royalblue', lw=2)
-            plt.plot(m.get("val_losses", []), label="Val Loss", color='darkorange', lw=2)
+            train_loss = m.get("train_losses", m.get("loss", []))
+            val_loss = m.get("val_losses", [])
+            plt.plot(train_loss, label="Train Loss", color='royalblue', lw=2)
+            if val_loss: plt.plot(val_loss, label="Val Loss", color='darkorange', lw=2)
             plt.title(f"Loss: {config.model} on {config.dataset}")
             plt.xlabel("Epoch")
             plt.ylabel("Loss")
@@ -283,6 +291,9 @@ class UnifiedTrainer:
             plt.subplot(1, 2, 2)
             val_accs = [met.get("balanced_accuracy", 0) for met in m.get("val_metrics", [])]
             train_accs = [met.get("balanced_accuracy", 0) for met in m.get("train_metrics", [])]
+            
+            if not train_accs and "accuracy" in m:
+                train_accs = m["accuracy"]
             
             if train_accs: plt.plot(train_accs, label="Train Acc", color='royalblue', lw=2)
             if val_accs: plt.plot(val_accs, label="Val Acc", color='darkorange', lw=2)
@@ -297,6 +308,8 @@ class UnifiedTrainer:
             plt.tight_layout()
             ctx.save_figure(plt, "training_curves.png")
             plt.close()
+        
+        # Original history logic kept as fallback for specific contrastive results if needed
         elif "history" in results:
             # Support for contrastive history
             h = results["history"]
