@@ -132,6 +132,9 @@ def setup_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
+    download_parser = subparsers.add_parser("download-data", help="Download private REIMS dataset")
+    download_parser.add_argument("--token", type=str, help="GitHub Personal Access Token")
+
     run_all_parser = subparsers.add_parser("run_all", help="Full benchmark suite")
     run_all_parser.add_argument("-n", "--num-runs", type=int, default=30)
     run_all_parser.add_argument("--quick", action="store_true")
@@ -209,6 +212,12 @@ def main() -> None:
             from fishy.cli.wizard import run_wizard
 
             run_wizard()
+        elif args.command == "download-data":
+            from fishy._core.data_manager import download_dataset
+
+            success = download_dataset(token=args.token)
+            if not success:
+                sys.exit(1)
         elif args.command == "run_all":
             from fishy.experiments.unified_trainer import run_all_benchmarks
 
