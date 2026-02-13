@@ -200,8 +200,6 @@ selected_dataset = st.sidebar.selectbox(
 )
 
 dm = create_data_module(selected_dataset, str(data_path))
-dm.setup()
-df_filtered = dm.get_filtered_dataframe()
 
 with st.sidebar.expander("🚀 Hyperparameters", expanded=True):
     epochs = st.slider("Epochs", 1, 100, 10)
@@ -383,6 +381,8 @@ def render_results(results):
             st.info("Stability data requires multiple folds.")
 
 if data_path.exists():
+    dm.setup()
+    df_filtered = dm.get_filtered_dataframe()
     class_names = dm.get_class_names()
     X_all, y_all = dm.get_numpy_data(labels_as_indices=True)
     label_col = (
@@ -393,6 +393,8 @@ if data_path.exists():
         mz_axis = np.array([float(c) for c in feature_cols])
     except:
         mz_axis = np.arange(len(feature_cols))
+    
+    # ... rest of the existing code for tab1, tab2, etc.
 
     with tab1:
         st.header("Deep Data Exploration")
@@ -961,4 +963,32 @@ if data_path.exists():
         else:
             st.info("No leaderboard data loaded. Click 'Refresh' or 'Connect' above.")
 else:
-    st.warning("Data file not found.")
+    st.error("📉 REIMS Dataset Missing")
+    st.markdown(
+        """
+        The REIMS dataset is private and must be downloaded before you can use this dashboard.
+        
+        ### 1. Obtain a Token
+        Generate a **Personal Access Token (classic)** with the `repo` scope from 
+        [GitHub Developer Settings](https://github.com/settings/tokens).
+        
+        ### 2. Download Data
+        Enter your token below to securely download the dataset to the internal package assets.
+        """
+    )
+    
+    with st.form("download_form"):
+        token_input = st.text_input("GitHub Personal Access Token", type="password")
+        submit = st.form_submit_button("🚀 Download Dataset")
+        
+        if submit:
+            if token_input:
+                from fishy._core.data_manager import download_dataset
+                with st.spinner("Downloading REIMS.xlsx..."):
+                    if download_dataset(token=token_input):
+                        st.success("✅ Dataset downloaded! Please refresh the page.")
+                        st.balloons()
+                    else:
+                        st.error("❌ Download failed. Check your token and connection.")
+            else:
+                st.warning("Please enter a valid token.")
