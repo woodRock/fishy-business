@@ -24,12 +24,15 @@ def download_dataset(token: str = None, destination: str = None):
         token = os.environ.get("FISHY_DATA_TOKEN")
     
     if not token:
-        import getpass
-        console.print("[bold yellow]This dataset is private.[/]")
-        token = getpass.getpass("Enter your GitHub Personal Access Token: ")
+        import sys
+        # Only prompt if we are in an interactive terminal and not in CI
+        if sys.stdin.isatty() and not os.environ.get("CI"):
+            import getpass
+            console.print("[bold yellow]This dataset is private.[/]")
+            token = getpass.getpass("Enter your GitHub Personal Access Token: ")
     
     if not token or len(token.strip()) == 0:
-        raise ValueError("No authentication token provided.")
+        raise ValueError("No authentication token provided. Please set FISHY_DATA_TOKEN.")
 
     if not destination:
         from fishy import get_data_path

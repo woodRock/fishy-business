@@ -70,7 +70,8 @@ extensions = [
 
 # nbsphinx configuration
 nbsphinx_allow_errors = True
-nbsphinx_execute = "always"  # Or "never" if you want to be safe
+nbsphinx_execute = "always"
+nbsphinx_timeout = 600  # Increase to 10 minutes per notebook
 
 # sphinx-copybutton configuration
 copybutton_prompt_text = r">>> |\$ |node "
