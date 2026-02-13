@@ -7,16 +7,20 @@ from fishy.analysis.xai import GradCAM, ModelWrapper
 from fishy.analysis.benchmark import run_benchmark
 from fishy._core.utils import RunContext
 
+
 class SimpleModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv = nn.Conv1d(1, 4, 3, padding=1)
         self.fc = nn.Linear(4 * 100, 2)
+
     def forward(self, x):
-        if len(x.shape) == 2: x = x.unsqueeze(1)
+        if len(x.shape) == 2:
+            x = x.unsqueeze(1)
         x = self.conv(x)
         x = x.view(x.size(0), -1)
         return self.fc(x)
+
 
 def test_gradcam_logic():
     model = SimpleModel()
@@ -27,6 +31,7 @@ def test_gradcam_logic():
     assert cam.shape[-1] == 100
     gc.remove_hooks()
 
+
 def test_model_wrapper():
     model = SimpleModel()
     wrapper = ModelWrapper(model, device="cpu")
@@ -34,6 +39,7 @@ def test_model_wrapper():
     probs = wrapper.predict_proba(X)
     assert probs.shape == (5, 2)
     assert np.allclose(probs.sum(axis=1), 1.0)
+
 
 def test_benchmark_utility(tmp_path):
     model = SimpleModel()

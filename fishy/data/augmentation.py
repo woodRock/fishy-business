@@ -142,12 +142,14 @@ class DataAugmenter:
             )
 
         combined_samples = torch.cat(augmented_samples_list, dim=0)
-        
+
         # Ensure labels are 2D for consistent repeating
         if all_labels_tensor.ndim == 1:
             all_labels_tensor = all_labels_tensor.view(-1, 1)
-            
-        combined_labels = all_labels_tensor.repeat(self.config.num_augmentations + 1, 1).to(device)
+
+        combined_labels = all_labels_tensor.repeat(
+            self.config.num_augmentations + 1, 1
+        ).to(device)
 
         permutation = torch.randperm(combined_samples.size(0), device=device)
         combined_samples = combined_samples[permutation].cpu().numpy()

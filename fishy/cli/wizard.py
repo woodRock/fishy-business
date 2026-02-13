@@ -41,8 +41,13 @@ def run_wizard():
     datasets_cfg = load_config("datasets")
 
     # 2. Select High-Level Task
-    task_options = ["Classification (Standard)", "Contrastive Learning (Self-Supervised)"]
-    selected_task = ask_numbered_choice("What is your primary research task?", task_options)
+    task_options = [
+        "Classification (Standard)",
+        "Contrastive Learning (Self-Supervised)",
+    ]
+    selected_task = ask_numbered_choice(
+        "What is your primary research task?", task_options
+    )
 
     model = "transformer"
     encoder = "dense"
@@ -53,10 +58,10 @@ def run_wizard():
         # CONTRASTIVE PATH
         available_methods = sorted(list(models_cfg["contrastive_models"].keys()))
         model = ask_numbered_choice("Select Contrastive Method", available_methods)
-        
+
         available_encoders = sorted(list(models_cfg["deep_models"].keys()))
         encoder = ask_numbered_choice("Select Encoder (Backbone)", available_encoders)
-        
+
         available_datasets = sorted(list(datasets_cfg.keys()))
         dataset = ask_numbered_choice("Select Dataset", available_datasets)
         section_key = "contrastive_models"

@@ -49,7 +49,7 @@ class TestAnalysis(unittest.TestCase):
         class DummySklearn:
             def predict_proba(self, x):
                 return np.zeros((len(x), 3)) + 0.33
-        
+
         wrapper = ModelWrapper(DummySklearn(), device="cpu")
         x = np.random.rand(5, 10)
         probs = wrapper.predict_proba(x)

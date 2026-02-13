@@ -47,7 +47,7 @@ class KANLayer(nn.Module):
         step = (grid_range[1] - grid_range[0]) / grid_size
         for _ in range(spline_order):
             grid = torch.cat([grid[0:1] - step, grid, grid[-1:] + step])
-        
+
         grid = grid.view(1, -1).repeat(in_features, 1)
         self.register_buffer("grid", grid)
 
@@ -56,16 +56,19 @@ class KANLayer(nn.Module):
     def reset_parameters(self):
         nn.init.kaiming_uniform_(self.base_weight, a=math.sqrt(5) * self.scale_base)
         with torch.no_grad():
-            nn.init.normal_(self.spline_weight, std=self.scale_noise / math.sqrt(self.in_features) / self.grid_size)
+            nn.init.normal_(
+                self.spline_weight,
+                std=self.scale_noise / math.sqrt(self.in_features) / self.grid_size,
+            )
 
     def b_splines(self, x: torch.Tensor):
         """
         Compute B-spline bases.
         x: (batch, in_features)
         """
-        grid = self.grid # (in_features, grid_size + 2 * spline_order + 1)
-        x = x.unsqueeze(-1) # (batch, in_features, 1)
-        
+        grid = self.grid  # (in_features, grid_size + 2 * spline_order + 1)
+        x = x.unsqueeze(-1)  # (batch, in_features, 1)
+
         # 0-order splines
         bases = ((x >= grid[:, :-1]) & (x < grid[:, 1:])).to(x.dtype)
 
@@ -81,14 +84,14 @@ class KANLayer(nn.Module):
                 * bases[:, :, 1:]
             )
 
-        return bases.contiguous() # (batch, in_features, grid_size + spline_order)
+        return bases.contiguous()  # (batch, in_features, grid_size + spline_order)
 
     def forward(self, x: torch.Tensor):
         base_output = F.linear(self.base_activation(x), self.base_weight)
-        
+
         # bases: (batch, in_features, grid_size + spline_order)
         bases = self.b_splines(x)
-        
+
         # spline_weight: (out_features, in_features, grid_size + spline_order)
         spline_output = torch.einsum("bik,oik->bo", bases, self.spline_weight)
 
@@ -104,17 +107,25 @@ class KAN(nn.Module):
         num_layers: int = 2,
         grid_size: int = 5,
         spline_order: int = 3,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(KAN, self).__init__()
-        
+
         layers = []
         curr_dim = input_dim
         for _ in range(num_layers - 1):
-            layers.append(KANLayer(curr_dim, hidden_dim, grid_size=grid_size, spline_order=spline_order))
+            layers.append(
+                KANLayer(
+                    curr_dim, hidden_dim, grid_size=grid_size, spline_order=spline_order
+                )
+            )
             curr_dim = hidden_dim
-        layers.append(KANLayer(curr_dim, output_dim, grid_size=grid_size, spline_order=spline_order))
-        
+        layers.append(
+            KANLayer(
+                curr_dim, output_dim, grid_size=grid_size, spline_order=spline_order
+            )
+        )
+
         self.layers = nn.ModuleList(layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

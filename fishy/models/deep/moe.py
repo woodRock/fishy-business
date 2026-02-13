@@ -30,7 +30,7 @@ class MixtureOfExperts(nn.Module):
         num_heads: int = 4,
         dropout: float = 0.1,
         num_experts: int = 3,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the MixtureOfExperts model.
@@ -46,11 +46,19 @@ class MixtureOfExperts(nn.Module):
         """
         super().__init__()
 
-        self.experts = nn.ModuleList([
-            Transformer(input_dim=input_dim, output_dim=output_dim, hidden_dim=hidden_dim, 
-                        num_layers=num_layers, num_heads=num_heads, dropout=dropout)
-            for _ in range(num_experts)
-        ])
+        self.experts = nn.ModuleList(
+            [
+                Transformer(
+                    input_dim=input_dim,
+                    output_dim=output_dim,
+                    hidden_dim=hidden_dim,
+                    num_layers=num_layers,
+                    num_heads=num_heads,
+                    dropout=dropout,
+                )
+                for _ in range(num_experts)
+            ]
+        )
 
         # Gating network to learn weighting of experts
         self.gate = nn.Linear(input_dim, num_experts)
@@ -61,11 +69,15 @@ class MixtureOfExperts(nn.Module):
         """
         # Get gating weights
         gate_input = x.mean(dim=1) if x.dim() == 3 else x
-        weights = F.softmax(self.gate(gate_input), dim=-1) # (batch_size, num_experts)
+        weights = F.softmax(self.gate(gate_input), dim=-1)  # (batch_size, num_experts)
 
         # Get expert outputs
-        expert_outputs = [expert(x) for expert in self.experts] # List of (batch_size, output_dim)
-        expert_outputs = torch.stack(expert_outputs, dim=1) # (batch_size, num_experts, output_dim)
+        expert_outputs = [
+            expert(x) for expert in self.experts
+        ]  # List of (batch_size, output_dim)
+        expert_outputs = torch.stack(
+            expert_outputs, dim=1
+        )  # (batch_size, num_experts, output_dim)
 
         # Weighted sum of expert outputs
         weighted_output = torch.bmm(weights.unsqueeze(1), expert_outputs).squeeze(1)

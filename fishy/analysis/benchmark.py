@@ -110,7 +110,9 @@ def run_benchmark(
             start = time.perf_counter()
             for _ in range(10):
                 _ = model.predict(X_dummy)
-            results["avg_inference_latency_ms"] = ((time.perf_counter() - start) / 10) * 1000
+            results["avg_inference_latency_ms"] = (
+                (time.perf_counter() - start) / 10
+            ) * 1000
         except:
             pass
 

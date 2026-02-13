@@ -18,7 +18,7 @@ class SimSiamModel(nn.Module):
         embedding_dim: int = 128,
         projection_dim: int = 128,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(SimSiamModel, self).__init__()
         self.encoder = backbone

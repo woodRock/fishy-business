@@ -52,11 +52,16 @@ def detect_method(model_name: str) -> str:
     try:
         cfg = load_config("models")
         m = model_name.lower()
-        if m in cfg.get("deep_models", {}): return "deep"
-        if m in cfg.get("classic_models", {}): return "classic"
-        if m in cfg.get("evolutionary_models", {}): return "evolutionary"
-        if m in cfg.get("contrastive_models", {}): return "contrastive"
-        if m in cfg.get("probabilistic_models", {}): return "probabilistic"
+        if m in cfg.get("deep_models", {}):
+            return "deep"
+        if m in cfg.get("classic_models", {}):
+            return "classic"
+        if m in cfg.get("evolutionary_models", {}):
+            return "evolutionary"
+        if m in cfg.get("contrastive_models", {}):
+            return "contrastive"
+        if m in cfg.get("probabilistic_models", {}):
+            return "probabilistic"
     except:
         pass
     return "deep"

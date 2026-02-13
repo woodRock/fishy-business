@@ -8,7 +8,9 @@ import torch.nn as nn
 
 
 class ProjectionHead(nn.Module):
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float = 0.1):
+    def __init__(
+        self, input_dim: int, hidden_dim: int, output_dim: int, dropout: float = 0.1
+    ):
         super(ProjectionHead, self).__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
@@ -33,11 +35,13 @@ class SimCLRModel(nn.Module):
         embedding_dim: int = 128,
         projection_dim: int = 128,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(SimCLRModel, self).__init__()
         self.encoder = backbone
-        self.projector = ProjectionHead(embedding_dim, embedding_dim, projection_dim, dropout)
+        self.projector = ProjectionHead(
+            embedding_dim, embedding_dim, projection_dim, dropout
+        )
 
     def forward(self, x1: torch.Tensor, x2: torch.Tensor):
         z1 = self.projector(self.encoder(x1))
@@ -59,12 +63,12 @@ class SimCLRLoss(nn.Module):
         z = torch.cat([z1, z2], dim=0)
         n = z.size(0)
         sim = torch.matmul(z, z.T) / self.temperature
-        
+
         mask = torch.eye(n, device=z.device).bool()
         sim = sim.masked_fill(mask, -1e9)
-        
+
         targets = torch.arange(n, device=z.device)
-        targets[:n//2] = targets[:n//2] + n//2
-        targets[n//2:] = targets[n//2:] - n//2
-        
+        targets[: n // 2] = targets[: n // 2] + n // 2
+        targets[n // 2 :] = targets[n // 2 :] - n // 2
+
         return self.criterion(sim, targets)

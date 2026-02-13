@@ -22,7 +22,7 @@ class MoCoModel(nn.Module):
         K: int = 4096,
         m: float = 0.999,
         T: float = 0.07,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(MoCoModel, self).__init__()
         self.K = K
@@ -30,12 +30,13 @@ class MoCoModel(nn.Module):
         self.T = T
 
         self.encoder_q = nn.Sequential(
-            backbone,
-            nn.Linear(embedding_dim, projection_dim)
+            backbone, nn.Linear(embedding_dim, projection_dim)
         )
         self.encoder_k = copy.deepcopy(self.encoder_q)
 
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
+        for param_q, param_k in zip(
+            self.encoder_q.parameters(), self.encoder_k.parameters()
+        ):
             param_k.data.copy_(param_q.data)
             param_k.requires_grad = False
 
@@ -45,7 +46,9 @@ class MoCoModel(nn.Module):
 
     @torch.no_grad()
     def _momentum_update_key_encoder(self):
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
+        for param_q, param_k in zip(
+            self.encoder_q.parameters(), self.encoder_k.parameters()
+        ):
             param_k.data = param_k.data * self.m + param_q.data * (1.0 - self.m)
 
     @torch.no_grad()

@@ -25,7 +25,7 @@ class Dense(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the Dense model.
@@ -45,14 +45,16 @@ class Dense(nn.Module):
         layers = []
         in_f = input_dim
         for i in range(num_layers):
-            layers.extend([
-                nn.Linear(in_f, hidden_dim),
-                nn.BatchNorm1d(hidden_dim),
-                nn.ReLU(),
-                nn.Dropout(dropout)
-            ])
+            layers.extend(
+                [
+                    nn.Linear(in_f, hidden_dim),
+                    nn.BatchNorm1d(hidden_dim),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                ]
+            )
             in_f = hidden_dim
-        
+
         layers.append(nn.Linear(in_f, output_dim))
         self.net = nn.Sequential(*layers)
 

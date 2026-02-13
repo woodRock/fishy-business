@@ -45,21 +45,26 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "hidden_dim": config.hidden_dimension,
         "num_layers": config.num_layers,
         "dropout": config.dropout,
-        "num_heads": config.num_heads
+        "num_heads": config.num_heads,
     }
 
     # Handle Siamese wrappers for batch-detection
     if "batch-detection" in config.dataset:
         if model_name == "vae":
             from fishy.models.deep.vae import SiameseVAE
+
             backbone = model_class(**params)
             return SiameseVAE(backbone)
-        
+
         # Generic Siamese wrapper for other models could be instantiated here
         # For now, we use specialized ones if they exist, or a default fallback
         try:
             # Check if there's a Siamese version in the same module
-            siamese_class = get_model_class(model_path.replace(model_class.__name__, f"Siamese{model_class.__name__}"))
+            siamese_class = get_model_class(
+                model_path.replace(
+                    model_class.__name__, f"Siamese{model_class.__name__}"
+                )
+            )
             return siamese_class(**params)
         except:
             # Fallback to standard model if no Siamese wrapper found
