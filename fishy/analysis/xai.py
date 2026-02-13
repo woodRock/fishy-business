@@ -133,12 +133,19 @@ class ModelWrapper:
             x_norm = self.normalize_intensities(x)
             # 1. Handle as a PyTorch model
             if isinstance(self.model, nn.Module):
-                x_tensor = torch.tensor(x_norm, dtype=torch.float32).to(self.device)
-                with torch.no_grad():
-                    out = self.model(x_tensor)
-                    if isinstance(out, tuple):
-                        out = out[0]
-                    return F.softmax(out, dim=-1).cpu().numpy()
+                # Process in chunks to avoid memory overflow for large inputs (e.g. from LIME)
+                chunk_size = 128
+                results = []
+                for i in range(0, len(x_norm), chunk_size):
+                    chunk = x_norm[i:i + chunk_size]
+                    x_tensor = torch.tensor(chunk, dtype=torch.float32).to(self.device)
+                    with torch.no_grad():
+                        out = self.model(x_tensor)
+                        if isinstance(out, tuple):
+                            out = out[0]
+                        probs = F.softmax(out, dim=-1).cpu().numpy()
+                        results.append(probs)
+                return np.concatenate(results, axis=0) if results else np.empty((0,))
 
             # 2. Try as a standard sklearn-like model if it has predict_proba
             if hasattr(self.model, "predict_proba"):
