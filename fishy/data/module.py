@@ -34,9 +34,9 @@ class DataProcessor:
         if not self.config and dataset_name == "oil-simple":
             self.config = all_configs.get("oil_simple", {})
 
-    def load_data(self, file_path: Union[str, Path]) -> pd.DataFrame:
+    def load_data(self, file_path: Union[str, Path] = None) -> pd.DataFrame:
+        from fishy import get_data_path
         if file_path is None:
-            from fishy import get_data_path
             file_path = get_data_path()
         
         path = Path(file_path)
