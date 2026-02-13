@@ -71,7 +71,6 @@ Key Features
    concepts
    datasets_guide
    xai_guide
-   papers
    examples
 
 .. toctree::
@@ -106,6 +105,8 @@ If you use this framework in your research, please cite the following paper:
      year={2025},
      publisher={Springer}
    }
+
+For a full list of related research and publications, see the author's `Google Scholar <https://scholar.google.com/citations?hl=en&user=UnUp2S0AAAAJ>`_ page.
 
 Indices and tables
 ==================

@@ -184,3 +184,6 @@ If you use this framework in your research, please cite the following paper:
   publisher={Springer}
 }
 ```
+
+For a full list of related research and publications, see the author's [Google Scholar](https://scholar.google.com/citations?hl=en&user=UnUp2S0AAAAJ) page.
+
