@@ -206,6 +206,7 @@ class DataModule:
         self.train_loader, self.raw_data, self.filtered_data = None, None, None
 
     def setup(self) -> None:
+        from fishy import get_data_path
         actual_path = self.file_path if self.file_path and Path(self.file_path).exists() else get_data_path()
         self.train_loader, self.raw_data, self.filtered_data = preprocess_data_pipeline(
             self.processor, actual_path, self.is_pre_train, self.augmentation_config
