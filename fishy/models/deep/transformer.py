@@ -192,50 +192,67 @@ class Transformer(nn.Module):
         Initializes the Transformer model.
 
         Args:
-            input_dim (int): Number of input features.
+            input_dim (int): Number of input features (m/z bins).
             output_dim (int): Number of output classes/dimensions.
-            hidden_dim (int, optional): Intermediate dimension of the feed-forward layer. Defaults to 128.
+            hidden_dim (int, optional): Intermediate dimension for embeddings and feed-forward. Defaults to 128.
             num_layers (int, optional): Number of transformer blocks. Defaults to 1.
             dropout (float, optional): Dropout rate for regularization. Defaults to 0.1.
             num_heads (int, optional): Number of attention heads. Defaults to 4.
         """
         super().__init__()
 
+        # We treat each feature as a token in a sequence.
+        # input_dim here is the number of features.
+        self.n_features = input_dim
+        self.embedding_dim = hidden_dim
+
+        # Ensure embedding_dim is divisible by num_heads
+        if self.embedding_dim % num_heads != 0:
+            self.embedding_dim = (self.embedding_dim // num_heads) * num_heads
+            if self.embedding_dim == 0:
+                self.embedding_dim = num_heads
+
+        self.input_projection = nn.Linear(1, self.embedding_dim)
+        self.pos_embedding = nn.Parameter(torch.zeros(1, input_dim, self.embedding_dim))
+
         self.attention_layers = nn.ModuleList(
-            [MultiHeadAttention(input_dim, num_heads) for _ in range(num_layers)]
+            [MultiHeadAttention(self.embedding_dim, num_heads) for _ in range(num_layers)]
         )
 
         self.feed_forward = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
+            nn.Linear(self.embedding_dim, hidden_dim),
             nn.GELU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, input_dim),
+            nn.Linear(hidden_dim, self.embedding_dim),
         )
 
-        self.layer_norm1 = nn.LayerNorm(input_dim)
-        self.layer_norm2 = nn.LayerNorm(input_dim)
+        self.layer_norm1 = nn.LayerNorm(self.embedding_dim)
+        self.layer_norm2 = nn.LayerNorm(self.embedding_dim)
         self.dropout = nn.Dropout(dropout)
-        self.fc_out = nn.Linear(input_dim, output_dim)
+        self.fc_out = nn.Linear(self.embedding_dim, output_dim)
 
     def forward(self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs) -> Union[torch.Tensor, Tuple[torch.Tensor, List[torch.Tensor]]]:
         """
         Forward pass.
 
         Args:
-            x (torch.Tensor): Input spectrum of shape (batch_size, input_dim) or (batch_size, seq_len, input_dim).
+            x (torch.Tensor): Input spectrum of shape (batch_size, input_dim).
             return_attention (bool): Whether to return attention weights from all layers.
 
         Returns:
             torch.Tensor: Logits/predictions of shape (batch_size, output_dim).
             List[torch.Tensor] (optional): List of attention weights from each layer.
         """
-        # Ensure input has 3 dimensions [batch_size, seq_length, features]
-        # For 1D spectral data, we treat the peaks as features in a sequence of length 1
+        # Ensure input has 3 dimensions [batch_size, n_features, 1]
         if x.dim() == 2:
-            x = x.unsqueeze(1)
-        elif x.dim() == 3 and x.size(2) == 1:
-            # Handle (B, L, 1) by transposing to (B, 1, L) so L becomes the feature dim
+            x = x.unsqueeze(-1)
+        elif x.dim() == 3 and x.size(1) == 1:
+            # Handle (B, 1, F) by transposing to (B, F, 1)
             x = x.transpose(1, 2)
+        
+        # Project each feature to embedding_dim
+        x = self.input_projection(x) # (B, n_features, embedding_dim)
+        x = x + self.pos_embedding
 
         attentions = []
         # Apply attention layers with residual connections
@@ -254,8 +271,8 @@ class Transformer(nn.Module):
         x = self.layer_norm2(x)
         x = residual + self.dropout(self.feed_forward(x))
 
-        # Global pooling and classification
-        x = x.mean(dim=1)  # Global average pooling
+        # Global average pooling and classification
+        x = x.mean(dim=1)  # Global average pooling over features
         x = self.fc_out(x)
         
         if return_attention:
