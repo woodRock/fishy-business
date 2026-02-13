@@ -79,6 +79,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import seaborn as sns
+from typing import Union, Tuple, List
 
 
 class MultiHeadAttention(nn.Module):
@@ -123,15 +124,17 @@ class MultiHeadAttention(nn.Module):
 
         self.scale = self.head_dim**-0.5
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, return_attention: bool = False) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         """
         Forward pass.
 
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, seq_length, input_dim).
+            return_attention (bool): Whether to return attention weights.
 
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, seq_length, input_dim).
+            torch.Tensor (optional): Attention weights of shape (batch_size, num_heads, seq_length, seq_length).
         """
         batch_size = x.shape[0]
 
@@ -146,9 +149,12 @@ class MultiHeadAttention(nn.Module):
         attn = attn.softmax(dim=-1)
 
         # Combine heads
-        x = (attn @ v).transpose(1, 2).reshape(batch_size, -1, self.input_dim)
-        x = self.fc_out(x)
-        return x
+        out = (attn @ v).transpose(1, 2).reshape(batch_size, -1, self.input_dim)
+        out = self.fc_out(out)
+        
+        if return_attention:
+            return out, attn
+        return out
 
 
 class Transformer(nn.Module):
@@ -211,15 +217,17 @@ class Transformer(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.fc_out = nn.Linear(input_dim, output_dim)
 
-    def forward(self, x: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs) -> Union[torch.Tensor, Tuple[torch.Tensor, List[torch.Tensor]]]:
         """
         Forward pass.
 
         Args:
             x (torch.Tensor): Input spectrum of shape (batch_size, input_dim) or (batch_size, seq_len, input_dim).
+            return_attention (bool): Whether to return attention weights from all layers.
 
         Returns:
             torch.Tensor: Logits/predictions of shape (batch_size, output_dim).
+            List[torch.Tensor] (optional): List of attention weights from each layer.
         """
         # Ensure input has 3 dimensions [batch_size, seq_length, features]
         # For 1D spectral data, we treat the peaks as features in a sequence of length 1
@@ -229,11 +237,17 @@ class Transformer(nn.Module):
             # Handle (B, L, 1) by transposing to (B, 1, L) so L becomes the feature dim
             x = x.transpose(1, 2)
 
+        attentions = []
         # Apply attention layers with residual connections
         for attention in self.attention_layers:
             residual = x
             x = self.layer_norm1(x)
-            x = residual + self.dropout(attention(x))
+            if return_attention:
+                attn_out, attn_weights = attention(x, return_attention=True)
+                x = residual + self.dropout(attn_out)
+                attentions.append(attn_weights)
+            else:
+                x = residual + self.dropout(attention(x))
 
         # Feed-forward with residual connection
         residual = x
@@ -243,6 +257,9 @@ class Transformer(nn.Module):
         # Global pooling and classification
         x = x.mean(dim=1)  # Global average pooling
         x = self.fc_out(x)
+        
+        if return_attention:
+            return x, attentions
         return x
 
 

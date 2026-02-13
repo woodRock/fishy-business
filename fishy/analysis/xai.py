@@ -110,11 +110,18 @@ class ModelWrapper:
             if hasattr(self.model, "predict_proba"):
                 return self.model.predict_proba(x_norm)
             
-            # 3. Fallback for models that only have predict (e.g. some regressors used as classifiers)
+            # 3. Fallback for models that only have predict (e.g. some regressors or SVC)
             if hasattr(self.model, "predict"):
-                preds = self.model.predict(x_norm)
-                # Convert to dummy probabilities if needed
-                return np.eye(2)[preds.astype(int)] # Very basic fallback
+                preds = self.model.predict(x_norm).astype(int)
+                # Determine number of classes if possible
+                n_classes = 2
+                if hasattr(self.model, "classes_"):
+                    n_classes = len(self.model.classes_)
+                elif hasattr(self.model, "n_classes_"):
+                    n_classes = self.model.n_classes_
+                
+                # Convert to one-hot probabilities
+                return np.eye(n_classes)[preds]
                 
             raise AttributeError("Model has neither PyTorch interface nor predict_proba.")
         except Exception as e:
