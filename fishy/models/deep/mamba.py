@@ -48,8 +48,9 @@ class MambaBlock(nn.Module):
 
         self.A_log = nn.Parameter(
             torch.log(
-                torch.arange(1, self.d_state + 1, dtype=torch.float32)
-                .repeat(self.d_inner, 1)
+                torch.arange(1, self.d_state + 1, dtype=torch.float32).repeat(
+                    self.d_inner, 1
+                )
             )
         )
         self.D = nn.Parameter(torch.ones(self.d_inner))
@@ -75,9 +76,7 @@ class MambaBlock(nn.Module):
         x = F.silu(x)
 
         x_dbl = self.x_proj(x)
-        delta, B, C = x_dbl.split(
-            [self.d_inner, self.d_state, self.d_state], dim=-1
-        )
+        delta, B, C = x_dbl.split([self.d_inner, self.d_state, self.d_state], dim=-1)
         delta = F.softplus(self.dt_proj(delta))
 
         # Simplified Selective Scan (In practice, this is implemented using a fused CUDA kernel)
@@ -125,7 +124,7 @@ class Mamba(nn.Module):
         d_state: int = 16,
         d_conv: int = 4,
         expand: int = 2,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the Mamba model.
@@ -167,11 +166,11 @@ class Mamba(nn.Module):
         """
         if x.dim() == 2:
             x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
-        
+
         x = self.embedding(x)
         for layer in self.layers:
             x = layer(x)
-        
+
         x = self.norm_f(x)
         x = x.mean(dim=1)  # Global average pooling
         return self.fc_out(x)
@@ -189,7 +188,7 @@ class SiameseMamba(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(SiameseMamba, self).__init__()
         self.mamba = Mamba(
@@ -198,7 +197,7 @@ class SiameseMamba(nn.Module):
             hidden_dim=hidden_dim,
             num_layers=num_layers,
             dropout=dropout,
-            **kwargs
+            **kwargs,
         )
         self.classifier = nn.Sequential(
             nn.Linear(hidden_dim * 2, hidden_dim),

@@ -30,7 +30,7 @@ class MultiScaleTransformerEnsemble(nn.Module):
         output_dim: int,
         hidden_dim: int = 128,
         dropout: float = 0.1,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the MultiScaleTransformerEnsemble model.
@@ -45,14 +45,34 @@ class MultiScaleTransformerEnsemble(nn.Module):
 
         # Define 3 members with different scales
         # We set output_dim to hidden_dim for each so we can concat them
-        self.experts = nn.ModuleList([
-            Transformer(input_dim=input_dim, output_dim=hidden_dim, hidden_dim=hidden_dim, 
-                        num_layers=2, num_heads=2, dropout=dropout),
-            Transformer(input_dim=input_dim, output_dim=hidden_dim, hidden_dim=hidden_dim, 
-                        num_layers=4, num_heads=4, dropout=dropout),
-            Transformer(input_dim=input_dim, output_dim=hidden_dim, hidden_dim=hidden_dim, 
-                        num_layers=8, num_heads=8, dropout=dropout)
-        ])
+        self.experts = nn.ModuleList(
+            [
+                Transformer(
+                    input_dim=input_dim,
+                    output_dim=hidden_dim,
+                    hidden_dim=hidden_dim,
+                    num_layers=2,
+                    num_heads=2,
+                    dropout=dropout,
+                ),
+                Transformer(
+                    input_dim=input_dim,
+                    output_dim=hidden_dim,
+                    hidden_dim=hidden_dim,
+                    num_layers=4,
+                    num_heads=4,
+                    dropout=dropout,
+                ),
+                Transformer(
+                    input_dim=input_dim,
+                    output_dim=hidden_dim,
+                    hidden_dim=hidden_dim,
+                    num_layers=8,
+                    num_heads=8,
+                    dropout=dropout,
+                ),
+            ]
+        )
 
         # Final classifier head
         self.classifier = nn.Sequential(
@@ -73,10 +93,12 @@ class MultiScaleTransformerEnsemble(nn.Module):
             torch.Tensor: Ensemble output.
         """
         # Get expert features
-        expert_features = [expert(x) for expert in self.experts] # List of (batch_size, hidden_dim)
-        
+        expert_features = [
+            expert(x) for expert in self.experts
+        ]  # List of (batch_size, hidden_dim)
+
         # Concatenate features
-        combined = torch.cat(expert_features, dim=1) # (batch_size, hidden_dim * 3)
+        combined = torch.cat(expert_features, dim=1)  # (batch_size, hidden_dim * 3)
 
         # Final prediction
         return self.classifier(combined)

@@ -40,7 +40,9 @@ def main():
     X, y = dm.get_numpy_data(labels_as_indices=True)
 
     # SHUFFLE to ensure we get both classes in a small subset
-    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=50, stratify=y, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, train_size=50, stratify=y, random_state=42
+    )
 
     # Instantiate the GP class (Scikit-learn wrapper)
     from fishy.models.probabilistic.gp import GP

@@ -18,7 +18,7 @@ class BarlowTwinsModel(nn.Module):
         embedding_dim: int = 128,
         projection_dim: int = 128,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(BarlowTwinsModel, self).__init__()
         self.encoder = backbone
@@ -48,7 +48,7 @@ class BarlowTwinsLoss(nn.Module):
         z1 = (z1 - z1.mean(0)) / z1.std(0)
         z2 = (z2 - z2.mean(0)) / z2.std(0)
         c = torch.mm(z1.T, z2) / batch_size
-        
+
         on_diag = torch.diagonal(c).add_(-1).pow_(2).sum()
         off_diag = self.lambda_param * (c.pow(2).sum() - torch.diagonal(c.pow(2)).sum())
         return on_diag + off_diag

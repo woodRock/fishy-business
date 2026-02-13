@@ -26,7 +26,7 @@ class LSTM(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the LSTM model.
@@ -65,7 +65,7 @@ class LSTM(nn.Module):
         """
         if x.dim() == 2:
             x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
-        
+
         out, _ = self.lstm(x)
         out = out[:, -1, :]  # Take the last time step
         out = self.dropout(out)

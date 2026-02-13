@@ -26,7 +26,7 @@ class VAE(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,  # Used to scale depth
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the VAE model.
@@ -48,14 +48,16 @@ class VAE(nn.Module):
         in_features = input_dim
         for i in range(num_layers // 2):
             out_features = max(hidden_dim * 2, in_features // 2)
-            encoder_layers.extend([
-                nn.Linear(in_features, out_features),
-                nn.BatchNorm1d(out_features),
-                nn.ReLU(),
-                nn.Dropout(dropout)
-            ])
+            encoder_layers.extend(
+                [
+                    nn.Linear(in_features, out_features),
+                    nn.BatchNorm1d(out_features),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                ]
+            )
             in_features = out_features
-        
+
         self.encoder_backbone = nn.Sequential(*encoder_layers)
         self.fc_mu = nn.Linear(in_features, hidden_dim)
         self.fc_logvar = nn.Linear(in_features, hidden_dim)
@@ -65,14 +67,16 @@ class VAE(nn.Module):
         in_features = hidden_dim
         for i in range(num_layers // 2):
             out_features = min(input_dim, in_features * 2)
-            decoder_layers.extend([
-                nn.Linear(in_features, out_features),
-                nn.BatchNorm1d(out_features),
-                nn.ReLU(),
-                nn.Dropout(dropout)
-            ])
+            decoder_layers.extend(
+                [
+                    nn.Linear(in_features, out_features),
+                    nn.BatchNorm1d(out_features),
+                    nn.ReLU(),
+                    nn.Dropout(dropout),
+                ]
+            )
             in_features = out_features
-        
+
         decoder_layers.append(nn.Linear(in_features, input_dim))
         self.decoder = nn.Sequential(*decoder_layers)
 
@@ -96,7 +100,9 @@ class VAE(nn.Module):
 
     def forward(
         self, x: torch.Tensor
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]]:
+    ) -> Union[
+        torch.Tensor, Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]
+    ]:
         """
         Forward pass. Returns reconstruction and latent params if in training, or just logits.
         """

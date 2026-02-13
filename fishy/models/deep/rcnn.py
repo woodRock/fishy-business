@@ -45,15 +45,15 @@ class RCNN(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(RCNN, self).__init__()
-        
+
         self.initial_conv = nn.Sequential(
             nn.Conv1d(1, 64, kernel_size=7, stride=2, padding=3),
             nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
+            nn.MaxPool1d(kernel_size=3, stride=2, padding=1),
         )
 
         # Residual blocks
@@ -68,13 +68,13 @@ class RCNN(nn.Module):
             nn.Linear(64, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, output_dim)
+            nn.Linear(hidden_dim, output_dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() == 2:
             x = x.unsqueeze(1)
-        
+
         x = self.initial_conv(x)
         x = self.res_layers(x)
         x = self.avgpool(x)

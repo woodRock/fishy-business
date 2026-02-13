@@ -14,6 +14,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", message=".*OpenSSL 1.1.1+.*")
 try:
     from urllib3.exceptions import NotOpenSSLWarning
+
     warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 except ImportError:
     pass
@@ -32,7 +33,7 @@ from .cli.main import display_final_summary
 def get_data_path(filename: str = "REIMS.xlsx") -> str:
     """Returns the absolute path to a data asset within the package."""
     import importlib.resources as pkg_resources
-    
+
     try:
         # Modern way to get the resource path
         with pkg_resources.path("fishy.data.assets", filename) as p:
@@ -45,9 +46,11 @@ def get_data_path(filename: str = "REIMS.xlsx") -> str:
     local_p = os.path.join(os.path.dirname(__file__), "data", "assets", filename)
     if os.path.exists(local_p):
         return os.path.abspath(local_p)
-    
+
     # Fallback 2: Project root data directory
-    root_p = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", filename))
+    root_p = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "data", filename)
+    )
     if os.path.exists(root_p):
         return root_p
 

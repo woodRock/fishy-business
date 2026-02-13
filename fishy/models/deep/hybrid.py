@@ -19,7 +19,7 @@ class Hybrid(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the Hybrid model.
@@ -38,17 +38,17 @@ class Hybrid(nn.Module):
             nn.MaxPool1d(2),
             nn.Conv1d(32, 64, 3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(2)
+            nn.MaxPool1d(2),
         )
-        
+
         self.lstm = nn.LSTM(
             input_size=64,
             hidden_size=hidden_dim,
             num_layers=max(1, num_layers // 2),
             batch_first=True,
-            dropout=dropout if num_layers > 2 else 0
+            dropout=dropout if num_layers > 2 else 0,
         )
-        
+
         self.fc_out = nn.Linear(hidden_dim, output_dim)
         self.dropout = nn.Dropout(dropout)
 

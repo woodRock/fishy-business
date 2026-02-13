@@ -9,23 +9,43 @@ import torch.nn.functional as F
 
 
 class CausalConv1d(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int, dilation: int = 1, **kwargs) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int,
+        dilation: int = 1,
+        **kwargs,
+    ) -> None:
         super(CausalConv1d, self).__init__()
         self.padding = (kernel_size - 1) * dilation
-        self.conv = nn.Conv1d(in_channels, out_channels, kernel_size, padding=self.padding, dilation=dilation, **kwargs)
+        self.conv = nn.Conv1d(
+            in_channels,
+            out_channels,
+            kernel_size,
+            padding=self.padding,
+            dilation=dilation,
+            **kwargs,
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.conv(x)
         if self.padding != 0:
-            x = x[:, :, :-self.padding]
+            x = x[:, :, : -self.padding]
         return x
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, channels: int, kernel_size: int, dilation: int, dropout: float = 0.2) -> None:
+    def __init__(
+        self, channels: int, kernel_size: int, dilation: int, dropout: float = 0.2
+    ) -> None:
         super(ResidualBlock, self).__init__()
-        self.causal_conv = CausalConv1d(channels, channels, kernel_size, dilation=dilation)
-        self.gate_conv = CausalConv1d(channels, channels, kernel_size, dilation=dilation)
+        self.causal_conv = CausalConv1d(
+            channels, channels, kernel_size, dilation=dilation
+        )
+        self.gate_conv = CausalConv1d(
+            channels, channels, kernel_size, dilation=dilation
+        )
         self.dropout = nn.Dropout(dropout)
         self.res_conv = nn.Conv1d(channels, channels, 1)
         self.skip_conv = nn.Conv1d(channels, channels, 1)
@@ -54,7 +74,7 @@ class WaveNet(nn.Module):
         num_layers: int = 4,
         dropout: float = 0.2,
         kernel_size: int = 3,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the WaveNet model.
@@ -70,30 +90,32 @@ class WaveNet(nn.Module):
         super(WaveNet, self).__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
-        
+
         self.initial_conv = nn.Conv1d(1, hidden_dim, 1)
-        self.res_blocks = nn.ModuleList([
-            ResidualBlock(hidden_dim, kernel_size, dilation=2**i, dropout=dropout)
-            for i in range(num_layers)
-        ])
-        
+        self.res_blocks = nn.ModuleList(
+            [
+                ResidualBlock(hidden_dim, kernel_size, dilation=2**i, dropout=dropout)
+                for i in range(num_layers)
+            ]
+        )
+
         self.fc_layers = nn.Sequential(
             nn.ReLU(),
             nn.Conv1d(hidden_dim, hidden_dim, 1),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(hidden_dim * input_dim, output_dim)
+            nn.Linear(hidden_dim * input_dim, output_dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() == 2:
             x = x.unsqueeze(1)
-        
+
         x = self.initial_conv(x)
         skip_connections = []
         for block in self.res_blocks:
             x, skip = block(x)
             skip_connections.append(skip)
-        
+
         out = sum(skip_connections)
         return self.fc_layers(out)

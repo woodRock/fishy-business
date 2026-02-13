@@ -16,7 +16,7 @@ class ODEFunc(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, hidden_dim)
+            nn.Linear(hidden_dim, hidden_dim),
         )
 
     def forward(self, t: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
@@ -35,7 +35,7 @@ class ODE(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,  # Used to scale complexity
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         super(ODE, self).__init__()
         self.input_dim = input_dim
@@ -45,16 +45,16 @@ class ODE(nn.Module):
         self.initial_layer = nn.Linear(input_dim, hidden_dim)
         self.ode_func = ODEFunc(hidden_dim, dropout=dropout)
         self.register_buffer("integration_times", torch.linspace(0, 1, 2))
-        
+
         self.fc_out = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, output_dim)
+            nn.Linear(hidden_dim, output_dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.initial_layer(x)
         out = odeint(self.ode_func, x, self.integration_times, rtol=1e-3, atol=1e-3)
-        x = out[1] # Final state
+        x = out[1]  # Final state
         return self.fc_out(x)

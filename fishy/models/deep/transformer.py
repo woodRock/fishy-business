@@ -186,7 +186,7 @@ class Transformer(nn.Module):
         num_layers: int = 1,
         dropout: float = 0.1,
         num_heads: int = 4,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the Transformer model.

@@ -19,7 +19,7 @@ class CNN(nn.Module):
         hidden_dim: int = 128,
         num_layers: int = 4,
         dropout: float = 0.2,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Initializes the CNN model.
@@ -38,14 +38,14 @@ class CNN(nn.Module):
             nn.MaxPool1d(2),
             nn.Conv1d(32, 64, 3, padding=1),
             nn.ReLU(),
-            nn.MaxPool1d(2)
+            nn.MaxPool1d(2),
         )
         self.flat_f = 64 * (input_dim // 4)
         self.fc = nn.Sequential(
             nn.Linear(self.flat_f, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(hidden_dim, output_dim)
+            nn.Linear(hidden_dim, output_dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

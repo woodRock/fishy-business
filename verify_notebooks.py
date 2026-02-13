@@ -14,18 +14,18 @@ def verify_notebook(nb_path):
     full_code = []
     for cell_source in code_cells:
         if isinstance(cell_source, list):
-            # Ensure each line in the list has a newline
-            lines = [line if line.endswith('\n') else line + '\n' for line in cell_source]
-            full_code.extend(lines)
+            full_code.extend(cell_source)
         else:
-            # If it's a single string, ensure it ends with a newline
-            full_code.append(cell_source if cell_source.endswith('\n') else cell_source + '\n')
-        full_code.append("\n") # Add extra gap between cells
-    
+            full_code.append(cell_source)
+        full_code.append("\n")
+
     script_content = "".join(full_code)
 
     # Mocking plotly.show() to avoid opening browser/hanging
-    script_content = "import plotly.io as pio\npio.renderers.default = 'json'\n" + script_content
+    # Use 'json' renderer as it's less likely to try opening a window
+    script_content = (
+        "import plotly.io as pio\npio.renderers.default = 'json'\n" + script_content
+    )
     script_content = script_content.replace(".show()", "")
 
     # Speed up for verification
@@ -41,9 +41,9 @@ def verify_notebook(nb_path):
         import subprocess
 
         env = os.environ.copy()
-        root_dir = str(Path(__file__).parent.parent.absolute())
-        env["PYTHONPATH"] = root_dir + os.pathsep + env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = os.getcwd() + os.pathsep + env.get("PYTHONPATH", "")
 
+        # Capture both stdout and stderr
         result = subprocess.run(
             [sys.executable, temp_script], env=env, capture_output=True, text=True
         )
@@ -65,8 +65,7 @@ def verify_notebook(nb_path):
 
 
 if __name__ == "__main__":
-    notebook_dir = Path(__file__).parent.parent / "notebooks"
-    notebooks = sorted(list(notebook_dir.glob("*.ipynb")))
+    notebooks = sorted(list(Path("notebooks").glob("*.ipynb")))
     all_passed = True
     for nb in notebooks:
         if not verify_notebook(str(nb)):
