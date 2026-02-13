@@ -100,104 +100,85 @@ def get_metadata():
         "probabilistic_models",
     ]:
         all_model_names.extend(list(models.get(section, {}).keys()))
-    return sorted(all_model_names), sorted(list(datasets.keys()))
+    return sorted(list(set(all_model_names))), sorted(list(datasets.keys()))
 
 
-@st.cache_resource
-def get_data_module(dataset_name, file_path, version="v12"):
-    dm = create_data_module(dataset_name=dataset_name, file_path=file_path)
-    dm.setup()
-    return dm
-
-
-def parse_result_path(path_str):
-    """Robustly extracts dataset and model from result path using regex."""
-    # Pattern: .../<dataset>/<method>/<model>_<timestamp>/results/metrics.json
-    # We want the dataset and the first part of the model_timestamp folder
-    match = re.search(r"outputs/([^/]+)/([^/]+)/([^/_]+)_", path_str)
-    if match:
-        return match.group(1), match.group(3)
-    return None, None
-
-
-def crawl_local_results(base_path="outputs"):
-    results_map = {}
-    p = Path(base_path)
-    # Search for all possible result filenames
-    for m_path in (
-        list(p.glob("**/results/metrics.json"))
-        + list(p.glob("**/results/final_metrics.json"))
-        + list(p.glob("**/results/aggregated_stats_*.json"))
-    ):
-        dataset, model = parse_result_path(str(m_path))
-        if dataset and model:
-            key = f"{dataset}|||{model}"
-            if key not in results_map:
-                results_map[key] = []
-            try:
-                with open(m_path, "r") as f:
-                    results_map[key].append(json.load(f))
-            except Exception as e:
-                logger.warning(f"Malformed local JSON {m_path}: {e}")
-    return summarize_results(results_map) if results_map else pd.DataFrame()
+def crawl_local_results():
+    results = []
+    output_root = Path("outputs")
+    if not output_root.exists():
+        return pd.DataFrame()
+    for metric_file in output_root.glob("**/results/metrics.json"):
+        try:
+            with open(metric_file, "r") as f:
+                data = json.load(f)
+            # Find statistical or aggregated results
+            summary_file = metric_file.parent.parent / "statistical_analysis.csv"
+            if summary_file.exists():
+                sdf = pd.read_csv(summary_file)
+                results.append(sdf)
+            else:
+                # Add single run fallback
+                parts = metric_file.parts
+                results.append(
+                    pd.DataFrame(
+                        [
+                            {
+                                "Dataset": parts[1],
+                                "Method": parts[3].split("_")[0],
+                                "Test": data.get("val_balanced_accuracy", 0),
+                                "Train": data.get("train_balanced_accuracy", 0),
+                            }
+                        ]
+                    )
+                )
+        except:
+            continue
+    return pd.concat(results).drop_duplicates() if results else pd.DataFrame()
 
 
 def fetch_remote_data(
-    host, port, user, pwd, remote_path, jump_host=None, jump_user=None, otp=None
+    host, port, username, password, remote_path, jump_host=None, jump_user=None, otp=None
 ):
+    import io
+
     results_map = {}
     try:
-        ssh_target = paramiko.SSHClient()
-        ssh_target.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         if jump_host:
-
-            def handler(title, instructions, prompt_list):
-                responses = []
-                for prompt, _ in prompt_list:
-                    p = prompt.lower()
-                    if "password" in p:
-                        responses.append(pwd)
-                    elif "verification" in p or "token" in p or "code" in p:
-                        responses.append(otp if otp else "")
-                    else:
-                        responses.append("")
-                return responses
-
-            transport = paramiko.Transport((jump_host, 22))
-            transport.start_client()
-            transport.auth_interactive(jump_user or user, handler)
-            dest_addr = (host, port)
-            local_addr = ("localhost", 0)
-            jump_channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
-            ssh_target.connect(
-                host,
-                port=port,
-                username=user,
-                password=pwd,
-                sock=jump_channel,
-                timeout=60,
+            # Multi-hop via ProxyJump
+            jump_client = paramiko.SSHClient()
+            jump_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            # Handle ECS MFA (Password + OTP)
+            jump_client.connect(
+                jump_host, username=jump_user, password=f"{password}{otp}"
             )
+            transport = jump_client.get_transport()
+            dest_addr = (host, port)
+            local_addr = ("127.0.0.1", 0)
+            channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
+            target_client = paramiko.SSHClient()
+            target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            target_client.connect(host, username=username, password=password, sock=channel)
         else:
-            ssh_target.connect(host, port=port, username=user, password=pwd, timeout=60)
+            target_client = paramiko.SSHClient()
+            target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            target_client.connect(host, port=port, username=username, password=password)
 
-        sftp = ssh_target.open_sftp()
-        # Find all types of result files
-        cmd = f"find {remote_path} -maxdepth 5 \( -name 'metrics.json' -o -name 'final_metrics.json' -o -name 'aggregated_stats_*.json' \)"
-        stdin, stdout, stderr = ssh_target.exec_command(cmd)
+        sftp = target_client.open_sftp()
+        # Find all summary.json files in remote /outputs
+        stdin, stdout, stderr = target_client.exec_command(
+            f"find {remote_path} -name 'summary.json'"
+        )
         paths = stdout.read().decode().splitlines()
         for p in paths:
-            dataset, model = parse_result_path(p)
-            if dataset and model:
-                key = f"{dataset}|||{model}"
-                if key not in results_map:
-                    results_map[key] = []
-                try:
-                    with sftp.open(p, "r") as f:
-                        results_map[key].append(json.load(f))
-                except Exception as e:
-                    logger.warning(f"Malformed remote JSON {p}: {e}")
-        ssh_target.close()
+            with sftp.open(p, "r") as f:
+                data = json.load(f)
+                df = pd.DataFrame(data)
+                results_map[p] = df
+        sftp.close()
+        target_client.close()
         if jump_host:
+            jump_client.close()
             transport.close()
     except Exception as e:
         st.error(f"Network Error: {e}")
@@ -206,7 +187,7 @@ def fetch_remote_data(
 
 st.sidebar.title("🛠️ Configuration")
 model_names, dataset_names = get_metadata()
-data_path = get_data_path()
+data_path = Path(get_data_path())
 selected_model = st.sidebar.selectbox(
     "Select Model",
     model_names,
@@ -218,12 +199,9 @@ selected_dataset = st.sidebar.selectbox(
     index=dataset_names.index("species") if "species" in dataset_names else 0,
 )
 
-dm = get_data_module(selected_dataset, str(data_path))
+dm = create_data_module(selected_dataset, str(data_path))
+dm.setup()
 df_filtered = dm.get_filtered_dataframe()
-if "Class Name" in df_filtered.columns:
-    st.sidebar.success(f"✅ Loaded {len(df_filtered)} samples")
-else:
-    st.sidebar.warning("⚠️ Raw labels in use")
 
 with st.sidebar.expander("🚀 Hyperparameters", expanded=True):
     epochs = st.slider("Epochs", 1, 100, 10)
@@ -239,9 +217,6 @@ with st.sidebar.expander("🚀 Hyperparameters", expanded=True):
 
 train_button = st.sidebar.button("🚀 Run Training", width="stretch")
 
-st.sidebar.markdown("---")
-run_all_button = st.sidebar.button("📊 Run Full Benchmark (Quick)", width="stretch")
-
 st.title("🐟 Fishy Business")
 tab1, tab2, tab3, tab4 = st.tabs(
     [
@@ -251,6 +226,161 @@ tab1, tab2, tab3, tab4 = st.tabs(
         "🏆 Leaderboard",
     ]
 )
+
+def render_results(results):
+    mc1, mc2, mc3, mc4 = st.columns(4)
+    mc1.metric("Train Bal Acc", f"{results.get('train_balanced_accuracy', 0):.4f}")
+    mc2.metric("Val Bal Acc", f"{results.get('val_balanced_accuracy', 0):.4f}")
+    mc3.metric("Loss (Val)", f"{results.get('val_loss', 0):.4f}")
+    mc4.metric("Time", f"{results.get('total_training_time_s', 0):.2f}s")
+    if "epoch_metrics" in results and results["epoch_metrics"]:
+        st.write("### Training Progress")
+        history = results["epoch_metrics"]
+        c_loss, c_acc = st.columns(2)
+        c_loss.plotly_chart(
+            px.line(
+                pd.DataFrame(
+                    {
+                        "Epoch": range(1, len(history["train_losses"]) + 1),
+                        "Train Loss": history["train_losses"],
+                        "Val Loss": history["val_losses"],
+                    }
+                ),
+                x="Epoch",
+                y=["Train Loss", "Val Loss"],
+                title="Loss Curve",
+                template="plotly_white",
+            ),
+            use_container_width=True,
+        )
+        c_acc.plotly_chart(
+            px.line(
+                pd.DataFrame(
+                    {
+                        "Epoch": range(1, len(history["val_metrics"]) + 1),
+                        "Val Acc": [
+                            m.get("balanced_accuracy", 0)
+                            for m in history["val_metrics"]
+                        ],
+                        "Train Acc": [
+                            m.get("balanced_accuracy", 0)
+                            for m in history["train_metrics"]
+                        ],
+                    }
+                ),
+                x="Epoch",
+                y=["Train Acc", "Val Acc"],
+                title="Accuracy Curve",
+                template="plotly_white",
+            ),
+            use_container_width=True,
+        )
+    if "predictions" in results and results["predictions"]:
+        preds = results["predictions"]
+        y_true, y_pred, y_probs = (
+            preds["labels"],
+            preds["preds"],
+            preds.get("probs"),
+        )
+        st.write("### Detailed Analysis")
+        r1c1, r1c2 = st.columns(2)
+        with r1c1:
+            st.plotly_chart(
+                px.imshow(
+                    confusion_matrix(y_true, y_pred),
+                    x=dm.get_class_names(),
+                    y=dm.get_class_names(),
+                    text_auto=True,
+                    color_continuous_scale="Blues",
+                    title="Confusion Matrix",
+                    template="plotly_white",
+                ),
+                use_container_width=True,
+            )
+        with r1c2:
+            prec, rec, f1, _ = precision_recall_fscore_support(
+                y_true, y_pred, labels=range(len(dm.get_class_names()))
+            )
+            st.plotly_chart(
+                px.bar(
+                    pd.DataFrame(
+                        {
+                            "Class": dm.get_class_names(),
+                            "Precision": prec,
+                            "Recall": rec,
+                            "F1": f1,
+                        }
+                    ),
+                    x="Class",
+                    y=["Precision", "Recall", "F1"],
+                    barmode="group",
+                    title="Class Metrics",
+                    template="plotly_white",
+                ),
+                use_container_width=True,
+            )
+        st.markdown("---")
+        st.write("### Error Spotlight & Performance")
+        r2c1, r2c2 = st.columns(2)
+        with r2c1:
+            if y_probs is not None:
+                pr_fig = go.Figure()
+                for i in range(len(dm.get_class_names())):
+                    precision, recall, _ = precision_recall_curve(
+                        y_true == i, y_probs[:, i]
+                    )
+                    avg_prec = average_precision_score(y_true == i, y_probs[:, i])
+                    pr_fig.add_trace(
+                        go.Scatter(
+                            x=recall,
+                            y=precision,
+                            name=f"{dm.get_class_names()[i]} (AP={avg_prec:.2f})",
+                            mode="lines",
+                        )
+                    )
+                pr_fig.update_layout(
+                    template="plotly_white",
+                    xaxis_title="Recall",
+                    yaxis_title="Precision",
+                    title="PR Curve",
+                )
+                st.plotly_chart(pr_fig, use_container_width=True)
+        with r2c2:
+            if y_probs is not None:
+                correct = y_true == y_pred
+                err_idx = np.where(~correct)[0]
+                if len(err_idx) > 0:
+                    top_errs = err_idx[
+                        np.argsort(np.max(y_probs[err_idx], axis=1))[-3:][::-1]
+                    ]
+                    for idx in top_errs:
+                        st.error(
+                            f"Sample {idx}: Truth={dm.get_class_names()[y_true[idx]]}, Pred={dm.get_class_names()[y_pred[idx]]} (Conf: {np.max(y_probs[idx]):.2f})"
+                        )
+                else:
+                    st.success("Perfect classification!")
+
+        st.markdown("---")
+        st.write("### Stability")
+        if "folds" in results:
+            fold_accs = [
+                f.get("val_balanced_accuracy", 0) for f in results.get("folds", [])
+            ]
+            if fold_accs:
+                st.plotly_chart(
+                    px.violin(
+                        y=fold_accs,
+                        box=True,
+                        points="all",
+                        title=f"Cross-Validation Stability ({k_folds} folds)",
+                        template="plotly_white",
+                    ),
+                    use_container_width=True,
+                )
+            else:
+                st.info("Fold data unavailable.")
+        else:
+            st.info("Stability data requires multiple folds.")
 
 if data_path.exists():
     class_names = dm.get_class_names()
@@ -282,7 +412,7 @@ if data_path.exists():
                 use_container_width=True,
             )
         st.markdown("---")
-        st.write("### Mean Spectral Signature (Full Panel)")
+        st.write("### Mean Spectral Signature")
         avg_fig = go.Figure()
         for idx, name in enumerate(class_names):
             mask = y_all == idx
@@ -308,7 +438,7 @@ if data_path.exists():
         )
         st.plotly_chart(avg_fig, use_container_width=True)
         st.markdown("---")
-        st.write("### Interactive Spectrum Viewer (Full Panel)")
+        st.write("### Interactive Spectrum Viewer")
         all_classes = sorted(df_filtered[label_col].unique().tolist())
         c_sel, n_sel = st.columns([3, 1])
         sel_classes = c_sel.multiselect(
@@ -454,173 +584,13 @@ if data_path.exists():
                     st.session_state["results"] = results
                     st.session_state["method"] = method
                 st.success("🎉 Training Complete!")
-                mc1, mc2, mc3, mc4 = st.columns(4)
-                mc1.metric(
-                    "Train Bal Acc", f"{results.get('train_balanced_accuracy', 0):.4f}"
-                )
-                mc2.metric(
-                    "Val Bal Acc", f"{results.get('val_balanced_accuracy', 0):.4f}"
-                )
-                mc3.metric("Loss (Val)", f"{results.get('val_loss', 0):.4f}")
-                mc4.metric("Time", f"{results.get('total_training_time_s', 0):.2f}s")
-                if "epoch_metrics" in results and results["epoch_metrics"]:
-                    st.write("### Training Progress")
-                    history = results["epoch_metrics"]
-                    c_loss, c_acc = st.columns(2)
-                    c_loss.plotly_chart(
-                        px.line(
-                            pd.DataFrame(
-                                {
-                                    "Epoch": range(1, len(history["train_losses"]) + 1),
-                                    "Train Loss": history["train_losses"],
-                                    "Val Loss": history["val_losses"],
-                                }
-                            ),
-                            x="Epoch",
-                            y=["Train Loss", "Val Loss"],
-                            title="Loss Curve",
-                            template="plotly_white",
-                        ),
-                        use_container_width=True,
-                    )
-                    c_acc.plotly_chart(
-                        px.line(
-                            pd.DataFrame(
-                                {
-                                    "Epoch": range(1, len(history["val_metrics"]) + 1),
-                                    "Val Acc": [
-                                        m.get("balanced_accuracy", 0)
-                                        for m in history["val_metrics"]
-                                    ],
-                                    "Train Acc": [
-                                        m.get("balanced_accuracy", 0)
-                                        for m in history["train_metrics"]
-                                    ],
-                                }
-                            ),
-                            x="Epoch",
-                            y=["Train Acc", "Val Acc"],
-                            title="Accuracy Curve",
-                            template="plotly_white",
-                        ),
-                        use_container_width=True,
-                    )
-                if "predictions" in results and results["predictions"]:
-                    preds = results["predictions"]
-                    y_true, y_pred, y_probs = (
-                        preds["labels"],
-                        preds["preds"],
-                        preds.get("probs"),
-                    )
-                    st.write("### Detailed Analysis")
-                    r1c1, r1c2 = st.columns(2)
-                    with r1c1:
-                        st.plotly_chart(
-                            px.imshow(
-                                confusion_matrix(y_true, y_pred),
-                                x=class_names,
-                                y=class_names,
-                                text_auto=True,
-                                color_continuous_scale="Blues",
-                                title="Confusion Matrix",
-                                template="plotly_white",
-                            ),
-                            use_container_width=True,
-                        )
-                    with r1c2:
-                        prec, rec, f1, _ = precision_recall_fscore_support(
-                            y_true, y_pred, labels=range(len(class_names))
-                        )
-                        st.plotly_chart(
-                            px.bar(
-                                pd.DataFrame(
-                                    {
-                                        "Class": class_names,
-                                        "Precision": prec,
-                                        "Recall": rec,
-                                        "F1": f1,
-                                    }
-                                ),
-                                x="Class",
-                                y=["Precision", "Recall", "F1"],
-                                barmode="group",
-                                title="Class Metrics",
-                                template="plotly_white",
-                            ),
-                            use_container_width=True,
-                        )
-                    st.markdown("---")
-                    st.write("### Error Spotlight & Performance")
-                    r2c1, r2c2 = st.columns(2)
-                    with r2c1:
-                        if y_probs is not None:
-                            pr_fig = go.Figure()
-                            for i in range(len(class_names)):
-                                precision, recall, _ = precision_recall_curve(
-                                    y_true == i, y_probs[:, i]
-                                )
-                                avg_prec = average_precision_score(
-                                    y_true == i, y_probs[:, i]
-                                )
-                                pr_fig.add_trace(
-                                    go.Scatter(
-                                        x=recall,
-                                        y=precision,
-                                        name=f"{class_names[i]} (AP={avg_prec:.2f})",
-                                        mode="lines",
-                                    )
-                                )
-                            pr_fig.update_layout(
-                                template="plotly_white",
-                                xaxis_title="Recall",
-                                yaxis_title="Precision",
-                                title="PR Curve",
-                            )
-                            st.plotly_chart(pr_fig, use_container_width=True)
-                    with r2c2:
-                        if y_probs is not None:
-                            correct = y_true == y_pred
-                            err_idx = np.where(~correct)[0]
-                            if len(err_idx) > 0:
-                                top_errs = err_idx[
-                                    np.argsort(np.max(y_probs[err_idx], axis=1))[-3:][
-                                        ::-1
-                                    ]
-                                ]
-                                for idx in top_errs:
-                                    st.error(
-                                        f"Sample {idx}: Truth={class_names[y_true[idx]]}, Pred={class_names[y_pred[idx]]} (Conf: {np.max(y_probs[idx]):.2f})"
-                                    )
-                            else:
-                                st.success("Perfect classification!")
-
-                    st.markdown("---")
-                    st.write("### Stability")
-                    if "folds" in results:
-                        fold_accs = [
-                            f.get("val_balanced_accuracy", 0)
-                            for f in results.get("folds", [])
-                        ]
-                        if fold_accs:
-                            st.plotly_chart(
-                                px.violin(
-                                    y=fold_accs,
-                                    box=True,
-                                    points="all",
-                                    title=f"Cross-Validation Stability ({k_folds} folds)",
-                                    template="plotly_white",
-                                ),
-                                use_container_width=True,
-                            )
-                        else:
-                            st.info("Fold data unavailable.")
-                    else:
-                        st.info("Stability data requires multiple folds.")
+                render_results(results)
             except Exception as e:
                 st.error(f"Failed: {e}")
                 st.exception(e)
         elif "results" in st.session_state:
             st.info("Showing last results.")
+            render_results(st.session_state["results"])
         else:
             st.info("Run training to see results.")
 
@@ -655,14 +625,16 @@ if data_path.exists():
                 )
                 st.info(f"Targeting: **{class_names[y_xai[sample_idx]]}**", icon="🎯")
             if method == "Grad-CAM":
-                target_layer = next(
+                # Prioritize layer_norm2 for Transformers to get full spectral resolution
+                # Fallback to the last Linear/Conv layer for other models
+                target_layer = getattr(model, "layer_norm2", next(
                     (
                         m
                         for m in reversed(list(model.modules()))
                         if isinstance(m, (nn.Conv1d, nn.Linear))
                     ),
                     None,
-                )
+                ))
                 if target_layer:
                     gc = GradCAM(model, target_layer)
                     cam = (

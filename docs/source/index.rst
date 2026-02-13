@@ -85,6 +85,24 @@ Key Features
    contributing
    contact
 
+Citation
+--------
+
+If you use this framework in your research, please cite the following paper:
+
+.. code-block:: bibtex
+
+   @article{wood2025hook,
+     title={Hook, line, and spectra: machine learning for fish species identification and body part classification using rapid evaporative ionization mass spectrometry},
+     author={Wood, Jesse and Nguyen, Bach and Xue, Bing and Zhang, Mengjie and Killeen, Daniel},
+     journal={Intelligent Marine Technology and Systems},
+     volume={3},
+     number={1},
+     pages={16},
+     year={2025},
+     publisher={Springer}
+   }
+
 Indices and tables
 ==================
 

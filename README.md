@@ -114,6 +114,25 @@ A step-by-step tutorial series is available in the `examples/` directory:
 - `02_data_module.py`: Loading, filtering, and inspecting datasets.
 - ... and 7 more tutorials covering pre-training, transfer learning, and more.
 
+## Docker
+
+You can run the entire framework, including the dashboard, in a containerized environment:
+
+1. **Build the image**:
+   ```bash
+   docker build -t fishy-business .
+   ```
+
+2. **Run the dashboard**:
+   ```bash
+   docker run -p 8501:8501 fishy-business
+   ```
+
+3. **Persistence**: To save results locally, mount the output directories:
+   ```bash
+   docker run -p 8501:8501 -v $(pwd)/outputs:/app/outputs -v $(pwd)/logs:/app/logs fishy-business
+   ```
+
 ## Testing & Documentation
 
 We maintain high code quality through automated testing:
@@ -130,4 +149,21 @@ Comprehensive documentation is available at [Read the Docs](https://fishy-busine
 
 ## License
 
-This project is licensed under the terms provided in the repository.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Citation
+
+If you use this framework in your research, please cite the following paper:
+
+```bibtex
+@article{wood2025hook,
+  title={Hook, line, and spectra: machine learning for fish species identification and body part classification using rapid evaporative ionization mass spectrometry},
+  author={Wood, Jesse and Nguyen, Bach and Xue, Bing and Zhang, Mengjie and Killeen, Daniel},
+  journal={Intelligent Marine Technology and Systems},
+  volume={3},
+  number={1},
+  pages={16},
+  year={2025},
+  publisher={Springer}
+}
+```
