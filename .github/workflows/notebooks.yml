@@ -24,6 +24,12 @@ jobs:
         pip install -r requirements.txt
         # Install the package in editable mode to ensure it's in the path
         pip install -e .
+
+    - name: Download private dataset
+      env:
+        FISHY_DATA_TOKEN: ${{ secrets.FISHY_DATA_TOKEN }}
+      run: |
+        fishy download-data
         
     - name: Run Notebook Verification
       run: |

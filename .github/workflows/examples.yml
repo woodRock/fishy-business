@@ -22,9 +22,12 @@ jobs:
         python -m pip install --upgrade pip
         # Install the package in editable mode with all core dependencies
         pip install -e .
-        
-    - name: Create data directory
-      run: mkdir -p data
+
+    - name: Download private dataset
+      env:
+        FISHY_DATA_TOKEN: ${{ secrets.FISHY_DATA_TOKEN }}
+      run: |
+        fishy download-data
       
     - name: Run example scripts
       run: |

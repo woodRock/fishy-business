@@ -26,6 +26,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -e .
+
+    - name: Download private dataset
+      env:
+        FISHY_DATA_TOKEN: ${{ secrets.FISHY_DATA_TOKEN }}
+      run: |
+        fishy download-data
         
     - name: Run documentation tests
       run: |
