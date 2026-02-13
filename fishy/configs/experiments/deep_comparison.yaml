@@ -2,7 +2,7 @@
 name: "deep_learning"
 num_runs: 30
 datasets: ["species", "part", "oil", "cross-species"]
-models: ["transformer", "ensemble", "moe", "cnn", "rcnn", "lstm", "mamba", "kan"]
+models: ["transformer", "ensemble", "moe", "cnn", "rcnn", "lstm", "kan"] # mamba
 benchmark: true
 figures: true
 statistical: true
