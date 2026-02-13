@@ -66,6 +66,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
 from fishy.data.module import create_data_module
+from fishy import get_data_path
 from fishy.cli.main import detect_method
 from fishy.experiments.deep_training import ModelTrainer
 from fishy.experiments.classic_training import SklearnTrainer
@@ -205,7 +206,7 @@ def fetch_remote_data(
 
 st.sidebar.title("🛠️ Configuration")
 model_names, dataset_names = get_metadata()
-data_path = Path("data/REIMS.xlsx")
+data_path = get_data_path()
 selected_model = st.sidebar.selectbox(
     "Select Model",
     model_names,

@@ -333,7 +333,7 @@ class PreTrainer:
             s = s.to(self.config.device)
             targets = self._detect_peaks(s, peak_threshold, window_size).float()
             self.optimizer.zero_grad()
-            preds = self.model(s, s)
+            preds = self.model(s)
             loss = F.binary_cross_entropy_with_logits(preds, targets)
             loss.backward()
             self.optimizer.step()
@@ -363,7 +363,7 @@ class PreTrainer:
             noisy = torch.clamp(clean + torch.randn_like(clean) * noise_std_dev, 0, 1)
             noisy[torch.rand_like(noisy) < mask_point_prob] = 0
             self.optimizer.zero_grad()
-            preds = self.model(noisy, noisy)
+            preds = self.model(noisy)
             loss = criterion(preds, clean)
             loss.backward()
             self.optimizer.step()

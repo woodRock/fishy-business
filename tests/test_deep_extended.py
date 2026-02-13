@@ -9,6 +9,7 @@ from fishy.experiments.contrastive import ContrastiveConfig, run_contrastive_exp
 from fishy.experiments.pre_training import PreTrainingOrchestrator
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext
+from fishy import get_data_path
 
 from fishy.models.contrastive.byol import BYOLModel
 from fishy.models.contrastive.barlow_twins import BarlowTwinsModel
@@ -71,7 +72,7 @@ def test_contrastive_models_direct():
 
 
 def test_pretraining_orchestrator(tmp_path):
-    data_file = "data/REIMS.xlsx"
+    data_file = get_data_path()
     if not os.path.exists(data_file):
         pytest.skip("Data file not found")
 

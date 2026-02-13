@@ -24,4 +24,4 @@ You can run any of these tutorials from the root of the repository:
 python3 examples/01_getting_started.py
 ```
 
-Most tutorials require the REIMS data file to be present at `data/REIMS.xlsx`.
+Most tutorials use the internal REIMS data file included with the package. You don't need to manually provide a data file unless you are using custom datasets.

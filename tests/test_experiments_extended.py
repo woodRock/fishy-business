@@ -7,13 +7,14 @@ from fishy._core.config import TrainingConfig, ExperimentConfig
 from fishy.experiments.unified_trainer import UnifiedTrainer
 from fishy.experiments.classic_training import run_sklearn_experiment
 from fishy.experiments.deep_training import run_training_pipeline
+from fishy import get_data_path
 
 from unittest.mock import patch
 
 
 def test_unified_trainer_single(tmp_path):
     # Use a small config to test the dispatch logic
-    data_file = "data/REIMS.xlsx"
+    data_file = get_data_path()
     if not os.path.exists(data_file):
         pytest.skip("Data file not found")
 
@@ -44,7 +45,7 @@ def test_unified_trainer_single(tmp_path):
 
 
 def test_sklearn_experiment_flow(tmp_path):
-    data_file = "data/REIMS.xlsx"
+    data_file = get_data_path()
     if not os.path.exists(data_file):
         pytest.skip("Data file not found")
 
@@ -55,7 +56,7 @@ def test_sklearn_experiment_flow(tmp_path):
 
 
 def test_deep_training_pipeline_flow(tmp_path):
-    data_file = "data/REIMS.xlsx"
+    data_file = get_data_path()
     if not os.path.exists(data_file):
         pytest.skip("Data file not found")
 

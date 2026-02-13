@@ -5,6 +5,7 @@ import argparse
 from fishy.cli.main import setup_parser, detect_method
 from fishy._core.utils import RunContext, set_seed, get_device
 from fishy.experiments.transfer import run_sequential_transfer_learning
+from fishy import get_data_path
 
 
 def test_cli_parsing():
@@ -44,7 +45,7 @@ def test_utils_context(tmp_path):
 
 
 def test_transfer_learning_flow(tmp_path):
-    data_file = "data/REIMS.xlsx"
+    data_file = get_data_path()
     if not os.path.exists(data_file):
         pytest.skip("Data file not found")
 
