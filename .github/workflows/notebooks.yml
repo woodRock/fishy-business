@@ -1,0 +1,30 @@
+name: Notebook Verification
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  verify-notebooks:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-numeric-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Install the package in editable mode to ensure it's in the path
+        pip install -e .
+        
+    - name: Run Notebook Verification
+      run: |
+        python tests/verify_notebooks.py

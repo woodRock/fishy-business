@@ -13,17 +13,18 @@ def verify_notebook(nb_path):
     full_code = []
     for cell_source in code_cells:
         if isinstance(cell_source, list):
-            full_code.extend(cell_source)
+            # Ensure each line in the list has a newline
+            lines = [line if line.endswith('\n') else line + '\n' for line in cell_source]
+            full_code.extend(lines)
         else:
-            full_code.append(cell_source)
-        full_code.append("")
+            # If it's a single string, ensure it ends with a newline
+            full_code.append(cell_source if cell_source.endswith('\n') else cell_source + '\n')
+        full_code.append("\n") # Add extra gap between cells
     
     script_content = "".join(full_code)
     
     # Mocking plotly.show() to avoid opening browser/hanging
-    script_content = """import plotly.io as pio
-pio.renderers.default = 'json'
-"""+ script_content
+    script_content = "import plotly.io as pio\npio.renderers.default = 'json'\n" + script_content
     script_content = script_content.replace(".show()", "")
     
     # Speed up for verification
@@ -38,7 +39,6 @@ pio.renderers.default = 'json'
     try:
         import subprocess
         env = os.environ.copy()
-        # Ensure root directory is in PYTHONPATH
         root_dir = str(Path(__file__).parent.parent.absolute())
         env["PYTHONPATH"] = root_dir + os.pathsep + env.get("PYTHONPATH", "")
         
@@ -60,7 +60,6 @@ pio.renderers.default = 'json'
             os.remove(temp_script)
 
 if __name__ == "__main__":
-    # Correct path relative to tests/
     notebook_dir = Path(__file__).parent.parent / "notebooks"
     notebooks = sorted(list(notebook_dir.glob("*.ipynb")))
     all_passed = True
@@ -71,4 +70,4 @@ if __name__ == "__main__":
     if not all_passed:
         sys.exit(1)
     else:
-        print("All notebooks verified successfully!")
+        print("\nAll notebooks verified successfully!")
