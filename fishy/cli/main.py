@@ -171,13 +171,16 @@ def _handle_train_execution(config: TrainingConfig):
         console._status = status_manager
         try:
             for i in range(n_runs):
-                            seed = (i + 1) * 123; config.run = seed; set_seed(seed)
-                            status_manager.update(f"[bold green]Experiment {i+1}/{n_runs}...")
-                            res = run_unified_training(config)
-                            # Strip memory-intensive objects
-                            res.pop("model", None)
-                            res.pop("data_module", None)
-                            results.append(res)
+                            try:
+                                seed = (i + 1) * 123; config.run = seed; set_seed(seed)
+                                status_manager.update(f"[bold green]Experiment {i+1}/{n_runs}...")
+                                res = run_unified_training(config)
+                                # Strip memory-intensive objects
+                                res.pop("model", None)
+                                res.pop("data_module", None)
+                                results.append(res)
+                            except Exception as e:
+                                console.print(f"[bold red]Experiment {i+1} failed:[/] {e}")
                             
                             # Forced cleanup between runs
                             import gc, torch

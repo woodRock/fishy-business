@@ -65,30 +65,37 @@ class UnifiedTrainer:
                     if status_manager: status_manager.update(f"[bold blue]Batch: [bold]{model}[/] on [bold]{dataset}[/]")
                     model_results = []
                     for run_id in range(exp_cfg.num_runs):
-                        seed = (run_id + 1) * 123
-                        set_seed(seed)
-                        train_cfg = TrainingConfig(
-                            model=model,
-                            dataset=dataset,
-                            run=seed,
-                            file_path=DEFAULT_DATA_PATH,
-                            benchmark=exp_cfg.benchmark,
-                            figures=exp_cfg.figures,
-                            statistical=exp_cfg.statistical,
-                            wandb_log=exp_cfg.wandb_log,
-                        )
-                        for k, v in exp_cfg.overrides.items():
-                            if hasattr(train_cfg, k):
-                                setattr(train_cfg, k, v)
-                        train_cfg.method = detect_method(model)
+                        try:
+                            seed = (run_id + 1) * 123
+                            set_seed(seed)
+                            train_cfg = TrainingConfig(
+                                model=model,
+                                dataset=dataset,
+                                run=seed,
+                                file_path=DEFAULT_DATA_PATH,
+                                benchmark=exp_cfg.benchmark,
+                                figures=exp_cfg.figures,
+                                statistical=exp_cfg.statistical,
+                                wandb_log=exp_cfg.wandb_log,
+                            )
+                            for k, v in exp_cfg.overrides.items():
+                                if hasattr(train_cfg, k):
+                                    setattr(train_cfg, k, v)
+                            train_cfg.method = detect_method(model)
+                            
+                            run_results = self._run_single(train_cfg)
+                            # Strip heavy objects before storing in the summary list
+                            run_results.pop("model", None)
+                            run_results.pop("data_module", None)
+                            model_results.append(run_results)
+                        except Exception as e:
+                            logger.error(f"❌ Failed run {run_id} for {model} on {dataset}: {e}")
+                            console.print(f"[bold red]Error in {model}/{dataset} run {run_id}:[/] {e}")
+                            # Continue to next run or model
+                            continue
                         
-                        run_results = self._run_single(train_cfg)
-                        # Strip heavy objects before storing in the summary list
-                        run_results.pop("model", None)
-                        run_results.pop("data_module", None)
-                        model_results.append(run_results)
-                        
-                    results_summary[f"{dataset}|||{model}"] = model_results
+                    if model_results:
+                        results_summary[f"{dataset}|||{model}"] = model_results
         finally:
             if status_manager: 
                 status_manager.stop()
