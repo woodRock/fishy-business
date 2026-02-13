@@ -31,28 +31,37 @@ from .cli.main import display_final_summary
 
 
 def get_data_path(filename: str = "REIMS.xlsx") -> str:
-    """Returns the absolute path to a data asset within the package."""
+    """Returns the absolute path to a data asset, searching package and local dirs."""
     import importlib.resources as pkg_resources
+    import os
 
-    # 1. Try modern importlib.resources
-    try:
-        with pkg_resources.path("fishy.data.assets", filename) as p:
-            if p.parent.exists(): # Check parent dir because file might not be downloaded yet
-                return str(p)
-    except (ImportError, FileNotFoundError, TypeError):
-        pass
-
-    # 2. Fallback to package relative path (robust across installs)
+    # 1. Determine package directory
     pkg_dir = os.path.dirname(os.path.abspath(__file__))
-    asset_p = os.path.join(pkg_dir, "data", "assets", filename)
-    if os.path.exists(os.path.dirname(asset_p)):
-        return asset_p
+    
+    # 2. List all potential search paths
+    search_paths = [
+        # Standard: Inside the installed package
+        os.path.join(pkg_dir, "data", "assets", filename),
+        # Local Dev: Root data folder relative to package
+        os.path.abspath(os.path.join(pkg_dir, "..", "data", filename)),
+        # RTD/CI: Current working directory's data folder
+        os.path.join(os.getcwd(), "data", filename),
+        # RTD/CI: Current working directory's internal assets folder
+        os.path.join(os.getcwd(), "fishy", "data", "assets", filename),
+    ]
 
-    # 3. Last resort fallback to project root data directory (local dev only)
-    root_p = os.path.abspath(
-        os.path.join(pkg_dir, "..", "data", filename)
-    )
-    return root_p
+    # 3. Return the first one that exists
+    for p in search_paths:
+        if os.path.exists(p):
+            return p
+
+    # 4. Fallback for download: Use the internal package location if writable, else CWD
+    preferred_path = search_paths[0]
+    try:
+        os.makedirs(os.path.dirname(preferred_path), exist_ok=True)
+        return preferred_path
+    except (OSError, PermissionError):
+        return os.path.join(os.getcwd(), "data", filename)
 
 
 __all__ = [
