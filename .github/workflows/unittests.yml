@@ -33,7 +33,7 @@ jobs:
       env:
         FISHY_DATA_TOKEN: ${{ secrets.FISHY_DATA_TOKEN }}
       run: |
-        fishy download-data
+        python -m fishy.cli.main download-data
         
     - name: Run unit tests with coverage
       run: |
