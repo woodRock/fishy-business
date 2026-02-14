@@ -138,7 +138,14 @@ def crawl_local_results():
 
 
 def fetch_remote_data(
-    host, port, username, password, remote_path, jump_host=None, jump_user=None, otp=None
+    host,
+    port,
+    username,
+    password,
+    remote_path,
+    jump_host=None,
+    jump_user=None,
+    otp=None,
 ):
     import io
     import tarfile
@@ -146,22 +153,22 @@ def fetch_remote_data(
 
     results_map = {}
     aggregated_summaries = []
-    
+
     try:
         target_client = paramiko.SSHClient()
         target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
+
         if jump_host:
             # Multi-hop via ProxyJump
             jump_client = paramiko.SSHClient()
             jump_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             # ECS MFA: Password + OTP. Further increased timeout for 1,920+ folders.
             jump_client.connect(
-                jump_host, 
-                username=jump_user, 
-                password=f"{password}{otp}", 
-                timeout=300, 
-                banner_timeout=60
+                jump_host,
+                username=jump_user,
+                password=f"{password}{otp}",
+                timeout=300,
+                banner_timeout=60,
             )
             transport = jump_client.get_transport()
             transport.set_keepalive(30)
@@ -169,21 +176,21 @@ def fetch_remote_data(
             local_addr = ("127.0.0.1", 0)
             channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
             target_client.connect(
-                host, 
-                username=username, 
-                password=password, 
-                sock=channel, 
+                host,
+                username=username,
+                password=password,
+                sock=channel,
                 timeout=300,
-                banner_timeout=60
+                banner_timeout=60,
             )
         else:
             target_client.connect(
-                host, 
-                port=port, 
-                username=username, 
-                password=password, 
+                host,
+                port=port,
+                username=username,
+                password=password,
                 timeout=300,
-                banner_timeout=60
+                banner_timeout=60,
             )
 
         # Ensure the transport doesn't time out during the long find/tar operation
@@ -195,24 +202,24 @@ def fetch_remote_data(
         # We search for summary.json (batch) and metrics.json (single runs).
         find_cmd = f"find {remote_path} \( -name 'summary.json' -o -name 'metrics.json' \) -print0 | tar -czf - --null -T -"
         stdin, stdout, stderr = target_client.exec_command(find_cmd)
-        
+
         # Read the entire tarball into memory
         tar_data = stdout.read()
         err_data = stderr.read().decode()
-        
+
         if err_data:
             logger.warning(f"Remote command stderr: {err_data}")
-        
+
         if tar_data:
             with tarfile.open(fileobj=io.BytesIO(tar_data), mode="r:gz") as tar:
                 for member in tar.getmembers():
                     if not member.isfile():
                         continue
-                    
+
                     f = tar.extractfile(member)
                     if not f:
                         continue
-                        
+
                     try:
                         data = json.load(f)
                         if "summary.json" in member.name:
@@ -229,7 +236,7 @@ def fetch_remote_data(
                                     if p == "outputs":
                                         out_idx = i
                                         break
-                                
+
                                 if out_idx != -1 and len(parts) > out_idx + 2:
                                     dataset = parts[out_idx + 1]
                                     method = parts[out_idx + 2].split("_")[0]
@@ -246,7 +253,7 @@ def fetch_remote_data(
         target_client.close()
         if jump_host:
             jump_client.close()
-            
+
     except Exception as e:
         st.error(f"Network Error: {e}")
         logger.error(f"Remote fetch failed: {e}", exc_info=True)
@@ -256,7 +263,7 @@ def fetch_remote_data(
     if aggregated_summaries:
         batch_df = pd.concat(aggregated_summaries, ignore_index=True)
         final_df = pd.concat([final_df, batch_df], ignore_index=True).drop_duplicates()
-        
+
     return final_df
 
 
@@ -264,77 +271,83 @@ def fetch_wandb_data(entity, project, api_key=None):
     """Fetches results directly from W&B API and performs statistical analysis."""
     import wandb
     import os
-    
+
     try:
         if api_key:
             os.environ["WANDB_API_KEY"] = api_key
-            
+
         api = wandb.Api()
         # Optimization: Filter for finished runs on the server side to reduce data transfer
         # and GraphQL overhead.
         runs = api.runs(f"{entity}/{project}", filters={"state": "finished"})
-        
+
         results_map = {}
         found_oil = False
-        
+
         # We need a count for the progress bar, but getting exact count might be slow
         # so we'll just show a "Processing..." message with a counter.
         progress_text = "Fetching and processing finished runs from W&B..."
         bar = st.progress(0, text=progress_text)
-        
+
         # Use a list to avoid iterator issues if needed
         all_runs = list(runs)
         total_runs = len(all_runs)
-        
+
         for i, run in enumerate(all_runs):
             if i % 10 == 0:
-                bar.progress((i + 1) / total_runs, text=f"{progress_text} ({i+1}/{total_runs})")
-                
+                bar.progress(
+                    (i + 1) / total_runs, text=f"{progress_text} ({i+1}/{total_runs})"
+                )
+
             # Extract configuration
             ds = run.config.get("dataset")
             model = run.config.get("model")
-            
+
             if not ds or not model:
                 continue
-            
+
             if ds == "oil":
                 found_oil = True
-                
+
             # Extract final metrics from summary
             train_acc = run.summary.get("train_balanced_accuracy")
             val_acc = run.summary.get("val_balanced_accuracy")
-            
+
             if train_acc is None or val_acc is None:
                 # Fallback check for different naming conventions
                 train_acc = run.summary.get("train_accuracy", 0)
-                val_acc = run.summary.get("val_balanced_accuracy", run.summary.get("accuracy", 0))
-                
+                val_acc = run.summary.get(
+                    "val_balanced_accuracy", run.summary.get("accuracy", 0)
+                )
+
             key = f"{ds}|||{model}"
             if key not in results_map:
                 results_map[key] = []
-            
-            results_map[key].append({
-                "train_balanced_accuracy": train_acc,
-                "val_balanced_accuracy": val_acc
-            })
-            
+
+            results_map[key].append(
+                {"train_balanced_accuracy": train_acc, "val_balanced_accuracy": val_acc}
+            )
+
         bar.empty()
-        
+
         if not results_map:
             st.warning(f"No valid finished runs found in {entity}/{project}")
             return pd.DataFrame()
-            
+
         if not found_oil:
             st.info("Note: No runs with dataset='oil' found in W&B project summary.")
         else:
-            st.success(f"Successfully found 'oil' results ({len([v for k,v in results_map.items() if 'oil' in k])} runs) in W&B!")
+            st.success(
+                f"Successfully found 'oil' results ({len([v for k,v in results_map.items() if 'oil' in k])} runs) in W&B!"
+            )
 
         summary_df = summarize_results(results_map, baseline_model="opls-da")
-        
+
         # Display pretty Rich table in logs
         from fishy.analysis.statistical import display_statistical_summary
+
         display_statistical_summary(summary_df)
-        
+
         return summary_df
     except Exception as e:
         st.error(f"W&B API Error: {e}")
@@ -348,39 +361,57 @@ def process_wandb_csv(file_path):
     """
     try:
         df = pd.read_csv(file_path)
-        
+
         # Handle "nested" W&B API script format (columns: summary, config, name)
         if "summary" in df.columns and "config" in df.columns:
             import ast
+
             def safe_parse(val):
-                if pd.isna(val): return {}
-                if isinstance(val, dict): return val
+                if pd.isna(val):
+                    return {}
+                if isinstance(val, dict):
+                    return val
                 try:
                     # API CSVs often use string representations of dicts
                     return ast.literal_eval(val)
                 except:
                     return {}
-            
+
             flattened_data = []
             for _, row in df.iterrows():
                 s = safe_parse(row["summary"])
                 c = safe_parse(row["config"])
-                flattened_data.append({
-                    "dataset": c.get("dataset"),
-                    "model": c.get("model"),
-                    "train_balanced_accuracy": s.get("train_balanced_accuracy", s.get("train_accuracy", 0)),
-                    "val_balanced_accuracy": s.get("val_balanced_accuracy", s.get("accuracy", 0))
-                })
+                flattened_data.append(
+                    {
+                        "dataset": c.get("dataset"),
+                        "model": c.get("model"),
+                        "train_balanced_accuracy": s.get(
+                            "train_balanced_accuracy", s.get("train_accuracy", 0)
+                        ),
+                        "val_balanced_accuracy": s.get(
+                            "val_balanced_accuracy", s.get("accuracy", 0)
+                        ),
+                    }
+                )
             df = pd.DataFrame(flattened_data)
 
         # Standard column names normalization
         col_map = {
-            "val_balanced_accuracy": ["val_balanced_accuracy", "val_acc", "accuracy", "Test Acc"],
-            "train_balanced_accuracy": ["train_balanced_accuracy", "train_acc", "Train Acc"],
+            "val_balanced_accuracy": [
+                "val_balanced_accuracy",
+                "val_acc",
+                "accuracy",
+                "Test Acc",
+            ],
+            "train_balanced_accuracy": [
+                "train_balanced_accuracy",
+                "train_acc",
+                "Train Acc",
+            ],
             "dataset": ["dataset", "Dataset"],
-            "model": ["model", "Method", "model_name"]
+            "model": ["model", "Method", "model_name"],
         }
-        
+
         for standard, alternates in col_map.items():
             if standard not in df.columns:
                 for alt in alternates:
@@ -393,31 +424,42 @@ def process_wandb_csv(file_path):
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
 
-        required = ["dataset", "model", "train_balanced_accuracy", "val_balanced_accuracy"]
+        required = [
+            "dataset",
+            "model",
+            "train_balanced_accuracy",
+            "val_balanced_accuracy",
+        ]
         if not all(c in df.columns for c in required):
-            st.error(f"CSV missing columns. Required: {required}. Found: {list(df.columns)}")
+            st.error(
+                f"CSV missing columns. Required: {required}. Found: {list(df.columns)}"
+            )
             return pd.DataFrame()
 
         # Map to internal format for summarize_results
         results_map = {}
         for (ds, model), group in df.groupby(["dataset", "model"]):
-            if pd.isna(ds) or pd.isna(model): continue
+            if pd.isna(ds) or pd.isna(model):
+                continue
             key = f"{ds}|||{model}"
             runs = []
             for _, row in group.iterrows():
-                runs.append({
-                    "train_balanced_accuracy": row["train_balanced_accuracy"],
-                    "val_balanced_accuracy": row["val_balanced_accuracy"]
-                })
+                runs.append(
+                    {
+                        "train_balanced_accuracy": row["train_balanced_accuracy"],
+                        "val_balanced_accuracy": row["val_balanced_accuracy"],
+                    }
+                )
             results_map[key] = runs
 
         # Perform significance testing using OPLS-DA as baseline
         summary_df = summarize_results(results_map, baseline_model="opls-da")
-        
+
         # Display pretty Rich table in logs/console
         from fishy.analysis.statistical import display_statistical_summary
+
         display_statistical_summary(summary_df)
-        
+
         return summary_df
     except Exception as e:
         st.error(f"Error processing CSV: {e}")
@@ -470,6 +512,7 @@ tab1, tab2, tab3, tab4 = st.tabs(
         "🏆 Leaderboard",
     ]
 )
+
 
 def render_results(results):
     mc1, mc2, mc3, mc4 = st.columns(4)
@@ -625,6 +668,7 @@ def render_results(results):
                 st.info("Fold data unavailable.")
         else:
             st.info("Stability data requires multiple folds.")
+
 
 if data_path.exists():
     dm.setup()
@@ -873,14 +917,18 @@ if data_path.exists():
             if method == "Grad-CAM":
                 # Prioritize layer_norm2 for Transformers to get full spectral resolution
                 # Fallback to the last Linear/Conv layer for other models
-                target_layer = getattr(model, "layer_norm2", next(
-                    (
-                        m
-                        for m in reversed(list(model.modules()))
-                        if isinstance(m, (nn.Conv1d, nn.Linear))
+                target_layer = getattr(
+                    model,
+                    "layer_norm2",
+                    next(
+                        (
+                            m
+                            for m in reversed(list(model.modules()))
+                            if isinstance(m, (nn.Conv1d, nn.Linear))
+                        ),
+                        None,
                     ),
-                    None,
-                ))
+                )
                 if target_layer:
                     gc = GradCAM(model, target_layer)
                     cam = (
@@ -1252,14 +1300,15 @@ else:
         Enter your token below to securely download the dataset to the internal package assets.
         """
     )
-    
+
     with st.form("download_form"):
         token_input = st.text_input("GitHub Personal Access Token", type="password")
         submit = st.form_submit_button("🚀 Download Dataset")
-        
+
         if submit:
             if token_input:
                 from fishy._core.data_manager import download_dataset
+
                 with st.spinner("Downloading REIMS.xlsx..."):
                     if download_dataset(token=token_input):
                         st.success("✅ Dataset downloaded! Please refresh the page.")

@@ -47,7 +47,9 @@ class MultiHeadAttention(nn.Module):
 
         self.scale = self.head_dim**-0.5
 
-    def forward(self, x: torch.Tensor, return_attention: bool = False) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+    def forward(
+        self, x: torch.Tensor, return_attention: bool = False
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         """
         Forward pass.
 
@@ -74,7 +76,7 @@ class MultiHeadAttention(nn.Module):
         # Combine heads
         out = (attn @ v).transpose(1, 2).reshape(batch_size, seq_len, self.input_dim)
         out = self.fc_out(out)
-        
+
         if return_attention:
             return out, attn
         return out
@@ -132,7 +134,9 @@ class Transformer(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.fc_out = nn.Linear(input_dim, output_dim)
 
-    def forward(self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs) -> Union[torch.Tensor, Tuple[torch.Tensor, List[torch.Tensor]]]:
+    def forward(
+        self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, List[torch.Tensor]]]:
         """
         Forward pass.
 
@@ -172,7 +176,7 @@ class Transformer(nn.Module):
         # Global pooling and classification
         x = x.mean(dim=1)  # Global average pooling
         x = self.fc_out(x)
-        
+
         if return_attention:
             return x, attentions
         return x

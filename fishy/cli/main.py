@@ -132,8 +132,12 @@ def setup_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
-    download_parser = subparsers.add_parser("download-data", help="Download private REIMS dataset")
-    download_parser.add_argument("--token", type=str, help="GitHub Personal Access Token")
+    download_parser = subparsers.add_parser(
+        "download-data", help="Download private REIMS dataset"
+    )
+    download_parser.add_argument(
+        "--token", type=str, help="GitHub Personal Access Token"
+    )
 
     run_all_parser = subparsers.add_parser("run_all", help="Full benchmark suite")
     run_all_parser.add_argument("-n", "--num-runs", type=int, default=30)

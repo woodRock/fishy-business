@@ -36,7 +36,7 @@ def get_data_path(filename: str = "REIMS.xlsx") -> str:
 
     # 1. Determine package directory
     pkg_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     # 2. List all potential search paths
     search_paths = [
         # Standard: Inside the installed package
@@ -48,11 +48,11 @@ def get_data_path(filename: str = "REIMS.xlsx") -> str:
     # RTD/CI: Search upwards from CWD to find the 'data' or 'fishy' directory
     # This handles notebooks running from notebooks/ or docs/ subfolders
     curr = os.getcwd()
-    for _ in range(4): # Check CWD and 3 levels of parents
+    for _ in range(4):  # Check CWD and 3 levels of parents
         search_paths.append(os.path.join(curr, "data", filename))
         search_paths.append(os.path.join(curr, "fishy", "data", "assets", filename))
         parent = os.path.dirname(curr)
-        if parent == curr: 
+        if parent == curr:
             break
         curr = parent
 
