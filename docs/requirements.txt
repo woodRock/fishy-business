@@ -4,6 +4,8 @@ sphinx-copybutton
 nbsphinx
 ipykernel
 ipywidgets
+ipython
+nbconvert
 plotly
 pandas
 nbformat

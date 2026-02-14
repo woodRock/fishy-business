@@ -453,68 +453,67 @@ def get_color_map(methods):
 def render_advanced_benchmarks(df_summary, df_raw, color_map):
     st.write("### 🚀 Advanced Benchmarking Insights")
     
-    tab_box, tab_heat, tab_radar = st.tabs(["🛡️ Stability", "📈 Heatmap & Efficiency", "🏆 Top 3 Profiles"])
+    # 1. Top 3 Profiles (Radar)
+    st.write("#### 🏆 Top 3 Methods Radar Comparison")
+    ds_radar = st.selectbox("Select Dataset for Radar", df_summary["Dataset"].unique(), key="radar_ds")
+    top_3 = df_summary[df_summary["Dataset"] == ds_radar].sort_values("Test", ascending=False).head(3)
     
-    with tab_box:
-        st.write("#### Performance Distribution (Stability)")
-        ds_choice = st.selectbox("Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds")
-        fig_box = px.box(
-            df_raw[df_raw["Dataset"] == ds_choice], 
-            x="Method", y="Test Accuracy", color="Method",
-            color_discrete_map=color_map, template="plotly_white", points="all",
-            title=f"Stability across all runs: {ds_choice.upper()}"
-        )
-        st.plotly_chart(fig_box, use_container_width=True)
+    fig_radar = go.Figure()
+    for _, row in top_3.iterrows():
+        train_val = row.get("Train", 0)
+        test_val = row.get("Test", 0)
+        f1_val = row.get("f1", row.get("F1 Score", test_val))
+        stability = 1.0 - row.get("Test Std", 0)
         
-    with tab_heat:
-        c_h1, c_h2 = st.columns(2)
-        with c_h1:
-            st.write("#### Global Performance Heatmap")
-            pivot_df = df_summary.pivot(index="Method", columns="Dataset", values="Test")
-            fig_heat = px.imshow(
-                pivot_df, text_auto=".3f", aspect="auto",
-                color_continuous_scale="Viridis", title="Method Performance across Datasets",
-                template="plotly_white"
-            )
-            st.plotly_chart(fig_heat, use_container_width=True)
-        with c_h2:
-            st.write("#### Efficiency: Runtime vs. Accuracy")
-            # Determine best Y axis for efficiency
-            y_axis = "runtime" if "runtime" in df_summary.columns else ("Runtime (s)" if "Runtime (s)" in df_summary.columns else "Train")
-            fig_eff = px.scatter(
-                df_summary, x="Test", y=y_axis, size="Test Std", color="Method",
-                hover_name="Method", facet_col="Dataset", 
-                color_discrete_map=color_map, template="plotly_white",
-                labels={"Test": "Test Accuracy", y_axis: y_axis.capitalize()},
-                title=f"Accuracy vs {y_axis.capitalize()}"
-            )
-            st.plotly_chart(fig_eff, use_container_width=True)
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[train_val, test_val, f1_val, stability],
+            theta=["Train Acc", "Test Acc", "F1 Score", "Stability (1-Std)"],
+            fill="toself", name=row["Method"],
+            line=dict(color=color_map.get(row["Method"]))
+        ))
+    fig_radar.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        showlegend=True, title=f"Top 3 Comparison: {ds_radar.upper()}", template="plotly_white"
+    )
+    st.plotly_chart(fig_radar, use_container_width=True)
+
+    st.markdown("---")
     
-    with tab_radar:
-        st.write("#### Top 3 Methods Radar Comparison")
-        ds_radar = st.selectbox("Select Dataset for Radar", df_summary["Dataset"].unique(), key="radar_ds")
-        top_3 = df_summary[df_summary["Dataset"] == ds_radar].sort_values("Test", ascending=False).head(3)
-        
-        fig_radar = go.Figure()
-        for _, row in top_3.iterrows():
-            # Gather metrics for radar
-            # We normalize to 0-1 range for the radar plot
-            train_val = row.get("Train", 0)
-            test_val = row.get("Test", 0)
-            f1_val = row.get("f1", row.get("F1 Score", test_val)) # fallback to test acc
-            stability = 1.0 - row.get("Test Std", 0) # higher is better
-            
-            fig_radar.add_trace(go.Scatterpolar(
-                r=[train_val, test_val, f1_val, stability],
-                theta=["Train Acc", "Test Acc", "F1 Score", "Stability (1-Std)"],
-                fill="toself", name=row["Method"],
-                line=dict(color=color_map.get(row["Method"]))
-            ))
-        fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-            showlegend=True, title=f"Top 3 Comparison: {ds_radar.upper()}", template="plotly_white"
+    # 2. Global Performance & Efficiency
+    c_h1, c_h2 = st.columns(2)
+    with c_h1:
+        st.write("#### 📈 Global Performance Heatmap")
+        pivot_df = df_summary.pivot(index="Method", columns="Dataset", values="Test")
+        fig_heat = px.imshow(
+            pivot_df, text_auto=".3f", aspect="auto",
+            color_continuous_scale="Viridis", title="Method Performance across Datasets",
+            template="plotly_white"
         )
-        st.plotly_chart(fig_radar, use_container_width=True)
+        st.plotly_chart(fig_heat, use_container_width=True)
+    with c_h2:
+        st.write("#### 🎯 Efficiency: Accuracy vs Runtime")
+        y_axis = "runtime" if "runtime" in df_summary.columns else ("Runtime (s)" if "Runtime (s)" in df_summary.columns else "Train")
+        fig_eff = px.scatter(
+            df_summary, x="Test", y=y_axis, size="Test Std", color="Method",
+            hover_name="Method", facet_col="Dataset", 
+            color_discrete_map=color_map, template="plotly_white",
+            labels={"Test": "Test Accuracy", y_axis: y_axis.capitalize()},
+            title=f"Efficiency Frontier"
+        )
+        st.plotly_chart(fig_eff, use_container_width=True)
+
+    st.markdown("---")
+
+    # 3. Performance Stability (Box Plot)
+    st.write("#### 🛡️ Performance Distribution (Stability)")
+    ds_choice = st.selectbox("Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds")
+    fig_box = px.box(
+        df_raw[df_raw["Dataset"] == ds_choice], 
+        x="Method", y="Test Accuracy", color="Method",
+        color_discrete_map=color_map, template="plotly_white", points="all",
+        title=f"Full Distribution (30 runs): {ds_choice.upper()}"
+    )
+    st.plotly_chart(fig_box, use_container_width=True)
 
 
 st.sidebar.title("🛠️ Configuration")
