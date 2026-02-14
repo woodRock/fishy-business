@@ -39,6 +39,9 @@ dependencies = [
     "ipywidgets"
 ]
 
+[project.scripts]
+fishy = "fishy.cli.main:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["fishy*"]

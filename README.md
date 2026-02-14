@@ -17,26 +17,11 @@ A configuration-driven framework for the analysis of spectral data using Deep Le
 
 ## Key Features
 
+- **Consolidated CLI**: Run training, benchmarks, and the dashboard via a single `fishy` command.
 - **Configuration-Driven Architecture**: Add new datasets, models, or tasks by simply editing YAML files in `fishy/configs/`.
 - **Unified Training Engine**: Centralized `Trainer` class handles loops, metrics, and early stopping consistently across all experiments.
-- **Self-Supervised Learning**: Modular `PreTrainingOrchestrator` with support for 7+ pretext tasks (Masked Spectra, Denoising, etc.).
-- **Contrastive Suite**: Implementation of SimCLR, SimSiam, BYOL, Barlow Twins, and MoCo.
-- **Advanced Workflows**: Sequential transfer learning and Genetic Programming (GP) experiments.
-- **Automated Verification**: Integrated `doctests` ensure documentation examples always stay functional.
-
-## Datasets & REIMS Data
-
-This research utilizes high-dimensional chemical fingerprints (2,080 features) derived from **Rapid Evaporative Ionization Mass Spectrometry (REIMS)** of seafood samples, provided by **AgResearch, New Zealand**.
-
-The data was collected using a Laser-Assisted REIMS setup in negative ionization mode, specifically targeting deprotonated lipids and fatty acids. The framework includes five distinct analytical tasks:
-
-1.  **Species Identification**: Distinguishing between Hoki and Mackerel.
-2.  **Body Part Identification**: Classifying 7 fish parts (fillets, heads, livers, skins, gonads, guts, frames).
-3.  **Oil Contamination Detection**: Detecting contamination levels from 0.1% to 50%.
-4.  **Cross-species Adulteration**: Identifying premixed samples of premium and cheaper species.
-5.  **Batch Detection**: A pairwise task to identify if two fish belong to the same processing batch.
-
-For full details on the acquisition and curation process, see the [Documentation](https://fishy-business.readthedocs.io/en/latest/datasets.html).
+- **Advanced XAI Pipeline**: Automated biomarker discovery with direct mapping to chemical databases (LipidMaps).
+- **Pro-Tier Architectures**: High-capacity Sparsely-Gated Mixture of Experts (`gmoe`) for complex spectral profiles.
 
 ## Installation
 
@@ -46,63 +31,64 @@ For full details on the acquisition and curation process, see the [Documentation
     cd fishy-business
     ```
 
-2.  **Install dependencies:**
+2.  **Install dependencies and CLI:**
     ```bash
-    pip install -r requirements.txt
+    pip install -e .
     ```
 
 ## Usage
 
-The framework provides a unified CLI via `main.py`.
+The framework provides a unified CLI via the `fishy` command.
 
 ### 🪄 Getting Started (Recommended)
 New users should start with the **Interactive Wizard**, which guides you through model selection, dataset choice, and analysis setup:
 ```bash
-python3 main.py wizard
+fishy wizard
 ```
-The wizard will generate the exact CLI command or a configuration file for you.
 
 ### 🌐 Interactive Dashboard
-For visual data exploration, real-time training monitoring, and advanced biomarker analysis, use the built-in Streamlit dashboard:
+For visual data exploration, real-time training monitoring, and advanced biomarker analysis, use the built-in dashboard:
 ```bash
-streamlit run dashboard/app.py
+fishy dashboard
 ```
-The dashboard provides interactive PCA/t-SNE clusters, spectral signature comparison, and deep-dive interpretability tools.
 
 ### 🚂 Training & Analysis
 All model types (Deep, Classic, Evolutionary, Contrastive) are trained using the same unified command:
 
 ```bash
+# Train a Gated MoE model with XAI biomarker discovery
+fishy train -m gmoe -d species --xai
+
 # Train a Deep Learning model with performance benchmarking
-python3 main.py train -m transformer -d species --benchmark --figures
+fishy train -m transformer -d species --benchmark --figures
 
 # Train a Classic ML model
-python3 main.py train -m rf -d oil
+fishy train -m rf -d oil
 
 # Train an Evolutionary Algorithm (Feature Weighting)
-python3 main.py train -m ga -d part
+fishy train -m ga -d part
 ```
 
 ### 📂 Config-Driven Experiments
 For large-scale or reproducible experiments, use YAML configuration files:
 ```bash
-python3 main.py train -c fishy/configs/experiments/quick_benchmark.yaml
+fishy train -c fishy/configs/experiments/quick_benchmark.yaml
 ```
 
 ### 🔬 Advanced Tasks
 Expert flags are hidden by default to keep the interface clean. View them using:
 ```bash
 # See context-aware help for transfer learning
-python3 main.py train --transfer --help
+fishy train --transfer --help
 
 # See ALL expert overrides (Hyperparameters, XAI, etc.)
-python3 main.py train --all --help
+fishy train --all --help
 ```
 
 ### 📊 Full Benchmarking Suite
 Run the full doctoral benchmarking suite with statistical analysis (paired t-tests):
 ```bash
-python3 main.py run_all --num-runs 30
+fishy run_all --num-runs 30
 ```
 
 ## Extending the Framework
@@ -125,12 +111,6 @@ We provide Jupyter notebooks in the `notebooks/` directory matching the thesis c
 
 These are also rendered beautifully in our [online documentation](https://fishy-business.readthedocs.io/en/latest/tutorials.html).
 
-### 🐍 Python Examples
-A step-by-step tutorial series is available in the `examples/` directory:
-- `01_getting_started.py`: The simplest way to run a training experiment.
-- `02_data_module.py`: Loading, filtering, and inspecting datasets.
-- ... and 7 more tutorials covering pre-training, transfer learning, and more.
-
 ## Docker
 
 You can run the entire framework, including the dashboard, in a containerized environment:
@@ -140,14 +120,9 @@ You can run the entire framework, including the dashboard, in a containerized en
    docker build -t fishy-business .
    ```
 
-2. **Run the dashboard**:
+2. **Run the CLI**:
    ```bash
-   docker run -p 8501:8501 fishy-business
-   ```
-
-3. **Persistence**: To save results locally, mount the output directories:
-   ```bash
-   docker run -p 8501:8501 -v $(pwd)/outputs:/app/outputs -v $(pwd)/logs:/app/logs fishy-business
+   docker run fishy-business fishy train -m transformer -d species
    ```
 
 ## Testing & Documentation
@@ -184,6 +159,3 @@ If you use this framework in your research, please cite the following paper:
   publisher={Springer}
 }
 ```
-
-For a full list of related research and publications, see the author's [Google Scholar](https://scholar.google.com/citations?hl=en&user=UnUp2S0AAAAJ) page.
-

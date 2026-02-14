@@ -136,6 +136,8 @@ def setup_parser() -> argparse.ArgumentParser:
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
+    subparsers.add_parser("dashboard", help="Launch the interactive Streamlit dashboard")
+
     download_parser = subparsers.add_parser(
         "download-data", help="Download private REIMS dataset"
     )
@@ -220,6 +222,27 @@ def main() -> None:
             from fishy.cli.wizard import run_wizard
 
             run_wizard()
+        elif args.command == "dashboard":
+            import subprocess
+            from pathlib import Path
+            import fishy
+            
+            # Locate the dashboard relative to the package or current directory
+            dashboard_path = Path(fishy.__file__).parent.parent / "dashboard" / "app.py"
+            
+            if not dashboard_path.exists():
+                # Fallback for local development if installed in editable mode differently
+                dashboard_path = Path("dashboard/app.py")
+                
+            if not dashboard_path.exists():
+                console.print("[bold red]Error:[/] Could not locate dashboard/app.py")
+                sys.exit(1)
+                
+            console.print(f"[bold green]Launching dashboard...[/]")
+            try:
+                subprocess.run(["streamlit", "run", str(dashboard_path)])
+            except KeyboardInterrupt:
+                console.print("\n[bold blue]Dashboard stopped.[/]")
         elif args.command == "download-data":
             from fishy._core.data_manager import download_dataset
 

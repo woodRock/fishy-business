@@ -8,7 +8,7 @@ To launch the wizard, run:
 
 .. code-block:: bash
 
-   python3 main.py wizard
+   fishy wizard
 
 How it works:
 -------------

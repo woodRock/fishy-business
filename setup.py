@@ -23,7 +23,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "fishy=main:main",
+            "fishy=fishy.cli.main:main",
         ],
     },
     classifiers=[

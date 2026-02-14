@@ -10,7 +10,7 @@ To start the dashboard, run the following command from the root of the repositor
 
 .. code-block:: bash
 
-   streamlit run dashboard/app.py
+   fishy dashboard
 
 Once running, the dashboard will be available in your browser (typically at ``http://localhost:8501``).
 

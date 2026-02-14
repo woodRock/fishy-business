@@ -131,7 +131,7 @@ def run_wizard():
     )
 
     if selected_output == "CLI Command":
-        cmd = f"python3 main.py train -m {model} -d {dataset}"
+        cmd = f"fishy train -m {model} -d {dataset}"
         if "Contrastive" in selected_task:
             cmd += f" --encoder {encoder}"
         if benchmark:
@@ -153,7 +153,7 @@ def run_wizard():
         filename = Prompt.ask("Enter config filename", default="experiment.yaml")
         config.to_yaml(filename)
         console.print(f"\n[bold green]✓[/] Configuration saved to [bold]{filename}[/]")
-        console.print(f"Run it using: [cyan]python3 main.py train -c {filename}[/]\n")
+        console.print(f"Run it using: [cyan]fishy train -c {filename}[/]\n")
 
 
 if __name__ == "__main__":

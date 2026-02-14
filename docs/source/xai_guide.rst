@@ -25,6 +25,6 @@ You can trigger XAI analysis by adding the ``--xai`` flag to the training comman
 
 .. code-block:: bash
 
-   python3 main.py train -m transformer -d species --xai
+   fishy train -m transformer -d species --xai
 
 Plots will be saved in the ``figures/`` subdirectory of your experiment run.
