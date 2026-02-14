@@ -16,10 +16,11 @@ DEFAULT_DATA_PATH = None
 from fishy._core.config import TrainingConfig
 from fishy.experiments.unified_trainer import run_unified_training
 from fishy._core.config_loader import load_config
-from fishy._core.utils import set_seed, console
+from fishy._core.utils import set_seed, console, get_device
 from rich.panel import Panel
 from rich.table import Table
 from fishy.analysis.statistical import summarize_results, display_statistical_summary
+from fishy.analysis.biomarker import run_biomarker_pipeline
 
 
 def get_all_models() -> List[str]:
@@ -91,6 +92,9 @@ def setup_parser() -> argparse.ArgumentParser:
     )
     train_parser.add_argument(
         "--figures", action="store_true", help="Generate analysis figures"
+    )
+    train_parser.add_argument(
+        "--xai", action="store_true", help="Run explainability and biomarker discovery"
     )
     train_parser.add_argument(
         "--all", action="store_true", help="Show all expert hyperparameters in --help"
@@ -279,6 +283,20 @@ def _handle_train_execution(config: TrainingConfig):
         config.run = seed
         set_seed(seed)
         res = run_unified_training(config)
+        
+        if config.xai:
+            model = res.get("model")
+            dm = res.get("data_module")
+            if model and dm:
+                console.print("\n[bold yellow]Starting Automated Biomarker Discovery...[/]")
+                report = run_biomarker_pipeline(
+                    model=model,
+                    data_loader=dm.get_train_dataloader(),
+                    feature_names=dm.get_train_dataframe().columns[1:],
+                    device=get_device()
+                )
+                console.print(Panel(report, title="[bold]XAI Pipeline Results[/]", border_style="yellow"))
+
         # Strip memory-intensive objects
         res.pop("model", None)
         res.pop("data_module", None)

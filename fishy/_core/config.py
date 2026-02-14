@@ -59,6 +59,8 @@ class TrainingConfig:
     flip_enabled: bool = False
     permutation_enabled: bool = False
     crop_size: float = 0.8  # Default crop size
+    num_experts: int = 8
+    k: int = 2
 
     # Contrastive specific
     encoder_type: str = "dense"

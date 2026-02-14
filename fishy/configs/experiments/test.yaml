@@ -1,25 +1,7 @@
-# # Example Batch Experiment: Deep Learning Comparison
-# name: "deep_learning"
-# num_runs: 1
-# datasets: ["species", "part", "oil", "cross-species"]
-# models: ["transformer", "ensemble", "moe", "cnn", "rcnn", "lstm", "mamba", "kan"]
-# benchmark: true
-# figures: true
-# statistical: true
-# overrides:
-#   epochs: 1
-#   early_stopping: 10
-#   learning_rate: 0.0005
-
-# Example Batch Experiment: Evolutionary Computation Comparison
-name: "evolutionary_computation"
+name: "Mixture of Experts: Gateed vs Default"
 num_runs: 1
-datasets: ["part"]
-models: ["gp", "ga", "pso", "eda", "es"]
+datasets: ["species"]
+models: ["moe", "gmoe"]
 benchmark: true
 figures: true
 statistical: true
-overrides:
-  population_size: 100
-  generations: 100
-  elitism: 0.1
