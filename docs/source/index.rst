@@ -61,6 +61,7 @@ Key Features
    datasets
    wizard
    dashboard
+   leaderboard
    tutorials
 
 .. toctree::

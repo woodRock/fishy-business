@@ -424,6 +424,13 @@ def process_wandb_csv(file_path):
         return pd.DataFrame()
 
 
+def get_color_map(methods):
+    """Generates a consistent color map for a list of methods."""
+    colors = px.colors.qualitative.Plotly + px.colors.qualitative.Bold
+    unique_methods = sorted(list(set(methods)))
+    return {m: colors[i % len(colors)] for i, m in enumerate(unique_methods)}
+
+
 st.sidebar.title("🛠️ Configuration")
 model_names, dataset_names = get_metadata()
 data_path = Path(get_data_path())
@@ -633,8 +640,6 @@ if data_path.exists():
     except:
         mz_axis = np.arange(len(feature_cols))
     
-    # ... rest of the existing code for tab1, tab2, etc.
-
     with tab1:
         st.header("Deep Data Exploration")
         mc1, mc2, mc3 = st.columns([1, 1, 2])
@@ -1120,199 +1125,119 @@ if data_path.exists():
                     else:
                         st.info("Not enough biomarkers for network.")
 
-        with tab4:
-
-            st.header("🏆 Leaderboard")
-
-            src = st.radio(
-
-                "Leaderboard Data Source",
-
-                ["Local (outputs/)", "Remote (SSH Proxy Jump)", "W&B Export (CSV)", "W&B API (Live)"],
-
-                horizontal=True,
-
-            )
-
-            if "leaderboard_df" not in st.session_state:
-
-                st.session_state["leaderboard_df"] = pd.DataFrame()
-
+    with tab4:
+        st.header("🏆 Leaderboard")
+        
+        # Use a distinct key for the radio to avoid session state collisions
+        src = st.radio(
+            "Leaderboard Data Source",
+            ["Local (outputs/)", "Remote (SSH Proxy Jump)", "W&B Export (CSV)", "W&B API (Live)"],
+            horizontal=True,
+            key="leaderboard_src_selector"
+        )
+        
+        if "leaderboard_df" not in st.session_state:
+            st.session_state["leaderboard_df"] = pd.DataFrame()
+        
+        # Branch explicitly to avoid UI overlap
+        if src == "Local (outputs/)":
+            if st.button("🔄 Refresh Local Leaderboard"):
+                with st.spinner("Crawling local metrics..."):
+                    st.session_state["leaderboard_df"] = crawl_local_results()
+        
+        elif src == "Remote (SSH Proxy Jump)":
+            if not paramiko:
+                st.error("paramiko not installed")
+            else:
+                with st.expander("🔑 Jump Host Configuration", expanded=True):
+                    c1, c2, c_otp = st.columns([2, 2, 2])
+                    jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
+                    ju = c2.text_input("ECS Username", key="remote_user")
+                    otp = c_otp.text_input("OTP Token", type="password", key="remote_otp")
+                with st.expander("🎯 Target Server Configuration", expanded=True):
+                    c3, c4, c5 = st.columns([2, 1, 2])
+                    th = c3.text_input("Target Host", key="remote_target")
+                    tp = c4.number_input("Target Port", value=22, key="remote_port")
+                    pwd = c5.text_input("ECS Password", type="password", key="remote_pwd")
+                    rp = st.text_input("Remote Path", "/home/ecs/username/fishy-business/outputs", key="remote_path")
+                if st.button("🚀 Connect & Aggregate Remote"):
+                    with st.spinner("Tunnelling and crawling..."):
+                        st.session_state["leaderboard_df"] = fetch_remote_data(
+                            th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp
+                        )
+        
+        elif src == "W&B Export (CSV)":
+            st.info("Analyze a W&B export CSV (supports flat or nested API formats).")
+            uploaded_file = st.file_uploader("Upload W&B Export CSV", type="csv", key="csv_uploader")
+            csv_path = "wanb_export_csv.csv"
             
-
-            # ... existing source blocks ...
-
-            if src == "Local (outputs/)":
-
-                if st.button("🔄 Refresh Local Leaderboard"):
-
-                    with st.spinner("Crawling local metrics..."):
-
-                        st.session_state["leaderboard_df"] = crawl_local_results()
-
-            elif src == "Remote (SSH Proxy Jump)":
-
-                # ... (keep existing remote logic) ...
-
-                if not paramiko:
-
-                    st.error("paramiko not installed")
-
-                else:
-
-                    with st.expander(
-
-                        "🔑 Jump Host Configuration (entry.ecs.vuw.ac.nz)", expanded=True
-
-                    ):
-
-                        c1, c2, c_otp = st.columns([2, 2, 2])
-
-                        jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
-
-                        ju = c2.text_input("ECS Username")
-
-                        otp = c_otp.text_input(
-
-                            "OTP Token (Google Authenticator)",
-
-                            type="password",
-
-                            help="6-digit code",
-
-                        )
-
-                    with st.expander("🎯 Target Server Configuration", expanded=True):
-
-                        c3, c4, c5 = st.columns([2, 1, 2])
-
-                        th = c3.text_input("Target Host (e.g. greta-pt)")
-
-                        tp = c4.number_input("Target Port", value=22)
-
-                        pwd = c5.text_input("ECS Password", type="password")
-
-                        rp = st.text_input(
-
-                            "Remote Path to /outputs",
-
-                            "/home/ecs/username/fishy-business/outputs",
-
-                        )
-
-                    if st.button("🚀 Connect & Aggregate Remote"):
-
-                        with st.spinner("Tunnelling through entry and crawling metrics..."):
-
-                            st.session_state["leaderboard_df"] = fetch_remote_data(
-
-                                th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp
-
-                            )
-
-            elif src == "W&B Export (CSV)":
-
-                st.info("Analyze a W&B export CSV with statistical significance tests (OPLS-DA baseline).")
-
-                uploaded_file = st.file_uploader("Upload W&B Export CSV", type="csv")
-
-                csv_path = "wanb_export_csv.csv"
-
-                
-
-                if uploaded_file is not None:
-
-                    if st.button("📊 Run Statistical Analysis on Uploaded CSV"):
-
-                        with st.spinner("Calculating significance against OPLS-DA..."):
-
-                            # Save temporarily to process
-
-                            with open("temp_wandb_export.csv", "wb") as f:
-
-                                f.write(uploaded_file.getbuffer())
-
-                            st.session_state["leaderboard_df"] = process_wandb_csv("temp_wandb_export.csv")
-
-                elif os.path.exists(csv_path):
-
-                    st.success(f"Found default export: {csv_path}")
-
-                    if st.button("📊 Run Statistical Analysis on Default CSV"):
-
-                        with st.spinner("Calculating significance against OPLS-DA..."):
-
-                            st.session_state["leaderboard_df"] = process_wandb_csv(csv_path)
-
-                else:
-
-                    st.warning(f"Default file '{csv_path}' not found. Please upload one.")
-
-            else: # W&B API (Live)
-
-                st.info("Fetch live data directly from Weights & Biases API.")
-
-                w_c1, w_c2 = st.columns(2)
-
-                w_entity = w_c1.text_input("W&B Entity", value="victoria-university-of-wellington")
-
-                w_project = w_c2.text_input("W&B Project", value="fishy-business")
-
-                w_key = st.text_input("W&B API Key (Optional if logged in)", type="password")
-
-                
-
-                if st.button("🌐 Fetch & Analyze Live W&B Data"):
-
-                    with st.spinner("Talking to W&B servers..."):
-
-                        st.session_state["leaderboard_df"] = fetch_wandb_data(w_entity, w_project, w_key)
-
-    
-
-            df_summary = st.session_state["leaderboard_df"]
-
-    
+            if uploaded_file is not None:
+                if st.button("📊 Run Statistical Analysis on Uploaded CSV"):
+                    with st.spinner("Analyzing..."):
+                        with open("temp_wandb_export.csv", "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                        df_result = process_wandb_csv("temp_wandb_export.csv")
+                        if not df_result.empty:
+                            st.session_state["leaderboard_df"] = df_result
+                            st.rerun()
+            elif os.path.exists(csv_path):
+                st.success(f"Found default export: {csv_path}")
+                if st.button("📊 Run Statistical Analysis on Default CSV"):
+                    with st.spinner("Analyzing..."):
+                        df_result = process_wandb_csv(csv_path)
+                        if not df_result.empty:
+                            st.session_state["leaderboard_df"] = df_result
+                            st.rerun()
+            else:
+                st.warning(f"File '{csv_path}' not found. Please upload one.")
+
+        elif src == "W&B API (Live)":
+            st.info("Fetch live data directly from Weights & Biases API.")
+            w_c1, w_c2 = st.columns(2)
+            w_entity = w_c1.text_input("W&B Entity", value="victoria-university-of-wellington", key="wb_ent")
+            w_project = w_c2.text_input("W&B Project", value="fishy-business", key="wb_proj")
+            w_key = st.text_input("W&B API Key (Optional)", type="password", key="wb_key")
+            
+            if st.button("🌐 Fetch & Analyze Live W&B Data"):
+                with st.spinner("Talking to W&B servers..."):
+                    st.session_state["leaderboard_df"] = fetch_wandb_data(w_entity, w_project, w_key)
+
+        # Final Render of Leaderboard (Shared by all sources)
+        df_summary = st.session_state["leaderboard_df"]
         if not df_summary.empty:
-            preferred_cols = [
-                "Dataset",
-                "Method",
-                "Train",
-                "Test",
-                "Sig Te",
-                "Baseline",
-            ]
+            st.markdown("---")
+            preferred_cols = ["Dataset", "Method", "Train", "Test", "Sig Te", "Baseline"]
             actual_cols = [c for c in preferred_cols if c in df_summary.columns]
+            
+            st.write("### 📊 Statistical Significance (vs OPLS-DA)")
             st.dataframe(
                 df_summary[actual_cols]
                 .sort_values(["Dataset", "Test"], ascending=[True, False])
-                .style.background_gradient(
-                    subset=["Test"] if "Test" in df_summary.columns else [],
-                    cmap="Greens",
-                ),
-                use_container_width=True,
+                .style.background_gradient(subset=["Test"], cmap="Greens"),
+                use_container_width=True
             )
+            
             if st.button("💾 Save Leaderboard Snapshot Locally"):
                 os.makedirs("outputs/all", exist_ok=True)
                 df_summary.to_csv("outputs/all/leaderboard_snapshot.csv", index=False)
                 st.success("Snapshot saved!")
+
+            color_map = get_color_map(df_summary["Method"].unique())
             for ds in df_summary["Dataset"].unique():
-                # Sort descending by Test performance for clarity
                 ds_df = df_summary[df_summary["Dataset"] == ds].sort_values("Test", ascending=False)
                 st.plotly_chart(
                     px.bar(
-                        ds_df,
-                        x="Method",
-                        y="Test",
-                        error_y="Test Std",
-                        title=f"Leaderboard: {ds.upper()}",
-                        color="Method",
-                        template="plotly_white",
+                        ds_df, x="Method", y="Test", error_y="Test Std",
+                        title=f"Leaderboard: {ds.upper()}", 
+                        color="Method", 
+                        color_discrete_map=color_map,
+                        template="plotly_white"
                     ),
-                    use_container_width=True,
+                    use_container_width=True
                 )
         else:
-            st.info("No leaderboard data loaded. Click 'Refresh' or 'Connect' above.")
+            st.info("No leaderboard data loaded. Choose a source above.")
+
 else:
     st.error("📉 REIMS Dataset Missing")
     st.markdown(

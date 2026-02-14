@@ -14,6 +14,8 @@ build:
     post_install:
       # Download the private dataset using the token provided in RTD environment variables
       - python -m fishy download-data
+      # Generate leaderboard data from any local/wandb results for the docs
+      - python docs/generate_leaderboard_docs.py
 
 
 # Build documentation in the "docs/" directory with Sphinx
