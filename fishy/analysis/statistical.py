@@ -75,43 +75,49 @@ def summarize_results(
         if dataset not in datasets:
             datasets[dataset] = {}
 
-        val_accs, train_accs = [], []
+        # Collect all unique metric keys from the raw results
+        all_metric_keys = set()
         for r in raw_results:
             src = r.get("stats", r)
-            v = (
-                src.get("val_balanced_accuracy")
-                or src.get("balanced_accuracy")
-                or src.get("test_balanced_accuracy")
-                or 0.0
-            )
-            t = src.get("train_balanced_accuracy") or src.get("train_accuracy") or 0.0
+            all_metric_keys.update(src.keys())
+        
+        # We'll specifically look for and normalize core metrics
+        metric_lists = {k: [] for k in all_metric_keys if isinstance(raw_results[0].get("stats", raw_results[0]).get(k), (int, float, np.number))}
+        
+        # Core metric mapping for consistency
+        core_map = {
+            "val_balanced_accuracy": ["val_balanced_accuracy", "balanced_accuracy", "test_balanced_accuracy", "accuracy"],
+            "train_balanced_accuracy": ["train_balanced_accuracy", "train_accuracy"]
+        }
 
-            # Ensure we have floats, even if the source was a string
-            try:
-                v = float(v)
-            except (ValueError, TypeError):
-                v = 0.0
-            try:
-                t = float(t)
-            except (ValueError, TypeError):
-                t = 0.0
+        for r in raw_results:
+            src = r.get("stats", r)
+            for k in metric_lists.keys():
+                val = src.get(k, 0.0)
+                try:
+                    metric_lists[k].append(float(val))
+                except:
+                    metric_lists[k].append(0.0)
 
-            val_accs.append(v)
-            train_accs.append(t)
+        # Ensure we have normalized names for the significance tests
+        normalized = {"val": [], "train": []}
+        for target, aliases in core_map.items():
+            for alias in aliases:
+                if alias in metric_lists and metric_lists[alias]:
+                    normalized["val" if "val" in target or "test" in target or target == "val_balanced_accuracy" else "train"] = metric_lists[alias]
+                    break
+        
+        if not normalized["val"] and "val_balanced_accuracy" in metric_lists: normalized["val"] = metric_lists["val_balanced_accuracy"]
+        if not normalized["train"] and "train_balanced_accuracy" in metric_lists: normalized["train"] = metric_lists["train_balanced_accuracy"]
 
-        datasets[dataset][model] = {"val": val_accs, "train": train_accs}
+        datasets[dataset][model] = {"metrics": metric_lists, "val": normalized["val"], "train": normalized["train"]}
 
     summary_data = []
     for dataset, models in datasets.items():
-        # Priority for baseline: 1. Passed arg, 2. opls-da, 3. first available
         actual_baseline = (
             baseline_model
             if (baseline_model and baseline_model in models)
             else ("opls-da" if "opls-da" in models else list(models.keys())[0])
-        )
-
-        logger.debug(
-            f"Dataset {dataset}: Using {actual_baseline} as baseline. Available: {list(models.keys())}"
         )
 
         b_val_accs = models[actual_baseline]["val"]
@@ -119,36 +125,35 @@ def summarize_results(
 
         for model_name, m_data in models.items():
             m_val, m_train = m_data["val"], m_data["train"]
-
-            logger.debug(
-                f"  - Testing {model_name} (n={len(m_val)}) against {actual_baseline} (n={len(b_val_accs)})"
-            )
-
+            
             if model_name == actual_baseline:
                 sig_test, sig_train = " ", " "
             else:
-                sig_res = perform_significance_test(m_val, b_val_accs)
-                sig_test = sig_res["symbol"]
-                sig_train = perform_significance_test(m_train, b_train_accs)["symbol"]
-                if sig_test == " ":
-                    logger.debug(
-                        f"    * No significance symbol for {model_name}. Reason: {sig_res.get('error', 'None')}"
-                    )
+                sig_test = perform_significance_test(m_val, b_val_accs)["symbol"] if m_val and b_val_accs else " "
+                sig_train = perform_significance_test(m_train, b_train_accs)["symbol"] if m_train and b_train_accs else " "
 
-            summary_data.append(
-                {
-                    "Dataset": dataset,
-                    "Method": model_name,
-                    "Train": np.mean(m_train),
-                    "Train Std": np.std(m_train),
-                    "Sig Tr": sig_train,
-                    "Test": np.mean(m_val),
-                    "Test Std": np.std(m_val),
-                    "Sig Te": sig_test,
-                    "is_baseline": model_name == actual_baseline,
-                    "Baseline": actual_baseline,
-                }
-            )
+            row = {
+                "Dataset": dataset,
+                "Method": model_name,
+                "Train": np.mean(m_train) if m_train else 0.0,
+                "Train Std": np.std(m_train) if m_train else 0.0,
+                "Sig Tr": sig_train,
+                "Test": np.mean(m_val) if m_val else 0.0,
+                "Test Std": np.std(m_val) if m_val else 0.0,
+                "Sig Te": sig_test,
+                "is_baseline": model_name == actual_baseline,
+                "Baseline": actual_baseline,
+            }
+            
+            # Add all other metrics as means
+            for m_key, m_values in m_data["metrics"].items():
+                # Skip core ones we already handled
+                if m_key in ["val_balanced_accuracy", "train_balanced_accuracy", "val", "train"]:
+                    continue
+                row[m_key] = np.mean(m_values)
+                row[f"{m_key}_std"] = np.std(m_values)
+
+            summary_data.append(row)
 
     return pd.DataFrame(summary_data)
 

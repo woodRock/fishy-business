@@ -71,6 +71,8 @@ tmp/
 *.pt
 *.csv
 !docs/source/_static/leaderboard_data.csv
+!docs/source/_static/leaderboard_raw.csv
+!wanb_export_csv.csv
 *.json
 !pyproject.toml
 !requirements.txt
