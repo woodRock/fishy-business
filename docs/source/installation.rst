@@ -4,7 +4,6 @@ Installation
 Prerequisites
 -------------
 - Python 3.9 or higher
-- Graphviz (for evolutionary model visualizations)
 
 Install from Source
 -------------------
