@@ -245,7 +245,7 @@ class ModelTrainer:
                     break
             else:
                 stats["epoch_metrics"] = None
-            
+
             stats["folds"] = all_fold_metrics
 
         self.ctx.save_results(

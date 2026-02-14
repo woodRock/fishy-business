@@ -36,14 +36,16 @@ class DataProcessor:
 
     def load_data(self, file_path: Union[str, Path] = None) -> pd.DataFrame:
         from fishy import get_data_path
+
         if file_path is None:
             file_path = get_data_path()
-        
+
         path = Path(file_path)
         if not path.exists():
             from fishy import get_data_path
+
             path = Path(get_data_path())
-            
+
         if not path.exists():
             msg = (
                 f"\n[bold red]Error: Data file not found at {path}[/]\n\n"
@@ -52,6 +54,7 @@ class DataProcessor:
                 "Or set the [bold]FISHY_DATA_TOKEN[/] environment variable."
             )
             from fishy._core.utils import console
+
             console.print(msg)
             raise FileNotFoundError(f"Data file not found: {path}")
         return (
@@ -207,7 +210,12 @@ class DataModule:
 
     def setup(self) -> None:
         from fishy import get_data_path
-        actual_path = self.file_path if self.file_path and Path(self.file_path).exists() else get_data_path()
+
+        actual_path = (
+            self.file_path
+            if self.file_path and Path(self.file_path).exists()
+            else get_data_path()
+        )
         self.train_loader, self.raw_data, self.filtered_data = preprocess_data_pipeline(
             self.processor, actual_path, self.is_pre_train, self.augmentation_config
         )
