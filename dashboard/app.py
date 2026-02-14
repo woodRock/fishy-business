@@ -316,22 +316,17 @@ def fetch_wandb_data(entity, project, api_key=None):
             if not ds or not model:
                 continue
 
-            if ds == "oil":
-                found_oil = True
+            if ds == "oil": found_oil = True
 
             # Extract metrics
-            train_acc = run.summary.get(
-                "train_balanced_accuracy", run.summary.get("train_accuracy", 0)
-            )
-            val_acc = run.summary.get(
-                "val_balanced_accuracy", run.summary.get("accuracy", 0)
-            )
+            train_acc = run.summary.get("train_balanced_accuracy", run.summary.get("train_accuracy", 0))
+            val_acc = run.summary.get("val_balanced_accuracy", run.summary.get("accuracy", 0))
             f1 = run.summary.get("val_f1", run.summary.get("f1", 0))
-            runtime = run.summary.get(
-                "_runtime", run.summary.get("total_training_time_s", 0)
-            )
+            # Use total_training_time_s if available as it is more precise than W&B overhead runtime
+            runtime = run.summary.get("total_training_time_s", run.summary.get("_runtime", 0))
 
             key = f"{ds}|||{model}"
+            
             if key not in results_map:
                 results_map[key] = []
 
@@ -447,7 +442,7 @@ def process_wandb_csv(file_path):
                             ),
                             "f1": s.get("val_f1", s.get("f1", 0)),
                             "runtime": s.get(
-                                "_runtime", s.get("total_training_time_s", 0)
+                                "total_training_time_s", s.get("_runtime", 0)
                             ),
                         }
                     )

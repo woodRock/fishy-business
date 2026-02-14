@@ -65,12 +65,13 @@ def process_wandb_csv_standalone(file_path):
                         "val_balanced_accuracy": s.get(
                             "val_balanced_accuracy", s.get("accuracy", 0)
                         ),
+                        "runtime": s.get("total_training_time_s", s.get("_runtime", 0)),
                     }
                 )
             df = pd.DataFrame(flattened_data)
             df = normalize(df)
 
-    for col in ["val_balanced_accuracy", "train_balanced_accuracy"]:
+    for col in ["val_balanced_accuracy", "train_balanced_accuracy", "runtime"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
 
@@ -87,6 +88,7 @@ def process_wandb_csv_standalone(file_path):
                     "Method": model,
                     "Test Accuracy": r["val_balanced_accuracy"],
                     "Train Accuracy": r["train_balanced_accuracy"],
+                    "Runtime": r.get("runtime", 0),
                 }
             )
 
