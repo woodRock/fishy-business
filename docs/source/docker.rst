@@ -1,4 +1,4 @@
-🐳 Docker Integration
+Docker Integration 🐳 
 ====================
 
 For maximum reproducibility and ease of deployment, Fishy Business can be run entirely within a Docker container. This ensures that all dependencies (including complex C-libraries for spectral analysis) are correctly configured.
