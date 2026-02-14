@@ -559,10 +559,15 @@ def render_advanced_benchmarks(df_summary, df_raw, color_map):
     # 3. Performance Stability (Box Plot)
     st.write("#### 🛡️ Performance Distribution (Stability)")
     ds_choice = st.selectbox("Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds")
+    
+    # Get sorted order from summary
+    sorted_methods = df_summary[df_summary["Dataset"] == ds_choice].sort_values("Test", ascending=False)["Method"].tolist()
+    
     fig_box = px.box(
         df_raw[df_raw["Dataset"] == ds_choice], 
         x="Method", y="Test Accuracy", color="Method",
         color_discrete_map=color_map, template="plotly_white", points="all",
+        category_orders={"Method": sorted_methods},
         title=f"Full Distribution (30 runs): {ds_choice.upper()}"
     )
     st.plotly_chart(fig_box, use_container_width=True)
