@@ -74,6 +74,8 @@ class SklearnTrainer:
         )
         self.wandb_run = wandb_run
         if self.wandb_run is None and self.config.wandb_log:
+            # Force thread start method for W&B to prevent CUDA 12 hangs during CPU tasks
+            os.environ["WANDB_START_METHOD"] = "thread"
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,

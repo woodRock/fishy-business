@@ -35,6 +35,8 @@ class ModelTrainer:
         self.config = config
         self.wandb_run = wandb_run
         if self.wandb_run is None and self.config.wandb_log:
+            import os
+            os.environ["WANDB_START_METHOD"] = "thread"
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
                 entity=self.config.wandb_entity,
