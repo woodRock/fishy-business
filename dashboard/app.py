@@ -123,12 +123,12 @@ def crawl_local_results():
                 # Find outputs index
                 try:
                     out_idx = parts.index("outputs")
-                    dataset = parts[out_idx+1]
-                    method = parts[out_idx+3].split("_")[0]
+                    dataset = parts[out_idx + 1]
+                    method = parts[out_idx + 3].split("_")[0]
                 except:
                     dataset = "unknown"
                     method = "unknown"
-                    
+
                 results.append(
                     pd.DataFrame(
                         [
@@ -147,7 +147,14 @@ def crawl_local_results():
 
 
 def fetch_remote_data(
-    host, port, username, password, remote_path, jump_host=None, jump_user=None, otp=None
+    host,
+    port,
+    username,
+    password,
+    remote_path,
+    jump_host=None,
+    jump_user=None,
+    otp=None,
 ):
     import io
     import tarfile
@@ -155,22 +162,22 @@ def fetch_remote_data(
 
     results_map = {}
     aggregated_summaries = []
-    
+
     try:
         target_client = paramiko.SSHClient()
         target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        
+
         if jump_host:
             # Multi-hop via ProxyJump
             jump_client = paramiko.SSHClient()
             jump_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             # ECS MFA: Password + OTP. Further increased timeout for 1,920+ folders.
             jump_client.connect(
-                jump_host, 
-                username=jump_user, 
-                password=f"{password}{otp}", 
-                timeout=300, 
-                banner_timeout=60
+                jump_host,
+                username=jump_user,
+                password=f"{password}{otp}",
+                timeout=300,
+                banner_timeout=60,
             )
             transport = jump_client.get_transport()
             transport.set_keepalive(30)
@@ -178,21 +185,21 @@ def fetch_remote_data(
             local_addr = ("127.0.0.1", 0)
             channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
             target_client.connect(
-                host, 
-                username=username, 
-                password=password, 
-                sock=channel, 
+                host,
+                username=username,
+                password=password,
+                sock=channel,
                 timeout=300,
-                banner_timeout=60
+                banner_timeout=60,
             )
         else:
             target_client.connect(
-                host, 
-                port=port, 
-                username=username, 
-                password=password, 
-                timeout=300, 
-                banner_timeout=60
+                host,
+                port=port,
+                username=username,
+                password=password,
+                timeout=300,
+                banner_timeout=60,
             )
 
         # Ensure the transport doesn't time out during the long find/tar operation
@@ -204,24 +211,24 @@ def fetch_remote_data(
         # We search for summary.json (batch) and metrics.json (single runs).
         find_cmd = f"find {remote_path} \( -name 'summary.json' -o -name 'metrics.json' \) -print0 | tar -czf - --null -T -"
         stdin, stdout, stderr = target_client.exec_command(find_cmd)
-        
+
         # Read the entire tarball into memory
         tar_data = stdout.read()
         err_data = stderr.read().decode()
-        
+
         if err_data:
             logger.warning(f"Remote command stderr: {err_data}")
-        
+
         if tar_data:
             with tarfile.open(fileobj=io.BytesIO(tar_data), mode="r:gz") as tar:
                 for member in tar.getmembers():
                     if not member.isfile():
                         continue
-                    
+
                     f = tar.extractfile(member)
                     if not f:
                         continue
-                        
+
                     try:
                         data = json.load(f)
                         if "summary.json" in member.name:
@@ -238,7 +245,7 @@ def fetch_remote_data(
                                     if p == "outputs":
                                         out_idx = i
                                         break
-                                
+
                                 if out_idx != -1 and len(parts) > out_idx + 2:
                                     dataset = parts[out_idx + 1]
                                     method = parts[out_idx + 2].split("_")[0]
@@ -255,7 +262,7 @@ def fetch_remote_data(
         target_client.close()
         if jump_host:
             jump_client.close()
-            
+
     except Exception as e:
         st.error(f"Network Error: {e}")
         logger.error(f"Remote fetch failed: {e}", exc_info=True)
@@ -265,7 +272,7 @@ def fetch_remote_data(
     if aggregated_summaries:
         batch_df = pd.concat(aggregated_summaries, ignore_index=True)
         final_df = pd.concat([final_df, batch_df], ignore_index=True).drop_duplicates()
-        
+
     return final_df
 
 
@@ -273,87 +280,100 @@ def fetch_wandb_data(entity, project, api_key=None):
     """Fetches results directly from W&B API and performs statistical analysis."""
     import wandb
     import os
-    
+
     try:
         if api_key:
             os.environ["WANDB_API_KEY"] = api_key
-            
+
         api = wandb.Api()
         # Optimization: Filter for finished runs on the server side to reduce data transfer
         # and GraphQL overhead.
         runs = api.runs(f"{entity}/{project}", filters={"state": "finished"})
-        
+
         results_map = {}
         raw_rows = []
         found_oil = False
-        
+
         # We need a count for the progress bar, but getting exact count might be slow
         # so we'll just show a "Processing..." message with a counter.
         progress_text = "Fetching and processing finished runs from W&B..."
         bar = st.progress(0, text=progress_text)
-        
+
         # Use a list to avoid iterator issues if needed
         all_runs = list(runs)
         total_runs = len(all_runs)
-        
+
         for i, run in enumerate(all_runs):
             if i % 10 == 0:
-                bar.progress((i + 1) / total_runs, text=f"{progress_text} ({i+1}/{total_runs})")
-                
+                bar.progress(
+                    (i + 1) / total_runs, text=f"{progress_text} ({i+1}/{total_runs})"
+                )
+
             # Extract configuration
             ds = run.config.get("dataset")
             model = run.config.get("model")
-            
+
             if not ds or not model:
                 continue
-            
+
             if ds == "oil":
                 found_oil = True
-                
+
             # Extract metrics
-            train_acc = run.summary.get("train_balanced_accuracy", run.summary.get("train_accuracy", 0))
-            val_acc = run.summary.get("val_balanced_accuracy", run.summary.get("accuracy", 0))
+            train_acc = run.summary.get(
+                "train_balanced_accuracy", run.summary.get("train_accuracy", 0)
+            )
+            val_acc = run.summary.get(
+                "val_balanced_accuracy", run.summary.get("accuracy", 0)
+            )
             f1 = run.summary.get("val_f1", run.summary.get("f1", 0))
-            runtime = run.summary.get("_runtime", run.summary.get("total_training_time_s", 0))
-                
+            runtime = run.summary.get(
+                "_runtime", run.summary.get("total_training_time_s", 0)
+            )
+
             key = f"{ds}|||{model}"
             if key not in results_map:
                 results_map[key] = []
-            
+
             res_entry = {
                 "train_balanced_accuracy": train_acc,
                 "val_balanced_accuracy": val_acc,
                 "f1": f1,
-                "runtime": runtime
+                "runtime": runtime,
             }
             results_map[key].append(res_entry)
-            raw_rows.append({
-                "Dataset": ds,
-                "Method": model,
-                "Test Accuracy": val_acc,
-                "Train Accuracy": train_acc,
-                "F1 Score": f1,
-                "Runtime (s)": runtime
-            })
-            
+            raw_rows.append(
+                {
+                    "Dataset": ds,
+                    "Method": model,
+                    "Test Accuracy": val_acc,
+                    "Train Accuracy": train_acc,
+                    "F1 Score": f1,
+                    "Runtime (s)": runtime,
+                }
+            )
+
         bar.empty()
-        
+
         if not results_map:
             st.warning(f"No valid finished runs found in {entity}/{project}")
             return pd.DataFrame()
-            
+
         if not found_oil:
             st.info("Note: No runs with dataset='oil' found in W&B project summary.")
         else:
-            st.success(f"Successfully found 'oil' results ({len([v for k,v in results_map.items() if 'oil' in k])} runs) in W&B!")
+            st.success(
+                f"Successfully found 'oil' results ({len([v for k,v in results_map.items() if 'oil' in k])} runs) in W&B!"
+            )
 
         st.session_state["raw_results_df"] = pd.DataFrame(raw_rows)
         summary_df = summarize_results(results_map, baseline_model="opls-da")
-        
+
         # Display pretty Rich table in logs
         from fishy.analysis.statistical import display_statistical_summary
+
         display_statistical_summary(summary_df)
-        
+
         return summary_df
     except Exception as e:
         st.error(f"W&B API Error: {e}")
@@ -365,57 +385,88 @@ def process_wandb_csv(file_path):
     """Processes W&B export CSV and performs statistical significance tests."""
     try:
         df = pd.read_csv(file_path)
-        
+
         col_map = {
-            "val_balanced_accuracy": ["val_balanced_accuracy", "val_acc", "accuracy", "Test Acc"],
-            "train_balanced_accuracy": ["train_balanced_accuracy", "train_acc", "Train Acc"],
+            "val_balanced_accuracy": [
+                "val_balanced_accuracy",
+                "val_acc",
+                "accuracy",
+                "Test Acc",
+            ],
+            "train_balanced_accuracy": [
+                "train_balanced_accuracy",
+                "train_acc",
+                "Train Acc",
+            ],
             "dataset": ["dataset", "Dataset"],
             "model": ["model", "Method", "model_name"],
             "f1": ["f1", "val_f1", "F1"],
-            "runtime": ["runtime", "Runtime", "time", "_runtime"]
+            "runtime": ["runtime", "Runtime", "time", "_runtime"],
         }
-        
+
         def normalize(curr_df):
             for standard, alternates in col_map.items():
                 if standard not in curr_df.columns:
                     for alt in alternates:
                         if alt in curr_df.columns:
-                            curr_df[standard] = curr_df[alt]; break
+                            curr_df[standard] = curr_df[alt]
+                            break
             return curr_df
 
         df = normalize(df)
 
         # Only flatten if essential columns are missing
-        if not all(c in df.columns for c in ["dataset", "model", "val_balanced_accuracy"]):
+        if not all(
+            c in df.columns for c in ["dataset", "model", "val_balanced_accuracy"]
+        ):
             if "summary" in df.columns and "config" in df.columns:
                 import ast
+
                 def safe_parse(val):
-                    if pd.isna(val): return {}
-                    if isinstance(val, dict): return val
-                    try: return ast.literal_eval(val)
-                    except: return {}
-                
+                    if pd.isna(val):
+                        return {}
+                    if isinstance(val, dict):
+                        return val
+                    try:
+                        return ast.literal_eval(val)
+                    except:
+                        return {}
+
                 flattened_data = []
                 for _, row in df.iterrows():
                     s, c = safe_parse(row["summary"]), safe_parse(row["config"])
-                    flattened_data.append({
-                        "dataset": c.get("dataset"),
-                        "model": c.get("model"),
-                        "train_balanced_accuracy": s.get("train_balanced_accuracy", s.get("train_accuracy", 0)),
-                        "val_balanced_accuracy": s.get("val_balanced_accuracy", s.get("accuracy", 0)),
-                        "f1": s.get("val_f1", s.get("f1", 0)),
-                        "runtime": s.get("_runtime", s.get("total_training_time_s", 0))
-                    })
+                    flattened_data.append(
+                        {
+                            "dataset": c.get("dataset"),
+                            "model": c.get("model"),
+                            "train_balanced_accuracy": s.get(
+                                "train_balanced_accuracy", s.get("train_accuracy", 0)
+                            ),
+                            "val_balanced_accuracy": s.get(
+                                "val_balanced_accuracy", s.get("accuracy", 0)
+                            ),
+                            "f1": s.get("val_f1", s.get("f1", 0)),
+                            "runtime": s.get(
+                                "_runtime", s.get("total_training_time_s", 0)
+                            ),
+                        }
+                    )
                 df = pd.DataFrame(flattened_data)
                 df = normalize(df)
 
-        for col in ["train_balanced_accuracy", "val_balanced_accuracy", "f1", "runtime"]:
+        for col in [
+            "train_balanced_accuracy",
+            "val_balanced_accuracy",
+            "f1",
+            "runtime",
+        ]:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
 
         results_map, raw_rows = {}, []
         for (ds, model), group in df.groupby(["dataset", "model"]):
-            if pd.isna(ds) or pd.isna(model) or ds == "dataset": continue
+            if pd.isna(ds) or pd.isna(model) or ds == "dataset":
+                continue
             key = f"{ds}|||{model}"
             runs = []
             for _, row in group.iterrows():
@@ -423,24 +474,30 @@ def process_wandb_csv(file_path):
                     "train_balanced_accuracy": row["train_balanced_accuracy"],
                     "val_balanced_accuracy": row["val_balanced_accuracy"],
                     "f1": row.get("f1", 0),
-                    "runtime": row.get("runtime", 0)
+                    "runtime": row.get("runtime", 0),
                 }
                 runs.append(run_data)
-                raw_rows.append({
-                    "Dataset": ds, "Method": model, 
-                    "Test Accuracy": row["val_balanced_accuracy"], 
-                    "Train Accuracy": row["train_balanced_accuracy"],
-                    "F1 Score": row.get("f1", 0), "Runtime (s)": row.get("runtime", 0)
-                })
+                raw_rows.append(
+                    {
+                        "Dataset": ds,
+                        "Method": model,
+                        "Test Accuracy": row["val_balanced_accuracy"],
+                        "Train Accuracy": row["train_balanced_accuracy"],
+                        "F1 Score": row.get("f1", 0),
+                        "Runtime (s)": row.get("runtime", 0),
+                    }
+                )
             results_map[key] = runs
 
         st.session_state["raw_results_df"] = pd.DataFrame(raw_rows)
         summary_df = summarize_results(results_map, baseline_model="opls-da")
         from fishy.analysis.statistical import display_statistical_summary
+
         display_statistical_summary(summary_df)
         return summary_df
     except Exception as e:
-        st.error(f"Error: {e}"); return pd.DataFrame()
+        st.error(f"Error: {e}")
+        return pd.DataFrame()
 
 
 def get_color_map(methods):
@@ -555,6 +612,7 @@ tab1, tab2, tab3, tab4 = st.tabs(
         "🏆 Leaderboard",
     ]
 )
+
 
 def render_results(results):
     mc1, mc2, mc3, mc4 = st.columns(4)
@@ -712,6 +770,7 @@ def render_results(results):
         else:
             st.info("Stability data requires multiple folds.")
 
+
 if data_path.exists():
     dm.setup()
     df_filtered = dm.get_filtered_dataframe()
@@ -720,10 +779,16 @@ if data_path.exists():
     label_col = (
         "Class Name" if "Class Name" in df_filtered.columns else df_filtered.columns[0]
     )
-    feature_cols = [c for c in df_filtered.columns if c not in [label_col, "m/z", "Label"]]
+    feature_cols = [
+        c for c in df_filtered.columns if c not in [label_col, "m/z", "Label"]
+    ]
     # Fix: Ensure column names are treated as strings before calling .replace()
-    mz_axis = np.array([float(c) for c in feature_cols]) if all(str(c).replace('.','',1).isdigit() for c in feature_cols) else np.arange(len(feature_cols))
-    
+    mz_axis = (
+        np.array([float(c) for c in feature_cols])
+        if all(str(c).replace(".", "", 1).isdigit() for c in feature_cols)
+        else np.arange(len(feature_cols))
+    )
+
     with tab1:
         st.header("Deep Data Exploration")
         mc1, mc2, mc3 = st.columns([1, 1, 2])
@@ -952,14 +1017,18 @@ if data_path.exists():
                 )
                 st.info(f"Targeting: **{class_names[y_xai[sample_idx]]}**", icon="🎯")
             if method == "Grad-CAM":
-                target_layer = getattr(model, "layer_norm2", next(
-                    (
-                        m
-                        for m in reversed(list(model.modules()))
-                        if isinstance(m, (nn.Conv1d, nn.Linear))
+                target_layer = getattr(
+                    model,
+                    "layer_norm2",
+                    next(
+                        (
+                            m
+                            for m in reversed(list(model.modules()))
+                            if isinstance(m, (nn.Conv1d, nn.Linear))
+                        ),
+                        None,
                     ),
-                    None,
-                ))
+                )
                 if target_layer:
                     gc = GradCAM(model, target_layer)
                     cam = (
@@ -973,90 +1042,222 @@ if data_path.exists():
                     )
                     gc.remove_hooks()
                     fig = go.Figure()
-                    fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], name="Spectrum", line=dict(color="lightgray", width=1)))
-                    fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[sample_idx], mode="markers", marker=dict(color=cam, colorscale="Viridis", size=8, showscale=True), name="Importance"))
-                    fig.update_layout(title="Importance Map", template="plotly_white", xaxis_title="m/z", yaxis_title="Intensity")
+                    fig.add_trace(
+                        go.Scatter(
+                            x=mz_axis,
+                            y=X_xai[sample_idx],
+                            name="Spectrum",
+                            line=dict(color="lightgray", width=1),
+                        )
+                    )
+                    fig.add_trace(
+                        go.Scatter(
+                            x=mz_axis,
+                            y=X_xai[sample_idx],
+                            mode="markers",
+                            marker=dict(
+                                color=cam, colorscale="Viridis", size=8, showscale=True
+                            ),
+                            name="Importance",
+                        )
+                    )
+                    fig.update_layout(
+                        title="Importance Map",
+                        template="plotly_white",
+                        xaxis_title="m/z",
+                        yaxis_title="Intensity",
+                    )
                     exp_col2.plotly_chart(fig, use_container_width=True)
             else:
                 wrapper = ModelWrapper(model, str(get_device()))
-                explainer = LimeTabularExplainer(X_xai, feature_names=[f"{m:.4f}" for m in mz_axis], class_names=class_names, discretize_continuous=True)
+                explainer = LimeTabularExplainer(
+                    X_xai,
+                    feature_names=[f"{m:.4f}" for m in mz_axis],
+                    class_names=class_names,
+                    discretize_continuous=True,
+                )
                 with st.spinner("LIME..."):
-                    exp = explainer.explain_instance(X_xai[sample_idx], wrapper.predict_proba, num_features=15)
-                exp_col2.plotly_chart(px.bar(x=[x[1] for x in exp.as_list()], y=[x[0] for x in exp.as_list()], orientation="h", color=[x[1] for x in exp.as_list()], color_continuous_scale="RdBu", title="LIME Weights"), use_container_width=True)
-            
+                    exp = explainer.explain_instance(
+                        X_xai[sample_idx], wrapper.predict_proba, num_features=15
+                    )
+                exp_col2.plotly_chart(
+                    px.bar(
+                        x=[x[1] for x in exp.as_list()],
+                        y=[x[0] for x in exp.as_list()],
+                        orientation="h",
+                        color=[x[1] for x in exp.as_list()],
+                        color_continuous_scale="RdBu",
+                        title="LIME Weights",
+                    ),
+                    use_container_width=True,
+                )
+
             st.markdown("---")
             if st.button("🔍 Run Class-Specific Biomarker Analysis"):
                 with st.spinner("Analyzing stable biomarkers..."):
                     wrapper = ModelWrapper(model, str(get_device()))
-                    exp_int = LimeTabularExplainer(X_xai, feature_names=[str(i) for i in range(X_xai.shape[1])], class_names=class_names, discretize_continuous=False)
+                    exp_int = LimeTabularExplainer(
+                        X_xai,
+                        feature_names=[str(i) for i in range(X_xai.shape[1])],
+                        class_names=class_names,
+                        discretize_continuous=False,
+                    )
                     class_biomarkers = {}
                     for c_idx in range(len(class_names)):
                         c_indices = np.where(y_xai == c_idx)[0]
                         if len(c_indices) > 0:
-                            sub = np.random.choice(c_indices, min(20, len(c_indices)), replace=False)
+                            sub = np.random.choice(
+                                c_indices, min(20, len(c_indices)), replace=False
+                            )
                             w_list = []
                             for idx in sub:
-                                w_list.append(dict(exp_int.explain_instance(X_xai[idx], wrapper.predict_proba, num_features=X_xai.shape[1], labels=(c_idx,)).as_list(label=c_idx)))
+                                w_list.append(
+                                    dict(
+                                        exp_int.explain_instance(
+                                            X_xai[idx],
+                                            wrapper.predict_proba,
+                                            num_features=X_xai.shape[1],
+                                            labels=(c_idx,),
+                                        ).as_list(label=c_idx)
+                                    )
+                                )
                             avg_w = pd.DataFrame(w_list).mean().sort_values()
-                            class_biomarkers[c_idx] = [int(i) for i in avg_w.tail(20).index.tolist()]
-                    
+                            class_biomarkers[c_idx] = [
+                                int(i) for i in avg_w.tail(20).index.tolist()
+                            ]
+
                     comp_fig = go.Figure()
                     for c_idx, c_name in enumerate(class_names):
                         rep_idx = st.session_state["rep_indices"].get(c_idx)
                         if rep_idx is not None and c_idx in class_biomarkers:
-                            comp_fig.add_trace(go.Scatter(x=mz_axis, y=X_xai[rep_idx], name=f"{c_name}", line=dict(width=1), opacity=0.4))
-                            comp_fig.add_trace(go.Scatter(x=mz_axis[class_biomarkers[c_idx]], y=X_xai[rep_idx][class_biomarkers[c_idx]], mode="markers", marker=dict(size=10), name=f"Diagnostic: {c_name}"))
+                            comp_fig.add_trace(
+                                go.Scatter(
+                                    x=mz_axis,
+                                    y=X_xai[rep_idx],
+                                    name=f"{c_name}",
+                                    line=dict(width=1),
+                                    opacity=0.4,
+                                )
+                            )
+                            comp_fig.add_trace(
+                                go.Scatter(
+                                    x=mz_axis[class_biomarkers[c_idx]],
+                                    y=X_xai[rep_idx][class_biomarkers[c_idx]],
+                                    mode="markers",
+                                    marker=dict(size=10),
+                                    name=f"Diagnostic: {c_name}",
+                                )
+                            )
                     st.plotly_chart(comp_fig, use_container_width=True)
 
     with tab4:
         st.header("🏆 Leaderboard")
-        src = st.radio("Leaderboard Data Source", ["Local (outputs/)", "Remote (SSH Proxy Jump)", "W&B Export (CSV)", "W&B API (Live)"], horizontal=True, key="leaderboard_src_selector")
-        if "leaderboard_df" not in st.session_state: st.session_state["leaderboard_df"] = pd.DataFrame()
-        
+        src = st.radio(
+            "Leaderboard Data Source",
+            [
+                "Local (outputs/)",
+                "Remote (SSH Proxy Jump)",
+                "W&B Export (CSV)",
+                "W&B API (Live)",
+            ],
+            horizontal=True,
+            key="leaderboard_src_selector",
+        )
+        if "leaderboard_df" not in st.session_state:
+            st.session_state["leaderboard_df"] = pd.DataFrame()
+
         if src == "Local (outputs/)":
             if st.button("🔄 Refresh Local Leaderboard"):
-                with st.spinner("Crawling..."): st.session_state["leaderboard_df"] = crawl_local_results()
+                with st.spinner("Crawling..."):
+                    st.session_state["leaderboard_df"] = crawl_local_results()
         elif src == "Remote (SSH Proxy Jump)":
-            if not paramiko: st.error("paramiko not installed")
+            if not paramiko:
+                st.error("paramiko not installed")
             else:
                 with st.expander("🔑 Jump Host Configuration", expanded=True):
                     c1, c2, c_otp = st.columns([2, 2, 2])
                     jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
                     ju = c2.text_input("ECS Username", key="remote_user")
-                    otp = c_otp.text_input("OTP Token", type="password", key="remote_otp")
+                    otp = c_otp.text_input(
+                        "OTP Token", type="password", key="remote_otp"
+                    )
                 with st.expander("🎯 Target Server Configuration", expanded=True):
                     c3, c4, c5 = st.columns([2, 1, 2])
                     th = c3.text_input("Target Host", key="remote_target")
                     tp = c4.number_input("Target Port", value=22, key="remote_port")
-                    pwd = c5.text_input("ECS Password", type="password", key="remote_pwd")
-                    rp = st.text_input("Remote Path", "/home/ecs/username/fishy-business/outputs", key="remote_path")
+                    pwd = c5.text_input(
+                        "ECS Password", type="password", key="remote_pwd"
+                    )
+                    rp = st.text_input(
+                        "Remote Path",
+                        "/home/ecs/username/fishy-business/outputs",
+                        key="remote_path",
+                    )
                 if st.button("🚀 Connect & Aggregate Remote"):
-                    with st.spinner("Tunnelling..."): st.session_state["leaderboard_df"] = fetch_remote_data(th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp)
+                    with st.spinner("Tunnelling..."):
+                        st.session_state["leaderboard_df"] = fetch_remote_data(
+                            th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp
+                        )
         elif src == "W&B Export (CSV)":
-            uploaded_file = st.file_uploader("Upload W&B Export CSV", type="csv", key="csv_uploader")
+            uploaded_file = st.file_uploader(
+                "Upload W&B Export CSV", type="csv", key="csv_uploader"
+            )
             if uploaded_file:
                 if st.button("📊 Run Statistical Analysis on Uploaded CSV"):
-                    with open("temp_wandb_export.csv", "wb") as f: f.write(uploaded_file.getbuffer())
+                    with open("temp_wandb_export.csv", "wb") as f:
+                        f.write(uploaded_file.getbuffer())
                     df_res = process_wandb_csv("temp_wandb_export.csv")
-                    if not df_res.empty: st.session_state["leaderboard_df"] = df_res; st.rerun()
+                    if not df_res.empty:
+                        st.session_state["leaderboard_df"] = df_res
+                        st.rerun()
         elif src == "W&B API (Live)":
             w_c1, w_c2 = st.columns(2)
-            w_entity = w_c1.text_input("W&B Entity", value="victoria-university-of-wellington", key="wb_ent")
-            w_project = w_c2.text_input("W&B Project", value="fishy-business", key="wb_proj")
-            w_key = st.text_input("W&B API Key (Optional)", type="password", key="wb_key")
+            w_entity = w_c1.text_input(
+                "W&B Entity", value="victoria-university-of-wellington", key="wb_ent"
+            )
+            w_project = w_c2.text_input(
+                "W&B Project", value="fishy-business", key="wb_proj"
+            )
+            w_key = st.text_input(
+                "W&B API Key (Optional)", type="password", key="wb_key"
+            )
             if st.button("🌐 Fetch & Analyze Live W&B Data"):
-                with st.spinner("Talking to W&B..."): st.session_state["leaderboard_df"] = fetch_wandb_data(w_entity, w_project, w_key)
+                with st.spinner("Talking to W&B..."):
+                    st.session_state["leaderboard_df"] = fetch_wandb_data(
+                        w_entity, w_project, w_key
+                    )
 
         df_summary = st.session_state["leaderboard_df"]
         if not df_summary.empty:
             st.markdown("---")
-            st.dataframe(df_summary.sort_values(["Dataset", "Test"], ascending=[True, False]).style.background_gradient(subset=["Test"], cmap="Greens"), use_container_width=True)
+            st.dataframe(
+                df_summary.sort_values(
+                    ["Dataset", "Test"], ascending=[True, False]
+                ).style.background_gradient(subset=["Test"], cmap="Greens"),
+                use_container_width=True,
+            )
             color_map = get_color_map(df_summary["Method"].unique())
             for ds in df_summary["Dataset"].unique():
-                ds_df = df_summary[df_summary["Dataset"] == ds].sort_values("Test", ascending=False)
-                st.plotly_chart(px.bar(ds_df, x="Method", y="Test", error_y="Test Std", title=f"Leaderboard: {ds.upper()}", color="Method", color_discrete_map=color_map, template="plotly_white"), use_container_width=True)
-            
+                ds_df = df_summary[df_summary["Dataset"] == ds].sort_values(
+                    "Test", ascending=False
+                )
+                st.plotly_chart(
+                    px.bar(
+                        ds_df,
+                        x="Method",
+                        y="Test",
+                        error_y="Test Std",
+                        title=f"Leaderboard: {ds.upper()}",
+                        color="Method",
+                        color_discrete_map=color_map,
+                        template="plotly_white",
+                    ),
+                    use_container_width=True,
+                )
+
             if "raw_results_df" in st.session_state:
-                render_advanced_benchmarks(df_summary, st.session_state["raw_results_df"], color_map)
+                render_advanced_benchmarks(
+                    df_summary, st.session_state["raw_results_df"], color_map
+                )
 else:
     st.error("📉 REIMS Dataset Missing")
