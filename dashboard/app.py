@@ -504,30 +504,22 @@ def get_color_map(methods):
 
 def render_advanced_benchmarks(df_summary, df_raw, color_map):
     st.write("### 🚀 Advanced Benchmarking Insights")
+
+    # 1. Performance Stability (Box Plot)
+    st.write("#### 🛡️ Performance Distribution (Stability)")
+    ds_choice = st.selectbox("Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds")
     
-    # 1. Top 3 Profiles (Radar)
-    st.write("#### 🏆 Top 3 Methods Radar Comparison")
-    ds_radar = st.selectbox("Select Dataset for Radar", df_summary["Dataset"].unique(), key="radar_ds")
-    top_3 = df_summary[df_summary["Dataset"] == ds_radar].sort_values("Test", ascending=False).head(3)
+    # Get sorted order from summary
+    sorted_methods = df_summary[df_summary["Dataset"] == ds_choice].sort_values("Test", ascending=False)["Method"].tolist()
     
-    fig_radar = go.Figure()
-    for _, row in top_3.iterrows():
-        train_val = row.get("Train", 0)
-        test_val = row.get("Test", 0)
-        f1_val = row.get("f1", row.get("F1 Score", test_val))
-        stability = 1.0 - row.get("Test Std", 0)
-        
-        fig_radar.add_trace(go.Scatterpolar(
-            r=[train_val, test_val, f1_val, stability],
-            theta=["Train Acc", "Test Acc", "F1 Score", "Stability (1-Std)"],
-            fill="toself", name=row["Method"],
-            line=dict(color=color_map.get(row["Method"]))
-        ))
-    fig_radar.update_layout(
-        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-        showlegend=True, title=f"Top 3 Comparison: {ds_radar.upper()}", template="plotly_white"
+    fig_box = px.box(
+        df_raw[df_raw["Dataset"] == ds_choice], 
+        x="Method", y="Test Accuracy", color="Method",
+        color_discrete_map=color_map, template="plotly_white", points="all",
+        category_orders={"Method": sorted_methods},
+        title=f"Full Distribution (30 runs): {ds_choice.upper()}"
     )
-    st.plotly_chart(fig_radar, use_container_width=True)
+    st.plotly_chart(fig_box, use_container_width=True)
 
     st.markdown("---")
     
@@ -556,21 +548,29 @@ def render_advanced_benchmarks(df_summary, df_raw, color_map):
 
     st.markdown("---")
 
-    # 3. Performance Stability (Box Plot)
-    st.write("#### 🛡️ Performance Distribution (Stability)")
-    ds_choice = st.selectbox("Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds")
+    # 3. Top 3 Profiles (Radar)
+    st.write("#### 🏆 Top 3 Methods Radar Comparison")
+    ds_radar = st.selectbox("Select Dataset for Radar", df_summary["Dataset"].unique(), key="radar_ds")
+    top_3 = df_summary[df_summary["Dataset"] == ds_radar].sort_values("Test", ascending=False).head(3)
     
-    # Get sorted order from summary
-    sorted_methods = df_summary[df_summary["Dataset"] == ds_choice].sort_values("Test", ascending=False)["Method"].tolist()
-    
-    fig_box = px.box(
-        df_raw[df_raw["Dataset"] == ds_choice], 
-        x="Method", y="Test Accuracy", color="Method",
-        color_discrete_map=color_map, template="plotly_white", points="all",
-        category_orders={"Method": sorted_methods},
-        title=f"Full Distribution (30 runs): {ds_choice.upper()}"
+    fig_radar = go.Figure()
+    for _, row in top_3.iterrows():
+        train_val = row.get("Train", 0)
+        test_val = row.get("Test", 0)
+        f1_val = row.get("f1", row.get("F1 Score", test_val))
+        stability = 1.0 - row.get("Test Std", 0)
+        
+        fig_radar.add_trace(go.Scatterpolar(
+            r=[train_val, test_val, f1_val, stability],
+            theta=["Train Acc", "Test Acc", "F1 Score", "Stability (1-Std)"],
+            fill="toself", name=row["Method"],
+            line=dict(color=color_map.get(row["Method"]))
+        ))
+    fig_radar.update_layout(
+        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        showlegend=True, title=f"Top 3 Comparison: {ds_radar.upper()}", template="plotly_white"
     )
-    st.plotly_chart(fig_box, use_container_width=True)
+    st.plotly_chart(fig_radar, use_container_width=True)
 
 
 st.sidebar.title("🛠️ Configuration")
