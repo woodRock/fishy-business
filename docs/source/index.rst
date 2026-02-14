@@ -58,6 +58,7 @@ Key Features
    :hidden:
 
    installation
+   docker
    datasets
    wizard
    dashboard
