@@ -4,3 +4,6 @@ sphinx-copybutton
 nbsphinx
 ipykernel
 ipywidgets
+plotly
+pandas
+nbformat
