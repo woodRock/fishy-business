@@ -61,8 +61,14 @@ Key Features
    datasets
    wizard
    dashboard
-   leaderboard
    tutorials
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Results
+   :hidden:
+
+   leaderboard
 
 .. toctree::
    :maxdepth: 2
