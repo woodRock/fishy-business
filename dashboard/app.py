@@ -1150,6 +1150,51 @@ if data_path.exists():
                             )
                     st.plotly_chart(comp_fig, use_container_width=True)
 
+                    # --- ADDED BIOMARKER STABILITY & NETWORK ---
+                    all_top_indices = []
+                    for c_idx in class_biomarkers:
+                        all_top_indices.extend(class_biomarkers[c_idx])
+                    
+                    if all_top_indices:
+                        st.subheader("Biomarker Stability")
+                        feat_counts = pd.Series([mz_axis[i] for i in all_top_indices]).value_counts().head(15)
+                        fig_stab = px.bar(x=[f"{x:.2f}" for x in feat_counts.index], y=feat_counts.values, 
+                                        labels={'x':'m/z Feature', 'y':'Frequency in Top Lists'}, 
+                                        title="Biomarker Stability (Aggregate across classes)", template="plotly_white")
+                        st.plotly_chart(fig_stab, use_container_width=True)
+
+                        st.subheader("Biomarker Network")
+                        top_indices = list(set(all_top_indices))
+                        if len(top_indices) > 1:
+                            subset_data = X_xai[:, top_indices]
+                            corr_matrix = np.corrcoef(subset_data.T)
+                            G = nx.Graph()
+                            for i in range(len(top_indices)): G.add_node(i, label=f"{mz_axis[top_indices[i]]:.1f}")
+                            for i in range(len(top_indices)):
+                                for j in range(i + 1, len(top_indices)):
+                                    if abs(corr_matrix[i, j]) > 0.8: G.add_edge(i, j, weight=abs(corr_matrix[i, j]))
+                            
+                            pos = nx.spring_layout(G, seed=42)
+                            edge_x, edge_y = [], []
+                            for edge in G.edges():
+                                x0, y0 = pos[edge[0]]; x1, y1 = pos[edge[1]]
+                                edge_x.extend([x0, x1, None]); edge_y.extend([y0, y1, None])
+                            
+                            edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color="#888"), hoverinfo="none", mode="lines")
+                            node_trace = go.Scatter(x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()], 
+                                                    mode="markers+text", text=[G.nodes[n]["label"] for n in G.nodes()],
+                                                    marker=dict(showscale=True, colorscale="YlGnBu", size=10, 
+                                                                color=[len(list(G.neighbors(n))) for n in G.nodes()], line_width=2))
+                            
+                            fig_net = go.Figure(data=[edge_trace, node_trace], 
+                                                layout=go.Layout(title="Biomarker Correlation Network (r > 0.8)", 
+                                                                showlegend=False, hovermode="closest", 
+                                                                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), 
+                                                                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+                            st.plotly_chart(fig_net, use_container_width=True)
+                        else:
+                            st.info("Not enough biomarkers to form a network.")
+
     with tab4:
         st.header("🏆 Leaderboard")
         src = st.radio(
