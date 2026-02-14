@@ -80,14 +80,26 @@ def summarize_results(
         for r in raw_results:
             src = r.get("stats", r)
             all_metric_keys.update(src.keys())
-        
+
         # We'll specifically look for and normalize core metrics
-        metric_lists = {k: [] for k in all_metric_keys if isinstance(raw_results[0].get("stats", raw_results[0]).get(k), (int, float, np.number))}
-        
+        metric_lists = {
+            k: []
+            for k in all_metric_keys
+            if isinstance(
+                raw_results[0].get("stats", raw_results[0]).get(k),
+                (int, float, np.number),
+            )
+        }
+
         # Core metric mapping for consistency
         core_map = {
-            "val_balanced_accuracy": ["val_balanced_accuracy", "balanced_accuracy", "test_balanced_accuracy", "accuracy"],
-            "train_balanced_accuracy": ["train_balanced_accuracy", "train_accuracy"]
+            "val_balanced_accuracy": [
+                "val_balanced_accuracy",
+                "balanced_accuracy",
+                "test_balanced_accuracy",
+                "accuracy",
+            ],
+            "train_balanced_accuracy": ["train_balanced_accuracy", "train_accuracy"],
         }
 
         for r in raw_results:
@@ -104,13 +116,27 @@ def summarize_results(
         for target, aliases in core_map.items():
             for alias in aliases:
                 if alias in metric_lists and metric_lists[alias]:
-                    normalized["val" if "val" in target or "test" in target or target == "val_balanced_accuracy" else "train"] = metric_lists[alias]
+                    normalized[
+                        (
+                            "val"
+                            if "val" in target
+                            or "test" in target
+                            or target == "val_balanced_accuracy"
+                            else "train"
+                        )
+                    ] = metric_lists[alias]
                     break
-        
-        if not normalized["val"] and "val_balanced_accuracy" in metric_lists: normalized["val"] = metric_lists["val_balanced_accuracy"]
-        if not normalized["train"] and "train_balanced_accuracy" in metric_lists: normalized["train"] = metric_lists["train_balanced_accuracy"]
 
-        datasets[dataset][model] = {"metrics": metric_lists, "val": normalized["val"], "train": normalized["train"]}
+        if not normalized["val"] and "val_balanced_accuracy" in metric_lists:
+            normalized["val"] = metric_lists["val_balanced_accuracy"]
+        if not normalized["train"] and "train_balanced_accuracy" in metric_lists:
+            normalized["train"] = metric_lists["train_balanced_accuracy"]
+
+        datasets[dataset][model] = {
+            "metrics": metric_lists,
+            "val": normalized["val"],
+            "train": normalized["train"],
+        }
 
     summary_data = []
     for dataset, models in datasets.items():
@@ -125,12 +151,20 @@ def summarize_results(
 
         for model_name, m_data in models.items():
             m_val, m_train = m_data["val"], m_data["train"]
-            
+
             if model_name == actual_baseline:
                 sig_test, sig_train = " ", " "
             else:
-                sig_test = perform_significance_test(m_val, b_val_accs)["symbol"] if m_val and b_val_accs else " "
-                sig_train = perform_significance_test(m_train, b_train_accs)["symbol"] if m_train and b_train_accs else " "
+                sig_test = (
+                    perform_significance_test(m_val, b_val_accs)["symbol"]
+                    if m_val and b_val_accs
+                    else " "
+                )
+                sig_train = (
+                    perform_significance_test(m_train, b_train_accs)["symbol"]
+                    if m_train and b_train_accs
+                    else " "
+                )
 
             row = {
                 "Dataset": dataset,
@@ -144,11 +178,16 @@ def summarize_results(
                 "is_baseline": model_name == actual_baseline,
                 "Baseline": actual_baseline,
             }
-            
+
             # Add all other metrics as means
             for m_key, m_values in m_data["metrics"].items():
                 # Skip core ones we already handled
-                if m_key in ["val_balanced_accuracy", "train_balanced_accuracy", "val", "train"]:
+                if m_key in [
+                    "val_balanced_accuracy",
+                    "train_balanced_accuracy",
+                    "val",
+                    "train",
+                ]:
                     continue
                 row[m_key] = np.mean(m_values)
                 row[f"{m_key}_std"] = np.std(m_values)
