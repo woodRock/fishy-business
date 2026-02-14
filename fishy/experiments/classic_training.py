@@ -149,7 +149,7 @@ class SklearnTrainer:
                             if y_probs is not None
                             else np.eye(self.num_classes)[y_pred.astype(int)]
                         ),
-                        data_module.get_class_names(),
+                        self.data_module.get_class_names(),
                     )
         stats = {
             k: float(np.mean([m[k] for m in all_fold_metrics]))
@@ -176,7 +176,7 @@ class SklearnTrainer:
             import torch
 
             # Use the full dataset for a comprehensive pair-wise check
-            full_X, full_y = data_module.get_numpy_data()
+            full_X, full_y = self.data_module.get_numpy_data()
             siamese_ds = SiameseDataset(full_X, full_y)
 
             # Prepare scaled pairs

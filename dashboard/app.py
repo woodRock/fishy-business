@@ -141,48 +141,287 @@ def fetch_remote_data(
     host, port, username, password, remote_path, jump_host=None, jump_user=None, otp=None
 ):
     import io
+    import tarfile
+    import json
 
     results_map = {}
+    aggregated_summaries = []
+    
     try:
+        target_client = paramiko.SSHClient()
+        target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
         if jump_host:
             # Multi-hop via ProxyJump
             jump_client = paramiko.SSHClient()
             jump_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            # Handle ECS MFA (Password + OTP)
+            # ECS MFA: Password + OTP. Further increased timeout for 1,920+ folders.
             jump_client.connect(
-                jump_host, username=jump_user, password=f"{password}{otp}"
+                jump_host, 
+                username=jump_user, 
+                password=f"{password}{otp}", 
+                timeout=300, 
+                banner_timeout=60
             )
             transport = jump_client.get_transport()
+            transport.set_keepalive(30)
             dest_addr = (host, port)
             local_addr = ("127.0.0.1", 0)
             channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
-            target_client = paramiko.SSHClient()
-            target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            target_client.connect(host, username=username, password=password, sock=channel)
+            target_client.connect(
+                host, 
+                username=username, 
+                password=password, 
+                sock=channel, 
+                timeout=300,
+                banner_timeout=60
+            )
         else:
-            target_client = paramiko.SSHClient()
-            target_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            target_client.connect(host, port=port, username=username, password=password)
+            target_client.connect(
+                host, 
+                port=port, 
+                username=username, 
+                password=password, 
+                timeout=300,
+                banner_timeout=60
+            )
 
-        sftp = target_client.open_sftp()
-        # Find all summary.json files in remote /outputs
-        stdin, stdout, stderr = target_client.exec_command(
-            f"find {remote_path} -name 'summary.json'"
-        )
-        paths = stdout.read().decode().splitlines()
-        for p in paths:
-            with sftp.open(p, "r") as f:
-                data = json.load(f)
-                df = pd.DataFrame(data)
-                results_map[p] = df
-        sftp.close()
+        # Ensure the transport doesn't time out during the long find/tar operation
+        # 300s (5 mins) should be plenty for 1,920 folders.
+        target_client.get_transport().set_timeout(300)
+
+        # Optimization: Use a single tar pipe to fetch all result files at once.
+        # This avoids the O(N) overhead of SFTP open/read calls for 1000s of files.
+        # We search for summary.json (batch) and metrics.json (single runs).
+        find_cmd = f"find {remote_path} \( -name 'summary.json' -o -name 'metrics.json' \) -print0 | tar -czf - --null -T -"
+        stdin, stdout, stderr = target_client.exec_command(find_cmd)
+        
+        # Read the entire tarball into memory
+        tar_data = stdout.read()
+        err_data = stderr.read().decode()
+        
+        if err_data:
+            logger.warning(f"Remote command stderr: {err_data}")
+        
+        if tar_data:
+            with tarfile.open(fileobj=io.BytesIO(tar_data), mode="r:gz") as tar:
+                for member in tar.getmembers():
+                    if not member.isfile():
+                        continue
+                    
+                    f = tar.extractfile(member)
+                    if not f:
+                        continue
+                        
+                    try:
+                        data = json.load(f)
+                        if "summary.json" in member.name:
+                            # Already summarized batch results
+                            aggregated_summaries.append(pd.DataFrame(data))
+                        elif "metrics.json" in member.name:
+                            # Raw metrics from a single run - needs grouping for summarize_results
+                            # Path pattern: .../outputs/{dataset}/{method}_{timestamp}/results/metrics.json
+                            parts = member.name.split("/")
+                            try:
+                                # Look for 'outputs' and extract metadata
+                                out_idx = -1
+                                for i, p in enumerate(parts):
+                                    if p == "outputs":
+                                        out_idx = i
+                                        break
+                                
+                                if out_idx != -1 and len(parts) > out_idx + 2:
+                                    dataset = parts[out_idx + 1]
+                                    method = parts[out_idx + 2].split("_")[0]
+                                    key = f"{dataset}|||{method}"
+                                    if key not in results_map:
+                                        results_map[key] = []
+                                    results_map[key].append(data)
+                            except:
+                                continue
+                    except Exception as e:
+                        logger.warning(f"Failed to parse {member.name}: {e}")
+                        continue
+
         target_client.close()
         if jump_host:
             jump_client.close()
-            transport.close()
+            
     except Exception as e:
         st.error(f"Network Error: {e}")
-    return summarize_results(results_map) if results_map else pd.DataFrame()
+        logger.error(f"Remote fetch failed: {e}", exc_info=True)
+
+    # Combine re-summarized raw results with existing batch summaries
+    final_df = summarize_results(results_map) if results_map else pd.DataFrame()
+    if aggregated_summaries:
+        batch_df = pd.concat(aggregated_summaries, ignore_index=True)
+        final_df = pd.concat([final_df, batch_df], ignore_index=True).drop_duplicates()
+        
+    return final_df
+
+
+def fetch_wandb_data(entity, project, api_key=None):
+    """Fetches results directly from W&B API and performs statistical analysis."""
+    import wandb
+    import os
+    
+    try:
+        if api_key:
+            os.environ["WANDB_API_KEY"] = api_key
+            
+        api = wandb.Api()
+        # Optimization: Filter for finished runs on the server side to reduce data transfer
+        # and GraphQL overhead.
+        runs = api.runs(f"{entity}/{project}", filters={"state": "finished"})
+        
+        results_map = {}
+        found_oil = False
+        
+        # We need a count for the progress bar, but getting exact count might be slow
+        # so we'll just show a "Processing..." message with a counter.
+        progress_text = "Fetching and processing finished runs from W&B..."
+        bar = st.progress(0, text=progress_text)
+        
+        # Use a list to avoid iterator issues if needed
+        all_runs = list(runs)
+        total_runs = len(all_runs)
+        
+        for i, run in enumerate(all_runs):
+            if i % 10 == 0:
+                bar.progress((i + 1) / total_runs, text=f"{progress_text} ({i+1}/{total_runs})")
+                
+            # Extract configuration
+            ds = run.config.get("dataset")
+            model = run.config.get("model")
+            
+            if not ds or not model:
+                continue
+            
+            if ds == "oil":
+                found_oil = True
+                
+            # Extract final metrics from summary
+            train_acc = run.summary.get("train_balanced_accuracy")
+            val_acc = run.summary.get("val_balanced_accuracy")
+            
+            if train_acc is None or val_acc is None:
+                # Fallback check for different naming conventions
+                train_acc = run.summary.get("train_accuracy", 0)
+                val_acc = run.summary.get("val_balanced_accuracy", run.summary.get("accuracy", 0))
+                
+            key = f"{ds}|||{model}"
+            if key not in results_map:
+                results_map[key] = []
+            
+            results_map[key].append({
+                "train_balanced_accuracy": train_acc,
+                "val_balanced_accuracy": val_acc
+            })
+            
+        bar.empty()
+        
+        if not results_map:
+            st.warning(f"No valid finished runs found in {entity}/{project}")
+            return pd.DataFrame()
+            
+        if not found_oil:
+            st.info("Note: No runs with dataset='oil' found in W&B project summary.")
+        else:
+            st.success(f"Successfully found 'oil' results ({len([v for k,v in results_map.items() if 'oil' in k])} runs) in W&B!")
+
+        summary_df = summarize_results(results_map, baseline_model="opls-da")
+        
+        # Display pretty Rich table in logs
+        from fishy.analysis.statistical import display_statistical_summary
+        display_statistical_summary(summary_df)
+        
+        return summary_df
+    except Exception as e:
+        st.error(f"W&B API Error: {e}")
+        logger.error(f"W&B Fetch failed: {e}", exc_info=True)
+        return pd.DataFrame()
+
+
+def process_wandb_csv(file_path):
+    """Processes W&B export CSV and performs statistical significance tests.
+    Supports both flat CSVs and nested W&B API exports.
+    """
+    try:
+        df = pd.read_csv(file_path)
+        
+        # Handle "nested" W&B API script format (columns: summary, config, name)
+        if "summary" in df.columns and "config" in df.columns:
+            import ast
+            def safe_parse(val):
+                if pd.isna(val): return {}
+                if isinstance(val, dict): return val
+                try:
+                    # API CSVs often use string representations of dicts
+                    return ast.literal_eval(val)
+                except:
+                    return {}
+            
+            flattened_data = []
+            for _, row in df.iterrows():
+                s = safe_parse(row["summary"])
+                c = safe_parse(row["config"])
+                flattened_data.append({
+                    "dataset": c.get("dataset"),
+                    "model": c.get("model"),
+                    "train_balanced_accuracy": s.get("train_balanced_accuracy", s.get("train_accuracy", 0)),
+                    "val_balanced_accuracy": s.get("val_balanced_accuracy", s.get("accuracy", 0))
+                })
+            df = pd.DataFrame(flattened_data)
+
+        # Standard column names normalization
+        col_map = {
+            "val_balanced_accuracy": ["val_balanced_accuracy", "val_acc", "accuracy", "Test Acc"],
+            "train_balanced_accuracy": ["train_balanced_accuracy", "train_acc", "Train Acc"],
+            "dataset": ["dataset", "Dataset"],
+            "model": ["model", "Method", "model_name"]
+        }
+        
+        for standard, alternates in col_map.items():
+            if standard not in df.columns:
+                for alt in alternates:
+                    if alt in df.columns:
+                        df[standard] = df[alt]
+                        break
+
+        # CRITICAL: Ensure accuracy columns are numeric. W&B exports sometimes contain strings or NaNs.
+        for col in ["train_balanced_accuracy", "val_balanced_accuracy"]:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+
+        required = ["dataset", "model", "train_balanced_accuracy", "val_balanced_accuracy"]
+        if not all(c in df.columns for c in required):
+            st.error(f"CSV missing columns. Required: {required}. Found: {list(df.columns)}")
+            return pd.DataFrame()
+
+        # Map to internal format for summarize_results
+        results_map = {}
+        for (ds, model), group in df.groupby(["dataset", "model"]):
+            if pd.isna(ds) or pd.isna(model): continue
+            key = f"{ds}|||{model}"
+            runs = []
+            for _, row in group.iterrows():
+                runs.append({
+                    "train_balanced_accuracy": row["train_balanced_accuracy"],
+                    "val_balanced_accuracy": row["val_balanced_accuracy"]
+                })
+            results_map[key] = runs
+
+        # Perform significance testing using OPLS-DA as baseline
+        summary_df = summarize_results(results_map, baseline_model="opls-da")
+        
+        # Display pretty Rich table in logs/console
+        from fishy.analysis.statistical import display_statistical_summary
+        display_statistical_summary(summary_df)
+        
+        return summary_df
+    except Exception as e:
+        st.error(f"Error processing CSV: {e}")
+        return pd.DataFrame()
 
 
 st.sidebar.title("🛠️ Configuration")
@@ -881,49 +1120,159 @@ if data_path.exists():
                     else:
                         st.info("Not enough biomarkers for network.")
 
-    with tab4:
-        st.header("🏆 Leaderboard")
-        src = st.radio(
-            "Leaderboard Data Source",
-            ["Local (outputs/)", "Remote (SSH Proxy Jump)"],
-            horizontal=True,
-        )
-        if "leaderboard_df" not in st.session_state:
-            st.session_state["leaderboard_df"] = pd.DataFrame()
-        if src == "Local (outputs/)":
-            if st.button("🔄 Refresh Local Leaderboard"):
-                with st.spinner("Crawling local metrics..."):
-                    st.session_state["leaderboard_df"] = crawl_local_results()
-        else:
-            if not paramiko:
-                st.error("paramiko not installed")
-            else:
-                with st.expander(
-                    "🔑 Jump Host Configuration (entry.ecs.vuw.ac.nz)", expanded=True
-                ):
-                    c1, c2, c_otp = st.columns([2, 2, 2])
-                    jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
-                    ju = c2.text_input("ECS Username")
-                    otp = c_otp.text_input(
-                        "OTP Token (Google Authenticator)",
-                        type="password",
-                        help="6-digit code",
-                    )
-                with st.expander("🎯 Target Server Configuration", expanded=True):
-                    c3, c4, c5 = st.columns([2, 1, 2])
-                    th = c3.text_input("Target Host (e.g. greta-pt)")
-                    tp = c4.number_input("Target Port", value=22)
-                    pwd = c5.text_input("ECS Password", type="password")
-                    rp = st.text_input(
-                        "Remote Path to /outputs",
-                        "/home/ecs/username/fishy-business/outputs",
-                    )
-                if st.button("🚀 Connect & Aggregate Remote"):
-                    with st.spinner("Tunnelling through entry and crawling metrics..."):
-                        st.session_state["leaderboard_df"] = fetch_remote_data(
-                            th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp
+        with tab4:
+
+            st.header("🏆 Leaderboard")
+
+            src = st.radio(
+
+                "Leaderboard Data Source",
+
+                ["Local (outputs/)", "Remote (SSH Proxy Jump)", "W&B Export (CSV)", "W&B API (Live)"],
+
+                horizontal=True,
+
+            )
+
+            if "leaderboard_df" not in st.session_state:
+
+                st.session_state["leaderboard_df"] = pd.DataFrame()
+
+            
+
+            # ... existing source blocks ...
+
+            if src == "Local (outputs/)":
+
+                if st.button("🔄 Refresh Local Leaderboard"):
+
+                    with st.spinner("Crawling local metrics..."):
+
+                        st.session_state["leaderboard_df"] = crawl_local_results()
+
+            elif src == "Remote (SSH Proxy Jump)":
+
+                # ... (keep existing remote logic) ...
+
+                if not paramiko:
+
+                    st.error("paramiko not installed")
+
+                else:
+
+                    with st.expander(
+
+                        "🔑 Jump Host Configuration (entry.ecs.vuw.ac.nz)", expanded=True
+
+                    ):
+
+                        c1, c2, c_otp = st.columns([2, 2, 2])
+
+                        jh = c1.text_input("Jump Host", value="entry.ecs.vuw.ac.nz")
+
+                        ju = c2.text_input("ECS Username")
+
+                        otp = c_otp.text_input(
+
+                            "OTP Token (Google Authenticator)",
+
+                            type="password",
+
+                            help="6-digit code",
+
                         )
-        df_summary = st.session_state["leaderboard_df"]
+
+                    with st.expander("🎯 Target Server Configuration", expanded=True):
+
+                        c3, c4, c5 = st.columns([2, 1, 2])
+
+                        th = c3.text_input("Target Host (e.g. greta-pt)")
+
+                        tp = c4.number_input("Target Port", value=22)
+
+                        pwd = c5.text_input("ECS Password", type="password")
+
+                        rp = st.text_input(
+
+                            "Remote Path to /outputs",
+
+                            "/home/ecs/username/fishy-business/outputs",
+
+                        )
+
+                    if st.button("🚀 Connect & Aggregate Remote"):
+
+                        with st.spinner("Tunnelling through entry and crawling metrics..."):
+
+                            st.session_state["leaderboard_df"] = fetch_remote_data(
+
+                                th, tp, ju, pwd, rp, jump_host=jh, jump_user=ju, otp=otp
+
+                            )
+
+            elif src == "W&B Export (CSV)":
+
+                st.info("Analyze a W&B export CSV with statistical significance tests (OPLS-DA baseline).")
+
+                uploaded_file = st.file_uploader("Upload W&B Export CSV", type="csv")
+
+                csv_path = "wanb_export_csv.csv"
+
+                
+
+                if uploaded_file is not None:
+
+                    if st.button("📊 Run Statistical Analysis on Uploaded CSV"):
+
+                        with st.spinner("Calculating significance against OPLS-DA..."):
+
+                            # Save temporarily to process
+
+                            with open("temp_wandb_export.csv", "wb") as f:
+
+                                f.write(uploaded_file.getbuffer())
+
+                            st.session_state["leaderboard_df"] = process_wandb_csv("temp_wandb_export.csv")
+
+                elif os.path.exists(csv_path):
+
+                    st.success(f"Found default export: {csv_path}")
+
+                    if st.button("📊 Run Statistical Analysis on Default CSV"):
+
+                        with st.spinner("Calculating significance against OPLS-DA..."):
+
+                            st.session_state["leaderboard_df"] = process_wandb_csv(csv_path)
+
+                else:
+
+                    st.warning(f"Default file '{csv_path}' not found. Please upload one.")
+
+            else: # W&B API (Live)
+
+                st.info("Fetch live data directly from Weights & Biases API.")
+
+                w_c1, w_c2 = st.columns(2)
+
+                w_entity = w_c1.text_input("W&B Entity", value="victoria-university-of-wellington")
+
+                w_project = w_c2.text_input("W&B Project", value="fishy-business")
+
+                w_key = st.text_input("W&B API Key (Optional if logged in)", type="password")
+
+                
+
+                if st.button("🌐 Fetch & Analyze Live W&B Data"):
+
+                    with st.spinner("Talking to W&B servers..."):
+
+                        st.session_state["leaderboard_df"] = fetch_wandb_data(w_entity, w_project, w_key)
+
+    
+
+            df_summary = st.session_state["leaderboard_df"]
+
+    
         if not df_summary.empty:
             preferred_cols = [
                 "Dataset",
@@ -948,9 +1297,11 @@ if data_path.exists():
                 df_summary.to_csv("outputs/all/leaderboard_snapshot.csv", index=False)
                 st.success("Snapshot saved!")
             for ds in df_summary["Dataset"].unique():
+                # Sort descending by Test performance for clarity
+                ds_df = df_summary[df_summary["Dataset"] == ds].sort_values("Test", ascending=False)
                 st.plotly_chart(
                     px.bar(
-                        df_summary[df_summary["Dataset"] == ds],
+                        ds_df,
                         x="Method",
                         y="Test",
                         error_y="Test Std",

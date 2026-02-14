@@ -85,6 +85,17 @@ def summarize_results(
                 or 0.0
             )
             t = src.get("train_balanced_accuracy") or src.get("train_accuracy") or 0.0
+            
+            # Ensure we have floats, even if the source was a string
+            try:
+                v = float(v)
+            except (ValueError, TypeError):
+                v = 0.0
+            try:
+                t = float(t)
+            except (ValueError, TypeError):
+                t = 0.0
+                
             val_accs.append(v)
             train_accs.append(t)
 
