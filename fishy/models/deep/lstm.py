@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Long Short-Term Memory (LSTM) model for spectral classification.
+Bidirectional Gated Recurrent Unit (GRU) model for spectral classification.
 """
 
 import torch
@@ -9,14 +9,7 @@ import torch.nn as nn
 
 class LSTM(nn.Module):
     """
-    LSTM-based model for spectral data classification.
-
-    Attributes:
-        input_dim (int): Number of input features.
-        output_dim (int): Number of output classes.
-        hidden_dim (int): Hidden layer dimension.
-        num_layers (int): Number of LSTM layers.
-        dropout (float): Dropout probability.
+    Bidirectional GRU-based model for spectral data classification.
     """
 
     def __init__(
@@ -24,49 +17,44 @@ class LSTM(nn.Module):
         input_dim: int,
         output_dim: int,
         hidden_dim: int = 128,
-        num_layers: int = 4,
+        num_layers: int = 2,
         dropout: float = 0.2,
         **kwargs,
     ) -> None:
         """
-        Initializes the LSTM model.
-
-        Args:
-            input_dim (int): Number of input features.
-            output_dim (int): Number of output classes.
-            hidden_dim (int, optional): Hidden layer dimension. Defaults to 128.
-            num_layers (int, optional): Number of LSTM layers. Defaults to 4.
-            dropout (float, optional): Dropout rate. Defaults to 0.2.
+        Initializes the GRU model.
         """
         super(LSTM, self).__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.hidden_dim = hidden_dim
 
-        self.lstm = nn.LSTM(
+        # Using GRU as it's often more efficient than LSTM for 1D data
+        # Bi-directional allows capturing context from both sides of the spectrum
+        self.gru = nn.GRU(
             input_size=1,
             hidden_size=hidden_dim,
             num_layers=num_layers,
             dropout=dropout if num_layers > 1 else 0,
             batch_first=True,
+            bidirectional=True,
         )
-        self.fc_out = nn.Linear(hidden_dim, output_dim)
+        # Bi-directional means output size is 2 * hidden_dim
+        self.fc_out = nn.Linear(hidden_dim * 2, output_dim)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass of the LSTM model.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_dim).
-
-        Returns:
-            torch.Tensor: Output logits of shape (batch_size, output_dim).
+        Forward pass of the GRU model.
         """
         if x.dim() == 2:
             x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
 
-        out, _ = self.lstm(x)
-        out = out[:, -1, :]  # Take the last time step
+        out, _ = self.gru(x)
+        
+        # Max pool over the sequence dimension to capture most prominent features
+        # and ignore zeros/noise
+        out, _ = torch.max(out, dim=1) 
+        
         out = self.dropout(out)
         return self.fc_out(out)

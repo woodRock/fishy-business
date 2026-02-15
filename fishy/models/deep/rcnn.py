@@ -35,7 +35,7 @@ class ResidualBlock(nn.Module):
 
 class RCNN(nn.Module):
     """
-    Residual Convolutional Neural Network (RCNN) model.
+    Improved Residual Convolutional Neural Network (RCNN) model.
     """
 
     def __init__(
@@ -43,20 +43,24 @@ class RCNN(nn.Module):
         input_dim: int,
         output_dim: int,
         hidden_dim: int = 128,
-        num_layers: int = 4,
+        num_layers: int = 6,
         dropout: float = 0.2,
         **kwargs,
     ) -> None:
         super(RCNN, self).__init__()
 
+        # Deeper initial feature extraction
         self.initial_conv = nn.Sequential(
-            nn.Conv1d(1, 64, kernel_size=7, stride=2, padding=3),
+            nn.Conv1d(1, 64, kernel_size=7, stride=1, padding=3),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Conv1d(64, 64, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=3, stride=2, padding=1),
         )
 
-        # Residual blocks
+        # Residual blocks - using a bottle-neck like structure or more layers
         layers = []
         for _ in range(num_layers):
             layers.append(ResidualBlock(64, dropout=dropout))
@@ -64,8 +68,11 @@ class RCNN(nn.Module):
 
         # Global pooling and output
         self.avgpool = nn.AdaptiveAvgPool1d(1)
+        self.maxpool = nn.AdaptiveMaxPool1d(1)
+        
+        # Concatenate Avg and Max pooling for richer representation
         self.fc = nn.Sequential(
-            nn.Linear(64, hidden_dim),
+            nn.Linear(64 * 2, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, output_dim),
@@ -77,7 +84,11 @@ class RCNN(nn.Module):
 
         x = self.initial_conv(x)
         x = self.res_layers(x)
-        x = self.avgpool(x)
+        
+        avg_x = self.avgpool(x)
+        max_x = self.maxpool(x)
+        x = torch.cat([avg_x, max_x], dim=1)
+        
         x = torch.flatten(x, 1)
         return self.fc(x)
 

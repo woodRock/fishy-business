@@ -32,17 +32,32 @@ class CNN(nn.Module):
             dropout (float, optional): Dropout rate. Defaults to 0.2.
         """
         super(CNN, self).__init__()
+        
+        # Enhanced CNN with more layers and Batch Normalization
         self.conv = nn.Sequential(
             nn.Conv1d(1, 32, 3, padding=1),
+            nn.BatchNorm1d(32),
             nn.ReLU(),
             nn.MaxPool1d(2),
+            
             nn.Conv1d(32, 64, 3, padding=1),
+            nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.MaxPool1d(2),
+            
+            nn.Conv1d(64, 128, 3, padding=1),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            
+            nn.Conv1d(128, 128, 3, padding=1),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool1d(1)
         )
-        self.flat_f = 64 * (input_dim // 4)
+        
         self.fc = nn.Sequential(
-            nn.Linear(self.flat_f, hidden_dim),
+            nn.Linear(128, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, output_dim),

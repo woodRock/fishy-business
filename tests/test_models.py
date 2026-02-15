@@ -5,6 +5,7 @@ import numpy as np
 from fishy.models.deep.cnn import CNN
 from fishy.models.deep.transformer import Transformer
 from fishy.models.deep.dense import Dense
+from fishy.models.deep.lstm import LSTM
 from fishy.models.evolutionary.pso import PSO
 from fishy.models.evolutionary.ga import GA
 
@@ -24,6 +25,12 @@ class TestDeepModels(unittest.TestCase):
 
     def test_dense_forward(self):
         model = Dense(input_dim=100, output_dim=5)
+        x = torch.randn(2, 100)
+        y = model(x)
+        self.assertEqual(y.shape, (2, 5))
+
+    def test_lstm_forward(self):
+        model = LSTM(input_dim=100, output_dim=5)
         x = torch.randn(2, 100)
         y = model(x)
         self.assertEqual(y.shape, (2, 5))
