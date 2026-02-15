@@ -78,4 +78,4 @@ Summary
 Using Docker is highly recommended for:
 * **Server Deployment:** Hosting the dashboard on a remote research server.
 * **Reproducibility:** Ensuring your thesis results aren't affected by local library updates.
-* **Quick Setup:** Skipping the installation of complex dependencies like ``XGBoost`` or ``Graphviz``.
+* **Quick Setup:** Skipping the installation of complex dependencies like ``XGBoost``.
