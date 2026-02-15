@@ -50,7 +50,7 @@ class DataProcessor:
             msg = (
                 f"\n[bold red]Error: Data file not found at {path}[/]\n\n"
                 "This dataset is private. To download it, please run:\n"
-                "  [bold cyan]python -m fishy.cli.main download-data --token <YOUR_GITHUB_TOKEN>[/]\n\n"
+                "  [bold cyan]fishy download-data --token <YOUR_GITHUB_TOKEN>[/]\n\n"
                 "Or set the [bold]FISHY_DATA_TOKEN[/] environment variable."
             )
             from fishy._core.utils import console

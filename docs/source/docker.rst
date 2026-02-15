@@ -47,7 +47,7 @@ Download Data
 .. code-block:: bash
 
    docker run -it -v $(pwd)/data:/app/data fishy-business 
-     python -m fishy download-data --token <YOUR_GITHUB_TOKEN>
+     fishy download-data --token <YOUR_GITHUB_TOKEN>
 
 Run a Training Experiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,7 +58,7 @@ Run a Training Experiment
      -v $(pwd)/data:/app/data 
      -v $(pwd)/outputs:/app/outputs 
      fishy-business 
-     python main.py train -m transformer -d species --epochs 50
+     fishy train -m transformer -d species --epochs 50
 
 Weights & Biases Integration
 ----------------------------

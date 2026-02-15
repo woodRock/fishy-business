@@ -27,7 +27,7 @@ jobs:
       env:
         FISHY_DATA_TOKEN: ${{ secrets.FISHY_DATA_TOKEN }}
       run: |
-        python -m fishy.cli.main download-data
+        fishy download-data
       
     - name: Run example scripts
       run: |
