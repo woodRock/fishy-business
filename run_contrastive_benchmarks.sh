@@ -22,7 +22,7 @@ DEEP_MODELS=("transformer" "cnn" "ensemble" "moe" "rcnn" "lstm" "kan")
 
 # 3. Contrastive Learning Methods (SimCLR objective)
 CONTRASTIVE_MODELS=("simclr")
-ENCODERS=("transformer" "cnn" "mlp" "ensemble" "moe" "rcnn" "lstm" "kan")
+ENCODERS=("transformer" "cnn" "ensemble" "moe" "rcnn" "lstm" "kan")
 
 echo "Queuing experiment sweep: ${#SEEDS[@]} seeds x (Traditional + Deep + Contrastive)"
 echo "Dataset: $DATASET | Epochs: $EPOCHS"
