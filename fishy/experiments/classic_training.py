@@ -170,10 +170,13 @@ class SklearnTrainer:
                 y2_pred = last_model.predict(X2_s)
                 pair_preds = (y1_pred == y2_pred).astype(int)
 
-            stats["pairwise_balanced_accuracy"] = balanced_accuracy_score(pair_labels, pair_preds)
-            stats["val_balanced_accuracy"] = stats["pairwise_balanced_accuracy"]
+            stats["test_balanced_accuracy"] = balanced_accuracy_score(pair_labels, pair_preds)
+            stats["val_balanced_accuracy"] = stats["test_balanced_accuracy"]
+            stats["pairwise_balanced_accuracy"] = stats["test_balanced_accuracy"]
             stats["val_accuracy"] = accuracy_score(pair_labels, pair_preds)
+            stats["test_accuracy"] = stats["val_accuracy"]
             stats["val_f1"] = f1_score(pair_labels, pair_preds, zero_division=0)
+            stats["test_f1"] = stats["val_f1"]
             stats["predictions"] = {"labels": pair_labels, "preds": pair_preds}
             self.ctx.save_results({"stats": stats})
             return last_model, stats

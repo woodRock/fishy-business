@@ -275,7 +275,7 @@ class ContrastiveTrainer:
                 f"{prefix}_f1": f1_score(labels, preds, zero_division=0),
             }
         )
-        # Standardize for CLI display
+        # Standardize for CLI display and align key names with other methods
         if prefix == "val":
             self.metrics["accuracy"] = self.metrics["val_accuracy"]
             self.metrics["balanced_accuracy"] = self.metrics["val_balanced_accuracy"]
@@ -284,6 +284,10 @@ class ContrastiveTrainer:
             self.metrics["precision"] = self.metrics["val_precision"]
             self.metrics["recall"] = self.metrics["val_recall"]
             self.metrics["f1"] = self.metrics["val_f1"]
+            # Mirror as test_ keys so all methods report the same wandb metric names
+            self.metrics["test_balanced_accuracy"] = self.metrics["val_balanced_accuracy"]
+            self.metrics["test_accuracy"] = self.metrics["val_accuracy"]
+            self.metrics["test_f1"] = self.metrics["val_f1"]
 
     def evaluate_pairwise_performance(self) -> None:
         """Evaluates pair-wise similarity on the held-out test set."""
