@@ -18,6 +18,34 @@ from .augmentation import AugmentationConfig, DataAugmenter
 from fishy._core.config_loader import load_config
 from fishy._core.constants import DatasetName
 
+def make_pairwise_test_split(
+    X: np.ndarray,
+    y: np.ndarray,
+    run_id: int,
+    test_size: float = 1 / 3,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Creates a reproducible train/test split for pairwise batch-detection evaluation.
+
+    All three method types (traditional, deep, contrastive) call this with the same
+    run_id so they all train and evaluate on identical data partitions.
+
+    test_size=1/3 is the minimum that allows stratification with 24 classes over
+    72 samples (gives exactly 1 sample per class in the test set).
+    """
+    from sklearn.model_selection import train_test_split
+
+    stratify = np.argmax(y, axis=1) if y.ndim > 1 and y.shape[1] > 1 else y
+    try:
+        return train_test_split(
+            X, y, test_size=test_size, random_state=run_id, stratify=stratify
+        )
+    except ValueError:
+        logger.warning(
+            "Stratified pairwise test split failed; falling back to non-stratified."
+        )
+        return train_test_split(X, y, test_size=test_size, random_state=run_id)
+
 logger = logging.getLogger(__name__)
 
 

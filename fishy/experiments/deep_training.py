@@ -18,7 +18,7 @@ from fishy._core.factory import create_model
 from fishy._core.utils import RunContext, get_device
 from fishy.experiments.pre_training import PreTrainingOrchestrator
 from fishy.engine.trainer import DeepEngine
-from fishy.data.module import create_data_module
+from fishy.data.module import create_data_module, make_pairwise_test_split
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
 from fishy._core.constants import DatasetName
@@ -103,11 +103,20 @@ class ModelTrainer:
 
         self.logger.info("Building pairwise difference-vector dataset for batch-detection.")
         full_samples, full_labels = self.data_module.get_numpy_data()
-        siamese_ds = SiameseDataset(full_samples, full_labels)
 
-        X_diff = (siamese_ds.X1 - siamese_ds.X2).cpu().numpy()
-        y_pair = siamese_ds.paired_labels.cpu().numpy().flatten().astype(int)
-        y_onehot = np.eye(2, dtype=np.float32)[y_pair]
+        # Hold out a fixed test set — same split used by all three method types
+        X_train, X_test, y_train, y_test = make_pairwise_test_split(
+            full_samples, full_labels, self.config.run
+        )
+
+        def _to_diff_dataset(X, y):
+            ds = SiameseDataset(X, y)
+            X_diff = (ds.X1 - ds.X2).cpu().numpy()
+            y_pair = ds.paired_labels.cpu().numpy().flatten().astype(int)
+            return X_diff, y_pair, np.eye(2, dtype=np.float32)[y_pair]
+
+        X_diff_train, y_pair_train, y_oh_train = _to_diff_dataset(X_train, y_train)
+        X_diff_test, y_pair_test, y_oh_test = _to_diff_dataset(X_test, y_test)
 
         n_classes = 2
         k_folds = self.config.k_folds
@@ -115,10 +124,9 @@ class ModelTrainer:
         all_fold_metrics = []
         last_model = None
 
-        for fold, (tr_idx, val_idx) in enumerate(skf.split(X_diff, y_pair)):
+        for fold, (tr_idx, val_idx) in enumerate(skf.split(X_diff_train, y_pair_train)):
             self.logger.info(f"--- Fold {fold + 1}/{k_folds} ---")
-            # Balanced sampler to handle same/different class imbalance
-            tr_labels = y_pair[tr_idx]
+            tr_labels = y_pair_train[tr_idx]
             class_counts = np.bincount(tr_labels)
             sample_weights = torch.tensor(
                 (1.0 / class_counts)[tr_labels], dtype=torch.float32
@@ -126,12 +134,12 @@ class ModelTrainer:
             sampler = WeightedRandomSampler(sample_weights, len(sample_weights), replacement=True)
 
             tr_ldr = DataLoader(
-                CustomDataset(X_diff[tr_idx], y_onehot[tr_idx]),
+                CustomDataset(X_diff_train[tr_idx], y_oh_train[tr_idx]),
                 batch_size=self.config.batch_size,
                 sampler=sampler,
             )
             val_ldr = DataLoader(
-                CustomDataset(X_diff[val_idx], y_onehot[val_idx]),
+                CustomDataset(X_diff_train[val_idx], y_oh_train[val_idx]),
                 batch_size=self.config.batch_size,
             )
             model = create_model(self.config, self.n_features, n_classes).to(self.device)
@@ -153,9 +161,20 @@ class ModelTrainer:
                 regression=False,
                 ctx=self.ctx,
             )
-            if fold == k_folds - 1 and self.ctx.wandb_run:
-                self._log_advanced_visualizations(metrics, val_ldr)
             all_fold_metrics.append(metrics)
+
+        # Final evaluation on held-out test pairs (no leakage)
+        test_ldr = DataLoader(
+            CustomDataset(X_diff_test, y_oh_test),
+            batch_size=self.config.batch_size,
+        )
+        criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
+        test_results = DeepEngine.evaluate_model(
+            last_model, test_ldr, criterion, self.device,
+            num_classes=n_classes, regression=False,
+        )
+        if self.ctx.wandb_run:
+            self._log_advanced_visualizations(test_results, test_ldr)
 
         stats = {}
         if all_fold_metrics:
@@ -167,7 +186,6 @@ class ModelTrainer:
                 ]
                 if vals:
                     stats[k] = float(np.mean(vals))
-            stats["predictions"] = all_fold_metrics[-1].get("predictions")
             for m in reversed(all_fold_metrics):
                 if m.get("epoch_metrics"):
                     stats["epoch_metrics"] = m["epoch_metrics"]
@@ -175,6 +193,12 @@ class ModelTrainer:
             else:
                 stats["epoch_metrics"] = None
             stats["folds"] = all_fold_metrics
+
+        # Override with test metrics for fair comparison
+        test_metrics = test_results.get("metrics", {})
+        stats["test_balanced_accuracy"] = test_metrics.get("balanced_accuracy")
+        stats["val_balanced_accuracy"] = stats["test_balanced_accuracy"]
+        stats["predictions"] = test_results.get("predictions")
 
         self.ctx.save_results(
             {"stats": stats, "folds": all_fold_metrics},

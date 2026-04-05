@@ -29,7 +29,8 @@ from sklearn.model_selection import train_test_split
 
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
-from fishy.data.module import create_data_module
+from fishy.data.module import create_data_module, make_pairwise_test_split
+from fishy._core.constants import DatasetName
 from fishy.data.datasets import SiameseDataset, BalancedBatchSampler
 from fishy._core.config_loader import load_config
 from fishy._core.factory import create_model, get_model_class
@@ -66,6 +67,7 @@ class ContrastiveConfig:
     wandb_project: Optional[str] = "fishy-business"
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
     wandb_log: bool = False
+    run: int = 0  # seed / run index for reproducible splits
 
 
 class ContrastiveTrainer:
@@ -140,7 +142,18 @@ class ContrastiveTrainer:
         )
 
         full_samples, full_labels = self.data_module.get_numpy_data()
-        self.siamese_dataset = SiameseDataset(full_samples, full_labels)
+
+        # Hold out a fixed test set — same split used by all method types for batch-detection
+        if DatasetName.BATCH_DETECTION in self.config.dataset:
+            train_X, self._test_X, train_y, self._test_y = make_pairwise_test_split(
+                full_samples, full_labels, self.config.run
+            )
+        else:
+            train_X, train_y = full_samples, full_labels
+            self._test_X, self._test_y = None, None
+
+        self._train_X, self._train_y = train_X, train_y
+        self.siamese_dataset = SiameseDataset(train_X, train_y)
         self.train_sampler = BalancedBatchSampler(
             self.siamese_dataset.paired_labels, self.config.batch_size
         )
@@ -273,29 +286,9 @@ class ContrastiveTrainer:
             self.metrics["f1"] = self.metrics["val_f1"]
 
     def evaluate_pairwise_performance(self) -> None:
-        """Evaluates pair-wise similarity across all data splits."""
+        """Evaluates pair-wise similarity on the held-out test set."""
         self.logger.info("Calculating comprehensive pair-wise metrics...")
         self.model.eval()
-
-        # We'll use the SiameseDataset to get pairs
-        full_samples, full_labels = self.data_module.get_numpy_data()
-
-        # Split data manually to ensure we have a 'Val' set for similarity
-        try:
-            X_tr, X_val, y_tr, y_val = train_test_split(
-                full_samples,
-                full_labels,
-                test_size=0.3,
-                stratify=np.argmax(full_labels, axis=1),
-                random_state=42,
-            )
-        except ValueError:
-            self.logger.warning(
-                "Stratified split failed (likely too many classes for the test size). Falling back to non-stratified split."
-            )
-            X_tr, X_val, y_tr, y_val = train_test_split(
-                full_samples, full_labels, test_size=0.3, random_state=42
-            )
 
         def get_sims(X, y):
             ds = SiameseDataset(X, y)
@@ -311,16 +304,28 @@ class ContrastiveTrainer:
                     lbls.extend(pair_lbl.cpu().numpy().flatten())
             return np.array(sims), np.array(lbls)
 
+        # Use the pre-stored train/test split (set in setup()) for batch-detection;
+        # fall back to a fresh split for other datasets.
+        if self._test_X is not None:
+            X_tr, y_tr = self._train_X, self._train_y
+            X_val, y_val = self._test_X, self._test_y
+        else:
+            full_samples, full_labels = self.data_module.get_numpy_data()
+            try:
+                X_tr, X_val, y_tr, y_val = train_test_split(
+                    full_samples, full_labels, test_size=0.3,
+                    stratify=np.argmax(full_labels, axis=1), random_state=self.config.run,
+                )
+            except ValueError:
+                X_tr, X_val, y_tr, y_val = train_test_split(
+                    full_samples, full_labels, test_size=0.3, random_state=self.config.run
+                )
+
         train_sims, train_lbls = get_sims(X_tr, y_tr)
         val_sims, val_lbls = get_sims(X_val, y_val)
 
-        # Optimize threshold on training similarities
         self.best_threshold = self._optimize_threshold(train_sims, train_lbls)
-
-        # Calculate all metrics
-        self._calculate_pairwise_metrics(
-            train_sims, train_lbls, self.best_threshold, "train"
-        )
+        self._calculate_pairwise_metrics(train_sims, train_lbls, self.best_threshold, "train")
         self._calculate_pairwise_metrics(val_sims, val_lbls, self.best_threshold, "val")
 
     def log_contrastive_visualizations(self) -> None:

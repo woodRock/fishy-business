@@ -9,7 +9,7 @@ from fishy.data.datasets import (
     SiameseDataset,
     BalancedBatchSampler,
 )
-from fishy.data.module import DataProcessor, DataModule
+from fishy.data.module import DataProcessor, DataModule, make_pairwise_test_split
 
 
 class TestDatasets(unittest.TestCase):
@@ -87,6 +87,48 @@ class TestDataModule(unittest.TestCase):
         self.assertEqual(len(filtered), 2)
         self.assertIn("Class Name", filtered.columns)
         self.assertEqual(filtered["Class Name"].iloc[0], "Hoki")
+
+
+class TestMakePairwiseTestSplit(unittest.TestCase):
+    def _make_data(self, n_classes=24, n_per_class=3):
+        """Simulate batch-detection: 24 classes × 3 samples = 72 samples."""
+        n = n_classes * n_per_class
+        X = np.random.rand(n, 10).astype(np.float32)
+        # one-hot labels
+        y_idx = np.repeat(np.arange(n_classes), n_per_class)
+        y = np.eye(n_classes, dtype=np.float32)[y_idx]
+        return X, y
+
+    def test_sizes_sum_to_total(self):
+        X, y = self._make_data()
+        X_tr, X_te, y_tr, y_te = make_pairwise_test_split(X, y, run_id=0)
+        self.assertEqual(len(X_tr) + len(X_te), len(X))
+
+    def test_test_size_is_one_third(self):
+        X, y = self._make_data()
+        X_tr, X_te, y_tr, y_te = make_pairwise_test_split(X, y, run_id=0)
+        self.assertAlmostEqual(len(X_te) / len(X), 1 / 3, delta=0.02)
+
+    def test_same_run_gives_same_split(self):
+        X, y = self._make_data()
+        X_tr1, X_te1, _, _ = make_pairwise_test_split(X, y, run_id=42)
+        X_tr2, X_te2, _, _ = make_pairwise_test_split(X, y, run_id=42)
+        np.testing.assert_array_equal(X_tr1, X_tr2)
+        np.testing.assert_array_equal(X_te1, X_te2)
+
+    def test_different_runs_give_different_splits(self):
+        X, y = self._make_data()
+        X_tr1, _, _, _ = make_pairwise_test_split(X, y, run_id=0)
+        X_tr2, _, _, _ = make_pairwise_test_split(X, y, run_id=99)
+        self.assertFalse(np.array_equal(X_tr1, X_tr2))
+
+    def test_no_sample_appears_in_both_splits(self):
+        X, y = self._make_data()
+        X_tr, X_te, _, _ = make_pairwise_test_split(X, y, run_id=7)
+        # Each row of X is unique; no row should appear in both splits
+        for row in X_te:
+            matches = np.all(X_tr == row, axis=1)
+            self.assertFalse(matches.any(), "Test sample leaked into train set")
 
 
 if __name__ == "__main__":

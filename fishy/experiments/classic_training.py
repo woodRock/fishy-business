@@ -22,7 +22,7 @@ from sklearn.metrics import (
 )
 from dataclasses import asdict
 
-from fishy.data.module import create_data_module
+from fishy.data.module import create_data_module, make_pairwise_test_split
 from fishy._core.utils import RunContext, console
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
@@ -105,6 +105,79 @@ class SklearnTrainer:
         self.data_module.setup()
         X, y = self.data_module.get_numpy_data(labels_as_indices=True)
         self.num_classes = self.data_module.get_num_classes()
+
+        # For batch-detection: hold out a fixed test set before any training.
+        # The same split (keyed on run_id) is used by all method types for fairness.
+        if DatasetName.BATCH_DETECTION in self.dataset_name:
+            _, full_labels_onehot = self.data_module.get_numpy_data(labels_as_indices=False)
+            X_tr, X_te, _, y_te_oh = make_pairwise_test_split(
+                X, full_labels_onehot, self.run_id
+            )
+            y_tr = y[: len(X_tr)]  # indices matching the train split
+            # Re-derive index labels for test by argmax
+            y_te = np.argmax(y_te_oh, axis=1) if y_te_oh.ndim > 1 else y_te_oh.flatten()
+            # Fit scaler on train only
+            scaler = StandardScaler()
+            X_train_scaled = scaler.fit_transform(X_tr)
+            X_test_scaled = scaler.transform(X_te)
+            # k-fold on train split only
+            skf = StratifiedKFold(
+                n_splits=self.config.k_folds, shuffle=True, random_state=self.run_id
+            )
+            all_fold_metrics = []
+            last_model = None
+            for fold, (train_idx, val_idx) in enumerate(skf.split(X_train_scaled, y_tr), 1):
+                Xf_tr, Xf_val = X_train_scaled[train_idx], X_train_scaled[val_idx]
+                yf_tr, yf_val = y_tr[train_idx], y_tr[val_idx]
+                last_model = self._get_model_instance()
+                last_model.fit(Xf_tr, yf_tr)
+                y_pred = last_model.predict(Xf_val)
+                y_train_pred = last_model.predict(Xf_tr)
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=UserWarning)
+                    fold_res = {f"train_{k}": v for k, v in self._calculate_metrics(yf_tr, y_train_pred).items()}
+                    fold_res.update({f"val_{k}": v for k, v in self._calculate_metrics(yf_val, y_pred).items()})
+                all_fold_metrics.append(fold_res)
+
+            stats = {
+                k: float(np.mean([m[k] for m in all_fold_metrics]))
+                for k in all_fold_metrics[0].keys()
+            }
+            stats["folds"] = all_fold_metrics
+            stats["total_training_time_s"] = time.time() - start_time
+
+            # Pairwise evaluation on held-out test set only
+            from fishy.data.datasets import SiameseDataset
+            import torch.nn.functional as F
+            import torch
+            full_X_test, full_y_test_oh = X_te, y_te_oh
+            siamese_ds = SiameseDataset(full_X_test, full_y_test_oh)
+            X1_s = scaler.transform(siamese_ds.X1.cpu().numpy())
+            X2_s = scaler.transform(siamese_ds.X2.cpu().numpy())
+            pair_labels = siamese_ds.paired_labels.cpu().numpy().flatten().astype(int)
+            if hasattr(last_model, "transform"):
+                z1 = torch.tensor(last_model.transform(X1_s))
+                z2 = torch.tensor(last_model.transform(X2_s))
+                sims = F.cosine_similarity(z1, z2).numpy()
+                best_acc, best_thresh = 0, 0.5
+                for thresh in np.arange(0, 1, 0.05):
+                    acc = balanced_accuracy_score(pair_labels, (sims > thresh).astype(int))
+                    if acc > best_acc:
+                        best_acc, best_thresh = acc, thresh
+                pair_preds = (sims > best_thresh).astype(int)
+            else:
+                y1_pred = last_model.predict(X1_s)
+                y2_pred = last_model.predict(X2_s)
+                pair_preds = (y1_pred == y2_pred).astype(int)
+
+            stats["pairwise_balanced_accuracy"] = balanced_accuracy_score(pair_labels, pair_preds)
+            stats["val_balanced_accuracy"] = stats["pairwise_balanced_accuracy"]
+            stats["val_accuracy"] = accuracy_score(pair_labels, pair_preds)
+            stats["val_f1"] = f1_score(pair_labels, pair_preds, zero_division=0)
+            stats["predictions"] = {"labels": pair_labels, "preds": pair_preds}
+            self.ctx.save_results({"stats": stats})
+            return last_model, stats
+
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
         skf = StratifiedKFold(
