@@ -62,6 +62,6 @@ def detect_method(model_name: str) -> str:
             return "contrastive"
         if m in cfg.get("probabilistic_models", {}):
             return "probabilistic"
-    except:
+    except Exception:
         pass
     return "deep"

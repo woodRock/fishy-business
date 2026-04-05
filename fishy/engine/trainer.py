@@ -260,7 +260,7 @@ class Trainer:
                     bca = balanced_accuracy_score(
                         y_true.astype(int), np.round(y_pred).astype(int)
                     )
-                except:
+                except (ValueError, TypeError):
                     bca = 0.0
                 return {
                     "mae": mean_absolute_error(y_true, y_pred),

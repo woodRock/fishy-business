@@ -67,7 +67,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
                 )
             )
             return siamese_class(**params)
-        except:
+        except (ImportError, AttributeError):
             # Fallback to standard model if no Siamese wrapper found
             return model_class(**params)
 
