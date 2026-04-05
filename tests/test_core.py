@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from fishy._core.config import TrainingConfig, ExperimentConfig
 from fishy._core.utils import set_seed, get_device, NumpyEncoder, RunContext
-from fishy._core.config_loader import load_config
+from fishy._core.config_loader import load_config, detect_method
 from fishy._core.factory import get_model_class, create_model
 
 
@@ -78,6 +78,27 @@ class TestConfigLoader(unittest.TestCase):
     def test_load_config_not_found(self):
         with self.assertRaises(FileNotFoundError):
             load_config("non_existent_config_file_123")
+
+    def test_detect_method_deep(self):
+        self.assertEqual(detect_method("transformer"), "deep")
+        self.assertEqual(detect_method("cnn"), "deep")
+
+    def test_detect_method_classic(self):
+        self.assertEqual(detect_method("rf"), "classic")
+        self.assertEqual(detect_method("opls-da"), "classic")
+
+    def test_detect_method_evolutionary(self):
+        self.assertEqual(detect_method("ga"), "evolutionary")
+
+    def test_detect_method_contrastive(self):
+        self.assertEqual(detect_method("simclr"), "contrastive")
+
+    def test_detect_method_unknown_defaults_to_deep(self):
+        self.assertEqual(detect_method("nonexistent_model_xyz"), "deep")
+
+    def test_detect_method_case_insensitive(self):
+        self.assertEqual(detect_method("Transformer"), "deep")
+        self.assertEqual(detect_method("RF"), "classic")
 
 
 class TestFactory(unittest.TestCase):

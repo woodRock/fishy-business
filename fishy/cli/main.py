@@ -15,7 +15,7 @@ DEFAULT_DATA_PATH = None
 
 from fishy._core.config import TrainingConfig
 from fishy.experiments.unified_trainer import run_unified_training
-from fishy._core.config_loader import load_config
+from fishy._core.config_loader import load_config, detect_method
 from fishy._core.utils import set_seed, console, get_device
 from rich.panel import Panel
 from rich.table import Table
@@ -41,21 +41,6 @@ def get_all_datasets() -> List[str]:
     cfg = load_config("datasets")
     return sorted(list(cfg.keys()))
 
-
-def detect_method(model_name: str) -> str:
-    cfg = load_config("models")
-    m = model_name.lower()
-    if m in cfg.get("deep_models", {}):
-        return "deep"
-    if m in cfg.get("classic_models", {}):
-        return "classic"
-    if m in cfg.get("evolutionary_models", {}):
-        return "evolutionary"
-    if m in cfg.get("contrastive_models", {}):
-        return "contrastive"
-    if m in cfg.get("probabilistic_models", {}):
-        return "probabilistic"
-    return "deep"
 
 
 def setup_parser() -> argparse.ArgumentParser:
