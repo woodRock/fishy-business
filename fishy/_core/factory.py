@@ -10,6 +10,7 @@ from typing import Dict, Type, Any
 
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
+from fishy._core.constants import DatasetName
 
 
 def get_model_class(model_path: str) -> Type[nn.Module]:
@@ -49,7 +50,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     }
 
     # Handle Siamese wrappers for batch-detection
-    if "batch-detection" in config.dataset:
+    if DatasetName.BATCH_DETECTION in config.dataset:
         if model_name == "vae":
             from fishy.models.deep.vae import SiameseVAE
 

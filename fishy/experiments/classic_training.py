@@ -27,6 +27,7 @@ from fishy._core.utils import RunContext, console
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
 from fishy._core.factory import get_model_class
+from fishy._core.constants import DatasetName
 import wandb
 
 logger = logging.getLogger(__name__)
@@ -169,7 +170,7 @@ class SklearnTrainer:
         stats["total_training_time_s"] = time.time() - start_time
 
         # Add Pair-wise Similarity Evaluation for batch-detection
-        if "batch-detection" in self.dataset_name:
+        if DatasetName.BATCH_DETECTION in self.dataset_name:
             self.logger.info(
                 "Performing auxiliary pair-wise evaluation for batch-detection..."
             )

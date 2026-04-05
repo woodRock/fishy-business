@@ -21,6 +21,7 @@ from fishy.engine.trainer import DeepEngine
 from fishy.data.module import create_data_module
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
+from fishy._core.constants import DatasetName
 
 
 class ModelTrainer:
@@ -90,7 +91,7 @@ class ModelTrainer:
     def train(
         self, pre_trained_model: Optional[nn.Module] = None
     ) -> Tuple[nn.Module, Dict[str, Any]]:
-        if "batch-detection" in self.config.dataset:
+        if DatasetName.BATCH_DETECTION in self.config.dataset:
             return self._train_kfold_pairwise(pre_trained_model)
         return self._train_kfold(pre_trained_model)
 

@@ -16,6 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 from .datasets import CustomDataset
 from .augmentation import AugmentationConfig, DataAugmenter
 from fishy._core.config_loader import load_config
+from fishy._core.constants import DatasetName
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,9 @@ class DataProcessor:
         self.label_encoder_ = None
         all_configs = load_config("datasets")
         self.config = all_configs.get(dataset_name, {})
-        if not self.config and dataset_name == "oil-regression":
+        if not self.config and dataset_name == DatasetName.OIL_REGRESSION:
             self.config = all_configs.get("oil_regression", {})
-        if not self.config and dataset_name == "oil-simple":
+        if not self.config and dataset_name == DatasetName.OIL_SIMPLE:
             self.config = all_configs.get("oil_simple", {})
 
     def load_data(self, file_path: Union[str, Path] = None) -> pd.DataFrame:
@@ -147,7 +148,7 @@ class DataProcessor:
         if "m/z" not in data.columns:
             return np.arange(len(data))
         groups = data["m/z"].astype(str).apply(lambda x: x.split("_")[0])
-        if "batch-detection" in self.dataset_name:
+        if DatasetName.BATCH_DETECTION in self.dataset_name:
             groups = data.iloc[:, 0].astype(str)
         return groups.to_numpy()
 
@@ -299,7 +300,7 @@ class DataModule:
             mapping = self.processor.config["label_encoding"]["map"]
             # species: "H": [0, 1] -> 1 is Hoki? Let's check config.
             # Actually, standardizing: return the keys of the map or specific labels
-            if self.dataset_name_str == "species":
+            if self.dataset_name_str == DatasetName.SPECIES:
                 return ["Mackerel", "Hoki"]
             if self.dataset_name_str == "cross-species":
                 return ["Mix", "Hoki", "Mackerel"]

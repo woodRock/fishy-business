@@ -9,6 +9,26 @@ from fishy._core.config import TrainingConfig, ExperimentConfig
 from fishy._core.utils import set_seed, get_device, NumpyEncoder, RunContext
 from fishy._core.config_loader import load_config, detect_method
 from fishy._core.factory import get_model_class, create_model
+from fishy._core.constants import DatasetName
+
+
+class TestDatasetName(unittest.TestCase):
+    def test_constants_are_strings(self):
+        self.assertIsInstance(DatasetName.SPECIES, str)
+        self.assertIsInstance(DatasetName.BATCH_DETECTION, str)
+        self.assertIsInstance(DatasetName.OIL_REGRESSION, str)
+        self.assertIsInstance(DatasetName.OIL_SIMPLE, str)
+
+    def test_constant_values(self):
+        self.assertEqual(DatasetName.SPECIES, "species")
+        self.assertEqual(DatasetName.BATCH_DETECTION, "batch-detection")
+        self.assertEqual(DatasetName.OIL_REGRESSION, "oil-regression")
+        self.assertEqual(DatasetName.OIL_SIMPLE, "oil-simple")
+
+    def test_batch_detection_substring_check(self):
+        # Production code uses `in` for substring matching
+        self.assertIn(DatasetName.BATCH_DETECTION, "batch-detection")
+        self.assertIn(DatasetName.BATCH_DETECTION, "batch-detection-v2")
 
 
 class TestConfig(unittest.TestCase):
