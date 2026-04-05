@@ -141,6 +141,35 @@ class TestMakePairwiseTestSplit(unittest.TestCase):
             matches = np.all(X_tr == row, axis=1)
             self.assertFalse(matches.any(), "Test sample leaked into train set")
 
+    def test_classic_and_deep_use_same_test_split(self):
+        """Classic passes y as class indices + onehot extra; deep/contrastive passes
+        y as onehot directly. Both must produce the same X train/test partition so
+        all three method types evaluate on identical held-out samples."""
+        n_classes = 24
+        n_per_class = 3
+        run_id = 42
+
+        np.random.seed(0)
+        X = np.random.rand(n_classes * n_per_class, 10).astype(np.float32)
+        y_idx = np.repeat(np.arange(n_classes), n_per_class)
+        y_onehot = np.eye(n_classes, dtype=np.float32)[y_idx]
+
+        # Classic call signature: (X, y_indices, run_id, y_onehot_extra)
+        X_tr_cls, X_te_cls, _, _, _, _ = make_pairwise_test_split(
+            X, y_idx, run_id, y_onehot
+        )
+        # Deep / contrastive call signature: (X, y_onehot, run_id)
+        X_tr_deep, X_te_deep, _, _ = make_pairwise_test_split(X, y_onehot, run_id)
+
+        np.testing.assert_array_equal(
+            X_tr_cls, X_tr_deep,
+            err_msg="Classic and deep train splits differ — methods are NOT on the same data",
+        )
+        np.testing.assert_array_equal(
+            X_te_cls, X_te_deep,
+            err_msg="Classic and deep test splits differ — methods are NOT on the same data",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

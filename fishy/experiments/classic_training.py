@@ -239,64 +239,6 @@ class SklearnTrainer:
         stats["predictions"] = last_fold_info
         stats["total_training_time_s"] = time.time() - start_time
 
-        # Add Pair-wise Similarity Evaluation for batch-detection
-        if DatasetName.BATCH_DETECTION in self.dataset_name:
-            self.logger.info(
-                "Performing auxiliary pair-wise evaluation for batch-detection..."
-            )
-            from fishy.data.datasets import SiameseDataset
-            import torch.nn.functional as F
-            import torch
-
-            # Use the full dataset for a comprehensive pair-wise check
-            full_X, full_y = self.data_module.get_numpy_data()
-            siamese_ds = SiameseDataset(full_X, full_y)
-
-            # Prepare scaled pairs
-            X1_scaled = scaler.transform(siamese_ds.X1.cpu().numpy())
-            X2_scaled = scaler.transform(siamese_ds.X2.cpu().numpy())
-            pair_labels = siamese_ds.paired_labels.cpu().numpy().flatten().astype(int)
-
-            # Get embeddings (or projections) for pairs if available
-            if hasattr(last_model, "transform"):
-                z1 = last_model.transform(X1_scaled)
-                z2 = last_model.transform(X2_scaled)
-                # Calculate cosine similarity
-                z1_t = torch.tensor(z1)
-                z2_t = torch.tensor(z2)
-                sims = F.cosine_similarity(z1_t, z2_t).numpy()
-
-                # Optimize threshold for this classic model's "embedding" space
-                best_acc, best_thresh = 0, 0.5
-                for thresh in np.arange(0, 1, 0.05):
-                    acc = balanced_accuracy_score(
-                        pair_labels, (sims > thresh).astype(int)
-                    )
-                    if acc > best_acc:
-                        best_acc, best_thresh = acc, thresh
-
-                pair_preds = (sims > best_thresh).astype(int)
-            else:
-                y1_pred = last_model.predict(X1_scaled)
-                y2_pred = last_model.predict(X2_scaled)
-                pair_preds = (y1_pred == y2_pred).astype(int)
-
-            stats["pairwise_accuracy"] = accuracy_score(pair_labels, pair_preds)
-            stats["pairwise_balanced_accuracy"] = balanced_accuracy_score(
-                pair_labels, pair_preds
-            )
-            stats["pairwise_f1"] = f1_score(pair_labels, pair_preds, zero_division=0)
-
-            # Standardize for display in CLI
-            stats["val_accuracy"] = stats["pairwise_accuracy"]
-            stats["val_balanced_accuracy"] = stats["pairwise_balanced_accuracy"]
-            stats["val_f1"] = stats["pairwise_f1"]
-
-            # Also set the non-prefixed ones just in case
-            stats["accuracy"] = stats["pairwise_accuracy"]
-            stats["balanced_accuracy"] = stats["pairwise_balanced_accuracy"]
-            stats["f1"] = stats["pairwise_f1"]
-
         self.ctx.save_results({"stats": stats})
         return last_model, stats
 
