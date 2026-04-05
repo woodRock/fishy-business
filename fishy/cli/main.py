@@ -126,13 +126,20 @@ def setup_parser() -> argparse.ArgumentParser:
         default=DEFAULT_DATA_PATH,
         help="Path to spectral data file. If omitted, uses the internal package dataset.",
     )
+    hp_group.add_argument(
+        "--seed", type=int, dest="run", default=42, help="Random seed for the run"
+    )
+    hp_group.add_argument(
+        "--wandb-log", action="store_true", help="Log results to Weights & Biases"
+    )
+    hp_group.add_argument(
+        "--statistical", action="store_true", help="Perform statistical significance tests"
+    )
 
     if show_all:
         hp_group.add_argument("--batch-size", type=int, default=64)
         hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
         hp_group.add_argument("--hidden-dim", type=int, default=128)
-        train_parser.add_argument("--wandb-log", action="store_true")
-        train_parser.add_argument("--statistical", action="store_true")
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
