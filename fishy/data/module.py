@@ -22,8 +22,8 @@ def make_pairwise_test_split(
     X: np.ndarray,
     y: np.ndarray,
     run_id: int,
-    test_size: float = 0.5,
     *extra_arrays,
+    test_size: float = 0.5,
 ) -> Tuple:
     """
     Creates a reproducible train/test split for pairwise batch-detection evaluation.
