@@ -6,6 +6,7 @@ Parallelized implementation for efficient training on spectral data.
 """
 
 import torch
+from fishy.models.utils import ensure_seq_input
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -118,8 +119,7 @@ class RWKV(nn.Module):
         self.head = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dim() == 2:
-            x = x.unsqueeze(-1)
+        x = ensure_seq_input(x)
 
         x = self.embedding(x)
         for block in self.blocks:

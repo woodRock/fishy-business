@@ -4,6 +4,7 @@ Hybrid CNN-LSTM model for spectral classification.
 """
 
 import torch
+from fishy.models.utils import ensure_conv_input
 import torch.nn as nn
 
 
@@ -53,8 +54,7 @@ class Hybrid(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
+        x = ensure_conv_input(x)
         x = self.cnn(x)
         x = x.transpose(1, 2)
         out, _ = self.lstm(x)

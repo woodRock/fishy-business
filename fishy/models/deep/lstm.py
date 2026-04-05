@@ -4,6 +4,7 @@ Bidirectional Gated Recurrent Unit (GRU) model for spectral classification.
 """
 
 import torch
+from fishy.models.utils import ensure_seq_input
 import torch.nn as nn
 
 
@@ -47,8 +48,7 @@ class LSTM(nn.Module):
         """
         Forward pass of the GRU model.
         """
-        if x.dim() == 2:
-            x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
+        x = ensure_seq_input(x)
 
         out, _ = self.gru(x)
         

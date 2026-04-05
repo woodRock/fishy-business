@@ -4,6 +4,7 @@ WaveNet model for spectral classification.
 """
 
 import torch
+from fishy.models.utils import ensure_conv_input
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -108,8 +109,7 @@ class WaveNet(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
+        x = ensure_conv_input(x)
 
         x = self.initial_conv(x)
         skip_connections = []

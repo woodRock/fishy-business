@@ -7,6 +7,7 @@ while allowing for deeper architectures via skip connections.
 """
 
 import torch
+from fishy.models.utils import ensure_conv_input
 import torch.nn as nn
 
 
@@ -79,8 +80,7 @@ class RCNN(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
+        x = ensure_conv_input(x)
 
         x = self.initial_conv(x)
         x = self.res_layers(x)

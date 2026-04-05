@@ -2,12 +2,35 @@
 import unittest
 import torch
 import numpy as np
+from fishy.models.utils import ensure_conv_input, ensure_seq_input
 from fishy.models.deep.cnn import CNN
 from fishy.models.deep.transformer import Transformer
 from fishy.models.deep.dense import Dense
 from fishy.models.deep.lstm import LSTM
 from fishy.models.evolutionary.pso import PSO
 from fishy.models.evolutionary.ga import GA
+
+
+class TestTensorUtils(unittest.TestCase):
+    def test_ensure_conv_input_2d(self):
+        x = torch.randn(4, 100)
+        out = ensure_conv_input(x)
+        self.assertEqual(out.shape, (4, 1, 100))
+
+    def test_ensure_conv_input_already_3d(self):
+        x = torch.randn(4, 1, 100)
+        out = ensure_conv_input(x)
+        self.assertEqual(out.shape, (4, 1, 100))
+
+    def test_ensure_seq_input_2d(self):
+        x = torch.randn(4, 100)
+        out = ensure_seq_input(x)
+        self.assertEqual(out.shape, (4, 100, 1))
+
+    def test_ensure_seq_input_already_3d(self):
+        x = torch.randn(4, 100, 1)
+        out = ensure_seq_input(x)
+        self.assertEqual(out.shape, (4, 100, 1))
 
 
 class TestDeepModels(unittest.TestCase):

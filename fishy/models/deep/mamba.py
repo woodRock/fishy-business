@@ -5,6 +5,7 @@ Mamba model for spectral classification.
 
 import math
 import torch
+from fishy.models.utils import ensure_seq_input
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Union
@@ -164,8 +165,7 @@ class Mamba(nn.Module):
         """
         Forward pass of the Mamba model.
         """
-        if x.dim() == 2:
-            x = x.unsqueeze(-1)  # (batch_size, input_dim, 1)
+        x = ensure_seq_input(x)
 
         x = self.embedding(x)
         for layer in self.layers:

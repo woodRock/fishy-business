@@ -4,6 +4,7 @@ Temporal Convolutional Network (TCN) model for spectral classification.
 """
 
 import torch
+from fishy.models.utils import ensure_conv_input
 import torch.nn as nn
 from torch.nn.utils import weight_norm
 
@@ -111,7 +112,6 @@ class TCN(nn.Module):
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
+        x = ensure_conv_input(x)
         y1 = self.network(x)
         return self.fc(y1[:, :, -1])

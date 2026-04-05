@@ -4,6 +4,7 @@ Simple Convolutional Neural Network (CNN) model for spectral classification.
 """
 
 import torch
+from fishy.models.utils import ensure_conv_input
 import torch.nn as nn
 
 
@@ -64,8 +65,7 @@ class CNN(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
+        x = ensure_conv_input(x)
         x = self.conv(x)
         x = x.view(x.size(0), -1)
         return self.fc(x)
