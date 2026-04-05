@@ -105,7 +105,7 @@ class ContrastiveTrainer:
 
         t_cfg = TrainingConfig(
             model=self.config.encoder_type,
-            hidden_dimension=self.config.embedding_dim,
+            hidden_dim=self.config.embedding_dim,
             num_layers=4,
             num_heads=4,
         )

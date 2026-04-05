@@ -42,7 +42,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
     params = {
         "input_dim": input_dim,
         "output_dim": output_dim,
-        "hidden_dim": config.hidden_dimension,
+        "hidden_dim": config.hidden_dim,
         "num_layers": config.num_layers,
         "dropout": config.dropout,
         "num_heads": config.num_heads,

@@ -42,7 +42,7 @@ class TrainingConfig:
     epochs: int = 100
     learning_rate: float = 1e-4
     batch_size: int = 64
-    hidden_dimension: int = 128
+    hidden_dim: int = 128
     num_layers: int = 4
     num_heads: int = 4
     num_augmentations: int = 5

@@ -108,10 +108,20 @@ class TestFactory(unittest.TestCase):
 
     def test_create_model(self):
         config = TrainingConfig(
-            model="transformer", hidden_dimension=64, num_layers=1, num_heads=2
+            model="transformer", hidden_dim=64, num_layers=1, num_heads=2
         )
         model = create_model(config, input_dim=128, output_dim=10)
         self.assertIsInstance(model, torch.nn.Module)
+
+    def test_hidden_dim_flows_to_model(self):
+        """hidden_dim in TrainingConfig must reach the model (not silently ignored)."""
+        config_small = TrainingConfig(model="dense", hidden_dim=32, num_layers=1)
+        config_large = TrainingConfig(model="dense", hidden_dim=256, num_layers=1)
+        small = create_model(config_small, input_dim=16, output_dim=2)
+        large = create_model(config_large, input_dim=16, output_dim=2)
+        small_params = sum(p.numel() for p in small.parameters())
+        large_params = sum(p.numel() for p in large.parameters())
+        self.assertLess(small_params, large_params)
 
 
 if __name__ == "__main__":

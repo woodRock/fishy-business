@@ -50,11 +50,11 @@ def test_opls_da_classic():
 
 def test_factory_extended():
     # Test RWKV via factory
-    cfg = TrainingConfig(model="rwkv", hidden_dimension=32)
+    cfg = TrainingConfig(model="rwkv", hidden_dim=32)
     model = create_model(cfg, 100, 5)
     assert isinstance(model, RWKV)
 
     # Test MoE via factory
-    cfg_moe = TrainingConfig(model="moe", hidden_dimension=32, num_layers=3)
+    cfg_moe = TrainingConfig(model="moe", hidden_dim=32, num_layers=3)
     model_moe = create_model(cfg_moe, 100, 5)
     assert isinstance(model_moe, MixtureOfExperts)
