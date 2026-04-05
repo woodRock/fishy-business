@@ -90,8 +90,6 @@ class ModelTrainer:
     def train(
         self, pre_trained_model: Optional[nn.Module] = None
     ) -> Tuple[nn.Module, Dict[str, Any]]:
-        if "batch-detection" in self.config.dataset:
-            return self._train_single_split_siamese(pre_trained_model)
         return self._train_kfold(pre_trained_model)
 
     def _train_single_split_siamese(
@@ -103,12 +101,15 @@ class ModelTrainer:
         full_samples, full_labels = self.data_module.get_numpy_data()
         class_indices = np.argmax(full_labels, axis=1)
         idx = np.arange(len(full_samples))
+        n_classes_unique = len(np.unique(class_indices))
+        test_size = max(0.2, n_classes_unique / len(full_samples))
         tr_val_idx, te_idx = train_test_split(
-            idx, test_size=0.2, random_state=self.config.run, stratify=class_indices
+            idx, test_size=test_size, random_state=self.config.run, stratify=class_indices
         )
+        val_size = max(0.25, n_classes_unique / len(tr_val_idx))
         tr_idx, val_idx = train_test_split(
             tr_val_idx,
-            test_size=0.25,
+            test_size=val_size,
             random_state=self.config.run,
             stratify=class_indices[tr_val_idx],
         )
