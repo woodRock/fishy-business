@@ -110,12 +110,11 @@ class SklearnTrainer:
         # The same split (keyed on run_id) is used by all method types for fairness.
         if DatasetName.BATCH_DETECTION in self.dataset_name:
             _, full_labels_onehot = self.data_module.get_numpy_data(labels_as_indices=False)
-            X_tr, X_te, _, y_te_oh = make_pairwise_test_split(
-                X, full_labels_onehot, self.run_id
+            # Split X, y-indices, and y-onehot together so all three stay aligned.
+            # Non-stratified so ~half of each class lands in test, giving positive pairs.
+            X_tr, X_te, y_tr, y_te, y_tr_oh, y_te_oh = make_pairwise_test_split(
+                X, y, self.run_id, full_labels_onehot
             )
-            y_tr = y[: len(X_tr)]  # indices matching the train split
-            # Re-derive index labels for test by argmax
-            y_te = np.argmax(y_te_oh, axis=1) if y_te_oh.ndim > 1 else y_te_oh.flatten()
             # Fit scaler on train only
             scaler = StandardScaler()
             X_train_scaled = scaler.fit_transform(X_tr)

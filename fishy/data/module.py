@@ -22,29 +22,25 @@ def make_pairwise_test_split(
     X: np.ndarray,
     y: np.ndarray,
     run_id: int,
-    test_size: float = 1 / 3,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    test_size: float = 0.5,
+    *extra_arrays,
+) -> Tuple:
     """
     Creates a reproducible train/test split for pairwise batch-detection evaluation.
 
-    All three method types (traditional, deep, contrastive) call this with the same
-    run_id so they all train and evaluate on identical data partitions.
+    Uses test_size=0.5 (not stratified) so that roughly half the samples land in
+    the test set. With 3 samples per class this gives ~1-2 per class in test,
+    producing real positive pairs. Stratification is intentionally avoided: with
+    3 samples per class a stratified 1/3 split gives exactly 1 per class in test
+    (zero positive pairs), making the pairwise balanced accuracy trivially 1.0.
 
-    test_size=1/3 is the minimum that allows stratification with 24 classes over
-    72 samples (gives exactly 1 sample per class in the test set).
+    Pass additional arrays (e.g. y_onehot) as *extra_arrays to split them with
+    the same indices. Returns (X_train, X_test, y_train, y_test, *extra_trains,
+    *extra_tests).
     """
     from sklearn.model_selection import train_test_split
 
-    stratify = np.argmax(y, axis=1) if y.ndim > 1 and y.shape[1] > 1 else y
-    try:
-        return train_test_split(
-            X, y, test_size=test_size, random_state=run_id, stratify=stratify
-        )
-    except ValueError:
-        logger.warning(
-            "Stratified pairwise test split failed; falling back to non-stratified."
-        )
-        return train_test_split(X, y, test_size=test_size, random_state=run_id)
+    return train_test_split(X, y, *extra_arrays, test_size=test_size, random_state=run_id)
 
 logger = logging.getLogger(__name__)
 

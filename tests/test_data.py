@@ -104,10 +104,10 @@ class TestMakePairwiseTestSplit(unittest.TestCase):
         X_tr, X_te, y_tr, y_te = make_pairwise_test_split(X, y, run_id=0)
         self.assertEqual(len(X_tr) + len(X_te), len(X))
 
-    def test_test_size_is_one_third(self):
+    def test_test_size_is_half(self):
         X, y = self._make_data()
         X_tr, X_te, y_tr, y_te = make_pairwise_test_split(X, y, run_id=0)
-        self.assertAlmostEqual(len(X_te) / len(X), 1 / 3, delta=0.02)
+        self.assertAlmostEqual(len(X_te) / len(X), 0.5, delta=0.02)
 
     def test_same_run_gives_same_split(self):
         X, y = self._make_data()
@@ -121,6 +121,17 @@ class TestMakePairwiseTestSplit(unittest.TestCase):
         X_tr1, _, _, _ = make_pairwise_test_split(X, y, run_id=0)
         X_tr2, _, _, _ = make_pairwise_test_split(X, y, run_id=99)
         self.assertFalse(np.array_equal(X_tr1, X_tr2))
+
+    def test_positive_pairs_exist_in_test_set(self):
+        """Test set must have ≥2 samples per class for at least some classes."""
+        X, y = self._make_data()
+        _, X_te, _, y_te = make_pairwise_test_split(X, y, run_id=0)
+        y_te_idx = np.argmax(y_te, axis=1)
+        counts = np.bincount(y_te_idx)
+        self.assertTrue(
+            np.any(counts >= 2),
+            "Test set has no class with ≥2 samples — pairwise eval would be degenerate",
+        )
 
     def test_no_sample_appears_in_both_splits(self):
         X, y = self._make_data()
