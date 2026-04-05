@@ -261,6 +261,7 @@ class UnifiedTrainer:
         from fishy.experiments.contrastive import (
             run_contrastive_experiment,
             ContrastiveConfig,
+            ContrastiveTrainer,
         )
 
         c_cfg = ContrastiveConfig(
