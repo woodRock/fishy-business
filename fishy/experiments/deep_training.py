@@ -101,23 +101,30 @@ class ModelTrainer:
 
         self.logger.info("Using Train/Validation/Test split for batch-detection.")
         full_samples, full_labels = self.data_module.get_numpy_data()
-        ds = SiameseDataset(full_samples, full_labels)
-        idx = np.arange(len(ds))
-        lbls = ds.paired_labels.cpu().numpy().flatten()
+        class_indices = np.argmax(full_labels, axis=1)
+        idx = np.arange(len(full_samples))
         tr_val_idx, te_idx = train_test_split(
-            idx, test_size=0.2, random_state=self.config.run, stratify=lbls
+            idx, test_size=0.2, random_state=self.config.run, stratify=class_indices
         )
         tr_idx, val_idx = train_test_split(
             tr_val_idx,
             test_size=0.25,
             random_state=self.config.run,
-            stratify=lbls[tr_val_idx],
+            stratify=class_indices[tr_val_idx],
         )
         tr_ldr = DataLoader(
-            Subset(ds, tr_idx), batch_size=self.config.batch_size, shuffle=True
+            CustomDataset(full_samples[tr_idx], full_labels[tr_idx]),
+            batch_size=self.config.batch_size,
+            shuffle=True,
         )
-        val_ldr = DataLoader(Subset(ds, val_idx), batch_size=self.config.batch_size)
-        te_ldr = DataLoader(Subset(ds, te_idx), batch_size=self.config.batch_size)
+        val_ldr = DataLoader(
+            CustomDataset(full_samples[val_idx], full_labels[val_idx]),
+            batch_size=self.config.batch_size,
+        )
+        te_ldr = DataLoader(
+            CustomDataset(full_samples[te_idx], full_labels[te_idx]),
+            batch_size=self.config.batch_size,
+        )
         model = create_model(self.config, self.n_features, self.n_classes).to(
             self.device
         )
@@ -266,7 +273,8 @@ class ModelTrainer:
         )
         if not self.config.regression and y_probs is not None:
             self.ctx.log_summary_charts(y_true, y_probs, class_names)
-        spectra, _ = next(iter(loader))
+        batch = next(iter(loader))
+        spectra = batch[0]
         self.ctx.log_prediction_table(
             spectra=spectra.cpu().numpy(),
             preds=y_preds[: len(spectra)],

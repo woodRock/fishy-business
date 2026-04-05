@@ -13,7 +13,7 @@ import torch
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import LabelEncoder
 
-from .datasets import CustomDataset, SiameseDataset
+from .datasets import CustomDataset
 from .augmentation import AugmentationConfig, DataAugmenter
 from fishy._core.config_loader import load_config
 
@@ -170,12 +170,7 @@ def preprocess_data_pipeline(
             filtered_df,
         )
     X, y = data_processor.encode_labels(filtered_df)
-    dataset_class = (
-        SiameseDataset
-        if "batch-detection" in data_processor.dataset_name
-        else CustomDataset
-    )
-    torch_dataset = dataset_class(X, y)
+    torch_dataset = CustomDataset(X, y)
     data_loader = DataLoader(
         torch_dataset,
         batch_size=data_processor.batch_size,

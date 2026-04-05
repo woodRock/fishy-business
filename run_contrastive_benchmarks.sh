@@ -15,14 +15,14 @@ EPOCHS=${2:-30}               # Default to 30 epochs
 DIRECTORY="/vol/ecrg-solar/woodj4/fishy-business"
 
 # 1. Traditional Methods (Binary Classification)
-TRADITIONAL_MODELS=("knn" "dt" "lr" "lda" "nb" "rf" "svm" "xgb" "opls-da")
+TRADITIONAL_MODELS=("xgb") # ("knn" "dt" "lr" "lda" "nb" "rf" "svm" "xgb" "opls-da")
 
 # 2. Deep Learning Methods (Binary Classification)
-DEEP_MODELS=("transformer" "cnn" "ensemble" "moe" "rcnn" "lstm" "kan")
+DEEP_MODELS=() # ("transformer" "cnn" "ensemble" "moe" "rcnn" "lstm" "kan")
 
 # 3. Contrastive Learning Methods (SimCLR objective)
-CONTRASTIVE_MODELS=("simclr")
-ENCODERS=("transformer" "cnn" "ensemble" "moe" "rcnn" "lstm" "kan")
+CONTRASTIVE_MODELS=() # ("simclr")
+ENCODERS=() # ("transformer" "cnn" "ensemble" "moe" "rcnn" "lstm" "kan")
 
 echo "Queuing experiment sweep: ${#SEEDS[@]} seeds x (Traditional + Deep + Contrastive)"
 echo "Dataset: $DATASET | Epochs: $EPOCHS"
@@ -31,7 +31,7 @@ echo "Usage: ./run_contrastive_benchmarks.sh [dataset_name] [epochs]"
 # --- Traditional Models ---
 for model in "${TRADITIONAL_MODELS[@]}"; do
     for seed in "${SEEDS[@]}"; do
-        task -G 1 -d "$DIRECTORY" fishy train -m "$model" -d "$DATASET" --seed "$seed" --benchmark --figures --wandb-log
+        fishy train -m "$model" -d "$DATASET" --seed "$seed" --benchmark --figures --wandb-log
     done
 done
 

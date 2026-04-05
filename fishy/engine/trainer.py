@@ -204,9 +204,6 @@ class Trainer:
         }
 
     def _unpack_batch(self, batch):
-        if len(batch) == 5:
-            # SiameseDataset: (X1, X2, pair_label, y1, y2) — use X1 and y1
-            return batch[0], batch[3]
         if len(batch) == 3:
             return (batch[0], batch[1]), batch[2]
         return batch[0], batch[1]
