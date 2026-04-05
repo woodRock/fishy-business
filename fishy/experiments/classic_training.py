@@ -118,31 +118,26 @@ class SklearnTrainer:
             # Fit scaler on train only
             scaler = StandardScaler()
             X_train_scaled = scaler.fit_transform(X_tr)
-            X_test_scaled = scaler.transform(X_te)
-            # k-fold on train split only
-            skf = StratifiedKFold(
-                n_splits=self.config.k_folds, shuffle=True, random_state=self.run_id
-            )
-            all_fold_metrics = []
-            last_model = None
-            for fold, (train_idx, val_idx) in enumerate(skf.split(X_train_scaled, y_tr), 1):
-                Xf_tr, Xf_val = X_train_scaled[train_idx], X_train_scaled[val_idx]
-                yf_tr, yf_val = y_tr[train_idx], y_tr[val_idx]
+            # Non-stratified split may leave gaps in y_tr class indices (some classes
+            # land entirely in the test half). Remap to contiguous 0..n-1 for models
+            # that require it (e.g. XGBoost). Pairwise eval only uses ==, so no inversion needed.
+            unique_train_classes = np.unique(y_tr)
+            remap = {orig: new for new, orig in enumerate(unique_train_classes)}
+            y_tr_remapped = np.array([remap[c] for c in y_tr])
+            n_train_classes = len(unique_train_classes)
+            # With ~36 training samples across 24 classes, k-fold is not viable
+            # (many classes have only 1 sample). Train once on the full training split.
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                orig_num_classes = self.num_classes
+                self.num_classes = n_train_classes
                 last_model = self._get_model_instance()
-                last_model.fit(Xf_tr, yf_tr)
-                y_pred = last_model.predict(Xf_val)
-                y_train_pred = last_model.predict(Xf_tr)
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("ignore", category=UserWarning)
-                    fold_res = {f"train_{k}": v for k, v in self._calculate_metrics(yf_tr, y_train_pred).items()}
-                    fold_res.update({f"val_{k}": v for k, v in self._calculate_metrics(yf_val, y_pred).items()})
-                all_fold_metrics.append(fold_res)
+                last_model.fit(X_train_scaled, y_tr_remapped)
+                y_train_pred = last_model.predict(X_train_scaled)
+                train_metrics = self._calculate_metrics(y_tr_remapped, y_train_pred)
+                self.num_classes = orig_num_classes
 
-            stats = {
-                k: float(np.mean([m[k] for m in all_fold_metrics]))
-                for k in all_fold_metrics[0].keys()
-            }
-            stats["folds"] = all_fold_metrics
+            stats = {f"train_{k}": v for k, v in train_metrics.items()}
             stats["total_training_time_s"] = time.time() - start_time
 
             # Pairwise evaluation on held-out test set only
