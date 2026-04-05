@@ -203,6 +203,14 @@ class Trainer:
             },
         }
 
+    def _labels_to_indices(self, labels: torch.Tensor) -> torch.Tensor:
+        """Convert one-hot or multi-dim labels to flat class indices."""
+        if labels.dim() > 1 and labels.shape[1] > 1:
+            return labels.argmax(dim=1)
+        if labels.dim() > 1:
+            return labels.squeeze(-1)
+        return labels
+
     def _unpack_batch(self, batch):
         if len(batch) == 3:
             return (batch[0], batch[1]), batch[2]
@@ -225,11 +233,7 @@ class Trainer:
     def _compute_loss(self, outputs, labels):
         if self.regression:
             return self.criterion(outputs.squeeze(), labels.squeeze(-1).float())
-        actual = (
-            labels.argmax(dim=1)
-            if labels.dim() > 1 and labels.shape[1] > 1
-            else (labels.squeeze(-1) if labels.dim() > 1 else labels)
-        )
+        actual = self._labels_to_indices(labels)
         if self.use_coral:
             return self.criterion(
                 outputs,
@@ -242,11 +246,7 @@ class Trainer:
     def _process_predictions(self, outputs, labels):
         if self.regression:
             return outputs.squeeze(), None, labels.squeeze(-1).float()
-        actual = (
-            labels.argmax(dim=1)
-            if labels.dim() > 1 and labels.shape[1] > 1
-            else (labels.squeeze(-1) if labels.dim() > 1 else labels)
-        )
+        actual = self._labels_to_indices(labels)
         if self.use_coral or self.use_cumulative_link:
             probs = torch.sigmoid(outputs)
             return torch.sum((probs > 0.5), dim=1).long(), probs, actual

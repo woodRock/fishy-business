@@ -23,6 +23,41 @@ class TestLosses(unittest.TestCase):
         self.assertLess(loss.item(), 0.1)
 
 
+class TestLabelsToIndices(unittest.TestCase):
+    """Tests for the _labels_to_indices helper on Trainer."""
+
+    def _make_trainer(self):
+        model = nn.Linear(10, 2)
+        return Trainer(
+            model,
+            nn.CrossEntropyLoss(),
+            optim.Adam(model.parameters()),
+            torch.device("cpu"),
+            num_epochs=1,
+            num_classes=2,
+        )
+
+    def test_1d_labels_unchanged(self):
+        t = self._make_trainer()
+        labels = torch.tensor([0, 1, 0])
+        result = t._labels_to_indices(labels)
+        self.assertTrue(torch.equal(result, labels))
+
+    def test_one_hot_2d_argmax(self):
+        t = self._make_trainer()
+        labels = torch.tensor([[1.0, 0.0], [0.0, 1.0], [1.0, 0.0]])
+        result = t._labels_to_indices(labels)
+        expected = torch.tensor([0, 1, 0])
+        self.assertTrue(torch.equal(result, expected))
+
+    def test_single_column_2d_squeeze(self):
+        t = self._make_trainer()
+        labels = torch.tensor([[0], [1], [1]])
+        result = t._labels_to_indices(labels)
+        expected = torch.tensor([0, 1, 1])
+        self.assertTrue(torch.equal(result, expected))
+
+
 class TestTrainer(unittest.TestCase):
     def setUp(self):
         self.model = nn.Linear(10, 2)
