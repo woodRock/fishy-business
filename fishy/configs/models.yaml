@@ -69,6 +69,17 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 32
 
+  role_filler:
+    path: "fishy.models.deep.role_filler.RoleFillerNet"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      num_heads: 8
+      dropout: 0.1
+      binding_type: "complex"
+      learning_rate: 0.0005
+      batch_size: 64
+
   # Registry for models that don't need complex defaults
   rcnn: "fishy.models.deep.rcnn.RCNN"
   kan: "fishy.models.deep.kan.KAN"
@@ -80,7 +91,6 @@ deep_models:
   hybrid: "fishy.models.deep.hybrid.Hybrid"
   performer: "fishy.models.deep.performer.Performer"
   ordinal: "fishy.models.deep.ordinal.TransformerOrdinal"
-  role_filler: "fishy.models.deep.role_filler.RoleFillerNet"
 
 classic_models:
   knn: "sklearn.neighbors.KNeighborsClassifier"
