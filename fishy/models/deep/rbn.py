@@ -129,32 +129,44 @@ class SecondOrderRelationalAttention(nn.Module):
         k = self.k_proj(x).view(B, C, H, d).transpose(1, 2) # [B, H, C, d]
         v = self.v_proj(x).view(B, C, H, d).transpose(1, 2) # [B, H, C, d]
 
-        # Memory-efficient chunked score calculation
-        # Instead of one big [B, H, C, C, 3d] tensor, we compute row-chunks of the attention matrix
+        # Decompose the first linear layer of the MLP to save memory
+        # MLP_rel input is [q || k || q*k]
+        w1 = self.mlp_rel[0]
+        w1_q = w1.weight[:, :d]
+        w1_k = w1.weight[:, d:2*d]
+        w1_qk = w1.weight[:, 2*d:]
+        bias = w1.bias
+
+        # Pre-project q and k
+        q_proj = torch.matmul(q, w1_q.t()) # [B, H, C, d]
+        k_proj = torch.matmul(k, w1_k.t()) # [B, H, C, d]
+
         all_outs = []
         for i in range(0, C, self.chunk_size):
             end_i = min(i + self.chunk_size, C)
-            q_chunk = q[:, :, i:end_i, :].unsqueeze(3) # [B, H, chunk, 1, d]
-            k_exp = k.unsqueeze(2)                      # [B, H, 1, C, d]
             
-            # Local expansion for this chunk only
-            curr_chunk_size = end_i - i
-            q_exp = q_chunk.expand(-1, -1, -1, C, -1)
-            k_exp_sh = k_exp.expand(-1, -1, curr_chunk_size, -1, -1)
-            interaction = q_chunk * k_exp_sh
+            # Memory-efficient score calculation:
+            # W1 * [q || k || q*k] = W_q*q + W_k*k + W_qk*(q*k)
+            # Use broadcasting instead of expansion
             
-            combined = torch.cat([q_exp, k_exp_sh, interaction], dim=-1) # [B, H, chunk, C, 3d]
-            scores = self.mlp_rel(combined).squeeze(-1)                  # [B, H, chunk, C]
-            scores = scores / (d ** 0.5)
+            # [B, H, chunk, 1, d] + [B, H, 1, C, d]
+            res = q_proj[:, :, i:end_i, :].unsqueeze(3) + k_proj.unsqueeze(2) + bias
+            
+            # Interaction term: [B, H, chunk, 1, d] * [B, H, 1, C, d]
+            interaction = q[:, :, i:end_i, :].unsqueeze(3) * k.unsqueeze(2)
+            res = res + torch.matmul(interaction, w1_qk.t())
+            
+            # Remaining MLP layers
+            res = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1) # [B, H, chunk, C]
+            scores = res / (d ** 0.5)
             
             attn = torch.softmax(scores, dim=-1)
             attn = self.dropout(attn)
             
-            # Aggregate for this chunk
             chunk_out = torch.matmul(attn, v) # [B, H, chunk, d]
             all_outs.append(chunk_out)
             
-        out = torch.cat(all_outs, dim=2) # Recombine row-chunks
+        out = torch.cat(all_outs, dim=2)
         out = out.transpose(1, 2).contiguous().view(B, C, D)
         return self.out_proj(out)
 
