@@ -65,6 +65,7 @@ class TrainingConfig:
     # RFN Specific
     top_k: Optional[int] = None
     use_performer: bool = False
+    binding_type: str = "complex"
 
     # Contrastive specific
     encoder_type: str = "dense"
@@ -102,11 +103,17 @@ class TrainingConfig:
         }
 
         # 2. Load model-specific defaults from YAML if available
+        valid_keys = {f.name for f in dataclasses.fields(cls)}
         if hasattr(args, "model") and args.model:
             models_cfg = load_config("models")["deep_models"]
             model_entry = models_cfg.get(args.model.lower())
             if isinstance(model_entry, dict) and "defaults" in model_entry:
-                config_dict.update(model_entry["defaults"])
+                model_defaults = model_entry["defaults"].copy()
+                # Normalise hidden_dimension -> hidden_dim
+                if "hidden_dimension" in model_defaults:
+                    model_defaults["hidden_dim"] = model_defaults.pop("hidden_dimension")
+                # Only apply keys that TrainingConfig actually knows about
+                config_dict.update({k: v for k, v in model_defaults.items() if k in valid_keys})
 
         # 3. Override with explicitly provided command-line arguments
         arg_dict = vars(args)
@@ -118,7 +125,6 @@ class TrainingConfig:
         if "encoder" in arg_dict and arg_dict["encoder"]:
             config_dict["encoder_type"] = arg_dict["encoder"]
 
-        valid_keys = {f.name for f in dataclasses.fields(cls)}
         for key in valid_keys:
             if key in arg_dict and arg_dict[key] is not None:
                 config_dict[key] = arg_dict[key]
