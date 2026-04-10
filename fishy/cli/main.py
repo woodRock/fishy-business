@@ -42,7 +42,6 @@ def get_all_datasets() -> List[str]:
     return sorted(list(cfg.keys()))
 
 
-
 def setup_parser() -> argparse.ArgumentParser:
     all_models = get_all_models()
     all_datasets = get_all_datasets()
@@ -118,7 +117,9 @@ def setup_parser() -> argparse.ArgumentParser:
         "--wandb-log", action="store_true", help="Log results to Weights & Biases"
     )
     hp_group.add_argument(
-        "--statistical", action="store_true", help="Perform statistical significance tests"
+        "--statistical",
+        action="store_true",
+        help="Perform statistical significance tests",
     )
 
     hp_group.add_argument("--batch-size", type=int, default=64)
@@ -127,12 +128,18 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument("--num-layers", type=int, default=4)
     hp_group.add_argument("--num-heads", type=int, default=4)
     hp_group.add_argument("--dropout", type=float, default=0.1)
-    hp_group.add_argument("--top-k", type=int, default=None, help="Process only the top-K peaks")
-    hp_group.add_argument("--use-performer", action="store_true", help="Use linear attention for speed")
+    hp_group.add_argument(
+        "--top-k", type=int, default=None, help="Process only the top-K peaks"
+    )
+    hp_group.add_argument(
+        "--use-performer", action="store_true", help="Use linear attention for speed"
+    )
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
-    subparsers.add_parser("dashboard", help="Launch the interactive Streamlit dashboard")
+    subparsers.add_parser(
+        "dashboard", help="Launch the interactive Streamlit dashboard"
+    )
 
     download_parser = subparsers.add_parser(
         "download-data", help="Download private REIMS dataset"
@@ -222,18 +229,18 @@ def main() -> None:
             import subprocess
             from pathlib import Path
             import fishy
-            
+
             # Locate the dashboard relative to the package or current directory
             dashboard_path = Path(fishy.__file__).parent.parent / "dashboard" / "app.py"
-            
+
             if not dashboard_path.exists():
                 # Fallback for local development if installed in editable mode differently
                 dashboard_path = Path("dashboard/app.py")
-                
+
             if not dashboard_path.exists():
                 console.print("[bold red]Error:[/] Could not locate dashboard/app.py")
                 sys.exit(1)
-                
+
             console.print(f"[bold green]Launching dashboard...[/]")
             try:
                 subprocess.run(["streamlit", "run", str(dashboard_path)])
@@ -302,19 +309,27 @@ def _handle_train_execution(config: TrainingConfig):
         config.run = seed
         set_seed(seed)
         res = run_unified_training(config)
-        
+
         if config.xai:
             model = res.get("model")
             dm = res.get("data_module")
             if model and dm:
-                console.print("\n[bold yellow]Starting Automated Biomarker Discovery...[/]")
+                console.print(
+                    "\n[bold yellow]Starting Automated Biomarker Discovery...[/]"
+                )
                 report = run_biomarker_pipeline(
                     model=model,
                     data_loader=dm.get_train_dataloader(),
                     feature_names=dm.get_train_dataframe().columns[1:],
-                    device=get_device()
+                    device=get_device(),
                 )
-                console.print(Panel(report, title="[bold]XAI Pipeline Results[/]", border_style="yellow"))
+                console.print(
+                    Panel(
+                        report,
+                        title="[bold]XAI Pipeline Results[/]",
+                        border_style="yellow",
+                    )
+                )
 
         # Strip memory-intensive objects
         res.pop("model", None)

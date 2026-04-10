@@ -81,24 +81,24 @@ class SparselyGatedMoE(nn.Module):
 
         # Select top-k experts
         top_k_logits, top_k_indices = torch.topk(logits, self.k, dim=-1)
-        
+
         # Softmax over the top-k selected experts
         top_k_weights = F.softmax(top_k_logits, dim=-1)
 
         # Initialize output
         batch_size = x.shape[0]
-        
+
         # Expert results accumulator
         expert_results = torch.zeros(batch_size, self.output_dim, device=x.device)
 
         # We can optimize slightly by only running experts that were selected at least once
         unique_indices = torch.unique(top_k_indices)
-        
+
         for expert_idx in unique_indices:
             # Find which samples in the batch selected this expert
-            mask = (top_k_indices == expert_idx)
+            mask = top_k_indices == expert_idx
             sample_indices, k_pos = torch.where(mask)
-            
+
             if len(sample_indices) > 0:
                 # Run the expert on the relevant samples
                 expert_out = self.experts[expert_idx](x[sample_indices])

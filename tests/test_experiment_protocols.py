@@ -25,6 +25,7 @@ from fishy.experiments.deep_training import ModelTrainer
 # Shared synthetic data helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_batch_detection_df(n_classes=24, n_per_class=3, n_features=5, seed=0):
     """
     Returns a DataFrame in the format DataProcessor expects for batch-detection:
@@ -63,7 +64,10 @@ def _make_species_df(n_per_class=10, n_features=5, seed=0):
 def _cpu_device_patches():
     """Context managers that force CPU so tests run without GPU."""
     return [
-        patch("fishy.experiments.deep_training.get_device", return_value=torch.device("cpu")),
+        patch(
+            "fishy.experiments.deep_training.get_device",
+            return_value=torch.device("cpu"),
+        ),
         patch("fishy.engine.trainer.get_device", return_value=torch.device("cpu")),
     ]
 
@@ -71,6 +75,7 @@ def _cpu_device_patches():
 # ---------------------------------------------------------------------------
 # Classic trainer — batch-detection
 # ---------------------------------------------------------------------------
+
 
 class TestClassicBatchDetection(unittest.TestCase):
     """SklearnTrainer on batch-detection must use a held-out test split and
@@ -138,14 +143,19 @@ class TestClassicBatchDetection(unittest.TestCase):
 
         with (
             patch("fishy.data.module.DataProcessor.load_data", return_value=df),
-            patch("fishy.experiments.classic_training.make_pairwise_test_split", side_effect=spy_split),
+            patch(
+                "fishy.experiments.classic_training.make_pairwise_test_split",
+                side_effect=spy_split,
+            ),
         ):
             trainer = SklearnTrainer(cfg, "lda", "batch-detection", run_id=0)
             trainer.run()
 
         total = captures["n_total"]
         self.assertAlmostEqual(
-            captures["n_test"] / total, 0.5, delta=0.05,
+            captures["n_test"] / total,
+            0.5,
+            delta=0.05,
             msg="Held-out test set should be ~50% of the data",
         )
         self.assertEqual(captures["n_train"] + captures["n_test"], total)
@@ -155,13 +165,16 @@ class TestClassicBatchDetection(unittest.TestCase):
 # Classic trainer — non-batch-detection (species)
 # ---------------------------------------------------------------------------
 
+
 class TestClassicSpecies(unittest.TestCase):
     """SklearnTrainer on a normal classification dataset must return per-fold
     metrics and a summary val_balanced_accuracy."""
 
     def _run(self, model_name="lda", k_folds=3):
         df = _make_species_df()
-        cfg = TrainingConfig(model=model_name, dataset="species", k_folds=k_folds, run=0)
+        cfg = TrainingConfig(
+            model=model_name, dataset="species", k_folds=k_folds, run=0
+        )
         with patch("fishy.data.module.DataProcessor.load_data", return_value=df):
             trainer = SklearnTrainer(cfg, model_name, "species", run_id=0)
             _, stats = trainer.run()
@@ -192,6 +205,7 @@ class TestClassicSpecies(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # Deep trainer — batch-detection (pairwise difference-vector binary classification)
 # ---------------------------------------------------------------------------
+
 
 class TestDeepBatchDetection(unittest.TestCase):
     """ModelTrainer on batch-detection must use binary same/different
@@ -282,6 +296,7 @@ class TestDeepBatchDetection(unittest.TestCase):
 # Contrastive trainer — batch-detection
 # ---------------------------------------------------------------------------
 
+
 class TestContrastiveBatchDetection(unittest.TestCase):
     """ContrastiveTrainer on batch-detection must hold out a test split,
     evaluate pairwise similarity on it, and report test_balanced_accuracy."""
@@ -313,7 +328,10 @@ class TestContrastiveBatchDetection(unittest.TestCase):
             patch("fishy.data.module.DataProcessor.load_data", return_value=df),
             patches[0],
             patches[1],
-            patch("fishy.experiments.contrastive.get_device", return_value=torch.device("cpu")),
+            patch(
+                "fishy.experiments.contrastive.get_device",
+                return_value=torch.device("cpu"),
+            ),
         ):
             trainer = ContrastiveTrainer(cfg)
             trainer.setup()
@@ -357,7 +375,10 @@ class TestContrastiveBatchDetection(unittest.TestCase):
             patch("fishy.data.module.DataProcessor.load_data", return_value=df),
             patches[0],
             patches[1],
-            patch("fishy.experiments.contrastive.get_device", return_value=torch.device("cpu")),
+            patch(
+                "fishy.experiments.contrastive.get_device",
+                return_value=torch.device("cpu"),
+            ),
         ):
             trainer = ContrastiveTrainer(cfg)
             trainer.setup()
@@ -366,15 +387,21 @@ class TestContrastiveBatchDetection(unittest.TestCase):
         n_train = len(trainer._train_X)
         n_test = len(trainer._test_X)
 
-        self.assertEqual(n_train + n_test, n_total,
-                         "Train + test sizes must sum to total samples")
-        self.assertAlmostEqual(n_test / n_total, 0.5, delta=0.05,
-                               msg="Test split should be ~50% of the data")
+        self.assertEqual(
+            n_train + n_test, n_total, "Train + test sizes must sum to total samples"
+        )
+        self.assertAlmostEqual(
+            n_test / n_total,
+            0.5,
+            delta=0.05,
+            msg="Test split should be ~50% of the data",
+        )
 
 
 # ---------------------------------------------------------------------------
 # Shared split protocol — all three method types
 # ---------------------------------------------------------------------------
+
 
 class TestSharedSplitProtocol(unittest.TestCase):
     """For a given seed, classic, deep, and contrastive must all hold out
@@ -394,7 +421,10 @@ class TestSharedSplitProtocol(unittest.TestCase):
 
         with (
             patch("fishy.data.module.DataProcessor.load_data", return_value=df),
-            patch("fishy.experiments.classic_training.make_pairwise_test_split", side_effect=spy),
+            patch(
+                "fishy.experiments.classic_training.make_pairwise_test_split",
+                side_effect=spy,
+            ),
         ):
             trainer = SklearnTrainer(cfg, "lda", "batch-detection", run_id=seed)
             trainer.run()
@@ -402,8 +432,13 @@ class TestSharedSplitProtocol(unittest.TestCase):
 
     def _get_deep_test_samples(self, df, seed):
         cfg = TrainingConfig(
-            model="dense", dataset="batch-detection",
-            epochs=1, k_folds=2, batch_size=32, run=seed, wandb_log=False,
+            model="dense",
+            dataset="batch-detection",
+            epochs=1,
+            k_folds=2,
+            batch_size=32,
+            run=seed,
+            wandb_log=False,
         )
         captured = {}
         real_split = __import__(
@@ -418,7 +453,10 @@ class TestSharedSplitProtocol(unittest.TestCase):
         patches = _cpu_device_patches()
         with (
             patch("fishy.data.module.DataProcessor.load_data", return_value=df),
-            patch("fishy.experiments.deep_training.make_pairwise_test_split", side_effect=spy),
+            patch(
+                "fishy.experiments.deep_training.make_pairwise_test_split",
+                side_effect=spy,
+            ),
             patches[0],
             patches[1],
         ):
@@ -442,7 +480,10 @@ class TestSharedSplitProtocol(unittest.TestCase):
             patch("fishy.data.module.DataProcessor.load_data", return_value=df),
             patches[0],
             patches[1],
-            patch("fishy.experiments.contrastive.get_device", return_value=torch.device("cpu")),
+            patch(
+                "fishy.experiments.contrastive.get_device",
+                return_value=torch.device("cpu"),
+            ),
         ):
             trainer = ContrastiveTrainer(cfg)
             trainer.setup()
@@ -454,7 +495,8 @@ class TestSharedSplitProtocol(unittest.TestCase):
         X_te_classic = self._get_classic_test_samples(df, seed)
         X_te_deep = self._get_deep_test_samples(df, seed)
         np.testing.assert_array_equal(
-            X_te_classic, X_te_deep,
+            X_te_classic,
+            X_te_deep,
             err_msg="Classic and deep methods held out different test samples",
         )
 
@@ -464,7 +506,8 @@ class TestSharedSplitProtocol(unittest.TestCase):
         X_te_classic = self._get_classic_test_samples(df, seed)
         X_te_contrastive = self._get_contrastive_test_samples(df, seed)
         np.testing.assert_array_equal(
-            X_te_classic, X_te_contrastive,
+            X_te_classic,
+            X_te_contrastive,
             err_msg="Classic and contrastive methods held out different test samples",
         )
 

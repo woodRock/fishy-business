@@ -18,6 +18,7 @@ from .augmentation import AugmentationConfig, DataAugmenter
 from fishy._core.config_loader import load_config
 from fishy._core.constants import DatasetName
 
+
 def make_pairwise_test_split(
     X: np.ndarray,
     y: np.ndarray,
@@ -40,7 +41,10 @@ def make_pairwise_test_split(
     """
     from sklearn.model_selection import train_test_split
 
-    return train_test_split(X, y, *extra_arrays, test_size=test_size, random_state=run_id)
+    return train_test_split(
+        X, y, *extra_arrays, test_size=test_size, random_state=run_id
+    )
+
 
 logger = logging.getLogger(__name__)
 

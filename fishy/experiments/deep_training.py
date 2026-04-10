@@ -37,6 +37,7 @@ class ModelTrainer:
         self.wandb_run = wandb_run
         if self.wandb_run is None and self.config.wandb_log:
             import os
+
             os.environ["WANDB_START_METHOD"] = "thread"
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
@@ -101,7 +102,9 @@ class ModelTrainer:
         """Binary same/different classification on pairwise difference vectors."""
         from sklearn.model_selection import StratifiedKFold
 
-        self.logger.info("Building pairwise difference-vector dataset for batch-detection.")
+        self.logger.info(
+            "Building pairwise difference-vector dataset for batch-detection."
+        )
         full_samples, full_labels = self.data_module.get_numpy_data()
 
         # Hold out a fixed test set — same split used by all three method types
@@ -120,7 +123,9 @@ class ModelTrainer:
 
         n_classes = 2
         k_folds = self.config.k_folds
-        skf = StratifiedKFold(n_splits=k_folds, shuffle=True, random_state=self.config.run)
+        skf = StratifiedKFold(
+            n_splits=k_folds, shuffle=True, random_state=self.config.run
+        )
         all_fold_metrics = []
         last_model = None
 
@@ -131,7 +136,9 @@ class ModelTrainer:
             sample_weights = torch.tensor(
                 (1.0 / class_counts)[tr_labels], dtype=torch.float32
             )
-            sampler = WeightedRandomSampler(sample_weights, len(sample_weights), replacement=True)
+            sampler = WeightedRandomSampler(
+                sample_weights, len(sample_weights), replacement=True
+            )
 
             tr_ldr = DataLoader(
                 CustomDataset(X_diff_train[tr_idx], y_oh_train[tr_idx]),
@@ -142,9 +149,13 @@ class ModelTrainer:
                 CustomDataset(X_diff_train[val_idx], y_oh_train[val_idx]),
                 batch_size=self.config.batch_size,
             )
-            model = create_model(self.config, self.n_features, n_classes).to(self.device)
+            model = create_model(self.config, self.n_features, n_classes).to(
+                self.device
+            )
             if pre_trained_model:
-                self.pre_train_orchestrator.adapt_for_finetuning(model, pre_trained_model)
+                self.pre_train_orchestrator.adapt_for_finetuning(
+                    model, pre_trained_model
+                )
             criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
             opt = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
             last_model, metrics = DeepEngine.train_model(
@@ -170,8 +181,12 @@ class ModelTrainer:
         )
         criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
         test_results = DeepEngine.evaluate_model(
-            last_model, test_ldr, criterion, self.device,
-            num_classes=n_classes, regression=False,
+            last_model,
+            test_ldr,
+            criterion,
+            self.device,
+            num_classes=n_classes,
+            regression=False,
         )
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_results, test_ldr)
@@ -218,7 +233,10 @@ class ModelTrainer:
         n_classes_unique = len(np.unique(class_indices))
         test_size = max(0.2, n_classes_unique / len(full_samples))
         tr_val_idx, te_idx = train_test_split(
-            idx, test_size=test_size, random_state=self.config.run, stratify=class_indices
+            idx,
+            test_size=test_size,
+            random_state=self.config.run,
+            stratify=class_indices,
         )
         val_size = max(0.25, n_classes_unique / len(tr_val_idx))
         tr_idx, val_idx = train_test_split(

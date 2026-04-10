@@ -109,7 +109,9 @@ class SklearnTrainer:
         # For batch-detection: hold out a fixed test set before any training.
         # The same split (keyed on run_id) is used by all method types for fairness.
         if DatasetName.BATCH_DETECTION in self.dataset_name:
-            _, full_labels_onehot = self.data_module.get_numpy_data(labels_as_indices=False)
+            _, full_labels_onehot = self.data_module.get_numpy_data(
+                labels_as_indices=False
+            )
             # Split X, y-indices, and y-onehot together so all three stay aligned.
             # Non-stratified so ~half of each class lands in test, giving positive pairs.
             X_tr, X_te, y_tr, y_te, y_tr_oh, y_te_oh = make_pairwise_test_split(
@@ -144,6 +146,7 @@ class SklearnTrainer:
             from fishy.data.datasets import SiameseDataset
             import torch.nn.functional as F
             import torch
+
             full_X_test, full_y_test_oh = X_te, y_te_oh
             siamese_ds = SiameseDataset(full_X_test, full_y_test_oh)
             X1_s = scaler.transform(siamese_ds.X1.cpu().numpy())
@@ -155,7 +158,9 @@ class SklearnTrainer:
                 sims = F.cosine_similarity(z1, z2).numpy()
                 best_acc, best_thresh = 0, 0.5
                 for thresh in np.arange(0, 1, 0.05):
-                    acc = balanced_accuracy_score(pair_labels, (sims > thresh).astype(int))
+                    acc = balanced_accuracy_score(
+                        pair_labels, (sims > thresh).astype(int)
+                    )
                     if acc > best_acc:
                         best_acc, best_thresh = acc, thresh
                 pair_preds = (sims > best_thresh).astype(int)
@@ -164,7 +169,9 @@ class SklearnTrainer:
                 y2_pred = last_model.predict(X2_s)
                 pair_preds = (y1_pred == y2_pred).astype(int)
 
-            stats["test_balanced_accuracy"] = balanced_accuracy_score(pair_labels, pair_preds)
+            stats["test_balanced_accuracy"] = balanced_accuracy_score(
+                pair_labels, pair_preds
+            )
             stats["val_balanced_accuracy"] = stats["test_balanced_accuracy"]
             stats["pairwise_balanced_accuracy"] = stats["test_balanced_accuracy"]
             stats["val_accuracy"] = accuracy_score(pair_labels, pair_preds)

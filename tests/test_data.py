@@ -162,11 +162,13 @@ class TestMakePairwiseTestSplit(unittest.TestCase):
         X_tr_deep, X_te_deep, _, _ = make_pairwise_test_split(X, y_onehot, run_id)
 
         np.testing.assert_array_equal(
-            X_tr_cls, X_tr_deep,
+            X_tr_cls,
+            X_tr_deep,
             err_msg="Classic and deep train splits differ — methods are NOT on the same data",
         )
         np.testing.assert_array_equal(
-            X_te_cls, X_te_deep,
+            X_te_cls,
+            X_te_deep,
             err_msg="Classic and deep test splits differ — methods are NOT on the same data",
         )
 
