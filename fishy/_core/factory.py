@@ -50,6 +50,8 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "top_k": config.top_k,
         "use_performer": config.use_performer,
         "binding_type": config.binding_type,
+        "chunk_size": config.rbn_chunk_size,
+        "use_checkpointing": config.use_checkpointing,
     }
 
     # Handle Siamese wrappers for batch-detection

@@ -95,24 +95,22 @@ class BindingEncoder(nn.Module):
 
 class SecondOrderRelationalAttention(nn.Module):
     """
-    Attention over pairs of bindings:
+    Attention over pairs of bindings with memory-efficient chunking:
     ρ_{jj'} = MLP_rel([b_j || b_j' || b_j ⊙ b_j'])
     """
 
-    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1):
+    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1, chunk_size: int = 64):
         super().__init__()
         self.d_binding = d_binding
         self.n_heads = n_heads
         self.d_head = d_binding // n_heads
+        self.chunk_size = chunk_size
         d = self.d_head
 
-        # Projections for multi-head attention
         self.q_proj = nn.Linear(d_binding, d_binding)
         self.k_proj = nn.Linear(d_binding, d_binding)
         self.v_proj = nn.Linear(d_binding, d_binding)
 
-        # Relational Score MLP (applied per head)
-        # Input: [q_j || k_j' || q_j * k_j'] -> dim is 3 * d_head
         self.mlp_rel = nn.Sequential(
             nn.Linear(3 * d, d),
             nn.GELU(),
@@ -127,46 +125,49 @@ class SecondOrderRelationalAttention(nn.Module):
         H = self.n_heads
         d = self.d_head
 
-        # Multi-head projections
         q = self.q_proj(x).view(B, C, H, d).transpose(1, 2) # [B, H, C, d]
         k = self.k_proj(x).view(B, C, H, d).transpose(1, 2) # [B, H, C, d]
         v = self.v_proj(x).view(B, C, H, d).transpose(1, 2) # [B, H, C, d]
 
-        # Compute pairwise scores ρ_{jj'}
-        # For efficiency, we avoid expanding to [B, H, C, C, 3d] if possible.
-        # However, for Second-Order attention as specified, we need the interaction term.
-        
-        # [B, H, C, 1, d]
-        q_exp = q.unsqueeze(3).expand(-1, -1, -1, C, -1)
-        # [B, H, 1, C, d]
-        k_exp = k.unsqueeze(2).expand(-1, -1, C, -1, -1)
-        
-        interaction = q_exp * k_exp # [B, H, C, C, d]
-        combined = torch.cat([q_exp, k_exp, interaction], dim=-1) # [B, H, C, C, 3d]
-        
-        scores = self.mlp_rel(combined).squeeze(-1) # [B, H, C, C]
-        scores = scores / (d ** 0.5)
-        
-        attn = torch.softmax(scores, dim=-1)
-        attn = self.dropout(attn)
-        
-        # Aggregate: [B, H, C, C] @ [B, H, C, d] -> [B, H, C, d]
-        out = torch.matmul(attn, v)
-        
-        # Recombine heads
+        # Memory-efficient chunked score calculation
+        # Instead of one big [B, H, C, C, 3d] tensor, we compute row-chunks of the attention matrix
+        all_outs = []
+        for i in range(0, C, self.chunk_size):
+            end_i = min(i + self.chunk_size, C)
+            q_chunk = q[:, :, i:end_i, :].unsqueeze(3) # [B, H, chunk, 1, d]
+            k_exp = k.unsqueeze(2)                      # [B, H, 1, C, d]
+            
+            # Local expansion for this chunk only
+            curr_chunk_size = end_i - i
+            q_exp = q_chunk.expand(-1, -1, -1, C, -1)
+            k_exp_sh = k_exp.expand(-1, -1, curr_chunk_size, -1, -1)
+            interaction = q_chunk * k_exp_sh
+            
+            combined = torch.cat([q_exp, k_exp_sh, interaction], dim=-1) # [B, H, chunk, C, 3d]
+            scores = self.mlp_rel(combined).squeeze(-1)                  # [B, H, chunk, C]
+            scores = scores / (d ** 0.5)
+            
+            attn = torch.softmax(scores, dim=-1)
+            attn = self.dropout(attn)
+            
+            # Aggregate for this chunk
+            chunk_out = torch.matmul(attn, v) # [B, H, chunk, d]
+            all_outs.append(chunk_out)
+            
+        out = torch.cat(all_outs, dim=2) # Recombine row-chunks
         out = out.transpose(1, 2).contiguous().view(B, C, D)
         return self.out_proj(out)
 
 
 class RelationalReasoningLayer(nn.Module):
     """
-    L-th layer of relational reasoning:
-    b = LayerNorm(b + RelAttn(b))
-    b = LayerNorm(b + FFN(b))
+    L-th layer of relational reasoning. 
+    Supports gradient checkpointing to save memory during training.
     """
 
-    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1):
+    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1, use_checkpoint: bool = False):
         super().__init__()
+        self.use_checkpoint = use_checkpoint
         self.rel_attn = SecondOrderRelationalAttention(d_binding, n_heads, dropout)
         self.norm1 = nn.LayerNorm(d_binding)
         
@@ -179,11 +180,15 @@ class RelationalReasoningLayer(nn.Module):
         )
         self.norm2 = nn.LayerNorm(d_binding)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Post-norm as specified in prompt (or at least close to it)
+    def _sub_forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.norm1(x + self.rel_attn(x))
         x = self.norm2(x + self.ffn(x))
         return x
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.use_checkpoint and self.training:
+            return torch.utils.checkpoint.checkpoint(self._sub_forward, x, use_reentrant=False)
+        return self._sub_forward(x)
 
 
 # ---------------------------------------------------------------------------
@@ -271,6 +276,8 @@ class RBN(nn.Module):
         top_k: Optional[int] = 200,
         n_memory_slots: int = 64,
         lambda_binding: float = 0.01,
+        chunk_size: int = 64,
+        use_checkpointing: bool = False,
         **kwargs
     ):
         super().__init__()
@@ -290,9 +297,13 @@ class RBN(nn.Module):
         )
 
         self.reasoning_layers = nn.ModuleList([
-            RelationalReasoningLayer(hidden_dim, num_heads, dropout)
+            RelationalReasoningLayer(hidden_dim, num_heads, dropout, use_checkpoint=use_checkpointing)
             for _ in range(num_layers)
         ])
+        
+        # Pass chunk_size to attention layers
+        for layer in self.reasoning_layers:
+            layer.rel_attn.chunk_size = chunk_size
 
         self.memory = RelationalMemory(n_memory_slots, hidden_dim) if n_memory_slots > 0 else None
         self.readout = TaskQueryReadout(hidden_dim)

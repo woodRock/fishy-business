@@ -78,6 +78,8 @@ deep_models:
       dropout: 0.1
       binding_type: "hadamard"
       top_k: 200
+      rbn_chunk_size: 64
+      use_checkpointing: false
       learning_rate: 0.001
       batch_size: 32
 

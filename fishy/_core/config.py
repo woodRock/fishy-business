@@ -66,6 +66,8 @@ class TrainingConfig:
     top_k: Optional[int] = None
     use_performer: bool = False
     binding_type: str = "complex"
+    rbn_chunk_size: int = 64
+    use_checkpointing: bool = False
 
     # Contrastive specific
     encoder_type: str = "dense"

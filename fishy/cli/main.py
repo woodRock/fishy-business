@@ -134,6 +134,12 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument(
         "--use-performer", action="store_true", help="Use linear attention for speed"
     )
+    hp_group.add_argument(
+        "--rbn-chunk-size", type=int, default=64, help="Chunk size for RBN attention"
+    )
+    hp_group.add_argument(
+        "--use-checkpointing", action="store_true", help="Enable gradient checkpointing"
+    )
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
