@@ -113,9 +113,13 @@ class TrainingConfig:
                 model_defaults = model_entry["defaults"].copy()
                 # Normalise hidden_dimension -> hidden_dim
                 if "hidden_dimension" in model_defaults:
-                    model_defaults["hidden_dim"] = model_defaults.pop("hidden_dimension")
+                    model_defaults["hidden_dim"] = model_defaults.pop(
+                        "hidden_dimension"
+                    )
                 # Only apply keys that TrainingConfig actually knows about
-                config_dict.update({k: v for k, v in model_defaults.items() if k in valid_keys})
+                config_dict.update(
+                    {k: v for k, v in model_defaults.items() if k in valid_keys}
+                )
 
         # 3. Override with explicitly provided command-line arguments
         arg_dict = vars(args)
