@@ -15,6 +15,7 @@ from .ode import ODE
 from .ordinal import TransformerOrdinal
 from .performer import Performer
 from .rcnn import RCNN
+from .role_filler import RoleFillerNet
 from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
@@ -35,6 +36,7 @@ __all__ = [
     "TransformerOrdinal",
     "Performer",
     "RCNN",
+    "RoleFillerNet",
     "RWKV",
     "TCN",
     "Transformer",

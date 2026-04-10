@@ -121,10 +121,9 @@ def setup_parser() -> argparse.ArgumentParser:
         "--statistical", action="store_true", help="Perform statistical significance tests"
     )
 
-    if show_all:
-        hp_group.add_argument("--batch-size", type=int, default=64)
-        hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
-        hp_group.add_argument("--hidden-dim", type=int, default=128)
+    hp_group.add_argument("--batch-size", type=int, default=64)
+    hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
+    hp_group.add_argument("--hidden-dim", type=int, default=128)
 
     subparsers.add_parser("wizard", help="Interactive setup")
 

@@ -80,6 +80,7 @@ deep_models:
   hybrid: "fishy.models.deep.hybrid.Hybrid"
   performer: "fishy.models.deep.performer.Performer"
   ordinal: "fishy.models.deep.ordinal.TransformerOrdinal"
+  role_filler: "fishy.models.deep.role_filler.RoleFillerNet"
 
 classic_models:
   knn: "sklearn.neighbors.KNeighborsClassifier"
