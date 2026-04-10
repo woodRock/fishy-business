@@ -122,7 +122,9 @@ class TestConfigLoader(unittest.TestCase):
 
     def test_detect_method_falls_back_on_config_error(self):
         """detect_method must return 'deep' if config loading fails, not raise."""
-        with patch("fishy._core.config_loader.load_config", side_effect=FileNotFoundError):
+        with patch(
+            "fishy._core.config_loader.load_config", side_effect=FileNotFoundError
+        ):
             result = detect_method("anything")
         self.assertEqual(result, "deep")
 

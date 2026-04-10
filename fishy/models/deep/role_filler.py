@@ -72,7 +72,9 @@ class RoleFillerNet(nn.Module):
         self.top_k = top_k
 
         # Role Library: Learned vector for each input feature (m/z bin)
-        self.role_embeddings = nn.Parameter(torch.randn(1, input_dim, hidden_dim) * 0.02)
+        self.role_embeddings = nn.Parameter(
+            torch.randn(1, input_dim, hidden_dim) * 0.02
+        )
 
         # Filler Encoder: Deep MLP to transform scalar intensity to vector space
         self.filler_encoder = nn.Sequential(
@@ -80,22 +82,29 @@ class RoleFillerNet(nn.Module):
             nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, hidden_dim),
-            nn.LayerNorm(hidden_dim)
+            nn.LayerNorm(hidden_dim),
         )
 
         # Stacked Binding Layers: Progressive refinement of role-filler associations
-        self.bindings = nn.ModuleList([
-            RoleFillerBinding(hidden_dim, binding_type=binding_type, dropout=dropout)
-            for _ in range(num_layers)
-        ])
+        self.bindings = nn.ModuleList(
+            [
+                RoleFillerBinding(
+                    hidden_dim, binding_type=binding_type, dropout=dropout
+                )
+                for _ in range(num_layers)
+            ]
+        )
 
         # Relational Reasoning Engine (Stacked Encoders)
         if use_performer:
             from fishy.models.deep.performer import PerformerLayer
-            self.relational_engine = nn.ModuleList([
-                PerformerLayer(hidden_dim, heads=num_heads, dropout=dropout)
-                for _ in range(num_layers)
-            ])
+
+            self.relational_engine = nn.ModuleList(
+                [
+                    PerformerLayer(hidden_dim, heads=num_heads, dropout=dropout)
+                    for _ in range(num_layers)
+                ]
+            )
             self.engine_type = "performer"
         else:
             # Multi-head Transformer Encoder
@@ -106,9 +115,11 @@ class RoleFillerNet(nn.Module):
                 dropout=dropout,
                 activation="gelu",
                 batch_first=True,
-                norm_first=True  # Pre-norm for better gradient flow
+                norm_first=True,  # Pre-norm for better gradient flow
             )
-            self.relational_engine = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+            self.relational_engine = nn.TransformerEncoder(
+                encoder_layer, num_layers=num_layers
+            )
             self.engine_type = "transformer"
 
         # CLS token for learned global aggregation (replaces mean pooling)
@@ -151,7 +162,7 @@ class RoleFillerNet(nn.Module):
 
         # 3. Prepend CLS token for learned global aggregation
         cls = self.cls_token.expand(B, -1, -1)  # [B, 1, D]
-        z = torch.cat([cls, z], dim=1)           # [B, N+1, D]
+        z = torch.cat([cls, z], dim=1)  # [B, N+1, D]
 
         # 4. Relational Reasoning (Induced Logic)
         if self.engine_type == "performer":
@@ -161,7 +172,7 @@ class RoleFillerNet(nn.Module):
             z = self.relational_engine(z)
 
         # 5. Extract CLS token output as global representation
-        z = z[:, 0]          # [B, D]
+        z = z[:, 0]  # [B, D]
         z = self.ln_out(z)
         z = self.dropout(z)
 

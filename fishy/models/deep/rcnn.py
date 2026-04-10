@@ -70,7 +70,7 @@ class RCNN(nn.Module):
         # Global pooling and output
         self.avgpool = nn.AdaptiveAvgPool1d(1)
         self.maxpool = nn.AdaptiveMaxPool1d(1)
-        
+
         # Concatenate Avg and Max pooling for richer representation
         self.fc = nn.Sequential(
             nn.Linear(64 * 2, hidden_dim),
@@ -84,11 +84,11 @@ class RCNN(nn.Module):
 
         x = self.initial_conv(x)
         x = self.res_layers(x)
-        
+
         avg_x = self.avgpool(x)
         max_x = self.maxpool(x)
         x = torch.cat([avg_x, max_x], dim=1)
-        
+
         x = torch.flatten(x, 1)
         return self.fc(x)
 

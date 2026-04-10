@@ -285,7 +285,9 @@ class ContrastiveTrainer:
             self.metrics["recall"] = self.metrics["val_recall"]
             self.metrics["f1"] = self.metrics["val_f1"]
             # Mirror as test_ keys so all methods report the same wandb metric names
-            self.metrics["test_balanced_accuracy"] = self.metrics["val_balanced_accuracy"]
+            self.metrics["test_balanced_accuracy"] = self.metrics[
+                "val_balanced_accuracy"
+            ]
             self.metrics["test_accuracy"] = self.metrics["val_accuracy"]
             self.metrics["test_f1"] = self.metrics["val_f1"]
 
@@ -317,19 +319,27 @@ class ContrastiveTrainer:
             full_samples, full_labels = self.data_module.get_numpy_data()
             try:
                 X_tr, X_val, y_tr, y_val = train_test_split(
-                    full_samples, full_labels, test_size=0.3,
-                    stratify=np.argmax(full_labels, axis=1), random_state=self.config.run,
+                    full_samples,
+                    full_labels,
+                    test_size=0.3,
+                    stratify=np.argmax(full_labels, axis=1),
+                    random_state=self.config.run,
                 )
             except ValueError:
                 X_tr, X_val, y_tr, y_val = train_test_split(
-                    full_samples, full_labels, test_size=0.3, random_state=self.config.run
+                    full_samples,
+                    full_labels,
+                    test_size=0.3,
+                    random_state=self.config.run,
                 )
 
         train_sims, train_lbls = get_sims(X_tr, y_tr)
         val_sims, val_lbls = get_sims(X_val, y_val)
 
         self.best_threshold = self._optimize_threshold(train_sims, train_lbls)
-        self._calculate_pairwise_metrics(train_sims, train_lbls, self.best_threshold, "train")
+        self._calculate_pairwise_metrics(
+            train_sims, train_lbls, self.best_threshold, "train"
+        )
         self._calculate_pairwise_metrics(val_sims, val_lbls, self.best_threshold, "val")
 
     def log_contrastive_visualizations(self) -> None:

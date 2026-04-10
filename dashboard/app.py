@@ -316,17 +316,24 @@ def fetch_wandb_data(entity, project, api_key=None):
             if not ds or not model:
                 continue
 
-            if ds == "oil": found_oil = True
+            if ds == "oil":
+                found_oil = True
 
             # Extract metrics
-            train_acc = run.summary.get("train_balanced_accuracy", run.summary.get("train_accuracy", 0))
-            val_acc = run.summary.get("val_balanced_accuracy", run.summary.get("accuracy", 0))
+            train_acc = run.summary.get(
+                "train_balanced_accuracy", run.summary.get("train_accuracy", 0)
+            )
+            val_acc = run.summary.get(
+                "val_balanced_accuracy", run.summary.get("accuracy", 0)
+            )
             f1 = run.summary.get("val_f1", run.summary.get("f1", 0))
             # Use total_training_time_s if available as it is more precise than W&B overhead runtime
-            runtime = run.summary.get("total_training_time_s", run.summary.get("_runtime", 0))
+            runtime = run.summary.get(
+                "total_training_time_s", run.summary.get("_runtime", 0)
+            )
 
             key = f"{ds}|||{model}"
-            
+
             if key not in results_map:
                 results_map[key] = []
 
@@ -507,42 +514,65 @@ def render_advanced_benchmarks(df_summary, df_raw, color_map):
 
     # 1. Performance Stability (Box Plot)
     st.write("#### 🛡️ Performance Distribution (Stability)")
-    ds_choice = st.selectbox("Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds")
-    
+    ds_choice = st.selectbox(
+        "Select Dataset for Distribution", df_raw["Dataset"].unique(), key="box_ds"
+    )
+
     # Get sorted order from summary
-    sorted_methods = df_summary[df_summary["Dataset"] == ds_choice].sort_values("Test", ascending=False)["Method"].tolist()
-    
+    sorted_methods = (
+        df_summary[df_summary["Dataset"] == ds_choice]
+        .sort_values("Test", ascending=False)["Method"]
+        .tolist()
+    )
+
     fig_box = px.box(
-        df_raw[df_raw["Dataset"] == ds_choice], 
-        x="Method", y="Test Accuracy", color="Method",
-        color_discrete_map=color_map, template="plotly_white", points="all",
+        df_raw[df_raw["Dataset"] == ds_choice],
+        x="Method",
+        y="Test Accuracy",
+        color="Method",
+        color_discrete_map=color_map,
+        template="plotly_white",
+        points="all",
         category_orders={"Method": sorted_methods},
-        title=f"Full Distribution (30 runs): {ds_choice.upper()}"
+        title=f"Full Distribution (30 runs): {ds_choice.upper()}",
     )
     st.plotly_chart(fig_box, use_container_width=True)
 
     st.markdown("---")
-    
+
     # 2. Global Performance & Efficiency
     c_h1, c_h2 = st.columns(2)
     with c_h1:
         st.write("#### 📈 Global Performance Heatmap")
         pivot_df = df_summary.pivot(index="Method", columns="Dataset", values="Test")
         fig_heat = px.imshow(
-            pivot_df, text_auto=".3f", aspect="auto",
-            color_continuous_scale="Viridis", title="Method Performance across Datasets",
-            template="plotly_white"
+            pivot_df,
+            text_auto=".3f",
+            aspect="auto",
+            color_continuous_scale="Viridis",
+            title="Method Performance across Datasets",
+            template="plotly_white",
         )
         st.plotly_chart(fig_heat, use_container_width=True)
     with c_h2:
         st.write("#### 🎯 Efficiency: Accuracy vs Runtime")
-        y_axis = "runtime" if "runtime" in df_summary.columns else ("Runtime (s)" if "Runtime (s)" in df_summary.columns else "Train")
+        y_axis = (
+            "runtime"
+            if "runtime" in df_summary.columns
+            else ("Runtime (s)" if "Runtime (s)" in df_summary.columns else "Train")
+        )
         fig_eff = px.scatter(
-            df_summary, x="Test", y=y_axis, size="Test Std", color="Method",
-            hover_name="Method", facet_col="Dataset", 
-            color_discrete_map=color_map, template="plotly_white",
+            df_summary,
+            x="Test",
+            y=y_axis,
+            size="Test Std",
+            color="Method",
+            hover_name="Method",
+            facet_col="Dataset",
+            color_discrete_map=color_map,
+            template="plotly_white",
             labels={"Test": "Test Accuracy", y_axis: y_axis.capitalize()},
-            title=f"Efficiency Frontier"
+            title=f"Efficiency Frontier",
         )
         st.plotly_chart(fig_eff, use_container_width=True)
 
@@ -550,25 +580,36 @@ def render_advanced_benchmarks(df_summary, df_raw, color_map):
 
     # 3. Top 3 Profiles (Radar)
     st.write("#### 🏆 Top 3 Methods Radar Comparison")
-    ds_radar = st.selectbox("Select Dataset for Radar", df_summary["Dataset"].unique(), key="radar_ds")
-    top_3 = df_summary[df_summary["Dataset"] == ds_radar].sort_values("Test", ascending=False).head(3)
-    
+    ds_radar = st.selectbox(
+        "Select Dataset for Radar", df_summary["Dataset"].unique(), key="radar_ds"
+    )
+    top_3 = (
+        df_summary[df_summary["Dataset"] == ds_radar]
+        .sort_values("Test", ascending=False)
+        .head(3)
+    )
+
     fig_radar = go.Figure()
     for _, row in top_3.iterrows():
         train_val = row.get("Train", 0)
         test_val = row.get("Test", 0)
         f1_val = row.get("f1", row.get("F1 Score", test_val))
         stability = 1.0 - row.get("Test Std", 0)
-        
-        fig_radar.add_trace(go.Scatterpolar(
-            r=[train_val, test_val, f1_val, stability],
-            theta=["Train Acc", "Test Acc", "F1 Score", "Stability (1-Std)"],
-            fill="toself", name=row["Method"],
-            line=dict(color=color_map.get(row["Method"]))
-        ))
+
+        fig_radar.add_trace(
+            go.Scatterpolar(
+                r=[train_val, test_val, f1_val, stability],
+                theta=["Train Acc", "Test Acc", "F1 Score", "Stability (1-Std)"],
+                fill="toself",
+                name=row["Method"],
+                line=dict(color=color_map.get(row["Method"])),
+            )
+        )
     fig_radar.update_layout(
         polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-        showlegend=True, title=f"Top 3 Comparison: {ds_radar.upper()}", template="plotly_white"
+        showlegend=True,
+        title=f"Top 3 Comparison: {ds_radar.upper()}",
+        template="plotly_white",
     )
     st.plotly_chart(fig_radar, use_container_width=True)
 
@@ -1154,13 +1195,21 @@ if data_path.exists():
                     all_top_indices = []
                     for c_idx in class_biomarkers:
                         all_top_indices.extend(class_biomarkers[c_idx])
-                    
+
                     if all_top_indices:
                         st.subheader("Biomarker Stability")
-                        feat_counts = pd.Series([mz_axis[i] for i in all_top_indices]).value_counts().head(15)
-                        fig_stab = px.bar(x=[f"{x:.2f}" for x in feat_counts.index], y=feat_counts.values, 
-                                        labels={'x':'m/z Feature', 'y':'Frequency in Top Lists'}, 
-                                        title="Biomarker Stability (Aggregate across classes)", template="plotly_white")
+                        feat_counts = (
+                            pd.Series([mz_axis[i] for i in all_top_indices])
+                            .value_counts()
+                            .head(15)
+                        )
+                        fig_stab = px.bar(
+                            x=[f"{x:.2f}" for x in feat_counts.index],
+                            y=feat_counts.values,
+                            labels={"x": "m/z Feature", "y": "Frequency in Top Lists"},
+                            title="Biomarker Stability (Aggregate across classes)",
+                            template="plotly_white",
+                        )
                         st.plotly_chart(fig_stab, use_container_width=True)
 
                         st.subheader("Biomarker Network")
@@ -1169,28 +1218,62 @@ if data_path.exists():
                             subset_data = X_xai[:, top_indices]
                             corr_matrix = np.corrcoef(subset_data.T)
                             G = nx.Graph()
-                            for i in range(len(top_indices)): G.add_node(i, label=f"{mz_axis[top_indices[i]]:.1f}")
+                            for i in range(len(top_indices)):
+                                G.add_node(i, label=f"{mz_axis[top_indices[i]]:.1f}")
                             for i in range(len(top_indices)):
                                 for j in range(i + 1, len(top_indices)):
-                                    if abs(corr_matrix[i, j]) > 0.8: G.add_edge(i, j, weight=abs(corr_matrix[i, j]))
-                            
+                                    if abs(corr_matrix[i, j]) > 0.8:
+                                        G.add_edge(i, j, weight=abs(corr_matrix[i, j]))
+
                             pos = nx.spring_layout(G, seed=42)
                             edge_x, edge_y = [], []
                             for edge in G.edges():
-                                x0, y0 = pos[edge[0]]; x1, y1 = pos[edge[1]]
-                                edge_x.extend([x0, x1, None]); edge_y.extend([y0, y1, None])
-                            
-                            edge_trace = go.Scatter(x=edge_x, y=edge_y, line=dict(width=0.5, color="#888"), hoverinfo="none", mode="lines")
-                            node_trace = go.Scatter(x=[pos[n][0] for n in G.nodes()], y=[pos[n][1] for n in G.nodes()], 
-                                                    mode="markers+text", text=[G.nodes[n]["label"] for n in G.nodes()],
-                                                    marker=dict(showscale=True, colorscale="YlGnBu", size=10, 
-                                                                color=[len(list(G.neighbors(n))) for n in G.nodes()], line_width=2))
-                            
-                            fig_net = go.Figure(data=[edge_trace, node_trace], 
-                                                layout=go.Layout(title="Biomarker Correlation Network (r > 0.8)", 
-                                                                showlegend=False, hovermode="closest", 
-                                                                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False), 
-                                                                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)))
+                                x0, y0 = pos[edge[0]]
+                                x1, y1 = pos[edge[1]]
+                                edge_x.extend([x0, x1, None])
+                                edge_y.extend([y0, y1, None])
+
+                            edge_trace = go.Scatter(
+                                x=edge_x,
+                                y=edge_y,
+                                line=dict(width=0.5, color="#888"),
+                                hoverinfo="none",
+                                mode="lines",
+                            )
+                            node_trace = go.Scatter(
+                                x=[pos[n][0] for n in G.nodes()],
+                                y=[pos[n][1] for n in G.nodes()],
+                                mode="markers+text",
+                                text=[G.nodes[n]["label"] for n in G.nodes()],
+                                marker=dict(
+                                    showscale=True,
+                                    colorscale="YlGnBu",
+                                    size=10,
+                                    color=[
+                                        len(list(G.neighbors(n))) for n in G.nodes()
+                                    ],
+                                    line_width=2,
+                                ),
+                            )
+
+                            fig_net = go.Figure(
+                                data=[edge_trace, node_trace],
+                                layout=go.Layout(
+                                    title="Biomarker Correlation Network (r > 0.8)",
+                                    showlegend=False,
+                                    hovermode="closest",
+                                    xaxis=dict(
+                                        showgrid=False,
+                                        zeroline=False,
+                                        showticklabels=False,
+                                    ),
+                                    yaxis=dict(
+                                        showgrid=False,
+                                        zeroline=False,
+                                        showticklabels=False,
+                                    ),
+                                ),
+                            )
                             st.plotly_chart(fig_net, use_container_width=True)
                         else:
                             st.info("Not enough biomarkers to form a network.")

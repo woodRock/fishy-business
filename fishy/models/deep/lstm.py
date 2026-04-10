@@ -51,10 +51,10 @@ class LSTM(nn.Module):
         x = ensure_seq_input(x)
 
         out, _ = self.gru(x)
-        
+
         # Max pool over the sequence dimension to capture most prominent features
         # and ignore zeros/noise
-        out, _ = torch.max(out, dim=1) 
-        
+        out, _ = torch.max(out, dim=1)
+
         out = self.dropout(out)
         return self.fc_out(out)

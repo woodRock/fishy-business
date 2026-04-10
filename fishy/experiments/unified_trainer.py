@@ -40,7 +40,9 @@ class UnifiedTrainer:
         # Auto-detect method if it's the default "deep" but the model is actually classic/evo/etc.
         # This allows for a cleaner 3-line API in notebooks.
         if hasattr(self.config, "method") and self.config.method == "deep":
-            from fishy._core.config_loader import detect_method  # noqa: F401 (canonical location)
+            from fishy._core.config_loader import (
+                detect_method,
+            )  # noqa: F401 (canonical location)
 
             detected = detect_method(self.config.model)
             if detected != "deep":
