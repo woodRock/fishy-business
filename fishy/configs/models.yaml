@@ -69,6 +69,18 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 32
 
+  rbn:
+    path: "fishy.models.deep.rbn.RBN"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 3
+      num_heads: 4
+      dropout: 0.1
+      binding_type: "hadamard"
+      top_k: 200
+      learning_rate: 0.001
+      batch_size: 32
+
   role_filler:
     path: "fishy.models.deep.role_filler.RoleFillerNet"
     defaults:
@@ -76,10 +88,9 @@ deep_models:
       num_layers: 4
       num_heads: 8
       dropout: 0.1
-      binding_type: "complex"
-      learning_rate: 0.0005
-      batch_size: 64
-      top_k: 200
+      binding_type: "multiplicative"
+      learning_rate: 0.0001
+      batch_size: 32
 
   # Registry for models that don't need complex defaults
   rcnn: "fishy.models.deep.rcnn.RCNN"

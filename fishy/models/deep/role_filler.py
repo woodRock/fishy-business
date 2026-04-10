@@ -71,33 +71,43 @@ class RoleFillerNet(nn.Module):
         self.hidden_dim = hidden_dim
         self.top_k = top_k
 
-        # Role Library: Learned vector for each input feature (m/z bin)
+        # Role Library: Learned vector for each input feature (m/z bin).
+        # Initialised with Xavier-scale std so roles contribute meaningfully
+        # from the first forward pass (multiplicative binding: bound = role * filler).
         self.role_embeddings = nn.Parameter(
-            torch.randn(1, input_dim, hidden_dim) * 0.02
+            torch.randn(1, input_dim, hidden_dim) * (2.0 / hidden_dim) ** 0.5
         )
 
-        # Filler Encoder: Deep MLP to transform scalar intensity to vector space
+        # Filler Encoder: maps scalar log-intensity to hidden space.
+        # No LayerNorm here: LN normalises across the hidden dim *per token*,
+        # which maps every m/z bin to the same direction (since all bins share
+        # the same Linear weights and log1p is always >= 0), destroying all
+        # intensity information before binding.
         self.filler_encoder = nn.Sequential(
             nn.Linear(1, hidden_dim),
             nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, hidden_dim),
-            nn.LayerNorm(hidden_dim),
         )
 
-        # Two binding passes: initial association then a refinement step.
-        # Fixed at 2 regardless of num_layers — binding is pre-processing,
-        # not part of the relational engine depth.
-        self.bindings = nn.ModuleList(
-            [
-                RoleFillerBinding(
-                    hidden_dim, binding_type=binding_type, dropout=dropout
-                )
-                for _ in range(2)
-            ]
-        )
+        # Single binding pass. With large N (e.g. 2080 m/z bins) and sum
+        # pooling, gradient already flows fully to each token; stacking
+        # binding passes only lengthens the path without adding capacity.
+        self.binding = RoleFillerBinding(hidden_dim, binding_type=binding_type, dropout=dropout)
 
-        # Relational Reasoning Engine (Stacked Encoders)
+        # Relational Reasoning Engine
+        # Three modes depending on configuration:
+        #
+        # "mlp"         (default) — position-wise MLP applied per token before
+        #               mean-pooling. Processes all N tokens in O(N × D²) with
+        #               constant memory. No cross-token attention, no OOM.
+        #
+        # "transformer" — standard quadratic attention. Requires top_k to be set
+        #               to keep sequence length small enough to fit in memory.
+        #
+        # "performer"   — linear FAVOR+ attention. Still O(N × D) memory but
+        #               MPS intermediates become large for N > ~1000; use only
+        #               with top_k or on CUDA.
         if use_performer:
             from fishy.models.deep.performer import PerformerLayer
 
@@ -108,8 +118,8 @@ class RoleFillerNet(nn.Module):
                 ]
             )
             self.engine_type = "performer"
-        else:
-            # Multi-head Transformer Encoder
+        elif top_k is not None:
+            # Transformer over a short top_k sequence
             encoder_layer = nn.TransformerEncoderLayer(
                 d_model=hidden_dim,
                 nhead=num_heads,
@@ -117,16 +127,22 @@ class RoleFillerNet(nn.Module):
                 dropout=dropout,
                 activation="gelu",
                 batch_first=True,
-                norm_first=True,  # Pre-norm for better gradient flow
+                norm_first=True,
             )
             self.relational_engine = nn.TransformerEncoder(
                 encoder_layer, num_layers=num_layers
             )
             self.engine_type = "transformer"
-
-        # CLS token for learned global aggregation (replaces mean pooling)
-        self.cls_token = nn.Parameter(torch.zeros(1, 1, hidden_dim))
-        nn.init.normal_(self.cls_token, std=0.02)
+        else:
+            # Position-wise MLP: O(N × D²) memory, works on full spectrum
+            self.relational_engine = nn.Sequential(
+                nn.Linear(hidden_dim, hidden_dim * 4),
+                nn.GELU(),
+                nn.Dropout(dropout),
+                nn.Linear(hidden_dim * 4, hidden_dim),
+                nn.LayerNorm(hidden_dim),
+            )
+            self.engine_type = "mlp"
 
         self.ln_out = nn.LayerNorm(hidden_dim)
         self.dropout = nn.Dropout(dropout)
@@ -163,28 +179,28 @@ class RoleFillerNet(nn.Module):
         # 2. Encode Fillers (intensities → hidden space)
         fillers = self.filler_encoder(x.unsqueeze(-1))                   # [B, K/N, D]
 
-        # 3. Binding passes (role-filler association over the selected tokens only)
-        z = fillers
-        for bind in self.bindings:
-            z = bind(roles, z)
+        # 3. Role-filler binding
+        z = self.binding(roles, fillers)
 
-        # 4. Prepend CLS token for learned global aggregation
-        cls = self.cls_token.expand(B, -1, -1)                           # [B, 1, D]
-        z = torch.cat([cls, z], dim=1)                                   # [B, K+1, D]
-
-        # 5. Relational Reasoning (Induced Logic)
+        # 4. Relational Reasoning + Global Aggregation
+        # Sum pooling (not mean) so each of the N tokens receives the full
+        # output gradient rather than a 1/N fraction of it. LayerNorm below
+        # normalises the resulting scale.
         if self.engine_type == "performer":
             for layer in self.relational_engine:
                 z = layer(z)
-        else:
+            z = z.sum(dim=1)
+        elif self.engine_type == "transformer":
             z = self.relational_engine(z)
-
-        # 6. Extract CLS token output as global representation
-        z = z[:, 0]  # [B, D]
+            z = z.sum(dim=1)
+        else:
+            # MLP: position-wise refinement, then sum-pool over all N tokens
+            z = self.relational_engine(z)   # [B, N, D]
+            z = z.sum(dim=1)                # [B, D]
         z = self.ln_out(z)
         z = self.dropout(z)
 
-        # 7. Output Prediction
+        # 6. Output Prediction
         return self.head(z)
 
 
