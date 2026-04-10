@@ -85,13 +85,15 @@ class RoleFillerNet(nn.Module):
             nn.LayerNorm(hidden_dim),
         )
 
-        # Stacked Binding Layers: Progressive refinement of role-filler associations
+        # Two binding passes: initial association then a refinement step.
+        # Fixed at 2 regardless of num_layers — binding is pre-processing,
+        # not part of the relational engine depth.
         self.bindings = nn.ModuleList(
             [
                 RoleFillerBinding(
                     hidden_dim, binding_type=binding_type, dropout=dropout
                 )
-                for _ in range(num_layers)
+                for _ in range(2)
             ]
         )
 

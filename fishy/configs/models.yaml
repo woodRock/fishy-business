@@ -79,6 +79,7 @@ deep_models:
       binding_type: "complex"
       learning_rate: 0.0005
       batch_size: 64
+      top_k: 200
 
   # Registry for models that don't need complex defaults
   rcnn: "fishy.models.deep.rcnn.RCNN"
