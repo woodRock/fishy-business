@@ -47,6 +47,8 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "num_layers": config.num_layers,
         "dropout": config.dropout,
         "num_heads": config.num_heads,
+        "top_k": config.top_k,
+        "use_performer": config.use_performer,
     }
 
     # Handle Siamese wrappers for batch-detection

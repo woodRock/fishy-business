@@ -62,6 +62,10 @@ class TrainingConfig:
     num_experts: int = 8
     k: int = 2
 
+    # RFN Specific
+    top_k: Optional[int] = None
+    use_performer: bool = False
+
     # Contrastive specific
     encoder_type: str = "dense"
 

@@ -63,11 +63,13 @@ class RoleFillerNet(nn.Module):
         dropout: float = 0.1,
         binding_type: str = "multiplicative",
         use_performer: bool = False,
+        top_k: Optional[int] = None,
         **kwargs,
     ) -> None:
         super().__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
+        self.top_k = top_k
 
         # Role Embeddings: Learned vector for each input feature (m/z bin)
         self.role_embeddings = nn.Parameter(torch.randn(1, input_dim, hidden_dim))
@@ -126,6 +128,17 @@ class RoleFillerNet(nn.Module):
         # roles: [1, N, D]
         roles = self.role_embeddings
         z = self.binding(roles, fillers) # [B, N, D]
+        
+        # 2.5 Optional: Top-K Sparsity (Speed up)
+        # Only process the most intense peaks to avoid quadratic bottleneck
+        if self.top_k is not None and self.top_k < N:
+            # Get indices of top-k intensity values for each sample in batch
+            _, top_indices = torch.topk(x, self.top_k, dim=1) # [B, K]
+            
+            # Use gather to select only those tokens for the relational engine
+            # Expand indices for the hidden dimension
+            indices_expanded = top_indices.unsqueeze(-1).expand(-1, -1, self.hidden_dim)
+            z = torch.gather(z, 1, indices_expanded) # [B, K, D]
         
         # 3. Relational Reasoning
         if self.engine_type == "performer":

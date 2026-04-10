@@ -124,6 +124,8 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument("--batch-size", type=int, default=64)
     hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
     hp_group.add_argument("--hidden-dim", type=int, default=128)
+    hp_group.add_argument("--top-k", type=int, default=None, help="Process only the top-K peaks")
+    hp_group.add_argument("--use-performer", action="store_true", help="Use linear attention for speed")
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
