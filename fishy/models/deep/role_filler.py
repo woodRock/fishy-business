@@ -145,40 +145,46 @@ class RoleFillerNet(nn.Module):
         # 0. Log-transform intensities to compress dynamic range
         x = torch.log1p(x)
 
-        # 1. Encode Fillers (intensities)
-        x_seq = x.unsqueeze(-1)
-        fillers = self.filler_encoder(x_seq)  # [B, N, D]
+        # 1. Peak selection FIRST — select top-k positions before encoding or binding.
+        #    This mirrors peak picking in analytical chemistry and ensures:
+        #    - Only informative peaks flow through the (expensive) encoder and binding
+        #    - Role embeddings for selected positions get dense gradient updates
+        #    - Sequence length entering the transformer is bounded to top_k + 1
+        if self.top_k is not None and self.top_k < N:
+            _, top_indices = torch.topk(x, self.top_k, dim=1)           # [B, K]
+            x = torch.gather(x, 1, top_indices)                          # [B, K]
+            idx_exp = top_indices.unsqueeze(-1).expand(-1, -1, self.hidden_dim)
+            roles = torch.gather(
+                self.role_embeddings.expand(B, -1, -1), 1, idx_exp
+            )                                                             # [B, K, D]
+        else:
+            roles = self.role_embeddings.expand(B, -1, -1)               # [B, N, D]
 
-        # 2. Stacked Role-Filler Binding (progressive refinement)
-        roles = self.role_embeddings.expand(B, -1, -1)  # [B, N, D]
+        # 2. Encode Fillers (intensities → hidden space)
+        fillers = self.filler_encoder(x.unsqueeze(-1))                   # [B, K/N, D]
+
+        # 3. Binding passes (role-filler association over the selected tokens only)
         z = fillers
         for bind in self.bindings:
             z = bind(roles, z)
 
-        # 2.5 Optional: Top-K Sparsity (Speed up + Denoising)
-        if self.top_k is not None and self.top_k < N:
-            # Select top-k on original (pre-log) intensities for peak-based filtering
-            _, top_indices = torch.topk(x, self.top_k, dim=1)
-            indices_expanded = top_indices.unsqueeze(-1).expand(-1, -1, self.hidden_dim)
-            z = torch.gather(z, 1, indices_expanded)
+        # 4. Prepend CLS token for learned global aggregation
+        cls = self.cls_token.expand(B, -1, -1)                           # [B, 1, D]
+        z = torch.cat([cls, z], dim=1)                                   # [B, K+1, D]
 
-        # 3. Prepend CLS token for learned global aggregation
-        cls = self.cls_token.expand(B, -1, -1)  # [B, 1, D]
-        z = torch.cat([cls, z], dim=1)  # [B, N+1, D]
-
-        # 4. Relational Reasoning (Induced Logic)
+        # 5. Relational Reasoning (Induced Logic)
         if self.engine_type == "performer":
             for layer in self.relational_engine:
                 z = layer(z)
         else:
             z = self.relational_engine(z)
 
-        # 5. Extract CLS token output as global representation
+        # 6. Extract CLS token output as global representation
         z = z[:, 0]  # [B, D]
         z = self.ln_out(z)
         z = self.dropout(z)
 
-        # 6. Output Prediction
+        # 7. Output Prediction
         return self.head(z)
 
 
