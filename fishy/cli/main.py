@@ -21,6 +21,7 @@ from rich.panel import Panel
 from rich.table import Table
 from fishy.analysis.statistical import summarize_results, display_statistical_summary
 from fishy.analysis.biomarker import run_biomarker_pipeline
+from fishy.analysis.xai import run_rbn_explanation
 
 
 def get_all_models() -> List[str]:
@@ -326,22 +327,46 @@ def _handle_train_execution(config: TrainingConfig):
             model = res.get("model")
             dm = res.get("data_module")
             if model and dm:
-                console.print(
-                    "\n[bold yellow]Starting Automated Biomarker Discovery...[/]"
-                )
-                report = run_biomarker_pipeline(
-                    model=model,
-                    data_loader=dm.get_train_dataloader(),
-                    feature_names=dm.get_train_dataframe().columns[1:],
-                    device=get_device(),
-                )
-                console.print(
-                    Panel(
-                        report,
-                        title="[bold]XAI Pipeline Results[/]",
-                        border_style="yellow",
+                feature_names = dm.get_train_dataframe().columns[1:]
+                is_rbn = type(model).__name__ in ("RBN", "RBNPlus")
+
+                if is_rbn:
+                    console.print(
+                        "\n[bold yellow]Starting RBN Relational Signature Analysis...[/]"
                     )
-                )
+                    output_dir = Path("outputs") / config.dataset / "xai"
+                    saved = run_rbn_explanation(
+                        model=model,
+                        data_loader=dm.get_train_dataloader(),
+                        class_names=dm.get_class_names(),
+                        device=get_device(),
+                        feature_names=feature_names,
+                        output_dir=output_dir,
+                    )
+                    console.print(
+                        Panel(
+                            "\n".join(saved),
+                            title="[bold]RBN Relational Signatures[/]",
+                            border_style="yellow",
+                        )
+                    )
+                else:
+                    console.print(
+                        "\n[bold yellow]Starting Automated Biomarker Discovery...[/]"
+                    )
+                    report = run_biomarker_pipeline(
+                        model=model,
+                        data_loader=dm.get_train_dataloader(),
+                        feature_names=feature_names,
+                        device=get_device(),
+                    )
+                    console.print(
+                        Panel(
+                            report,
+                            title="[bold]XAI Pipeline Results[/]",
+                            border_style="yellow",
+                        )
+                    )
 
         # Strip memory-intensive objects
         res.pop("model", None)
