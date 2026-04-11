@@ -92,7 +92,7 @@ deep_models:
       dropout: 0.1
       binding_type: "outer_product"
       top_k: 300
-      sparse_k: 64
+      sparse_k: 300
       n_memory_slots: 64
       learning_rate: 0.0009236686956160434
       batch_size: 16

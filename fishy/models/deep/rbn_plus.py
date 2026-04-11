@@ -375,8 +375,9 @@ class RBNPlus(nn.Module):
             q = attn_module.q_proj(bindings)
             k = attn_module.k_proj(bindings)
             H, d = attn_module.n_heads, attn_module.d_head
-            q = q.view(B, self.top_k, H, d).transpose(1, 2)
-            k = k.view(B, self.top_k, H, d).transpose(1, 2)
+            K = bindings.shape[1]
+            q = q.view(B, K, H, d).transpose(1, 2)
+            k = k.view(B, K, H, d).transpose(1, 2)
             
             w1 = attn_module.mlp_rel[0]
             q_p = torch.matmul(q, w1.weight[:, :d].t())
@@ -396,7 +397,7 @@ class RBNPlus(nn.Module):
             
             report = []
             for val, idx in zip(top_vals, indices):
-                i, j = idx // self.top_k, idx % self.top_k
+                i, j = idx // K, idx % K
                 mz_i = curr_mz[0, i].item()
                 mz_j = curr_mz[0, j].item()
                 report.append({

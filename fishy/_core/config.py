@@ -68,6 +68,9 @@ class TrainingConfig:
     binding_type: str = "complex"
     rbn_chunk_size: int = 64
     use_checkpointing: bool = False
+    sparse_k: int = 300
+    lambda_binding: float = 0.01
+    n_memory_slots: int = 64
 
     # Contrastive specific
     encoder_type: str = "dense"

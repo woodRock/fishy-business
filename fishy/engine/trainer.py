@@ -232,16 +232,21 @@ class Trainer:
 
     def _compute_loss(self, outputs, labels):
         if self.regression:
-            return self.criterion(outputs.squeeze(), labels.squeeze(-1).float())
-        actual = self._labels_to_indices(labels)
-        if self.use_coral:
-            return self.criterion(
+            loss = self.criterion(outputs.squeeze(), labels.squeeze(-1).float())
+        elif self.use_coral:
+            actual = self._labels_to_indices(labels)
+            loss = self.criterion(
                 outputs,
                 levels_from_labelbatch(
                     actual, num_classes=self.num_classes, dtype=torch.float32
                 ).to(self.device),
             )
-        return self.criterion(outputs, actual.long())
+        else:
+            actual = self._labels_to_indices(labels)
+            loss = self.criterion(outputs, actual.long())
+        if self.model.training and hasattr(self.model, "binding_loss"):
+            loss = loss + self.model.binding_loss()
+        return loss
 
     def _process_predictions(self, outputs, labels):
         if self.regression:
