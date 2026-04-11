@@ -73,14 +73,14 @@ deep_models:
     path: "fishy.models.deep.rbn.RBN"
     defaults:
       hidden_dimension: 128
-      num_layers: 3
-      num_heads: 4
+      num_layers: 1
+      num_heads: 1
       dropout: 0.1
-      binding_type: "hadamard"
-      top_k: 200
+      binding_type: "outer_product"
+      top_k: 300
       rbn_chunk_size: 64
       use_checkpointing: false
-      learning_rate: 0.001
+      learning_rate: 0.0007963508152391631
       batch_size: 32
 
   # Registry for models that don't need complex defaults
