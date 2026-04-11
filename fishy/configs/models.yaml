@@ -95,6 +95,17 @@ deep_models:
       batch_size: 16
       use_checkpointing: true
 
+  pbn:
+    path: "fishy.models.deep.pbn.PBN"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      num_heads: 4
+      dropout: 0.1
+      top_k: 300
+      learning_rate: 0.0005
+      batch_size: 32
+
   # Registry for models that don't need complex defaults
   rcnn: "fishy.models.deep.rcnn.RCNN"
   kan: "fishy.models.deep.kan.KAN"

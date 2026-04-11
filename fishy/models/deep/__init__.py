@@ -17,6 +17,7 @@ from .performer import Performer
 from .rcnn import RCNN
 from .rbn import RBN
 from .rbn_plus import RBNPlus
+from .pbn import PBN
 from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
@@ -39,6 +40,7 @@ __all__ = [
     "RCNN",
     "RBN",
     "RBNPlus",
+    "PBN",
     "RWKV",
     "TCN",
     "Transformer",
