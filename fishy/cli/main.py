@@ -143,6 +143,9 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument(
         "--use-checkpointing", action="store_true", help="Enable gradient checkpointing"
     )
+    hp_group.add_argument(
+        "--use-sinusoidal", action="store_true", help="Add sinusoidal positional encoding to role embeddings (RBN)"
+    )
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
