@@ -72,6 +72,7 @@ class TrainingConfig:
     lambda_binding: float = 0.01
     n_memory_slots: int = 64
     use_sinusoidal: bool = False
+    use_mlp_rel: bool = False  # False = fast scaled dot-product; True = original MLP_rel scorer
 
     # Contrastive specific
     encoder_type: str = "dense"

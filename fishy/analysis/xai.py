@@ -232,6 +232,8 @@ def _attn_scores_from_module(attn_module: nn.Module, bindings: torch.Tensor) -> 
     Recompute softmax attention weights from a SecondOrderRelationalAttention
     or SparseSecondOrderAttention module given already-computed bindings.
 
+    Handles both use_sdp=True (dot-product scoring) and use_sdp=False (MLP_rel).
+
     Returns: [B, H, K, K] attention weight tensor.
     """
     B, K, _ = bindings.shape
@@ -241,15 +243,20 @@ def _attn_scores_from_module(attn_module: nn.Module, bindings: torch.Tensor) -> 
     q = attn_module.q_proj(bindings).view(B, K, H, d).transpose(1, 2)  # [B, H, K, d]
     k = attn_module.k_proj(bindings).view(B, K, H, d).transpose(1, 2)
 
-    w1 = attn_module.mlp_rel[0]
-    q_p = torch.matmul(q, w1.weight[:, :d].t())
-    k_p = torch.matmul(k, w1.weight[:, d : 2 * d].t())
-    w1_qk = w1.weight[:, 2 * d :].t()
+    if getattr(attn_module, "use_sdp", True):
+        # Scaled dot-product: scores are Q K^T / sqrt(d)
+        scores = torch.matmul(q, k.transpose(-2, -1)) / (d ** 0.5)
+    else:
+        # MLP_rel scorer
+        w1 = attn_module.mlp_rel[0]
+        q_p = torch.matmul(q, w1.weight[:, :d].t())
+        k_p = torch.matmul(k, w1.weight[:, d : 2 * d].t())
+        w1_qk = w1.weight[:, 2 * d :].t()
+        res = q_p.unsqueeze(3) + k_p.unsqueeze(2) + w1.bias
+        res = res + torch.matmul(q.unsqueeze(3) * k.unsqueeze(2), w1_qk)
+        scores = attn_module.mlp_rel[2](attn_module.mlp_rel[1](res)).squeeze(-1) / (d ** 0.5)
 
-    res = q_p.unsqueeze(3) + k_p.unsqueeze(2) + w1.bias
-    res = res + torch.matmul(q.unsqueeze(3) * k.unsqueeze(2), w1_qk)
-    scores = attn_module.mlp_rel[2](attn_module.mlp_rel[1](res)).squeeze(-1)  # [B, H, K, K]
-    return torch.softmax(scores / (d**0.5), dim=-1)
+    return torch.softmax(scores, dim=-1)
 
 
 class RBNExplainer:

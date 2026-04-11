@@ -141,25 +141,42 @@ class BindingEncoder(nn.Module):
 
 class SecondOrderRelationalAttention(nn.Module):
     """
-    Attention over pairs of bindings with memory-efficient chunking:
-    ρ_{jj'} = MLP_rel([b_j || b_j' || b_j ⊙ b_j'])
+    Attention over pairs of bindings.
+
+    Two scoring modes (controlled by ``use_sdp``):
+
+    * ``use_sdp=True``  (default) — scaled dot-product over binding vectors via
+      ``F.scaled_dot_product_attention``.  Uses FlashAttention on CUDA/MPS.
+      Single matmul; ~10-30× faster than MLP_rel for typical K values.
+
+    * ``use_sdp=False`` — original MLP_rel scorer:
+      ρ_{jj'} = MLP([b_j ∥ b_j' ∥ b_j ⊙ b_j'])
+      Non-linear pairwise interaction; expensive O(K²) chunked loop.
     """
 
     def __init__(
-        self, d_binding: int, n_heads: int, dropout: float = 0.1, chunk_size: int = 64
+        self,
+        d_binding: int,
+        n_heads: int,
+        dropout: float = 0.1,
+        chunk_size: int = 64,
+        use_sdp: bool = True,
     ):
         super().__init__()
         self.d_binding = d_binding
         self.n_heads = n_heads
         self.d_head = d_binding // n_heads
         self.chunk_size = chunk_size
+        self.use_sdp = use_sdp
+        self.dropout_p = dropout
         d = self.d_head
 
         self.q_proj = nn.Linear(d_binding, d_binding)
         self.k_proj = nn.Linear(d_binding, d_binding)
         self.v_proj = nn.Linear(d_binding, d_binding)
 
-        self.mlp_rel = nn.Sequential(nn.Linear(3 * d, d), nn.GELU(), nn.Linear(d, 1))
+        if not use_sdp:
+            self.mlp_rel = nn.Sequential(nn.Linear(3 * d, d), nn.GELU(), nn.Linear(d, 1))
 
         self.out_proj = nn.Linear(d_binding, d_binding)
         self.dropout = nn.Dropout(dropout)
@@ -170,47 +187,40 @@ class SecondOrderRelationalAttention(nn.Module):
         d = self.d_head
 
         q = self.q_proj(x).view(B, C, H, d).transpose(1, 2)  # [B, H, C, d]
-        k = self.k_proj(x).view(B, C, H, d).transpose(1, 2)  # [B, H, C, d]
-        v = self.v_proj(x).view(B, C, H, d).transpose(1, 2)  # [B, H, C, d]
+        k = self.k_proj(x).view(B, C, H, d).transpose(1, 2)
+        v = self.v_proj(x).view(B, C, H, d).transpose(1, 2)
 
-        # Decompose the first linear layer of the MLP to save memory
-        # MLP_rel input is [q || k || q*k]
-        w1 = self.mlp_rel[0]
-        w1_q = w1.weight[:, :d]
-        w1_k = w1.weight[:, d : 2 * d]
-        w1_qk = w1.weight[:, 2 * d :]
-        bias = w1.bias
+        if self.use_sdp:
+            # Single fused kernel — uses FlashAttention on CUDA/MPS when available.
+            # Bindings carry role-filler structure so the scoring is still over
+            # structured representations, not raw inputs.
+            out = F.scaled_dot_product_attention(
+                q, k, v,
+                dropout_p=self.dropout_p if self.training else 0.0,
+            )
+        else:
+            # Original MLP_rel chunked path
+            w1 = self.mlp_rel[0]
+            w1_q  = w1.weight[:, :d]
+            w1_k  = w1.weight[:, d : 2 * d]
+            w1_qk = w1.weight[:, 2 * d :]
+            bias  = w1.bias
 
-        # Pre-project q and k
-        q_proj = torch.matmul(q, w1_q.t())  # [B, H, C, d]
-        k_proj = torch.matmul(k, w1_k.t())  # [B, H, C, d]
+            q_proj = torch.matmul(q, w1_q.t())
+            k_proj = torch.matmul(k, w1_k.t())
 
-        all_outs = []
-        for i in range(0, C, self.chunk_size):
-            end_i = min(i + self.chunk_size, C)
+            all_outs = []
+            for i in range(0, C, self.chunk_size):
+                end_i = min(i + self.chunk_size, C)
+                res = q_proj[:, :, i:end_i, :].unsqueeze(3) + k_proj.unsqueeze(2) + bias
+                interaction = q[:, :, i:end_i, :].unsqueeze(3) * k.unsqueeze(2)
+                res = res + torch.matmul(interaction, w1_qk.t())
+                res = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1)
+                scores = res / (d ** 0.5)
+                attn = self.dropout(torch.softmax(scores, dim=-1))
+                all_outs.append(torch.matmul(attn, v))
+            out = torch.cat(all_outs, dim=2)
 
-            # Memory-efficient score calculation:
-            # W1 * [q || k || q*k] = W_q*q + W_k*k + W_qk*(q*k)
-            # Use broadcasting instead of expansion
-
-            # [B, H, chunk, 1, d] + [B, H, 1, C, d]
-            res = q_proj[:, :, i:end_i, :].unsqueeze(3) + k_proj.unsqueeze(2) + bias
-
-            # Interaction term: [B, H, chunk, 1, d] * [B, H, 1, C, d]
-            interaction = q[:, :, i:end_i, :].unsqueeze(3) * k.unsqueeze(2)
-            res = res + torch.matmul(interaction, w1_qk.t())
-
-            # Remaining MLP layers
-            res = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1)  # [B, H, chunk, C]
-            scores = res / (d**0.5)
-
-            attn = torch.softmax(scores, dim=-1)
-            attn = self.dropout(attn)
-
-            chunk_out = torch.matmul(attn, v)  # [B, H, chunk, d]
-            all_outs.append(chunk_out)
-
-        out = torch.cat(all_outs, dim=2)
         out = out.transpose(1, 2).contiguous().view(B, C, D)
         return self.out_proj(out)
 
@@ -227,10 +237,11 @@ class RelationalReasoningLayer(nn.Module):
         n_heads: int,
         dropout: float = 0.1,
         use_checkpoint: bool = False,
+        use_sdp: bool = True,
     ):
         super().__init__()
         self.use_checkpoint = use_checkpoint
-        self.rel_attn = SecondOrderRelationalAttention(d_binding, n_heads, dropout)
+        self.rel_attn = SecondOrderRelationalAttention(d_binding, n_heads, dropout, use_sdp=use_sdp)
         self.norm1 = nn.LayerNorm(d_binding)
 
         self.ffn = nn.Sequential(
@@ -347,6 +358,7 @@ class RBN(nn.Module):
         chunk_size: int = 64,
         use_checkpointing: bool = False,
         use_sinusoidal: bool = False,
+        use_sdp: bool = True,
         **kwargs,
     ):
         super().__init__()
@@ -368,13 +380,15 @@ class RBN(nn.Module):
         self.reasoning_layers = nn.ModuleList(
             [
                 RelationalReasoningLayer(
-                    hidden_dim, num_heads, dropout, use_checkpoint=use_checkpointing
+                    hidden_dim, num_heads, dropout,
+                    use_checkpoint=use_checkpointing,
+                    use_sdp=use_sdp,
                 )
                 for _ in range(num_layers)
             ]
         )
 
-        # Pass chunk_size to attention layers
+        # Pass chunk_size to attention layers (only used when use_sdp=False)
         for layer in self.reasoning_layers:
             layer.rel_attn.chunk_size = chunk_size
 

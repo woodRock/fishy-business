@@ -132,30 +132,39 @@ class MultiScaleBindingEncoder(nn.Module):
 # ---------------------------------------------------------------------------
 
 class SparseSecondOrderAttention(nn.Module):
-    """Only attends to Top-K relationships per peak to handle large spectra.
+    """Attention over binding pairs for large spectra.
 
-    Uses row-wise chunking to avoid materialising the full [B, H, C, C, d]
-    interaction tensor, keeping peak memory at O(chunk * C * d) per layer.
+    Two scoring modes (controlled by ``use_sdp``):
+
+    * ``use_sdp=True``  (default) — scaled dot-product via
+      ``F.scaled_dot_product_attention``. Single fused matmul; uses FlashAttention
+      on CUDA/MPS. The ``sparse_k`` mask is applied to the pre-softmax scores to
+      preserve sparse connectivity.
+
+    * ``use_sdp=False`` — original MLP_rel chunked path with sparsification.
     """
     def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1,
-                 sparse_k: int = 128, chunk_size: int = 64):
+                 sparse_k: int = 128, chunk_size: int = 64, use_sdp: bool = True):
         super().__init__()
         self.d_binding = d_binding
         self.n_heads = n_heads
         self.d_head = d_binding // n_heads
         self.sparse_k = sparse_k
         self.chunk_size = chunk_size
+        self.use_sdp = use_sdp
+        self.dropout_p = dropout
         d = self.d_head
 
         self.q_proj = nn.Linear(d_binding, d_binding)
         self.k_proj = nn.Linear(d_binding, d_binding)
         self.v_proj = nn.Linear(d_binding, d_binding)
 
-        self.mlp_rel = nn.Sequential(
-            nn.Linear(3 * d, d),
-            nn.GELU(),
-            nn.Linear(d, 1)
-        )
+        if not use_sdp:
+            self.mlp_rel = nn.Sequential(
+                nn.Linear(3 * d, d),
+                nn.GELU(),
+                nn.Linear(d, 1)
+            )
         self.out_proj = nn.Linear(d_binding, d_binding)
         self.dropout = nn.Dropout(dropout)
 
@@ -167,36 +176,48 @@ class SparseSecondOrderAttention(nn.Module):
         k = self.k_proj(x).view(B, C, H, d).transpose(1, 2)
         v = self.v_proj(x).view(B, C, H, d).transpose(1, 2)
 
-        w1 = self.mlp_rel[0]
-        q_proj = torch.matmul(q, w1.weight[:, :d].t())       # [B, H, C, d]
-        k_proj = torch.matmul(k, w1.weight[:, d:2*d].t())
-        w1_qk = w1.weight[:, 2*d:].t()
-        bias = w1.bias
-
-        all_outs = []
-        for i in range(0, C, self.chunk_size):
-            end_i = min(i + self.chunk_size, C)
-
-            # [B, H, chunk, 1, d] + [B, H, 1, C, d] -> [B, H, chunk, C, d]
-            res = q_proj[:, :, i:end_i].unsqueeze(3) + k_proj.unsqueeze(2) + bias
-            interaction = q[:, :, i:end_i].unsqueeze(3) * k.unsqueeze(2)
-            res = res + torch.matmul(interaction, w1_qk)
-
-            scores = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1)  # [B, H, chunk, C]
-            scores = scores / (d ** 0.5)
-
-            # Sparsification: keep only top-k relationships per query position
+        if self.use_sdp:
+            # Build sparse attention mask: each query attends only its top sparse_k keys.
+            # Compute dot-product scores to find top-k, then mask the rest.
             if self.sparse_k < C:
-                top_vals, _ = torch.topk(scores, self.sparse_k, dim=-1)
-                min_val = top_vals[..., -1].unsqueeze(-1)
-                scores = torch.where(scores >= min_val, scores, torch.full_like(scores, -1e9))
+                with torch.no_grad():
+                    scores_full = torch.matmul(q, k.transpose(-2, -1)) / (d ** 0.5)
+                    top_vals, _ = torch.topk(scores_full, self.sparse_k, dim=-1)
+                    threshold = top_vals[..., -1].unsqueeze(-1)
+                    mask = scores_full < threshold  # True = mask out
+                attn_bias = torch.zeros_like(mask, dtype=q.dtype)
+                attn_bias.masked_fill_(mask, float('-inf'))
+            else:
+                attn_bias = None
 
-            attn = torch.softmax(scores, dim=-1)
-            attn = self.dropout(attn)
+            out = F.scaled_dot_product_attention(
+                q, k, v,
+                attn_mask=attn_bias,
+                dropout_p=self.dropout_p if self.training else 0.0,
+            )
+        else:
+            # Original MLP_rel chunked path
+            w1 = self.mlp_rel[0]
+            q_proj = torch.matmul(q, w1.weight[:, :d].t())
+            k_proj = torch.matmul(k, w1.weight[:, d:2*d].t())
+            w1_qk  = w1.weight[:, 2*d:].t()
+            bias   = w1.bias
 
-            all_outs.append(torch.matmul(attn, v))  # [B, H, chunk, d]
+            all_outs = []
+            for i in range(0, C, self.chunk_size):
+                end_i = min(i + self.chunk_size, C)
+                res = q_proj[:, :, i:end_i].unsqueeze(3) + k_proj.unsqueeze(2) + bias
+                interaction = q[:, :, i:end_i].unsqueeze(3) * k.unsqueeze(2)
+                res = res + torch.matmul(interaction, w1_qk)
+                scores = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1) / (d ** 0.5)
+                if self.sparse_k < C:
+                    top_vals, _ = torch.topk(scores, self.sparse_k, dim=-1)
+                    min_val = top_vals[..., -1].unsqueeze(-1)
+                    scores = torch.where(scores >= min_val, scores, torch.full_like(scores, -1e9))
+                attn = self.dropout(torch.softmax(scores, dim=-1))
+                all_outs.append(torch.matmul(attn, v))
+            out = torch.cat(all_outs, dim=2)
 
-        out = torch.cat(all_outs, dim=2)             # [B, H, C, d]
         out = out.transpose(1, 2).contiguous().view(B, C, D)
         return self.out_proj(out)
 
@@ -254,6 +275,7 @@ class RBNPlus(nn.Module):
         lambda_binding: float = 0.01,
         use_checkpointing: bool = False,
         chunk_size: int = 64,
+        use_sdp: bool = True,
         **kwargs
     ):
         super().__init__()
@@ -261,16 +283,16 @@ class RBNPlus(nn.Module):
         self.top_k = top_k
         self.lambda_binding = lambda_binding
         self.use_checkpointing = use_checkpointing
-        
+
         d_inner = 16 if binding_type == "outer_product" else hidden_dim
-        
+
         self.encoder = MultiScaleBindingEncoder(
             input_dim, hidden_dim, binding_type, d_inner, d_inner
         )
-        
+
         self.layers = nn.ModuleList([
             nn.ModuleDict({
-                "attn": SparseSecondOrderAttention(hidden_dim, num_heads, dropout, sparse_k, chunk_size),
+                "attn": SparseSecondOrderAttention(hidden_dim, num_heads, dropout, sparse_k, chunk_size, use_sdp=use_sdp),
                 "norm1": nn.LayerNorm(hidden_dim),
                 "ffn": nn.Sequential(
                     nn.Linear(hidden_dim, 4 * hidden_dim),

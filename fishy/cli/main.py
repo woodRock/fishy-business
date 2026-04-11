@@ -147,6 +147,10 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument(
         "--use-sinusoidal", action="store_true", help="Add sinusoidal positional encoding to role embeddings (RBN)"
     )
+    hp_group.add_argument(
+        "--use-mlp-rel", action="store_true",
+        help="Use the original MLP_rel scorer in RBN (slow but non-linear). Default: fast scaled dot-product."
+    )
 
     subparsers.add_parser("wizard", help="Interactive setup")
 
