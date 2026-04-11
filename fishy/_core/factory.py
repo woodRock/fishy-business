@@ -55,6 +55,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "sparse_k": config.sparse_k,
         "lambda_binding": config.lambda_binding,
         "n_memory_slots": config.n_memory_slots,
+        "use_sinusoidal": config.use_sinusoidal,
     }
 
     # Handle Siamese wrappers for batch-detection

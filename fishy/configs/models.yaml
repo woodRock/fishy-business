@@ -80,6 +80,7 @@ deep_models:
       top_k: 300
       rbn_chunk_size: 64
       use_checkpointing: false
+      use_sinusoidal: false
       learning_rate: 0.0009236686956160434
       batch_size: 16
 

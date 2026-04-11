@@ -12,6 +12,7 @@ Reference:
     Relational Binding Network (RBN): Formal Specification & Implementation Brief
 """
 
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -19,7 +20,32 @@ from typing import Optional, Tuple, List
 
 
 # ---------------------------------------------------------------------------
-# 1. Binding Encoder
+# 1. Sinusoidal Encoding (optional role grounding)
+# ---------------------------------------------------------------------------
+
+
+class SinusoidalEncoding(nn.Module):
+    """Encodes continuous m/z positions into fixed sinusoidal role vectors."""
+
+    def __init__(self, d_model: int):
+        super().__init__()
+        self.d_model = d_model
+
+    def forward(self, positions: torch.Tensor) -> torch.Tensor:
+        # positions: [B, C] or [C]
+        device = positions.device
+        half_dim = self.d_model // 2
+        emb = math.log(10000) / (half_dim - 1)
+        emb = torch.exp(torch.arange(half_dim, device=device) * -emb)
+        emb = positions.unsqueeze(-1) * emb.unsqueeze(0)
+        emb = torch.cat([torch.sin(emb), torch.cos(emb)], dim=-1)
+        if self.d_model % 2 == 1:
+            emb = F.pad(emb, (0, 1))
+        return emb
+
+
+# ---------------------------------------------------------------------------
+# 2. Binding Encoder
 # ---------------------------------------------------------------------------
 
 
@@ -27,7 +53,8 @@ class BindingEncoder(nn.Module):
     """
     Maps each (role, filler) pair to a binding vector.
 
-    Role  : column identity (m/z position index) -> learned embedding.
+    Role  : column identity (m/z position index) -> learned embedding,
+            optionally summed with a sinusoidal encoding.
     Filler: cell intensity -> single layer projection + GELU.
     Binding: r_j ⊙ f_ij (Hadamard) or r_j ⊗ f_ij (Outer product).
     """
@@ -39,14 +66,18 @@ class BindingEncoder(nn.Module):
         binding_mode: str = "hadamard",
         d_role: int = 64,
         d_filler: int = 64,
+        use_sinusoidal: bool = False,
     ):
         super().__init__()
         self.binding_mode = binding_mode
         self.d_binding = d_binding
         self.d_role = d_role
         self.d_filler = d_filler
+        self.use_sinusoidal = use_sinusoidal
 
         self.role_embeddings = nn.Embedding(n_cols, d_role)
+        if use_sinusoidal:
+            self.sin_encoding = SinusoidalEncoding(d_role)
 
         # Filler encoder: scalar -> vector
         # bias=False ensures f(0) = 0, preserving intensity-based sparsity
@@ -68,6 +99,18 @@ class BindingEncoder(nn.Module):
     def init_weights(self):
         nn.init.normal_(self.role_embeddings.weight, std=0.02)
 
+    def _make_roles(self, idx: torch.Tensor) -> torch.Tensor:
+        """idx: [B, C] or [C] — returns [B, C, d_role]."""
+        learned = self.role_embeddings(idx)
+        if not self.use_sinusoidal:
+            return learned
+        # idx may be 1-D (full-spectrum path) or 2-D (top-k path)
+        positions = idx.float() if idx.dim() == 2 else idx.float().unsqueeze(0)
+        sin = self.sin_encoding(positions)
+        if idx.dim() == 1:
+            sin = sin.squeeze(0)
+        return learned + sin
+
     def forward(
         self, x: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -78,9 +121,7 @@ class BindingEncoder(nn.Module):
         B, C = x.shape
         col_idx = torch.arange(C, device=x.device)
 
-        roles = (
-            self.role_embeddings(col_idx).unsqueeze(0).expand(B, -1, -1)
-        )  # [B, C, d_role]
+        roles = self._make_roles(col_idx).unsqueeze(0).expand(B, -1, -1)  # [B, C, d_role]
         fillers = self.filler_encoder(x.unsqueeze(-1))  # [B, C, d_filler]
 
         if self.binding_mode == "outer_product":
@@ -305,6 +346,7 @@ class RBN(nn.Module):
         lambda_binding: float = 0.01,
         chunk_size: int = 64,
         use_checkpointing: bool = False,
+        use_sinusoidal: bool = False,
         **kwargs,
     ):
         super().__init__()
@@ -320,7 +362,7 @@ class RBN(nn.Module):
             d_filler = 16
 
         self.binding_encoder = BindingEncoder(
-            input_dim, hidden_dim, binding_type, d_role, d_filler
+            input_dim, hidden_dim, binding_type, d_role, d_filler, use_sinusoidal
         )
 
         self.reasoning_layers = nn.ModuleList(
@@ -365,13 +407,7 @@ class RBN(nn.Module):
             x_sparse = torch.gather(x_log, 1, top_idx)
 
             # 2. Binding Encoder
-            # To handle sparse indices in Embedding, we can't just pass x_sparse.
-            # We need to map top_idx back to roles.
-
-            # Get roles and fillers for all indices first, then gather?
-            # Or just for top_idx.
-
-            roles = self.binding_encoder.role_embeddings(top_idx)  # [B, k, d_role]
+            roles = self.binding_encoder._make_roles(top_idx)  # [B, k, d_role]
             fillers = self.binding_encoder.filler_encoder(
                 x_sparse.unsqueeze(-1)
             )  # [B, k, d_filler]

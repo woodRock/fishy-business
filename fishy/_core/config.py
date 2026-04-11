@@ -71,6 +71,7 @@ class TrainingConfig:
     sparse_k: int = 300
     lambda_binding: float = 0.01
     n_memory_slots: int = 64
+    use_sinusoidal: bool = False
 
     # Contrastive specific
     encoder_type: str = "dense"
