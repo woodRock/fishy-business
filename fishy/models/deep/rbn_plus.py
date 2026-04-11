@@ -144,7 +144,7 @@ class SparseSecondOrderAttention(nn.Module):
     * ``use_sdp=False`` — original MLP_rel chunked path with sparsification.
     """
     def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1,
-                 sparse_k: int = 128, chunk_size: int = 64, use_sdp: bool = True):
+                 sparse_k: int = 128, chunk_size: int = 64, use_sdp: bool = False):
         super().__init__()
         self.d_binding = d_binding
         self.n_heads = n_heads
@@ -275,7 +275,7 @@ class RBNPlus(nn.Module):
         lambda_binding: float = 0.01,
         use_checkpointing: bool = False,
         chunk_size: int = 64,
-        use_sdp: bool = True,
+        use_sdp: bool = False,
         **kwargs
     ):
         super().__init__()

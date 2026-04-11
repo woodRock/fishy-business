@@ -160,7 +160,7 @@ class SecondOrderRelationalAttention(nn.Module):
         n_heads: int,
         dropout: float = 0.1,
         chunk_size: int = 64,
-        use_sdp: bool = True,
+        use_sdp: bool = False,
     ):
         super().__init__()
         self.d_binding = d_binding
@@ -237,7 +237,7 @@ class RelationalReasoningLayer(nn.Module):
         n_heads: int,
         dropout: float = 0.1,
         use_checkpoint: bool = False,
-        use_sdp: bool = True,
+        use_sdp: bool = False,
     ):
         super().__init__()
         self.use_checkpoint = use_checkpoint
@@ -358,7 +358,7 @@ class RBN(nn.Module):
         chunk_size: int = 64,
         use_checkpointing: bool = False,
         use_sinusoidal: bool = False,
-        use_sdp: bool = True,
+        use_sdp: bool = False,
         **kwargs,
     ):
         super().__init__()
