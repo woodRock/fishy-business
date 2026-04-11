@@ -132,6 +132,9 @@ def setup_parser() -> argparse.ArgumentParser:
         "--top-k", type=int, default=None, help="Process only the top-K peaks"
     )
     hp_group.add_argument(
+        "--binding-type", type=str, default=None, choices=["hadamard", "outer_product", "complex", "multiplicative", "additive"]
+    )
+    hp_group.add_argument(
         "--use-performer", action="store_true", help="Use linear attention for speed"
     )
     hp_group.add_argument(

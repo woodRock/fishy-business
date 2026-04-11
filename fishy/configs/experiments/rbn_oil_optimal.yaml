@@ -1,0 +1,20 @@
+# Optimal RBN performance measurement on Oil Dataset
+name: "rbn_oil_optimal_measurement"
+num_runs: 30
+datasets: ["oil"]
+models: ["rbn"]
+benchmark: true
+figures: true
+statistical: true
+wandb_log: true
+overrides:
+  epochs: 100
+  hidden_dim: 128
+  num_layers: 3
+  num_heads: 2
+  top_k: 300
+  learning_rate: 0.0009236686956160434
+  batch_size: 16
+  binding_type: "outer_product"
+  rbn_chunk_size: 1
+  use_checkpointing: true
