@@ -12,12 +12,48 @@ from torch.utils.data import Dataset, Sampler
 
 
 class BaseDataset(Dataset):
-    def __init__(self, samples: np.ndarray, labels: np.ndarray) -> None:
+    def __init__(
+        self,
+        samples: np.ndarray,
+        labels: np.ndarray,
+        random_projection: bool = False,
+        quantize: bool = False,
+        normalize: bool = False,
+        seed: int = 42,
+    ) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.tensor(np.array(labels), dtype=torch.float32)
 
-        if self.samples.ndim > 1 and self.samples.shape[0] > 1:
+        # 1. Normalize raw spectra (Standard TIC/L2 normalization)
+        if (
+            normalize
+            and self.samples.ndim > 1
+            and self.samples.shape[0] > 1
+            and self.samples.shape[1] > 0
+        ):
             self.samples = F.normalize(self.samples, p=2, dim=0)
+
+        # 2. Random Projection (Energy Balancing)
+        if random_projection and self.samples.ndim > 1 and self.samples.shape[0] > 0:
+            # QJL-style Random Projection to balance energy and turn zeros into non-zeros
+            n_features = self.samples.shape[1]
+            rng = np.random.default_rng(seed)
+            # Use a random normal matrix for projection (Gaussian Random Projection)
+            projection_matrix = rng.standard_normal((n_features, n_features)).astype(
+                np.float32
+            )
+            # Normalize the projection matrix to preserve approximate scale
+            projection_matrix /= np.sqrt(n_features)
+            proj_tensor = torch.from_numpy(projection_matrix)
+
+            # Project: (N, D) @ (D, D) -> (N, D)
+            self.samples = self.samples @ proj_tensor
+
+            if quantize:
+                # TurboQuant / QJL Step: Convert to 1-bit sign representation
+                # This captures the directional 'fingerprint' of the spectrum
+                # and acts as a powerful denoiser by ignoring small fluctuations.
+                self.samples = torch.sign(self.samples)
 
     def __len__(self) -> int:
         return self.samples.shape[0]

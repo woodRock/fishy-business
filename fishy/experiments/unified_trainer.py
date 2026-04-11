@@ -276,6 +276,9 @@ class UnifiedTrainer:
             wandb_log=config.wandb_log,
             encoder_type=config.encoder_type,
             run=config.run,
+            random_projection=config.random_projection,
+            quantize=config.quantize,
+            normalize=config.normalize,
         )
         trainer = ContrastiveTrainer(c_cfg, wandb_run=wandb_run, ctx=ctx)
         try:

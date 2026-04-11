@@ -40,6 +40,68 @@ class TestDatasets(unittest.TestCase):
         indices = next(iter(sampler))
         self.assertEqual(len(indices), 4)
 
+    def test_random_projection(self):
+        # Sparse samples (each row has at least one signal, but mostly zeros)
+        samples = np.zeros((5, 10), dtype=np.float32)
+        samples[0, 0] = 1.0
+        samples[1, 5] = 2.0
+        samples[2, 2] = 0.5
+        samples[3, 9] = 1.2
+        samples[4, 1] = 0.1
+        labels = np.zeros((5, 1))
+
+        # Without projection
+        ds_no_proj = BaseDataset(samples, labels, random_projection=False)
+        # Check that some values are still zero (BaseDataset does normalize, but 0 remains 0)
+        self.assertTrue(torch.any(ds_no_proj.samples == 0))
+
+        # With projection
+        ds_proj = BaseDataset(samples, labels, random_projection=True, seed=42)
+        # Projection should turn zeros into non-zeros (stochastically, almost certainly)
+        # We check that it's no longer the same as the original and has fewer/no zeros
+        self.assertFalse(torch.allclose(ds_no_proj.samples, ds_proj.samples))
+        # In a random projection of a sparse vector, it's highly likely to be fully dense
+        self.assertTrue(torch.all(ds_proj.samples != 0))
+
+    def test_quantization(self):
+        # Sparse samples
+        samples = np.random.randn(5, 10).astype(np.float32)
+        labels = np.zeros((5, 1))
+
+        # With projection and quantization
+        ds_quant = BaseDataset(
+            samples, labels, random_projection=True, quantize=True, seed=42
+        )
+
+        # QJL Sign quantization should result in only -1, 1, or 0 values
+        # (and 0 only if the projection result was exactly 0, which is rare)
+        unique_vals = torch.unique(ds_quant.samples)
+        for val in unique_vals:
+            self.assertIn(val.item(), [-1.0, 1.0, 0.0])
+
+        # Verify that we actually have some -1 and 1
+        self.assertTrue(torch.any(ds_quant.samples == 1.0))
+        self.assertTrue(torch.any(ds_quant.samples == -1.0))
+
+    def test_optional_normalization(self):
+        # Raw samples with different TICs
+        samples = np.array([[1.0, 2.0], [10.0, 20.0]], dtype=np.float32)
+        labels = np.zeros((2, 1))
+
+        # Without normalization
+        ds_no_norm = BaseDataset(samples, labels, normalize=False)
+        self.assertTrue(torch.allclose(ds_no_norm.samples, torch.tensor(samples)))
+
+        # With normalization
+        ds_norm = BaseDataset(samples, labels, normalize=True)
+        # L2 norm of [1, 10] is sqrt(101) ~ 10.05
+        # L2 norm of [2, 20] is sqrt(404) ~ 20.1
+        self.assertFalse(torch.allclose(ds_norm.samples, torch.tensor(samples)))
+        # Check that columns are normalized
+        norms = torch.norm(ds_norm.samples, p=2, dim=0)
+        for n in norms:
+            self.assertAlmostEqual(n.item(), 1.0, places=5)
+
 
 class TestDataModule(unittest.TestCase):
     def test_data_processor_init(self):

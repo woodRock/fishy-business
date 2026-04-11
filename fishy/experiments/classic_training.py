@@ -100,7 +100,12 @@ class SklearnTrainer:
     def run(self) -> Tuple[Any, Dict[str, Any]]:
         start_time = time.time()
         self.data_module = create_data_module(
-            dataset_name=self.dataset_name, file_path=self.file_path
+            dataset_name=self.dataset_name,
+            file_path=self.file_path,
+            random_projection=self.config.random_projection,
+            quantize=self.config.quantize,
+            normalize=self.config.normalize,
+            run_id=self.config.run,
         )
         self.data_module.setup()
         X, y = self.data_module.get_numpy_data(labels_as_indices=True)

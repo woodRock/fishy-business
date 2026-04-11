@@ -61,6 +61,9 @@ class TrainingConfig:
     crop_size: float = 0.8  # Default crop size
     num_experts: int = 8
     k: int = 2
+    random_projection: bool = False
+    quantize: bool = False
+    normalize: bool = False
 
     # RFN Specific
     top_k: Optional[int] = None

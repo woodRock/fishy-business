@@ -68,10 +68,14 @@ class ModelTrainer:
             else self.config.dataset
         )
         self.data_module = create_data_module(
-            file_path=config.file_path,
             dataset_name=dataset_name,
+            file_path=config.file_path,
             batch_size=config.batch_size,
-            augmentation_config=config,
+            augmentation_enabled=config.data_augmentation,
+            random_projection=config.random_projection,
+            quantize=config.quantize,
+            normalize=config.normalize,
+            run_id=config.run,
         )
         self.data_module.setup()
         self.n_features = self.data_module.get_input_dim()

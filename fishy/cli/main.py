@@ -102,7 +102,10 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group = train_parser.add_argument_group(hp_group_label)
     hp_group.add_argument("-e", "--epochs", type=int, help="Number of training epochs")
     hp_group.add_argument(
-        "-n", "--num-runs", type=int, default=1, help="Number of independent runs"
+        "-N", "--num-runs", type=int, default=1, help="Number of independent runs"
+    )
+    hp_group.add_argument(
+        "--normalize", action="store_true", help="Apply TIC/L2 normalization to the input spectra"
     )
     hp_group.add_argument(
         "-fp",
@@ -123,6 +126,12 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Perform statistical significance tests",
     )
 
+    hp_group.add_argument(
+        "-r", "--random-projection", action="store_true", help="Apply random projection to the input data (QJL-style)"
+    )
+    hp_group.add_argument(
+        "-q", "--quantize", action="store_true", help="Apply QJL/TurboQuant quantization (sign-bit) after random projection"
+    )
     hp_group.add_argument("--batch-size", type=int, default=64)
     hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
     hp_group.add_argument("--hidden-dim", type=int, default=128)

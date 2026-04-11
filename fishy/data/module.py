@@ -186,6 +186,10 @@ def preprocess_data_pipeline(
     file_path: Union[str, Path],
     is_pre_train: bool = False,
     augmentation_cfg: Optional[AugmentationConfig] = None,
+    random_projection: bool = False,
+    quantize: bool = False,
+    normalize: bool = False,
+    run_id: int = 42,
 ) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
     raw_df = data_processor.load_data(file_path)
     filtered_df = data_processor.filter_data(raw_df, is_pre_train)
@@ -199,7 +203,14 @@ def preprocess_data_pipeline(
             filtered_df,
         )
     X, y = data_processor.encode_labels(filtered_df)
-    torch_dataset = CustomDataset(X, y)
+    torch_dataset = CustomDataset(
+        X,
+        y,
+        random_projection=random_projection,
+        quantize=quantize,
+        normalize=normalize,
+        seed=run_id,
+    )
     data_loader = DataLoader(
         torch_dataset,
         batch_size=data_processor.batch_size,
@@ -221,6 +232,10 @@ class DataModule:
         batch_size: int = 64,
         is_pre_train: bool = False,
         augmentation_config: Optional[AugmentationConfig] = None,
+        random_projection: bool = False,
+        quantize: bool = False,
+        normalize: bool = False,
+        run_id: int = 42,
     ) -> None:
         from fishy import get_data_path
 
@@ -229,6 +244,10 @@ class DataModule:
         self.batch_size = batch_size
         self.is_pre_train = is_pre_train
         self.augmentation_config = augmentation_config
+        self.random_projection = random_projection
+        self.quantize = quantize
+        self.normalize = normalize
+        self.run_id = run_id
         self.processor = DataProcessor(dataset_name, batch_size)
         self.train_loader, self.raw_data, self.filtered_data = None, None, None
 
@@ -241,7 +260,14 @@ class DataModule:
             else get_data_path()
         )
         self.train_loader, self.raw_data, self.filtered_data = preprocess_data_pipeline(
-            self.processor, actual_path, self.is_pre_train, self.augmentation_config
+            self.processor,
+            actual_path,
+            self.is_pre_train,
+            self.augmentation_config,
+            random_projection=self.random_projection,
+            quantize=self.quantize,
+            normalize=self.normalize,
+            run_id=self.run_id,
         )
 
     def get_groups(self) -> Optional[np.ndarray]:
@@ -348,9 +374,23 @@ def create_data_module(
     batch_size: int = 64,
     is_pre_train: bool = False,
     augmentation_enabled: bool = False,
+    random_projection: bool = False,
+    quantize: bool = False,
+    normalize: bool = False,
+    run_id: int = 42,
     **kwargs,
 ) -> DataModule:
     aug_config = (
         AugmentationConfig(enabled=True, **kwargs) if augmentation_enabled else None
     )
-    return DataModule(dataset_name, file_path, batch_size, is_pre_train, aug_config)
+    return DataModule(
+        dataset_name,
+        file_path,
+        batch_size,
+        is_pre_train,
+        aug_config,
+        random_projection=random_projection,
+        quantize=quantize,
+        normalize=normalize,
+        run_id=run_id,
+    )

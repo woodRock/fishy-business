@@ -329,7 +329,7 @@ class RBNExplainer:
             curr_mz = top_idx.float()
             bindings, _, _ = self.model.encoder(x_in, top_idx, curr_mz, x_full=x_log)
         else:
-            top_k = self.model.top_k
+            top_k = getattr(self.model, "top_k", None)
             if top_k and top_k < C:
                 _, top_idx = torch.topk(x_log, top_k, dim=1)
                 x_sparse = torch.gather(x_log, 1, top_idx)
