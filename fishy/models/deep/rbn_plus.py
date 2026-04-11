@@ -132,13 +132,19 @@ class MultiScaleBindingEncoder(nn.Module):
 # ---------------------------------------------------------------------------
 
 class SparseSecondOrderAttention(nn.Module):
-    """Only attends to Top-K relationships per peak to handle large spectra."""
-    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1, sparse_k: int = 128):
+    """Only attends to Top-K relationships per peak to handle large spectra.
+
+    Uses row-wise chunking to avoid materialising the full [B, H, C, C, d]
+    interaction tensor, keeping peak memory at O(chunk * C * d) per layer.
+    """
+    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1,
+                 sparse_k: int = 128, chunk_size: int = 64):
         super().__init__()
         self.d_binding = d_binding
         self.n_heads = n_heads
         self.d_head = d_binding // n_heads
         self.sparse_k = sparse_k
+        self.chunk_size = chunk_size
         d = self.d_head
 
         self.q_proj = nn.Linear(d_binding, d_binding)
@@ -157,40 +163,40 @@ class SparseSecondOrderAttention(nn.Module):
         B, C, D = x.shape
         H, d = self.n_heads, self.d_head
 
-        q = self.q_proj(x).view(B, C, H, d).transpose(1, 2)
+        q = self.q_proj(x).view(B, C, H, d).transpose(1, 2)  # [B, H, C, d]
         k = self.k_proj(x).view(B, C, H, d).transpose(1, 2)
         v = self.v_proj(x).view(B, C, H, d).transpose(1, 2)
 
-        # Optimization: Pre-calculate W_q*q and W_k*k
         w1 = self.mlp_rel[0]
-        q_proj = torch.matmul(q, w1.weight[:, :d].t())
+        q_proj = torch.matmul(q, w1.weight[:, :d].t())       # [B, H, C, d]
         k_proj = torch.matmul(k, w1.weight[:, d:2*d].t())
         w1_qk = w1.weight[:, 2*d:].t()
         bias = w1.bias
 
-        # Compute full relational scores (sparse_k is applied per row)
-        # Note: True Top-K Sparse attention still needs scores to be computed
-        # unless we use hashing or clustering, but Top-K selection here 
-        # acts as a strong structural prior and regularizer.
-        
-        # Broadcase components
-        res = q_proj.unsqueeze(3) + k_proj.unsqueeze(2) + bias
-        interaction = q.unsqueeze(3) * k.unsqueeze(2)
-        res = res + torch.matmul(interaction, w1_qk)
-        
-        scores = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1) # [B, H, C, C]
-        scores = scores / (d ** 0.5)
-        
-        # Sparsification: Keep only top k relationships per role
-        if self.sparse_k < C:
-            top_vals, _ = torch.topk(scores, self.sparse_k, dim=-1)
-            min_val = top_vals[..., -1].unsqueeze(-1)
-            scores = torch.where(scores >= min_val, scores, torch.full_like(scores, -1e9))
-            
-        attn = torch.softmax(scores, dim=-1)
-        attn = self.dropout(attn)
-        
-        out = torch.matmul(attn, v)
+        all_outs = []
+        for i in range(0, C, self.chunk_size):
+            end_i = min(i + self.chunk_size, C)
+
+            # [B, H, chunk, 1, d] + [B, H, 1, C, d] -> [B, H, chunk, C, d]
+            res = q_proj[:, :, i:end_i].unsqueeze(3) + k_proj.unsqueeze(2) + bias
+            interaction = q[:, :, i:end_i].unsqueeze(3) * k.unsqueeze(2)
+            res = res + torch.matmul(interaction, w1_qk)
+
+            scores = self.mlp_rel[2](self.mlp_rel[1](res)).squeeze(-1)  # [B, H, chunk, C]
+            scores = scores / (d ** 0.5)
+
+            # Sparsification: keep only top-k relationships per query position
+            if self.sparse_k < C:
+                top_vals, _ = torch.topk(scores, self.sparse_k, dim=-1)
+                min_val = top_vals[..., -1].unsqueeze(-1)
+                scores = torch.where(scores >= min_val, scores, torch.full_like(scores, -1e9))
+
+            attn = torch.softmax(scores, dim=-1)
+            attn = self.dropout(attn)
+
+            all_outs.append(torch.matmul(attn, v))  # [B, H, chunk, d]
+
+        out = torch.cat(all_outs, dim=2)             # [B, H, C, d]
         out = out.transpose(1, 2).contiguous().view(B, C, D)
         return self.out_proj(out)
 
@@ -247,6 +253,7 @@ class RBNPlus(nn.Module):
         n_memory_slots: int = 64,
         lambda_binding: float = 0.01,
         use_checkpointing: bool = False,
+        chunk_size: int = 64,
         **kwargs
     ):
         super().__init__()
@@ -263,7 +270,7 @@ class RBNPlus(nn.Module):
         
         self.layers = nn.ModuleList([
             nn.ModuleDict({
-                "attn": SparseSecondOrderAttention(hidden_dim, num_heads, dropout, sparse_k),
+                "attn": SparseSecondOrderAttention(hidden_dim, num_heads, dropout, sparse_k, chunk_size),
                 "norm1": nn.LayerNorm(hidden_dim),
                 "ffn": nn.Sequential(
                     nn.Linear(hidden_dim, 4 * hidden_dim),
