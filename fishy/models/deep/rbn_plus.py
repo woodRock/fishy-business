@@ -61,14 +61,14 @@ class MultiScaleBindingEncoder(nn.Module):
         super().__init__()
         self.binding_mode = binding_mode
         self.d_binding = d_binding
+        self.n_cols = n_cols
         
         # Base Encoders
         self.learned_roles = nn.Embedding(n_cols, d_role)
         self.sin_roles = SinusoidalEncoding(d_role)
         self.filler_encoder = nn.Linear(1, d_filler, bias=False)
         
-        # Local Scale: Neighborhood features via 1D Conv
-        # This captures "isotopic envelopes" or local chemical patterns
+        # Local Scale: Capture neighborhood features on the FULL spectrum
         self.local_conv = nn.Sequential(
             nn.ReflectionPad1d(kernel_size // 2),
             nn.Conv1d(1, d_filler, kernel_size=kernel_size),
@@ -81,30 +81,45 @@ class MultiScaleBindingEncoder(nn.Module):
         self.norm = nn.LayerNorm(d_binding)
 
     def forward(
-        self, x: torch.Tensor, mz_values: Optional[torch.Tensor] = None
+        self, 
+        x_sparse: torch.Tensor, 
+        top_idx: torch.Tensor,
+        mz_values: Optional[torch.Tensor] = None,
+        x_full: Optional[torch.Tensor] = None
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        B, C = x.shape
-        device = x.device
+        """
+        x_sparse: [B, K] - Selected peak intensities
+        top_idx: [B, K] - Original indices of selected peaks
+        mz_values: [B, K] - Actual m/z values for selected peaks
+        x_full: [B, C] - Full spectrum for local neighborhood conv
+        """
+        B, K = x_sparse.shape
+        device = x_sparse.device
         
         # 1. Role Formation (Sinusoidal + Learned)
-        if mz_values is None:
-            mz_values = torch.arange(C, device=device).float()
-        
-        if mz_values.dim() == 1:
-            mz_values = mz_values.unsqueeze(0).expand(B, -1)
-            
+        # BUG FIX: Use top_idx to lookup learned roles, not arange(K)
         s_roles = self.sin_roles(mz_values)
-        l_roles = self.learned_roles(torch.arange(C, device=device)).unsqueeze(0)
-        roles = s_roles + l_roles # [B, C, d_role]
+        l_roles = self.learned_roles(top_idx) 
+        roles = s_roles + l_roles # [B, K, d_role]
         
-        # 2. Filler Formation (Pointwise + Local Neighborhood)
-        f_point = self.filler_encoder(x.unsqueeze(-1)) # [B, C, d_filler]
-        f_local = self.local_conv(x.unsqueeze(1)).transpose(1, 2) # [B, C, d_filler]
+        # 2. Filler Formation
+        # Pointwise intensity
+        f_point = self.filler_encoder(x_sparse.unsqueeze(-1)) # [B, K, d_filler]
+        
+        # Local neighborhood intensity (from full spectrum)
+        if x_full is not None:
+            f_full = self.local_conv(x_full.unsqueeze(1)).transpose(1, 2) # [B, C, d_filler]
+            # Gather neighborhood features for the selected peaks
+            idx_exp = top_idx.unsqueeze(-1).expand(-1, -1, f_full.shape[-1])
+            f_local = torch.gather(f_full, 1, idx_exp) # [B, K, d_filler]
+        else:
+            f_local = 0.0
+            
         fillers = F.gelu(f_point + f_local)
         
         # 3. Binding
         if self.binding_mode == "outer_product":
-            outer = torch.einsum("bcd,bce->bcde", roles, fillers)
+            outer = torch.einsum("bkd,bke->bkde", roles, fillers)
             bindings = self.outer_proj(outer.flatten(-2))
         else:
             bindings = roles * fillers
@@ -118,7 +133,7 @@ class MultiScaleBindingEncoder(nn.Module):
 
 class SparseSecondOrderAttention(nn.Module):
     """Only attends to Top-K relationships per peak to handle large spectra."""
-    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1, sparse_k: int = 64):
+    def __init__(self, d_binding: int, n_heads: int, dropout: float = 0.1, sparse_k: int = 128):
         super().__init__()
         self.d_binding = d_binding
         self.n_heads = n_heads
@@ -279,31 +294,25 @@ class RBNPlus(nn.Module):
         if self.top_k and self.top_k < C:
             vals, top_idx = torch.topk(x_log, self.top_k, dim=1)
             x_in = vals
-            # We don't subset mz_values here yet, encoder handles it
         else:
-            top_idx = None
+            top_idx = torch.arange(C, device=x.device).unsqueeze(0).expand(B, -1)
             x_in = x_log
 
         # 2. Multi-Scale Binding
-        # For simplicity in the plus version, if top_k is used, 
-        # we pass only relevant parts to encoder.
-        if top_idx is not None:
-            # We need to map mz_values if provided
-            curr_mz = None
-            if mz_values is not None:
-                # Ensure [B, C] shape for gather
-                mz_expanded = mz_values
-                if mz_expanded.dim() == 1:
-                    mz_expanded = mz_expanded.unsqueeze(0).expand(B, -1)
-                elif mz_expanded.shape[0] != B:
-                    mz_expanded = mz_expanded.expand(B, -1)
-                curr_mz = torch.gather(mz_expanded, 1, top_idx)
-            else:
-                curr_mz = top_idx.float()
-            
-            bindings, roles, fillers = self.encoder(x_in, curr_mz)
+        # Map mz_values if provided
+        if mz_values is not None:
+            # Ensure [B, C] shape for gather
+            mz_expanded = mz_values
+            if mz_expanded.dim() == 1:
+                mz_expanded = mz_expanded.unsqueeze(0).expand(B, -1)
+            elif mz_expanded.shape[0] != B:
+                mz_expanded = mz_expanded.expand(B, -1)
+            curr_mz = torch.gather(mz_expanded, 1, top_idx)
         else:
-            bindings, roles, fillers = self.encoder(x_in, mz_values)
+            curr_mz = top_idx.float()
+        
+        # Pass x_log as x_full to the encoder to capture neighborhood from full spectrum
+        bindings, roles, fillers = self.encoder(x_in, top_idx, curr_mz, x_full=x_log)
             
         if self.training:
             self._last_aux_loss = self.separability(bindings, roles, fillers)
@@ -335,12 +344,16 @@ class RBNPlus(nn.Module):
         """Returns the top peak pairs that drive predictions."""
         self.eval()
         with torch.no_grad():
-            # Run partial forward to get attention scores
-            # This requires saving scores in forward or re-running
-            # Let's re-run for simplicity here
+            if x.dim() == 3:
+                x = x.squeeze(1) if x.shape[1] == 1 else x.squeeze(2)
             B, C = x.shape
             x_log = torch.log1p(x.clamp(min=0.0))
-            vals, top_idx = torch.topk(x_log, self.top_k, dim=1)
+            
+            if self.top_k and self.top_k < C:
+                vals, top_idx = torch.topk(x_log, self.top_k, dim=1)
+            else:
+                top_idx = torch.arange(C, device=x.device).unsqueeze(0).expand(B, -1)
+                vals = x_log
             
             if mz_values is None:
                 mz_values = torch.arange(C, device=x.device).float().expand(B, -1)
@@ -353,7 +366,8 @@ class RBNPlus(nn.Module):
                 mz_expanded = mz_expanded.expand(B, -1)
                 
             curr_mz = torch.gather(mz_expanded, 1, top_idx)
-            bindings, _, _ = self.encoder(vals, curr_mz)
+            # Use fixed encoder call
+            bindings, _, _ = self.encoder(vals, top_idx, curr_mz, x_full=x_log)
             
             # Get last layer attention
             # Since we don't store it by default, we'll manually call it
