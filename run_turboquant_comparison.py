@@ -16,10 +16,30 @@ from rich.panel import Panel
 DATASETS = ["species", "part", "oil", "cross-species"]
 MODELS = ["opls-da", "rf", "svm", "dt", "lr", "lstm", "cnn", "transformer"]
 CONFIGS = {
-    "Default": {"random_projection": False, "quantize": False, "turbo_quant": False, "normalize": False},
-    "Sign-RP": {"random_projection": True, "quantize": True, "turbo_quant": False, "normalize": False},
-    "TurboQuant": {"random_projection": False, "quantize": False, "turbo_quant": True, "normalize": True},
-    "Normalize": {"random_projection": False, "quantize": False, "turbo_quant": False, "normalize": True},
+    "Default": {
+        "random_projection": False,
+        "quantize": False,
+        "turbo_quant": False,
+        "normalize": False,
+    },
+    "Sign-RP": {
+        "random_projection": True,
+        "quantize": True,
+        "turbo_quant": False,
+        "normalize": False,
+    },
+    "TurboQuant": {
+        "random_projection": False,
+        "quantize": False,
+        "turbo_quant": True,
+        "normalize": True,
+    },
+    "Normalize": {
+        "random_projection": False,
+        "quantize": False,
+        "turbo_quant": False,
+        "normalize": True,
+    },
 }
 
 
