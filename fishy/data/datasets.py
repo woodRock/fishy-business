@@ -37,7 +37,11 @@ class BaseDataset(Dataset):
             self.samples = F.normalize(self.samples, p=2, dim=1)
 
         # 2. Random Projection / TurboQuant (Energy Balancing)
-        if (random_projection or turbo_quant) and self.samples.ndim > 1 and self.samples.shape[0] > 0:
+        if (
+            (random_projection or turbo_quant)
+            and self.samples.ndim > 1
+            and self.samples.shape[0] > 0
+        ):
             # QJL-style Random Projection to balance energy and turn zeros into non-zeros
             n_features = self.samples.shape[1]
             rng = np.random.default_rng(seed)
@@ -56,20 +60,20 @@ class BaseDataset(Dataset):
                 max_vals = self.samples.max(dim=1, keepdim=True)[0]
                 range_vals = max_vals - min_vals
                 range_vals[range_vals == 0] = 1.0  # Avoid division by zero
-                
+
                 # Rescale to 0-1
                 x_rescaled = (self.samples - min_vals) / range_vals
                 # 4-bit quantization (16 levels)
                 x_quant = torch.round(x_rescaled * 15.0) / 15.0
-                
+
                 # Stage 2: Residual Extraction
                 # The error between the 'bulk' quantization and original vector
                 residual = x_rescaled - x_quant
-                
+
                 # Stage 3: QJL Random Projection on the Residual
                 # We project the ERROR, not the original signal
                 projected_residual = residual @ proj_tensor
-                
+
                 # TurboQuant: Return the sign-quantized residual correction
                 # In this "new paradigm", we use the binary sketch of the error
                 # as the primary feature, which is mathematically unbiased for inner products.

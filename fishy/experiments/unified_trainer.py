@@ -297,14 +297,14 @@ class UnifiedTrainer:
 
     def _do_benchmark(self, config, ctx, device, training_time):
         dm = create_data_module(
-            dataset_name=config.dataset, 
+            dataset_name=config.dataset,
             file_path=config.file_path,
             random_projection=config.random_projection,
             quantize=config.quantize,
             turbo_quant=config.turbo_quant,
             polar=config.polar,
             normalize=config.normalize,
-            run_id=config.run
+            run_id=config.run,
         )
         dm.setup()
         run_benchmark(

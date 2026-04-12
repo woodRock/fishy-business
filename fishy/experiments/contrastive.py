@@ -68,12 +68,11 @@ class ContrastiveConfig:
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
     wandb_log: bool = False
     run: int = 0  # seed / run index for reproducible splits
-    random_projection: bool = False,
-    quantize: bool = False,
-    turbo_quant: bool = False,
-    polar: bool = False,
-    normalize: bool = False,
-
+    random_projection: bool = (False,)
+    quantize: bool = (False,)
+    turbo_quant: bool = (False,)
+    polar: bool = (False,)
+    normalize: bool = (False,)
 
 
 class ContrastiveTrainer:
