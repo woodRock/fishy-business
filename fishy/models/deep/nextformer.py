@@ -5,11 +5,11 @@ NextFormer model for spectral analysis.
 The NextFormer Architecture features:
 1. RMSNorm: Replaces standard LayerNorm. It operates strictly on the variance (omitting the mean centering)
    for faster computation while maintaining/exceeding training stability.
-2. Pre-Norm Architecture: Normalization is applied before the attention and feed-forward blocks, 
+2. Pre-Norm Architecture: Normalization is applied before the attention and feed-forward blocks,
    creating an unimpeded residual pathway (crucial for deep networks).
-3. Grouped Query Attention (GQA): Replaces Multi-Head Attention (MHA). By sharing Keys and Values 
+3. Grouped Query Attention (GQA): Replaces Multi-Head Attention (MHA). By sharing Keys and Values
    across groups of Query heads, it reduces KV cache memory usage and accelerates generation.
-4. SwiGLU Feed-Forward Networks: Introduces a gating mechanism (SiLU(xW1) * xW3)W2 that consistently 
+4. SwiGLU Feed-Forward Networks: Introduces a gating mechanism (SiLU(xW1) * xW3)W2 that consistently
    outperforms traditional MLPs.
 5. Bias-free Linear Layers: All internal linear layers omit biases for training stability.
 """
@@ -285,4 +285,10 @@ class NextFormer(nn.Module):
         return x
 
 
-__all__ = ["NextFormer", "NextFormerBlock", "GroupedQueryAttention", "RMSNorm", "SwiGLU"]
+__all__ = [
+    "NextFormer",
+    "NextFormerBlock",
+    "GroupedQueryAttention",
+    "RMSNorm",
+    "SwiGLU",
+]

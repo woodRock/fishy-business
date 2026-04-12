@@ -183,9 +183,9 @@ class UnifiedTrainer:
             # Standardize common fields across all methods
             if "class_names" not in results:
                 dm = create_data_module(
-                    dataset_name=config.dataset, 
+                    dataset_name=config.dataset,
                     file_path=config.file_path,
-                    polar=config.polar
+                    polar=config.polar,
                 )
                 dm.setup()
                 results["class_names"] = dm.get_class_names()
@@ -296,9 +296,7 @@ class UnifiedTrainer:
 
     def _do_benchmark(self, config, ctx, device, training_time):
         dm = create_data_module(
-            dataset_name=config.dataset, 
-            file_path=config.file_path,
-            polar=config.polar
+            dataset_name=config.dataset, file_path=config.file_path, polar=config.polar
         )
         dm.setup()
         run_benchmark(

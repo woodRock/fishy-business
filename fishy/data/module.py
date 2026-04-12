@@ -191,7 +191,7 @@ def preprocess_data_pipeline(
     polar: bool = False,
     normalize: bool = False,
     run_id: int = 42,
-    ) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
+) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
 
     raw_df = data_processor.load_data(file_path)
     filtered_df = data_processor.filter_data(raw_df, is_pre_train)
