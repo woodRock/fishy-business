@@ -47,16 +47,10 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "num_layers": config.num_layers,
         "dropout": config.dropout,
         "num_heads": config.num_heads,
+        "num_kv_heads": config.num_kv_heads,
         "top_k": config.top_k,
         "use_performer": config.use_performer,
-        "binding_type": config.binding_type,
-        "chunk_size": config.rbn_chunk_size,
         "use_checkpointing": config.use_checkpointing,
-        "sparse_k": config.sparse_k,
-        "lambda_binding": config.lambda_binding,
-        "n_memory_slots": config.n_memory_slots,
-        "use_sinusoidal": config.use_sinusoidal,
-        "use_sdp": not config.use_mlp_rel,
     }
 
     # Handle Siamese wrappers for batch-detection

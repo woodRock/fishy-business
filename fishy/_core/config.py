@@ -45,6 +45,7 @@ class TrainingConfig:
     hidden_dim: int = 128
     num_layers: int = 4
     num_heads: int = 4
+    num_kv_heads: int = 2
     num_augmentations: int = 5
     noise_level: float = 0.05
     shift_enabled: bool = False
@@ -63,19 +64,14 @@ class TrainingConfig:
     k: int = 2
     random_projection: bool = False
     quantize: bool = False
+    polar: bool = False
     normalize: bool = False
 
-    # RFN Specific
+    # Deep Model Specific
     top_k: Optional[int] = None
     use_performer: bool = False
-    binding_type: str = "complex"
-    rbn_chunk_size: int = 64
     use_checkpointing: bool = False
-    sparse_k: int = 300
-    lambda_binding: float = 0.01
-    n_memory_slots: int = 64
-    use_sinusoidal: bool = False
-    use_mlp_rel: bool = False  # False = fast scaled dot-product; True = original MLP_rel scorer
+    # ... other model params
 
     # Contrastive specific
     encoder_type: str = "dense"

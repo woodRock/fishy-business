@@ -18,6 +18,7 @@ class BaseDataset(Dataset):
         labels: np.ndarray,
         random_projection: bool = False,
         quantize: bool = False,
+        polar: bool = False,
         normalize: bool = False,
         seed: int = 42,
     ) -> None:
@@ -54,6 +55,11 @@ class BaseDataset(Dataset):
                 # This captures the directional 'fingerprint' of the spectrum
                 # and acts as a powerful denoiser by ignoring small fluctuations.
                 self.samples = torch.sign(self.samples)
+            elif polar:
+                # Polar Quantization: Normalize each sample to unit vector (L2 norm)
+                # This is a continuous version of sign-quantization that preserves
+                # angular information without the discretization error.
+                self.samples = F.normalize(self.samples, p=2, dim=1)
 
     def __len__(self) -> int:
         return self.samples.shape[0]

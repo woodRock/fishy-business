@@ -183,7 +183,9 @@ class UnifiedTrainer:
             # Standardize common fields across all methods
             if "class_names" not in results:
                 dm = create_data_module(
-                    dataset_name=config.dataset, file_path=config.file_path
+                    dataset_name=config.dataset, 
+                    file_path=config.file_path,
+                    polar=config.polar
                 )
                 dm.setup()
                 results["class_names"] = dm.get_class_names()
@@ -278,6 +280,7 @@ class UnifiedTrainer:
             run=config.run,
             random_projection=config.random_projection,
             quantize=config.quantize,
+            polar=config.polar,
             normalize=config.normalize,
         )
         trainer = ContrastiveTrainer(c_cfg, wandb_run=wandb_run, ctx=ctx)
@@ -292,7 +295,11 @@ class UnifiedTrainer:
             del trainer
 
     def _do_benchmark(self, config, ctx, device, training_time):
-        dm = create_data_module(dataset_name=config.dataset, file_path=config.file_path)
+        dm = create_data_module(
+            dataset_name=config.dataset, 
+            file_path=config.file_path,
+            polar=config.polar
+        )
         dm.setup()
         run_benchmark(
             model=None,

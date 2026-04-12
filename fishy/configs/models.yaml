@@ -11,6 +11,17 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 64
 
+  nextformer:
+    path: "fishy.models.deep.nextformer.NextFormer"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      num_heads: 8
+      num_kv_heads: 2
+      dropout: 0.1
+      learning_rate: 0.0001
+      batch_size: 32
+
   lstm:
     path: "fishy.models.deep.lstm.LSTM"
     defaults:
@@ -67,43 +78,6 @@ deep_models:
       num_experts: 8
       k: 2
       learning_rate: 0.0001
-      batch_size: 32
-
-  rbn:
-    path: "fishy.models.deep.rbn.RBN"
-    defaults:
-      hidden_dimension: 64
-      num_layers: 3
-      num_heads: 4
-      dropout: 0.1
-      top_k: 300
-      learning_rate: 0.0009236686956160434
-      batch_size: 16
-
-  rbn_plus:
-    path: "fishy.models.deep.rbn_plus.RBNPlus"
-    defaults:
-      hidden_dimension: 128
-      num_layers: 3
-      num_heads: 2
-      dropout: 0.1
-      binding_type: "outer_product"
-      top_k: 300
-      sparse_k: 300
-      n_memory_slots: 64
-      learning_rate: 0.0009236686956160434
-      batch_size: 16
-      use_checkpointing: true
-
-  pbn:
-    path: "fishy.models.deep.pbn.PBN"
-    defaults:
-      hidden_dimension: 128
-      num_layers: 4
-      num_heads: 4
-      dropout: 0.1
-      top_k: 300
-      learning_rate: 0.0005
       batch_size: 32
 
   # Registry for models that don't need complex defaults

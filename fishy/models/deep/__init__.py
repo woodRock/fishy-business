@@ -11,13 +11,11 @@ from .kan import KAN
 from .lstm import LSTM
 from .mamba import Mamba, SiameseMamba
 from .moe import MixtureOfExperts
+from .nextformer import NextFormer
 from .ode import ODE
 from .ordinal import TransformerOrdinal
 from .performer import Performer
 from .rcnn import RCNN
-from .rbn import RBN
-from .rbn_plus import RBNPlus
-from .pbn import PBN
 from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
@@ -34,13 +32,11 @@ __all__ = [
     "Mamba",
     "SiameseMamba",
     "MixtureOfExperts",
+    "NextFormer",
     "ODE",
     "TransformerOrdinal",
     "Performer",
     "RCNN",
-    "RBN",
-    "RBNPlus",
-    "PBN",
     "RWKV",
     "TCN",
     "Transformer",

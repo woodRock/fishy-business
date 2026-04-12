@@ -83,6 +83,23 @@ class TestDatasets(unittest.TestCase):
         self.assertTrue(torch.any(ds_quant.samples == 1.0))
         self.assertTrue(torch.any(ds_quant.samples == -1.0))
 
+    def test_polar_quantization(self):
+        samples = np.random.randn(5, 10).astype(np.float32)
+        labels = np.zeros((5, 1))
+
+        # With projection and polar quantization
+        ds_polar = BaseDataset(
+            samples, labels, random_projection=True, polar=True, seed=42
+        )
+
+        # Each sample should have L2 norm of 1.0 (across features)
+        norms = torch.norm(ds_polar.samples, p=2, dim=1)
+        self.assertTrue(torch.allclose(norms, torch.ones_like(norms), atol=1e-5))
+
+        # Values should be continuous, not just -1, 0, 1
+        unique_vals = torch.unique(ds_polar.samples)
+        self.assertGreater(len(unique_vals), 3)
+
     def test_optional_normalization(self):
         # Raw samples with different TICs
         samples = np.array([[1.0, 2.0], [10.0, 20.0]], dtype=np.float32)

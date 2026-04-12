@@ -21,7 +21,6 @@ from rich.panel import Panel
 from rich.table import Table
 from fishy.analysis.statistical import summarize_results, display_statistical_summary
 from fishy.analysis.biomarker import run_biomarker_pipeline
-from fishy.analysis.xai import run_rbn_explanation
 
 
 def get_all_models() -> List[str]:
@@ -132,11 +131,15 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument(
         "-q", "--quantize", action="store_true", help="Apply QJL/TurboQuant quantization (sign-bit) after random projection"
     )
+    hp_group.add_argument(
+        "--polar", action="store_true", help="Apply polar quantization (unit-norm) after random projection"
+    )
     hp_group.add_argument("--batch-size", type=int, default=64)
     hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
     hp_group.add_argument("--hidden-dim", type=int, default=128)
     hp_group.add_argument("--num-layers", type=int, default=4)
     hp_group.add_argument("--num-heads", type=int, default=4)
+    hp_group.add_argument("--num-kv-heads", type=int, default=2)
     hp_group.add_argument("--dropout", type=float, default=0.1)
     hp_group.add_argument(
         "--top-k", type=int, default=None, help="Process only the top-K peaks"
@@ -148,17 +151,7 @@ def setup_parser() -> argparse.ArgumentParser:
         "--use-performer", action="store_true", help="Use linear attention for speed"
     )
     hp_group.add_argument(
-        "--rbn-chunk-size", type=int, default=64, help="Chunk size for RBN attention"
-    )
-    hp_group.add_argument(
         "--use-checkpointing", action="store_true", help="Enable gradient checkpointing"
-    )
-    hp_group.add_argument(
-        "--use-sinusoidal", action="store_true", help="Add sinusoidal positional encoding to role embeddings (RBN)"
-    )
-    hp_group.add_argument(
-        "--use-mlp-rel", action="store_true",
-        help="Use the original MLP_rel scorer in RBN (slow but non-linear). Default: fast scaled dot-product."
     )
 
     subparsers.add_parser("wizard", help="Interactive setup")
@@ -341,45 +334,22 @@ def _handle_train_execution(config: TrainingConfig):
             dm = res.get("data_module")
             if model and dm:
                 feature_names = dm.get_train_dataframe().columns[1:]
-                is_rbn = type(model).__name__ in ("RBN", "RBNPlus")
-
-                if is_rbn:
-                    console.print(
-                        "\n[bold yellow]Starting RBN Relational Signature Analysis...[/]"
+                console.print(
+                    "\n[bold yellow]Starting Automated Biomarker Discovery...[/]"
+                )
+                report = run_biomarker_pipeline(
+                    model=model,
+                    data_loader=dm.get_train_dataloader(),
+                    feature_names=feature_names,
+                    device=get_device(),
+                )
+                console.print(
+                    Panel(
+                        report,
+                        title="[bold]XAI Pipeline Results[/]",
+                        border_style="yellow",
                     )
-                    output_dir = Path("outputs") / config.dataset / "xai"
-                    saved = run_rbn_explanation(
-                        model=model,
-                        data_loader=dm.get_train_dataloader(),
-                        class_names=dm.get_class_names(),
-                        device=get_device(),
-                        feature_names=feature_names,
-                        output_dir=output_dir,
-                    )
-                    console.print(
-                        Panel(
-                            "\n".join(saved),
-                            title="[bold]RBN Relational Signatures[/]",
-                            border_style="yellow",
-                        )
-                    )
-                else:
-                    console.print(
-                        "\n[bold yellow]Starting Automated Biomarker Discovery...[/]"
-                    )
-                    report = run_biomarker_pipeline(
-                        model=model,
-                        data_loader=dm.get_train_dataloader(),
-                        feature_names=feature_names,
-                        device=get_device(),
-                    )
-                    console.print(
-                        Panel(
-                            report,
-                            title="[bold]XAI Pipeline Results[/]",
-                            border_style="yellow",
-                        )
-                    )
+                )
 
         # Strip memory-intensive objects
         res.pop("model", None)

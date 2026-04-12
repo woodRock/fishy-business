@@ -70,6 +70,7 @@ class ContrastiveConfig:
     run: int = 0  # seed / run index for reproducible splits
     random_projection: bool = False
     quantize: bool = False
+    polar: bool = False
     normalize: bool = False
 
 
@@ -106,6 +107,7 @@ class ContrastiveTrainer:
             batch_size=self.config.batch_size,
             random_projection=self.config.random_projection,
             quantize=self.config.quantize,
+            polar=self.config.polar,
             normalize=self.config.normalize,
             run_id=self.config.run,
         )

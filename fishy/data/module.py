@@ -188,9 +188,11 @@ def preprocess_data_pipeline(
     augmentation_cfg: Optional[AugmentationConfig] = None,
     random_projection: bool = False,
     quantize: bool = False,
+    polar: bool = False,
     normalize: bool = False,
     run_id: int = 42,
-) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
+    ) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
+
     raw_df = data_processor.load_data(file_path)
     filtered_df = data_processor.filter_data(raw_df, is_pre_train)
     if filtered_df.empty:
@@ -208,6 +210,7 @@ def preprocess_data_pipeline(
         y,
         random_projection=random_projection,
         quantize=quantize,
+        polar=polar,
         normalize=normalize,
         seed=run_id,
     )
@@ -234,6 +237,7 @@ class DataModule:
         augmentation_config: Optional[AugmentationConfig] = None,
         random_projection: bool = False,
         quantize: bool = False,
+        polar: bool = False,
         normalize: bool = False,
         run_id: int = 42,
     ) -> None:
@@ -246,6 +250,7 @@ class DataModule:
         self.augmentation_config = augmentation_config
         self.random_projection = random_projection
         self.quantize = quantize
+        self.polar = polar
         self.normalize = normalize
         self.run_id = run_id
         self.processor = DataProcessor(dataset_name, batch_size)
@@ -266,6 +271,7 @@ class DataModule:
             self.augmentation_config,
             random_projection=self.random_projection,
             quantize=self.quantize,
+            polar=self.polar,
             normalize=self.normalize,
             run_id=self.run_id,
         )
@@ -376,6 +382,7 @@ def create_data_module(
     augmentation_enabled: bool = False,
     random_projection: bool = False,
     quantize: bool = False,
+    polar: bool = False,
     normalize: bool = False,
     run_id: int = 42,
     **kwargs,
@@ -391,6 +398,7 @@ def create_data_module(
         aug_config,
         random_projection=random_projection,
         quantize=quantize,
+        polar=polar,
         normalize=normalize,
         run_id=run_id,
     )
