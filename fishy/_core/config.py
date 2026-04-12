@@ -64,6 +64,7 @@ class TrainingConfig:
     k: int = 2
     random_projection: bool = False
     quantize: bool = False
+    turbo_quant: bool = False
     polar: bool = False
     normalize: bool = False
 

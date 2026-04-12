@@ -188,6 +188,7 @@ def preprocess_data_pipeline(
     augmentation_cfg: Optional[AugmentationConfig] = None,
     random_projection: bool = False,
     quantize: bool = False,
+    turbo_quant: bool = False,
     polar: bool = False,
     normalize: bool = False,
     run_id: int = 42,
@@ -210,6 +211,7 @@ def preprocess_data_pipeline(
         y,
         random_projection=random_projection,
         quantize=quantize,
+        turbo_quant=turbo_quant,
         polar=polar,
         normalize=normalize,
         seed=run_id,
@@ -237,6 +239,7 @@ class DataModule:
         augmentation_config: Optional[AugmentationConfig] = None,
         random_projection: bool = False,
         quantize: bool = False,
+        turbo_quant: bool = False,
         polar: bool = False,
         normalize: bool = False,
         run_id: int = 42,
@@ -250,6 +253,7 @@ class DataModule:
         self.augmentation_config = augmentation_config
         self.random_projection = random_projection
         self.quantize = quantize
+        self.turbo_quant = turbo_quant
         self.polar = polar
         self.normalize = normalize
         self.run_id = run_id
@@ -271,6 +275,7 @@ class DataModule:
             self.augmentation_config,
             random_projection=self.random_projection,
             quantize=self.quantize,
+            turbo_quant=self.turbo_quant,
             polar=self.polar,
             normalize=self.normalize,
             run_id=self.run_id,
@@ -382,6 +387,7 @@ def create_data_module(
     augmentation_enabled: bool = False,
     random_projection: bool = False,
     quantize: bool = False,
+    turbo_quant: bool = False,
     polar: bool = False,
     normalize: bool = False,
     run_id: int = 42,
@@ -398,6 +404,7 @@ def create_data_module(
         aug_config,
         random_projection=random_projection,
         quantize=quantize,
+        turbo_quant=turbo_quant,
         polar=polar,
         normalize=normalize,
         run_id=run_id,

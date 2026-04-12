@@ -280,6 +280,7 @@ class UnifiedTrainer:
             run=config.run,
             random_projection=config.random_projection,
             quantize=config.quantize,
+            turbo_quant=config.turbo_quant,
             polar=config.polar,
             normalize=config.normalize,
         )
@@ -298,7 +299,12 @@ class UnifiedTrainer:
         dm = create_data_module(
             dataset_name=config.dataset, 
             file_path=config.file_path,
-            polar=config.polar
+            random_projection=config.random_projection,
+            quantize=config.quantize,
+            turbo_quant=config.turbo_quant,
+            polar=config.polar,
+            normalize=config.normalize,
+            run_id=config.run
         )
         dm.setup()
         run_benchmark(

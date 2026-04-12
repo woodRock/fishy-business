@@ -68,10 +68,12 @@ class ContrastiveConfig:
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
     wandb_log: bool = False
     run: int = 0  # seed / run index for reproducible splits
-    random_projection: bool = False
-    quantize: bool = False
-    polar: bool = False
-    normalize: bool = False
+    random_projection: bool = False,
+    quantize: bool = False,
+    turbo_quant: bool = False,
+    polar: bool = False,
+    normalize: bool = False,
+
 
 
 class ContrastiveTrainer:
@@ -102,16 +104,18 @@ class ContrastiveTrainer:
 
     def setup(self) -> None:
         self.data_module = create_data_module(
-            file_path=self.config.file_path,
             dataset_name=self.config.dataset,
+            file_path=self.config.file_path,
             batch_size=self.config.batch_size,
             random_projection=self.config.random_projection,
             quantize=self.config.quantize,
+            turbo_quant=self.config.turbo_quant,
             polar=self.config.polar,
             normalize=self.config.normalize,
             run_id=self.config.run,
         )
         self.data_module.setup()
+
         self.input_dim = self.data_module.get_input_dim()
 
         t_cfg = TrainingConfig(

@@ -104,6 +104,7 @@ class SklearnTrainer:
             file_path=self.file_path,
             random_projection=self.config.random_projection,
             quantize=self.config.quantize,
+            turbo_quant=self.config.turbo_quant,
             polar=self.config.polar,
             normalize=self.config.normalize,
             run_id=self.config.run,

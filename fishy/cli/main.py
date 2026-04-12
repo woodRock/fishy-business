@@ -132,6 +132,9 @@ def setup_parser() -> argparse.ArgumentParser:
         "-q", "--quantize", action="store_true", help="Apply QJL/TurboQuant quantization (sign-bit) after random projection"
     )
     hp_group.add_argument(
+        "-T", "--turbo-quant", action="store_true", help="Apply Two-Stage TurboQuant (Residual-based QJL)"
+    )
+    hp_group.add_argument(
         "--polar", action="store_true", help="Apply polar quantization (unit-norm) after random projection"
     )
     hp_group.add_argument("--batch-size", type=int, default=64)

@@ -74,6 +74,7 @@ class ModelTrainer:
             augmentation_enabled=config.data_augmentation,
             random_projection=config.random_projection,
             quantize=config.quantize,
+            turbo_quant=config.turbo_quant,
             polar=config.polar,
             normalize=config.normalize,
             run_id=config.run,

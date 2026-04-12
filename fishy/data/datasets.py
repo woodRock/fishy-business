@@ -18,6 +18,7 @@ class BaseDataset(Dataset):
         labels: np.ndarray,
         random_projection: bool = False,
         quantize: bool = False,
+        turbo_quant: bool = False,
         polar: bool = False,
         normalize: bool = False,
         seed: int = 42,
@@ -26,16 +27,17 @@ class BaseDataset(Dataset):
         self.labels = torch.tensor(np.array(labels), dtype=torch.float32)
 
         # 1. Normalize raw spectra (Standard TIC/L2 normalization)
+        # BUG FIX: Normalized along dim=1 (per-sample) instead of dim=0 (per-feature)
         if (
             normalize
             and self.samples.ndim > 1
-            and self.samples.shape[0] > 1
+            and self.samples.shape[0] > 0
             and self.samples.shape[1] > 0
         ):
-            self.samples = F.normalize(self.samples, p=2, dim=0)
+            self.samples = F.normalize(self.samples, p=2, dim=1)
 
-        # 2. Random Projection (Energy Balancing)
-        if random_projection and self.samples.ndim > 1 and self.samples.shape[0] > 0:
+        # 2. Random Projection / TurboQuant (Energy Balancing)
+        if (random_projection or turbo_quant) and self.samples.ndim > 1 and self.samples.shape[0] > 0:
             # QJL-style Random Projection to balance energy and turn zeros into non-zeros
             n_features = self.samples.shape[1]
             rng = np.random.default_rng(seed)
@@ -47,19 +49,46 @@ class BaseDataset(Dataset):
             projection_matrix /= np.sqrt(n_features)
             proj_tensor = torch.from_numpy(projection_matrix)
 
-            # Project: (N, D) @ (D, D) -> (N, D)
-            self.samples = self.samples @ proj_tensor
+            if turbo_quant:
+                # Stage 1: Bulk Quantization (Standard uniform 4-bit)
+                # To simulate the "bulk" info, we scale to [0, 15] and round
+                min_vals = self.samples.min(dim=1, keepdim=True)[0]
+                max_vals = self.samples.max(dim=1, keepdim=True)[0]
+                range_vals = max_vals - min_vals
+                range_vals[range_vals == 0] = 1.0  # Avoid division by zero
+                
+                # Rescale to 0-1
+                x_rescaled = (self.samples - min_vals) / range_vals
+                # 4-bit quantization (16 levels)
+                x_quant = torch.round(x_rescaled * 15.0) / 15.0
+                
+                # Stage 2: Residual Extraction
+                # The error between the 'bulk' quantization and original vector
+                residual = x_rescaled - x_quant
+                
+                # Stage 3: QJL Random Projection on the Residual
+                # We project the ERROR, not the original signal
+                projected_residual = residual @ proj_tensor
+                
+                # TurboQuant: Return the sign-quantized residual correction
+                # In this "new paradigm", we use the binary sketch of the error
+                # as the primary feature, which is mathematically unbiased for inner products.
+                self.samples = torch.sign(projected_residual)
+            else:
+                # Original "TurboQuant" Paradigm (Borrowing concepts: RP then Sign)
+                # Project: (N, D) @ (D, D) -> (N, D)
+                self.samples = self.samples @ proj_tensor
 
-            if quantize:
-                # TurboQuant / QJL Step: Convert to 1-bit sign representation
-                # This captures the directional 'fingerprint' of the spectrum
-                # and acts as a powerful denoiser by ignoring small fluctuations.
-                self.samples = torch.sign(self.samples)
-            elif polar:
-                # Polar Quantization: Normalize each sample to unit vector (L2 norm)
-                # This is a continuous version of sign-quantization that preserves
-                # angular information without the discretization error.
-                self.samples = F.normalize(self.samples, p=2, dim=1)
+                if quantize:
+                    # TurboQuant / QJL Step: Convert to 1-bit sign representation
+                    # This captures the directional 'fingerprint' of the spectrum
+                    # and acts as a powerful denoiser by ignoring small fluctuations.
+                    self.samples = torch.sign(self.samples)
+                elif polar:
+                    # Polar Quantization: Normalize each sample to unit vector (L2 norm)
+                    # This is a continuous version of sign-quantization that preserves
+                    # angular information without the discretization error.
+                    self.samples = F.normalize(self.samples, p=2, dim=1)
 
     def __len__(self) -> int:
         return self.samples.shape[0]
