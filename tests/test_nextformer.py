@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 import unittest
 import torch
-from fishy.models.deep.nextformer import NextFormer, RMSNorm, SwiGLU, GroupedQueryAttention
+from fishy.models.deep.nextformer import (
+    NextFormer,
+    RMSNorm,
+    SwiGLU,
+    GroupedQueryAttention,
+)
+
 
 class TestNextFormer(unittest.TestCase):
     def test_rmsnorm_forward(self):
@@ -12,7 +18,7 @@ class TestNextFormer(unittest.TestCase):
         self.assertEqual(y.shape, (2, 10, dim))
         # Check if it approximately normalizes (RMS should be ~1)
         rms = torch.sqrt(y.pow(2).mean(-1))
-        # Since there is a learnable weight initialized to 1, 
+        # Since there is a learnable weight initialized to 1,
         # it should be close to 1 before training
         self.assertTrue(torch.allclose(rms, torch.ones_like(rms), atol=1e-5))
 
@@ -43,7 +49,9 @@ class TestNextFormer(unittest.TestCase):
         self.assertIsNone(gqa.wo.bias)
 
     def test_nextformer_forward(self):
-        model = NextFormer(input_dim=100, output_dim=5, num_heads=4, num_kv_heads=2, hidden_dim=64)
+        model = NextFormer(
+            input_dim=100, output_dim=5, num_heads=4, num_kv_heads=2, hidden_dim=64
+        )
         x = torch.randn(2, 100)
         y = model(x)
         self.assertEqual(y.shape, (2, 5))
@@ -52,7 +60,13 @@ class TestNextFormer(unittest.TestCase):
 
     def test_nextformer_return_attention(self):
         num_layers = 2
-        model = NextFormer(input_dim=100, output_dim=5, num_layers=num_layers, num_heads=4, num_kv_heads=2)
+        model = NextFormer(
+            input_dim=100,
+            output_dim=5,
+            num_layers=num_layers,
+            num_heads=4,
+            num_kv_heads=2,
+        )
         x = torch.randn(2, 100)
         y, attentions = model(x, return_attention=True)
         self.assertEqual(y.shape, (2, 5))
@@ -64,15 +78,18 @@ class TestNextFormer(unittest.TestCase):
     def test_create_model_nextformer(self):
         from fishy._core.factory import create_model
         from fishy._core.config import TrainingConfig
-        
-        config = TrainingConfig(model="nextformer", hidden_dim=64, num_layers=2, num_heads=4, num_kv_heads=2)
+
+        config = TrainingConfig(
+            model="nextformer", hidden_dim=64, num_layers=2, num_heads=4, num_kv_heads=2
+        )
         model = create_model(config, input_dim=100, output_dim=5)
         self.assertIsInstance(model, NextFormer)
         self.assertEqual(len(model.blocks), 2)
-        
+
         x = torch.randn(2, 100)
         y = model(x)
         self.assertEqual(y.shape, (2, 5))
+
 
 if __name__ == "__main__":
     unittest.main()
