@@ -21,6 +21,8 @@ from .tcn import TCN
 from .transformer import Transformer
 from .coralformer import CoralFormer
 from .gatedmlp import GatedMLP
+from .augformer import AugFormer
+from .patchformer import PatchFormer
 from .vae import VAE, SiameseVAE
 from .wavenet import WaveNet
 
@@ -43,7 +45,9 @@ __all__ = [
     "TCN",
     "Transformer",
     "CoralFormer",
+    "AugFormer",
     "GatedMLP",
+    "PatchFormer",
     "VAE",
     "SiameseVAE",
     "WaveNet",

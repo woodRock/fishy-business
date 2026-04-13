@@ -80,6 +80,27 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 32
 
+  augformer:
+    path: "fishy.models.deep.augformer.AugFormer"
+    defaults:
+      hidden_dimension: 512
+      num_layers: 4
+      num_heads: 8
+      dropout: 0.3
+      num_views: 6
+      learning_rate: 0.0001
+      batch_size: 64
+
+  patchformer:
+    path: "fishy.models.deep.patchformer.PatchFormer"
+    defaults:
+      hidden_dimension: 256
+      num_layers: 4
+      num_heads: 4
+      dropout: 0.3
+      learning_rate: 0.0001
+      batch_size: 64
+
   gatedmlp:
     path: "fishy.models.deep.gatedmlp.GatedMLP"
     defaults:
