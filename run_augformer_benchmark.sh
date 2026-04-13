@@ -2,7 +2,7 @@
 # Benchmark AugFormer vs GatedMLP across all datasets (10 runs each).
 # Results are logged to WandB for statistical analysis.
 
-RUNS=10
+RUNS=30
 EPOCHS=100
 DROPOUT=0.3
 DIRECTORY=$(pwd)
