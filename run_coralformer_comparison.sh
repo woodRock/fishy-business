@@ -23,7 +23,7 @@ echo ""
 for DATASET in "${DATASETS[@]}"; do
     for MODEL in "${MODELS[@]}"; do
         LABEL="${MODEL}_${DATASET}"
-        CMD="fishy train -m ${MODEL} -d ${DATASET} --normalize --dropout ${DROPOUT} -N ${RUNS} -e ${EPOCHS}"
+        CMD="fishy train -m ${MODEL} -d ${DATASET} --normalize --dropout ${DROPOUT} -N ${RUNS} -e ${EPOCHS} --wandb-log"
         echo "Queuing: $LABEL"
         echo "  $CMD"
         task -G 1 -n "$LABEL" -d "$DIRECTORY" $CMD
