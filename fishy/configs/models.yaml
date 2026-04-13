@@ -80,6 +80,15 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 32
 
+  gatedmlp:
+    path: "fishy.models.deep.gatedmlp.GatedMLP"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      dropout: 0.3
+      learning_rate: 0.0001
+      batch_size: 64
+
   coralformer:
     path: "fishy.models.deep.coralformer.CoralFormer"
     defaults:

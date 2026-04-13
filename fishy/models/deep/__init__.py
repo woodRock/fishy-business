@@ -20,6 +20,7 @@ from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
 from .coralformer import CoralFormer
+from .gatedmlp import GatedMLP
 from .vae import VAE, SiameseVAE
 from .wavenet import WaveNet
 
@@ -42,6 +43,7 @@ __all__ = [
     "TCN",
     "Transformer",
     "CoralFormer",
+    "GatedMLP",
     "VAE",
     "SiameseVAE",
     "WaveNet",
