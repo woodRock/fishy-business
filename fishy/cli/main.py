@@ -109,6 +109,26 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Apply TIC/L2 normalization to the input spectra",
     )
     hp_group.add_argument(
+        "--snv",
+        action="store_true",
+        help="Apply Standard Normal Variate (SNV) normalization",
+    )
+    hp_group.add_argument(
+        "--minmax",
+        action="store_true",
+        help="Apply per-sample Min-Max scaling to [0, 1]",
+    )
+    hp_group.add_argument(
+        "--log-transform",
+        action="store_true",
+        help="Apply log transformation to the input spectra",
+    )
+    hp_group.add_argument(
+        "--savgol",
+        action="store_true",
+        help="Apply Savitzky-Golay smoothing/differentiation",
+    )
+    hp_group.add_argument(
         "-fp",
         "--file-path",
         type=str,
@@ -150,13 +170,13 @@ def setup_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Apply polar quantization (unit-norm) after random projection",
     )
-    hp_group.add_argument("--batch-size", type=int, default=64)
-    hp_group.add_argument("--lr", "--learning-rate", type=float, default=1e-4)
-    hp_group.add_argument("--hidden-dim", type=int, default=128)
-    hp_group.add_argument("--num-layers", type=int, default=4)
-    hp_group.add_argument("--num-heads", type=int, default=4)
-    hp_group.add_argument("--num-kv-heads", type=int, default=2)
-    hp_group.add_argument("--dropout", type=float, default=0.1)
+    hp_group.add_argument("--batch-size", type=int, default=None)
+    hp_group.add_argument("--lr", "--learning-rate", type=float, default=None)
+    hp_group.add_argument("--hidden-dim", type=int, default=None)
+    hp_group.add_argument("--num-layers", type=int, default=None)
+    hp_group.add_argument("--num-heads", type=int, default=None)
+    hp_group.add_argument("--num-kv-heads", type=int, default=None)
+    hp_group.add_argument("--dropout", type=float, default=None)
     hp_group.add_argument(
         "--top-k", type=int, default=None, help="Process only the top-K peaks"
     )

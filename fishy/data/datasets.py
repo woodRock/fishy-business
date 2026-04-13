@@ -21,10 +21,54 @@ class BaseDataset(Dataset):
         turbo_quant: bool = False,
         polar: bool = False,
         normalize: bool = False,
+        snv: bool = False,
+        minmax: bool = False,
+        log_transform: bool = False,
+        savgol: bool = False,
         seed: int = 42,
     ) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.tensor(np.array(labels), dtype=torch.float32)
+
+        # 0. Basic Preprocessing (Log, SNV, MinMax, SavGol)
+        if log_transform:
+            # Avoid log(0) by adding small epsilon
+            self.samples = torch.log(self.samples + 1e-6)
+
+        if snv:
+            # Standard Normal Variate: (x - mean) / std per sample
+            mean = self.samples.mean(dim=1, keepdim=True)
+            std = self.samples.std(dim=1, keepdim=True)
+            self.samples = (self.samples - mean) / (std + 1e-8)
+
+        if minmax:
+            # Min-Max Scaling per sample to [0, 1]
+            min_vals = self.samples.min(dim=1, keepdim=True)[0]
+            max_vals = self.samples.max(dim=1, keepdim=True)[0]
+            self.samples = (self.samples - min_vals) / (max_vals - min_vals + 1e-8)
+
+        if savgol:
+            # Simple Smoothing (moving average) if scipy is not available
+            # or use scipy if available. For now, let's implement a simple 1D Gaussian/Box blur
+            # as a placeholder or try to import scipy.
+            try:
+                from scipy.signal import savgol_filter
+
+                # Use common defaults for spectral data
+                samples_np = self.samples.numpy()
+                # window_length=11, polyorder=2
+                samples_np = savgol_filter(samples_np, window_length=11, polyorder=2)
+                self.samples = torch.from_numpy(samples_np.copy()).float()
+            except ImportError:
+                # Fallback to simple moving average smoothing
+                kernel_size = 5
+                padding = kernel_size // 2
+                self.samples = F.avg_pool1d(
+                    self.samples.unsqueeze(1),
+                    kernel_size=kernel_size,
+                    stride=1,
+                    padding=padding,
+                ).squeeze(1)
 
         # 1. Normalize raw spectra (Standard TIC/L2 normalization)
         # BUG FIX: Normalized along dim=1 (per-sample) instead of dim=0 (per-feature)

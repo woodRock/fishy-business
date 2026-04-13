@@ -186,6 +186,10 @@ class UnifiedTrainer:
                     dataset_name=config.dataset,
                     file_path=config.file_path,
                     polar=config.polar,
+                    snv=config.snv,
+                    minmax=config.minmax,
+                    log_transform=config.log_transform,
+                    savgol=config.savgol,
                 )
                 dm.setup()
                 results["class_names"] = dm.get_class_names()
@@ -283,6 +287,10 @@ class UnifiedTrainer:
             turbo_quant=config.turbo_quant,
             polar=config.polar,
             normalize=config.normalize,
+            snv=config.snv,
+            minmax=config.minmax,
+            log_transform=config.log_transform,
+            savgol=config.savgol,
         )
         trainer = ContrastiveTrainer(c_cfg, wandb_run=wandb_run, ctx=ctx)
         try:
@@ -304,6 +312,10 @@ class UnifiedTrainer:
             turbo_quant=config.turbo_quant,
             polar=config.polar,
             normalize=config.normalize,
+            snv=config.snv,
+            minmax=config.minmax,
+            log_transform=config.log_transform,
+            savgol=config.savgol,
             run_id=config.run,
         )
         dm.setup()

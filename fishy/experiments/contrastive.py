@@ -73,6 +73,10 @@ class ContrastiveConfig:
     turbo_quant: bool = (False,)
     polar: bool = (False,)
     normalize: bool = (False,)
+    snv: bool = (False,)
+    minmax: bool = (False,)
+    log_transform: bool = (False,)
+    savgol: bool = (False,)
 
 
 class ContrastiveTrainer:
@@ -111,6 +115,10 @@ class ContrastiveTrainer:
             turbo_quant=self.config.turbo_quant,
             polar=self.config.polar,
             normalize=self.config.normalize,
+            snv=self.config.snv,
+            minmax=self.config.minmax,
+            log_transform=self.config.log_transform,
+            savgol=self.config.savgol,
             run_id=self.config.run,
         )
         self.data_module.setup()

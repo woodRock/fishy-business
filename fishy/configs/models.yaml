@@ -80,6 +80,16 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 32
 
+  coralformer:
+    path: "fishy.models.deep.coralformer.CoralFormer"
+    defaults:
+      hidden_dimension: 128
+      num_layers: 4
+      num_heads: 4
+      dropout: 0.3
+      learning_rate: 0.0001
+      batch_size: 64
+
   # Registry for models that don't need complex defaults
   rcnn: "fishy.models.deep.rcnn.RCNN"
   kan: "fishy.models.deep.kan.KAN"

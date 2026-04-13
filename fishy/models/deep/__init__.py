@@ -19,6 +19,7 @@ from .rcnn import RCNN
 from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
+from .coralformer import CoralFormer
 from .vae import VAE, SiameseVAE
 from .wavenet import WaveNet
 
@@ -40,6 +41,7 @@ __all__ = [
     "RWKV",
     "TCN",
     "Transformer",
+    "CoralFormer",
     "VAE",
     "SiameseVAE",
     "WaveNet",

@@ -191,6 +191,10 @@ def preprocess_data_pipeline(
     turbo_quant: bool = False,
     polar: bool = False,
     normalize: bool = False,
+    snv: bool = False,
+    minmax: bool = False,
+    log_transform: bool = False,
+    savgol: bool = False,
     run_id: int = 42,
 ) -> Tuple[DataLoader, pd.DataFrame, pd.DataFrame]:
 
@@ -214,6 +218,10 @@ def preprocess_data_pipeline(
         turbo_quant=turbo_quant,
         polar=polar,
         normalize=normalize,
+        snv=snv,
+        minmax=minmax,
+        log_transform=log_transform,
+        savgol=savgol,
         seed=run_id,
     )
     data_loader = DataLoader(
@@ -242,6 +250,10 @@ class DataModule:
         turbo_quant: bool = False,
         polar: bool = False,
         normalize: bool = False,
+        snv: bool = False,
+        minmax: bool = False,
+        log_transform: bool = False,
+        savgol: bool = False,
         run_id: int = 42,
     ) -> None:
         from fishy import get_data_path
@@ -256,6 +268,10 @@ class DataModule:
         self.turbo_quant = turbo_quant
         self.polar = polar
         self.normalize = normalize
+        self.snv = snv
+        self.minmax = minmax
+        self.log_transform = log_transform
+        self.savgol = savgol
         self.run_id = run_id
         self.processor = DataProcessor(dataset_name, batch_size)
         self.train_loader, self.raw_data, self.filtered_data = None, None, None
@@ -278,6 +294,10 @@ class DataModule:
             turbo_quant=self.turbo_quant,
             polar=self.polar,
             normalize=self.normalize,
+            snv=self.snv,
+            minmax=self.minmax,
+            log_transform=self.log_transform,
+            savgol=self.savgol,
             run_id=self.run_id,
         )
 
@@ -390,6 +410,10 @@ def create_data_module(
     turbo_quant: bool = False,
     polar: bool = False,
     normalize: bool = False,
+    snv: bool = False,
+    minmax: bool = False,
+    log_transform: bool = False,
+    savgol: bool = False,
     run_id: int = 42,
     **kwargs,
 ) -> DataModule:
@@ -407,5 +431,9 @@ def create_data_module(
         turbo_quant=turbo_quant,
         polar=polar,
         normalize=normalize,
+        snv=snv,
+        minmax=minmax,
+        log_transform=log_transform,
+        savgol=savgol,
         run_id=run_id,
     )

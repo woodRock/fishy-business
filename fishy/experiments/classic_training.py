@@ -107,6 +107,10 @@ class SklearnTrainer:
             turbo_quant=self.config.turbo_quant,
             polar=self.config.polar,
             normalize=self.config.normalize,
+            snv=self.config.snv,
+            minmax=self.config.minmax,
+            log_transform=self.config.log_transform,
+            savgol=self.config.savgol,
             run_id=self.config.run,
         )
         self.data_module.setup()

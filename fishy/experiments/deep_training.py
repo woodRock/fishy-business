@@ -77,6 +77,10 @@ class ModelTrainer:
             turbo_quant=config.turbo_quant,
             polar=config.polar,
             normalize=config.normalize,
+            snv=config.snv,
+            minmax=config.minmax,
+            log_transform=config.log_transform,
+            savgol=config.savgol,
             run_id=config.run,
         )
         self.data_module.setup()
