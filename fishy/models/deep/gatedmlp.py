@@ -78,10 +78,9 @@ class GatedMLP(nn.Module):
         super().__init__()
         self.proj = nn.Linear(input_dim, embed_dim, bias=False)
         dim = embed_dim
-        self.blocks = nn.ModuleList([
-            GatedMLPBlock(dim, dim * 2, dropout)
-            for _ in range(num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [GatedMLPBlock(dim, dim * 2, dropout) for _ in range(num_layers)]
+        )
         self.norm = RMSNorm(dim)
         self.fc_out = nn.Linear(dim, output_dim, bias=False)
 

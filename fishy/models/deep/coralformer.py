@@ -61,9 +61,9 @@ class CoralFormer(nn.Module):
         embed_dim = 512
         self.proj = nn.Linear(input_dim, embed_dim, bias=False)
 
-        self.blocks = nn.ModuleList([
-            CoralBlock(embed_dim, embed_dim * 2, dropout) for _ in range(num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [CoralBlock(embed_dim, embed_dim * 2, dropout) for _ in range(num_layers)]
+        )
 
         self.norm = RMSNorm(embed_dim)
         self.fc_out = nn.Linear(embed_dim, output_dim, bias=False)

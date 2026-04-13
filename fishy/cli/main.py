@@ -195,15 +195,18 @@ def setup_parser() -> argparse.ArgumentParser:
 
     pretrain_group = train_parser.add_argument_group("Pre-training Tasks")
     pretrain_group.add_argument(
-        "--masked-spectra-modelling", action="store_true",
+        "--masked-spectra-modelling",
+        action="store_true",
         help="Pre-train with Masked Spectra Modelling (MSM) before fine-tuning",
     )
     pretrain_group.add_argument(
-        "--spectrum-denoising-autoencoding", action="store_true",
+        "--spectrum-denoising-autoencoding",
+        action="store_true",
         help="Pre-train with Spectrum Denoising Autoencoding (SDA) before fine-tuning",
     )
     pretrain_group.add_argument(
-        "--contrastive-transformation-invariance-learning", action="store_true",
+        "--contrastive-transformation-invariance-learning",
+        action="store_true",
         help="Pre-train with Contrastive Transformation Invariance Learning (CTIL)",
     )
 

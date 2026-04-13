@@ -26,9 +26,9 @@ class PatchEmbed(nn.Module):
 
     def __init__(self, input_dim: int, patch_size: int, embed_dim: int):
         super().__init__()
-        assert input_dim % patch_size == 0, (
-            f"input_dim ({input_dim}) must be divisible by patch_size ({patch_size})"
-        )
+        assert (
+            input_dim % patch_size == 0
+        ), f"input_dim ({input_dim}) must be divisible by patch_size ({patch_size})"
         self.patch_size = patch_size
         self.num_patches = input_dim // patch_size
         self.proj = nn.Linear(patch_size, embed_dim, bias=False)
@@ -46,7 +46,7 @@ class MultiHeadAttention(nn.Module):
         assert embed_dim % num_heads == 0
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
         self.qkv = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
         self.proj = nn.Linear(embed_dim, embed_dim, bias=False)
 
@@ -66,7 +66,9 @@ class MultiHeadAttention(nn.Module):
 class TransformerBlock(nn.Module):
     """Pre-norm transformer block with SwiGLU FFN."""
 
-    def __init__(self, embed_dim: int, num_heads: int, mlp_ratio: int = 4, dropout: float = 0.3):
+    def __init__(
+        self, embed_dim: int, num_heads: int, mlp_ratio: int = 4, dropout: float = 0.3
+    ):
         super().__init__()
         self.norm1 = nn.LayerNorm(embed_dim)
         self.attn = MultiHeadAttention(embed_dim, num_heads)
@@ -123,10 +125,12 @@ class PatchFormer(nn.Module):
 
         self.pos_drop = nn.Dropout(dropout)
 
-        self.blocks = nn.ModuleList([
-            TransformerBlock(hidden_dim, num_heads, mlp_ratio=4, dropout=dropout)
-            for _ in range(num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                TransformerBlock(hidden_dim, num_heads, mlp_ratio=4, dropout=dropout)
+                for _ in range(num_layers)
+            ]
+        )
 
         self.norm = nn.LayerNorm(hidden_dim)
         self.fc_out = nn.Linear(hidden_dim, output_dim, bias=False)
@@ -141,14 +145,14 @@ class PatchFormer(nn.Module):
         if self.pad > 0:
             x = F.pad(x, (0, self.pad))
 
-        x = self.patch_embed(x)            # [B, num_patches, hidden_dim]
+        x = self.patch_embed(x)  # [B, num_patches, hidden_dim]
         x = self.pos_drop(x + self.pos_embed)
 
         for block in self.blocks:
             x = block(x)
 
         x = self.norm(x)
-        x = x.mean(dim=1)                  # global average pool over patches
+        x = x.mean(dim=1)  # global average pool over patches
         logits = self.fc_out(x)
 
         if return_attention:
