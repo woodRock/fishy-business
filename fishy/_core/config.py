@@ -77,6 +77,7 @@ class TrainingConfig:
     top_k: Optional[int] = None
     use_performer: bool = False
     use_checkpointing: bool = False
+    use_xsa: bool = False
     # ... other model params
 
     # Contrastive specific

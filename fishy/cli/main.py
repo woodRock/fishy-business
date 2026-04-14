@@ -190,6 +190,9 @@ def setup_parser() -> argparse.ArgumentParser:
         "--use-performer", action="store_true", help="Use linear attention for speed"
     )
     hp_group.add_argument(
+        "--xsa", action="store_true", dest="use_xsa", help="Use Exclusive Self-Attention (XSA) in AugFormer"
+    )
+    hp_group.add_argument(
         "--use-checkpointing", action="store_true", help="Enable gradient checkpointing"
     )
 

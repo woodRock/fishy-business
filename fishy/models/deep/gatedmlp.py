@@ -11,10 +11,10 @@ The attention output is therefore just V = x W_v, a plain linear transform.
 The transformer is then functionally equivalent to:
     [Linear → FFN] × num_layers → pool → fc_out
 
-GatedMLP makes this explicit: it applies the same CoralFormer building blocks
+GatedMLP makes this explicit: it applies modern building blocks
 (RMSNorm, SwiGLU, residual connections, dropout) directly in input_dim space
 with no large embedding projection. This isolates the contribution of the
-architecture from the 512-dim projection used in CoralFormer.
+architecture from any large fixed embedding.
 """
 
 import torch
@@ -55,14 +55,13 @@ class GatedMLPBlock(nn.Module):
 
 class GatedMLP(nn.Module):
     """
-    Gated MLP baseline — CoralFormer blocks without the 512-dim projection.
+    Gated MLP baseline.
 
     Operates directly in input_dim space, matching the effective computation
     of the Transformer on single-token REIMS spectra (where attention is
     degenerate and the FFN does all the real work).
 
-    Set embed_dim > 0 to add a projection to a fixed embedding space first,
-    matching the CoralFormer's architecture exactly (embed_dim=512).
+    Set embed_dim > 0 to add a projection to a fixed embedding space first.
     """
 
     def __init__(

@@ -19,10 +19,10 @@ from .rcnn import RCNN
 from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
-from .coralformer import CoralFormer
 from .gatedmlp import GatedMLP
 from .augformer import AugFormer
-from .patchformer import PatchFormer
+from .srmlp import SRMLP
+from .lewm import LEWM
 from .vae import VAE, SiameseVAE
 from .wavenet import WaveNet
 
@@ -44,10 +44,10 @@ __all__ = [
     "RWKV",
     "TCN",
     "Transformer",
-    "CoralFormer",
     "AugFormer",
     "GatedMLP",
-    "PatchFormer",
+    "SRMLP",
+    "LEWM",
     "VAE",
     "SiameseVAE",
     "WaveNet",

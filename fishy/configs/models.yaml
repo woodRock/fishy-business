@@ -91,16 +91,6 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 64
 
-  patchformer:
-    path: "fishy.models.deep.patchformer.PatchFormer"
-    defaults:
-      hidden_dimension: 256
-      num_layers: 4
-      num_heads: 4
-      dropout: 0.3
-      learning_rate: 0.0001
-      batch_size: 64
-
   gatedmlp:
     path: "fishy.models.deep.gatedmlp.GatedMLP"
     defaults:
@@ -110,12 +100,21 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 64
 
-  coralformer:
-    path: "fishy.models.deep.coralformer.CoralFormer"
+  srmlp:
+    path: "fishy.models.deep.srmlp.SRMLP"
     defaults:
-      hidden_dimension: 128
+      hidden_dimension: 512
       num_layers: 4
-      num_heads: 4
+      dropout: 0.3
+      learning_rate: 0.0001
+      batch_size: 64
+
+  lewm:
+    path: "fishy.models.deep.lewm.LEWM"
+    defaults:
+      hidden_dimension: 256
+      latent_dim: 192
+      num_layers: 4
       dropout: 0.3
       learning_rate: 0.0001
       batch_size: 64

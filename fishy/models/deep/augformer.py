@@ -8,20 +8,6 @@ the same spectrum and treat each view as a token. The transformer can then atten
 across views and learn which features are *consistent* across noise, scale, and
 shift — i.e., the features that are invariant to plausible measurement variation,
 which are exactly the robust, discriminative features for classification.
-
-This gives the transformer a real, meaningful sequence to attend over even from
-a single spectrum, solving the data-scarcity problem that breaks PatchFormer.
-
-Training:  each view gets a random combination of augmentations applied.
-Inference: fixed deterministic augmentations so predictions are reproducible.
-
-Augmentations used (physically meaningful for REIMS spectra):
-  - Noise:  additive Gaussian noise  (simulates instrument noise)
-  - Scale:  multiply all intensities  (simulates ionisation variability)
-  - Shift:  circular roll by Δ bins   (simulates small m/z calibration drift)
-  - Crop:   zero out a contiguous window (simulates regional suppression)
-
-Flip and permutation are intentionally excluded — they destroy spectral structure.
 """
 
 import torch
@@ -80,11 +66,6 @@ def _shift(x: torch.Tensor, bins: int) -> torch.Tensor:
 
 
 def _crop(x: torch.Tensor, crop_size: float = 0.85, start: int = None) -> torch.Tensor:
-    """Zero out a contiguous window of (1-crop_size) of the spectrum.
-
-    If start is given (inference) the window position is fixed and deterministic.
-    If start is None (training) the position is random.
-    """
     n = x.shape[-1]
     mask_len = int(n * (1.0 - crop_size))
     if mask_len == 0:
@@ -98,9 +79,7 @@ def _crop(x: torch.Tensor, crop_size: float = 0.85, start: int = None) -> torch.
 
 
 def _random_augment(x: torch.Tensor) -> torch.Tensor:
-    """Apply a random non-empty combination of augmentations to a batch."""
     aug = x.clone()
-    # Each augmentation applied independently with p=0.5, but ensure at least one fires
     applied = []
     if torch.rand(1).item() < 0.6:
         aug = _noise(aug, std=torch.empty(1).uniform_(0.005, 0.04).item())
@@ -116,37 +95,35 @@ def _random_augment(x: torch.Tensor) -> torch.Tensor:
     if torch.rand(1).item() < 0.4:
         aug = _crop(aug, crop_size=torch.empty(1).uniform_(0.80, 0.95).item())
         applied.append("crop")
-    if not applied:                      # guarantee at least one augmentation
+    if not applied:
         aug = _noise(aug, std=0.02)
     return aug
 
 
-# Fixed deterministic augmentation views used at inference time.
-# Chosen to cover the four augmentation types with mild, realistic parameters.
-# All lambdas are fully deterministic (no torch.randint / torch.randn).
 _INFERENCE_AUGS = [
-    lambda x: _noise(x, std=0.01),                        # mild noise
-    lambda x: _noise(x, std=0.03),                        # moderate noise
-    lambda x: _scale(x, 0.92),                            # scale down
-    lambda x: _scale(x, 1.08),                            # scale up
-    lambda x: _shift(x, -10),                             # shift left
-    lambda x: _shift(x, +10),                             # shift right
-    lambda x: _crop(x, crop_size=0.88, start=100),        # crop left region
-    lambda x: _crop(x, crop_size=0.88, start=1000),       # crop mid region
+    lambda x: _noise(x, std=0.01),
+    lambda x: _noise(x, std=0.03),
+    lambda x: _scale(x, 0.92),
+    lambda x: _scale(x, 1.08),
+    lambda x: _shift(x, -10),
+    lambda x: _shift(x, +10),
+    lambda x: _crop(x, crop_size=0.88, start=100),
+    lambda x: _crop(x, crop_size=0.88, start=1000),
 ]
 
 
 # ---------------------------------------------------------------------------
-# Transformer building blocks (same family as PatchFormer / NextFormer)
+# Transformer building blocks
 # ---------------------------------------------------------------------------
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, embed_dim: int, num_heads: int):
+    def __init__(self, embed_dim: int, num_heads: int, use_xsa: bool = False):
         super().__init__()
         assert embed_dim % num_heads == 0
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
         self.scale = self.head_dim ** -0.5
+        self.use_xsa = use_xsa
         self.qkv = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
         self.proj = nn.Linear(embed_dim, embed_dim, bias=False)
 
@@ -156,17 +133,23 @@ class MultiHeadAttention(nn.Module):
         q, k, v = qkv.permute(2, 0, 3, 1, 4).unbind(0)
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
-        x = (attn @ v).transpose(1, 2).reshape(B, N, C)
+
+        y = attn @ v
+
+        if self.use_xsa:
+            # XSA: Exclusive Self Attention
+            # Orthogonalize the output against the value vectors to focus on contextual information
+            Vn = torch.nn.functional.normalize(v, dim=-1)
+            y = y - (y * Vn).sum(dim=-1, keepdim=True) * Vn
+        
+        x = y.transpose(1, 2).reshape(B, N, C)
         return self.proj(x)
 
-
 class TransformerBlock(nn.Module):
-    """Pre-norm block: RMSNorm → Attention → RMSNorm → SwiGLU FFN."""
-
-    def __init__(self, embed_dim: int, num_heads: int, mlp_ratio: int = 2, dropout: float = 0.1):
+    def __init__(self, embed_dim: int, num_heads: int, mlp_ratio: int = 2, dropout: float = 0.3, use_xsa: bool = False):
         super().__init__()
         self.norm1 = RMSNorm(embed_dim)
-        self.attn = MultiHeadAttention(embed_dim, num_heads)
+        self.attn = MultiHeadAttention(embed_dim, num_heads, use_xsa=use_xsa)
         self.norm2 = RMSNorm(embed_dim)
         hidden = embed_dim * mlp_ratio
         self.w1 = nn.Linear(embed_dim, hidden, bias=False)
@@ -187,13 +170,7 @@ class TransformerBlock(nn.Module):
 class AugFormer(nn.Module):
     """
     Augmentation-as-Sequence Transformer for REIMS spectral classification.
-
-    Instead of a CLS token, this model treats the ORIGINAL spectrum as the
-    anchor (slot 0). The transformer allows the anchor to consult augmented
-    views to identify and up-weight robust, invariant features.
-
-    Final classification is performed directly on the refined anchor representation
-    with a strong residual from its pre-transformer state.
+    Iteration 1 Baseline: Anchor-centric, Deep Spectral Gating, no tokenizer.
     """
 
     def __init__(
@@ -204,28 +181,26 @@ class AugFormer(nn.Module):
         num_layers: int = 4,
         num_heads: int = 8,
         dropout: float = 0.3,
-        num_views: int = 6,   # augmented views (+ original = 7 spec tokens)
+        num_views: int = 6,
+        use_xsa: bool = False,
         **kwargs,
     ) -> None:
         super().__init__()
         self.num_views = num_views
 
-        # Project and Pre-Gated each raw spectrum view
         self.view_embed = nn.Linear(input_dim, hidden_dim, bias=False)
-        # Deep Spectral Gating (2 layers)
         self.pre_gate = nn.Sequential(
             SpectralGating(hidden_dim, hidden_dim * 2, dropout),
             SpectralGating(hidden_dim, hidden_dim * 2, dropout),
         )
 
-        # Slot embeddings (tagging original vs augmented)
         self.original_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
         self.aug_embed      = nn.Parameter(torch.zeros(1, 1, hidden_dim))
         nn.init.trunc_normal_(self.original_embed,  std=0.02)
         nn.init.trunc_normal_(self.aug_embed,       std=0.02)
 
         self.blocks = nn.ModuleList([
-            TransformerBlock(hidden_dim, num_heads, mlp_ratio=2, dropout=dropout)
+            TransformerBlock(hidden_dim, num_heads, mlp_ratio=2, dropout=dropout, use_xsa=use_xsa)
             for _ in range(num_layers)
         ])
 
@@ -233,15 +208,6 @@ class AugFormer(nn.Module):
         self.fc_out = nn.Linear(hidden_dim, output_dim, bias=False)
 
     def _build_views(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Build the sequence of views for a batch.
-
-        Training: each augmented view gets a random combination of augmentations.
-        Inference: uses the fixed deterministic set in _INFERENCE_AUGS, cycling
-                   if num_views > len(_INFERENCE_AUGS).
-
-        Returns: [B, num_views+1, input_dim]  (original first, then augmented)
-        """
         views = [x]
         if self.training:
             for _ in range(self.num_views):
@@ -250,7 +216,7 @@ class AugFormer(nn.Module):
             for i in range(self.num_views):
                 aug_fn = _INFERENCE_AUGS[i % len(_INFERENCE_AUGS)]
                 views.append(aug_fn(x))
-        return torch.stack(views, dim=1)            # [B, V+1, F]
+        return torch.stack(views, dim=1)
 
     def forward(
         self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs
@@ -258,31 +224,21 @@ class AugFormer(nn.Module):
         if x.dim() == 3:
             x = x.squeeze(1)
 
-        # Build view sequence: [B, V+1, F]
-        views = self._build_views(x)
-
-        # Embed all views: [B, V+1, hidden_dim]
+        B = x.shape[0]
+        views = self._build_views(x) # [B, V+1, F]
         tokens = self.view_embed(views)
-        
-        # Apply shared spectral gating to each view independently
         tokens = self.pre_gate(tokens)
 
-        # Mark original vs augmented
-        tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed   # original view
-        tokens[:, 1:]  = tokens[:, 1:]  + self.aug_embed        # all augmented views
+        tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed
+        tokens[:, 1:]  = tokens[:, 1:]  + self.aug_embed
         
-        # Save anchor residual
         anchor_residual = tokens[:, 0:1].clone()
 
-        # Transformer blocks attend across the views
         for block in self.blocks:
             tokens = block(tokens)
 
-        # Add anchor residual and norm
         tokens[:, 0:1] = tokens[:, 0:1] + anchor_residual
         tokens = self.norm(tokens)
-
-        # Classification is done on the refined ORIGINAL view (anchor)
         logits = self.fc_out(tokens[:, 0])
 
         if return_attention:

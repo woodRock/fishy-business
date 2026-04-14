@@ -51,6 +51,7 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "top_k": config.top_k,
         "use_performer": config.use_performer,
         "use_checkpointing": config.use_checkpointing,
+        "use_xsa": config.use_xsa,
     }
 
     # Handle Siamese wrappers for batch-detection
