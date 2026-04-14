@@ -60,6 +60,9 @@ class Trainer:
         use_cumulative_link: bool = False,
         num_classes: Optional[int] = None,
         regression: bool = False,
+        use_ttt: bool = False,
+        ttt_lr: float = 1e-3,
+        ttt_steps: int = 1,
         ctx: Optional[RunContext] = None,
         logger: Optional[logging.Logger] = None,
     ):
@@ -74,6 +77,9 @@ class Trainer:
         self.use_cumulative_link = use_cumulative_link
         self.num_classes = num_classes
         self.regression = regression
+        self.use_ttt = use_ttt
+        self.ttt_lr = ttt_lr
+        self.ttt_steps = ttt_steps
         self.ctx = ctx
         self.logger = (
             logger if logger else (ctx.logger if ctx else logging.getLogger(__name__))
@@ -174,13 +180,26 @@ class Trainer:
         for batch in loader:
             inputs, labels_batch = self._unpack_batch(batch)
             inputs, labels_dev = self._to_device(inputs, labels_batch)
+            
             if is_training:
                 self.optimizer.zero_grad()
-            outputs = self._forward_pass(inputs)
-            loss = self._compute_loss(outputs, labels_dev)
-            if is_training:
+                outputs = self._forward_pass(inputs)
+                loss = self._compute_loss(outputs, labels_dev)
                 loss.backward()
                 self.optimizer.step()
+            else:
+                # Evaluation Mode
+                if self.use_ttt and hasattr(self.model, "forward_ttt"):
+                    # TTT: Perform adaptation per-sample or per-batch
+                    # Here we do it per-batch for efficiency, but forward_ttt handles inner logic
+                    # We pass ttt parameters from the trainer
+                    outputs = self.model.forward_ttt(
+                        inputs, lr=self.ttt_lr, steps=self.ttt_steps
+                    )
+                else:
+                    outputs = self._forward_pass(inputs)
+                loss = self._compute_loss(outputs, labels_dev)
+
             total_loss += loss.item() * (
                 inputs[0].size(0) if isinstance(inputs, tuple) else inputs.size(0)
             )
@@ -346,6 +365,9 @@ class DeepEngine:
         use_cumulative_link=False,
         num_classes=None,
         regression=False,
+        use_ttt=False,
+        ttt_lr=1e-3,
+        ttt_steps=1,
         ctx=None,
     ):
         if isinstance(device, str):
@@ -362,6 +384,9 @@ class DeepEngine:
                 use_cumulative_link=use_cumulative_link,
                 num_classes=num_classes,
                 regression=regression,
+                use_ttt=use_ttt,
+                ttt_lr=ttt_lr,
+                ttt_steps=ttt_steps,
                 ctx=ctx,
             )
             res = trainer.train(train_loader, val_loader)
@@ -411,6 +436,9 @@ class DeepEngine:
                     use_cumulative_link=use_cumulative_link,
                     num_classes=num_classes,
                     regression=regression,
+                    use_ttt=use_ttt,
+                    ttt_lr=ttt_lr,
+                    ttt_steps=ttt_steps,
                     ctx=ctx,
                 )
                 res = trainer.train(tr_ldr, val_ldr)
@@ -448,7 +476,7 @@ class DeepEngine:
         if isinstance(device, str):
             device = torch.device(device)
         return Trainer(
-            model, criterion, optim.Adam(model.parameters()), device, 1, **kwargs
+            model, criterion, optim.Adam(model.parameters(), lr=1e-3), device, 1, **kwargs
         ).evaluate(loader)
 
     @staticmethod

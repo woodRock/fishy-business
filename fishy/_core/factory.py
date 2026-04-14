@@ -52,6 +52,10 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "use_performer": config.use_performer,
         "use_checkpointing": config.use_checkpointing,
         "use_xsa": config.use_xsa,
+        "use_qk_gain": config.use_qk_gain,
+        "use_parallel_residuals": config.use_parallel_residuals,
+        "recurrence_layers": config.recurrence_layers,
+        "use_leaky_sq": config.use_leaky_sq,
     }
 
     # Handle Siamese wrappers for batch-detection

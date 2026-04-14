@@ -77,7 +77,14 @@ class TrainingConfig:
     use_performer: bool = False
     use_checkpointing: bool = False
     use_xsa: bool = False
-    # ... other model params
+    # AugFormerV2 specific
+    use_qk_gain: bool = False
+    use_parallel_residuals: bool = False
+    recurrence_layers: Optional[List[int]] = None
+    use_leaky_sq: bool = False
+    use_ttt: bool = False
+    ttt_lr: float = 1e-3
+    ttt_steps: int = 1
 
     # Contrastive specific
     encoder_type: str = "dense"

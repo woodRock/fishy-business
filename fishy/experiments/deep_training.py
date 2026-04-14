@@ -180,6 +180,9 @@ class ModelTrainer:
                 device=self.device,
                 num_classes=n_classes,
                 regression=False,
+                use_ttt=self.config.use_ttt,
+                ttt_lr=self.config.ttt_lr,
+                ttt_steps=self.config.ttt_steps,
                 ctx=self.ctx,
             )
             all_fold_metrics.append(metrics)
@@ -197,6 +200,9 @@ class ModelTrainer:
             self.device,
             num_classes=n_classes,
             regression=False,
+            use_ttt=self.config.use_ttt,
+            ttt_lr=self.config.ttt_lr,
+            ttt_steps=self.config.ttt_steps,
         )
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_results, test_ldr)
@@ -291,6 +297,9 @@ class ModelTrainer:
             device=self.device,
             num_classes=self.n_classes,
             regression=self.config.regression,
+            use_ttt=self.config.use_ttt,
+            ttt_lr=self.config.ttt_lr,
+            ttt_steps=self.config.ttt_steps,
             ctx=self.ctx,
         )
         test_res = DeepEngine.evaluate_model(
@@ -300,6 +309,9 @@ class ModelTrainer:
             self.device,
             num_classes=self.n_classes,
             regression=self.config.regression,
+            use_ttt=self.config.use_ttt,
+            ttt_lr=self.config.ttt_lr,
+            ttt_steps=self.config.ttt_steps,
         )
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_res, te_ldr)
@@ -372,6 +384,9 @@ class ModelTrainer:
                 use_cumulative_link=(self.config.ordinal_method == "clm"),
                 num_classes=self.n_classes,
                 regression=self.config.regression,
+                use_ttt=self.config.use_ttt,
+                ttt_lr=self.config.ttt_lr,
+                ttt_steps=self.config.ttt_steps,
                 ctx=self.ctx,
             )
             if fold == k_folds - 1 and self.ctx.wandb_run:

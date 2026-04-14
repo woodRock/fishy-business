@@ -20,7 +20,7 @@ from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
 from .gatedmlp import GatedMLP
-from .augformer import AugFormer
+from .augformer import AugFormer, AugFormerV2
 from .srmlp import SRMLP
 from .lewm import LEWM
 from .vae import VAE, SiameseVAE
@@ -45,6 +45,7 @@ __all__ = [
     "TCN",
     "Transformer",
     "AugFormer",
+    "AugFormerV2",
     "GatedMLP",
     "SRMLP",
     "LEWM",

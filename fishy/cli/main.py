@@ -193,6 +193,27 @@ def setup_parser() -> argparse.ArgumentParser:
         "--xsa", action="store_true", dest="use_xsa", help="Use Exclusive Self-Attention (XSA) in AugFormer"
     )
     hp_group.add_argument(
+        "--qk-gain", action="store_true", dest="use_qk_gain", help="Use learnable QK-gain in AugFormerV2"
+    )
+    hp_group.add_argument(
+        "--parallel-residuals", action="store_true", dest="use_parallel_residuals", help="Use parallel residuals in AugFormerV2"
+    )
+    hp_group.add_argument(
+        "--recurrence", type=int, nargs="+", dest="recurrence_layers", help="Indices of layers to recur in AugFormerV2"
+    )
+    hp_group.add_argument(
+        "--leaky-sq", action="store_true", dest="use_leaky_sq", help="Use LeakyReLU(0.5)^2 activation in AugFormerV2"
+    )
+    hp_group.add_argument(
+        "--ttt", action="store_true", dest="use_ttt", help="Use Test-Time Training (TTT) in AugFormerV2"
+    )
+    hp_group.add_argument(
+        "--ttt-lr", type=float, default=1e-3, help="Learning rate for TTT"
+    )
+    hp_group.add_argument(
+        "--ttt-steps", type=int, default=1, help="Number of TTT steps per sample"
+    )
+    hp_group.add_argument(
         "--use-checkpointing", action="store_true", help="Enable gradient checkpointing"
     )
 
