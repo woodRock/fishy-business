@@ -180,7 +180,7 @@ class Trainer:
         for batch in loader:
             inputs, labels_batch = self._unpack_batch(batch)
             inputs, labels_dev = self._to_device(inputs, labels_batch)
-            
+
             if is_training:
                 self.optimizer.zero_grad()
                 outputs = self._forward_pass(inputs)
@@ -476,7 +476,12 @@ class DeepEngine:
         if isinstance(device, str):
             device = torch.device(device)
         return Trainer(
-            model, criterion, optim.Adam(model.parameters(), lr=1e-3), device, 1, **kwargs
+            model,
+            criterion,
+            optim.Adam(model.parameters(), lr=1e-3),
+            device,
+            1,
+            **kwargs,
         ).evaluate(loader)
 
     @staticmethod

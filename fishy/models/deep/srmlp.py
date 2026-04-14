@@ -17,15 +17,16 @@ class SRNorm(nn.Module):
     Projects input to a random subspace and applies the sign function.
     This acts as a powerful non-linear regularizer and dimensionality compressor.
     """
+
     def __init__(self, dim: int, projection_dim: int = None):
         super().__init__()
         self.dim = dim
         self.projection_dim = projection_dim or dim
-        
+
         # Fixed random projection (not learnable)
         self.register_buffer(
-            "projection", 
-            torch.randn(dim, self.projection_dim) * (self.projection_dim ** -0.5)
+            "projection",
+            torch.randn(dim, self.projection_dim) * (self.projection_dim**-0.5),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -33,13 +34,14 @@ class SRNorm(nn.Module):
         # 1. Project to random subspace
         x = x @ self.projection
         # 2. Sign operation (Quantization to -1, 0, 1)
-        # We use a differentiable approximation or the straight-through estimator 
+        # We use a differentiable approximation or the straight-through estimator
         # logic isn't needed here if we treat this as a static "encoding" step.
         return torch.sign(x)
 
 
 class GatedMLPBlock(nn.Module):
     """Standard SwiGLU Gating Block."""
+
     def __init__(self, dim: int, dropout: float = 0.3):
         super().__init__()
         self.norm = nn.LayerNorm(dim)
@@ -61,6 +63,7 @@ class SRMLP(nn.Module):
     Sign-Random Gated MLP.
     Combines SRNorm with high-capacity Gated MLP blocks.
     """
+
     def __init__(
         self,
         input_dim: int,
@@ -71,16 +74,15 @@ class SRMLP(nn.Module):
         **kwargs,
     ) -> None:
         super().__init__()
-        
+
         # Initial SRNorm to compress and robustify input
         self.sr_norm = SRNorm(input_dim, hidden_dim)
-        
+
         # Gated processing backbone
-        self.blocks = nn.ModuleList([
-            GatedMLPBlock(hidden_dim, dropout)
-            for _ in range(num_layers)
-        ])
-        
+        self.blocks = nn.ModuleList(
+            [GatedMLPBlock(hidden_dim, dropout) for _ in range(num_layers)]
+        )
+
         self.final_norm = nn.LayerNorm(hidden_dim)
         self.fc_out = nn.Linear(hidden_dim, output_dim, bias=False)
 
@@ -89,14 +91,14 @@ class SRMLP(nn.Module):
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, List]]:
         if x.dim() == 3:
             x = x.squeeze(1)
-            
+
         # 1. Sign-Random Encoding
         x = self.sr_norm(x)
-        
+
         # 2. Gated Deep Processing
         for block in self.blocks:
             x = block(x)
-            
+
         x = self.final_norm(x)
         logits = self.fc_out(x)
 
