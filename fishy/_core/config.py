@@ -62,16 +62,15 @@ class TrainingConfig:
     crop_size: float = 0.8  # Default crop size
     num_experts: int = 8
     k: int = 2
-    random_projection: bool = False,
-    quantize: bool = False,
-    turbo_quant: bool = False,
-    polar: bool = False,
-    normalize: bool = False,
-    snv: bool = False,
-    minmax: bool = False,
-    log_transform: bool = False,
-    savgol: bool = False,
-
+    random_projection: bool = (False,)
+    quantize: bool = (False,)
+    turbo_quant: bool = (False,)
+    polar: bool = (False,)
+    normalize: bool = (False,)
+    snv: bool = (False,)
+    minmax: bool = (False,)
+    log_transform: bool = (False,)
+    savgol: bool = (False,)
 
     # Deep Model Specific
     top_k: Optional[int] = None

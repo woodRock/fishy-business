@@ -20,6 +20,7 @@ from typing import List, Tuple, Union
 # Components
 # ---------------------------------------------------------------------------
 
+
 class RMSNorm(nn.Module):
     def __init__(self, dim: int, eps: float = 1e-6):
         super().__init__()
@@ -52,6 +53,7 @@ class SpectralGating(nn.Module):
 # ---------------------------------------------------------------------------
 # Augmentations
 # ---------------------------------------------------------------------------
+
 
 def _noise(x: torch.Tensor, std: float = 0.02) -> torch.Tensor:
     return torch.clamp(x + torch.randn_like(x) * std, 0.0)
@@ -95,20 +97,20 @@ def _random_augment(x: torch.Tensor) -> torch.Tensor:
     if torch.rand(1).item() < 0.4:
         aug = _crop(aug, crop_size=torch.empty(1).uniform_(0.80, 0.95).item())
         applied.append("crop")
-    if not applied:
+    if not applied:  # guarantee at least one augmentation
         aug = _noise(aug, std=0.02)
     return aug
 
 
 _INFERENCE_AUGS = [
-    lambda x: _noise(x, std=0.01),
-    lambda x: _noise(x, std=0.03),
-    lambda x: _scale(x, 0.92),
-    lambda x: _scale(x, 1.08),
-    lambda x: _shift(x, -10),
-    lambda x: _shift(x, +10),
-    lambda x: _crop(x, crop_size=0.88, start=100),
-    lambda x: _crop(x, crop_size=0.88, start=1000),
+    lambda x: _noise(x, std=0.01),  # mild noise
+    lambda x: _noise(x, std=0.03),  # moderate noise
+    lambda x: _scale(x, 0.92),  # scale down
+    lambda x: _scale(x, 1.08),  # scale up
+    lambda x: _shift(x, -10),  # shift left
+    lambda x: _shift(x, +10),  # shift right
+    lambda x: _crop(x, crop_size=0.88, start=100),  # crop left region
+    lambda x: _crop(x, crop_size=0.88, start=1000),  # crop mid region
 ]
 
 
@@ -116,13 +118,14 @@ _INFERENCE_AUGS = [
 # Transformer building blocks
 # ---------------------------------------------------------------------------
 
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, embed_dim: int, num_heads: int, use_xsa: bool = False):
         super().__init__()
         assert embed_dim % num_heads == 0
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
-        self.scale = self.head_dim ** -0.5
+        self.scale = self.head_dim**-0.5
         self.use_xsa = use_xsa
         self.qkv = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
         self.proj = nn.Linear(embed_dim, embed_dim, bias=False)
@@ -146,7 +149,11 @@ class MultiHeadAttention(nn.Module):
         return self.proj(x)
 
 class TransformerBlock(nn.Module):
-    def __init__(self, embed_dim: int, num_heads: int, mlp_ratio: int = 2, dropout: float = 0.3, use_xsa: bool = False):
+    """Pre-norm block: RMSNorm → Attention → RMSNorm → SwiGLU FFN."""
+
+    def __init__(
+        self, embed_dim: int, num_heads: int, mlp_ratio: int = 2, dropout: float = 0.1, use_xsa: bool = False
+    ):
         super().__init__()
         self.norm1 = RMSNorm(embed_dim)
         self.attn = MultiHeadAttention(embed_dim, num_heads, use_xsa=use_xsa)
@@ -167,6 +174,7 @@ class TransformerBlock(nn.Module):
 # AugFormer
 # ---------------------------------------------------------------------------
 
+
 class AugFormer(nn.Module):
     """
     Augmentation-as-Sequence Transformer for REIMS spectral classification.
@@ -181,7 +189,7 @@ class AugFormer(nn.Module):
         num_layers: int = 4,
         num_heads: int = 8,
         dropout: float = 0.3,
-        num_views: int = 6,
+        num_views: int = 6,  # augmented views (+ original = 7 spec tokens)
         use_xsa: bool = False,
         **kwargs,
     ) -> None:
@@ -195,14 +203,16 @@ class AugFormer(nn.Module):
         )
 
         self.original_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
-        self.aug_embed      = nn.Parameter(torch.zeros(1, 1, hidden_dim))
-        nn.init.trunc_normal_(self.original_embed,  std=0.02)
-        nn.init.trunc_normal_(self.aug_embed,       std=0.02)
+        self.aug_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
+        nn.init.trunc_normal_(self.original_embed, std=0.02)
+        nn.init.trunc_normal_(self.aug_embed, std=0.02)
 
-        self.blocks = nn.ModuleList([
-            TransformerBlock(hidden_dim, num_heads, mlp_ratio=2, dropout=dropout, use_xsa=use_xsa)
-            for _ in range(num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                TransformerBlock(hidden_dim, num_heads, mlp_ratio=2, dropout=dropout, use_xsa=use_xsa)
+                for _ in range(num_layers)
+            ]
+        )
 
         self.norm = RMSNorm(hidden_dim)
         self.fc_out = nn.Linear(hidden_dim, output_dim, bias=False)
@@ -216,7 +226,7 @@ class AugFormer(nn.Module):
             for i in range(self.num_views):
                 aug_fn = _INFERENCE_AUGS[i % len(_INFERENCE_AUGS)]
                 views.append(aug_fn(x))
-        return torch.stack(views, dim=1)
+        return torch.stack(views, dim=1)  # [B, V+1, F]
 
     def forward(
         self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs
@@ -227,11 +237,15 @@ class AugFormer(nn.Module):
         B = x.shape[0]
         views = self._build_views(x) # [B, V+1, F]
         tokens = self.view_embed(views)
+
+        # Apply shared spectral gating to each view independently
         tokens = self.pre_gate(tokens)
 
-        tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed
-        tokens[:, 1:]  = tokens[:, 1:]  + self.aug_embed
-        
+        # Mark original vs augmented
+        tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed  # original view
+        tokens[:, 1:] = tokens[:, 1:] + self.aug_embed  # all augmented views
+
+        # Save anchor residual
         anchor_residual = tokens[:, 0:1].clone()
 
         for block in self.blocks:
