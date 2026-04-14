@@ -37,6 +37,7 @@ class TrainingConfig:
     spectrum_segment_reordering: bool = False
     contrastive_transformation_invariance_learning: bool = False
     early_stopping: int = 20
+    warmup_epochs: int = 0
     dropout: float = 0.2
     label_smoothing: float = 0.1
     epochs: int = 100

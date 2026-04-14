@@ -63,6 +63,7 @@ class Trainer:
         use_ttt: bool = False,
         ttt_lr: float = 1e-3,
         ttt_steps: int = 1,
+        step_scheduler: bool = False,
         ctx: Optional[RunContext] = None,
         logger: Optional[logging.Logger] = None,
     ):
@@ -72,6 +73,7 @@ class Trainer:
         self.device = device
         self.num_epochs = num_epochs
         self.scheduler = scheduler
+        self.step_scheduler = step_scheduler
         self.patience = patience
         self.use_coral = use_coral
         self.use_cumulative_link = use_cumulative_link
@@ -187,6 +189,8 @@ class Trainer:
                 loss = self._compute_loss(outputs, labels_dev)
                 loss.backward()
                 self.optimizer.step()
+                if self.step_scheduler and self.scheduler:
+                    self.scheduler.step()
             else:
                 # Evaluation Mode
                 if self.use_ttt and hasattr(self.model, "forward_ttt"):
@@ -368,6 +372,8 @@ class DeepEngine:
         use_ttt=False,
         ttt_lr=1e-3,
         ttt_steps=1,
+        scheduler=None,
+        step_scheduler=False,
         ctx=None,
     ):
         if isinstance(device, str):
@@ -387,6 +393,8 @@ class DeepEngine:
                 use_ttt=False,  # Never TTT during training validation epochs
                 ttt_lr=ttt_lr,
                 ttt_steps=ttt_steps,
+                scheduler=scheduler,
+                step_scheduler=step_scheduler,
                 ctx=ctx,
             )
             res = trainer.train(train_loader, val_loader)
@@ -422,6 +430,7 @@ class DeepEngine:
         )
         all_metrics = []
         best_overall_acc, best_state = float("-inf"), None
+        logger = ctx.logger if ctx else logging.getLogger(__name__)
         for r_idx in range(n_runs):
             ds = train_loader.dataset
             lbls = DeepEngine._extract_labels(ds)
@@ -460,6 +469,8 @@ class DeepEngine:
                     use_ttt=False,  # Never TTT during training validation epochs
                     ttt_lr=ttt_lr,
                     ttt_steps=ttt_steps,
+                    scheduler=scheduler,
+                    step_scheduler=step_scheduler,
                     ctx=ctx,
                 )
                 res = trainer.train(tr_ldr, val_ldr)
@@ -474,7 +485,7 @@ class DeepEngine:
                     # Store state to restore after TTT to prevent leakage into next fold/test
                     pre_ttt_state = OrderedDict((k, v.clone()) for k, v in f_model.state_dict().items())
                     
-                    self.logger.info(f"Performing One-Time TTT for fold {f_idx}...")
+                    logger.info(f"Performing One-Time TTT for fold {f_idx}...")
                     ttt_res = DeepEngine.evaluate_model(
                         f_model,
                         val_ldr,

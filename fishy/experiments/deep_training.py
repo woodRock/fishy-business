@@ -11,6 +11,7 @@ import wandb
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.optim.lr_scheduler as lr_scheduler
 from torch.utils.data import DataLoader, Subset, WeightedRandomSampler
 
 from fishy._core.config import TrainingConfig
@@ -153,6 +154,25 @@ class ModelTrainer:
         else: # Default AdamW
             return torch.optim.AdamW(model.parameters(), lr=lr)
 
+    def create_scheduler(
+        self, optimizer: torch.optim.Optimizer, train_loader: DataLoader
+    ) -> Tuple[Optional[lr_scheduler.LRScheduler], bool]:
+        """Create a learning rate scheduler with warmup if configured."""
+        if self.config.warmup_epochs <= 0:
+            return None, False
+
+        warmup_epochs = self.config.warmup_epochs
+        steps_per_epoch = len(train_loader)
+        warmup_steps = warmup_epochs * steps_per_epoch
+
+        def lr_lambda(current_step: int):
+            if current_step < warmup_steps:
+                return float(current_step) / float(max(1, warmup_steps))
+            return 1.0
+
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda)
+        return scheduler, True
+
     def pre_train(self) -> Optional[nn.Module]:
         self.logger.info("Evaluating pre-training phase")
         return self.pre_train_orchestrator.run_all(
@@ -228,6 +248,7 @@ class ModelTrainer:
                 )
             criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
             opt = self.create_optimizer(model)
+            sched, is_step = self.create_scheduler(opt, tr_ldr)
             last_model, metrics = DeepEngine.train_model(
                 model=model,
                 train_loader=tr_ldr,
@@ -243,6 +264,8 @@ class ModelTrainer:
                 use_ttt=self.config.use_ttt,
                 ttt_lr=self.config.ttt_lr,
                 ttt_steps=self.config.ttt_steps,
+                scheduler=sched,
+                step_scheduler=is_step,
                 ctx=self.ctx,
             )
             all_fold_metrics.append(metrics)
@@ -345,6 +368,7 @@ class ModelTrainer:
             else nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
         )
         opt = self.create_optimizer(model)
+        sched, is_step = self.create_scheduler(opt, tr_ldr)
         trained_model, tr_val_met = DeepEngine.train_model(
             model=model,
             train_loader=tr_ldr,
@@ -360,6 +384,8 @@ class ModelTrainer:
             use_ttt=self.config.use_ttt,
             ttt_lr=self.config.ttt_lr,
             ttt_steps=self.config.ttt_steps,
+            scheduler=sched,
+            step_scheduler=is_step,
             ctx=self.ctx,
         )
         test_res = DeepEngine.evaluate_model(
@@ -432,6 +458,7 @@ class ModelTrainer:
             elif self.config.ordinal_method == "clm":
                 criterion = cumulative_link_loss
             opt = self.create_optimizer(model)
+            sched, is_step = self.create_scheduler(opt, tr_ldr)
             last_model, metrics = DeepEngine.train_model(
                 model=model,
                 train_loader=tr_ldr,
@@ -449,6 +476,8 @@ class ModelTrainer:
                 use_ttt=self.config.use_ttt,
                 ttt_lr=self.config.ttt_lr,
                 ttt_steps=self.config.ttt_steps,
+                scheduler=sched,
+                step_scheduler=is_step,
                 ctx=self.ctx,
             )
             if fold == k_folds - 1 and self.ctx.wandb_run:

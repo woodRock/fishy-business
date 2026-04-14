@@ -101,6 +101,12 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group = train_parser.add_argument_group(hp_group_label)
     hp_group.add_argument("-e", "--epochs", type=int, help="Number of training epochs")
     hp_group.add_argument(
+        "--warmup-epochs",
+        type=int,
+        default=0,
+        help="Number of epochs for learning rate warmup (default: 0)",
+    )
+    hp_group.add_argument(
         "-N", "--num-runs", type=int, default=1, help="Number of independent runs"
     )
     hp_group.add_argument(
