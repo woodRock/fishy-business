@@ -20,7 +20,8 @@ from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
 from .gatedmlp import GatedMLP
-from .augformer import AugFormer, AugFormerV2
+from .augformer import AugFormer
+from .augformer_v2 import AugFormerV2
 from .srmlp import SRMLP
 from .lewm import LEWM
 from .vae import VAE, SiameseVAE
