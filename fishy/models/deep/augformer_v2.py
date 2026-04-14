@@ -19,6 +19,7 @@ from .augformer import AugFormer, RMSNorm, TransformerBlock, MultiHeadAttention
 
 class LeakyReluSq(nn.Module):
     """Non-monotonic activation used in high-performing Golf models."""
+
     def __init__(self, neg_slope: float = 0.5):
         super().__init__()
         self.neg_slope = neg_slope
@@ -28,26 +29,32 @@ class LeakyReluSq(nn.Module):
 
 
 class MultiHeadAttentionV2(MultiHeadAttention):
-    def __init__(self, embed_dim: int, num_heads: int, use_xsa: bool = False, use_qk_gain: bool = False):
+    def __init__(
+        self,
+        embed_dim: int,
+        num_heads: int,
+        use_xsa: bool = False,
+        use_qk_gain: bool = False,
+    ):
         super().__init__(embed_dim, num_heads, use_xsa)
         self.use_qk_gain = use_qk_gain
         if self.use_qk_gain:
             # Learnable per-head gain for queries
             self.q_gain = nn.Parameter(torch.ones(num_heads))
-            
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim)
         q, k, v = qkv.permute(2, 0, 3, 1, 4).unbind(0)
-        
+
         # Apply RMSNorm to Q and K as in modded-nanogpt
         q = F.rms_norm(q, (q.size(-1),))
         k = F.rms_norm(k, (k.size(-1),))
-        
+
         if self.use_qk_gain:
             # Reshape gain for broadcasting [H] -> [1, H, 1, 1]
             q = q * self.q_gain[None, :, None, None]
-            
+
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
         y = attn @ v
@@ -56,51 +63,51 @@ class MultiHeadAttentionV2(MultiHeadAttention):
             # Exclusive Self Attention logic
             Vn = torch.nn.functional.normalize(v, dim=-1)
             y = y - (y * Vn).sum(dim=-1, keepdim=True) * Vn
-        
+
         x = y.transpose(1, 2).reshape(B, N, C)
         return self.proj(x)
 
 
 class TransformerBlockV2(TransformerBlock):
     def __init__(
-        self, 
-        embed_dim: int, 
-        num_heads: int, 
-        mlp_ratio: int = 2, 
-        dropout: float = 0.1, 
+        self,
+        embed_dim: int,
+        num_heads: int,
+        mlp_ratio: int = 2,
+        dropout: float = 0.1,
         use_xsa: bool = False,
         use_qk_gain: bool = False,
         use_parallel_residuals: bool = False,
-        use_leaky_sq: bool = False
+        use_leaky_sq: bool = False,
     ):
         super().__init__(embed_dim, num_heads, mlp_ratio, dropout, use_xsa)
         self.use_parallel_residuals = use_parallel_residuals
         self.use_leaky_sq = use_leaky_sq
-        
+
         # Replace attention with V2
         self.attn = MultiHeadAttentionV2(embed_dim, num_heads, use_xsa, use_qk_gain)
-        
+
         if self.use_leaky_sq:
             # Use LeakyReLU(0.5)^2 instead of Silu for the MLP
             # In AugFormer's SwiGLU: w2(F.silu(w1(h)) * w3(h))
             # For simplicity in V2 with leaky_sq, we use a simpler bottleneck: w2(sq(w1(h)))
             # This reduces parameters while keeping nonlinearity complex.
             self.act = LeakyReluSq(neg_slope=0.5)
-            
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.use_parallel_residuals:
             # Parallel Residuals (GPT-J style):
             # Attention and MLP branches read from the same norm output.
             x_norm = self.norm1(x)
             attn_out = self.attn(x_norm)
-            
+
             if self.use_leaky_sq:
                 # Optimized bottleneck path
                 mlp_out = self.w2(self.act(self.w1(x_norm)))
             else:
                 # Standard SwiGLU path
                 mlp_out = self.w2(F.silu(self.w1(x_norm)) * self.w3(x_norm))
-                
+
             return x + self.drop(attn_out) + self.drop(mlp_out)
         else:
             # Sequential Residuals (Original style)
@@ -118,6 +125,7 @@ class AugFormerV2(AugFormer):
     Enhanced Augmentation-as-Sequence Transformer.
     Allows toggling Parameter Golf advancements for benchmarking.
     """
+
     def __init__(
         self,
         input_dim: int,
@@ -144,27 +152,29 @@ class AugFormerV2(AugFormer):
             dropout=dropout,
             num_views=num_views,
             use_xsa=use_xsa,
-            **kwargs
+            **kwargs,
         )
         self.use_qk_gain = use_qk_gain
         self.use_parallel_residuals = use_parallel_residuals
         self.recurrence_layers = recurrence_layers or []
         self.use_leaky_sq = use_leaky_sq
-        
+
         # Rebuild blocks with V2 implementation
-        self.blocks = nn.ModuleList([
-            TransformerBlockV2(
-                hidden_dim, 
-                num_heads, 
-                mlp_ratio=2, 
-                dropout=dropout, 
-                use_xsa=use_xsa,
-                use_qk_gain=use_qk_gain,
-                use_parallel_residuals=use_parallel_residuals,
-                use_leaky_sq=use_leaky_sq
-            )
-            for _ in range(num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                TransformerBlockV2(
+                    hidden_dim,
+                    num_heads,
+                    mlp_ratio=2,
+                    dropout=dropout,
+                    use_xsa=use_xsa,
+                    use_qk_gain=use_qk_gain,
+                    use_parallel_residuals=use_parallel_residuals,
+                    use_leaky_sq=use_leaky_sq,
+                )
+                for _ in range(num_layers)
+            ]
+        )
 
     def forward(
         self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs
@@ -195,14 +205,16 @@ class AugFormerV2(AugFormer):
             return logits, []
         return logits
 
-    def forward_ttt(self, x: torch.Tensor, lr: float = 1e-3, steps: int = 1) -> torch.Tensor:
+    def forward_ttt(
+        self, x: torch.Tensor, lr: float = 1e-3, steps: int = 1
+    ) -> torch.Tensor:
         """
         Test-Time Training (TTT) via Entropy Minimization.
         Adapts the model to the specific sample x at inference time.
         """
         was_training = self.training
-        self.train() # Enable dropout/grads
-        
+        self.train()  # Enable dropout/grads
+
         # Optimize Norms and Gains (TTT-Lite style)
         ttt_params = []
         for n, p in self.named_parameters():
@@ -237,7 +249,7 @@ class AugFormerV2(AugFormer):
         self.eval()
         with torch.no_grad():
             final_logits = self(x)
-        
+
         self.train(was_training)
         return final_logits
 

@@ -15,11 +15,13 @@ def analyze_xsa():
 
     # Clean use_xsa column
     if df["use_xsa"].dtype == object:
-        df["use_xsa"] = df["use_xsa"].astype(str).str.replace('"', "").str.strip().str.lower()
+        df["use_xsa"] = (
+            df["use_xsa"].astype(str).str.replace('"', "").str.strip().str.lower()
+        )
         df["is_xsa"] = df["use_xsa"] == "true"
     else:
         df["is_xsa"] = df["use_xsa"].astype(bool)
-    
+
     # Filter for relevant columns and clean
     df = df[["dataset", "model", "is_xsa", "val_balanced_accuracy"]]
     df["val_balanced_accuracy"] = pd.to_numeric(
@@ -55,7 +57,7 @@ def analyze_xsa():
             p_val = np.nan
 
         sig = " (Significant)" if (not np.isnan(p_val) and p_val < 0.05) else ""
-        
+
         print(
             f"{ds:<15} | XSA          | {mean_xsa:.4f}     | {std_xsa:.4f}     | {p_val:.4f}{sig}"
         )

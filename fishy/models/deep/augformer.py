@@ -144,15 +144,21 @@ class MultiHeadAttention(nn.Module):
             # Orthogonalize the output against the value vectors to focus on contextual information
             Vn = torch.nn.functional.normalize(v, dim=-1)
             y = y - (y * Vn).sum(dim=-1, keepdim=True) * Vn
-        
+
         x = y.transpose(1, 2).reshape(B, N, C)
         return self.proj(x)
+
 
 class TransformerBlock(nn.Module):
     """Pre-norm block: RMSNorm → Attention → RMSNorm → SwiGLU FFN."""
 
     def __init__(
-        self, embed_dim: int, num_heads: int, mlp_ratio: int = 2, dropout: float = 0.1, use_xsa: bool = False
+        self,
+        embed_dim: int,
+        num_heads: int,
+        mlp_ratio: int = 2,
+        dropout: float = 0.1,
+        use_xsa: bool = False,
     ):
         super().__init__()
         self.norm1 = RMSNorm(embed_dim)
@@ -209,7 +215,9 @@ class AugFormer(nn.Module):
 
         self.blocks = nn.ModuleList(
             [
-                TransformerBlock(hidden_dim, num_heads, mlp_ratio=2, dropout=dropout, use_xsa=use_xsa)
+                TransformerBlock(
+                    hidden_dim, num_heads, mlp_ratio=2, dropout=dropout, use_xsa=use_xsa
+                )
                 for _ in range(num_layers)
             ]
         )
@@ -235,7 +243,7 @@ class AugFormer(nn.Module):
             x = x.squeeze(1)
 
         B = x.shape[0]
-        views = self._build_views(x) # [B, V+1, F]
+        views = self._build_views(x)  # [B, V+1, F]
         tokens = self.view_embed(views)
 
         # Apply shared spectral gating to each view independently
