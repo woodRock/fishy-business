@@ -40,8 +40,10 @@ class TrainingConfig:
     dropout: float = 0.2
     label_smoothing: float = 0.1
     epochs: int = 100
-    learning_rate: float = 1e-4
+    learning_rate: float = 0.0001
+    optimizer: str = "adamw"
     batch_size: int = 64
+
     hidden_dim: int = 128
     num_layers: int = 4
     num_heads: int = 4

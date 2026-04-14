@@ -1,0 +1,21 @@
+# AugFormerV2 with "Parameter Golf" Advancements
+model: "augformer_v2"
+dataset: "species"
+epochs: 100
+batch_size: 64
+learning_rate: 0.0001
+dropout: 0.3
+normalize: true
+
+# V2 Specific Features
+use_qk_gain: true
+use_parallel_residuals: true
+recurrence_layers: [1, 2]
+use_leaky_sq: true
+use_ttt: true
+ttt_lr: 0.001
+ttt_steps: 1
+
+# Reporting
+benchmark: true
+wandb_log: true

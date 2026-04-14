@@ -21,6 +21,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List, Tuple, Union
+from .ttt_mixin import TTTMixin
 
 
 class RMSNorm(nn.Module):
@@ -53,7 +54,7 @@ class GatedMLPBlock(nn.Module):
         return residual + x
 
 
-class GatedMLP(nn.Module):
+class GatedMLP(nn.Module, TTTMixin):
     """
     Gated MLP baseline.
 

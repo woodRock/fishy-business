@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List, Tuple, Union
+from .ttt_mixin import TTTMixin
 
 
 # ---------------------------------------------------------------------------
@@ -181,7 +182,7 @@ class TransformerBlock(nn.Module):
 # ---------------------------------------------------------------------------
 
 
-class AugFormer(nn.Module):
+class AugFormer(nn.Module, TTTMixin):
     """
     Augmentation-as-Sequence Transformer for REIMS spectral classification.
     Iteration 1 Baseline: Anchor-centric, Deep Spectral Gating, no tokenizer.

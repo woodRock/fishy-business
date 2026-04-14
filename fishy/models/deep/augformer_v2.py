@@ -44,29 +44,35 @@ class MultiHeadAttentionV2(MultiHeadAttention):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
+        # qkv: [B, N, 3*C] -> [B, N, 3, H, D]
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim)
+        # q, k, v: [B, H, N, D]
         q, k, v = qkv.permute(2, 0, 3, 1, 4).unbind(0)
 
         # Apply RMSNorm to Q and K as in modded-nanogpt
+        # Q and K are [B, H, N, D], we norm over the last dimension D
         q = F.rms_norm(q, (q.size(-1),))
         k = F.rms_norm(k, (k.size(-1),))
 
         if self.use_qk_gain:
-            # Reshape gain for broadcasting [H] -> [1, H, 1, 1]
+            # self.q_gain is [H], we need to broadcast it to [B, H, N, D]
+            # Broadcasting: [H] -> [1, H, 1, 1] works for [B, H, N, D]
             q = q * self.q_gain[None, :, None, None]
 
+        # attn: [B, H, N, N]
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
+
+        # y: [B, H, N, D]
         y = attn @ v
 
         if self.use_xsa:
-            # Exclusive Self Attention logic
             Vn = torch.nn.functional.normalize(v, dim=-1)
             y = y - (y * Vn).sum(dim=-1, keepdim=True) * Vn
 
+        # Reshape y back to [B, N, C]
         x = y.transpose(1, 2).reshape(B, N, C)
         return self.proj(x)
-
 
 class TransformerBlockV2(TransformerBlock):
     def __init__(
@@ -179,13 +185,27 @@ class AugFormerV2(AugFormer):
     def forward(
         self, x: torch.Tensor, return_attention: bool = False, *args, **kwargs
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, List]]:
-        if x.dim() == 3:
+        if x.dim() == 3 and x.shape[1] != (self.num_views + 1):
+            # Probably [B, 1, F] from some wrapper, squeeze it
             x = x.squeeze(1)
 
-        B = x.shape[0]
-        views = self._build_views(x)
-        tokens = self.view_embed(views)
+        if x.dim() == 2:
+            # Standard input: [B, F] -> Build views
+            views = self._build_views(x)  # [B, V+1, F]
+        else:
+            # Input already has views (e.g. from TTT loop): [B, V+1, F]
+            views = x
+
+        B = views.shape[0]
+        V_total = views.shape[1]
+        
+        # Flatten B and V for shared embedding and gating
+        tokens = views.reshape(B * V_total, -1)
+        tokens = self.view_embed(tokens)
         tokens = self.pre_gate(tokens)
+        
+        # Reshape back to [B, V_total, hidden_dim]
+        tokens = tokens.reshape(B, V_total, -1)
 
         tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed
         tokens[:, 1:] = tokens[:, 1:] + self.aug_embed
@@ -204,54 +224,6 @@ class AugFormerV2(AugFormer):
         if return_attention:
             return logits, []
         return logits
-
-    def forward_ttt(
-        self, x: torch.Tensor, lr: float = 1e-3, steps: int = 1
-    ) -> torch.Tensor:
-        """
-        Test-Time Training (TTT) via Entropy Minimization.
-        Adapts the model to the specific sample x at inference time.
-        """
-        was_training = self.training
-        self.train()  # Enable dropout/grads
-
-        # Optimize Norms and Gains (TTT-Lite style)
-        ttt_params = []
-        for n, p in self.named_parameters():
-            if any(k in n for k in ["norm", "gain", "scale", "mix"]):
-                p.requires_grad = True
-                ttt_params.append(p)
-            else:
-                p.requires_grad = False
-
-        if not ttt_params:
-            ttt_params = list(self.parameters())
-
-        optimizer = torch.optim.SGD(ttt_params, lr=lr)
-
-        # Ensure x is in correct shape
-        if x.dim() == 2:
-            x = x.unsqueeze(0)
-
-        for _ in range(steps):
-            optimizer.zero_grad()
-            logits = self(x)
-            probs = F.softmax(logits, dim=-1)
-            # Minimize entropy -> make the model more confident in its prediction
-            entropy = -(probs * torch.log(probs + 1e-6)).sum(dim=-1).mean()
-            entropy.backward()
-            optimizer.step()
-
-        # Reset requires_grad for future training
-        for p in self.parameters():
-            p.requires_grad = True
-
-        self.eval()
-        with torch.no_grad():
-            final_logits = self(x)
-
-        self.train(was_training)
-        return final_logits
 
 
 __all__ = ["AugFormerV2"]

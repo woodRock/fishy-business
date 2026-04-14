@@ -12,6 +12,7 @@ from fishy.models.utils import ensure_conv_input
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Union, Tuple, List
+from .ttt_mixin import TTTMixin
 
 
 class MultiHeadAttention(nn.Module):
@@ -83,7 +84,7 @@ class MultiHeadAttention(nn.Module):
         return out
 
 
-class Transformer(nn.Module):
+class Transformer(nn.Module, TTTMixin):
     """
     Transformer architecture for 1D spectral data.
 

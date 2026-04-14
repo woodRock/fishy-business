@@ -172,6 +172,14 @@ def setup_parser() -> argparse.ArgumentParser:
     )
     hp_group.add_argument("--batch-size", type=int, default=None)
     hp_group.add_argument("--lr", "--learning-rate", type=float, default=None)
+    hp_group.add_argument(
+        "--optimizer",
+        "-o",
+        type=str,
+        default=None,
+        choices=["adamw", "muon", "sgd"],
+        help="Optimizer to use (default from models.yaml)",
+    )
     hp_group.add_argument("--hidden-dim", type=int, default=None)
     hp_group.add_argument("--num-layers", type=int, default=None)
     hp_group.add_argument("--num-heads", type=int, default=None)

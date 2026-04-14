@@ -21,7 +21,29 @@ from fishy.engine.trainer import DeepEngine
 from fishy.data.module import create_data_module, make_pairwise_test_split
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss
+from fishy.engine.muon import Muon
 from fishy._core.constants import DatasetName
+
+
+class MixedOptimizer:
+    """Wrapper that combines Muon for matrices and another optimizer for vectors."""
+    def __init__(self, optimizers: List[torch.optim.Optimizer]):
+        self.optimizers = optimizers
+        self.param_groups = []
+        for opt in self.optimizers:
+            self.param_groups.extend(opt.param_groups)
+
+    def step(self, closure=None):
+        loss = None
+        if closure is not None:
+            loss = closure()
+        for opt in self.optimizers:
+            opt.step()
+        return loss
+
+    def zero_grad(self, set_to_none: bool = True):
+        for opt in self.optimizers:
+            opt.zero_grad(set_to_none=set_to_none)
 
 
 class ModelTrainer:
@@ -92,6 +114,44 @@ class ModelTrainer:
             input_dim=self.n_features,
             ctx=self.ctx,
         )
+
+    def create_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
+        """Create the requested optimizer(s) for the model."""
+        lr = self.config.learning_rate
+        opt_type = self.config.optimizer.lower()
+
+        if opt_type == "muon":
+            # Muon handles 2D matrices, AdamW handles everything else (vectors, biases, norms)
+            muon_params = []
+            adam_params = []
+            for p in model.parameters():
+                if p.requires_grad:
+                    if p.ndim == 2:
+                        muon_params.append(p)
+                    else:
+                        adam_params.append(p)
+            
+            opts = []
+            if muon_params:
+                # Muon typically uses a higher LR (0.02) but we respect config or scale
+                # If the user provided a standard low Adam LR, we bump it for Muon
+                muon_lr = max(lr, 0.02) if lr < 0.005 else lr
+                opts.append(Muon(muon_params, lr=muon_lr))
+            if adam_params:
+                # Use a standard LR for the vector params
+                opts.append(torch.optim.AdamW(adam_params, lr=lr, weight_decay=0.01))
+            
+            if not opts:
+                return torch.optim.AdamW(model.parameters(), lr=lr)
+            if len(opts) == 1:
+                return opts[0]
+            return MixedOptimizer(opts)
+        
+        elif opt_type == "sgd":
+            return torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+        
+        else: # Default AdamW
+            return torch.optim.AdamW(model.parameters(), lr=lr)
 
     def pre_train(self) -> Optional[nn.Module]:
         self.logger.info("Evaluating pre-training phase")
@@ -167,7 +227,7 @@ class ModelTrainer:
                     model, pre_trained_model
                 )
             criterion = nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
-            opt = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
+            opt = self.create_optimizer(model)
             last_model, metrics = DeepEngine.train_model(
                 model=model,
                 train_loader=tr_ldr,
@@ -284,7 +344,7 @@ class ModelTrainer:
             if self.config.regression
             else nn.CrossEntropyLoss(label_smoothing=self.config.label_smoothing)
         )
-        opt = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
+        opt = self.create_optimizer(model)
         trained_model, tr_val_met = DeepEngine.train_model(
             model=model,
             train_loader=tr_ldr,
@@ -318,6 +378,8 @@ class ModelTrainer:
         final_metrics = {
             "train_loss": tr_val_met.get("train_loss"),
             "val_loss": tr_val_met.get("val_loss"),
+            "val_balanced_accuracy": tr_val_met.get("val_balanced_accuracy"),
+            "val_ttt_balanced_accuracy": tr_val_met.get("val_ttt_balanced_accuracy"),
             "test_loss": test_res.get("loss"),
             "test_balanced_accuracy": test_res.get("metrics", {}).get(
                 "balanced_accuracy"
@@ -369,7 +431,7 @@ class ModelTrainer:
                 criterion = coral_loss
             elif self.config.ordinal_method == "clm":
                 criterion = cumulative_link_loss
-            opt = torch.optim.AdamW(model.parameters(), lr=self.config.learning_rate)
+            opt = self.create_optimizer(model)
             last_model, metrics = DeepEngine.train_model(
                 model=model,
                 train_loader=tr_ldr,
