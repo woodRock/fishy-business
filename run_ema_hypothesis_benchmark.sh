@@ -39,24 +39,6 @@ for DATASET in "${DATASETS[@]}"; do
         --wandb-log \
         --benchmark
 
-    # 3. The Full SOTA Recipe (The Interaction Hypothesis)
-    # Combining Stability (EMA) with Adaptability (TTT)
-    echo "Run 3/3: Full Recipe (EMA + TTT + Warmup)..."
-    task -G 1 fishy train -m augformer \
-        -d "${DATASET}" \
-        -N "${RUNS}" \
-        -e 1000 \
-        --patience 1000 \
-        --warmup-epochs 5 \
-        --ema \
-        --ema-decay 0.999 \
-        --ttt \
-        --ttt-lr 0.001 \
-        --ttt-steps 1 \
-        --normalize \
-        --wandb-log \
-        --benchmark
-
-done
+   done
 
 echo "Benchmark Suite Complete. Results in WandB project: ${WANDB_PROJECT}"
