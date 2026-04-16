@@ -165,6 +165,9 @@ class TrainingConfig:
 
         # Derived flags
         config_dict["use_muon"] = config_dict.get("optimizer") == "muon"
+        config_dict["use_mla"] = arg_dict.get("use_mla", False)
+        config_dict["use_mhc"] = arg_dict.get("use_mhc", False)
+        config_dict["use_engram"] = arg_dict.get("use_engram", False)
 
         return cls(**config_dict)
 
