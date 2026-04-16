@@ -28,6 +28,7 @@ from fishy._core.constants import DatasetName
 
 class MixedOptimizer:
     """Wrapper that combines Muon for matrices and another optimizer for vectors."""
+
     def __init__(self, optimizers: List[torch.optim.Optimizer]):
         self.optimizers = optimizers
         self.param_groups = []
@@ -131,7 +132,7 @@ class ModelTrainer:
                         muon_params.append(p)
                     else:
                         adam_params.append(p)
-            
+
             opts = []
             if muon_params:
                 # Muon typically uses a higher LR (0.02) but we respect config or scale
@@ -141,17 +142,17 @@ class ModelTrainer:
             if adam_params:
                 # Use a standard LR for the vector params
                 opts.append(torch.optim.AdamW(adam_params, lr=lr, weight_decay=0.01))
-            
+
             if not opts:
                 return torch.optim.AdamW(model.parameters(), lr=lr)
             if len(opts) == 1:
                 return opts[0]
             return MixedOptimizer(opts)
-        
+
         elif opt_type == "sgd":
             return torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)
-        
-        else: # Default AdamW
+
+        else:  # Default AdamW
             return torch.optim.AdamW(model.parameters(), lr=lr)
 
     def create_scheduler(

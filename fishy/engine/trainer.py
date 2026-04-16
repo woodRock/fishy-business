@@ -234,7 +234,7 @@ class Trainer:
 
     def _run_epoch(self, loader: DataLoader, is_training: bool) -> Dict[str, Any]:
         total_loss, all_labels, all_preds, all_probs = 0.0, [], [], []
-        
+
         # Apply EMA weights for evaluation if requested
         if not is_training and self.use_ema:
             self.ema.apply_shadow()
@@ -476,8 +476,10 @@ class DeepEngine:
 
             if use_ttt:
                 # Store pre-TTT state to restore after evaluation to avoid leakage
-                pre_ttt_state = OrderedDict((k, v.clone()) for k, v in model.state_dict().items())
-                
+                pre_ttt_state = OrderedDict(
+                    (k, v.clone()) for k, v in model.state_dict().items()
+                )
+
                 # One-time TTT evaluation at the end
                 ttt_res = DeepEngine.evaluate_model(
                     model,
@@ -490,9 +492,11 @@ class DeepEngine:
                     use_ema=use_ema,
                     ema_decay=ema_decay,
                 )
-                m["val_ttt_balanced_accuracy"] = ttt_res["metrics"].get("balanced_accuracy")
+                m["val_ttt_balanced_accuracy"] = ttt_res["metrics"].get(
+                    "balanced_accuracy"
+                )
                 m["predictions_ttt"] = ttt_res["predictions"]
-                
+
                 # Restore to clean state
                 model.load_state_dict(pre_ttt_state)
 
@@ -550,16 +554,18 @@ class DeepEngine:
                 )
                 res = trainer.train(tr_ldr, val_ldr)
                 m = res["best_fold_metrics"]
-                
+
                 # Perform One-Time TTT after training if requested
                 if use_ttt:
                     # Load the best state for this fold before TTT
                     if res["best_model_state"]:
                         f_model.load_state_dict(res["best_model_state"])
-                    
+
                     # Store state to restore after TTT to prevent leakage into next fold/test
-                    pre_ttt_state = OrderedDict((k, v.clone()) for k, v in f_model.state_dict().items())
-                    
+                    pre_ttt_state = OrderedDict(
+                        (k, v.clone()) for k, v in f_model.state_dict().items()
+                    )
+
                     logger.info(f"Performing One-Time TTT for fold {f_idx}...")
                     ttt_res = DeepEngine.evaluate_model(
                         f_model,
@@ -572,9 +578,11 @@ class DeepEngine:
                         use_ema=use_ema,
                         ema_decay=ema_decay,
                     )
-                    m["val_ttt_balanced_accuracy"] = ttt_res["metrics"].get("balanced_accuracy")
+                    m["val_ttt_balanced_accuracy"] = ttt_res["metrics"].get(
+                        "balanced_accuracy"
+                    )
                     m["predictions_ttt"] = ttt_res["predictions"]
-                    
+
                     # Restore clean state
                     f_model.load_state_dict(pre_ttt_state)
 
