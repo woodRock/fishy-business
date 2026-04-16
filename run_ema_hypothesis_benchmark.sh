@@ -2,7 +2,7 @@
 # Benchmark: Muon SOTA (Muon + EMA + Warmup)
 # Purpose: Isolate Muon performance for statistical comparison.
 
-DATASETS=("species" "parts" "oil" "xsa")
+DATASETS=("species" "parts" "oil" "cross-species")
 RUNS=30
 WANDB_PROJECT="transformer-recipe-test"
 
