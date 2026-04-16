@@ -74,6 +74,7 @@ class MultiHeadAttentionV2(MultiHeadAttention):
         x = y.transpose(1, 2).reshape(B, N, C)
         return self.proj(x)
 
+
 class TransformerBlockV2(TransformerBlock):
     def __init__(
         self,
@@ -198,12 +199,12 @@ class AugFormerV2(AugFormer):
 
         B = views.shape[0]
         V_total = views.shape[1]
-        
+
         # Flatten B and V for shared embedding and gating
         tokens = views.reshape(B * V_total, -1)
         tokens = self.view_embed(tokens)
         tokens = self.pre_gate(tokens)
-        
+
         # Reshape back to [B, V_total, hidden_dim]
         tokens = tokens.reshape(B, V_total, -1)
 
