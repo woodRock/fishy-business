@@ -26,7 +26,7 @@ from fishy.engine.muon import Muon
 from fishy._core.constants import DatasetName
 
 
-class MixedOptimizer:
+class MixedOptimizer(torch.optim.Optimizer):
     """Wrapper that combines Muon for matrices and another optimizer for vectors."""
 
     def __init__(self, optimizers: List[torch.optim.Optimizer]):
@@ -34,6 +34,9 @@ class MixedOptimizer:
         self.param_groups = []
         for opt in self.optimizers:
             self.param_groups.extend(opt.param_groups)
+        self.defaults = {}
+        self.state = {}
+        self._is_graph_optim = False
 
     def step(self, closure=None):
         loss = None

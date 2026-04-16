@@ -1,0 +1,226 @@
+_wandb:
+    value:
+        cli_version: 0.24.2
+        e:
+            8hl63opp7taqn8qbabyfc1jd45wwzit7:
+                apple:
+                    ecpuCores: 4
+                    gpuCores: 8
+                    memoryGb: 16
+                    name: Apple M2
+                    pcpuCores: 4
+                    ramTotalBytes: "17179869184"
+                args:
+                    - train
+                    - -m
+                    - augformer
+                    - -d
+                    - oil
+                    - --normalize
+                    - -e
+                    - "1000"
+                    - --patience
+                    - "1000"
+                    - --warmup-epochs
+                    - "5"
+                    - --ema
+                    - --ema-decay
+                    - "0.999"
+                    - --optimizer
+                    - muon
+                    - --lr
+                    - "0.001"
+                    - --wandb-log
+                cpu_count: 8
+                cpu_count_logical: 8
+                disk:
+                    /:
+                        total: "245107195904"
+                        used: "234332418048"
+                email: j.r.h.wood98@gmail.com
+                executable: /Library/Developer/CommandLineTools/usr/bin/python3
+                git:
+                    commit: 00ddbc2d86019ebb841fe44df3cb2fd6eb3ce3f8
+                    remote: git@github.com:woodRock/fishy-business.git
+                host: Jesses-MacBook-Air-2.local
+                memory:
+                    total: "17179869184"
+                os: macOS-15.5-arm64-arm-64bit
+                program: /Users/woodj/Library/Python/3.9/bin/fishy
+                python: CPython 3.9.6
+                root: /Users/woodj/Desktop/fishy-business
+                startedAt: "2026-04-16T12:29:16.557567Z"
+                writerId: 8hl63opp7taqn8qbabyfc1jd45wwzit7
+        m: []
+        python_version: 3.9.6
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+            "2":
+                - 1
+                - 5
+                - 53
+            "3":
+                - 2
+                - 3
+                - 16
+            "4": 3.9.6
+            "5": 0.24.2
+            "10":
+                - 20
+            "12": 0.24.2
+            "13": darwin-arm64
+batch_size:
+    value: 64
+benchmark:
+    value: false
+contrastive_transformation_invariance_learning:
+    value: false
+crop_enabled:
+    value: false
+crop_size:
+    value: 0.8
+data_augmentation:
+    value: false
+dataset:
+    value: oil
+dropout:
+    value: 0.3
+early_stopping:
+    value: 1000
+ema_decay:
+    value: 0.999
+encoder_type:
+    value: dense
+epochs:
+    value: 1000
+epochs_finetune:
+    value: 20
+epochs_transfer:
+    value: 10
+figures:
+    value: false
+file_path:
+    value: null
+flip_enabled:
+    value: false
+hidden_dim:
+    value: 512
+k:
+    value: 2
+k_folds:
+    value: 3
+label_smoothing:
+    value: 0.1
+learning_rate:
+    value: 0.0001
+log_transform:
+    value: false
+masked_spectra_modelling:
+    value: false
+method:
+    value: deep
+minmax:
+    value: false
+model:
+    value: augformer
+next_peak_prediction:
+    value: false
+next_spectra_prediction:
+    value: false
+noise_level:
+    value: 0.05
+normalize:
+    value: true
+num_augmentations:
+    value: 5
+num_experts:
+    value: 8
+num_heads:
+    value: 8
+num_kv_heads:
+    value: 2
+num_layers:
+    value: 4
+num_runs:
+    value: 1
+optimizer:
+    value: muon
+ordinal_method:
+    value: null
+output:
+    value: logs/results
+peak_parameter_regression:
+    value: false
+permutation_enabled:
+    value: false
+polar:
+    value: false
+quantize:
+    value: false
+random_projection:
+    value: false
+recurrence_layers:
+    value: null
+regression:
+    value: false
+run:
+    value: 42
+savgol:
+    value: false
+scale_enabled:
+    value: false
+shift_enabled:
+    value: false
+snv:
+    value: false
+spectrum_denoising_autoencoding:
+    value: false
+spectrum_segment_reordering:
+    value: false
+statistical:
+    value: false
+target_dataset:
+    value: null
+top_k:
+    value: null
+transfer:
+    value: false
+transfer_datasets:
+    value: null
+ttt_lr:
+    value: 0.001
+ttt_steps:
+    value: 1
+turbo_quant:
+    value: false
+use_checkpointing:
+    value: false
+use_ema:
+    value: true
+use_groups:
+    value: false
+use_leaky_sq:
+    value: false
+use_parallel_residuals:
+    value: false
+use_performer:
+    value: false
+use_qk_gain:
+    value: false
+use_ttt:
+    value: false
+use_xsa:
+    value: false
+wandb_entity:
+    value: victoria-university-of-wellington
+wandb_log:
+    value: true
+wandb_project:
+    value: fishy-business
+warmup_epochs:
+    value: 5
+xai:
+    value: false
