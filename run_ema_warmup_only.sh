@@ -2,7 +2,7 @@
 # Benchmark: AugFormer EMA + Warmup (AdamW)
 # Purpose: Focused run for the Stability-only hypothesis.
 
-DATASETS=("cross-species")
+DATASETS=("species" "part" "oil" "cross-species")
 RUNS=30
 
 echo "Starting AugFormer EMA + Warmup (AdamW) Runs..."
