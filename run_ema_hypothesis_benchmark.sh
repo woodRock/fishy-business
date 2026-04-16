@@ -22,7 +22,6 @@ for DATASET in "${DATASETS[@]}"; do
         --patience 20 \
         --normalize \
         --wandb-log \
-        --wandb-project "${WANDB_PROJECT}" \
         --benchmark
 
     # 2. EMA Hypothesis Configuration
@@ -37,7 +36,6 @@ for DATASET in "${DATASETS[@]}"; do
         --ema-decay 0.999 \
         --normalize \
         --wandb-log \
-        --wandb-project "${WANDB_PROJECT}" \
         --benchmark
 
 done
