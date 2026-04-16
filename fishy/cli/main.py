@@ -216,6 +216,36 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Use Exclusive Self-Attention (XSA) in AugFormer",
     )
     hp_group.add_argument(
+        "--mla",
+        action="store_true",
+        dest="use_mla",
+        help="Use Multi-Head Latent Attention (MLA) in AugFormer",
+    )
+    hp_group.add_argument(
+        "--mhc",
+        action="store_true",
+        dest="use_mhc",
+        help="Use Manifold-Constrained Hyper-Connections (mHC) in AugFormer",
+    )
+    hp_group.add_argument(
+        "--engram",
+        action="store_true",
+        dest="use_engram",
+        help="Use Engram Memory bank in AugFormer",
+    )
+    hp_group.add_argument(
+        "--engram-slots",
+        type=int,
+        default=128,
+        help="Number of slots in Engram Memory (default: 128)",
+    )
+    hp_group.add_argument(
+        "--latent-dim",
+        type=int,
+        default=64,
+        help="Latent dimension for MLA (default: 64)",
+    )
+    hp_group.add_argument(
         "--qk-gain",
         action="store_true",
         dest="use_qk_gain",

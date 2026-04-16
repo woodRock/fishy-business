@@ -80,6 +80,11 @@ class TrainingConfig:
     use_performer: bool = False
     use_checkpointing: bool = False
     use_xsa: bool = False
+    use_mla: bool = False
+    use_mhc: bool = False
+    use_engram: bool = False
+    engram_slots: int = 128
+    latent_dim: int = 64
     # AugFormerV2 specific
     use_qk_gain: bool = False
     use_parallel_residuals: bool = False
