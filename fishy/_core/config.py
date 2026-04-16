@@ -90,6 +90,7 @@ class TrainingConfig:
     ttt_steps: int = 1
     use_ema: bool = False
     ema_decay: float = 0.999
+    use_muon: bool = False
 
     # Contrastive specific
     encoder_type: str = "dense"
@@ -156,6 +157,9 @@ class TrainingConfig:
         for key in valid_keys:
             if key in arg_dict and arg_dict[key] is not None:
                 config_dict[key] = arg_dict[key]
+
+        # Derived flags
+        config_dict["use_muon"] = config_dict.get("optimizer") == "muon"
 
         return cls(**config_dict)
 
