@@ -2,9 +2,9 @@
 # Benchmark: Standard vs. Long EMA vs. Full SOTA Recipe
 # Purpose: Test synergistic interactions of Warmup, EMA, and TTT.
 
-DATASETS=("species" "parts" "oil" "xsa")
+DATASETS=("species" "part" "oil" "cross-species")
 RUNS=30
-WANDB_PROJECT="transformer-recipe-test"
+WANDB_PROJECT="fishy-business"
 
 echo "Starting Full SOTA Recipe Benchmark Suite..."
 echo "Total Runs: 360 (4 datasets * 3 configs * 30 runs)"
