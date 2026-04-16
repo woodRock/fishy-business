@@ -44,6 +44,54 @@ from sklearn.metrics import (
 )
 
 
+class EMA:
+    """
+    Exponential Moving Average of model weights with decay ramp-up.
+    """
+
+    def __init__(self, model: nn.Module, decay: float = 0.999):
+        self.model = model
+        self.decay = decay
+        self.shadow = {}
+        self.backup = {}
+        self.num_updates = 0
+
+    def register(self):
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                self.shadow[name] = param.data.clone()
+
+    def update(self):
+        self.num_updates += 1
+        # Dynamic decay: start low (e.g., 0.1 at step 1) and scale to target decay
+        # This prevents the shadow weights from staying frozen at initialization
+        # in few-step regimes.
+        actual_decay = min(
+            self.decay, (1.0 + self.num_updates) / (10.0 + self.num_updates)
+        )
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                assert name in self.shadow
+                new_average = (
+                    1.0 - actual_decay
+                ) * param.data + actual_decay * self.shadow[name]
+                self.shadow[name] = new_average.clone()
+
+    def apply_shadow(self):
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                assert name in self.shadow
+                self.backup[name] = param.data.clone()
+                param.data.copy_(self.shadow[name])
+
+    def restore(self):
+        for name, param in self.model.named_parameters():
+            if param.requires_grad:
+                assert name in self.backup
+                param.data.copy_(self.backup[name])
+        self.backup = {}
+
+
 class Trainer:
     """Unified trainer for PyTorch models with Rich integration."""
 
@@ -63,6 +111,8 @@ class Trainer:
         use_ttt: bool = False,
         ttt_lr: float = 1e-3,
         ttt_steps: int = 1,
+        use_ema: bool = False,
+        ema_decay: float = 0.999,
         step_scheduler: bool = False,
         ctx: Optional[RunContext] = None,
         logger: Optional[logging.Logger] = None,
@@ -82,6 +132,11 @@ class Trainer:
         self.use_ttt = use_ttt
         self.ttt_lr = ttt_lr
         self.ttt_steps = ttt_steps
+        self.use_ema = use_ema
+        self.ema_decay = ema_decay
+        self.ema = EMA(model, decay=ema_decay) if use_ema else None
+        if self.ema:
+            self.ema.register()
         self.ctx = ctx
         self.logger = (
             logger if logger else (ctx.logger if ctx else logging.getLogger(__name__))
@@ -179,6 +234,11 @@ class Trainer:
 
     def _run_epoch(self, loader: DataLoader, is_training: bool) -> Dict[str, Any]:
         total_loss, all_labels, all_preds, all_probs = 0.0, [], [], []
+        
+        # Apply EMA weights for evaluation if requested
+        if not is_training and self.use_ema:
+            self.ema.apply_shadow()
+
         for batch in loader:
             inputs, labels_batch = self._unpack_batch(batch)
             inputs, labels_dev = self._to_device(inputs, labels_batch)
@@ -189,6 +249,8 @@ class Trainer:
                 loss = self._compute_loss(outputs, labels_dev)
                 loss.backward()
                 self.optimizer.step()
+                if self.use_ema:
+                    self.ema.update()
                 if self.step_scheduler and self.scheduler:
                     self.scheduler.step()
             else:
@@ -212,6 +274,11 @@ class Trainer:
             all_preds.append(preds.detach().cpu().numpy())
             if probs is not None:
                 all_probs.append(probs.detach().cpu().numpy())
+
+        # Restore original weights after evaluation if they were swapped
+        if not is_training and self.use_ema:
+            self.ema.restore()
+
         final_labels, final_preds = np.concatenate(all_labels), np.concatenate(
             all_preds
         )
@@ -372,6 +439,8 @@ class DeepEngine:
         use_ttt=False,
         ttt_lr=1e-3,
         ttt_steps=1,
+        use_ema=False,
+        ema_decay=0.999,
         scheduler=None,
         step_scheduler=False,
         ctx=None,
@@ -393,6 +462,8 @@ class DeepEngine:
                 use_ttt=False,  # Never TTT during training validation epochs
                 ttt_lr=ttt_lr,
                 ttt_steps=ttt_steps,
+                use_ema=use_ema,
+                ema_decay=ema_decay,
                 scheduler=scheduler,
                 step_scheduler=step_scheduler,
                 ctx=ctx,
@@ -416,6 +487,8 @@ class DeepEngine:
                     use_ttt=True,
                     ttt_lr=ttt_lr,
                     ttt_steps=ttt_steps,
+                    use_ema=use_ema,
+                    ema_decay=ema_decay,
                 )
                 m["val_ttt_balanced_accuracy"] = ttt_res["metrics"].get("balanced_accuracy")
                 m["predictions_ttt"] = ttt_res["predictions"]
@@ -469,6 +542,8 @@ class DeepEngine:
                     use_ttt=False,  # Never TTT during training validation epochs
                     ttt_lr=ttt_lr,
                     ttt_steps=ttt_steps,
+                    use_ema=use_ema,
+                    ema_decay=ema_decay,
                     scheduler=scheduler,
                     step_scheduler=step_scheduler,
                     ctx=ctx,
@@ -494,6 +569,8 @@ class DeepEngine:
                         use_ttt=True,
                         ttt_lr=ttt_lr,
                         ttt_steps=ttt_steps,
+                        use_ema=use_ema,
+                        ema_decay=ema_decay,
                     )
                     m["val_ttt_balanced_accuracy"] = ttt_res["metrics"].get("balanced_accuracy")
                     m["predictions_ttt"] = ttt_res["predictions"]

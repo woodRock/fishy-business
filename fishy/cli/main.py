@@ -101,6 +101,12 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group = train_parser.add_argument_group(hp_group_label)
     hp_group.add_argument("-e", "--epochs", type=int, help="Number of training epochs")
     hp_group.add_argument(
+        "--patience",
+        type=int,
+        dest="early_stopping",
+        help="Number of epochs to wait before early stopping (default: 20)",
+    )
+    hp_group.add_argument(
         "--warmup-epochs",
         type=int,
         default=0,
@@ -245,6 +251,18 @@ def setup_parser() -> argparse.ArgumentParser:
     )
     hp_group.add_argument(
         "--ttt-steps", type=int, default=1, help="Number of TTT steps per sample"
+    )
+    hp_group.add_argument(
+        "--ema",
+        action="store_true",
+        dest="use_ema",
+        help="Use Exponential Moving Average (EMA) for model weights",
+    )
+    hp_group.add_argument(
+        "--ema-decay",
+        type=float,
+        default=0.999,
+        help="Decay rate for EMA (default: 0.999, use lower for fewer steps)",
     )
     hp_group.add_argument(
         "--use-checkpointing", action="store_true", help="Enable gradient checkpointing"

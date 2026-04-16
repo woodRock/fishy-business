@@ -264,6 +264,8 @@ class ModelTrainer:
                 use_ttt=self.config.use_ttt,
                 ttt_lr=self.config.ttt_lr,
                 ttt_steps=self.config.ttt_steps,
+                use_ema=self.config.use_ema,
+                ema_decay=self.config.ema_decay,
                 scheduler=sched,
                 step_scheduler=is_step,
                 ctx=self.ctx,
@@ -286,6 +288,8 @@ class ModelTrainer:
             use_ttt=self.config.use_ttt,
             ttt_lr=self.config.ttt_lr,
             ttt_steps=self.config.ttt_steps,
+            use_ema=self.config.use_ema,
+            ema_decay=self.config.ema_decay,
         )
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_results, test_ldr)
@@ -384,6 +388,8 @@ class ModelTrainer:
             use_ttt=self.config.use_ttt,
             ttt_lr=self.config.ttt_lr,
             ttt_steps=self.config.ttt_steps,
+            use_ema=self.config.use_ema,
+            ema_decay=self.config.ema_decay,
             scheduler=sched,
             step_scheduler=is_step,
             ctx=self.ctx,
@@ -398,6 +404,8 @@ class ModelTrainer:
             use_ttt=self.config.use_ttt,
             ttt_lr=self.config.ttt_lr,
             ttt_steps=self.config.ttt_steps,
+            use_ema=self.config.use_ema,
+            ema_decay=self.config.ema_decay,
         )
         if self.ctx.wandb_run:
             self._log_advanced_visualizations(test_res, te_ldr)
@@ -476,6 +484,8 @@ class ModelTrainer:
                 use_ttt=self.config.use_ttt,
                 ttt_lr=self.config.ttt_lr,
                 ttt_steps=self.config.ttt_steps,
+                use_ema=self.config.use_ema,
+                ema_decay=self.config.ema_decay,
                 scheduler=sched,
                 step_scheduler=is_step,
                 ctx=self.ctx,

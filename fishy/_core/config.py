@@ -88,6 +88,8 @@ class TrainingConfig:
     use_ttt: bool = False
     ttt_lr: float = 1e-3
     ttt_steps: int = 1
+    use_ema: bool = False
+    ema_decay: float = 0.999
 
     # Contrastive specific
     encoder_type: str = "dense"
