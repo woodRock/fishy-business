@@ -158,23 +158,29 @@ class FocalLoss(torch.nn.Module):
     """
     Focal Loss for imbalanced classification.
     Reduces the loss for well-classified examples and focuses on hard examples.
-    
+
     Source: https://arxiv.org/abs/1708.02002
     """
-    def __init__(self, alpha: Optional[torch.Tensor] = None, gamma: float = 2.0, reduction: str = 'mean'):
+
+    def __init__(
+        self,
+        alpha: Optional[torch.Tensor] = None,
+        gamma: float = 2.0,
+        reduction: str = "mean",
+    ):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
 
     def forward(self, inputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-        ce_loss = F.cross_entropy(inputs, targets, reduction='none', weight=self.alpha)
+        ce_loss = F.cross_entropy(inputs, targets, reduction="none", weight=self.alpha)
         pt = torch.exp(-ce_loss)
-        focal_loss = ((1 - pt) ** self.gamma * ce_loss)
+        focal_loss = (1 - pt) ** self.gamma * ce_loss
 
-        if self.reduction == 'mean':
+        if self.reduction == "mean":
             return torch.mean(focal_loss)
-        elif self.reduction == 'sum':
+        elif self.reduction == "sum":
             return torch.sum(focal_loss)
         else:
             return focal_loss
