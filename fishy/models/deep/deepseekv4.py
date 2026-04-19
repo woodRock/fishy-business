@@ -103,6 +103,8 @@ class ManifoldProjection(nn.Module):
 class EngramMemory(nn.Module):
     """
     Engram Memory bank for decoupled static knowledge.
+    Includes a 'Trust but Verify' rejection gate for context-aware lookup,
+    as specified in the DeepSeek-V4 architecture.
     """
 
     def __init__(self, dim: int, num_slots: int = 128):
@@ -111,6 +113,11 @@ class EngramMemory(nn.Module):
         self.q_proj = nn.Linear(dim, dim, bias=False)
         self.k_proj = nn.Linear(dim, dim, bias=False)
         self.v_proj = nn.Linear(dim, dim, bias=False)
+
+        # Rejection Gate: Context-Aware Gating
+        # Learns to reject engram lookups that conflict with the global context.
+        self.gate_proj = nn.Linear(dim * 2, 1, bias=False)
+
         self.norm = RMSNorm(dim)
         self.scale = dim**-0.5
 
@@ -120,11 +127,19 @@ class EngramMemory(nn.Module):
         k = self.k_proj(self.memory).unsqueeze(0).expand(B, -1, -1)
         v = self.v_proj(self.memory).unsqueeze(0).expand(B, -1, -1)
 
+        # Scaled Dot-Product Attention for memory retrieval
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
 
         out = attn @ v
-        return self.norm(x + out)
+
+        # Rejection Gate: Trust but Verify
+        # alpha -> 0: Conflict detected, reject engram signal.
+        # alpha -> 1: Alignment detected, trust engram signal.
+        gate_input = torch.cat([x, out], dim=-1)
+        alpha = torch.sigmoid(self.gate_proj(gate_input))
+
+        return self.norm(x + alpha * out)
 
 
 class DeepSeekTransformerBlock(nn.Module):

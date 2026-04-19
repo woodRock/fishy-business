@@ -22,7 +22,7 @@ from sklearn.metrics import (
 )
 from dataclasses import asdict
 
-from fishy.data.module import create_data_module, make_pairwise_test_split
+from fishy.data.module import create_data_module, make_all_pairwise_folds
 from fishy._core.utils import RunContext, console
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
@@ -76,6 +76,7 @@ class SklearnTrainer:
         self.wandb_run = wandb_run
         if self.wandb_run is None and self.config.wandb_log:
             # Force thread start method for W&B to prevent CUDA 12 hangs during CPU tasks
+            import os
             os.environ["WANDB_START_METHOD"] = "thread"
             self.wandb_run = wandb.init(
                 project=self.config.wandb_project,
@@ -117,79 +118,75 @@ class SklearnTrainer:
         X, y = self.data_module.get_numpy_data(labels_as_indices=True)
         self.num_classes = self.data_module.get_num_classes()
 
-        # For batch-detection: hold out a fixed test set before any training.
-        # The same split (keyed on run_id) is used by all method types for fairness.
+        # For batch-detection: all C(N,2) pairs with stratified pair-level K-fold.
+        # Identical fold indices are used by deep, classic, and contrastive trainers
+        # for a fair, consistent evaluation.
         if DatasetName.BATCH_DETECTION in self.dataset_name:
-            _, full_labels_onehot = self.data_module.get_numpy_data(
-                labels_as_indices=False
+            full_samples, full_labels = self.data_module.get_numpy_data()
+            X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
+                full_samples, full_labels,
+                n_splits=self.config.k_folds,
+                run_id=self.config.run,
             )
-            # Split X, y-indices, and y-onehot together so all three stay aligned.
-            # Non-stratified so ~half of each class lands in test, giving positive pairs.
-            X_tr, X_te, y_tr, y_te, y_tr_oh, y_te_oh = make_pairwise_test_split(
-                X, y, self.run_id, full_labels_onehot
-            )
-            # Fit scaler on train only
-            scaler = StandardScaler()
-            X_train_scaled = scaler.fit_transform(X_tr)
-            # Non-stratified split may leave gaps in y_tr class indices (some classes
-            # land entirely in the test half). Remap to contiguous 0..n-1 for models
-            # that require it (e.g. XGBoost). Pairwise eval only uses ==, so no inversion needed.
-            unique_train_classes = np.unique(y_tr)
-            remap = {orig: new for new, orig in enumerate(unique_train_classes)}
-            y_tr_remapped = np.array([remap[c] for c in y_tr])
-            n_train_classes = len(unique_train_classes)
-            # With ~36 training samples across 24 classes, k-fold is not viable
-            # (many classes have only 1 sample). Train once on the full training split.
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=UserWarning)
-                orig_num_classes = self.num_classes
-                self.num_classes = n_train_classes
-                last_model = self._get_model_instance()
-                last_model.fit(X_train_scaled, y_tr_remapped)
-                y_train_pred = last_model.predict(X_train_scaled)
-                train_metrics = self._calculate_metrics(y_tr_remapped, y_train_pred)
-                self.num_classes = orig_num_classes
+            # Use difference vectors for classic ML models
+            X_diff_all = X1_all - X2_all
+            
+            all_fold_metrics = []
+            last_model = None
+            
+            for fold, (tr_idx, val_idx) in enumerate(folds):
+                self.logger.info(f"--- Classic Fold {fold+1}/{self.config.k_folds} ---")
+                
+                # Fit scaler on train split only
+                scaler = StandardScaler()
+                X_tr_scaled = scaler.fit_transform(X_diff_all[tr_idx])
+                X_val_scaled = scaler.transform(X_diff_all[val_idx])
+                
+                model = self._get_model_instance()
+                # Train binary classifier (Same: 1, Different: 0)
+                model.fit(X_tr_scaled, pair_labels_all[tr_idx])
+                
+                # Evaluate
+                y_tr_pred = model.predict(X_tr_scaled)
+                y_val_pred = model.predict(X_val_scaled)
+                
+                # Use binary metrics for batch detection pairs
+                tr_met = {
+                    "accuracy": accuracy_score(pair_labels_all[tr_idx], y_tr_pred),
+                    "balanced_accuracy": balanced_accuracy_score(pair_labels_all[tr_idx], y_tr_pred),
+                    "f1": f1_score(pair_labels_all[tr_idx], y_tr_pred, zero_division=0),
+                }
+                val_met = {
+                    "accuracy": accuracy_score(pair_labels_all[val_idx], y_val_pred),
+                    "balanced_accuracy": balanced_accuracy_score(pair_labels_all[val_idx], y_val_pred),
+                    "f1": f1_score(pair_labels_all[val_idx], y_val_pred, zero_division=0),
+                }
+                
+                fold_res = {f"train_{k}": v for k, v in tr_met.items()}
+                fold_res.update({f"val_{k}": v for k, v in val_met.items()})
+                all_fold_metrics.append(fold_res)
+                last_model = model
 
-            stats = {f"train_{k}": v for k, v in train_metrics.items()}
+            # Aggregate results
+            stats = {
+                k: float(np.mean([m[k] for m in all_fold_metrics]))
+                for k in all_fold_metrics[0].keys()
+            }
+            # For consistency with other methods, ensure top-level keys point to val metrics
+            for k in ["accuracy", "balanced_accuracy", "f1"]:
+                if f"val_{k}" in stats:
+                    stats[k] = stats[f"val_{k}"]
+            
+            # Map val_ metrics to test_ for legacy test compatibility
+            stats["test_balanced_accuracy"] = stats.get("val_balanced_accuracy", 0.0)
+            stats["test_accuracy"] = stats.get("val_accuracy", 0.0)
+            stats["test_f1"] = stats.get("val_f1", 0.0)
+            stats["val_balanced_accuracy"] = stats.get("test_balanced_accuracy", 0.0)
+            stats["val_accuracy"] = stats.get("test_accuracy", 0.0)
+            stats["val_f1"] = stats.get("test_f1", 0.0)
+            
+            stats["folds"] = all_fold_metrics
             stats["total_training_time_s"] = time.time() - start_time
-
-            # Pairwise evaluation on held-out test set only
-            from fishy.data.datasets import SiameseDataset
-            import torch.nn.functional as F
-            import torch
-
-            full_X_test, full_y_test_oh = X_te, y_te_oh
-            siamese_ds = SiameseDataset(full_X_test, full_y_test_oh)
-            X1_s = scaler.transform(siamese_ds.X1.cpu().numpy())
-            X2_s = scaler.transform(siamese_ds.X2.cpu().numpy())
-            pair_labels = siamese_ds.paired_labels.cpu().numpy().flatten().astype(int)
-            if hasattr(last_model, "transform"):
-                z1 = torch.tensor(last_model.transform(X1_s))
-                z2 = torch.tensor(last_model.transform(X2_s))
-                sims = F.cosine_similarity(z1, z2).numpy()
-                best_acc, best_thresh = 0, 0.5
-                for thresh in np.arange(0, 1, 0.05):
-                    acc = balanced_accuracy_score(
-                        pair_labels, (sims > thresh).astype(int)
-                    )
-                    if acc > best_acc:
-                        best_acc, best_thresh = acc, thresh
-                pair_preds = (sims > best_thresh).astype(int)
-            else:
-                y1_pred = last_model.predict(X1_s)
-                y2_pred = last_model.predict(X2_s)
-                pair_preds = (y1_pred == y2_pred).astype(int)
-
-            stats["test_balanced_accuracy"] = balanced_accuracy_score(
-                pair_labels, pair_preds
-            )
-            stats["val_balanced_accuracy"] = stats["test_balanced_accuracy"]
-            stats["pairwise_balanced_accuracy"] = stats["test_balanced_accuracy"]
-            stats["val_accuracy"] = accuracy_score(pair_labels, pair_preds)
-            stats["test_accuracy"] = stats["val_accuracy"]
-            stats["val_f1"] = f1_score(pair_labels, pair_preds, zero_division=0)
-            stats["test_f1"] = stats["val_f1"]
-            stats["predictions"] = {"labels": pair_labels, "preds": pair_preds}
             self.ctx.save_results({"stats": stats})
             return last_model, stats
 

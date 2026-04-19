@@ -31,9 +31,9 @@ from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
-from fishy.data.module import create_data_module, make_pairwise_test_split
+from fishy.data.module import create_data_module, make_pairwise_test_split, make_all_pairwise_folds
 from fishy._core.constants import DatasetName
-from fishy.data.datasets import SiameseDataset, BalancedBatchSampler, CustomDataset
+from fishy.data.datasets import SiameseDataset, BalancedBatchSampler, CustomDataset, PrecomputedPairDataset
 from fishy.data.augmentation import DataAugmenter, AugmentationConfig
 from fishy._core.config_loader import load_config
 from fishy._core.factory import create_model, get_model_class
@@ -74,15 +74,15 @@ class ContrastiveConfig:
     wandb_entity: Optional[str] = "victoria-university-of-wellington"
     wandb_log: bool = False
     run: int = 0  # seed / run index for reproducible splits
-    random_projection: bool = (False,)
-    quantize: bool = (False,)
-    turbo_quant: bool = (False,)
-    polar: bool = (False,)
-    normalize: bool = (False,)
-    snv: bool = (False,)
-    minmax: bool = (False,)
-    log_transform: bool = (False,)
-    savgol: bool = (False,)
+    random_projection: bool = False
+    quantize: bool = False
+    turbo_quant: bool = False
+    polar: bool = False
+    normalize: bool = False
+    snv: bool = False
+    minmax: bool = False
+    log_transform: bool = False
+    savgol: bool = False
     # New augmentation params for contrastive on-the-fly
     data_augmentation: bool = True
     noise_level: float = 0.05
@@ -221,80 +221,76 @@ class ContrastiveTrainer:
         full_samples, full_labels = self.data_module.get_numpy_data()
 
         if DatasetName.BATCH_DETECTION in self.config.dataset:
-            train_X, test_X, train_y, test_y = make_pairwise_test_split(
-                full_samples, full_labels, self.config.run
+            # All C(N,2) pairs with stratified pair-level K-fold.
+            # The same fold indices are used by deep and classic trainers so
+            # every method type sees identical train / val splits.
+            X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
+                full_samples, full_labels,
+                n_splits=self.config.k_folds,
+                run_id=self.config.run,
             )
+
+            for fold, (tr_idx, val_idx) in enumerate(folds):
+                self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
+
+                model, criterion, optimizer = self._create_fresh_model()
+
+                train_ds = PrecomputedPairDataset(
+                    X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx]
+                )
+                sampler = BalancedBatchSampler(train_ds.paired_labels, self.config.batch_size)
+                train_ldr = DataLoader(train_ds, batch_sampler=sampler)
+
+                history = self._train_fold(model, criterion, optimizer, train_ldr)
+                fold_metrics = self._evaluate_precomputed_fold(
+                    model,
+                    X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx],
+                    X1_all[val_idx], X2_all[val_idx], pair_labels_all[val_idx],
+                )
+                fold_metrics["history"] = history
+                self.all_fold_metrics.append(fold_metrics)
+                self.model = model
+
         else:
-            train_X, test_X, train_y, test_y = full_samples, None, full_labels, None
-
-        # Implementation of K-Fold with stratification fallback
-        try:
-            strat_labels = (
-                np.argmax(train_y, axis=1) if train_y.ndim > 1 else train_y.flatten()
-            )
-            unique_labels, counts = np.unique(strat_labels, return_counts=True)
-            if np.min(counts) < self.config.k_folds:
-                raise ValueError("Too few members for stratification")
-            skf = StratifiedKFold(
-                n_splits=self.config.k_folds, shuffle=True, random_state=self.config.run
-            )
-            folds = list(skf.split(train_X, strat_labels))
-        except (ValueError, TypeError):
-            from sklearn.model_selection import KFold
-
-            kf = KFold(
-                n_splits=self.config.k_folds, shuffle=True, random_state=self.config.run
-            )
-            folds = list(kf.split(train_X))
-
-        for fold, (tr_idx, val_idx) in enumerate(folds):
-            self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
-
-            X_tr_fold, y_tr_fold = train_X[tr_idx], train_y[tr_idx]
-            X_val_fold, y_val_fold = train_X[val_idx], train_y[val_idx]
-
-            model, criterion, optimizer = self._create_fresh_model()
-
-            method = self.config.contrastive_method.lower()
-            if method == "simclr" and self.config.data_augmentation:
-                aug_cfg = AugmentationConfig(
-                    enabled=True,
-                    noise_enabled=True,
-                    noise_level=self.config.noise_level,
-                    shift_enabled=True,
-                    shift_range=self.config.shift_range,
-                    scale_enabled=True,
-                    scale_range=self.config.scale_range,
+            # Non-batch-detection: standard sample-level K-fold
+            train_X, train_y = full_samples, full_labels
+            try:
+                strat_labels = (
+                    np.argmax(train_y, axis=1) if train_y.ndim > 1 else train_y.flatten()
                 )
-                augmenter = DataAugmenter(aug_cfg)
-                train_ds = SupervisedContrastiveDataset(
-                    torch.from_numpy(X_tr_fold).to(self.device),
-                    torch.from_numpy(y_tr_fold).to(self.device),
-                    augmenter,
+                unique_labels, counts = np.unique(strat_labels, return_counts=True)
+                if np.min(counts) < self.config.k_folds:
+                    raise ValueError("Too few members for stratification")
+                skf = StratifiedKFold(
+                    n_splits=self.config.k_folds, shuffle=True, random_state=self.config.run
                 )
-                train_ldr = DataLoader(
-                    train_ds, batch_size=self.config.batch_size, shuffle=True
+                folds = list(skf.split(train_X, strat_labels))
+            except (ValueError, TypeError):
+                from sklearn.model_selection import KFold
+                kf = KFold(
+                    n_splits=self.config.k_folds, shuffle=True, random_state=self.config.run
                 )
-            else:
+                folds = list(kf.split(train_X))
+
+            for fold, (tr_idx, val_idx) in enumerate(folds):
+                self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
+                X_tr_fold, y_tr_fold = train_X[tr_idx], train_y[tr_idx]
+                X_val_fold, y_val_fold = train_X[val_idx], train_y[val_idx]
+
+                model, criterion, optimizer = self._create_fresh_model()
                 siamese_ds = SiameseDataset(X_tr_fold, y_tr_fold)
-                sampler = BalancedBatchSampler(
-                    siamese_ds.paired_labels, self.config.batch_size
-                )
+                sampler = BalancedBatchSampler(siamese_ds.paired_labels, self.config.batch_size)
                 train_ldr = DataLoader(siamese_ds, batch_sampler=sampler)
 
-            history = self._train_fold(model, criterion, optimizer, train_ldr)
-            fold_metrics = self._evaluate_pairwise_fold(
-                model, X_tr_fold, y_tr_fold, X_val_fold, y_val_fold
-            )
-            fold_metrics["history"] = history
-            self.all_fold_metrics.append(fold_metrics)
-            self.model = model
+                history = self._train_fold(model, criterion, optimizer, train_ldr)
+                fold_metrics = self._evaluate_pairwise_fold(
+                    model, X_tr_fold, y_tr_fold, X_val_fold, y_val_fold
+                )
+                fold_metrics["history"] = history
+                self.all_fold_metrics.append(fold_metrics)
+                self.model = model
 
         self._aggregate_metrics()
-
-        if test_X is not None:
-            self._evaluate_final_test(test_X, test_y)
-
         self.ctx.save_results(self.metrics)
         self.metrics["model"] = self.model
         self.metrics["data_module"] = self.data_module
@@ -333,10 +329,7 @@ class ContrastiveTrainer:
                 outputs = model(x1, x2)
 
                 if method == "simclr":
-                    loss = criterion(*outputs, labels=labels)
-                    # Update queue with keys (outputs[1] is momentum encoder output)
-                    if hasattr(model, "_dequeue_and_enqueue"):
-                        model._dequeue_and_enqueue(outputs[1])
+                    loss = criterion(*outputs, pair_labels=pair_labels)
                 else:
                     loss = (
                         criterion(*outputs)
@@ -351,38 +344,62 @@ class ContrastiveTrainer:
             history["loss"].append(total_loss / len(loader) if len(loader) > 0 else 0)
         return history
 
+    def _sims_from_loader(self, model, ldr) -> Tuple[np.ndarray, np.ndarray]:
+        """Run model over a DataLoader of pairs, return (cosine_sims, pair_labels)."""
+        sims, lbls = [], []
+        with torch.no_grad():
+            for x1, x2, pair_lbl, _, _ in ldr:
+                outputs = model(x1.to(self.device), x2.to(self.device))
+                z1, z2 = outputs[0], outputs[1]
+                sims.extend(F.cosine_similarity(z1, z2).cpu().numpy())
+                lbls.extend(pair_lbl.cpu().numpy().flatten())
+        return np.array(sims), np.array(lbls)
+
+    def _evaluate_precomputed_fold(
+        self,
+        model,
+        X1_tr, X2_tr, y_tr,
+        X1_val, X2_val, y_val,
+    ) -> Dict[str, float]:
+        """Evaluate on pre-indexed pair arrays (batch-detection pair-level CV)."""
+        model.eval()
+        tr_ldr = DataLoader(
+            PrecomputedPairDataset(X1_tr, X2_tr, y_tr),
+            batch_size=self.config.batch_size,
+        )
+        val_ldr = DataLoader(
+            PrecomputedPairDataset(X1_val, X2_val, y_val),
+            batch_size=self.config.batch_size,
+        )
+        tr_sims, tr_lbls = self._sims_from_loader(model, tr_ldr)
+        val_sims, val_lbls = self._sims_from_loader(model, val_ldr)
+        thresh = self._optimize_threshold(tr_sims, tr_lbls)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            res = {
+                **self._calc_raw_metrics(tr_sims, tr_lbls, thresh, "train"),
+                **self._calc_raw_metrics(val_sims, val_lbls, thresh, "val"),
+                "threshold": thresh,
+            }
+        return res
+
     def _evaluate_pairwise_fold(
         self, model, X_tr, y_tr, X_val, y_val
     ) -> Dict[str, float]:
         model.eval()
-
-        def get_sims(X, y):
-            ds = SiameseDataset(X, y)
-            ldr = DataLoader(ds, batch_size=self.config.batch_size)
-            sims, lbls = [], []
-            with torch.no_grad():
-                for x1, x2, pair_lbl, _, _ in ldr:
-                    outputs = model(x1.to(self.device), x2.to(self.device))
-                    # Standard Siamese uses z1, z2 directly.
-                    # MoCLR uses query and momentum-key.
-                    z1, z2 = outputs[0], outputs[1]
-                    sims.extend(F.cosine_similarity(z1, z2).cpu().numpy())
-                    lbls.extend(pair_lbl.cpu().numpy().flatten())
-            return np.array(sims), np.array(lbls)
-
-        tr_sims, tr_lbls = get_sims(X_tr, y_tr)
-        val_sims, val_lbls = get_sims(X_val, y_val)
-
+        tr_ldr = DataLoader(SiameseDataset(X_tr, y_tr), batch_size=self.config.batch_size)
+        val_ldr = DataLoader(SiameseDataset(X_val, y_val), batch_size=self.config.batch_size)
+        tr_sims, tr_lbls = self._sims_from_loader(model, tr_ldr)
+        val_sims, val_lbls = self._sims_from_loader(model, val_ldr)
         thresh = self._optimize_threshold(tr_sims, tr_lbls)
-
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
-            tr_res = self._calc_raw_metrics(tr_sims, tr_lbls, thresh, "train")
-            val_res = self._calc_raw_metrics(val_sims, val_lbls, thresh, "val")
-
-            res = {**tr_res, **val_res}
-            res["threshold"] = thresh
-            return res
+            res = {
+                **self._calc_raw_metrics(tr_sims, tr_lbls, thresh, "train"),
+                **self._calc_raw_metrics(val_sims, val_lbls, thresh, "val"),
+                "threshold": thresh,
+            }
+        return res
 
     def _calc_raw_metrics(self, sims, labels, thresh, prefix):
         preds = (sims > thresh).astype(int)

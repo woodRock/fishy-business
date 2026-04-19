@@ -51,6 +51,48 @@ class SpectralGating(nn.Module):
         return residual + self.drop(x)
 
 
+class EngramMemory(nn.Module):
+    """
+    Engram Memory bank for decoupled static knowledge.
+    Includes a 'Trust but Verify' rejection gate for context-aware lookup,
+    as specified in the DeepSeek-V4 architecture.
+    """
+
+    def __init__(self, dim: int, num_slots: int = 128):
+        super().__init__()
+        self.memory = nn.Parameter(torch.randn(num_slots, dim))
+        self.q_proj = nn.Linear(dim, dim, bias=False)
+        self.k_proj = nn.Linear(dim, dim, bias=False)
+        self.v_proj = nn.Linear(dim, dim, bias=False)
+
+        # Rejection Gate: Context-Aware Gating
+        # Learns to reject engram lookups that conflict with the global context.
+        self.gate_proj = nn.Linear(dim * 2, 1, bias=False)
+
+        self.norm = RMSNorm(dim)
+        self.scale = dim**-0.5
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        B, N, C = x.shape
+        q = self.q_proj(x)
+        k = self.k_proj(self.memory).unsqueeze(0).expand(B, -1, -1)
+        v = self.v_proj(self.memory).unsqueeze(0).expand(B, -1, -1)
+
+        # Scaled Dot-Product Attention for memory retrieval
+        attn = (q @ k.transpose(-2, -1)) * self.scale
+        attn = attn.softmax(dim=-1)
+
+        out = attn @ v
+
+        # Rejection Gate: Trust but Verify
+        # alpha -> 0: Conflict detected, reject engram signal.
+        # alpha -> 1: Alignment detected, trust engram signal.
+        gate_input = torch.cat([x, out], dim=-1)
+        alpha = torch.sigmoid(self.gate_proj(gate_input))
+
+        return self.norm(x + alpha * out)
+
+
 # ---------------------------------------------------------------------------
 # Augmentations
 # ---------------------------------------------------------------------------
@@ -209,6 +251,12 @@ class AugFormer(nn.Module, TTTMixin):
             SpectralGating(hidden_dim, hidden_dim * 2, dropout),
         )
 
+        # Engram Memory support
+        self.use_engram = kwargs.get("use_engram", False)
+        if self.use_engram:
+            engram_slots = kwargs.get("engram_slots", 128)
+            self.engram = EngramMemory(hidden_dim, num_slots=engram_slots)
+
         self.original_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
         self.aug_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
         nn.init.trunc_normal_(self.original_embed, std=0.02)
@@ -249,6 +297,10 @@ class AugFormer(nn.Module, TTTMixin):
 
         # Apply shared spectral gating to each view independently
         tokens = self.pre_gate(tokens)
+
+        # Apply Engram Memory if enabled
+        if self.use_engram:
+            tokens = self.engram(tokens)
 
         # Mark original vs augmented
         tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed  # original view

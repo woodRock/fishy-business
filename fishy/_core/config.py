@@ -65,15 +65,15 @@ class TrainingConfig:
     crop_size: float = 0.8  # Default crop size
     num_experts: int = 8
     k: int = 2
-    random_projection: bool = (False,)
-    quantize: bool = (False,)
-    turbo_quant: bool = (False,)
-    polar: bool = (False,)
-    normalize: bool = (False,)
-    snv: bool = (False,)
-    minmax: bool = (False,)
-    log_transform: bool = (False,)
-    savgol: bool = (False,)
+    random_projection: bool = False
+    quantize: bool = False
+    turbo_quant: bool = False
+    polar: bool = False
+    normalize: bool = False
+    snv: bool = False
+    minmax: bool = False
+    log_transform: bool = False
+    savgol: bool = False
 
     # Deep Model Specific
     top_k: Optional[int] = None
@@ -83,13 +83,13 @@ class TrainingConfig:
     latent_dim: int = 64
     engram_slots: int = 128
     # AugFormerV2/V3 specific
-    use_qk_gain: bool = (False,)
-    use_parallel_residuals: bool = (False,)
-    recurrence_layers: Optional[List[int]] = (None,)
-    use_leaky_sq: bool = (False,)
-    use_post_norm: bool = (False,)
-    logit_cap: float = (0.0,)
-    use_ttt: bool = (False,)
+    use_qk_gain: bool = False
+    use_parallel_residuals: bool = False
+    recurrence_layers: Optional[List[int]] = None
+    use_leaky_sq: bool = False
+    use_post_norm: bool = False
+    logit_cap: float = 0.0
+    use_ttt: bool = False
 
     ttt_lr: float = 1e-3
     ttt_steps: int = 1

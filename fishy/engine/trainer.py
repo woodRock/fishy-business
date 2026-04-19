@@ -146,7 +146,23 @@ class Trainer:
         self, train_loader: DataLoader, val_loader: Optional[DataLoader] = None
     ) -> Dict[str, Any]:
         best_val_accuracy, epochs_no_improve = float("-inf"), 0
-        best_model_state_cpu, best_fold_metrics, best_val_predictions = None, None, None
+        best_model_state_cpu, best_fold_metrics, best_val_predictions = None, {}, {}
+        train_results = {"loss": float("nan"), "metrics": {}}
+        val_results = {"loss": float("nan"), "metrics": {}}
+
+        # If 0 epochs requested, still evaluate once to get initial metrics
+        if self.num_epochs == 0:
+            if val_loader:
+                self.model.eval()
+                with torch.no_grad():
+                    val_results = self._run_epoch(val_loader, is_training=False)
+                best_val_accuracy = val_results["metrics"].get("balanced_accuracy", 0.0)
+                best_fold_metrics = self._compile_best_metrics(0, train_results, val_results)
+                best_val_predictions = val_results["predictions"]
+            best_model_state_cpu = OrderedDict(
+                (k, v.clone().cpu()) for k, v in self.model.state_dict().items()
+            )
+
         epoch_log = {
             "train_losses": [],
             "val_losses": [],

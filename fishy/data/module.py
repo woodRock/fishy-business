@@ -46,6 +46,45 @@ def make_pairwise_test_split(
     )
 
 
+def make_all_pairwise_folds(
+    X: np.ndarray,
+    y: np.ndarray,
+    n_splits: int = 3,
+    run_id: int = 0,
+) -> Tuple:
+    """
+    Generate all C(N,2) pairs from N samples and return stratified K-fold
+    splits on the pair level.
+
+    All three method types (contrastive, deep, classic) call this function with
+    the same arguments so they receive identical fold indices, guaranteeing a
+    fair, consistent evaluation on batch-detection.
+
+    Returns
+    -------
+    X1, X2 : ndarray, shape (n_pairs, n_features)
+        The left and right samples for every unique pair.
+    pair_labels : ndarray, shape (n_pairs,)
+        1 if X1[i] and X2[i] share a class label, 0 otherwise.
+    folds : list of (train_idx, val_idx) arrays
+        Stratified K-fold indices into the pair arrays.
+    """
+    from sklearn.model_selection import StratifiedKFold
+
+    n = len(X)
+    idx_i, idx_j = np.triu_indices(n, k=1)  # all upper-triangle pairs
+
+    X1 = X[idx_i]
+    X2 = X[idx_j]
+
+    y_cls = np.argmax(y, axis=1) if y.ndim > 1 else y.flatten()
+    pair_labels = (y_cls[idx_i] == y_cls[idx_j]).astype(int)
+
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=run_id)
+    folds = list(skf.split(X1, pair_labels))
+    return X1, X2, pair_labels, folds
+
+
 logger = logging.getLogger(__name__)
 
 

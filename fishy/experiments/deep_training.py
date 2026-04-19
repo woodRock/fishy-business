@@ -19,7 +19,7 @@ from fishy._core.factory import create_model
 from fishy._core.utils import RunContext, get_device
 from fishy.experiments.pre_training import PreTrainingOrchestrator
 from fishy.engine.trainer import DeepEngine
-from fishy.data.module import create_data_module, make_pairwise_test_split
+from fishy.data.module import create_data_module, make_pairwise_test_split, make_all_pairwise_folds
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss, FocalLoss
 from fishy.engine.muon import Muon
@@ -193,54 +193,47 @@ class ModelTrainer:
     def _train_kfold_pairwise(
         self, pre_trained_model: Optional[nn.Module]
     ) -> Tuple[nn.Module, Dict[str, Any]]:
-        """Binary same/different classification on pairwise difference vectors."""
-        from sklearn.model_selection import StratifiedKFold
+        """Binary same/different classification on pairwise difference vectors.
 
+        Uses all C(N,2) pairs with stratified 3-fold CV — same fold indices as
+        contrastive and classic methods for fair comparison on batch-detection.
+        """
         self.logger.info(
-            "Building pairwise difference-vector dataset for batch-detection."
+            "Building all-pairs difference-vector dataset for batch-detection."
         )
         full_samples, full_labels = self.data_module.get_numpy_data()
 
-        # Hold out a fixed test set — same split used by all three method types
-        X_train, X_test, y_train, y_test = make_pairwise_test_split(
-            full_samples, full_labels, self.config.run
+        X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
+            full_samples, full_labels,
+            n_splits=self.config.k_folds,
+            run_id=self.config.run,
         )
-
-        def _to_diff_dataset(X, y):
-            ds = SiameseDataset(X, y)
-            X_diff = (ds.X1 - ds.X2).cpu().numpy()
-            y_pair = ds.paired_labels.cpu().numpy().flatten().astype(int)
-            return X_diff, y_pair, np.eye(2, dtype=np.float32)[y_pair]
-
-        X_diff_train, y_pair_train, y_oh_train = _to_diff_dataset(X_train, y_train)
-        X_diff_test, y_pair_test, y_oh_test = _to_diff_dataset(X_test, y_test)
+        X_diff_all = X1_all - X2_all
+        y_oh_all = np.eye(2, dtype=np.float32)[pair_labels_all]
 
         n_classes = 2
         k_folds = self.config.k_folds
-        skf = StratifiedKFold(
-            n_splits=k_folds, shuffle=True, random_state=self.config.run
-        )
         all_fold_metrics = []
         last_model = None
 
-        for fold, (tr_idx, val_idx) in enumerate(skf.split(X_diff_train, y_pair_train)):
+        for fold, (tr_idx, val_idx) in enumerate(folds):
             self.logger.info(f"--- Fold {fold + 1}/{k_folds} ---")
-            tr_labels = y_pair_train[tr_idx]
-            class_counts = np.bincount(tr_labels)
+            tr_labels = pair_labels_all[tr_idx]
+            class_counts = np.bincount(tr_labels, minlength=2)
             sample_weights = torch.tensor(
-                (1.0 / class_counts)[tr_labels], dtype=torch.float32
+                (1.0 / (class_counts + 1e-6))[tr_labels], dtype=torch.float32
             )
             sampler = WeightedRandomSampler(
                 sample_weights, len(sample_weights), replacement=True
             )
 
             tr_ldr = DataLoader(
-                CustomDataset(X_diff_train[tr_idx], y_oh_train[tr_idx]),
+                CustomDataset(X_diff_all[tr_idx], y_oh_all[tr_idx]),
                 batch_size=self.config.batch_size,
                 sampler=sampler,
             )
             val_ldr = DataLoader(
-                CustomDataset(X_diff_train[val_idx], y_oh_train[val_idx]),
+                CustomDataset(X_diff_all[val_idx], y_oh_all[val_idx]),
                 batch_size=self.config.batch_size,
             )
             model = create_model(self.config, self.n_features, n_classes).to(
@@ -251,18 +244,14 @@ class ModelTrainer:
                     model, pre_trained_model
                 )
 
-            # Calculate inverse frequency class weights to combat extreme imbalance in batch-detection
-            # count[0] = Different (Majority), count[1] = Same (Minority)
             counts = np.bincount(tr_labels, minlength=2)
             weights = torch.tensor(
                 [1.0 / (counts[0] + 1e-6), 1.0 / (counts[1] + 1e-6)],
                 dtype=torch.float32,
             ).to(self.device)
-            weights = weights / weights.mean()  # Normalize to mean 1
+            weights = weights / weights.mean()
 
-            # Use FocalLoss with class weights for better balanced accuracy
             criterion = FocalLoss(alpha=weights, gamma=2.0)
-
             opt = self.create_optimizer(model)
             sched, is_step = self.create_scheduler(opt, tr_ldr)
             last_model, metrics = DeepEngine.train_model(
@@ -288,37 +277,6 @@ class ModelTrainer:
             )
             all_fold_metrics.append(metrics)
 
-        # Final evaluation on held-out test pairs (no leakage)
-        test_ldr = DataLoader(
-            CustomDataset(X_diff_test, y_oh_test),
-            batch_size=self.config.batch_size,
-        )
-
-        # Consistent with training, use weighted FocalLoss for final evaluation
-        final_counts = np.bincount(y_pair_train, minlength=2)
-        final_weights = torch.tensor(
-            [1.0 / (final_counts[0] + 1e-6), 1.0 / (final_counts[1] + 1e-6)],
-            dtype=torch.float32,
-        ).to(self.device)
-        final_weights = final_weights / final_weights.mean()
-        criterion = FocalLoss(alpha=final_weights, gamma=2.0)
-
-        test_results = DeepEngine.evaluate_model(
-            last_model,
-            test_ldr,
-            criterion,
-            self.device,
-            num_classes=n_classes,
-            regression=False,
-            use_ttt=self.config.use_ttt,
-            ttt_lr=self.config.ttt_lr,
-            ttt_steps=self.config.ttt_steps,
-            use_ema=self.config.use_ema,
-            ema_decay=self.config.ema_decay,
-        )
-        if self.ctx.wandb_run:
-            self._log_advanced_visualizations(test_results, test_ldr)
-
         stats = {}
         if all_fold_metrics:
             for k in all_fold_metrics[0].keys():
@@ -336,12 +294,6 @@ class ModelTrainer:
             else:
                 stats["epoch_metrics"] = None
             stats["folds"] = all_fold_metrics
-
-        # Override with test metrics for fair comparison
-        test_metrics = test_results.get("metrics", {})
-        stats["test_balanced_accuracy"] = test_metrics.get("balanced_accuracy")
-        stats["val_balanced_accuracy"] = stats["test_balanced_accuracy"]
-        stats["predictions"] = test_results.get("predictions")
 
         self.ctx.save_results(
             {"stats": stats, "folds": all_fold_metrics},

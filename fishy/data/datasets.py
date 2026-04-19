@@ -151,6 +151,37 @@ class CustomDataset(BaseDataset):
     pass
 
 
+class PrecomputedPairDataset(torch.utils.data.Dataset):
+    """
+    Wraps pre-indexed (X1, X2, pair_labels) arrays produced by
+    make_all_pairwise_folds.  Returns the same 5-tuple as SiameseDataset so
+    it is a drop-in replacement in all training / evaluation code.
+    """
+
+    def __init__(
+        self,
+        X1: np.ndarray,
+        X2: np.ndarray,
+        pair_labels: np.ndarray,
+    ):
+        self.X1 = torch.from_numpy(X1).float()
+        self.X2 = torch.from_numpy(X2).float()
+        lbl = torch.from_numpy(pair_labels).float()
+        self.paired_labels = lbl.unsqueeze(1) if lbl.dim() == 1 else lbl
+
+    def __len__(self) -> int:
+        return len(self.paired_labels)
+
+    def __getitem__(self, idx: int):
+        return (
+            self.X1[idx],
+            self.X2[idx],
+            self.paired_labels[idx],
+            self.X1[idx],
+            self.X2[idx],
+        )
+
+
 class SiameseDataset(BaseDataset):
     """
     Dataset for contrastive learning, generating pairs of samples.

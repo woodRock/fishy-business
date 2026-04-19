@@ -276,8 +276,9 @@ class UnifiedTrainer:
         c_cfg = ContrastiveConfig(
             contrastive_method=config.model,
             dataset=config.dataset,
-            num_epochs=config.epochs if config.epochs else 100,
-            batch_size=config.batch_size,
+            num_epochs=config.epochs if config.epochs else 2000,
+            batch_size=config.batch_size if config.batch_size != 64 else 32,
+            learning_rate=config.learning_rate if config.learning_rate else 1e-4,
             file_path=config.file_path,
             wandb_log=config.wandb_log,
             encoder_type=config.encoder_type,
