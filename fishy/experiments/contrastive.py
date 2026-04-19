@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Contrastive learning experiments with comprehensive pair-wise similarity metrics.
+Integrated with 3-Fold Stratified Cross-Validation for fair benchmark alignment.
 """
 
 import torch
@@ -11,6 +12,7 @@ from torch.utils.data import DataLoader
 from dataclasses import dataclass, asdict
 from typing import Dict, Any, Optional, List, Tuple, Union
 import logging
+import warnings
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import wandb
@@ -25,13 +27,14 @@ from sklearn.metrics import (
     recall_score,
     f1_score,
 )
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
 from fishy.data.module import create_data_module, make_pairwise_test_split
 from fishy._core.constants import DatasetName
-from fishy.data.datasets import SiameseDataset, BalancedBatchSampler
+from fishy.data.datasets import SiameseDataset, BalancedBatchSampler, CustomDataset
+from fishy.data.augmentation import DataAugmenter, AugmentationConfig
 from fishy._core.config_loader import load_config
 from fishy._core.factory import create_model, get_model_class
 
@@ -52,13 +55,16 @@ class ContrastiveConfig:
     dataset: str = "species"
     num_epochs: int = 100
     batch_size: int = 64
-    learning_rate: float = 3e-4
-    weight_decay: float = 1e-4
+    k_folds: int = 3
+    learning_rate: float = 1e-3
+    weight_decay: float = 1e-5
     file_path: Optional[str] = None
     encoder_type: str = "dense"
     embedding_dim: int = 128
     projection_dim: int = 128
     temperature: float = 0.55
+    learnable_temperature: bool = True
+    use_stop_grad: bool = False
     moco_k: int = 4096
     moco_m: float = 0.999
     moco_t: float = 0.07
@@ -77,10 +83,51 @@ class ContrastiveConfig:
     minmax: bool = (False,)
     log_transform: bool = (False,)
     savgol: bool = (False,)
+    # New augmentation params for contrastive on-the-fly
+    data_augmentation: bool = True
+    noise_level: float = 0.05
+    shift_range: float = 0.05
+    scale_range: float = 0.1
+
+
+class SupervisedContrastiveDataset(torch.utils.data.Dataset):
+    """
+    Returns pairs of different physical samples from the same batch
+    with on-the-fly augmentations for both.
+    """
+    def __init__(self, samples: torch.Tensor, labels: torch.Tensor, augmenter: DataAugmenter):
+        self.samples = samples
+        self.labels = labels.argmax(dim=1) if labels.dim() > 1 else labels
+        self.augmenter = augmenter
+        self.unique_labels = torch.unique(self.labels)
+        
+        # Pre-group indices by label for fast sampling
+        self.label_to_idx = {int(l): torch.where(self.labels == l)[0] for l in self.unique_labels}
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        label = int(self.labels[idx])
+        # Pick another sample from the same batch (class)
+        pos_idxs = self.label_to_idx[label]
+        if len(pos_idxs) > 1:
+            other_idx = pos_idxs[torch.randint(0, len(pos_idxs), (1,)).item()]
+        else:
+            other_idx = idx # Fallback to same sample if batch has only 1 sample
+            
+        x1 = self.samples[idx].unsqueeze(0)
+        x2 = self.samples[other_idx].unsqueeze(0)
+        
+        # Apply independent random augmentations to both physical samples
+        x1_aug = self.augmenter._apply_augmentations_to_batch(x1).squeeze(0)
+        x2_aug = self.augmenter._apply_augmentations_to_batch(x2).squeeze(0)
+        
+        return x1_aug, x2_aug, torch.tensor(label)
 
 
 class ContrastiveTrainer:
-    """Trainer focused on Pair-wise Similarity Metrics for self-supervised learning."""
+    """Trainer focused on Pair-wise Similarity Metrics with robust K-Fold support."""
 
     def __init__(
         self,
@@ -104,6 +151,7 @@ class ContrastiveTrainer:
         self.device = get_device()
         self.metrics = {}
         self.best_threshold = 0.5
+        self.all_fold_metrics = []
 
     def setup(self) -> None:
         self.data_module = create_data_module(
@@ -122,18 +170,17 @@ class ContrastiveTrainer:
             run_id=self.config.run,
         )
         self.data_module.setup()
-
         self.input_dim = self.data_module.get_input_dim()
 
+    def _create_fresh_model(self) -> Tuple[nn.Module, nn.Module, optim.Optimizer]:
+        """Creates a new model, criterion, and optimizer instance for each fold."""
         t_cfg = TrainingConfig(
             model=self.config.encoder_type,
             hidden_dim=self.config.embedding_dim,
             num_layers=4,
             num_heads=4,
         )
-        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(
-            self.device
-        )
+        encoder = create_model(t_cfg, self.input_dim, self.config.embedding_dim).to(self.device)
 
         method = self.config.contrastive_method.lower()
         contrastive_cfg = load_config("models")["contrastive_models"]
@@ -141,246 +188,265 @@ class ContrastiveTrainer:
         model_class = get_model_class(info["model"])
         loss_class = get_model_class(info["loss"])
 
-        self.model = model_class(
+        model = model_class(
             backbone=encoder,
             embedding_dim=self.config.embedding_dim,
             projection_dim=self.config.projection_dim,
             dropout=0.1,
+            use_stop_grad=self.config.use_stop_grad if method == "simclr" else False,
         ).to(self.device)
 
         if method == "simclr":
-            self.criterion = loss_class(temperature=self.config.temperature)
+            criterion = loss_class(temperature=self.config.temperature)
         elif method == "barlow_twins":
-            self.criterion = loss_class(lambda_param=self.config.barlow_lambda)
+            criterion = loss_class(lambda_param=self.config.barlow_lambda)
         else:
-            self.criterion = loss_class()
+            criterion = loss_class()
 
-        self.optimizer = optim.AdamW(
-            self.model.parameters(),
+        optimizer = optim.AdamW(
+            model.parameters(),
             lr=self.config.learning_rate,
             weight_decay=self.config.weight_decay,
         )
+        return model, criterion, optimizer
 
+    def train(self) -> None:
         full_samples, full_labels = self.data_module.get_numpy_data()
-
-        # Hold out a fixed test set — same split used by all method types for batch-detection
+        
         if DatasetName.BATCH_DETECTION in self.config.dataset:
-            train_X, self._test_X, train_y, self._test_y = make_pairwise_test_split(
+            train_X, test_X, train_y, test_y = make_pairwise_test_split(
                 full_samples, full_labels, self.config.run
             )
         else:
-            train_X, train_y = full_samples, full_labels
-            self._test_X, self._test_y = None, None
+            train_X, test_X, train_y, test_y = full_samples, None, full_labels, None
 
-        self._train_X, self._train_y = train_X, train_y
-        self.siamese_dataset = SiameseDataset(train_X, train_y)
-        self.train_sampler = BalancedBatchSampler(
-            self.siamese_dataset.paired_labels, self.config.batch_size
-        )
-        self.train_loader = DataLoader(
-            self.siamese_dataset, batch_sampler=self.train_sampler
-        )
+        # Implementation of K-Fold with stratification fallback
+        try:
+            strat_labels = np.argmax(train_y, axis=1) if train_y.ndim > 1 else train_y.flatten()
+            unique_labels, counts = np.unique(strat_labels, return_counts=True)
+            if np.min(counts) < self.config.k_folds:
+                raise ValueError("Too few members for stratification")
+            skf = StratifiedKFold(n_splits=self.config.k_folds, shuffle=True, random_state=self.config.run)
+            folds = list(skf.split(train_X, strat_labels))
+        except (ValueError, TypeError):
+            from sklearn.model_selection import KFold
+            kf = KFold(n_splits=self.config.k_folds, shuffle=True, random_state=self.config.run)
+            folds = list(kf.split(train_X))
 
-    def train(self) -> None:
-        self.model.train()
-        history = {"loss": [], "accuracy": []}
-        from rich.progress import track
-
-        for epoch in track(
-            range(self.config.num_epochs), description="Contrastive Training..."
-        ):
-            total_loss = 0
-            all_sims, all_labels = [], []
-
-            for x1, x2, pair_labels, y1, y2 in self.train_loader:
-                x1, x2 = x1.to(self.device), x2.to(self.device)
-                pair_labels = pair_labels.to(self.device)
-
-                # Filter for positive pairs if the method only supports them
-                method = self.config.contrastive_method.lower()
-                if method in ["byol", "simsiam", "barlow_twins"]:
-                    mask = (pair_labels == 1).flatten()
-                    if not mask.any():
-                        continue
-                    x1, x2 = x1[mask], x2[mask]
-                    pair_labels = pair_labels[mask]
-
-                self.optimizer.zero_grad()
-                outputs = self.model(x1, x2)
-
-                loss = (
-                    self.criterion(*outputs)
-                    if isinstance(outputs, tuple)
-                    else self.criterion(outputs)
+        for fold, (tr_idx, val_idx) in enumerate(folds):
+            self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
+            
+            X_tr_fold, y_tr_fold = train_X[tr_idx], train_y[tr_idx]
+            X_val_fold, y_val_fold = train_X[val_idx], train_y[val_idx]
+            
+            model, criterion, optimizer = self._create_fresh_model()
+            
+            method = self.config.contrastive_method.lower()
+            if method == "simclr" and self.config.data_augmentation:
+                aug_cfg = AugmentationConfig(
+                    enabled=True,
+                    noise_enabled=True,
+                    noise_level=self.config.noise_level,
+                    shift_enabled=True,
+                    shift_range=self.config.shift_range,
+                    scale_enabled=True,
+                    scale_range=self.config.scale_range,
                 )
-                loss.backward()
-                self.optimizer.step()
-                total_loss += loss.item()
-
-                # Dynamic Accuracy Check (Training set)
-                with torch.no_grad():
-                    z1, z2 = outputs[0], (
-                        outputs[1] if isinstance(outputs, tuple) else (outputs, outputs)
-                    )
-                    sim = F.cosine_similarity(z1, z2).cpu().numpy()
-                    all_sims.extend(sim)
-                    all_labels.extend(pair_labels.cpu().numpy().flatten())
-
-            avg_loss = (
-                total_loss / len(self.train_loader) if len(self.train_loader) > 0 else 0
-            )
-            history["loss"].append(avg_loss)
-
-            # Epoch-level accuracy for progress bar
-            if all_sims:
-                self.best_threshold = self._optimize_threshold(
-                    np.array(all_sims), np.array(all_labels)
+                augmenter = DataAugmenter(aug_cfg)
+                train_ds = SupervisedContrastiveDataset(
+                    torch.from_numpy(X_tr_fold).to(self.device),
+                    torch.from_numpy(y_tr_fold).to(self.device),
+                    augmenter
                 )
-                acc = accuracy_score(
-                    np.array(all_labels),
-                    (np.array(all_sims) > self.best_threshold).astype(int),
-                )
+                train_ldr = DataLoader(train_ds, batch_size=self.config.batch_size, shuffle=True)
             else:
-                acc = 0.0
-            history["accuracy"].append(acc)
+                siamese_ds = SiameseDataset(X_tr_fold, y_tr_fold)
+                sampler = BalancedBatchSampler(siamese_ds.paired_labels, self.config.batch_size)
+                train_ldr = DataLoader(siamese_ds, batch_sampler=sampler)
 
-        self.metrics = {
-            "history": history,
-            "epoch_metrics": history,
-            "val_loss": history["loss"][-1] if history["loss"] else 0,
-        }
-
-        # Comprehensive Pair-wise evaluation
-        self.evaluate_pairwise_performance()
+            history = self._train_fold(model, criterion, optimizer, train_ldr)
+            fold_metrics = self._evaluate_pairwise_fold(model, X_tr_fold, y_tr_fold, X_val_fold, y_val_fold)
+            fold_metrics["history"] = history
+            self.all_fold_metrics.append(fold_metrics)
+            self.model = model
+        
+        self._aggregate_metrics()
+        
+        if test_X is not None:
+            self._evaluate_final_test(test_X, test_y)
 
         self.ctx.save_results(self.metrics)
-
-        # Add non-serializable objects for notebook/in-memory use after saving
         self.metrics["model"] = self.model
         self.metrics["data_module"] = self.data_module
 
         if self.ctx.wandb_run:
             self.log_contrastive_visualizations()
 
-    def _optimize_threshold(
-        self, similarities: np.ndarray, labels: np.ndarray
-    ) -> float:
-        """Finds threshold maximizing balanced accuracy."""
-        best_acc, best_thresh = 0, 0.5
-        for threshold in np.arange(0, 1, 0.05):
-            acc = balanced_accuracy_score(
-                labels, (similarities > threshold).astype(int)
-            )
-            if acc > best_acc:
-                best_acc, best_thresh = acc, threshold
-        return best_thresh
+    def _train_fold(self, model, criterion, optimizer, loader) -> Dict[str, List]:
+        model.train()
+        history = {"loss": [], "accuracy": []}
+        for epoch in range(self.config.num_epochs):
+            total_loss = 0
+            for batch in loader:
+                if len(batch) == 5:
+                    x1, x2, pair_labels, _, _ = batch
+                    labels = None
+                elif len(batch) == 3:
+                    x1, x2, labels = batch
+                    pair_labels = torch.ones(x1.size(0), 1).to(self.device)
+                else:
+                    x1, x2 = batch
+                    pair_labels = torch.ones(x1.size(0), 1).to(self.device)
+                    labels = None
 
-    def _calculate_pairwise_metrics(
-        self,
-        similarities: np.ndarray,
-        labels: np.ndarray,
-        threshold: float,
-        prefix: str,
-    ):
-        """Calculates all requested metrics for a set of similarities."""
-        preds = (similarities > threshold).astype(int)
-        self.metrics.update(
-            {
-                f"{prefix}_accuracy": accuracy_score(labels, preds),
-                f"{prefix}_balanced_accuracy": balanced_accuracy_score(labels, preds),
-                f"{prefix}_mae": mean_absolute_error(labels, similarities),
-                f"{prefix}_mse": mean_squared_error(labels, similarities),
-                f"{prefix}_precision": precision_score(labels, preds, zero_division=0),
-                f"{prefix}_recall": recall_score(labels, preds, zero_division=0),
-                f"{prefix}_f1": f1_score(labels, preds, zero_division=0),
-            }
-        )
-        # Standardize for CLI display and align key names with other methods
-        if prefix == "val":
-            self.metrics["accuracy"] = self.metrics["val_accuracy"]
-            self.metrics["balanced_accuracy"] = self.metrics["val_balanced_accuracy"]
-            self.metrics["mae"] = self.metrics["val_mae"]
-            self.metrics["mse"] = self.metrics["val_mse"]
-            self.metrics["precision"] = self.metrics["val_precision"]
-            self.metrics["recall"] = self.metrics["val_recall"]
-            self.metrics["f1"] = self.metrics["val_f1"]
-            # Mirror as test_ keys so all methods report the same wandb metric names
-            self.metrics["test_balanced_accuracy"] = self.metrics[
-                "val_balanced_accuracy"
-            ]
-            self.metrics["test_accuracy"] = self.metrics["val_accuracy"]
-            self.metrics["test_f1"] = self.metrics["val_f1"]
+                x1, x2 = x1.to(self.device), x2.to(self.device)
+                pair_labels = pair_labels.to(self.device)
 
-    def evaluate_pairwise_performance(self) -> None:
-        """Evaluates pair-wise similarity on the held-out test set."""
-        self.logger.info("Calculating comprehensive pair-wise metrics...")
-        self.model.eval()
+                method = self.config.contrastive_method.lower()
+                if method in ["byol", "simsiam", "barlow_twins"]:
+                    mask = (pair_labels == 1).flatten()
+                    if not mask.any(): continue
+                    x1, x2, pair_labels = x1[mask], x2[mask], pair_labels[mask]
 
+                optimizer.zero_grad()
+                outputs = model(x1, x2)
+                
+                if method == "simclr":
+                    loss = criterion(*outputs, labels=labels)
+                    # Update queue with keys (outputs[1] is momentum encoder output)
+                    if hasattr(model, "_dequeue_and_enqueue"):
+                        model._dequeue_and_enqueue(outputs[1])
+                else:
+                    loss = criterion(*outputs) if isinstance(outputs, tuple) else criterion(outputs)
+                
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+
+            history["loss"].append(total_loss / len(loader) if len(loader) > 0 else 0)
+        return history
+
+    def _evaluate_pairwise_fold(self, model, X_tr, y_tr, X_val, y_val) -> Dict[str, float]:
+        model.eval()
         def get_sims(X, y):
             ds = SiameseDataset(X, y)
             ldr = DataLoader(ds, batch_size=self.config.batch_size)
             sims, lbls = [], []
             with torch.no_grad():
                 for x1, x2, pair_lbl, _, _ in ldr:
-                    outputs = self.model(x1.to(self.device), x2.to(self.device))
-                    z1, z2 = outputs[0], (
-                        outputs[1] if isinstance(outputs, tuple) else (outputs, outputs)
-                    )
+                    outputs = model(x1.to(self.device), x2.to(self.device))
+                    # Standard Siamese uses z1, z2 directly. 
+                    # MoCLR uses query and momentum-key.
+                    z1, z2 = outputs[0], outputs[1]
                     sims.extend(F.cosine_similarity(z1, z2).cpu().numpy())
                     lbls.extend(pair_lbl.cpu().numpy().flatten())
             return np.array(sims), np.array(lbls)
 
-        # Use the pre-stored train/test split (set in setup()) for batch-detection;
-        # fall back to a fresh split for other datasets.
-        if self._test_X is not None:
-            X_tr, y_tr = self._train_X, self._train_y
-            X_val, y_val = self._test_X, self._test_y
-        else:
-            full_samples, full_labels = self.data_module.get_numpy_data()
-            try:
-                X_tr, X_val, y_tr, y_val = train_test_split(
-                    full_samples,
-                    full_labels,
-                    test_size=0.3,
-                    stratify=np.argmax(full_labels, axis=1),
-                    random_state=self.config.run,
-                )
-            except ValueError:
-                X_tr, X_val, y_tr, y_val = train_test_split(
-                    full_samples,
-                    full_labels,
-                    test_size=0.3,
-                    random_state=self.config.run,
-                )
-
-        train_sims, train_lbls = get_sims(X_tr, y_tr)
+        tr_sims, tr_lbls = get_sims(X_tr, y_tr)
         val_sims, val_lbls = get_sims(X_val, y_val)
+        
+        thresh = self._optimize_threshold(tr_sims, tr_lbls)
+        
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            tr_res = self._calc_raw_metrics(tr_sims, tr_lbls, thresh, "train")
+            val_res = self._calc_raw_metrics(val_sims, val_lbls, thresh, "val")
+            
+            res = {**tr_res, **val_res}
+            res["threshold"] = thresh
+            return res
 
-        self.best_threshold = self._optimize_threshold(train_sims, train_lbls)
-        self._calculate_pairwise_metrics(
-            train_sims, train_lbls, self.best_threshold, "train"
-        )
-        self._calculate_pairwise_metrics(val_sims, val_lbls, self.best_threshold, "val")
+    def _calc_raw_metrics(self, sims, labels, thresh, prefix):
+        preds = (sims > thresh).astype(int)
+        unique_labels = len(np.unique(labels))
+        
+        if unique_labels < 2:
+            bal_acc = accuracy_score(labels, preds)
+        else:
+            bal_acc = balanced_accuracy_score(labels, preds)
+            
+        return {
+            f"{prefix}_accuracy": accuracy_score(labels, preds),
+            f"{prefix}_balanced_accuracy": bal_acc,
+            f"{prefix}_f1": f1_score(labels, preds, zero_division=0),
+            f"{prefix}_mae": mean_absolute_error(labels, sims),
+            f"{prefix}_mse": mean_squared_error(labels, sims),
+            f"{prefix}_precision": precision_score(labels, preds, zero_division=0),
+            f"{prefix}_recall": recall_score(labels, preds, zero_division=0),
+        }
+
+    def _aggregate_metrics(self) -> None:
+        agg_keys = [
+            "accuracy", "balanced_accuracy", "f1", "mae", "mse", "precision", "recall"
+        ]
+        self.metrics = {}
+        for k in agg_keys:
+            # Average Validation Metrics
+            val_vals = [m[f"val_{k}"] for m in self.all_fold_metrics]
+            self.metrics[f"val_{k}"] = float(np.mean(val_vals))
+            self.metrics[k] = self.metrics[f"val_{k}"] # Root key for display
+            
+            # Average Training Metrics
+            tr_vals = [m[f"train_{k}"] for m in self.all_fold_metrics]
+            self.metrics[f"train_{k}"] = float(np.mean(tr_vals))
+
+        self.best_threshold = float(np.mean([m["threshold"] for m in self.all_fold_metrics]))
+        self.metrics["history"] = self.all_fold_metrics[-1]["history"]
+        self.metrics["epoch_metrics"] = self.metrics["history"]
+        self.metrics["folds"] = self.all_fold_metrics
+
+    def _evaluate_final_test(self, X_te, y_te) -> None:
+        """One-time evaluation on held-out samples."""
+        self.model.eval()
+        ds = SiameseDataset(X_te, y_te)
+        ldr = DataLoader(ds, batch_size=self.config.batch_size)
+        sims, lbls = [], []
+        with torch.no_grad():
+            for x1, x2, pair_lbl, _, _ in ldr:
+                outputs = self.model(x1.to(self.device), x2.to(self.device))
+                z1, z2 = outputs[0], outputs[1]
+                sims.extend(F.cosine_similarity(z1, z2).cpu().numpy())
+                lbls.extend(pair_lbl.cpu().numpy().flatten())
+        
+        sims, lbls = np.array(sims), np.array(lbls)
+        thresh = self.best_threshold
+        
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            preds = (sims > thresh).astype(int)
+            unique_labels = len(np.unique(lbls))
+            bal_acc = balanced_accuracy_score(lbls, preds) if unique_labels > 1 else accuracy_score(lbls, preds)
+            
+            self.metrics.update({
+                "test_accuracy": accuracy_score(lbls, preds),
+                "test_balanced_accuracy": bal_acc,
+                "test_f1": f1_score(lbls, preds, zero_division=0)
+            })
+
+    def _optimize_threshold(self, similarities: np.ndarray, labels: np.ndarray) -> float:
+        if len(np.unique(labels)) < 2: return 0.5
+        best_acc, best_thresh = 0, 0.5
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            for threshold in np.arange(0, 1, 0.05):
+                acc = balanced_accuracy_score(labels, (similarities > threshold).astype(int))
+                if acc > best_acc: best_acc, best_thresh = acc, threshold
+        return best_thresh
 
     def log_contrastive_visualizations(self) -> None:
+        full_X, full_y = self.data_module.get_numpy_data()
+        vis_ds = SiameseDataset(full_X, full_y)
         table = wandb.Table(columns=["id", "pair_1", "pair_2", "relationship"])
         import matplotlib.pyplot as plt
-
-        for i in range(min(len(self.siamese_dataset), 20)):
-            x1, x2, label, _, _ = self.siamese_dataset[i]
+        for i in range(min(len(vis_ds), 20)):
+            x1, x2, label, _, _ = vis_ds[i]
             plt.figure(figsize=(4, 3))
-            plt.plot(x1.numpy())
-            plt.axis("off")
-            img1 = wandb.Image(plt)
-            plt.close()
+            plt.plot(x1.numpy()); plt.axis("off")
+            img1 = wandb.Image(plt); plt.close()
             plt.figure(figsize=(4, 3))
-            plt.plot(x2.numpy())
-            plt.axis("off")
-            img2 = wandb.Image(plt)
-            plt.close()
-            table.add_data(
-                i, img1, img2, "Same Class" if label == 1 else "Different Class"
-            )
+            plt.plot(x2.numpy()); plt.axis("off")
+            img2 = wandb.Image(plt); plt.close()
+            table.add_data(i, img1, img2, "Same Class" if label == 1 else "Different Class")
         self.ctx.wandb_run.log({"contrastive_pairs_sample": table}, commit=False)
 
 

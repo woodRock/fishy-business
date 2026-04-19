@@ -1,11 +1,11 @@
 #!/bin/bash
-# Benchmark: Frankenstein SOTA
-# Purpose: Test synergistic effect of MLA, MHC, and Engram on top of Muon/EMA.
+# Benchmark: DeepSeekV4 SOTA (12 Layers)
+# Purpose: Test if 12-layer DeepSeekV4 architecture provides superior reasoning and stability.
 
 DATASETS=("species" "part" "oil" "cross-species")
 RUNS=30
 
-echo "Starting Frankenstein Benchmark Suite..."
+echo "Starting DeepSeekV4 (12-layer) Benchmark Suite..."
 echo "Total Runs: 120 (4 datasets * 30 runs)"
 
 for DATASET in "${DATASETS[@]}"; do
@@ -13,9 +13,9 @@ for DATASET in "${DATASETS[@]}"; do
     echo "Processing Dataset: ${DATASET}"
     echo "========================================"
 
-    # The Frankenstein Configuration
-    # Muon + EMA + Warmup + MLA + MHC + Engram
-    task -G 1 -n "augformer_frankenstein_${DATASET}" fishy train -m augformer \
+    # DeepSeekV4 Configuration
+    # Uses 12 layers by default, along with MLA, MHC, and Engram.
+    task -G 1 -n "deepseekv4_12l_${DATASET}" fishy train -m deepseekv4 \
         -d "${DATASET}" \
         -N "${RUNS}" \
         -e 1000 \
@@ -25,13 +25,10 @@ for DATASET in "${DATASETS[@]}"; do
         --warmup-epochs 5 \
         --ema \
         --ema-decay 0.999 \
-        --mla \
-        --mhc \
-        --engram \
         --normalize \
         --wandb-log \
         --benchmark
 
 done
 
-echo "Frankenstein Runs Complete. Ready for statistical analysis."
+echo "DeepSeekV4 Benchmark Runs Complete. Ready for statistical analysis."

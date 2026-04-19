@@ -56,6 +56,8 @@ def create_model(config: TrainingConfig, input_dim: int, output_dim: int) -> nn.
         "use_parallel_residuals": config.use_parallel_residuals,
         "recurrence_layers": config.recurrence_layers,
         "use_leaky_sq": config.use_leaky_sq,
+        "use_post_norm": config.use_post_norm,
+        "logit_cap": config.logit_cap,
     }
 
     # Handle Siamese wrappers for batch-detection

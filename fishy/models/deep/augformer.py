@@ -150,120 +150,6 @@ class MultiHeadAttention(nn.Module):
         return self.proj(x)
 
 
-class MultiHeadLatentAttention(nn.Module):
-    """
-    Multi-Head Latent Attention (MLA) inspired by DeepSeek-V3/V4.
-    Compresses KV and Q into low-rank latent spaces to improve parameter efficiency
-    and force more robust feature extraction from spectral tokens.
-    """
-
-    def __init__(
-        self,
-        embed_dim: int,
-        num_heads: int,
-        latent_dim: int = 64,
-        kv_lora_rank: int = 64,
-        qk_lora_rank: int = 64,
-        use_xsa: bool = False,
-    ):
-        super().__init__()
-        self.num_heads = num_heads
-        self.head_dim = embed_dim // num_heads
-        self.latent_dim = latent_dim
-        self.kv_lora_rank = kv_lora_rank
-        self.qk_lora_rank = qk_lora_rank
-        self.scale = self.head_dim**-0.5
-        self.use_xsa = use_xsa
-
-        # KV Compression
-        self.kv_a = nn.Linear(embed_dim, kv_lora_rank, bias=False)
-        self.kv_norm = RMSNorm(kv_lora_rank)
-        self.kv_b = nn.Linear(kv_lora_rank, num_heads * self.head_dim * 2, bias=False)
-
-        # Q Compression
-        self.q_a = nn.Linear(embed_dim, qk_lora_rank, bias=False)
-        self.q_norm = RMSNorm(qk_lora_rank)
-        self.q_b = nn.Linear(qk_lora_rank, num_heads * self.head_dim, bias=False)
-
-        self.proj = nn.Linear(num_heads * self.head_dim, embed_dim, bias=False)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        B, N, C = x.shape
-
-        # Compress and Expand KV
-        kv_latent = self.kv_norm(self.kv_a(x))  # [B, N, kv_lora_rank]
-        kv = self.kv_b(kv_latent).reshape(B, N, self.num_heads, 2, self.head_dim)
-        k, v = kv.unbind(3)  # [B, N, H, D]
-        k = k.transpose(1, 2)
-        v = v.transpose(1, 2)
-
-        # Compress and Expand Q
-        q_latent = self.q_norm(self.q_a(x))  # [B, N, qk_lora_rank]
-        q = self.q_b(q_latent).reshape(B, N, self.num_heads, self.head_dim)
-        q = q.transpose(1, 2)  # [B, H, N, D]
-
-        # Scaled Dot-Product Attention
-        attn = (q @ k.transpose(-2, -1)) * self.scale
-        attn = attn.softmax(dim=-1)
-
-        y = attn @ v  # [B, H, N, D]
-
-        if self.use_xsa:
-            Vn = torch.nn.functional.normalize(v, dim=-1)
-            y = y - (y * Vn).sum(dim=-1, keepdim=True) * Vn
-
-        x = y.transpose(1, 2).reshape(B, N, -1)
-        return self.proj(x)
-
-
-class ManifoldProjection(nn.Module):
-    """
-    Manifold-Constrained Hyper-Connection (mHC) integrator.
-    Ensures that features from all depths are preserved and projected onto
-    the optimal representation manifold.
-    """
-
-    def __init__(self, dim: int):
-        super().__init__()
-        self.proj = nn.Linear(dim, dim, bias=False)
-        self.gate = nn.Parameter(torch.zeros(1))
-        self.norm = RMSNorm(dim)
-
-    def forward(self, x: torch.Tensor, stream: torch.Tensor) -> torch.Tensor:
-        # Weighted integration of the layer output into the hyper-stream
-        return self.norm(stream + torch.tanh(self.gate) * self.proj(x))
-
-
-class EngramMemory(nn.Module):
-    """
-    Engram Memory bank inspired by DeepSeek-V4.
-    Decouples static spectral knowledge (peak signatures) from dynamic reasoning.
-    Tokens query a learnable memory bank to retrieve "known" spectral patterns.
-    """
-
-    def __init__(self, dim: int, num_slots: int = 128):
-        super().__init__()
-        self.memory = nn.Parameter(torch.randn(num_slots, dim))
-        self.q_proj = nn.Linear(dim, dim, bias=False)
-        self.k_proj = nn.Linear(dim, dim, bias=False)
-        self.v_proj = nn.Linear(dim, dim, bias=False)
-        self.norm = RMSNorm(dim)
-        self.scale = dim**-0.5
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        B, N, C = x.shape
-        # x are queries, memory are keys/values
-        q = self.q_proj(x)
-        k = self.k_proj(self.memory).unsqueeze(0).expand(B, -1, -1)
-        v = self.v_proj(self.memory).unsqueeze(0).expand(B, -1, -1)
-
-        attn = (q @ k.transpose(-2, -1)) * self.scale
-        attn = attn.softmax(dim=-1)
-
-        out = attn @ v
-        return self.norm(x + out)
-
-
 class TransformerBlock(nn.Module):
     """Pre-norm block: RMSNorm → Attention → RMSNorm → SwiGLU FFN."""
 
@@ -274,22 +160,10 @@ class TransformerBlock(nn.Module):
         mlp_ratio: int = 2,
         dropout: float = 0.1,
         use_xsa: bool = False,
-        use_mla: bool = False,
-        latent_dim: int = 64,
     ):
         super().__init__()
         self.norm1 = RMSNorm(embed_dim)
-        if use_mla:
-            self.attn = MultiHeadLatentAttention(
-                embed_dim,
-                num_heads,
-                latent_dim=latent_dim,
-                kv_lora_rank=latent_dim,
-                qk_lora_rank=latent_dim // 2,
-                use_xsa=use_xsa,
-            )
-        else:
-            self.attn = MultiHeadAttention(embed_dim, num_heads, use_xsa=use_xsa)
+        self.attn = MultiHeadAttention(embed_dim, num_heads, use_xsa=use_xsa)
         self.norm2 = RMSNorm(embed_dim)
         hidden = embed_dim * mlp_ratio
         self.w1 = nn.Linear(embed_dim, hidden, bias=False)
@@ -324,27 +198,16 @@ class AugFormer(nn.Module, TTTMixin):
         dropout: float = 0.3,
         num_views: int = 6,  # augmented views (+ original = 7 spec tokens)
         use_xsa: bool = False,
-        use_mla: bool = False,
-        use_mhc: bool = False,
-        use_engram: bool = False,
-        engram_slots: int = 128,
-        latent_dim: int = 64,
         **kwargs,
     ) -> None:
         super().__init__()
         self.num_views = num_views
-        self.use_mhc = use_mhc
 
         self.view_embed = nn.Linear(input_dim, hidden_dim, bias=False)
         self.pre_gate = nn.Sequential(
             SpectralGating(hidden_dim, hidden_dim * 2, dropout),
             SpectralGating(hidden_dim, hidden_dim * 2, dropout),
         )
-
-        if use_engram:
-            self.engram = EngramMemory(hidden_dim, num_slots=engram_slots)
-        else:
-            self.engram = None
 
         self.original_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
         self.aug_embed = nn.Parameter(torch.zeros(1, 1, hidden_dim))
@@ -354,22 +217,11 @@ class AugFormer(nn.Module, TTTMixin):
         self.blocks = nn.ModuleList(
             [
                 TransformerBlock(
-                    hidden_dim,
-                    num_heads,
-                    mlp_ratio=2,
-                    dropout=dropout,
-                    use_xsa=use_xsa,
-                    use_mla=use_mla,
-                    latent_dim=latent_dim,
+                    hidden_dim, num_heads, mlp_ratio=2, dropout=dropout, use_xsa=use_xsa
                 )
                 for _ in range(num_layers)
             ]
         )
-
-        if use_mhc:
-            self.mhc_projs = nn.ModuleList(
-                [ManifoldProjection(hidden_dim) for _ in range(num_layers)]
-            )
 
         self.norm = RMSNorm(hidden_dim)
         self.fc_out = nn.Linear(hidden_dim, output_dim, bias=False)
@@ -398,10 +250,6 @@ class AugFormer(nn.Module, TTTMixin):
         # Apply shared spectral gating to each view independently
         tokens = self.pre_gate(tokens)
 
-        # Retrieve static knowledge from Engram Memory
-        if self.engram is not None:
-            tokens = self.engram(tokens)
-
         # Mark original vs augmented
         tokens[:, 0:1] = tokens[:, 0:1] + self.original_embed  # original view
         tokens[:, 1:] = tokens[:, 1:] + self.aug_embed  # all augmented views
@@ -409,15 +257,8 @@ class AugFormer(nn.Module, TTTMixin):
         # Save anchor residual
         anchor_residual = tokens[:, 0:1].clone()
 
-        if self.use_mhc:
-            hyper_stream = tokens.clone()
-            for i, block in enumerate(self.blocks):
-                tokens = block(tokens)
-                hyper_stream = self.mhc_projs[i](tokens, hyper_stream)
-            tokens = hyper_stream
-        else:
-            for block in self.blocks:
-                tokens = block(tokens)
+        for block in self.blocks:
+            tokens = block(tokens)
 
         tokens[:, 0:1] = tokens[:, 0:1] + anchor_residual
         tokens = self.norm(tokens)

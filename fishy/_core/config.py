@@ -80,17 +80,17 @@ class TrainingConfig:
     use_performer: bool = False
     use_checkpointing: bool = False
     use_xsa: bool = False
-    use_mla: bool = False
-    use_mhc: bool = False
-    use_engram: bool = False
-    engram_slots: int = 128
     latent_dim: int = 64
-    # AugFormerV2 specific
-    use_qk_gain: bool = False
-    use_parallel_residuals: bool = False
-    recurrence_layers: Optional[List[int]] = None
-    use_leaky_sq: bool = False
-    use_ttt: bool = False
+    engram_slots: int = 128
+    # AugFormerV2/V3 specific
+    use_qk_gain: bool = False,
+    use_parallel_residuals: bool = False,
+    recurrence_layers: Optional[List[int]] = None,
+    use_leaky_sq: bool = False,
+    use_post_norm: bool = False,
+    logit_cap: float = 0.0,
+    use_ttt: bool = False,
+
     ttt_lr: float = 1e-3
     ttt_steps: int = 1
     use_ema: bool = False
@@ -165,9 +165,6 @@ class TrainingConfig:
 
         # Derived flags
         config_dict["use_muon"] = config_dict.get("optimizer") == "muon"
-        config_dict["use_mla"] = arg_dict.get("use_mla", False)
-        config_dict["use_mhc"] = arg_dict.get("use_mhc", False)
-        config_dict["use_engram"] = arg_dict.get("use_engram", False)
 
         return cls(**config_dict)
 

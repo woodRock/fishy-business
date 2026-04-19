@@ -86,13 +86,18 @@ class TransformerBlockV2(TransformerBlock):
         use_qk_gain: bool = False,
         use_parallel_residuals: bool = False,
         use_leaky_sq: bool = False,
+        use_post_norm: bool = False,
     ):
         super().__init__(embed_dim, num_heads, mlp_ratio, dropout, use_xsa)
         self.use_parallel_residuals = use_parallel_residuals
         self.use_leaky_sq = use_leaky_sq
+        self.use_post_norm = use_post_norm
 
         # Replace attention with V2
         self.attn = MultiHeadAttentionV2(embed_dim, num_heads, use_xsa, use_qk_gain)
+
+        if self.use_post_norm:
+            self.post_norm = RMSNorm(embed_dim)
 
         if self.use_leaky_sq:
             # Use LeakyReLU(0.5)^2 instead of Silu for the MLP
@@ -115,7 +120,7 @@ class TransformerBlockV2(TransformerBlock):
                 # Standard SwiGLU path
                 mlp_out = self.w2(F.silu(self.w1(x_norm)) * self.w3(x_norm))
 
-            return x + self.drop(attn_out) + self.drop(mlp_out)
+            out = x + self.drop(attn_out) + self.drop(mlp_out)
         else:
             # Sequential Residuals (Original style)
             x = x + self.drop(self.attn(self.norm1(x)))
@@ -124,7 +129,11 @@ class TransformerBlockV2(TransformerBlock):
                 mlp_out = self.w2(self.act(self.w1(h)))
             else:
                 mlp_out = self.w2(F.silu(self.w1(h)) * self.w3(h))
-            return x + self.drop(mlp_out)
+            out = x + self.drop(mlp_out)
+
+        if self.use_post_norm:
+            out = self.post_norm(out)
+        return out
 
 
 class AugFormerV2(AugFormer):
@@ -148,6 +157,8 @@ class AugFormerV2(AugFormer):
         use_parallel_residuals: bool = False,
         recurrence_layers: Optional[List[int]] = None,
         use_leaky_sq: bool = False,
+        use_post_norm: bool = False,
+        logit_cap: float = 0.0,
         **kwargs,
     ) -> None:
         super().__init__(
@@ -165,6 +176,8 @@ class AugFormerV2(AugFormer):
         self.use_parallel_residuals = use_parallel_residuals
         self.recurrence_layers = recurrence_layers or []
         self.use_leaky_sq = use_leaky_sq
+        self.use_post_norm = use_post_norm
+        self.logit_cap = logit_cap
 
         # Rebuild blocks with V2 implementation
         self.blocks = nn.ModuleList(
@@ -178,6 +191,7 @@ class AugFormerV2(AugFormer):
                     use_qk_gain=use_qk_gain,
                     use_parallel_residuals=use_parallel_residuals,
                     use_leaky_sq=use_leaky_sq,
+                    use_post_norm=use_post_norm,
                 )
                 for _ in range(num_layers)
             ]
@@ -222,9 +236,13 @@ class AugFormerV2(AugFormer):
         tokens = self.norm(tokens)
         logits = self.fc_out(tokens[:, 0])
 
+        if self.logit_cap > 0:
+            logits = self.logit_cap * torch.tanh(logits / self.logit_cap)
+
         if return_attention:
             return logits, []
         return logits
+
 
 
 __all__ = ["AugFormerV2"]

@@ -216,24 +216,6 @@ def setup_parser() -> argparse.ArgumentParser:
         help="Use Exclusive Self-Attention (XSA) in AugFormer",
     )
     hp_group.add_argument(
-        "--mla",
-        action="store_true",
-        dest="use_mla",
-        help="Use Multi-Head Latent Attention (MLA) in AugFormer",
-    )
-    hp_group.add_argument(
-        "--mhc",
-        action="store_true",
-        dest="use_mhc",
-        help="Use Manifold-Constrained Hyper-Connections (mHC) in AugFormer",
-    )
-    hp_group.add_argument(
-        "--engram",
-        action="store_true",
-        dest="use_engram",
-        help="Use Engram Memory bank in AugFormer",
-    )
-    hp_group.add_argument(
         "--engram-slots",
         type=int,
         default=128,
@@ -269,6 +251,18 @@ def setup_parser() -> argparse.ArgumentParser:
         action="store_true",
         dest="use_leaky_sq",
         help="Use LeakyReLU(0.5)^2 activation in AugFormerV2",
+    )
+    hp_group.add_argument(
+        "--post-norm",
+        action="store_true",
+        dest="use_post_norm",
+        help="Use post-normalization in AugFormerV2/V3",
+    )
+    hp_group.add_argument(
+        "--logit-cap",
+        type=float,
+        default=None,
+        help="Logit soft-capping value (e.g. 30.0) for AugFormerV2/V3",
     )
     hp_group.add_argument(
         "--ttt",

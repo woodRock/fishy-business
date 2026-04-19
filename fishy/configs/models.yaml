@@ -102,6 +102,44 @@ deep_models:
       learning_rate: 0.0001
       batch_size: 64
 
+  augformer_v3:
+    path: "fishy.models.deep.augformer_v3.AugFormerV3"
+    defaults:
+      hidden_dimension: 512
+      num_layers: 4
+      num_heads: 8
+      dropout: 0.3
+      num_views: 6
+      logit_cap: 30.0
+      learning_rate: 0.0001
+      batch_size: 64
+
+  augformer_v4:
+    path: "fishy.models.deep.augformer_v4.AugFormerV4"
+    defaults:
+      hidden_dimension: 512
+      num_layers: 4
+      num_heads: 8
+      num_kv_heads: 4
+      dropout: 0.3
+      num_views: 6
+      logit_cap: 30.0
+      learning_rate: 0.0001
+      batch_size: 64
+
+  deepseekv4:
+    path: "fishy.models.deep.deepseekv4.DeepSeekV4"
+    defaults:
+      hidden_dimension: 512
+      num_layers: 12
+      num_heads: 8
+      dropout: 0.3
+      num_views: 6
+      latent_dim: 64
+      engram_slots: 128
+      learning_rate: 0.0001
+      batch_size: 64
+
   gatedmlp:
     path: "fishy.models.deep.gatedmlp.GatedMLP"
     defaults:

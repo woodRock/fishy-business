@@ -22,6 +22,9 @@ from .transformer import Transformer
 from .gatedmlp import GatedMLP
 from .augformer import AugFormer
 from .augformer_v2 import AugFormerV2
+from .augformer_v3 import AugFormerV3
+from .augformer_v4 import AugFormerV4
+from .deepseekv4 import DeepSeekV4
 from .srmlp import SRMLP
 from .lewm import LEWM
 from .vae import VAE, SiameseVAE
@@ -47,6 +50,9 @@ __all__ = [
     "Transformer",
     "AugFormer",
     "AugFormerV2",
+    "AugFormerV3",
+    "AugFormerV4",
+    "DeepSeekV4",
     "GatedMLP",
     "SRMLP",
     "LEWM",
