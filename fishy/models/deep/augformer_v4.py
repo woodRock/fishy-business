@@ -46,8 +46,16 @@ class MultiHeadAttentionV4(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, N, C = x.shape
         q = self.q_proj(x).reshape(B, N, self.num_heads, self.head_dim).transpose(1, 2)
-        k = self.k_proj(x).reshape(B, N, self.num_kv_heads, self.head_dim).transpose(1, 2)
-        v = self.v_proj(x).reshape(B, N, self.num_kv_heads, self.head_dim).transpose(1, 2)
+        k = (
+            self.k_proj(x)
+            .reshape(B, N, self.num_kv_heads, self.head_dim)
+            .transpose(1, 2)
+        )
+        v = (
+            self.v_proj(x)
+            .reshape(B, N, self.num_kv_heads, self.head_dim)
+            .transpose(1, 2)
+        )
 
         # QK-norm
         q = F.rms_norm(q, (q.size(-1),))
@@ -78,7 +86,7 @@ class MLP_V4(nn.Module):
         self.w1 = nn.Linear(dim, hidden, bias=False)
         self.w2 = nn.Linear(hidden, dim, bias=False)
         self.w3 = nn.Linear(dim, hidden, bias=False)
-        
+
         # Zero-init output projection
         nn.init.zeros_(self.w2.weight)
 

@@ -250,16 +250,19 @@ class ModelTrainer:
                 self.pre_train_orchestrator.adapt_for_finetuning(
                     model, pre_trained_model
                 )
-            
+
             # Calculate inverse frequency class weights to combat extreme imbalance in batch-detection
             # count[0] = Different (Majority), count[1] = Same (Minority)
             counts = np.bincount(tr_labels, minlength=2)
-            weights = torch.tensor([1.0 / (counts[0] + 1e-6), 1.0 / (counts[1] + 1e-6)], dtype=torch.float32).to(self.device)
-            weights = weights / weights.mean() # Normalize to mean 1
-            
+            weights = torch.tensor(
+                [1.0 / (counts[0] + 1e-6), 1.0 / (counts[1] + 1e-6)],
+                dtype=torch.float32,
+            ).to(self.device)
+            weights = weights / weights.mean()  # Normalize to mean 1
+
             # Use FocalLoss with class weights for better balanced accuracy
             criterion = FocalLoss(alpha=weights, gamma=2.0)
-            
+
             opt = self.create_optimizer(model)
             sched, is_step = self.create_scheduler(opt, tr_ldr)
             last_model, metrics = DeepEngine.train_model(
@@ -290,13 +293,16 @@ class ModelTrainer:
             CustomDataset(X_diff_test, y_oh_test),
             batch_size=self.config.batch_size,
         )
-        
+
         # Consistent with training, use weighted FocalLoss for final evaluation
         final_counts = np.bincount(y_pair_train, minlength=2)
-        final_weights = torch.tensor([1.0 / (final_counts[0] + 1e-6), 1.0 / (final_counts[1] + 1e-6)], dtype=torch.float32).to(self.device)
+        final_weights = torch.tensor(
+            [1.0 / (final_counts[0] + 1e-6), 1.0 / (final_counts[1] + 1e-6)],
+            dtype=torch.float32,
+        ).to(self.device)
         final_weights = final_weights / final_weights.mean()
         criterion = FocalLoss(alpha=final_weights, gamma=2.0)
-        
+
         test_results = DeepEngine.evaluate_model(
             last_model,
             test_ldr,

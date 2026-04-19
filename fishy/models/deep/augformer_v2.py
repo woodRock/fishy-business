@@ -244,5 +244,4 @@ class AugFormerV2(AugFormer):
         return logits
 
 
-
 __all__ = ["AugFormerV2"]

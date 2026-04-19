@@ -64,23 +64,23 @@ class TransformerBlockV3(nn.Module):
         self.norm1 = RMSNorm(embed_dim)
         self.attn = MultiHeadAttentionV3(embed_dim, num_heads, use_xsa=use_xsa)
         self.norm2 = RMSNorm(embed_dim)
-        
+
         hidden = embed_dim * mlp_ratio
         self.w1 = nn.Linear(embed_dim, hidden, bias=False)
         self.w2 = nn.Linear(hidden, embed_dim, bias=False)
         self.w3 = nn.Linear(embed_dim, hidden, bias=False)
-        
+
         self.post_norm = RMSNorm(embed_dim)
         self.drop = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Pre-norm branch
         x = x + self.drop(self.attn(self.norm1(x)))
-        
+
         # SwiGLU FFN
         h = self.norm2(x)
         x = x + self.drop(self.w2(F.silu(self.w1(h)) * self.w3(h)))
-        
+
         # Post-norm step
         return self.post_norm(x)
 
