@@ -11,3 +11,4 @@ class DatasetName:
     BATCH_DETECTION = "batch-detection"
     OIL_REGRESSION = "oil-regression"
     OIL_SIMPLE = "oil-simple"
+    OIL_BINARY = "oil-binary"

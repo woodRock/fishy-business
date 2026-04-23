@@ -25,6 +25,21 @@ oil:
   label_encoding:
     type: "one_hot"
 
+oil-binary:
+  filter_rules:
+    exclude_mz: ["HM"]
+    include_mz_pattern: "MO"
+  label_encoding:
+    type: "map"
+    map:
+      "MO 50": [0.0, 1.0]
+      "MO 25": [0.0, 1.0]
+      "MO 10": [0.0, 1.0]
+      "MO 05": [0.0, 1.0]
+      "MO 01": [0.0, 1.0]
+      "MO 0.1": [0.0, 1.0]
+      "MO 0": [1.0, 0.0]
+
 cross-species:
   filter_rules:
     exclude_mz: ["MO"]
