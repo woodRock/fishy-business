@@ -31,7 +31,7 @@ from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
-from fishy.data.module import create_data_module, make_pairwise_test_split, make_all_pairwise_folds
+from fishy.data.module import create_data_module, make_pairwise_test_split, make_all_pairwise_folds, make_group_pairwise_folds
 from fishy._core.constants import DatasetName
 from fishy.data.datasets import SiameseDataset, BalancedBatchSampler, CustomDataset, PrecomputedPairDataset
 from fishy.data.augmentation import DataAugmenter, AugmentationConfig
@@ -83,6 +83,7 @@ class ContrastiveConfig:
     minmax: bool = False
     log_transform: bool = False
     savgol: bool = False
+    use_groups: bool = False
     # New augmentation params for contrastive on-the-fly
     data_augmentation: bool = True
     noise_level: float = 0.05
@@ -221,35 +222,52 @@ class ContrastiveTrainer:
         full_samples, full_labels = self.data_module.get_numpy_data()
 
         if DatasetName.BATCH_DETECTION in self.config.dataset:
-            # All C(N,2) pairs with stratified pair-level K-fold.
-            # The same fold indices are used by deep and classic trainers so
-            # every method type sees identical train / val splits.
-            X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
-                full_samples, full_labels,
-                n_splits=self.config.k_folds,
-                run_id=self.config.run,
-            )
-
-            for fold, (tr_idx, val_idx) in enumerate(folds):
-                self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
-
-                model, criterion, optimizer = self._create_fresh_model()
-
-                train_ds = PrecomputedPairDataset(
-                    X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx]
+            if self.config.use_groups:
+                # Group-level split: each batch is kept whole in train or val.
+                # Pairs formed within each split — no sample-level leakage.
+                group_folds = make_group_pairwise_folds(
+                    full_samples, full_labels,
+                    n_splits=self.config.k_folds,
+                    run_id=self.config.run,
                 )
-                sampler = BalancedBatchSampler(train_ds.paired_labels, self.config.batch_size)
-                train_ldr = DataLoader(train_ds, batch_sampler=sampler)
-
-                history = self._train_fold(model, criterion, optimizer, train_ldr)
-                fold_metrics = self._evaluate_precomputed_fold(
-                    model,
-                    X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx],
-                    X1_all[val_idx], X2_all[val_idx], pair_labels_all[val_idx],
+                for fold, (X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val) in enumerate(group_folds):
+                    self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} (group split) ---")
+                    model, criterion, optimizer = self._create_fresh_model()
+                    train_ds = PrecomputedPairDataset(X1_tr, X2_tr, labels_tr)
+                    sampler = BalancedBatchSampler(train_ds.paired_labels, self.config.batch_size)
+                    train_ldr = DataLoader(train_ds, batch_sampler=sampler)
+                    history = self._train_fold(model, criterion, optimizer, train_ldr)
+                    fold_metrics = self._evaluate_precomputed_fold(
+                        model, X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val,
+                    )
+                    fold_metrics["history"] = history
+                    self.all_fold_metrics.append(fold_metrics)
+                    self.model = model
+            else:
+                # Default: pair-level K-fold (all C(N,2) pairs, split on pairs).
+                # Same fold indices as deep and classic trainers for fair comparison.
+                X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
+                    full_samples, full_labels,
+                    n_splits=self.config.k_folds,
+                    run_id=self.config.run,
                 )
-                fold_metrics["history"] = history
-                self.all_fold_metrics.append(fold_metrics)
-                self.model = model
+                for fold, (tr_idx, val_idx) in enumerate(folds):
+                    self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
+                    model, criterion, optimizer = self._create_fresh_model()
+                    train_ds = PrecomputedPairDataset(
+                        X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx]
+                    )
+                    sampler = BalancedBatchSampler(train_ds.paired_labels, self.config.batch_size)
+                    train_ldr = DataLoader(train_ds, batch_sampler=sampler)
+                    history = self._train_fold(model, criterion, optimizer, train_ldr)
+                    fold_metrics = self._evaluate_precomputed_fold(
+                        model,
+                        X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx],
+                        X1_all[val_idx], X2_all[val_idx], pair_labels_all[val_idx],
+                    )
+                    fold_metrics["history"] = history
+                    self.all_fold_metrics.append(fold_metrics)
+                    self.model = model
 
         else:
             # Non-batch-detection: standard sample-level K-fold

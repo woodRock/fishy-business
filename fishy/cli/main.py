@@ -158,6 +158,12 @@ def setup_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Perform statistical significance tests",
     )
+    hp_group.add_argument(
+        "--group",
+        action="store_true",
+        dest="use_groups",
+        help="Batch-detection: split whole groups (batches) into train/val before forming pairs, eliminating sample-level leakage",
+    )
 
     hp_group.add_argument(
         "-r",

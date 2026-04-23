@@ -22,7 +22,7 @@ from sklearn.metrics import (
 )
 from dataclasses import asdict
 
-from fishy.data.module import create_data_module, make_all_pairwise_folds
+from fishy.data.module import create_data_module, make_all_pairwise_folds, make_group_pairwise_folds
 from fishy._core.utils import RunContext, console
 from fishy._core.config import TrainingConfig
 from fishy._core.config_loader import load_config
@@ -123,43 +123,56 @@ class SklearnTrainer:
         # for a fair, consistent evaluation.
         if DatasetName.BATCH_DETECTION in self.dataset_name:
             full_samples, full_labels = self.data_module.get_numpy_data()
-            X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
-                full_samples, full_labels,
-                n_splits=self.config.k_folds,
-                run_id=self.config.run,
-            )
-            # Use difference vectors for classic ML models
-            X_diff_all = X1_all - X2_all
-            
+
+            if self.config.use_groups:
+                # Group-level split: each batch kept whole in train or val.
+                group_folds = make_group_pairwise_folds(
+                    full_samples, full_labels,
+                    n_splits=self.config.k_folds,
+                    run_id=self.config.run,
+                )
+                fold_iter = [
+                    (X1_tr - X2_tr, labels_tr, X1_val - X2_val, labels_val)
+                    for X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val in group_folds
+                ]
+            else:
+                X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
+                    full_samples, full_labels,
+                    n_splits=self.config.k_folds,
+                    run_id=self.config.run,
+                )
+                X_diff_all = X1_all - X2_all
+                fold_iter = [
+                    (X_diff_all[tr_idx], pair_labels_all[tr_idx],
+                     X_diff_all[val_idx], pair_labels_all[val_idx])
+                    for tr_idx, val_idx in folds
+                ]
+
             all_fold_metrics = []
             last_model = None
-            
-            for fold, (tr_idx, val_idx) in enumerate(folds):
+
+            for fold, (X_diff_tr, labels_tr, X_diff_val, labels_val) in enumerate(fold_iter):
                 self.logger.info(f"--- Classic Fold {fold+1}/{self.config.k_folds} ---")
-                
-                # Fit scaler on train split only
+
                 scaler = StandardScaler()
-                X_tr_scaled = scaler.fit_transform(X_diff_all[tr_idx])
-                X_val_scaled = scaler.transform(X_diff_all[val_idx])
-                
+                X_tr_scaled = scaler.fit_transform(X_diff_tr)
+                X_val_scaled = scaler.transform(X_diff_val)
+
                 model = self._get_model_instance()
-                # Train binary classifier (Same: 1, Different: 0)
-                model.fit(X_tr_scaled, pair_labels_all[tr_idx])
-                
-                # Evaluate
+                model.fit(X_tr_scaled, labels_tr)
+
                 y_tr_pred = model.predict(X_tr_scaled)
                 y_val_pred = model.predict(X_val_scaled)
-                
-                # Use binary metrics for batch detection pairs
+
                 tr_met = {
-                    "accuracy": accuracy_score(pair_labels_all[tr_idx], y_tr_pred),
-                    "balanced_accuracy": balanced_accuracy_score(pair_labels_all[tr_idx], y_tr_pred),
-                    "f1": f1_score(pair_labels_all[tr_idx], y_tr_pred, zero_division=0),
+                    "accuracy": accuracy_score(labels_tr, y_tr_pred),
+                    "balanced_accuracy": balanced_accuracy_score(labels_tr, y_tr_pred),
+                    "f1": f1_score(labels_tr, y_tr_pred, zero_division=0),
                 }
                 val_met = {
-                    "accuracy": accuracy_score(pair_labels_all[val_idx], y_val_pred),
-                    "balanced_accuracy": balanced_accuracy_score(pair_labels_all[val_idx], y_val_pred),
-                    "f1": f1_score(pair_labels_all[val_idx], y_val_pred, zero_division=0),
+                    "accuracy": accuracy_score(labels_val, y_val_pred),
+                    "balanced_accuracy": balanced_accuracy_score(labels_val, y_val_pred),
+                    "f1": f1_score(labels_val, y_val_pred, zero_division=0),
                 }
                 
                 fold_res = {f"train_{k}": v for k, v in tr_met.items()}

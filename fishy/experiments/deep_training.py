@@ -19,7 +19,7 @@ from fishy._core.factory import create_model
 from fishy._core.utils import RunContext, get_device
 from fishy.experiments.pre_training import PreTrainingOrchestrator
 from fishy.engine.trainer import DeepEngine
-from fishy.data.module import create_data_module, make_pairwise_test_split, make_all_pairwise_folds
+from fishy.data.module import create_data_module, make_pairwise_test_split, make_all_pairwise_folds, make_group_pairwise_folds
 from fishy.data.datasets import CustomDataset, SiameseDataset
 from fishy.engine.losses import coral_loss, cumulative_link_loss, FocalLoss
 from fishy.engine.muon import Muon
@@ -203,22 +203,41 @@ class ModelTrainer:
         )
         full_samples, full_labels = self.data_module.get_numpy_data()
 
-        X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
-            full_samples, full_labels,
-            n_splits=self.config.k_folds,
-            run_id=self.config.run,
-        )
-        X_diff_all = X1_all - X2_all
-        y_oh_all = np.eye(2, dtype=np.float32)[pair_labels_all]
-
         n_classes = 2
         k_folds = self.config.k_folds
         all_fold_metrics = []
         last_model = None
 
-        for fold, (tr_idx, val_idx) in enumerate(folds):
+        if self.config.use_groups:
+            # Group-level split: each batch kept whole in train or val.
+            group_folds = make_group_pairwise_folds(
+                full_samples, full_labels,
+                n_splits=k_folds,
+                run_id=self.config.run,
+            )
+            fold_iter = [
+                (X1_tr - X2_tr, np.eye(2, dtype=np.float32)[labels_tr],
+                 X1_val - X2_val, np.eye(2, dtype=np.float32)[labels_val],
+                 labels_tr, labels_val)
+                for X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val in group_folds
+            ]
+        else:
+            X1_all, X2_all, pair_labels_all, folds = make_all_pairwise_folds(
+                full_samples, full_labels,
+                n_splits=k_folds,
+                run_id=self.config.run,
+            )
+            X_diff_all = X1_all - X2_all
+            y_oh_all = np.eye(2, dtype=np.float32)[pair_labels_all]
+            fold_iter = [
+                (X_diff_all[tr_idx], y_oh_all[tr_idx],
+                 X_diff_all[val_idx], y_oh_all[val_idx],
+                 pair_labels_all[tr_idx], pair_labels_all[val_idx])
+                for tr_idx, val_idx in folds
+            ]
+
+        for fold, (X_diff_tr, y_oh_tr, X_diff_val, y_oh_val, tr_labels, val_labels) in enumerate(fold_iter):
             self.logger.info(f"--- Fold {fold + 1}/{k_folds} ---")
-            tr_labels = pair_labels_all[tr_idx]
             class_counts = np.bincount(tr_labels, minlength=2)
             sample_weights = torch.tensor(
                 (1.0 / (class_counts + 1e-6))[tr_labels], dtype=torch.float32
@@ -228,12 +247,12 @@ class ModelTrainer:
             )
 
             tr_ldr = DataLoader(
-                CustomDataset(X_diff_all[tr_idx], y_oh_all[tr_idx]),
+                CustomDataset(X_diff_tr, y_oh_tr),
                 batch_size=self.config.batch_size,
                 sampler=sampler,
             )
             val_ldr = DataLoader(
-                CustomDataset(X_diff_all[val_idx], y_oh_all[val_idx]),
+                CustomDataset(X_diff_val, y_oh_val),
                 batch_size=self.config.batch_size,
             )
             model = create_model(self.config, self.n_features, n_classes).to(

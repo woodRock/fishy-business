@@ -85,6 +85,53 @@ def make_all_pairwise_folds(
     return X1, X2, pair_labels, folds
 
 
+def make_group_pairwise_folds(
+    X: np.ndarray,
+    y: np.ndarray,
+    n_splits: int = 3,
+    run_id: int = 0,
+) -> List:
+    """
+    Group-level K-fold for batch-detection: each class/batch is kept whole in
+    either train or val, then pairs are formed within each split separately.
+
+    With 24 groups of 3 samples and n_splits=3, each fold places 16 groups
+    (48 samples, 1128 pairs) in train and 8 groups (24 samples, 276 pairs) in
+    val. No sample from a val group is ever seen during training, eliminating
+    the sample-level leakage present in pair-level K-fold.
+
+    Groups are shuffled by run_id so different seeds produce different fold
+    assignments while remaining fully reproducible.
+
+    Returns
+    -------
+    folds : list of (X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val)
+        Pre-formed pairs for each fold. Train and val pairs are independent.
+    """
+    y_cls = np.argmax(y, axis=1) if y.ndim > 1 else y.flatten()
+
+    unique_groups = np.unique(y_cls)
+    rng = np.random.default_rng(run_id)
+    shuffled = rng.permutation(unique_groups)
+    # Round-robin assignment of groups to folds
+    group_fold = {g: int(i % n_splits) for i, g in enumerate(shuffled)}
+    sample_fold = np.array([group_fold[g] for g in y_cls])
+
+    def _pairs(Xs, ys):
+        idx_i, idx_j = np.triu_indices(len(Xs), k=1)
+        return Xs[idx_i], Xs[idx_j], (ys[idx_i] == ys[idx_j]).astype(int)
+
+    folds = []
+    for f in range(n_splits):
+        tr_mask = sample_fold != f
+        val_mask = sample_fold == f
+        X1_tr, X2_tr, labels_tr = _pairs(X[tr_mask], y_cls[tr_mask])
+        X1_val, X2_val, labels_val = _pairs(X[val_mask], y_cls[val_mask])
+        folds.append((X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val))
+
+    return folds
+
+
 logger = logging.getLogger(__name__)
 
 

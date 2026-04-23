@@ -283,6 +283,8 @@ class UnifiedTrainer:
             wandb_log=config.wandb_log,
             encoder_type=config.encoder_type,
             run=config.run,
+            k_folds=config.k_folds,
+            use_groups=config.use_groups,
             random_projection=config.random_projection,
             quantize=config.quantize,
             turbo_quant=config.turbo_quant,
