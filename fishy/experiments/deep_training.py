@@ -424,6 +424,7 @@ class ModelTrainer:
         self, pre_trained_model: Optional[nn.Module]
     ) -> Tuple[nn.Module, Dict[str, Any]]:
         from sklearn.model_selection import StratifiedKFold
+        from fishy.data.augmentation import DataAugmenter, AugmentationConfig
 
         full_samples, full_labels = self.data_module.get_numpy_data()
         k_folds = self.config.k_folds
@@ -432,17 +433,42 @@ class ModelTrainer:
         )
         all_fold_metrics = []
         last_model = None
+
+        augmenter = None
+        if self.config.data_augmentation:
+            aug_cfg = AugmentationConfig(
+                enabled=True,
+                num_augmentations=0,  # 0 because we do on-the-fly 1-to-1 in Dataset
+                noise_enabled=False,  # Disable default noise to isolate masking effect
+                noise_level=self.config.noise_level,
+                shift_enabled=self.config.shift_enabled,
+                scale_enabled=self.config.scale_enabled,
+                crop_enabled=self.config.crop_enabled,
+                crop_size=self.config.crop_size,
+                mask_enabled=self.config.mask_enabled,
+                mask_size=self.config.mask_size,
+                flip_enabled=self.config.flip_enabled,
+                permutation_enabled=self.config.permutation_enabled,
+                normalize=self.config.normalize,
+            )
+            augmenter = DataAugmenter(aug_cfg)
+
         for fold, (tr_idx, val_idx) in enumerate(
             skf.split(full_samples, np.argmax(full_labels, axis=1))
         ):
             self.logger.info(f"--- Fold {fold + 1}/{k_folds} ---")
             tr_ldr = DataLoader(
-                CustomDataset(full_samples[tr_idx], full_labels[tr_idx]),
+                CustomDataset(
+                    full_samples[tr_idx],
+                    full_labels[tr_idx],
+                    augmenter=augmenter,
+                    train=True,
+                ),
                 batch_size=self.config.batch_size,
                 shuffle=True,
             )
             val_ldr = DataLoader(
-                CustomDataset(full_samples[val_idx], full_labels[val_idx]),
+                CustomDataset(full_samples[val_idx], full_labels[val_idx], train=False),
                 batch_size=self.config.batch_size,
             )
             model = create_model(self.config, self.n_features, self.n_classes).to(

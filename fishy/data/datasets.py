@@ -26,9 +26,13 @@ class BaseDataset(Dataset):
         log_transform: bool = False,
         savgol: bool = False,
         seed: int = 42,
+        augmenter=None,
+        train: bool = False,
     ) -> None:
         self.samples = torch.tensor(samples, dtype=torch.float32)
         self.labels = torch.tensor(np.array(labels), dtype=torch.float32)
+        self.augmenter = augmenter
+        self.train = train
 
         # 0. Basic Preprocessing (Log, SNV, MinMax, SavGol)
         if log_transform:
@@ -142,7 +146,14 @@ class BaseDataset(Dataset):
         return self.samples.shape[0]
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        return self.samples[idx], self.labels[idx]
+        x = self.samples[idx]
+        if self.train and self.augmenter:
+            # Stochastic augmentation: 50% chance to see the clean spectrum,
+            # 50% chance to see the augmented/masked version.
+            if torch.rand(1).item() < 0.5:
+                # X_batch input expected by augmenter is (B, F)
+                x = self.augmenter._apply_augmentations_to_batch(x.unsqueeze(0)).squeeze(0)
+        return x, self.labels[idx]
 
 
 class CustomDataset(BaseDataset):
@@ -163,22 +174,35 @@ class PrecomputedPairDataset(torch.utils.data.Dataset):
         X1: np.ndarray,
         X2: np.ndarray,
         pair_labels: np.ndarray,
+        augmenter=None,
+        train: bool = False,
     ):
         self.X1 = torch.from_numpy(X1).float()
         self.X2 = torch.from_numpy(X2).float()
         lbl = torch.from_numpy(pair_labels).float()
         self.paired_labels = lbl.unsqueeze(1) if lbl.dim() == 1 else lbl
+        self.augmenter = augmenter
+        self.train = train
 
     def __len__(self) -> int:
         return len(self.paired_labels)
 
     def __getitem__(self, idx: int):
+        x1 = self.X1[idx]
+        x2 = self.X2[idx]
+        
+        if self.train and self.augmenter:
+            if torch.rand(1).item() < 0.5:
+                x1 = self.augmenter._apply_augmentations_to_batch(x1.unsqueeze(0)).squeeze(0)
+            if torch.rand(1).item() < 0.5:
+                x2 = self.augmenter._apply_augmentations_to_batch(x2.unsqueeze(0)).squeeze(0)
+                
         return (
-            self.X1[idx],
-            self.X2[idx],
+            x1,
+            x2,
             self.paired_labels[idx],
-            self.X1[idx],
-            self.X2[idx],
+            x1,
+            x2,
         )
 
 

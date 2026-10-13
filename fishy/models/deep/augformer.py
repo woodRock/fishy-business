@@ -173,7 +173,9 @@ class MultiHeadAttention(nn.Module):
         self.qkv = nn.Linear(embed_dim, 3 * embed_dim, bias=False)
         self.proj = nn.Linear(embed_dim, embed_dim, bias=False)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, return_attention: bool = False
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim)
         q, k, v = qkv.permute(2, 0, 3, 1, 4).unbind(0)
@@ -189,7 +191,10 @@ class MultiHeadAttention(nn.Module):
             y = y - (y * Vn).sum(dim=-1, keepdim=True) * Vn
 
         x = y.transpose(1, 2).reshape(B, N, C)
-        return self.proj(x)
+        out = self.proj(x)
+        if return_attention:
+            return out, attn
+        return out
 
 
 class TransformerBlock(nn.Module):
@@ -213,10 +218,22 @@ class TransformerBlock(nn.Module):
         self.w3 = nn.Linear(embed_dim, hidden, bias=False)
         self.drop = nn.Dropout(dropout)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x + self.drop(self.attn(self.norm1(x)))
+    def forward(
+        self, x: torch.Tensor, return_attention: bool = False
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+        if return_attention:
+            attn_out, attn_weights = self.attn(self.norm1(x), return_attention=True)
+            x = x + self.drop(attn_out)
+        else:
+            x = x + self.drop(self.attn(self.norm1(x)))
+            attn_weights = None
+
         h = self.norm2(x)
-        return x + self.drop(self.w2(F.silu(self.w1(h)) * self.w3(h)))
+        out = x + self.drop(self.w2(F.silu(self.w1(h)) * self.w3(h)))
+
+        if return_attention:
+            return out, attn_weights
+        return out
 
 
 # ---------------------------------------------------------------------------
@@ -309,15 +326,20 @@ class AugFormer(nn.Module, TTTMixin):
         # Save anchor residual
         anchor_residual = tokens[:, 0:1].clone()
 
+        attentions = []
         for block in self.blocks:
-            tokens = block(tokens)
+            if return_attention:
+                tokens, attn = block(tokens, return_attention=True)
+                attentions.append(attn)
+            else:
+                tokens = block(tokens)
 
         tokens[:, 0:1] = tokens[:, 0:1] + anchor_residual
         tokens = self.norm(tokens)
         logits = self.fc_out(tokens[:, 0])
 
         if return_attention:
-            return logits, []
+            return logits, attentions
         return logits
 
 

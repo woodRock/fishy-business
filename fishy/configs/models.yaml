@@ -7,6 +7,14 @@ deep_models:
       hidden_dimension: 128
       num_layers: 4
       num_heads: 4
+
+  patchformer:
+    path: "fishy.models.deep.patchformer.PatchFormer"
+    defaults:
+      hidden_dim: 256
+      num_layers: 2
+      num_heads: 8
+      patch_size: 64
       dropout: 0.2
       learning_rate: 0.0001
       batch_size: 64

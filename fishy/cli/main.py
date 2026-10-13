@@ -84,16 +84,39 @@ def setup_parser() -> argparse.ArgumentParser:
         "--all", action="store_true", help="Show all expert hyperparameters in --help"
     )
 
-    # CONTEXT SENSITIVE: Only show --encoder if model is contrastive or --all is used
+    # CONTEXT SENSITIVE: Only show contrastive flags if model is contrastive or --all is used
     encoder_help = "Encoder type for contrastive learning (e.g., transformer, cnn)"
+    agg_help = "Use transitive agglomerative clustering for batch assignments"
     if is_contrastive or show_all:
         train_parser.add_argument(
             "--encoder", type=str, default="dense", help=encoder_help
+        )
+        train_parser.add_argument(
+            "--agglomerative", 
+            action="store_true", 
+            dest="use_transitive_clustering",
+            help=agg_help
+        )
+        train_parser.add_argument(
+            "--learned-threshold",
+            action="store_true",
+            help="Adaptively learn the clustering threshold"
         )
     else:
         # Hide it from help but still allow it to be parsed if passed
         train_parser.add_argument(
             "--encoder", type=str, default="dense", help=argparse.SUPPRESS
+        )
+        train_parser.add_argument(
+            "--agglomerative", 
+            action="store_true", 
+            dest="use_transitive_clustering",
+            help=argparse.SUPPRESS
+        )
+        train_parser.add_argument(
+            "--learned-threshold",
+            action="store_true",
+            help=argparse.SUPPRESS
         )
 
     # Expert Hyperparameters Group
@@ -203,6 +226,12 @@ def setup_parser() -> argparse.ArgumentParser:
     hp_group.add_argument("--num-heads", type=int, default=None)
     hp_group.add_argument("--num-kv-heads", type=int, default=None)
     hp_group.add_argument("--dropout", type=float, default=None)
+    hp_group.add_argument(
+        "--patch-size",
+        type=int,
+        default=None,
+        help="Patch size for transformer spectral patchification (must divide input_dim)",
+    )
     hp_group.add_argument(
         "--top-k", type=int, default=None, help="Process only the top-K peaks"
     )

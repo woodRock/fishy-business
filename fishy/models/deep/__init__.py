@@ -19,6 +19,7 @@ from .rcnn import RCNN
 from .rwkv import RWKV
 from .tcn import TCN
 from .transformer import Transformer
+from .patchformer import PatchFormer
 from .gatedmlp import GatedMLP
 from .augformer import AugFormer
 from .augformer_v2 import AugFormerV2
@@ -48,6 +49,7 @@ __all__ = [
     "RWKV",
     "TCN",
     "Transformer",
+    "PatchFormer",
     "AugFormer",
     "AugFormerV2",
     "AugFormerV3",

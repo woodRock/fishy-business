@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
-from .xai import GradCAM
+from .xai import GradCAM, visualize_transformer_attention
 
 logger = logging.getLogger(__name__)
 
@@ -165,5 +165,8 @@ def run_biomarker_pipeline(model, data_loader, feature_names, device, top_n=5):
 
     discovery = AutomatedBiomarkerDiscovery(mz_floats)
     biomarkers = discovery.identify_top_peaks(cam, top_n=top_n)
+
+    # 3. Add attention maps if transformer
+    visualize_transformer_attention(model, data_loader, device)
 
     return discovery.generate_report(biomarkers)

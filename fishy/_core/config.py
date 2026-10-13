@@ -62,9 +62,12 @@ class TrainingConfig:
     crop_enabled: bool = False
     flip_enabled: bool = False
     permutation_enabled: bool = False
+    mask_enabled: bool = False
     crop_size: float = 0.8  # Default crop size
+    mask_size: int = 50
     num_experts: int = 8
     k: int = 2
+    patch_size: int = 64  # Added for Transformer patchification
     random_projection: bool = False
     quantize: bool = False
     turbo_quant: bool = False
@@ -96,6 +99,8 @@ class TrainingConfig:
     use_ema: bool = False
     ema_decay: float = 0.999
     use_muon: bool = False
+    use_transitive_clustering: bool = False
+    learned_threshold: bool = False
 
     # Contrastive specific
     encoder_type: str = "dense"

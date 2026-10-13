@@ -32,10 +32,13 @@ class AugmentationConfig:
     crop_enabled: bool = False
     flip_enabled: bool = False
     permutation_enabled: bool = False
+    mask_enabled: bool = False
+    normalize: bool = False
     noise_level: float = 0.1
     shift_range: float = 0.1
     scale_range: float = 0.1
     crop_size: float = 0.8
+    mask_size: int = 50
 
 
 class DataAugmenter:
@@ -43,6 +46,23 @@ class DataAugmenter:
 
     def __init__(self, config: AugmentationConfig) -> None:
         self.config = config
+
+    def _random_mask(self, X_batch: torch.Tensor) -> torch.Tensor:
+        """Applies internal contiguous masking (MSM-style) as augmentation."""
+        n_samples, n_features = X_batch.shape
+        masked_batch = X_batch.clone()
+        for i in range(n_samples):
+            if n_features > self.config.mask_size:
+                start = torch.randint(
+                    0, n_features - self.config.mask_size + 1, (1,)
+                ).item()
+                masked_batch[i, start : start + self.config.mask_size] = 0.0
+        
+        # Re-normalize after masking to prevent distribution shift in intensity
+        if self.config.normalize:
+            masked_batch = F.normalize(masked_batch, p=2, dim=1)
+            
+        return masked_batch
 
     def _random_crop(self, X_batch: torch.Tensor) -> torch.Tensor:
         n_samples, n_features = X_batch.shape
@@ -112,6 +132,8 @@ class DataAugmenter:
 
         if self.config.crop_enabled:
             X_augmented_batch = self._random_crop(X_augmented_batch)
+        if self.config.mask_enabled:
+            X_augmented_batch = self._random_mask(X_augmented_batch)
         if self.config.flip_enabled:
             X_augmented_batch = self._random_flip(X_augmented_batch)
         if self.config.permutation_enabled:

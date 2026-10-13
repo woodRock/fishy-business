@@ -294,6 +294,8 @@ class UnifiedTrainer:
             minmax=config.minmax,
             log_transform=config.log_transform,
             savgol=config.savgol,
+            use_transitive_clustering=config.use_transitive_clustering,
+            learned_threshold=config.learned_threshold,
         )
         trainer = ContrastiveTrainer(c_cfg, wandb_run=wandb_run, ctx=ctx)
         try:

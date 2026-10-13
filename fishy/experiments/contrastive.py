@@ -28,6 +28,7 @@ from sklearn.metrics import (
     f1_score,
 )
 from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.cluster import AgglomerativeClustering
 
 from fishy._core.config import TrainingConfig
 from fishy._core.utils import RunContext, get_device
@@ -89,6 +90,12 @@ class ContrastiveConfig:
     noise_level: float = 0.05
     shift_range: float = 0.05
     scale_range: float = 0.1
+    
+    # Transitive / Clustering parameters
+    use_transitive_clustering: bool = False
+    clustering_threshold: float = 0.7  # Initial threshold
+    learned_threshold: bool = False   # If true, the threshold is optimized
+    clustering_step: int = 5          # Re-cluster every N epochs
 
 
 class SupervisedContrastiveDataset(torch.utils.data.Dataset):
@@ -220,6 +227,21 @@ class ContrastiveTrainer:
 
     def train(self) -> None:
         full_samples, full_labels = self.data_module.get_numpy_data()
+        
+        augmenter = None
+        if self.config.data_augmentation:
+            aug_cfg = AugmentationConfig(
+                enabled=True,
+                num_augmentations=0,
+                noise_enabled=True,
+                noise_level=self.config.noise_level,
+                shift_enabled=self.config.shift_range > 0,
+                shift_range=self.config.shift_range,
+                scale_enabled=self.config.scale_range > 0,
+                scale_range=self.config.scale_range,
+                normalize=self.config.normalize,
+            )
+            augmenter = DataAugmenter(aug_cfg)
 
         if DatasetName.BATCH_DETECTION in self.config.dataset:
             if self.config.use_groups:
@@ -233,7 +255,9 @@ class ContrastiveTrainer:
                 for fold, (X1_tr, X2_tr, labels_tr, X1_val, X2_val, labels_val) in enumerate(group_folds):
                     self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} (group split) ---")
                     model, criterion, optimizer = self._create_fresh_model()
-                    train_ds = PrecomputedPairDataset(X1_tr, X2_tr, labels_tr)
+                    train_ds = PrecomputedPairDataset(
+                        X1_tr, X2_tr, labels_tr, augmenter=augmenter, train=True
+                    )
                     sampler = BalancedBatchSampler(train_ds.paired_labels, self.config.batch_size)
                     train_ldr = DataLoader(train_ds, batch_sampler=sampler)
                     history = self._train_fold(model, criterion, optimizer, train_ldr)
@@ -255,7 +279,8 @@ class ContrastiveTrainer:
                     self.logger.info(f"--- Contrastive Fold {fold+1}/{self.config.k_folds} ---")
                     model, criterion, optimizer = self._create_fresh_model()
                     train_ds = PrecomputedPairDataset(
-                        X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx]
+                        X1_all[tr_idx], X2_all[tr_idx], pair_labels_all[tr_idx],
+                        augmenter=augmenter, train=True
                     )
                     sampler = BalancedBatchSampler(train_ds.paired_labels, self.config.batch_size)
                     train_ldr = DataLoader(train_ds, batch_sampler=sampler)
@@ -319,41 +344,101 @@ class ContrastiveTrainer:
     def _train_fold(self, model, criterion, optimizer, loader) -> Dict[str, List]:
         model.train()
         history = {"loss": [], "accuracy": []}
+        
+        # Keep track of current transitive assignments
+        sample_to_cluster = {}
+        
+        # Extract unique samples for efficient clustering
+        full_x = None
+        if self.config.use_transitive_clustering:
+            if hasattr(loader.dataset, "samples"):
+                full_x = loader.dataset.samples.to(self.device)
+            elif hasattr(loader.dataset, "X1"):
+                # Efficiently find unique physical samples from the pair arrays
+                all_samples = torch.cat([loader.dataset.X1, loader.dataset.X2], dim=0)
+                # Use numpy for unique because it's faster for high-dim vectors than torch.unique
+                unique_np = np.unique(all_samples.numpy(), axis=0)
+                full_x = torch.from_numpy(unique_np).to(self.device)
+                self.logger.info(f"Clustering setup: {len(full_x)} unique physical samples discovered.")
+
         for epoch in range(self.config.num_epochs):
+            # 1. Update Transitive Assignments (Delayed start for stability)
+            if self.config.use_transitive_clustering and epoch >= 10 and epoch % self.config.clustering_step == 0:
+                with torch.no_grad():
+                    model.eval()
+                    embeddings = F.normalize(model.encoder(full_x), dim=1)
+                    
+                    # Adaptive strict threshold (top 0.5% of similarities)
+                    sim_matrix = torch.matmul(embeddings, embeddings.T)
+                    triu_idx = torch.triu_indices(len(embeddings), len(embeddings), offset=1)
+                    flat_sims = sim_matrix[triu_idx[0], triu_idx[1]]
+                    
+                    k = max(1, int(len(flat_sims) * 0.005)) 
+                    current_threshold = torch.topk(flat_sims, k)[0][-1].item()
+                    current_threshold = max(0.95, current_threshold)
+                    
+                    clustering = AgglomerativeClustering(
+                        n_clusters=None,
+                        distance_threshold=max(0.0001, 1.0 - current_threshold),
+                        metric="cosine",
+                        linkage="average"
+                    )
+                    clusters = clustering.fit_predict(embeddings.cpu().numpy())
+                    n_clusters = len(np.unique(clusters))
+                    
+                    # Positive Rate Guard: If too many positives are found, clustering likely collapsed
+                    pos_rate = (1.0 / n_clusters) if n_clusters > 0 else 1.0
+                    if 1 < n_clusters < len(full_x) and pos_rate < 0.2:
+                        # Build efficient lookup map (using sample hash as key)
+                        # We use the index in full_x as a proxy for the sample identity
+                        sample_to_cluster = {i: c for i, c in enumerate(clusters)}
+                        self._cluster_embeddings = embeddings.clone()
+                        self.logger.info(f"Epoch {epoch}: Refined {n_clusters} transitive clusters (Thr: {current_threshold:.4f}).")
+                    else:
+                        self.logger.info(f"Epoch {epoch}: Clustering ignored (rate: {pos_rate:.2f}) to prevent collapse.")
+                    
+                    model.train()
+
             total_loss = 0
             for batch in loader:
+                # Handle both Siamese and Precomputed datasets
                 if len(batch) == 5:
                     x1, x2, pair_labels, _, _ = batch
-                    labels = None
-                elif len(batch) == 3:
-                    x1, x2, labels = batch
-                    pair_labels = torch.ones(x1.size(0), 1).to(self.device)
                 else:
-                    x1, x2 = batch
-                    pair_labels = torch.ones(x1.size(0), 1).to(self.device)
-                    labels = None
+                    x1, x2, pair_labels = batch[0], batch[1], batch[2]
 
                 x1, x2 = x1.to(self.device), x2.to(self.device)
-                pair_labels = pair_labels.to(self.device)
-
-                method = self.config.contrastive_method.lower()
-                if method in ["byol", "simsiam", "barlow_twins"]:
-                    mask = (pair_labels == 1).flatten()
-                    if not mask.any():
-                        continue
-                    x1, x2, pair_labels = x1[mask], x2[mask], pair_labels[mask]
+                pair_labels = pair_labels.to(self.device).float().view(-1, 1)
 
                 optimizer.zero_grad()
                 outputs = model(x1, x2)
 
+                # 2. Apply Transitive Consistency (Soft approach)
+                transitive_loss = 0.0
+                if sample_to_cluster:
+                    with torch.no_grad():
+                        z1_enc = F.normalize(model.encoder(x1), dim=1)
+                        z2_enc = F.normalize(model.encoder(x2), dim=1)
+                        idx1 = torch.matmul(z1_enc, self._cluster_embeddings.T).argmax(dim=1)
+                        idx2 = torch.matmul(z2_enc, self._cluster_embeddings.T).argmax(dim=1)
+                        c1 = torch.tensor([sample_to_cluster[i.item()] for i in idx1], device=self.device)
+                        c2 = torch.tensor([sample_to_cluster[i.item()] for i in idx2], device=self.device)
+                        # Identify pairs that are in the same cluster but NOT ground-truth positives
+                        is_transitive = (c1 == c2).float().view(-1, 1)
+                        transitive_mask = (is_transitive > 0) & (pair_labels < 0.5)
+
+                    if transitive_mask.any():
+                        # Gently pull these transitive matches together
+                        # We use the projection head outputs for the loss
+                        z1_proj, z2_proj = outputs[0][transitive_mask.flatten()], outputs[1][transitive_mask.flatten()]
+                        # MSE loss toward 1.0 similarity (gentle pull)
+                        transitive_loss = 0.1 * F.mse_loss(F.cosine_similarity(z1_proj, z2_proj), torch.ones_like(F.cosine_similarity(z1_proj, z2_proj)))
+
+                method = self.config.contrastive_method.lower()
                 if method == "simclr":
-                    loss = criterion(*outputs, pair_labels=pair_labels)
+                    loss = criterion(*outputs, pair_labels=pair_labels) + transitive_loss
                 else:
-                    loss = (
-                        criterion(*outputs)
-                        if isinstance(outputs, tuple)
-                        else criterion(outputs)
-                    )
+                    loss = criterion(*outputs) + transitive_loss
 
                 loss.backward()
                 optimizer.step()
